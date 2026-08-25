@@ -1,4 +1,4 @@
-name: Bootstrap complete repository
+name: Publish complete repository
 
 on:
   push:
@@ -6,13 +6,14 @@ on:
       - main
     paths:
       - '.github/workflows/bootstrap.yml'
+      - '.bootstrap-payload/**'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  bootstrap:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -29,146 +30,18 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Reconstruct exact repository contents
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
+      - name: Reconstruct repository
         shell: bash
         run: |
-          python - <<'PY'
-          import base64
-          import hashlib
-          import io
-          import json
-          import os
-          import shutil
-          import tarfile
-          import urllib.request
-          from pathlib import Path
-
-          repository = os.environ['REPOSITORY']
-          token = os.environ['GH_TOKEN']
-          api = f'https://api.github.com/repos/{repository}'
-          headers = {
-              'Accept': 'application/vnd.github+json',
-              'Authorization': f'Bearer {token}',
-              'X-GitHub-Api-Version': '2022-11-28',
-              'User-Agent': 'plan-and-execute-bootstrap',
-          }
-
-          direct_blobs = {
-              '.github/workflows/ci.yml': 'eecba526d23a6b1cf7aa1a345112bea48388ebf8',
-              '.github/workflows/publish.yml': '687ffa3438c013c4dff8285ba2b32a746f906025',
-              '.gitignore': 'be239a02eb52fb20a64dca07ae9f04a0334c14d8',
-              '.npmignore': 'f394cc8e8e12749ee77d114d4bb3227fd9dcaf81',
-              'CHANGELOG.md': '35c8530dd419e380c6aabaa558651b2b17ee65d8',
-              'CONTRIBUTING.md': 'e256fc607b537198506ce176a5b87de1118b21c4',
-              'LICENSE': '2673117de9ed7a5a5a6abd5c4f7e8d19a76b5f90',
-              'README.md': 'ff88a7ab00248e3b12b189bbd2cf241fee7cf5f1',
-              'SECURITY.md': '07614b29d2e2acd20a9d54e91666577225653d69',
-              'bin/plan-and-execute.js': 'f26b5f976295191bcc4bcbc3bcf5454c602f1512',
-              'docs/PUBLISHING.md': '22c9fc82f00f4e9432e1027d9ff2219cc6d72ccb',
-              'lib/installer.js': '3aa439fbcb4eeac1422393520d3f88abe1d530b5',
-              'package-lock.json': '9a285d247350ba94e521afc1b23a795c67e17ef9',
-              'package.json': '1b05e1f7deb05c6065b588cffb086200e01e9922',
-              'skill/plan-and-execute/LICENSE.txt': '2673117de9ed7a5a5a6abd5c4f7e8d19a76b5f90',
-              'skill/plan-and-execute/agents/openai.yaml': 'd8d73b78ae9be4a47b356e269633e555a45e4797',
-              'skill/plan-and-execute/references/INSTALLATION.md': 'f9d4a9bd37f7c15e4f7d05fad0d0219d0a8c9944',
-              'skill/plan-and-execute/references/MODEL_ROUTING.md': 'a00dc1026843d48a79c501034186c741aa667611',
-              'skill/plan-and-execute/references/completion-report.schema.json': 'b78c383f57f1a8c34f86eb9d730b67e72433431e',
-              'skill/plan-and-execute/references/plan-spec.example.json': 'c086e66542749acb3faac993e2804a81dba26138',
-              'tools/run-skill-self-test.js': '0b31ee8ebf7a3c9612ea199e6c768ddeab1ee1b0',
-              'tools/validate-skill.js': '67c16b7857ec9790c25d16caeea1687d376380f3',
-          }
-
-          archive_files = {
-              'skill/plan-and-execute/SKILL.md': '2388691d93853398aab5646b2d78fb273adc9128',
-              'skill/plan-and-execute/references/PLANNING_PROTOCOL.md': '678283af95608f85efde2c0ccade42594fb5ad1b',
-              'skill/plan-and-execute/references/PLAN_SPEC.md': '109c0060494b854fb8529cd24e56091600d3bb45',
-              'skill/plan-and-execute/references/WORKFLOW.md': 'e8928ec683b8bd17a6c390a3b84e7d51d32f6298',
-              'skill/plan-and-execute/scripts/planctl.py': '75c677f92cbc48318a08d50f826ad4a4db419574',
-              'skill/plan-and-execute/scripts/run_isolated.py': '3e7cd518a29a4a3ea4d8faa9e2e7f9c6311e44f6',
-              'skill/plan-and-execute/scripts/self_test.py': 'f8d0a9b8a1168d786db0e85af5a075c28430fd4e',
-              'test/installer.test.js': '83260f27145bee1effb8bea52ce8c3211d5a5cf6',
-          }
-
-          executable = {
-              'bin/plan-and-execute.js',
-              'skill/plan-and-execute/scripts/planctl.py',
-              'skill/plan-and-execute/scripts/run_isolated.py',
-              'skill/plan-and-execute/scripts/self_test.py',
-              'tools/run-skill-self-test.js',
-              'tools/validate-skill.js',
-          }
-
-          def request_json(path: str) -> dict:
-              request = urllib.request.Request(f'{api}{path}', headers=headers)
-              with urllib.request.urlopen(request) as response:
-                  return json.load(response)
-
-          def fetch_blob(sha: str) -> bytes:
-              payload = request_json(f'/git/blobs/{sha}')
-              return base64.b64decode(payload['content'])
-
-          def git_blob_sha(data: bytes) -> str:
-              header = f'blob {len(data)}\0'.encode()
-              return hashlib.sha1(header + data).hexdigest()
-
-          for relative, sha in direct_blobs.items():
-              data = fetch_blob(sha)
-              if git_blob_sha(data) != sha:
-                  raise SystemExit(f'Blob verification failed for {relative}')
-              target = Path(relative)
-              target.parent.mkdir(parents=True, exist_ok=True)
-              target.write_bytes(data)
-
-          tree_sha = 'a501221fe055e7ad1d89ac4eb0a686991908331a'
-          tree = request_json(f'/git/trees/{tree_sha}?recursive=1')['tree']
-          parts = sorted(
-              (entry for entry in tree if entry['type'] == 'blob' and entry['path'].startswith('.bootstrap/hex-part-')),
-              key=lambda entry: entry['path'],
-          )
-          if len(parts) != 19:
-              raise SystemExit(f'Expected 19 main archive chunks, found {len(parts)}')
-
-          archive_hex = ''.join(fetch_blob(entry['sha']).decode().strip() for entry in parts)
-          archive = bytes.fromhex(archive_hex)
-          expected_archive = 'f98c6945e8712b296aa06def7aa9ccab348eb99aec70ebebc0e41b2549fc4f0e'
-          if hashlib.sha256(archive).hexdigest() != expected_archive:
-              raise SystemExit('Main archive SHA-256 mismatch')
-          with tarfile.open(fileobj=io.BytesIO(archive), mode='r:xz') as bundle:
-              bundle.extractall('.', filter='data')
-
-          cli_hex = '''fd377a585a000004e6d6b446020021010c0000008f98419ce16016ff3df5d33039ec4e7196b05c719bb12a483eec5aaf1a4c0228ac6b36c1ee558f301e92b356ab94cdcb46f3455ce8d568da229e62ad6edbf7c921ec89c7df88bb14a9ab38fd0c4490959de3747227589c74919df4421de1df2a281f18576230e5d00fb448c27ee7eab8ad20707cf1aff4e7777cf0db354a866d7e97e7889645d2746fba1f1ace7231f335b2d985a8ee66a369396924e1ca5d95d196a3796f025a77493c4b9a05634ef177676b6f2eb7d751f3ec7b94da6d2905b3d59b51a8abac89456baf0dfc75bedda1817d236d904946916979b60c3131ae25497a1ad313c318d854214cf4d8dd0fda82445117557c7c8f558e7b2de07327291540bcb5e8003e0e1b4bff77565d21ba68d8eeae37ccdc097657a3d2d39b9e8a904ff895ac36250dfb65172f0620311fc34c5d3d2b2b97b0232b4b0756065381e5eb55ae0c06fd851649c5e6f934035fb6ddd0e44f48697d64b553349ee87b53a10aa635d87f8d9d82298b2be82c1eed78446b298810b34df7d982575f65eb7e301fc3701f95a58b28921af61f97ef96d3c0a3d226268a7e293763c49db8cb46c6c90980a64f115d90bb638962f599fc5455f73f649cd6240e62d94d14505f97cfcf7b64682aa4570586a9561c07abf6ae203c4c8e2c24a855ce35a97582f1f29c59c998f37d40bd09845483ada4e5e1fb98146262ebfa89a63252e1b44489dd17f19c683f8b07dd84547700159ce51df1a7a1a67eadb443dbf2f4230aedb39e25d827d3c4d8eb09e627c316673bb6259329601d7387183de004947c3f661044922d55fdd072b5dba8564eda0c85f31b74d7042fc312ec7ae908add5a931216c07feb9d542d59a5ce9bd02383d6247d67470515ee5cf495d247f2d8fa6a5aedfcb96b3f636dedfb38e998fc7d47e306eef4e643813d98f1a0ecbe7f9be9b54fb8be9031dcff4eeea996ab94e8c4e9fec5a1c4411fe3a8937a099150f71e5d15be8ae28e8a506f5bb6bd44850a6154e0ee8abf7f80611e79c029a820d6848532d02e4fd22fc19181cba2d3ac51de9bb27992c2e111de2267b3653ad5cf1d13d99450af88d60492338567a7fd99f6da62b616df95654e1ab4ca574665b491836b9cf17030dc484a638f9fcf725432d08509e3f38453b1bab1864e04aac9eabfac5cde34d7e7ef9011c4a357036ac838d36ed20af912597bca00cd5dc2ba0b69033e3365bbd3d956e4620b16f4171e79946ad2f7eac5b78bce6ecad10adcbf1a9c5e20738bd318bf5d9f1b8f0698e413954d9b9e75c6b14e580d1439be3994c78889b96522fb03e8bf298e34a1b67386854a77909fe73b52f0f24294fa7e540bd7cb00137db9754201722968220a01d72ec984b9283f77ae9dcbf79c66e46b7a48c1f9716183ee09c1fcc1c5eedbeea24fa33c06404279a07aaf2ea56e397645c86281c9041315793e4c90e6fc89c22780a21ae02ec66f016d5dc5e455f27ba9c0d695966617db520edda8b437309db087507120a2aa7f3ec8c54719a51938f4b11f310f9774fc6e74aa2aa3c7fdcbfaeb70c2c2014e8d1746ffad7712c7e3079870ca143a47a7daefc97d8d974d0ba86c69b08762f239fd058025c4ef681e00ed33477e7cbcf2739a202ebd8a62ecb2bb87a03adc55e77aaa5af5b56ae36d3c46337d89fb94bed70c5070d974b4d8b7a43fa224595baed0eef5ab2013c02290de34da402823c0411c3aee67c66c6295453a1b871e32eaa67a0e83ea24d685afc1ba745c4e614571bd64f43dd9cd9c301a0f5405f1b648750ee959facfdff21e9f6726366933b52bd6da004e1101ff975622c4d6632015cc9cb5d890cf7ea86d919c13873d3d548f4490495da4add7d7f4a490a6c4178cbcc7ff09d0a0b30781627cf3701bba3fe7afe0180dd3d70f6a5b120869ca7f73c412307780afc9f16e739893b85d398ff4415fca87fb8868f97ed70610dfe7129cda748b486eec5cdd010a7a61944df85082caf81b93146a0df68e4d2203d8b5ed4d01c5b47b243d970bbfc7100718bbf2ad81096e249cbb25d0de9a2cf8c87f7544c1e4887930ad1d6b374b21dadf85adf47e199bbd2210fd515b0d532f6e216742374dfe3513f1527361667b2885096047d5538f756ea9c42b71fe818d58118d4883f5116577c3dd4803f0b301d705383183e2e527158d54dbd684a73c65100724852148feb9a1d89f8404a91e74df0076280b8b5bbe6d27ae18c75a9f31119958d1800746d6d5ddd7e428b94d29d10ff0b57b921833619a99768584f7cae04dcf06aacb90f5e71333412ae7c9a6ec9c73dba26853bfcd792edbdd43d52724ab658c32b560367c0476501f7ed8f675b91eed6a390e9eaa0276070848c4f1ca99c2a1fc97b8a000000e0cb87c41fb2afc80001c21580a00b00000000c57fb198b1c467fb020000000004595a'''
-          cli_archive = bytes.fromhex(cli_hex)
-          expected_cli = 'ce978fcf298e8fe09e3f20453b1bab2394e04aac9eabfac5cde34d7e7ef9011c'
-          if hashlib.sha256(cli_archive).hexdigest() != expected_cli:
-              raise SystemExit('CLI test archive SHA-256 mismatch')
-          with tarfile.open(fileobj=io.BytesIO(cli_archive), mode='r:xz') as bundle:
-              bundle.extractall('.', filter='data')
-
-          expected_files = {
-              **direct_blobs,
-              **archive_files,
-              'test/cli.test.js': 'b684f72b4af1e04e4be0b16e6c1dd440c745ced2',
-          }
-          if len(expected_files) != 31:
-              raise SystemExit(f'Expected 31 repository files, got {len(expected_files)}')
-
-          for relative, expected_sha in expected_files.items():
-              target = Path(relative)
-              if not target.is_file():
-                  raise SystemExit(f'Missing reconstructed file: {relative}')
-              actual_sha = git_blob_sha(target.read_bytes())
-              if actual_sha != expected_sha:
-                  raise SystemExit(f'Git blob mismatch for {relative}: {actual_sha}')
-              target.chmod(0o755 if relative in executable else 0o644)
-
-          bootstrap = Path('.github/workflows/bootstrap.yml')
-          if bootstrap.exists():
-              bootstrap.unlink()
-          shutil.rmtree('.bootstrap', ignore_errors=True)
-          PY
+          cat .bootstrap-payload/chunk-* > /tmp/repo.zip.b64
+          base64 --decode /tmp/repo.zip.b64 > /tmp/repo.zip
+          echo '264a8445cc16651a54ae9c44c5c30cc3e7d3f21a4f6d2674b90d6c89fc5c3277  /tmp/repo.zip' | sha256sum --check --strict
+          rm -rf /tmp/extract
+          mkdir -p /tmp/extract
+          unzip -q /tmp/repo.zip -d /tmp/extract
+          test -f /tmp/extract/plan-and-execute/package.json
+          rsync -a --delete --exclude='.git' /tmp/extract/plan-and-execute/ ./
+          chmod +x bin/plan-and-execute.js skill/plan-and-execute/scripts/*.py tools/*.js
 
       - name: Install dependencies
         run: npm ci
