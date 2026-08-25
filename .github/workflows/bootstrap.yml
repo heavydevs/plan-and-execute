@@ -33,7 +33,28 @@ jobs:
       - name: Reconstruct repository
         shell: bash
         run: |
-          cat .bootstrap-payload/chunk-* > /tmp/repo.zip.b64
+          cat \
+            .bootstrap-payload/chunk-001 \
+            .bootstrap-payload/chunk-002 \
+            .bootstrap-payload/chunk-003a \
+            .bootstrap-payload/chunk-003b \
+            .bootstrap-payload/chunk-003c \
+            .bootstrap-payload/chunk-003d \
+            .bootstrap-payload/chunk-004 \
+            .bootstrap-payload/chunk-005 \
+            .bootstrap-payload/chunk-006 \
+            .bootstrap-payload/chunk-007a \
+            .bootstrap-payload/chunk-007b-1 \
+            .bootstrap-payload/chunk-007b-2 \
+            .bootstrap-payload/chunk-007b-3 \
+            .bootstrap-payload/chunk-007b-4 \
+            .bootstrap-payload/chunk-007c-1 \
+            .bootstrap-payload/chunk-007c-2 \
+            .bootstrap-payload/chunk-007c-3 \
+            .bootstrap-payload/chunk-007c-4 \
+            .bootstrap-payload/chunk-007d-1 \
+            .bootstrap-payload/chunk-007d-2 \
+            > /tmp/repo.zip.b64
           base64 --decode /tmp/repo.zip.b64 > /tmp/repo.zip
           echo '264a8445cc16651a54ae9c44c5c30cc3e7d3f21a4f6d2674b90d6c89fc5c3277  /tmp/repo.zip' | sha256sum --check --strict
           rm -rf /tmp/extract
