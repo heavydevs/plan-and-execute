@@ -1,0 +1,7 @@
+node_modules/
+*.tgz
+coverage/
+.DS_Store
+__pycache__/
+*.pyc
+.ai-work/

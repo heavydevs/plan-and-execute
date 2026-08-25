@@ -1,0 +1,152 @@
+{
+  "title": "Implement a bounded feature",
+  "summary": "Study the repository, implement the feature as traceable leaf tasks, and validate behavior plus automated coverage.",
+  "language": "auto",
+  "request_analysis": {
+    "request_parts": [
+      {
+        "id": "P001",
+        "text": "Add the requested observable behavior without breaking the existing public contract."
+      },
+      {
+        "id": "P002",
+        "text": "Add deterministic automated coverage for the normal path and the main edge case."
+      }
+    ],
+    "repository_findings": [
+      "The existing behavior is implemented under src/example.ext.",
+      "The repository test convention is represented by test/example_test.ext and the project test command."
+    ],
+    "research_decision": "No external research is required because the relevant behavior and test conventions are fully defined by this repository.",
+    "research_findings": [],
+    "assumptions": [
+      "The public interface must remain backward compatible."
+    ],
+    "risks": [
+      "An implementation-only change could miss the existing edge-case behavior."
+    ],
+    "open_questions": [],
+    "decomposition_strategy": "Separate the production behavior from its independently verifiable automated coverage while preserving a dependency from tests to the implemented contract."
+  },
+  "requirements": [
+    {
+      "id": "R001",
+      "text": "Provide the requested observable behavior while preserving the existing public contract.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P001"
+      ]
+    },
+    {
+      "id": "R002",
+      "text": "Add deterministic automated tests for the normal path and the main edge case.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P002"
+      ]
+    }
+  ],
+  "global_constraints": [
+    "Do not reformat unrelated files.",
+    "Preserve unrelated working-tree changes."
+  ],
+  "plan_review": {
+    "status": "approved",
+    "reviewer": "fresh planning reviewer",
+    "rounds": 1,
+    "coverage_complete": true,
+    "tasks_atomic": true,
+    "dependencies_valid": true,
+    "validations_sufficient": true,
+    "unresolved_findings": [],
+    "notes": [
+      "Confirmed that both request parts map to requirements and executable TODOs.",
+      "Confirmed that production behavior and automated coverage have separate validation boundaries.",
+      "Confirmed that no TODO is extreme and the dependency graph is acyclic."
+    ]
+  },
+  "autostart": true,
+  "cleanup_on_success": true,
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Implement the core behavior",
+      "objective": "Add the bounded production change that provides the requested behavior without changing the public contract.",
+      "requirement_ids": [
+        "R001"
+      ],
+      "complexity": "medium",
+      "atomicity_rationale": "This leaf has one production outcome, a bounded implementation surface, and a direct behavior validation; automated coverage is a separate dependent outcome.",
+      "scope": {
+        "in": [
+          "Core implementation and directly required local adjustments"
+        ],
+        "out": [
+          "Automated test expansion",
+          "Unrelated refactors"
+        ],
+        "expected_files": [
+          "src/example.ext"
+        ]
+      },
+      "dependencies": [],
+      "implementation_guidance": [
+        "Follow existing repository patterns and preserve compatibility"
+      ],
+      "acceptance_criteria": [
+        "The requested behavior is observable through the existing public interface.",
+        "Existing supported behavior remains compatible."
+      ],
+      "validation_commands": [
+        "<targeted-existing-test-command>",
+        "git diff --check"
+      ],
+      "provider": "auto",
+      "model_tier": "standard",
+      "reasoning_effort": "medium"
+    },
+    {
+      "id": 2,
+      "title": "Add automated coverage",
+      "objective": "Add deterministic tests for the new behavior, compatibility expectation, and main edge case.",
+      "requirement_ids": [
+        "R001",
+        "R002"
+      ],
+      "complexity": "medium",
+      "atomicity_rationale": "This leaf owns one verification outcome and can be accepted independently by running the focused and full project test commands.",
+      "scope": {
+        "in": [
+          "Focused automated tests and directly required fixtures"
+        ],
+        "out": [
+          "Production redesign",
+          "Unrelated test cleanup"
+        ],
+        "expected_files": [
+          "test/example_test.ext"
+        ]
+      },
+      "dependencies": [
+        1
+      ],
+      "implementation_guidance": [
+        "Cover success, compatibility, and the main edge case deterministically"
+      ],
+      "acceptance_criteria": [
+        "Focused tests prove the requested behavior and main edge case.",
+        "The full project test suite remains green."
+      ],
+      "validation_commands": [
+        "<focused-test-command>",
+        "<project-test-command>",
+        "git diff --check"
+      ],
+      "provider": "auto",
+      "model_tier": "standard",
+      "reasoning_effort": "medium"
+    }
+  ]
+}

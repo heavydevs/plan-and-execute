@@ -1,0 +1,51 @@
+{
+  "name": "@luizcgvrj/plan-and-execute",
+  "version": "0.2.0",
+  "description": "Install the plan-and-execute skill for deep request analysis, traceable recursive planning, and isolated Claude Code or Codex execution.",
+  "type": "module",
+  "bin": {
+    "plan-and-execute": "bin/plan-and-execute.js",
+    "pae": "bin/plan-and-execute.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "skill/",
+    "docs/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "validate:skill": "node tools/validate-skill.js",
+    "test:node": "node --test test/*.test.js",
+    "test:skill": "node tools/run-skill-self-test.js",
+    "test": "npm run test:node && npm run test:skill",
+    "check": "npm run validate:skill && npm test",
+    "prepack": "npm run check"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luizcgvrj/plan-and-execute.git"
+  },
+  "homepage": "https://github.com/luizcgvrj/plan-and-execute#readme",
+  "bugs": {
+    "url": "https://github.com/luizcgvrj/plan-and-execute/issues"
+  },
+  "keywords": [
+    "agent-skill",
+    "claude-code",
+    "codex",
+    "orchestration",
+    "planning",
+    "vscode"
+  ],
+  "author": "Luiz Valenca",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

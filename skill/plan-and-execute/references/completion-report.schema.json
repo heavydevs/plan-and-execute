@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["completed", "blocked"]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "changed_files": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "validations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "command": {"type": "string"},
+          "passed": {"type": "boolean"},
+          "details": {"type": "string"}
+        },
+        "required": ["command", "passed", "details"],
+        "additionalProperties": false
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "follow_ups": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "related_task_reads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "string"},
+          "reason": {"type": "string"}
+        },
+        "required": ["task_id", "reason"],
+        "additionalProperties": false
+      }
+    },
+    "blocked_reason": {
+      "type": ["string", "null"]
+    }
+  },
+  "required": [
+    "status",
+    "summary",
+    "changed_files",
+    "validations",
+    "risks",
+    "follow_ups",
+    "related_task_reads",
+    "blocked_reason"
+  ],
+  "additionalProperties": false
+}
