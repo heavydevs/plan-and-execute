@@ -62,6 +62,8 @@ jobs:
           unzip -q /tmp/repo.zip -d /tmp/extract
           test -f /tmp/extract/plan-and-execute/package.json
           rsync -a --delete --exclude='.git' /tmp/extract/plan-and-execute/ ./
+          rm -f .github/workflows/ci.yml .github/workflows/publish.yml
+          git checkout -- .github/workflows/bootstrap.yml
           chmod +x bin/plan-and-execute.js skill/plan-and-execute/scripts/*.py tools/*.js
 
       - name: Install dependencies
