@@ -63,6 +63,9 @@ jobs:
           echo "240c9ec9cd4d0d515fb91fadce0942e8cbe721130e67f6287554f8efdc1f4902  /tmp/adaptive-study-update.tar.xz" \
             | sha256sum --check --strict
           tar -xJf /tmp/adaptive-study-update.tar.xz -C "${GITHUB_WORKSPACE}"
+          sed -i \
+            's/Before drafting requirements or TODOs, perform mandatory internal repository study, explicitly assess adaptive external-research triggers,/Before drafting requirements or TODOs, run the adaptive study gate: perform mandatory internal repository study, explicitly assess external-research triggers,/' \
+            skill/plan-and-execute/agents/openai.yaml
           rm -f .github/workflows/apply-adaptive-study-update.yml
           chmod +x \
             skill/plan-and-execute/scripts/studyctl.py \
