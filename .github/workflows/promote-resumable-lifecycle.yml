@@ -1,0 +1,109 @@
+name: Validate and promote resumable lifecycle
+
+on:
+  push:
+    branches:
+      - feat/resumable-lifecycle
+    paths:
+      - .github/workflows/promote-resumable-lifecycle.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate-and-promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out lifecycle branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Materialize final lifecycle source
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -f tools/apply_lifecycle_code.py ]]; then
+            python3 tools/apply_lifecycle_code.py
+          fi
+          if [[ -f tools/apply_lifecycle_docs.py ]]; then
+            python3 tools/apply_lifecycle_docs.py
+          fi
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          lifecycle = Path("skill/plan-and-execute/scripts/lifecyclectl.py")
+          text = lifecycle.read_text(encoding="utf-8")
+          if 'Path(f"/proc/{numeric}/stat")' not in text:
+              anchor = '''    except OSError:\n        return False\n    return True\n\n\ndef read_lease'''
+              replacement = '''    except OSError:\n        return False\n    # A terminated child can remain as a zombie until its parent reaps it.\n    # Treat that state as stopped so cancellation does not escalate needlessly.\n    if os.name != "nt":\n        process_stat = Path(f"/proc/{numeric}/stat")\n        try:\n            fields = process_stat.read_text(encoding="utf-8", errors="replace").split()\n        except OSError:\n            fields = []\n        if len(fields) > 2 and fields[2] == "Z":\n            return False\n    return True\n\n\ndef read_lease'''
+              if anchor not in text:
+                  raise SystemExit("pid_is_alive anchor not found")
+              text = text.replace(anchor, replacement, 1)
+          lifecycle.write_text(text, encoding="utf-8")
+
+          runner = Path("skill/plan-and-execute/scripts/run_isolated.py")
+          runner_text = runner.read_text(encoding="utf-8")
+          if "def validate_attached_study_before_resume" not in runner_text:
+              wrapper_anchor = '''def run_plan(args: argparse.Namespace) -> int:\n    """Run or resume a plan under an atomic lease."""\n'''
+              helper = '''def validate_attached_study_before_resume(plan_dir: Path) -> None:\n    """Revalidate attached evidence before any resumed implementation work."""\n    if not (plan_dir / "study.json").is_file():\n        return\n    completed = subprocess.run(\n        [\n            sys.executable,\n            str(SCRIPT_DIR / "studyctl.py"),\n            "validate-plan",\n            "--plan",\n            str(plan_dir),\n        ],\n        cwd=Path(planctl.load_plan(plan_dir)[1]["repo_root"]),\n        text=True,\n        encoding="utf-8",\n        errors="replace",\n        stdout=subprocess.PIPE,\n        stderr=subprocess.STDOUT,\n    )\n    if completed.returncode != 0:\n        raise RunnerError(\n            "Attached study validation failed before resume:\\n"\n            + (completed.stdout or "no validation output")\n        )\n\n\n'''
+              if wrapper_anchor not in runner_text:
+                  raise SystemExit("run_plan lifecycle wrapper anchor not found")
+              runner_text = runner_text.replace(wrapper_anchor, helper + wrapper_anchor, 1)
+              call_anchor = '''    lifecyclectl.activate_plan(plan_dir)\n    with lifecyclectl.runner_lease(plan_dir):\n        recovered = lifecyclectl.recover_interrupted_tasks(\n'''
+              call_replacement = '''    lifecyclectl.activate_plan(plan_dir)\n    with lifecyclectl.runner_lease(plan_dir):\n        validate_attached_study_before_resume(plan_dir)\n        recovered = lifecyclectl.recover_interrupted_tasks(\n'''
+              if call_anchor not in runner_text:
+                  raise SystemExit("run_plan resume validation call anchor not found")
+              runner_text = runner_text.replace(call_anchor, call_replacement, 1)
+          runner.write_text(runner_text, encoding="utf-8")
+          PY
+
+          chmod +x \
+            bin/plan-and-execute.js \
+            tools/run-skill-self-test.js \
+            skill/plan-and-execute/scripts/lifecyclectl.py \
+            skill/plan-and-execute/scripts/lifecycle_self_test.py \
+            skill/plan-and-execute/scripts/run_isolated.py
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run complete validation suite
+        run: npm run check
+
+      - name: Verify npm package contents
+        run: npm pack --dry-run --ignore-scripts
+
+      - name: Promote only the validated clean tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f \
+            .github/workflows/export-source-update.yml \
+            .github/workflows/apply-resumable-lifecycle.yml \
+            .github/workflows/finalize-resumable-lifecycle.yml \
+            .github/workflows/promote-resumable-lifecycle.yml \
+            tools/apply_lifecycle_code.py \
+            tools/apply_lifecycle_docs.py
+          git diff --check
+          git add -A
+          git diff --cached --check
+          tree=$(git write-tree)
+          parent=$(git rev-parse origin/main)
+          commit=$(printf '%s\n' "feat: add resumable implementation lifecycle" | git commit-tree "$tree" -p "$parent")
+          git push origin "$commit:refs/heads/main"
+          git push --force origin "$commit:refs/heads/${GITHUB_REF_NAME}"
