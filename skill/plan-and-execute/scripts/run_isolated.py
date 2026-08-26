@@ -14,6 +14,7 @@ import os
 import re
 import shlex
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -26,6 +27,7 @@ SKILL_DIR = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 import planctl  # noqa: E402
+import lifecyclectl  # noqa: E402
 
 TIER_ORDER = ["economy", "standard", "strong", "max"]
 EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"]
@@ -191,14 +193,16 @@ Attempt: {task['attempts'] + 1}
 Route: {route['provider']} / {route['model']} / effort {route['effort']}
 
 Mandatory isolation rules:
-1. Read the assigned task definition first. It is the only planning definition assigned to you.
-2. Do not open PLAN.md, TODO.md, manifest.json, orchestrator.config.json, result files, logs, or any other task definition under {plan_dir}.
-3. You may read and edit repository source, tests, build files, and runtime output needed for this task.
-4. Existing changes in the working tree may belong to earlier completed tasks. Preserve them and do not broadly revert or reformat unrelated code.
-5. Open another task definition only when the assigned definition explicitly permits its id and a dependency, ambiguity, or validation conflict makes it necessary. Report the id and reason.
-6. Implement only this task, run its required validation commands, and avoid speculative work outside scope.
-7. Do not edit any planning artifact. The orchestrator owns plan state.
-8. Do not ask for conversational context. When blocked, stop safely and report the concrete blocker.
+1. Read the assigned task definition first. It is the only task definition assigned to you.
+2. Then read every file listed under `Assigned execution context` in that task definition. Read no other context file.
+3. Do not open PLAN.md, TODO.md, manifest.json, orchestrator.config.json, result files, logs, or any unassigned task definition under {plan_dir}.
+4. You may read and edit repository source, tests, build files, and runtime output needed for this task.
+5. Existing changes in the working tree may belong to earlier completed tasks. Preserve them and do not broadly revert or reformat unrelated code.
+6. Open another task definition only when the assigned definition explicitly permits its id and a dependency, ambiguity, or validation conflict makes it necessary. Report the id and reason.
+7. Implement only this task, run its required validation commands, and avoid speculative work outside scope.
+8. Do not edit any planning or context artifact. The orchestrator owns plan state.
+9. Do not ask for conversational context. When blocked, stop safely and report the concrete blocker.
+10. Report `context_files_read` using the plan-relative names from the task frontmatter, such as `CONTEXT.md` or `contexts/topic.md`; use an empty list when none are assigned.
 
 Return only the completion report requested by the configured JSON schema. Use status "completed" only when the task is implemented and its required checks pass; otherwise use "blocked".
 """
@@ -576,6 +580,16 @@ def execute_one_task(
             planctl.fail_task(plan_dir, manifest, task["id"], reason)
             print(f"[task {task['id']}] invalid report; route will escalate on retry", file=sys.stderr)
             return False
+        expected_context_files = list(task.get("context_files", []))
+        reported_context_files = report.get("context_files_read")
+        if reported_context_files != expected_context_files:
+            reason = (
+                "Worker context report mismatch: expected "
+                f"{expected_context_files!r}, received {reported_context_files!r}"
+            )
+            planctl.fail_task(plan_dir, manifest, task["id"], reason)
+            print(f"[task {task['id']}] context assignment was not acknowledged", file=sys.stderr)
+            return False
         if report.get("status") != "completed":
             reason = str(report.get("blocked_reason") or report.get("summary") or "Worker reported blocked")
             if is_rate_limited(reason):
@@ -784,7 +798,7 @@ def generate_final_summary(
         return fallback, output_path.relative_to(plan_dir).as_posix()
 
 
-def run_plan(args: argparse.Namespace) -> int:
+def _run_plan(args: argparse.Namespace) -> int:
     plan_dir, manifest = planctl.load_plan(args.plan)
     planctl.require_valid(plan_dir, manifest)
     config = load_config(plan_dir)
@@ -841,6 +855,9 @@ def run_plan(args: argparse.Namespace) -> int:
             and bool(config.get("auto_cleanup", True))
             and bool(manifest.get("cleanup_on_success", True))
         )
+        # Terminal work must never block the next default invocation, even when
+        # the completed plan is intentionally retained for inspection.
+        lifecyclectl.clear_active(plan_dir)
         if should_cleanup:
             planctl.cleanup_plan(plan_dir, manifest)
             print("\n[cleanup] Planning artifacts deleted; implementation files were preserved.")
@@ -859,6 +876,37 @@ def run_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+
+def run_plan(args: argparse.Namespace) -> int:
+    """Run or resume a plan under an atomic lease."""
+    plan_dir, _ = planctl.load_plan(args.plan)
+    lifecyclectl.activate_plan(plan_dir)
+    with lifecyclectl.runner_lease(plan_dir):
+        recovered = lifecyclectl.recover_interrupted_tasks(
+            plan_dir,
+            allow_live_lease=True,
+        )
+        if recovered:
+            print(
+                f"[resume] Recovered {recovered} interrupted task(s); "
+                "partial repository changes were preserved.",
+                flush=True,
+            )
+        return _run_plan(args)
+
+
+def _interrupt_on_signal(signum: int, frame: object) -> None:
+    del signum, frame
+    raise KeyboardInterrupt
+
+
+def install_signal_handlers() -> None:
+    if hasattr(signal, "SIGTERM"):
+        try:
+            signal.signal(signal.SIGTERM, _interrupt_on_signal)
+        except (OSError, ValueError):
+            pass
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--plan", required=True, help="Path to the plan workspace")
@@ -871,6 +919,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
+    install_signal_handlers()
     args = build_parser().parse_args()
     try:
         return run_plan(args)

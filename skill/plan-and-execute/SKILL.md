@@ -1,21 +1,49 @@
 ---
 name: plan-and-execute
-description: Deeply study a large software request and its repository, pass an adaptive evidence gate before planning, create a requirements-traceable execution plan, and execute it as small isolated resumable TODOs with deterministic validation, Claude Code/Codex routing, evidence-based escalation, economical summarization, and safe cleanup. Use for long implementations, migrations, refactors, multi-workstream features, architecture-sensitive or test-heavy changes, and requests that must be decomposed without losing requirements or polluting worker context. Also use without arguments for guided request capture or with a requirements file path.
+description: Deeply study a large software request and its repository, pass an adaptive evidence gate, create a requirements-traceable plan with deliberately minimal global or task-scoped execution context, and execute isolated resumable TODOs with deterministic validation, active-plan discovery, guarded cancellation, Claude Code/Codex routing, and safe cleanup. Use for long implementations, migrations, refactors, multi-workstream or test-heavy changes, for resuming an unfinished implementation, for cancelling/resetting plan state, without arguments to resume-or-create a guided request, or with a requirements file path.
 ---
 
 # Plan and Execute
 
-Resolve the complete request, study internal and conditionally external evidence, prove that the evidence is sufficient before drafting requirements or TODOs, build and review a traceable plan, then execute one isolated verifiable TODO at a time.
+Resolve the complete request, study internal and conditionally external evidence, prove that the evidence is sufficient before drafting requirements or TODOs, build and review a traceable plan, then execute one isolated verifiable TODO at a time. Treat persisted lifecycle state as authoritative so an interrupted implementation can resume without prior chat context.
+
+## Route lifecycle commands before request interpretation
+
+When the complete invocation argument is exactly one of these commands, handle it before file-path or inline-request rules:
+
+- `current` or `status`: run `lifecyclectl.py current --repo-root . --json` and report the active implementation.
+- `resume` or `continue`: discover, recover, validate, and continue the active implementation. Prefer native fresh workers when nested provider sessions are prohibited; otherwise `pae resume` or `lifecyclectl.py resume` provides strict process isolation.
+- `cancel`: run `lifecyclectl.py cancel --repo-root . --json`. This deletes the active plan, task definitions, logs, results, intake draft, and lifecycle status while preserving repository implementation changes.
+- `reset`: run `lifecyclectl.py reset --repo-root . --json` to remove every recognized plan-and-execute artifact in this workspace while preserving repository implementation changes.
+
+Do not reinterpret these exact commands as software requirements. Read [references/LIFECYCLE.md](references/LIFECYCLE.md) before resume, cancellation, or reset operations.
 
 ## Resolve the request before study or planning
 
 Treat invocation input in this order.
 
-### 1. No arguments: create an editable request draft
+### 1. No arguments: resume an implementation or create a request
 
-When invoked with no request text or file path:
+When invoked with no request text or file path, inspect lifecycle state before creating anything:
 
-1. Run from the repository root:
+```bash
+python <skill-dir>/scripts/lifecyclectl.py current --repo-root . --json
+```
+
+- When the result has `action: resume`, reload the plan and manifest from the returned path, recover stale `in_progress` tasks, rerun the study and plan gates, and continue from the next runnable TODO. Do not create another request.
+- When the result has `action: already_running`, report the live runner and do not start a duplicate worker.
+- When discovery reports multiple unfinished plans, stop and identify the ambiguity; never choose silently.
+- Only when the result has `action: create_request`, use the guided intake steps below.
+
+For native resume, run `lifecyclectl.py recover --plan <active-plan> --json` before loading the next TODO. For strict process-isolated resume, run `pae resume` or:
+
+```bash
+python <skill-dir>/scripts/lifecyclectl.py resume --repo-root .
+```
+
+When no implementation is active, create the request draft from the repository root:
+
+1. Run:
 
 ```bash
 python <skill-dir>/scripts/requestctl.py create --repo-root . --json
@@ -103,10 +131,12 @@ Treat the complete argument text as the request. Preserve every detail, example,
 - Recursively split work until each TODO has one coherent outcome and an independent validation path.
 - Reject executable `extreme` work and split it further.
 - Require a substantive atomicity rationale for every `high` complexity TODO.
-- Review the study and the plan in fresh contexts whenever supported.
+- Evaluate progressive execution context only after the draft TODO graph exists: create `CONTEXT.md` only for universal indispensable information, create scoped files only for at least two but not all TODOs, keep single-task information in that task definition, and otherwise omit shared context.
+- Ground every context item in evidence, keep it one-line and operational, and reject duplication or prose summaries.
+- Review the study and the plan in fresh contexts whenever supported; require `plan_review.contexts_minimal` to be true for schema v3.
 - Do not autostart until `studyctl.py validate-plan`, `planctl.py validate`, and `planctl.py audit` all succeed.
 
-Read [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md) before collecting evidence. Then read [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md) before drafting the plan.
+Read [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md) before collecting evidence. Then read [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md) before drafting the plan and [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md) before deciding shared worker context.
 
 ## Pass the adaptive study gate before planning
 
@@ -137,11 +167,17 @@ If the study is blocked or not ready, do not plan. Resolve the gap, record a bou
 7. Group requirements into workstreams and recursively split each into executable leaf TODOs.
 8. Include every synthesized validation implication in at least one task acceptance criterion, implementation note, or validation command.
 9. Give every TODO one objective, mapped requirements, complexity, atomicity rationale, scope boundaries, dependencies, expected files, acceptance criteria, validation commands, provider preference, model tier, and reasoning effort.
-10. Start a fresh plan reviewer with the request, compact evidence, requirements, and draft graph, but no implementation assignment.
-11. Revise until coverage, atomicity, dependencies, and validation all pass with no unresolved findings.
-12. Write `/tmp/plan-spec.json` following [references/PLAN_SPEC.md](references/PLAN_SPEC.md).
-13. Create the plan with the correct request-file mode from the input rules.
-14. Attach the validated study and prove that its findings affected the plan:
+10. Evaluate progressive execution context using [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md):
+    - explicitly choose `create` or `omit` for global `CONTEXT.md`;
+    - place only information needed by every TODO in global context;
+    - create a scoped `contexts/<topic>.md` only when the same information is needed by at least two and fewer than all TODOs;
+    - keep information for a single TODO inside its task definition;
+    - include concise `necessity` and grounded `source_refs` for every context item.
+11. Start a fresh plan reviewer with the request, compact evidence, requirements, draft graph, and execution-context proposal, but no implementation assignment.
+12. Revise until coverage, atomicity, dependencies, validation, and `contexts_minimal` all pass with no unresolved findings.
+13. Write `/tmp/plan-spec.json` following [references/PLAN_SPEC.md](references/PLAN_SPEC.md).
+14. Create the plan with the correct request-file mode from the input rules.
+15. Attach the validated study and prove that its findings affected the plan:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py attach \
@@ -149,7 +185,7 @@ python <skill-dir>/scripts/studyctl.py attach \
   --plan .ai-work/<plan-id>
 ```
 
-15. Run all quality gates:
+16. Run all quality gates:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py validate-plan --plan .ai-work/<plan-id>
@@ -157,7 +193,13 @@ python <skill-dir>/scripts/planctl.py validate --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl.py audit --plan .ai-work/<plan-id>
 ```
 
-16. Start execution immediately after all gates pass unless a genuine safety gate requires approval.
+17. Register the validated plan as the active implementation:
+
+```bash
+python <skill-dir>/scripts/lifecyclectl.py activate   --plan .ai-work/<plan-id> --json
+```
+
+18. Start execution immediately after all gates pass unless a genuine safety gate requires approval.
 
 Do not replace analysis with a shallow checklist. Do not use generic TODOs such as "implement everything" or "finish migration." Split by independently failing outcomes and validation boundaries, not by arbitrary file count.
 
@@ -174,9 +216,15 @@ Do not replace analysis with a shallow checklist. Do not use generic TODOs such 
 ## Non-negotiable execution contract
 
 - Store planning state only under `.ai-work/<plan-id>/`.
-- Preserve `study.json`, `STUDY.md`, `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, and one definition per TODO; include `REQUEST.md` when input came from a file.
+- Preserve `study.json`, `STUDY.md`, `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, optional `CONTEXT.md`, optional scoped files under `contexts/`, and one definition per TODO; include `REQUEST.md` when input came from a file.
 - Treat `manifest.json` as the source of truth and update task state only through `planctl.py`.
-- Give each implementation worker exactly one task-definition path. Do not pass the parent chat, whole plan, study files, analysis files, or future task definitions.
+- Treat `.ai-work/.active-plan.json` only as a discoverable pointer; `manifest.json` remains authoritative.
+- Persist every transition before dispatching another worker so a new invocation can resume without chat history.
+- Recover an orphaned `in_progress` task to `pending` without incrementing technical failures; preserve partial source changes for the next worker and deterministic validation.
+- Never start a native worker while a live external runner lease exists.
+- Give each implementation worker exactly one task-definition path plus only the files listed under `Assigned execution context` in that task definition. Do not pass the parent chat, whole plan, study files, analysis files, future task definitions, or unassigned context files.
+- Require the worker to report the exact assigned paths in `context_files_read`; reject missing or extra context reads.
+- Treat context artifacts as immutable planning files.
 - Permit workers to read repository source, tests, build files, and runtime output relevant to their task.
 - Permit another task definition only when allowlisted and needed for a dependency, ambiguity, or validation conflict; record the reason.
 - Re-run every deterministic validation command outside the worker before marking success.
@@ -193,22 +241,28 @@ Do not replace analysis with a shallow checklist. Do not use generic TODOs such 
 
 Use inside an active Claude Code or Codex IDE/CLI chat.
 
-1. Keep study, planning, review, and state management in the orchestrator thread.
-2. Dispatch one fresh native worker for the next runnable task.
-3. Pass only the task-definition path, task id, repository root, isolation rules, and completion-report contract.
-4. Route model tier and reasoning effort when supported.
-5. Receive the bounded completion report.
-6. Re-run validation in the orchestrator and update state.
+1. Rediscover the active plan and reload `manifest.json` from disk on every invocation; do not rely on prior chat context for execution state.
+2. Keep study, planning, review, and state management in the orchestrator thread.
+3. Dispatch one fresh native worker for the next runnable task.
+4. Pass only the task-definition path, task id, repository root, isolation rules, completion-report contract, and the context assignments already referenced by the task definition.
+5. Require the fresh worker to read every assigned context file and no unassigned context file.
+6. Route model tier and reasoning effort when supported.
+7. Receive the bounded completion report.
+8. Re-run validation in the orchestrator and update state.
 
 Do not recursively launch the same CLI when nested sessions are prohibited.
 
 ### Strict external-runner mode
 
-Use `scripts/run_isolated.py` from an external terminal when fresh processes, automatic rate-limit waiting, or exact CLI routing are required:
+Use the lifecycle-aware wrapper from an external terminal when fresh processes, automatic interruption recovery, an atomic runner lease, automatic rate-limit waiting, or exact CLI routing are required:
 
 ```bash
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
+pae resume
+# or
+python <skill-dir>/scripts/lifecyclectl.py resume --repo-root .
 ```
+
+The wrapper discovers the active plan, replaces only a stale lease, returns orphaned `in_progress` tasks to `pending` without counting a technical failure, and then delegates to `run_isolated.py`.
 
 Read [references/WORKFLOW.md](references/WORKFLOW.md) for both modes and [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md) before routing or escalation.
 
@@ -218,9 +272,9 @@ Read [references/WORKFLOW.md](references/WORKFLOW.md) for both modes and [refere
 2. Get the next runnable task with `planctl.py next --json`.
 3. Select and record the actual route.
 4. Claim the task.
-5. Spawn a fresh worker with only its definition.
-6. Require a report matching `references/completion-report.schema.json`.
-7. Re-run every validation command from the repository root.
+5. Spawn a fresh worker with only its definition and the exact context files assigned there.
+6. Require a report matching `references/completion-report.schema.json`, including exact `context_files_read`.
+7. Reject the report when assigned and reported context reads differ, then re-run every validation command from the repository root.
 8. Mark success only after deterministic validation passes.
 9. On technical failure, record evidence and retry with the next escalation route.
 10. On usage or rate limits, preserve state and resume without increasing technical-failure count.
@@ -236,20 +290,30 @@ Do not stop after merely writing a plan when `autostart` is true.
 3. Include outcomes, important files, validation evidence, remaining risks, and follow-ups without claiming unrecorded tests.
 4. Mark the summary generated.
 5. Return the summary before cleanup.
-6. Run guarded cleanup:
+6. Clear active lifecycle state as soon as the final summary is durably marked generated:
+
+```bash
+python <skill-dir>/scripts/lifecyclectl.py deactivate   --plan .ai-work/<plan-id> --json
+```
+
+7. Run guarded cleanup:
 
 ```bash
 python <skill-dir>/scripts/planctl.py cleanup --plan .ai-work/<plan-id>
 ```
+
+If cleanup is interrupted after summary generation, the next default invocation must clear the terminal pointer and allow a new request. A retained completed plan is history, not active work.
 
 Retain the plan for diagnosis if completion, validation, or summarization fails.
 
 ## Reference map
 
 - Request-file and editor workflow: [references/INTAKE.md](references/INTAKE.md)
+- Resumable lifecycle, default resume, leases, cancellation, and reset: [references/LIFECYCLE.md](references/LIFECYCLE.md)
 - Adaptive internal and external study gate: [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md)
 - Study-spec example: [references/study-spec.example.json](references/study-spec.example.json)
 - Deep planning and decomposition: [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md)
+- Minimal global and task-scoped worker context: [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md)
 - Plan schema and example: [references/PLAN_SPEC.md](references/PLAN_SPEC.md)
 - Native and strict execution: [references/WORKFLOW.md](references/WORKFLOW.md)
 - Model routing and escalation: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)

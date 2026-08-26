@@ -80,3 +80,25 @@ test('CLI returns a distinct safety exit code for modified installs', () => {
     fs.rmSync(workspace, { recursive: true, force: true });
   }
 });
+
+
+test('CLI lifecycle commands are workspace-aware and automation friendly', () => {
+  const workspace = temporaryDirectory();
+  try {
+    const current = run(['current', '--cwd', workspace, '--json']);
+    assert.equal(current.status, 0, current.stderr);
+    const currentPayload = JSON.parse(current.stdout);
+    assert.equal(currentPayload.status, 'idle');
+    assert.equal(currentPayload.action, 'create_request');
+    const cancel = run(['cancel', '--cwd', workspace, '--json']);
+    assert.equal(cancel.status, 0, cancel.stderr);
+    const cancelPayload = JSON.parse(cancel.stdout);
+    assert.equal(cancelPayload.status, 'idle');
+    assert.equal(cancelPayload.implementation_changes_preserved, true);
+    const reset = run(['reset', '--cwd', workspace, '--json']);
+    assert.equal(reset.status, 0, reset.stderr);
+    assert.equal(JSON.parse(reset.stdout).status, 'idle');
+  } finally {
+    fs.rmSync(workspace, { recursive: true, force: true });
+  }
+});

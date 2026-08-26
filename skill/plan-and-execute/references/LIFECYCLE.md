@@ -83,9 +83,9 @@ Before resuming under an exclusive runner lease:
 3. return it to `pending`;
 4. append a `recovered_after_interruption` history event;
 5. do not increase `functional_failures`;
-6. preserve the attempt count, logs, result files, and all partial repository changes.
+6. preserve the attempt count, logs, result files, generated `CONTEXT.md`/`contexts/*.md`, and all partial repository changes.
 
-The next fresh worker must inspect the current working tree and either continue, repair, or replace the partial implementation within the assigned task scope. Deterministic validation still decides whether the task is complete.
+Context assignments are reconstructed from `manifest.json` and revalidated on resume; they are not regenerated or hand-edited unless the plan is revised. The next fresh worker must inspect the current working tree and either continue, repair, or replace the partial implementation within the assigned task scope. Deterministic validation still decides whether the task is complete.
 
 ## 5. Runner lease and concurrency
 
@@ -130,7 +130,7 @@ pae cancel
 This command:
 
 - stops the live local runner when possible;
-- removes the active plan directory, task definitions, logs, results, study, manifest, and active pointer;
+- removes the active plan directory, task definitions, global/scoped context files, logs, results, study, manifest, and active pointer;
 - removes unfinished intake drafts in the workspace;
 - leaves all implementation changes in the repository untouched.
 
@@ -196,11 +196,12 @@ Use the active Claude Code or Codex orchestrator when nested provider processes 
 - rediscover the plan from disk;
 - reload the manifest rather than relying on chat history;
 - recover stale `in_progress` state when no external lease is live;
-- dispatch a fresh worker for exactly one task definition;
+- dispatch a fresh worker for exactly one task definition and only its assigned execution-context files;
+- require exact `context_files_read` in the worker report;
 - persist each state transition immediately;
 - clear active state after final summary generation.
 
-The orchestrator should be operationally stateless even when the surrounding chat retains history. Do not resend the request, study, complete plan, or previous worker reports to the next worker.
+The orchestrator should be operationally stateless even when the surrounding chat retains history. Do not resend the request, study, complete plan, or previous worker reports to the next worker. Optional global/scoped context files are the only intentionally persisted cross-task worker context and remain immutable until replanning.
 
 ### Strict external-runner mode
 
@@ -213,6 +214,7 @@ Both modes read and update the same plan workspace, so a plan may be resumed wit
 - Never delete a directory without a valid plan sentinel and matching manifest.
 - Never follow symlinks in lifecycle state, plan roots, or intake cleanup.
 - Never remove implementation files during cancel or lifecycle cleanup.
+- Remove generated context artifacts with the recognized plan, but never treat them as implementation files.
 - Never start a second runner while a live lease exists.
 - Never silently choose among multiple unfinished plans.
 - Never count a power, network, or process interruption as a technical implementation failure.

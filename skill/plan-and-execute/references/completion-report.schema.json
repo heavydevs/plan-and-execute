@@ -4,7 +4,10 @@
   "properties": {
     "status": {
       "type": "string",
-      "enum": ["completed", "blocked"]
+      "enum": [
+        "completed",
+        "blocked"
+      ]
     },
     "summary": {
       "type": "string",
@@ -12,43 +15,75 @@
     },
     "changed_files": {
       "type": "array",
-      "items": {"type": "string"}
+      "items": {
+        "type": "string"
+      }
     },
     "validations": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "command": {"type": "string"},
-          "passed": {"type": "boolean"},
-          "details": {"type": "string"}
+          "command": {
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "details": {
+            "type": "string"
+          }
         },
-        "required": ["command", "passed", "details"],
+        "required": [
+          "command",
+          "passed",
+          "details"
+        ],
         "additionalProperties": false
       }
     },
     "risks": {
       "type": "array",
-      "items": {"type": "string"}
+      "items": {
+        "type": "string"
+      }
     },
     "follow_ups": {
       "type": "array",
-      "items": {"type": "string"}
+      "items": {
+        "type": "string"
+      }
+    },
+    "context_files_read": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "related_task_reads": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "task_id": {"type": "string"},
-          "reason": {"type": "string"}
+          "task_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
         },
-        "required": ["task_id", "reason"],
+        "required": [
+          "task_id",
+          "reason"
+        ],
         "additionalProperties": false
       }
     },
     "blocked_reason": {
-      "type": ["string", "null"]
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [
@@ -58,6 +93,7 @@
     "validations",
     "risks",
     "follow_ups",
+    "context_files_read",
     "related_task_reads",
     "blocked_reason"
   ],

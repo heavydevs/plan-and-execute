@@ -281,6 +281,21 @@ def pid_is_alive(pid: Any) -> bool:
         return True
     except OSError:
         return False
+
+    # On Linux a terminated child remains visible to kill(pid, 0) while it is
+    # a zombie waiting to be reaped. Treat that state as stopped so cancel can
+    # clean lifecycle artifacts without requiring an unnecessary --force.
+    proc_stat = Path(f"/proc/{numeric}/stat")
+    if proc_stat.is_file():
+        try:
+            raw = proc_stat.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            raw = ""
+        closing = raw.rfind(")")
+        if closing >= 0:
+            fields = raw[closing + 2 :].split()
+            if fields and fields[0] == "Z":
+                return False
     return True
 
 

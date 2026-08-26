@@ -182,3 +182,14 @@ python <skill-dir>/scripts/self_test.py
 ```
 
 The self-test covers request-file creation and validation, VS Code editor selection, request copy/move semantics, concise TODO rendering, traceability, task-graph rules, state transitions, model escalation, isolated execution, deterministic validation, final summarization, and safe cleanup.
+
+## Lifecycle CLI after installation
+
+```bash
+pae current
+pae resume
+pae cancel
+pae reset
+```
+
+Use `--cwd /path/to/project` for another workspace. These commands use the same `.ai-work` state as the installed skill; no separate lifecycle skill is required.

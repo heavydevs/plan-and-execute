@@ -1,26 +1,28 @@
 # Plan and Execute
 
-**Transforme pedidos grandes de desenvolvimento em um plano baseado em evidências, revisado e rastreável, e execute cada tarefa em um contexto novo e focado.**
+**Transforme pedidos grandes de desenvolvimento em um plano baseado em evidências, revisado e rastreável, e execute cada TODO em um contexto novo e estritamente limitado.**
 
-Plan and Execute ajuda Claude Code e Codex a lidar com migrações, refatorações, funcionalidades com várias frentes e outras mudanças grandes demais para um único contexto de chat. Antes de montar o plano, a skill estuda o pedido completo e evidências concretas do repositório, decide se pesquisa externa e realmente é necessária e bloqueia planos superficiais cujos achados não foram convertidos em restrições, requisitos, riscos e validações.
+Plan and Execute é uma skill reutilizável com CLI para Claude Code e Codex. Ela foi criada para migrações, refatorações, funcionalidades com várias frentes, mudanças sensíveis à arquitetura e implementações com muitos testes que não devem depender de uma única conversa longa.
 
-O que você ganha:
+A solução oferece:
 
-- estudo interno obrigatório do repositório antes do planejamento;
-- pesquisa externa somente quando gatilhos explícitos justificarem;
-- prova determinística de que os achados do estudo afetaram o plano;
-- menos requisitos perdidos entre planejamento e implementação;
-- workers com contexto pequeno e apenas uma definição de tarefa;
-- validação determinística em vez de confiar somente no relato do agente;
-- escalonamento de modelo e esforço apenas quando houver evidência técnica;
-- retomada segura após interrupções ou limites do provedor;
-- uma instalação para Claude Code, Codex ou ambos.
+- captura guiada do pedido;
+- estudo obrigatório do repositório e pesquisa externa adaptativa;
+- rastreabilidade parte do pedido → requisito → TODO;
+- decomposição recursiva e revisão independente do plano;
+- contexto global ou restrito a grupos de TODOs, sempre mínimo;
+- um worker novo por TODO;
+- validação determinística fora do worker;
+- retomada após falta de energia, queda de internet, terminal ou processo;
+- comandos protegidos `current`, `resume`, `cancel` e `reset`;
+- escalonamento de modelo/provedor baseado em evidência técnica;
+- resumo final econômico e limpeza segura.
 
 [English](README.md)
 
-## Guia rápido
+## Início rápido
 
-### 1. Instalê para Claude Code e Codex
+### 1. Instale para Claude Code e Codex
 
 No perfil do usuário:
 
@@ -29,14 +31,14 @@ npx --yes --package=github:heavydevs/plan-and-execute \
   plan-and-execute install --agent both --scope user
 ```
 
-Ou apenas no workspace atual:
+Somente no workspace atual:
 
 ```bash
 npx --yes --package=github:heavydevs/plan-and-execute \
   plan-and-execute install --agent both --scope workspace
 ```
 
-### 2. Inicie um pedido grande
+### 2. Inicie ou retome o trabalho
 
 Claude Code:
 
@@ -50,207 +52,249 @@ Codex:
 $plan-and-execute
 ```
 
-Sem parâmetros, a skill cria um arquivo Markdown guiado e o abre no editor. Quando o VS Code está ativo e o comando `code` está disponível, ela reutiliza a janela atual.
+A invocação sem parâmetros primeiro inspeciona `.ai-work`:
 
-Escreva o pedido completo, salve e escolha:
+- se existir uma única implementação incompleta, ela é retomada do disco;
+- se um runner ativo já possuir o plano, a skill informa isso e não inicia uma execução duplicada;
+- se houver vários planos incompletos, a skill para em vez de escolher silenciosamente;
+- somente quando o workspace estiver livre ela cria e abre o arquivo guiado de request.
 
-```text
-Continuar - terminei de escrever as instruções
-```
-
-A skill move o rascunho para a área de execução como `REQUEST.md`, passa pelo gaté de estudo adaptativo, cria e revisa o plano, executa os quality gatés determinísticos e inicia a implementação.
-
-### 3. Ou forneça o pedido diretamente
+### 3. Outras formas de fornecer o pedido
 
 Texto inline:
 
 ```text
-$plan-and-execute Migre a autenticação para OAuth, preserve o login por senhá durante o rollout, adicione testes automatizados e documente o rollback.
+$plan-and-execute Migre a autenticação para OAuth, preserve o login por senha durante o rollout, adicione testes e documente o rollback.
 ```
 
 Arquivo de requisitos:
 
 ```text
-$plan-and-execute docs/requisitos-migração-oauth.md
+$plan-and-execute docs/requisitos-migracao-oauth.md
 ```
 
-Um arquivo fornecido pelo usuário é copiado para o plano e preservado no local original.
+Um arquivo fornecido pelo usuário é copiado para o plano e preservado em seu local original.
 
-## Como funciona
+## Como o fluxo funciona
 
 ```text
 pedido completo
-      |
-      v
-questões matériais
-      |
-      v
-estudo interno obrigatório do repositório
-      |
-      v
-avaliação explicita dos gatilhos de pesquisa externa
-      |-----------------------------|
-      v                             v
-pesquisa autoritativa           pesquisa desnecessária
-      |-----------------------------|
-      v
-síntese de evidências validada
-      |
-      v
-partes do pedido -> requisitos -> TODOs revisados
-      |
-      v
+      ↓
+estudo interno/externo adaptativo
+      ↓
+partes do pedido e requisitos
+      ↓
+grafo recursivo de TODOs
+      ↓
+decisão de contexto mínimo de execução
+      ↓
+revisão nova + gates determinísticos
+      ↓
 um worker novo por TODO
-      |
-      v
-validação independente
-      |
-      v
-resumo econômico + limpeza segura
+      ↓
+validação independente + estado persistido
+      ↓
+resumo final + limpeza segura do ciclo de vida
 ```
 
-Antes de implementar, o orquestrador:
+## Gate de estudo adaptativo
 
-1. lê o pedido inteiro;
-2. identifica questões que podem alterar arquitetura, compatibilidade, risco, divisão de tarefas ou validação;
-3. inspeciona código, testes, instruções, arquitetura, schemas, build, CI e histórico relevante;
-4. avalia explicitamente nove gatilhos de pesquisa externa;
-5. pesquisa fontes primárias e autoritativas apenas quando algum gatilho estiver ativo;
-6. valida a suficiência das evidências antes de criar requisitos ou TODOs;
-7. inventaria todas as partes do pedido e requisitos;
-8. divide cada workstream recursivamente até cada tarefa ter um único resultado coerente;
-9. usa revisores novos para o estudo e o plano;
-10. comprova que as evidências foram copiadas para restrições, requisitos, riscos e validações do plano;
-11. executa `studyctl validaté-plan`, `planctl validaté` e `planctl audit` antes da implementação.
+O estudo interno do repositório é sempre obrigatório. Antes de criar requisitos ou TODOs, o planejador inspeciona instruções, arquitetura, implementação, testes, schemas, interfaces, build, CI e histórico relevante.
 
-Durante a implementação, cada worker recebe apenas uma definição de tarefa. O orquestrador executa novamente os comandos de validação antes de concluir o item.
+A pesquisa externa é condicional. Ela se torna obrigatória quando, por exemplo:
 
-## Gaté de estudo adaptativo
-
-O estudo interno é sempre obrigatório porque instruções, versoes, interfaces e testes específicos do repositório definem a superfície real da mudanca. A pesquisa externa é condicional, não automática.
-
-A pesquisa externa torna-se obrigatória quando qualquer uma destás condições for verdadeira:
-
-- o usuário pede pesquisa ou verificação explicitamente;
+- o usuário pede verificação explicitamente;
 - o domínio não é suficientemente conhecido;
-- o comportamento depende de uma versão exata ou pode ter mudado recentemente;
-- há comportamento sensível a segurança;
-- falta no repositório um contrato matérial para planejar;
+- o comportamento depende de uma versão exata ou atual;
+- autenticação, autorização, criptografia, sandbox ou outro contrato de segurança é relevante;
+- o repositório não define um contrato necessário;
 - as evidências internas entram em conflito;
-- é preciso escolher tecnologia ou provedor;
+- é preciso escolher uma tecnologia ou provedor;
 - uma suposição incorreta teria alto risco.
 
-Quando todos os gatilhos forem falsos, o plano pode usar somente evidências internas, mas deve registrar uma justificativa substantiva. Quando um gatilho estiver ativo e não for possível obter evidência autoritativa, o planejamento fica bloqueado em vez de inventar uma resposta.
+O estudo registra questões materiais, locais das evidências, achados, impacto no planejamento, decisão sobre os gatilhos externos, autoridade/versão/data das fontes, síntese, revisão independente de suficiência e critério de parada.
 
-A especificação de estudo registra:
-
-- questões matériais e suas resoluções;
-- locais, achados e impactos de evidências internas;
-- avaliação dos gatilhos e decisão de pesquisa externa;
-- fontes externas autoritativas, versão/data e conclusões, quando necessárias;
-- restrições, requisitos derivados, riscos e implicações de validação sintetizados;
-- revisão independente de suficiência e critério de parada.
-
-Valide antes de montar o plano:
+Antes de planejar:
 
 ```bash
-python <skill-dir>/scripts/studyctl.py validaté \
+python <skill-dir>/scripts/studyctl.py validate \
   --spec /tmp/study-spec.json
 ```
 
-Depois de criar o plano, anexe o estudo e verifique a integração exata:
+Depois de criar o plano:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py attach \
   --spec /tmp/study-spec.json \
   --plan .ai-work/<plan-id>
 
-python <skill-dir>/scripts/studyctl.py validaté-plan \
+python <skill-dir>/scripts/studyctl.py validate-plan \
   --plan .ai-work/<plan-id>
 ```
 
-O gaté de anexação rejeita pesquisas que nunca foram usadas. Achados internos devem aparecer na análise do repositório; achados externos, na análise de pesquisa; restrições, requisitos e riscos sintetizados devem aparecer nos campos equivalentes do plano; implicações de validação devem aparecer nos critérios, orientações ou comandos das tarefas.
+O gate de anexação comprova que as descobertas se tornaram restrições, requisitos, riscos ou validações do plano, em vez de permanecerem como anotações de pesquisa sem uso.
 
-Veja o [protocolo de estudo adaptativo](skill/plan-and-execute/references/ADAPTIVE_STUDY.md) e o [exemplo de study spec](skill/plan-and-execute/references/study-spec.example.json).
+Veja [Estudo adaptativo](skill/plan-and-execute/references/ADAPTIVE_STUDY.md).
 
-## Formas de fornecer o pedido
+## Contexto progressivo de execução
 
-### Fluxo guiado no editor
+Cada TODO continua sendo executado por um worker novo. O schema v3 adiciona um mecanismo explícito e restrito para a pequena quantidade de informação que realmente precisa atravessar os limites entre tarefas.
 
-Invoque a skill sem parâmetros. Ela cria:
+A decisão acontece somente depois que o grafo de TODOs existe:
 
-```text
-.ai-work/intake/request-YYYYMMDD-HHMMSS.md
-```
+1. **Necessário para todos os TODOs:** pode ser criado `CONTEXT.md`.
+2. **Necessário para pelo menos dois, mas não todos:** pode ser criado `contexts/<topico>.md`, referenciado apenas nas definições dessas tarefas.
+3. **Necessário para um único TODO:** permanece na própria definição da tarefa.
+4. **Sem impacto material:** é omitido.
 
-O arquivo possui seções para objetivos, requisitos, restrições, contexto, testes e definição de pronto. Depois da confirmação, elê vira:
+A omissão é o padrão. Os arquivos não podem conter o pedido inteiro, o estudo, o plano, status dos TODOs, orientações genéricas ou informações apenas interessantes. Cada item é uma linha operacional fundamentada em referências de origem. Limites determinísticos rejeitam excesso de texto, duplicação, atribuição ampla demais, arquivos para uma única tarefa, adulteração e vazamento de contexto.
 
-```text
-.ai-work/<plan-id>/REQUEST.md
-```
-
-O rascunho temporário só e removido depois de ser preservado e validado no plano.
-
-### Arquivo existente
-
-Passe um único caminho de arquivo regular como argumento completo. A skill valida e lê o arquivo inteiro, copia-o para `REQUEST.md` e preserva a origem. Diretorios, arquivos ausentes e links simbólicos sao rejeitados.
-
-### Texto inline
-
-Qualquer outro argumento não vazio é tratado como o pedido completo em texto.
-
-## Checklist sucinto, contratos detalhados
-
-O `TODO.md` continua fácil de examinar:
+Uma definição de tarefa pode conter:
 
 ```markdown
-# TODO - Migracao OAuth
+## Assigned execution context
 
-- [x] **001** - Adicionar modelo de persistência OAuth
-- [ ] **002** - Implementar callback de autorização _(in progress)_
-- [ ] **003** - Preservar compatibilidade com login por senha
-- [ ] **004** - Adicionar testes de migração e rollback
+- `.ai-work/<plan-id>/CONTEXT.md`
+- `.ai-work/<plan-id>/contexts/oauth-rollout.md`
 ```
 
-Provedor, modelo, esforço, complexidade, requisitos, dependencias, critérios de aceite e comandos de validação ficam nos arquivos de tarefa e no `manifest.json`.
+O worker deve ler exatamente esses arquivos, nenhum outro, e informar:
 
-## Opcoes de instalação
+```json
+{
+  "context_files_read": [
+    "CONTEXT.md",
+    "contexts/oauth-rollout.md"
+  ]
+}
+```
 
-### Direto do GitHub
+O orquestrador rejeita leituras ausentes ou extras antes de aceitar o resultado. Assim, restrições compartilhadas importantes são preservadas sem reenviar para cada worker o request, o plano inteiro, a conversa anterior ou informações irrelevantes.
+
+Veja [Contexto progressivo de execução](skill/plan-and-execute/references/EXECUTION_CONTEXT.md).
+
+## Planejamento rastreável
+
+O planejador cria identificadores estáveis:
+
+```text
+parte do pedido P001
+      ↓
+requisito R001
+      ↓
+TODO 001
+```
+
+Toda parte do pedido deve ser coberta por um requisito. Todo requisito deve ser coberto por pelo menos um TODO executável. Cada TODO aponta de volta para os requisitos e contém:
+
+- um objetivo;
+- escopo incluído e excluído;
+- arquivos esperados;
+- dependências;
+- complexidade e justificativa de atomicidade;
+- critérios de aceite;
+- comandos de validação determinísticos;
+- provedor, nível de modelo e esforço de raciocínio;
+- atribuições de contexto geradas.
+
+Tarefas executáveis `extreme` são rejeitadas e precisam ser divididas. Uma tarefa `high` exige justificativa substantiva para não ser decomposta novamente.
+
+## Workers novos e isolamento de contexto
+
+O runner estrito inicia um processo novo e não persistente para cada TODO:
+
+- Claude Code usa `--no-session-persistence`;
+- Codex usa `exec --ephemeral`;
+- o worker recebe uma definição de tarefa e somente os arquivos de contexto atribuídos;
+- ele não pode ler o plano completo, tarefas futuras, análise, estudo, manifesto ou relatórios anteriores;
+- as validações são executadas novamente pelo orquestrador;
+- o estado é persistido antes de iniciar o próximo worker.
+
+Isso torna o orquestrador operacionalmente sem estado: outro terminal, conversa ou provedor pode reconstruir o progresso pelo workspace do plano, sem depender do histórico da conversa.
+
+## Ciclo de vida retomável
+
+O ponteiro ativo fica em:
+
+```text
+.ai-work/.active-plan.json
+```
+
+`manifest.json` continua sendo a fonte de verdade. Um runner estrito possui um lease atômico dentro do plano, impedindo dois escritores simultâneos.
+
+Comandos úteis:
 
 ```bash
-npx --yes --package=github:heavydevs/plan-and-execute \
-  plan-and-execute install --agent both --scope user
+pae current
+pae resume
+pae resume --once
+pae resume --provider codex
+pae resume --no-wait
+pae resume --no-cleanup
+pae cancel
+pae cancel --all
+pae reset
 ```
 
-### Pelo npm
+Se uma interrupção deixar um TODO como `in_progress`, a retomada o devolve para `pending` sem contar falha técnica, preserva alterações parciais e envia a mesma tarefa limitada a um worker novo para correção e revalidação.
 
-O nome do pacote continua `@luizcgvrj/plan-and-execute`:
+`cancel` e `reset` removem planos reconhecidos, arquivos de contexto, logs, resultados, intake, lease e estado do ciclo de vida. As alterações de implementação no repositório são preservadas deliberadamente; use Git de forma explícita quando também precisar desfazer código.
 
-```bash
-npx --yes @luizcgvrj/plan-and-execute \
-  install --agent both --scope user
+Veja [Ciclo de vida retomável](skill/plan-and-execute/references/LIFECYCLE.md).
+
+## TODO sucinto, contratos detalhados
+
+`TODO.md` é apenas um índice de status:
+
+```markdown
+# TODO — Migração OAuth
+
+- [x] **001** — Adicionar modelo de persistência OAuth
+- [ ] **002** — Implementar callback de autorização _(in progress)_
+- [ ] **003** — Preservar compatibilidade com login por senha
+- [ ] **004** — Adicionar testes de migração e rollback
 ```
 
-### CLI global
+Provedor, modelo, esforço, requisitos, dependências, atribuições de contexto, critérios de aceite e comandos de validação ficam nas definições das tarefas e em `manifest.json`.
+
+## Workspace do plano
+
+```text
+.ai-work/
+├── .active-plan.json              # ponteiro ativo do ciclo de vida
+└── <plan-id>/
+    ├── .orchestrator-plan         # sentinel protegido
+    ├── REQUEST.md                 # quando o pedido veio de arquivo
+    ├── study.json
+    ├── STUDY.md
+    ├── ANALYSIS.md
+    ├── PLAN.md
+    ├── PLAN_REVIEW.md
+    ├── TODO.md
+    ├── CONTEXT.md                 # opcional, somente contexto universal
+    ├── contexts/                  # opcional, subconjuntos estritos de TODOs
+    ├── manifest.json              # fonte de verdade
+    ├── orchestrator.config.json
+    ├── tasks/
+    ├── results/
+    └── logs/
+```
+
+## Destinos de instalação
+
+| Agente | Workspace | Perfil do usuário |
+|---|---|---|
+| Claude Code | `.claude/skills/plan-and-execute` | `~/.claude/skills/plan-and-execute` |
+| Codex | `.agents/skills/plan-and-execute` | `~/.agents/skills/plan-and-execute` |
+
+CLI global:
 
 ```bash
 npm install --global @luizcgvrj/plan-and-execute
 pae install both --global
 ```
 
-`pae` é o alias curto de `plan-and-execute`.
-
-### Destinos
-
-| Agente | Workspace | Perfil do usuário |
-| --- | --- | --- |
-| Claude Code | `.claude/skills/plan-and-execute` | `~/.claude/skills/plan-and-execute` |
-| Codex | `.agents/skills/plan-and-execute` | `~/.agents/skills/plan-and-execute` |
-
-Veja o [guia de instalação](skill/plan-and-execute/references/INSTALLATION.pt-BR.md) para cópias manuais, links simbólicos, atualização, remoção e exemplos no Windows.
-
-## Comandos do instalador
+Comandos do instalador:
 
 ```bash
 pae install both --local
@@ -263,103 +307,59 @@ pae install both --local --dry-run
 pae uninstall both --global
 ```
 
-O instalador não possui dependencias de runtime nem mutação em `postinstall`. Elê grava somente depois de um comando `install` explicito. Um marcador local e um hash de conteúdo protegem instalações editadas manualmente contra sobrescrita ou remoção acidental.
+O instalador não possui dependências de runtime nem faz alteração implícita no `postinstall`. Um marcador e um hash do diretório protegem instalações gerenciadas que tenham sido modificadas localmente.
 
-## Modos de execução
+## Roteamento de modelos e recuperação
 
-### Modo nativo
-
-Use o chat ativo do Claude Code ou Codex. O orquestrador cria um subagente novo para cada tarefa executavel e passa apenas a definição correspondente.
-
-### Runner externo estrito
-
-Use um terminal fora da sessão aninhada do provedor quando precisar de um processo novo por tentativa, roteamento exato de CLI ou espera automática por raté limit:
-
-```bash
-python <skill-dir>/scripts/run_isolatéd.py \
-  --plan .ai-work/<plan-id>
-```
-
-Preserve o plano depois de uma execução de teste bem-sucedida:
-
-```bash
-python <skill-dir>/scripts/run_isolatéd.py \
-  --plan .ai-work/<plan-id> \
-  --no-cleanup
-```
-
-## Area de trabalho do plano
+Os TODOs usam níveis lógicos:
 
 ```text
-.ai-work/<plan-id>/
-|-- REQUEST.md                 # quando o pedido veio de arquivo
-|-- study.json                 # evidência canônica do estudo adaptativo
-|-- STUDY.md                   # estudo legível por humanos
-|-- ANALYSIS.md
-|-- PLAN.md
-|-- PLAN_REVIEW.md
-|-- TODO.md                    # uma linhá curta por tarefa
-|-- manifest.json              # fonte da verdade e hash do estudo
-|-- orchestrator.config.json
-|-- tasks/                     # contratos detalhados e isolados
-|-- results/
-`-- logs/
+economy → standard → strong → max
 ```
 
-Os validadores verificam hashes do pedido, evidências do estudo e sua integração ao plano, rastreabilidade, complexidade, revisoes, dependencias, arquivos de tarefa, critérios de aceite e comandos de validação.
+Falhas técnicas aumentam primeiro o esforço, depois o nível do modelo e, por fim, o provedor quando fallback é permitido. Limites de uso, créditos esgotados e indisponibilidade temporária não contam como falhas técnicas.
 
-## Roteamento de modelos e retomada
-
-As tarefas usam níveis lógicos:
-
-```text
-economy -> standard -> strong -> max
-```
-
-O mapeamento concreto de provedor e modelo fica em `orchestrator.config.json`. Falhas funcionais podem aumentar esforço, nível de modelo e, por fim, provedor. Raté limits ou créditos esgotados mantêm a tarefa pendente e não contam como falhá técnica.
-
-Reiniciar o runner retoma o estádo do `manifest.json`. Um processo parado não se reinicia sozinho; execute o mesmo comando novamente ou use um serviço externo ou agendador de CI.
+Veja [Roteamento de modelos](skill/plan-and-execute/references/MODEL_ROUTING.md).
 
 ## Modelo de segurança
 
-- tarefas com escrita rodam em sequência, salvo isolamento em worktrees;
-- workers não recebem o plano completo, arquivos de estudo ou tarefas futuras;
-- validação determinística roda fora do worker;
-- uma incerteza matérial dispara novo estudo e replanejamento em vez de escalonamento cego;
-- a limpeza exige sentinel do plano, tarefas concluidas e resumo gerado;
-- a limpeza remove somente o diretório exato `.ai-work/<plan-id>`;
-- implementação, testes, commits e outros planos sao preservados.
+- workers nunca editam arquivos do plano ou de contexto;
+- TODOs com escrita executam sequencialmente, salvo isolamento por worktrees;
+- mudanças no código nunca são apagadas pela limpeza normal ou pelo cancelamento do ciclo de vida;
+- arquivos de contexto são criados somente a partir do schema validado;
+- um defeito de planejamento provoca replanejamento completo, não escalonamento cego;
+- a limpeza exige sentinel, raiz do repositório, id do plano, estado concluído e resumo gerado correspondentes;
+- ações externas destrutivas ou irreversíveis continuam sujeitas a gates explícitos de segurança.
 
 ## Desenvolvimento
 
 Requisitos:
 
-- Node.js 18.17 ou superior para o instalador;
-- Python 3.10 ou superior para os scripts da skill;
-- Claude Code e/ou Codex para execução real dos agentes.
+- Node.js 18.17 ou mais recente;
+- Python 3.10 ou mais recente;
+- Claude Code e/ou Codex para execução real dos workers.
 
-Execute todos os checks:
+Execute todas as verificações:
 
 ```bash
 npm ci
 npm run check
-npm pack --dry-run
+npm pack --dry-run --ignore-scripts
 ```
 
-A suite cobre instalador e CLI, captura do pedido, validação e anexação do estudo adaptativo, rastreabilidade, decomposicao recursiva, transições de estádo, escalonamento, simulação do runner estrito, resumo e limpeza protegida.
+A suíte cobre instalador/CLI, estudo adaptativo, rastreabilidade, planejamento recursivo, minimalidade e atribuição de contexto, relatórios dos workers, recuperação após interrupção, leases, cancelamento/reset, escalonamento, resumo final e limpeza protegida.
 
 ## Documentação
 
-- [README em inglês](README.md)
-- [Captura do pedido](skill/plan-and-execute/references/INTAKE.md)
-- [Gaté de estudo adaptativo](skill/plan-and-execute/references/ADAPTIVE_STUDY.md)
-- [Exemplo de study spec](skill/plan-and-execute/references/study-spec.example.json)
-- [Protocolo de planejamento](skill/plan-and-execute/references/PLANNING_PROTOCOL.md)
+- [Entrada do request](skill/plan-and-execute/references/INTAKE.md)
+- [Estudo adaptativo](skill/plan-and-execute/references/ADAPTIVE_STUDY.md)
+- [Planejamento profundo](skill/plan-and-execute/references/PLANNING_PROTOCOL.md)
+- [Contexto progressivo de execução](skill/plan-and-execute/references/EXECUTION_CONTEXT.md)
+- [Schema do plano](skill/plan-and-execute/references/PLAN_SPEC.md)
 - [Fluxo de execução](skill/plan-and-execute/references/WORKFLOW.md)
-- [Especificacao do plano](skill/plan-and-execute/references/PLAN_SPEC.md)
+- [Ciclo de vida retomável](skill/plan-and-execute/references/LIFECYCLE.md)
 - [Roteamento de modelos](skill/plan-and-execute/references/MODEL_ROUTING.md)
-- [Instalacao](skill/plan-and-execute/references/INSTALLATION.pt-BR.md)
-- [Publicação](docs/PUBLISHING.pt-BR.md)
+- [Instalação](skill/plan-and-execute/references/INSTALLATION.pt-BR.md)
 
 ## Licença
 

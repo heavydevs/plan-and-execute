@@ -133,3 +133,14 @@ python <skill-dir>/scripts/self_test.py
 ```
 
 O teste cobre criação e validação do arquivo de solicitação, detecção do VS Code, cópia/movimentação do pedido, checklist sucinto, rastreabilidade, grafo de tarefas, escalonamento, execução isolada, validação determinística, resumo e limpeza segura.
+
+## CLI de ciclo de vida após a instalação
+
+```bash
+pae current
+pae resume
+pae cancel
+pae reset
+```
+
+Use `--cwd /caminho/do/projeto` para outro workspace. Os comandos usam o mesmo estado `.ai-work` da skill instalada; não é necessária uma skill separada para o ciclo de vida.

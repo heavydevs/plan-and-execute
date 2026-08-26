@@ -22,13 +22,15 @@ from typing import Any, Iterable
 
 import requestctl
 
-SCHEMA_VERSION = 2
-SUPPORTED_SCHEMA_VERSIONS = {1, 2}
+SCHEMA_VERSION = 3
+SUPPORTED_SCHEMA_VERSIONS = {1, 2, 3}
 SENTINEL = ".orchestrator-plan"
 MANIFEST = "manifest.json"
 CONFIG = "orchestrator.config.json"
 WORK_ROOT_DEFAULT = ".ai-work"
 REQUEST_FILE = "REQUEST.md"
+GLOBAL_CONTEXT_FILE = "CONTEXT.md"
+CONTEXT_DIRECTORY = "contexts"
 VALID_PROVIDERS = {"auto", "claude", "codex"}
 VALID_TIERS = {"economy", "standard", "strong", "max"}
 VALID_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
@@ -42,10 +44,34 @@ REQUIRED_REVIEW_CHECKS = (
     "dependencies_valid",
     "validations_sufficient",
 )
+CONTEXT_REVIEW_CHECK = "contexts_minimal"
+VALID_CONTEXT_DECISIONS = {"create", "omit"}
+VALID_CONTEXT_KINDS = {"fact", "constraint", "decision", "interface", "validation"}
+MAX_GLOBAL_CONTEXT_ITEMS = 8
+MAX_SCOPED_CONTEXTS = 8
+MAX_SCOPED_CONTEXT_ITEMS = 8
+MAX_TOTAL_CONTEXT_ITEMS = 24
+MAX_CONTEXT_TEXT_CHARS = 280
+MAX_CONTEXT_NECESSITY_CHARS = 360
+MAX_CONTEXT_RATIONALE_CHARS = 500
+MAX_CONTEXT_SOURCE_REFS = 4
+MAX_CONTEXT_SOURCE_REF_CHARS = 160
+MAX_CONTEXT_FILE_CHARS = 3200
 
 
 class PlanError(RuntimeError):
     """Raised when a plan workspace is invalid or an operation is unsafe."""
+
+
+def review_checks_for_schema(schema_version: Any) -> tuple[str, ...]:
+    try:
+        version = int(schema_version)
+    except (TypeError, ValueError):
+        version = 0
+    checks = list(REQUIRED_REVIEW_CHECKS)
+    if version >= 3:
+        checks.append(CONTEXT_REVIEW_CHECK)
+    return tuple(checks)
 
 
 def now_utc() -> str:
@@ -152,7 +178,7 @@ def normalize_requirements(
     for index, item in enumerate(items):
         if isinstance(item, str):
             raise PlanError(
-                f"requirements[{index}] must be an object with explicit request_part_ids in schema v2"
+                f"requirements[{index}] must be an object with explicit request_part_ids in schema v2+"
             )
         elif isinstance(item, dict):
             requirement_id = normalize_requirement_id(item.get("id"), index)
@@ -239,7 +265,7 @@ def normalize_request_analysis(raw: Any) -> dict[str, Any]:
         ),
     }
 
-def normalize_plan_review(raw: Any) -> dict[str, Any]:
+def normalize_plan_review(raw: Any, schema_version: int = SCHEMA_VERSION) -> dict[str, Any]:
     if not isinstance(raw, dict):
         raise PlanError("plan_review must be an object produced by a separate plan-review pass")
     status = str(raw.get("status", "")).strip().lower()
@@ -249,7 +275,7 @@ def normalize_plan_review(raw: Any) -> dict[str, Any]:
     if rounds < 1:
         raise PlanError("plan_review.rounds must be at least 1")
     checks: dict[str, bool] = {}
-    for field in REQUIRED_REVIEW_CHECKS:
+    for field in review_checks_for_schema(schema_version):
         value = raw.get(field)
         if value is not True:
             raise PlanError(f"plan_review.{field} must be true")
@@ -271,7 +297,6 @@ def normalize_plan_review(raw: Any) -> dict[str, Any]:
         "notes": notes,
     }
 
-
 def ensure_list(value: Any, field: str) -> list[Any]:
     if value is None:
         return []
@@ -288,6 +313,457 @@ def ensure_str_list(value: Any, field: str) -> list[str]:
             raise PlanError(f"Every item in {field} must be a non-empty string")
         result.append(item.strip())
     return result
+
+
+def ensure_context_line(
+    value: Any,
+    field: str,
+    *,
+    minimum: int = 1,
+    maximum: int,
+) -> str:
+    text = ensure_text(value, field)
+    if "\n" in text or "\r" in text:
+        raise PlanError(f"{field} must be one concise line")
+    if len(text) < minimum:
+        raise PlanError(f"{field} is too shallow; provide a specific, evidence-backed statement")
+    if len(text) > maximum:
+        raise PlanError(f"{field} exceeds the {maximum}-character concision limit")
+    if text.startswith(("#", "- ", "* ", "+ ")):
+        raise PlanError(f"{field} must be plain text, not preformatted Markdown")
+    return text
+
+
+def normalize_context_item_id(value: Any, fallback: str, field: str) -> str:
+    text = str(value or fallback).strip().upper()
+    if not re.fullmatch(r"[A-Z][A-Z0-9_-]{0,23}", text):
+        raise PlanError(f"{field} has an invalid context item id: {value!r}")
+    return text
+
+
+def normalize_context_item(raw: Any, field: str, fallback_id: str) -> dict[str, Any]:
+    if not isinstance(raw, dict):
+        raise PlanError(f"{field} must be an object")
+    unknown = set(raw) - {"id", "kind", "text", "necessity", "source_refs"}
+    if unknown:
+        raise PlanError(f"{field} contains unsupported fields: {', '.join(sorted(unknown))}")
+    item_id = normalize_context_item_id(raw.get("id"), fallback_id, field)
+    kind = str(raw.get("kind", "")).strip().lower()
+    if kind not in VALID_CONTEXT_KINDS:
+        raise PlanError(
+            f"{field}.kind must be one of {sorted(VALID_CONTEXT_KINDS)}"
+        )
+    text = ensure_context_line(
+        raw.get("text"),
+        f"{field}.text",
+        minimum=15,
+        maximum=MAX_CONTEXT_TEXT_CHARS,
+    )
+    necessity = ensure_context_line(
+        raw.get("necessity"),
+        f"{field}.necessity",
+        minimum=30,
+        maximum=MAX_CONTEXT_NECESSITY_CHARS,
+    )
+    raw_sources = ensure_list(raw.get("source_refs"), f"{field}.source_refs")
+    if not raw_sources:
+        raise PlanError(f"{field}.source_refs must ground the context item in evidence")
+    if len(raw_sources) > MAX_CONTEXT_SOURCE_REFS:
+        raise PlanError(
+            f"{field}.source_refs may contain at most {MAX_CONTEXT_SOURCE_REFS} entries"
+        )
+    source_refs: list[str] = []
+    seen_sources: set[str] = set()
+    for index, source in enumerate(raw_sources):
+        normalized = ensure_context_line(
+            source,
+            f"{field}.source_refs[{index}]",
+            minimum=2,
+            maximum=MAX_CONTEXT_SOURCE_REF_CHARS,
+        )
+        if "`" in normalized:
+            raise PlanError(f"{field}.source_refs[{index}] must not contain backticks")
+        folded = normalized.casefold()
+        if folded in seen_sources:
+            raise PlanError(f"{field}.source_refs contains a duplicate: {normalized!r}")
+        seen_sources.add(folded)
+        source_refs.append(normalized)
+    return {
+        "id": item_id,
+        "kind": kind,
+        "text": text,
+        "necessity": necessity,
+        "source_refs": source_refs,
+    }
+
+
+def normalize_execution_context(raw: Any, tasks: list[dict[str, Any]]) -> dict[str, Any]:
+    if not isinstance(raw, dict):
+        raise PlanError(
+            "execution_context must explicitly decide whether concise shared context is needed"
+        )
+    unknown = set(raw) - {"global", "scoped"}
+    if unknown:
+        raise PlanError(
+            "execution_context contains unsupported fields: " + ", ".join(sorted(unknown))
+        )
+
+    global_raw = raw.get("global")
+    if not isinstance(global_raw, dict):
+        raise PlanError("execution_context.global must be an object")
+    unknown_global = set(global_raw) - {"decision", "rationale", "items", "file"}
+    if unknown_global:
+        raise PlanError(
+            "execution_context.global contains unsupported fields: "
+            + ", ".join(sorted(unknown_global))
+        )
+    decision = str(global_raw.get("decision", "")).strip().lower()
+    if decision not in VALID_CONTEXT_DECISIONS:
+        raise PlanError(
+            f"execution_context.global.decision must be one of {sorted(VALID_CONTEXT_DECISIONS)}"
+        )
+    rationale = ensure_context_line(
+        global_raw.get("rationale"),
+        "execution_context.global.rationale",
+        minimum=30,
+        maximum=MAX_CONTEXT_RATIONALE_CHARS,
+    )
+    global_raw_items = ensure_list(
+        global_raw.get("items"), "execution_context.global.items"
+    )
+    if decision == "omit" and global_raw_items:
+        raise PlanError(
+            "execution_context.global.items must be empty when the global context file is omitted"
+        )
+    if decision == "create" and not global_raw_items:
+        raise PlanError(
+            "execution_context.global.items must contain at least one universal item when CONTEXT.md is created"
+        )
+    if len(global_raw_items) > MAX_GLOBAL_CONTEXT_ITEMS:
+        raise PlanError(
+            f"CONTEXT.md may contain at most {MAX_GLOBAL_CONTEXT_ITEMS} items"
+        )
+    global_items = [
+        normalize_context_item(item, f"execution_context.global.items[{index}]", f"G{index + 1:03d}")
+        for index, item in enumerate(global_raw_items)
+    ]
+    global_item_ids = [item["id"] for item in global_items]
+    if len(global_item_ids) != len(set(global_item_ids)):
+        raise PlanError("execution_context.global.items contains duplicate ids")
+    expected_global_file = GLOBAL_CONTEXT_FILE if decision == "create" else None
+    if "file" in global_raw and global_raw.get("file") != expected_global_file:
+        raise PlanError(
+            f"execution_context.global.file must be {expected_global_file!r}"
+        )
+
+    task_ids = [str(task.get("id")) for task in tasks]
+    known_task_ids = set(task_ids)
+    scoped_raw = ensure_list(raw.get("scoped"), "execution_context.scoped")
+    if len(scoped_raw) > MAX_SCOPED_CONTEXTS:
+        raise PlanError(
+            f"execution_context.scoped may contain at most {MAX_SCOPED_CONTEXTS} files"
+        )
+    scoped: list[dict[str, Any]] = []
+    seen_context_ids: set[str] = set()
+    all_texts: set[str] = set()
+    for item in global_items:
+        folded = item["text"].casefold()
+        if folded in all_texts:
+            raise PlanError(f"Duplicate context text: {item['text']!r}")
+        all_texts.add(folded)
+
+    for index, context_raw in enumerate(scoped_raw):
+        field = f"execution_context.scoped[{index}]"
+        if not isinstance(context_raw, dict):
+            raise PlanError(f"{field} must be an object")
+        unknown_scoped = set(context_raw) - {"id", "title", "rationale", "task_ids", "items", "file"}
+        if unknown_scoped:
+            raise PlanError(
+                f"{field} contains unsupported fields: {', '.join(sorted(unknown_scoped))}"
+            )
+        context_id = str(context_raw.get("id", "")).strip().lower()
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,39}", context_id):
+            raise PlanError(
+                f"{field}.id must be a lowercase kebab-case file identifier"
+            )
+        if context_id in seen_context_ids:
+            raise PlanError(f"Duplicate scoped context id: {context_id}")
+        seen_context_ids.add(context_id)
+        title = ensure_context_line(
+            context_raw.get("title"), f"{field}.title", minimum=3, maximum=100
+        )
+        context_rationale = ensure_context_line(
+            context_raw.get("rationale"),
+            f"{field}.rationale",
+            minimum=30,
+            maximum=MAX_CONTEXT_RATIONALE_CHARS,
+        )
+        raw_task_ids = ensure_list(context_raw.get("task_ids"), f"{field}.task_ids")
+        normalized_task_ids: list[str] = []
+        seen_task_ids: set[str] = set()
+        for task_value in raw_task_ids:
+            task_id = normalize_task_id(task_value)
+            if task_id not in known_task_ids:
+                raise PlanError(f"{field} references unknown task {task_id}")
+            if task_id in seen_task_ids:
+                raise PlanError(f"{field}.task_ids contains duplicate task {task_id}")
+            seen_task_ids.add(task_id)
+            normalized_task_ids.append(task_id)
+        if len(normalized_task_ids) < 2:
+            raise PlanError(
+                f"{field} must serve at least two TODOs; put single-task context in that task definition"
+            )
+        if set(normalized_task_ids) == known_task_ids:
+            raise PlanError(
+                f"{field} applies to every TODO and belongs in execution_context.global instead"
+            )
+        raw_items = ensure_list(context_raw.get("items"), f"{field}.items")
+        if not raw_items:
+            raise PlanError(f"{field}.items must not be empty")
+        if len(raw_items) > MAX_SCOPED_CONTEXT_ITEMS:
+            raise PlanError(
+                f"{field}.items may contain at most {MAX_SCOPED_CONTEXT_ITEMS} items"
+            )
+        items = [
+            normalize_context_item(value, f"{field}.items[{item_index}]", f"C{item_index + 1:03d}")
+            for item_index, value in enumerate(raw_items)
+        ]
+        seen_item_ids: set[str] = set()
+        for context_item in items:
+            if context_item["id"] in seen_item_ids:
+                raise PlanError(
+                    f"{field}.items contains duplicate id {context_item['id']}"
+                )
+            seen_item_ids.add(context_item["id"])
+            folded = context_item["text"].casefold()
+            if folded in all_texts:
+                raise PlanError(
+                    f"Context text is duplicated across files: {context_item['text']!r}"
+                )
+            all_texts.add(folded)
+        expected_file = f"{CONTEXT_DIRECTORY}/{context_id}.md"
+        if "file" in context_raw and context_raw.get("file") != expected_file:
+            raise PlanError(f"{field}.file must be {expected_file!r}")
+        scoped.append(
+            {
+                "id": context_id,
+                "title": title,
+                "rationale": context_rationale,
+                "task_ids": normalized_task_ids,
+                "items": items,
+                "file": expected_file,
+            }
+        )
+
+    total_items = len(global_items) + sum(len(item["items"]) for item in scoped)
+    if total_items > MAX_TOTAL_CONTEXT_ITEMS:
+        raise PlanError(
+            f"Execution context contains {total_items} items; maximum is {MAX_TOTAL_CONTEXT_ITEMS}"
+        )
+    normalized = {
+        "global": {
+            "decision": decision,
+            "rationale": rationale,
+            "items": global_items,
+            "file": GLOBAL_CONTEXT_FILE if decision == "create" else None,
+        },
+        "scoped": scoped,
+    }
+    for context in [normalized["global"], *scoped]:
+        if context.get("file"):
+            content = (
+                render_global_context(normalized)
+                if context.get("file") == GLOBAL_CONTEXT_FILE
+                else render_scoped_context(context)
+            )
+            if len(content) > MAX_CONTEXT_FILE_CHARS:
+                raise PlanError(
+                    f"Context file {context['file']} exceeds the {MAX_CONTEXT_FILE_CHARS}-character limit"
+                )
+    return normalized
+
+
+def expected_task_context_files(
+    tasks: list[dict[str, Any]], execution_context: dict[str, Any]
+) -> dict[str, list[str]]:
+    mapping = {str(task["id"]): [] for task in tasks}
+    if execution_context["global"]["decision"] == "create":
+        for task_id in mapping:
+            mapping[task_id].append(GLOBAL_CONTEXT_FILE)
+    for scoped in execution_context["scoped"]:
+        for task_id in scoped["task_ids"]:
+            mapping[task_id].append(scoped["file"])
+    return mapping
+
+
+def assign_context_files(
+    tasks: list[dict[str, Any]], execution_context: dict[str, Any]
+) -> None:
+    mapping = expected_task_context_files(tasks, execution_context)
+    for task in tasks:
+        task["context_files"] = mapping[str(task["id"])]
+
+
+def context_reference(work_root: str, plan_id: str, relative: str) -> str:
+    return (Path(work_root) / plan_id / relative).as_posix()
+
+
+def render_context_item(item: dict[str, Any]) -> str:
+    sources = ", ".join(f"`{source}`" for source in item["source_refs"])
+    label = "source" if len(item["source_refs"]) == 1 else "sources"
+    return (
+        f"- **{item['id']}** `{item['kind']}` — {item['text']} "
+        f"_({label}: {sources})_"
+    )
+
+
+def render_global_context(execution_context: dict[str, Any]) -> str:
+    items = execution_context["global"]["items"]
+    return (
+        "# Execution context\n\n"
+        "Applies to every executable TODO. Treat only these items as shared invariants; "
+        "they do not add scope.\n\n"
+        + "\n".join(render_context_item(item) for item in items)
+        + "\n"
+    )
+
+
+def render_scoped_context(context: dict[str, Any]) -> str:
+    tasks = ", ".join(f"`{task_id}`" for task_id in context["task_ids"])
+    return (
+        f"# {context['title']}\n\n"
+        f"Applies only to TODOs {tasks}. Do not use this file for other TODOs.\n\n"
+        + "\n".join(render_context_item(item) for item in context["items"])
+        + "\n"
+    )
+
+
+def render_execution_context_strategy(execution_context: dict[str, Any]) -> str:
+    global_context = execution_context["global"]
+    lines = [
+        f"- Global context decision: **{global_context['decision']}**",
+        f"- Rationale: {global_context['rationale']}",
+    ]
+    if global_context["decision"] == "create":
+        lines.append(
+            f"- `{GLOBAL_CONTEXT_FILE}`: {len(global_context['items'])} universal item(s)"
+        )
+    else:
+        lines.append(f"- `{GLOBAL_CONTEXT_FILE}` is intentionally omitted.")
+    if execution_context["scoped"]:
+        lines.append("- Scoped context files:")
+        for context in execution_context["scoped"]:
+            tasks = ", ".join(context["task_ids"])
+            lines.append(
+                f"  - `{context['file']}` -> TODOs {tasks}: {context['rationale']}"
+            )
+    else:
+        lines.append("- No scoped context files are needed.")
+    return "\n".join(lines)
+
+
+def write_context_artifacts(plan_dir: Path, execution_context: dict[str, Any]) -> None:
+    if execution_context["global"]["decision"] == "create":
+        atomic_write_text(plan_dir / GLOBAL_CONTEXT_FILE, render_global_context(execution_context))
+    if execution_context["scoped"]:
+        context_dir = plan_dir / CONTEXT_DIRECTORY
+        context_dir.mkdir()
+        for context in execution_context["scoped"]:
+            atomic_write_text(plan_dir / context["file"], render_scoped_context(context))
+
+
+def validate_context_artifacts(
+    plan_dir: Path,
+    manifest: dict[str, Any],
+    tasks: list[dict[str, Any]],
+) -> list[str]:
+    errors: list[str] = []
+    try:
+        execution_context = normalize_execution_context(
+            manifest.get("execution_context"), tasks
+        )
+    except PlanError as exc:
+        return [str(exc)]
+    if manifest.get("execution_context") != execution_context:
+        errors.append("manifest execution_context is not in canonical normalized form")
+
+    expected_contents: dict[str, str] = {}
+    if execution_context["global"]["decision"] == "create":
+        expected_contents[GLOBAL_CONTEXT_FILE] = render_global_context(execution_context)
+    for context in execution_context["scoped"]:
+        expected_contents[context["file"]] = render_scoped_context(context)
+
+    global_path = plan_dir / GLOBAL_CONTEXT_FILE
+    if execution_context["global"]["decision"] == "omit" and global_path.exists():
+        errors.append(f"Unexpected {GLOBAL_CONTEXT_FILE}; the plan explicitly omitted global context")
+
+    for relative, expected in expected_contents.items():
+        path = plan_dir / relative
+        if path.is_symlink() or not path.is_file():
+            errors.append(f"Missing or invalid context file: {relative}")
+            continue
+        try:
+            actual = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            errors.append(f"Cannot read context file {relative}: {exc}")
+            continue
+        if actual != expected:
+            errors.append(f"Context file does not match manifest rendering: {relative}")
+
+    expected_scoped = {
+        path for path in expected_contents if path.startswith(f"{CONTEXT_DIRECTORY}/")
+    }
+    context_dir = plan_dir / CONTEXT_DIRECTORY
+    if expected_scoped:
+        if context_dir.is_symlink() or not context_dir.is_dir():
+            errors.append(f"Missing or invalid {CONTEXT_DIRECTORY}/ directory")
+        else:
+            actual_scoped: set[str] = set()
+            for child in context_dir.iterdir():
+                relative = child.relative_to(plan_dir).as_posix()
+                if child.is_symlink() or not child.is_file():
+                    errors.append(f"Unexpected non-file context artifact: {relative}")
+                else:
+                    actual_scoped.add(relative)
+            for unexpected in sorted(actual_scoped - expected_scoped):
+                errors.append(f"Unexpected scoped context file: {unexpected}")
+    elif context_dir.exists():
+        errors.append(f"Unexpected {CONTEXT_DIRECTORY}/ directory; no scoped context is defined")
+
+    mapping = expected_task_context_files(tasks, execution_context)
+    all_context_files = set(expected_contents)
+    work_root = str(manifest.get("work_root", WORK_ROOT_DEFAULT))
+    plan_id = str(manifest.get("plan_id", ""))
+    for task in tasks:
+        task_id = str(task.get("id", "?"))
+        expected_files = mapping.get(task_id, [])
+        actual_files = task.get("context_files")
+        if actual_files != expected_files:
+            errors.append(
+                f"Task {task_id}: context_files must be exactly {expected_files!r}"
+            )
+        task_file = task.get("file")
+        if not isinstance(task_file, str):
+            continue
+        task_path = plan_dir / task_file
+        if not task_path.is_file():
+            continue
+        try:
+            task_text = task_path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        for relative in all_context_files:
+            reference = context_reference(work_root, plan_id, relative)
+            marker = f"`{reference}`"
+            if relative in expected_files and marker not in task_text:
+                errors.append(
+                    f"Task {task_id}: definition does not reference assigned context {relative}"
+                )
+            if relative not in expected_files and marker in task_text:
+                errors.append(
+                    f"Task {task_id}: definition references unassigned context {relative}"
+                )
+    return errors
 
 
 def atomic_write_text(path: Path, content: str) -> None:
@@ -767,7 +1243,8 @@ def render_analysis(manifest: dict[str, Any]) -> str:
 def render_plan_review(manifest: dict[str, Any]) -> str:
     review = manifest["plan_review"]
     checks = "\n".join(
-        f"- {field.replace('_', ' ')}: **pass**" for field in REQUIRED_REVIEW_CHECKS
+        f"- {field.replace('_', ' ')}: **pass**"
+        for field in review_checks_for_schema(manifest.get("schema_version"))
     )
     return f"""# Plan review — {manifest['title']}
 
@@ -788,7 +1265,6 @@ def render_plan_review(manifest: dict[str, Any]) -> str:
 {markdown_list(review['unresolved_findings'])}
 """
 
-
 def render_plan(manifest: dict[str, Any]) -> str:
     request_parts = manifest["request_analysis"]["request_parts"]
     request_coverage = request_part_coverage(request_parts, manifest["requirements"])
@@ -803,6 +1279,10 @@ def render_plan(manifest: dict[str, Any]) -> str:
         f"- **{requirement['id']}** -> {', '.join(requirement_task_coverage[requirement['id']])}"
         for requirement in manifest["requirements"]
     )
+    if int(manifest.get("schema_version", 0)) >= 3:
+        context_strategy = render_execution_context_strategy(manifest["execution_context"])
+    else:
+        context_strategy = "- Legacy plan: no first-class execution-context strategy."
     return f"""# {manifest['title']}
 
 ## Goal
@@ -829,6 +1309,10 @@ def render_plan(manifest: dict[str, Any]) -> str:
 
 {markdown_list(manifest['global_constraints'])}
 
+## Execution-context strategy
+
+{context_strategy}
+
 ## Planning evidence
 
 {f"- Original user-authored request: `{manifest['request_source']['file']}`" if manifest.get('request_source') else "- Original request source: agent conversation"}
@@ -837,24 +1321,35 @@ def render_plan(manifest: dict[str, Any]) -> str:
 - Every request part maps to at least one requirement.
 - Every requirement maps to at least one executable TODO, and every TODO maps back to requirements.
 - Executable TODOs may be low, medium, or high complexity; extreme work must be split before plan creation.
+- Shared context is omitted by default and created only when the reviewer confirms it is minimal and materially useful.
 
 ## Execution policy
 
 - Start automatically after validation: **{'yes' if manifest['autostart'] else 'no'}**
 - Delete planning artifacts after successful summary: **{'yes' if manifest['cleanup_on_success'] else 'no'}**
 - Default execution: sequential for write tasks; parallel only for read-only tasks or isolated worktrees.
-- Each worker may read only its assigned task definition. Source files and test output relevant to that task are allowed.
+- Each worker may read its assigned task definition and only the exact context files referenced there.
 - Reading another task definition requires a blocked dependency, ambiguity, or validation conflict and must be recorded.
 
 Plan id: `{manifest['plan_id']}`  
 Created: `{manifest['created_at']}`
 """
 
-def render_task(task: dict[str, Any], plan_id: str) -> str:
+def render_task(
+    task: dict[str, Any],
+    plan_id: str,
+    work_root: str = WORK_ROOT_DEFAULT,
+) -> str:
     dependency_text = ", ".join(task["dependencies"]) or "none"
     related_text = ", ".join(task["related_task_reads"]) or "none"
     related_files = task.get("related_task_files", [])
     expected = task["scope"]["expected_files"]
+    context_files = task.get("context_files", [])
+    context_references = [
+        context_reference(work_root, plan_id, relative) for relative in context_files
+    ]
+    context_frontmatter = ", ".join(context_files) or "none"
+    context_markdown = markdown_list([f"`{item}`" for item in context_references])
     return f"""---
 task_id: "{task['id']}"
 plan_id: "{plan_id}"
@@ -865,6 +1360,7 @@ reasoning_effort: "{task['reasoning_effort']}"
 complexity: "{task['complexity']}"
 requirements: "{', '.join(task['requirement_ids'])}"
 dependencies: "{dependency_text}"
+context_files: "{context_frontmatter}"
 allowed_related_task_reads: "{related_text}"
 ---
 
@@ -885,9 +1381,13 @@ allowed_related_task_reads: "{related_text}"
 
 ## Isolation contract
 
-This is the only planning definition file assigned to this worker. Do not open `PLAN.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, result files, or any other file under this plan directory. You may read repository source, tests, build files, and runtime output that are relevant to this task.
+This task definition and the exact execution-context files listed below are the only planning artifacts assigned to this worker. Read the task definition first, then read every assigned context file. Do not discover or open any other context file, `PLAN.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, result files, logs, or unrelated task definitions. You may read repository source, tests, build files, and runtime output relevant to this task.
 
 Another task definition may be opened only when one of the explicitly allowed task ids above is necessary to resolve a blocked dependency, ambiguity, or validation conflict. Record the task id and reason in the completion report.
+
+## Assigned execution context
+
+{context_markdown}
 
 ## In scope
 
@@ -923,9 +1423,8 @@ Another task definition may be opened only when one of the explicitly allowed ta
 
 ## Completion report
 
-Return a concise report with: status, summary, changed files, validations executed, remaining risks, follow-ups, and any related task definition read with its reason. Do not edit planning files directly.
+Return a concise report with: status, summary, changed files, validations executed, remaining risks, follow-ups, context files read, and any related task definition read with its reason. Do not edit planning or context files directly.
 """
-
 
 def render_todo(manifest: dict[str, Any]) -> str:
     marker = {
@@ -1017,7 +1516,6 @@ def create_plan(
     )
     request_part_coverage(request_analysis["request_parts"], requirements)
     known_requirement_ids = {item["id"] for item in requirements}
-    plan_review = normalize_plan_review(spec.get("plan_review"))
     autostart = bool(spec.get("autostart", True))
     if autostart and request_analysis["open_questions"]:
         raise PlanError(
@@ -1034,6 +1532,9 @@ def create_plan(
     ]
     validate_task_graph(tasks)
     requirement_coverage(requirements, tasks)
+    execution_context = normalize_execution_context(spec.get("execution_context"), tasks)
+    assign_context_files(tasks, execution_context)
+    plan_review = normalize_plan_review(spec.get("plan_review"), SCHEMA_VERSION)
 
     request_source_path: Path | None = None
     request_source: dict[str, Any] | None = None
@@ -1081,7 +1582,9 @@ def create_plan(
         task["file"] = f"tasks/{task['id']}-{task['slug']}.md"
     task_file_by_id = {task["id"]: task["file"] for task in tasks}
     for task in tasks:
-        task["related_task_files"] = [task_file_by_id[item] for item in task["related_task_reads"]]
+        task["related_task_files"] = [
+            task_file_by_id[item] for item in task["related_task_reads"]
+        ]
 
     manifest: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
@@ -1091,6 +1594,7 @@ def create_plan(
         "request_analysis": request_analysis,
         "requirements": requirements,
         "global_constraints": ensure_str_list(spec.get("global_constraints"), "global_constraints"),
+        "execution_context": execution_context,
         "plan_review": plan_review,
         "repo_root": str(repo_root),
         "work_root": Path(work_root).as_posix(),
@@ -1123,8 +1627,12 @@ def create_plan(
     atomic_write_text(plan_dir / "ANALYSIS.md", render_analysis(manifest))
     atomic_write_text(plan_dir / "PLAN.md", render_plan(manifest))
     atomic_write_text(plan_dir / "PLAN_REVIEW.md", render_plan_review(manifest))
+    write_context_artifacts(plan_dir, execution_context)
     for task in tasks:
-        atomic_write_text(plan_dir / task["file"], render_task(task, normalized_plan_id))
+        atomic_write_text(
+            plan_dir / task["file"],
+            render_task(task, normalized_plan_id, Path(work_root).as_posix()),
+        )
     atomic_write_json(plan_dir / CONFIG, default_config())
     save_manifest(plan_dir, manifest)
     errors = validate_plan(plan_dir, manifest)
@@ -1154,7 +1662,6 @@ def create_plan(
                 save_manifest(plan_dir, manifest)
     return plan_dir
 
-
 def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> list[str]:
     if manifest is None:
         plan_dir, manifest = load_plan(plan_dir)
@@ -1171,7 +1678,7 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
     except PlanError as exc:
         errors.append(str(exc))
 
-    if schema_version == 2:
+    if schema_version in {2, 3}:
         analysis: dict[str, Any] | None = None
         normalized_requirements: list[dict[str, Any]] = []
         try:
@@ -1193,14 +1700,12 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
             errors.append(str(exc))
         if analysis is not None and normalized_requirements:
             try:
-                request_part_coverage(
-                    analysis["request_parts"], normalized_requirements
-                )
+                request_part_coverage(analysis["request_parts"], normalized_requirements)
             except PlanError as exc:
                 errors.append(str(exc))
         try:
-            normalize_plan_review(manifest.get("plan_review"))
-        except PlanError as exc:
+            normalize_plan_review(manifest.get("plan_review"), int(schema_version))
+        except (PlanError, TypeError, ValueError) as exc:
             errors.append(str(exc))
 
         known_requirements = {item["id"] for item in normalized_requirements}
@@ -1238,6 +1743,9 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
         for required_file in ("ANALYSIS.md", "PLAN_REVIEW.md"):
             if not (plan_dir / required_file).is_file():
                 errors.append(f"Missing {required_file}")
+
+    if schema_version == 3:
+        errors.extend(validate_context_artifacts(plan_dir, manifest, tasks))
 
     for task in tasks:
         task_id = task.get("id", "?")
@@ -1284,7 +1792,6 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
         errors.append(f"Missing {CONFIG}")
     return errors
 
-
 def render_audit(manifest: dict[str, Any]) -> str:
     schema_version = manifest.get("schema_version")
     lines = [
@@ -1293,7 +1800,7 @@ def render_audit(manifest: dict[str, Any]) -> str:
         f"- Schema: **{schema_version}**",
         f"- Tasks: **{len(manifest.get('tasks', []))}**",
     ]
-    if schema_version == 2:
+    if schema_version in {2, 3}:
         request_parts = manifest.get("request_analysis", {}).get("request_parts", [])
         requirements = manifest.get("requirements", [])
         request_coverage = request_part_coverage(request_parts, requirements)
@@ -1336,6 +1843,25 @@ def render_audit(manifest: dict[str, Any]) -> str:
                 "- extreme: 0 (rejected by validation)",
             ]
         )
+        if schema_version == 3:
+            execution_context = manifest.get("execution_context", {})
+            global_context = execution_context.get("global", {})
+            scoped = execution_context.get("scoped", [])
+            assigned_reads = sum(
+                len(task.get("context_files", [])) for task in manifest.get("tasks", [])
+            )
+            lines.extend(
+                [
+                    "",
+                    "## Progressive execution context",
+                    "",
+                    f"- Global decision: **{global_context.get('decision', 'missing')}**",
+                    f"- Global items: {len(global_context.get('items', []))}",
+                    f"- Scoped files: {len(scoped)}",
+                    f"- Total task-to-context assignments: {assigned_reads}",
+                    "- Context minimality review: **pass**",
+                ]
+            )
     else:
         lines.extend(["", "Legacy schema: plan quality traceability is not available."])
     return "\n".join(lines) + "\n"
@@ -1497,6 +2023,18 @@ def cleanup_plan(plan_dir: Path, manifest: dict[str, Any], force: bool = False) 
         if manifest.get("summary_status") != "generated":
             raise PlanError("Refusing cleanup before the final summary is generated")
     parent = plan_dir.parent
+    # Direct guarded cleanup must not leave a pointer to a deleted plan.
+    active_pointer = Path(manifest["repo_root"]) / manifest["work_root"] / ".active-plan.json"
+    if active_pointer.is_file() and not active_pointer.is_symlink():
+        try:
+            active_record = read_json(active_pointer)
+        except PlanError:
+            active_record = None
+        if isinstance(active_record, dict) and active_record.get("plan_id") == manifest.get("plan_id"):
+            try:
+                active_pointer.unlink()
+            except FileNotFoundError:
+                pass
     shutil.rmtree(plan_dir)
     parent_removed = False
     try:

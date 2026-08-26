@@ -64,8 +64,10 @@
     "notes": [
       "Confirmed that both request parts map to requirements and executable TODOs.",
       "Confirmed that production behavior and automated coverage have separate validation boundaries.",
-      "Confirmed that no TODO is extreme and the dependency graph is acyclic."
-    ]
+      "Confirmed that no TODO is extreme and the dependency graph is acyclic.",
+      "Confirmed that the single global context item is required by both TODOs and that no scoped context file is justified."
+    ],
+    "contexts_minimal": true
   },
   "autostart": true,
   "cleanup_on_success": true,
@@ -148,5 +150,24 @@
       "model_tier": "standard",
       "reasoning_effort": "medium"
     }
-  ]
+  ],
+  "execution_context": {
+    "global": {
+      "decision": "create",
+      "rationale": "Both implementation and automated-coverage TODOs must preserve the same public compatibility boundary and unrelated working-tree changes.",
+      "items": [
+        {
+          "id": "G001",
+          "kind": "constraint",
+          "text": "Preserve the existing public contract and unrelated working-tree changes in every TODO.",
+          "necessity": "Both TODOs can affect or validate behavior through the public interface and operate in the same working tree.",
+          "source_refs": [
+            "request:P001",
+            "global_constraint:Preserve unrelated working-tree changes."
+          ]
+        }
+      ]
+    },
+    "scoped": []
+  }
 }

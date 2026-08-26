@@ -1,7 +1,7 @@
 {
   "name": "@luizcgvrj/plan-and-execute",
-  "version": "0.4.0",
-  "description": "Install the plan-and-execute skill for guided request capture, adaptive evidence-backed study, traceable recursive planning, and isolated Claude Code or Codex execution.",
+  "version": "0.6.0",
+  "description": "Install the plan-and-execute skill for adaptive evidence-backed planning, minimal global or task-scoped execution context, resumable lifecycle control, and isolated Claude Code or Codex workers.",
   "type": "module",
   "bin": {
     "plan-and-execute": "bin/plan-and-execute.js",
@@ -43,7 +43,11 @@
     "orchestration",
     "planning",
     "research",
-    "vscode"
+    "vscode",
+    "resume",
+    "lifecycle",
+    "context-engineering",
+    "progressive-context"
   ],
   "author": "Luiz Valenca",
   "license": "MIT",
