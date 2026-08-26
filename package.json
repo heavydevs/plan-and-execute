@@ -1,7 +1,7 @@
 {
   "name": "@luizcgvrj/plan-and-execute",
-  "version": "0.3.0",
-  "description": "Install the plan-and-execute skill for guided request capture, deep request analysis, traceable recursive planning, and isolated Claude Code or Codex execution.",
+  "version": "0.4.0",
+  "description": "Install the plan-and-execute skill for guided request capture, adaptive evidence-backed study, traceable recursive planning, and isolated Claude Code or Codex execution.",
   "type": "module",
   "bin": {
     "plan-and-execute": "bin/plan-and-execute.js",
@@ -42,6 +42,7 @@
     "codex",
     "orchestration",
     "planning",
+    "research",
     "vscode"
   ],
   "author": "Luiz Valenca",

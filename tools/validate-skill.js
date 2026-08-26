@@ -58,9 +58,28 @@ for (const [needle, matches] of forbidden) {
   }
 }
 
+const requiredSkillFiles = [
+  'SKILL.md',
+  path.join('agents', 'openai.yaml'),
+  path.join('references', 'ADAPTIVE_STUDY.md'),
+  path.join('references', 'study-spec.example.json'),
+  path.join('scripts', 'studyctl.py'),
+  path.join('scripts', 'study_self_test.py')
+];
+for (const relative of requiredSkillFiles) {
+  if (!fs.existsSync(path.join(SKILL_SOURCE, relative))) {
+    console.error(`Bundled skill is missing ${relative}.`);
+    process.exit(1);
+  }
+}
+
 const metadata = fs.readFileSync(path.join(SKILL_SOURCE, 'agents', 'openai.yaml'), 'utf8');
 if (!metadata.includes('display_name: "Plan and Execute"')) {
   console.error('agents/openai.yaml does not contain the expected display_name.');
+  process.exit(1);
+}
+if (!metadata.includes('adaptive study')) {
+  console.error('agents/openai.yaml must mention the adaptive study gate.');
   process.exit(1);
 }
 
@@ -68,7 +87,12 @@ const skill = fs.readFileSync(path.join(SKILL_SOURCE, 'SKILL.md'), 'utf8');
 for (const requiredText of [
   'No arguments: create an editable request draft',
   '--move-request',
+  'Pass the adaptive study gate before planning',
+  'studyctl.py validate',
+  'studyctl.py attach',
+  'studyctl.py validate-plan',
   'Keep `TODO.md` intentionally terse',
+  'references/ADAPTIVE_STUDY.md',
   'references/INTAKE.md'
 ]) {
   if (!skill.includes(requiredText)) {
@@ -77,9 +101,40 @@ for (const requiredText of [
   }
 }
 
+const studyProtocol = fs.readFileSync(
+  path.join(SKILL_SOURCE, 'references', 'ADAPTIVE_STUDY.md'),
+  'utf8'
+);
+for (const requiredText of [
+  'Mandatory internal study',
+  'Conditional external research',
+  'user_requested',
+  'version_sensitive',
+  'security_sensitive',
+  'studyctl.py attach',
+  'exact-text rule'
+]) {
+  if (!studyProtocol.includes(requiredText)) {
+    console.error(`ADAPTIVE_STUDY.md is missing required protocol text: ${requiredText}`);
+    process.exit(1);
+  }
+}
+
+const studyExample = JSON.parse(
+  fs.readFileSync(path.join(SKILL_SOURCE, 'references', 'study-spec.example.json'), 'utf8')
+);
+if (studyExample.schema_version !== 1 || !studyExample.synthesis?.ready_for_planning) {
+  console.error('study-spec.example.json must be a ready schema version 1 example.');
+  process.exit(1);
+}
+
 const readme = fs.readFileSync(path.join(process.cwd(), 'README.md'), 'utf8');
-if (!readme.startsWith('# Plan and Execute\n\n**Turn large coding requests')) {
-  console.error('README.md must begin with the English outcome-focused introduction.');
+if (!readme.startsWith('# Plan and Execute\n\n**Turn large coding requests into an evidence-backed')) {
+  console.error('README.md must begin with the evidence-backed outcome introduction.');
+  process.exit(1);
+}
+if (!readme.includes('## Adaptive study gate')) {
+  console.error('README.md must document the adaptive study gate.');
   process.exit(1);
 }
 if (!fs.existsSync(path.join(process.cwd(), 'README.pt-BR.md'))) {
@@ -88,8 +143,8 @@ if (!fs.existsSync(path.join(process.cwd(), 'README.pt-BR.md'))) {
 }
 
 const packageMetadata = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
-if (packageMetadata.version !== '0.3.0') {
-  console.error(`Expected package version 0.3.0, found ${packageMetadata.version}.`);
+if (packageMetadata.version !== '0.4.0') {
+  console.error(`Expected package version 0.4.0, found ${packageMetadata.version}.`);
   process.exit(1);
 }
 if (!packageMetadata.repository?.url?.includes('heavydevs/plan-and-execute')) {

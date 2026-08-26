@@ -1,20 +1,22 @@
 # Plan and Execute
 
-**Turn large coding requests into a reviewed, traceable execution plan — then run each task in a fresh, focused agent context.**
+**Turn large coding requests into an evidence-backed, reviewed, traceable execution plan, then run each task in a fresh focused context.**
 
-Plan and Execute helps Claude Code and Codex handle migrations, refactors, multi-workstream features, and other changes that are too large for a single chat context. It studies the full request and repository first, proves that every requirement is covered, splits oversized work recursively, validates every task independently, and keeps the implementation resumable on disk.
+Plan and Execute helps Claude Code and Codex handle migrations, refactors, multi-workstream features, and other changes that are too large for one chat context. Before planning, it studies the complete request and concrete repository evidence, decides whether external research is materially necessary, and blocks shallow plans whose findings were not translated into constraints, requirements, risks, and validation.
 
 What you gain:
 
+- mandatory internal repository study before planning;
+- external research only when explicit triggers justify it;
+- deterministic proof that study findings affected the plan;
 - fewer requirements lost between planning and implementation;
 - smaller worker contexts with one task definition at a time;
-- deterministic validation instead of “the agent says it is done”;
-- model/effort escalation only when technical evidence justifies it;
+- deterministic validation instead of relying on an agent's completion claim;
+- model and effort escalation only when technical evidence justifies it;
 - safe resume after interruptions or provider limits;
-- a compact TODO list without hiding the detailed task contracts;
 - one install flow for Claude Code, Codex, or both.
 
-[Português](README.pt-BR.md)
+[Portuguese](README.pt-BR.md)
 
 ## Quick start
 
@@ -48,15 +50,15 @@ Codex:
 $plan-and-execute
 ```
 
-With no arguments, the skill creates a guided Markdown request file and opens it in your editor. When running from VS Code, it reuses the active VS Code window when the `code` CLI is available.
+With no arguments, the skill creates a guided Markdown request file and opens it in your editor. When VS Code is active and the `code` CLI is available, it reuses the current window.
 
-Write the complete request, save the file, then choose:
+Write the complete request, save it, then choose:
 
 ```text
-Continue — I finished writing the request
+Continue - I finished writing the request
 ```
 
-The skill moves that draft into the execution workspace as `REQUEST.md`, studies it and the repository, creates and reviews the development plan, passes its quality gates, and starts execution.
+The skill moves that draft into the execution workspace as `REQUEST.md`, passes the adaptive study gate, creates and reviews the plan, runs deterministic quality gates, and starts execution.
 
 ### 3. Or pass the request directly
 
@@ -78,33 +80,98 @@ A caller-owned file is copied into the plan and preserved at its original locati
 
 ```text
 complete request
-      ↓
-request parts (P001, P002, ...)
-      ↓
-requirements (R001, R002, ...)
-      ↓
-reviewed executable TODOs
-      ↓
+      |
+      v
+material questions
+      |
+      v
+mandatory internal repository study
+      |
+      v
+explicit external-research trigger assessment
+      |-----------------------------|
+      v                             v
+authoritative research          research not needed
+      |-----------------------------|
+      v
+validated evidence synthesis
+      |
+      v
+request parts -> requirements -> reviewed TODOs
+      |
+      v
 one fresh worker per TODO
-      ↓
+      |
+      v
 independent validation
-      ↓
-economical final summary + safe cleanup
+      |
+      v
+economical summary + safe cleanup
 ```
 
 Before implementation, the orchestrator:
 
 1. reads the entire request;
-2. inspects relevant code, tests, architecture, schemas, build files, and CI commands;
-3. researches authoritative sources when current or version-sensitive facts matter;
-4. inventories every request part and requirement;
-5. recursively splits each workstream until every leaf task has one coherent outcome;
-6. rejects executable tasks rated `extreme`;
-7. asks a fresh reviewer to challenge coverage, dependencies, atomicity, and validation;
-8. runs deterministic `validate` and `audit` gates;
-9. starts execution only after the plan passes.
+2. identifies questions that can change architecture, compatibility, risk, task boundaries, or validation;
+3. inspects relevant code, tests, instructions, architecture, schemas, build files, CI, and explanatory history;
+4. explicitly evaluates nine external-research triggers;
+5. researches primary authoritative sources only when one or more triggers are true;
+6. validates evidence sufficiency before drafting requirements or TODOs;
+7. inventories every request part and requirement;
+8. recursively splits each workstream until every leaf has one coherent outcome;
+9. uses fresh study and plan reviewers;
+10. proves that evidence was copied into plan constraints, requirements, risks, and task validation;
+11. runs `studyctl validate-plan`, `planctl validate`, and `planctl audit` before execution.
 
-During implementation, each worker sees one task definition rather than the whole chat or future tasks. The orchestrator reruns the required validation commands before marking that task complete.
+During implementation, each worker receives only one task definition. The orchestrator reruns required validation commands before completing the item.
+
+## Adaptive study gate
+
+Internal study is always required because repository-specific instructions, versions, interfaces, and tests define the real change surface. External research is conditional rather than automatic.
+
+External research becomes required when any of these conditions is true:
+
+- the user explicitly requests research or verification;
+- the domain is unfamiliar;
+- behavior depends on an exact version or may have changed recently;
+- security-sensitive behavior is involved;
+- the repository lacks a material contract;
+- internal evidence conflicts;
+- a technology or provider must be selected;
+- an incorrect assumption would be high risk.
+
+When every trigger is false, the plan may rely exclusively on internal evidence, but it must record a substantive reason. When a trigger is true and authoritative evidence cannot be obtained, planning is blocked rather than guessed.
+
+The study specification records:
+
+- material questions and their resolution;
+- internal evidence locations, findings, and planning impact;
+- the external trigger assessment and research decision;
+- authoritative external sources, version/date, and conclusions when required;
+- synthesized constraints, derived requirements, risks, and validation implications;
+- an independent sufficiency review and stopping rule.
+
+Validate before planning:
+
+```bash
+python <skill-dir>/scripts/studyctl.py validate \
+  --spec /tmp/study-spec.json
+```
+
+After plan creation, attach and verify exact integration:
+
+```bash
+python <skill-dir>/scripts/studyctl.py attach \
+  --spec /tmp/study-spec.json \
+  --plan .ai-work/<plan-id>
+
+python <skill-dir>/scripts/studyctl.py validate-plan \
+  --plan .ai-work/<plan-id>
+```
+
+The attachment gate rejects research notes that were never used. Internal findings must appear in repository analysis; external findings must appear in research analysis; synthesized constraints, requirements, and risks must appear in matching plan fields; validation implications must appear in task criteria, guidance, or commands.
+
+See [the adaptive study protocol](skill/plan-and-execute/references/ADAPTIVE_STUDY.md) and [the study-spec example](skill/plan-and-execute/references/study-spec.example.json).
 
 ## Request intake modes
 
@@ -116,38 +183,36 @@ Invoke the skill without arguments. It creates:
 .ai-work/intake/request-YYYYMMDD-HHMMSS.md
 ```
 
-The top of the file contains short instructions. The rest provides sections for goals, requirements, constraints, context, tests, and definition of done.
-
-After you confirm that editing is finished, the file becomes:
+The file provides sections for goals, requirements, constraints, context, tests, and definition of done. After confirmation, it becomes:
 
 ```text
 .ai-work/<plan-id>/REQUEST.md
 ```
 
-The temporary intake copy is removed only after the plan has safely preserved and validated it.
+The temporary draft is removed only after the plan preserves and validates it.
 
 ### Existing file
 
-Pass one existing regular file path as the complete invocation argument. The skill validates the file, reads it in full, and copies it to `REQUEST.md`. Directories, missing files, and symbolic links are rejected.
+Pass one existing regular file path as the complete invocation argument. The skill validates and reads the entire file, copies it to `REQUEST.md`, and preserves the source. Directories, missing files, and symbolic links are rejected.
 
 ### Inline text
 
 Any other non-empty arguments are treated as the complete inline request.
 
-## Concise TODO, detailed task contracts
+## Concise TODO, detailed contracts
 
-`TODO.md` is intentionally easy to scan:
+`TODO.md` stays easy to scan:
 
 ```markdown
-# TODO — OAuth migration
+# TODO - OAuth migration
 
-- [x] **001** — Add OAuth persistence model
-- [ ] **002** — Implement authorization-code callback _(in progress)_
-- [ ] **003** — Preserve password-login compatibility
-- [ ] **004** — Add migration and rollback tests
+- [x] **001** - Add OAuth persistence model
+- [ ] **002** - Implement authorization-code callback _(in progress)_
+- [ ] **003** - Preserve password-login compatibility
+- [ ] **004** - Add migration and rollback tests
 ```
 
-It contains one line per item. Provider, model, reasoning effort, complexity, requirement mappings, dependencies, acceptance criteria, and validation commands live in each file under `tasks/` and in `manifest.json`.
+Provider, model, effort, complexity, requirement mappings, dependencies, acceptance criteria, and validation commands live in task files and `manifest.json`.
 
 ## Installation options
 
@@ -158,9 +223,9 @@ npx --yes --package=github:heavydevs/plan-and-execute \
   plan-and-execute install --agent both --scope user
 ```
 
-### From npm after publication
+### From npm
 
-The current package name remains `@luizcgvrj/plan-and-execute`:
+The package name remains `@luizcgvrj/plan-and-execute`:
 
 ```bash
 npx --yes @luizcgvrj/plan-and-execute \
@@ -188,26 +253,13 @@ See [the installation guide](skill/plan-and-execute/references/INSTALLATION.md) 
 ## Installer commands
 
 ```bash
-# Install both agents in the current workspace
 pae install both --local
-
-# Install only Claude for the current user
 pae install claude --global
-
-# Install Codex in another workspace
 pae install codex --cwd /path/to/project
-
-# Inspect targets and installation state
 pae paths both --global
 pae status both --global
-
-# Diagnose Node, Python, and provider CLIs
 pae doctor
-
-# Preview without changing files
 pae install both --local --dry-run
-
-# Remove managed copies
 pae uninstall both --global
 ```
 
@@ -221,17 +273,10 @@ Use the active Claude Code or Codex chat. The orchestrator creates a fresh nativ
 
 ### Strict external runner
 
-Use a terminal outside the active nested provider session when you need a new process for every attempt, exact CLI model routing, or automatic rate-limit waiting:
+Use a terminal outside the active nested provider session when you need a fresh process for every attempt, exact CLI routing, or automatic rate-limit waiting:
 
 ```bash
-python .agents/skills/plan-and-execute/scripts/run_isolated.py \
-  --plan .ai-work/<plan-id>
-```
-
-or:
-
-```bash
-python .claude/skills/plan-and-execute/scripts/run_isolated.py \
+python <skill-dir>/scripts/run_isolated.py \
   --plan .ai-work/<plan-id>
 ```
 
@@ -247,38 +292,40 @@ python <skill-dir>/scripts/run_isolated.py \
 
 ```text
 .ai-work/<plan-id>/
-├── REQUEST.md                 # when the request came from a file
-├── ANALYSIS.md
-├── PLAN.md
-├── PLAN_REVIEW.md
-├── TODO.md                    # one concise line per task
-├── manifest.json              # source of truth
-├── orchestrator.config.json
-├── tasks/                     # detailed isolated task contracts
-├── results/
-└── logs/
+|-- REQUEST.md                 # when the request came from a file
+|-- study.json                 # canonical adaptive-study evidence
+|-- STUDY.md                   # human-readable study evidence
+|-- ANALYSIS.md
+|-- PLAN.md
+|-- PLAN_REVIEW.md
+|-- TODO.md                    # one concise line per task
+|-- manifest.json              # source of truth and study hash
+|-- orchestrator.config.json
+|-- tasks/                     # detailed isolated task contracts
+|-- results/
+`-- logs/
 ```
 
-The plan validator checks request hashes, traceability, task complexity, review approval, dependencies, task files, acceptance criteria, and validation commands.
+The validators check request hashes, study evidence and plan integration, traceability, task complexity, review approval, dependencies, task files, acceptance criteria, and validation commands.
 
 ## Model routing and recovery
 
 Tasks use logical tiers:
 
 ```text
-economy → standard → strong → max
+economy -> standard -> strong -> max
 ```
 
-The concrete provider/model mapping is stored in `orchestrator.config.json` so it can evolve without rewriting every task. Functional failures can increase effort, model tier, and eventually provider. Rate limits or exhausted credits preserve the task as pending and do not count as technical failures.
+Concrete provider/model mapping lives in `orchestrator.config.json`. Functional failures can increase effort, model tier, and eventually provider. Rate limits or exhausted credits preserve the task as pending and do not count as technical failures.
 
-Restarting the runner resumes from `manifest.json`. A stopped computer or process cannot restart itself; launch the same command again or use an external service/CI scheduler.
+Restarting the runner resumes from `manifest.json`. A stopped process cannot restart itself; launch the same command again or use an external service or CI scheduler.
 
 ## Safety model
 
 - write-heavy tasks run sequentially unless isolated in separate worktrees;
-- workers do not receive the full plan or future task definitions;
+- workers do not receive the full plan, study files, or future task definitions;
 - deterministic validation runs outside the worker;
-- a planning defect triggers replanning instead of blind model escalation;
+- a material unknown triggers renewed study and replanning instead of blind escalation;
 - cleanup requires a plan sentinel, completed tasks, and a generated summary;
 - cleanup removes only the exact `.ai-work/<plan-id>` directory;
 - implementation files, tests, commits, and unrelated plans are preserved.
@@ -299,12 +346,14 @@ npm run check
 npm pack --dry-run
 ```
 
-The checks cover the Node installer and CLI, request-file/editor intake, request copy/move semantics, traceability, recursive-planning gates, state transitions, model escalation, strict-runner simulation, validation, summarization, and guarded cleanup.
+The suite covers the installer and CLI, request intake, adaptive study validation and plan attachment, traceability, recursive planning gates, state transitions, escalation, strict-runner simulation, summarization, and guarded cleanup.
 
 ## Documentation
 
 - [Portuguese README](README.pt-BR.md)
 - [Request intake](skill/plan-and-execute/references/INTAKE.md)
+- [Adaptive study gate](skill/plan-and-execute/references/ADAPTIVE_STUDY.md)
+- [Study-spec example](skill/plan-and-execute/references/study-spec.example.json)
 - [Deep planning protocol](skill/plan-and-execute/references/PLANNING_PROTOCOL.md)
 - [Execution workflow](skill/plan-and-execute/references/WORKFLOW.md)
 - [Plan specification](skill/plan-and-execute/references/PLAN_SPEC.md)

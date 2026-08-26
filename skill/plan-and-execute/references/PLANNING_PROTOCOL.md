@@ -3,115 +3,194 @@
 ## Contents
 
 1. Planning outcome
-2. Study the complete request
-3. Study the repository and subject
+2. Resolve and inventory the complete request
+3. Pass the adaptive study gate
 4. Build the requirements inventory
 5. Decompose recursively
 6. Review the plan independently
-7. Pass the deterministic quality gate
-8. Replan when execution disproves the plan
+7. Pass deterministic quality gates
+8. Replan when execution disproves the study or plan
 
 ## 1. Planning outcome
 
-Produce an implementation plan only after understanding every requested outcome, relevant repository constraint, material dependency, risk, and validation need. Planning is complete only when:
+Produce an implementation plan only after understanding every requested outcome, relevant repository constraint, material external contract, risk, and validation need.
 
-- every distinct request part appears in `request_analysis.request_parts` with a stable id;
-- every request-part id maps to at least one explicit or necessary derived requirement;
-- every requirement has a stable id;
-- every requirement id maps to at least one executable TODO;
+Planning is complete only when:
+
+- every distinct request part has a stable id such as `P001`;
+- every material question was resolved or safely bounded by evidence;
+- internal repository study is concrete and non-empty;
+- every external-research trigger was explicitly evaluated;
+- required external research uses authoritative version-appropriate sources;
+- `studyctl.py validate` passed before requirements or TODOs were drafted;
+- every study finding was translated into plan constraints, requirements, risks, or validation;
+- every request part maps to one or more requirements;
+- every requirement maps to one or more executable TODOs;
 - every TODO has one coherent outcome and an independent validation path;
 - no executable TODO is rated `extreme`;
-- a separate review pass approves coverage, atomicity, dependencies, and validation;
-- `planctl.py validate` and `planctl.py audit` pass.
+- separate study and plan review passes approve sufficiency and quality;
+- `studyctl.py validate-plan`, `planctl.py validate`, and `planctl.py audit` all pass.
 
-Do not confuse a long checklist with a good plan. Prefer the smallest set of tasks that preserves clear ownership, independent verification, and low context overlap.
+Do not confuse a long checklist or link collection with a good plan. Prefer the smallest evidence set and task graph that resolve material uncertainty, preserve traceability, and support independent verification.
 
-## 2. Study the complete request
+## 2. Resolve and inventory the complete request
 
-Resolve the request source before drafting tasks:
+Resolve the request source before studying or planning:
 
-- for no-argument invocation, wait until the user confirms the generated draft is saved, validate it with `requestctl.py`, and move it into the plan as `REQUEST.md` only when the plan is created;
-- for a caller-provided file path, validate and copy it into the plan as `REQUEST.md` while preserving the source;
-- for inline invocation text, treat the complete argument text as the request.
+- for no-argument invocation, wait for the user to save and confirm the generated request draft;
+- for a caller-provided file, validate and read the entire file while preserving the source;
+- for inline input, treat the complete invocation text as authoritative.
 
-When `REQUEST.md` exists, treat its user-authored body as the authoritative request and preserve it unchanged as planning evidence. Do not mistake the template instructions or headings for requirements.
+When `REQUEST.md` exists, preserve its user-authored body unchanged as planning evidence. Do not treat template headings as requirements.
 
 Read the full request before drafting tasks. Extract and record:
 
-- requested deliverables and behaviors;
-- explicit constraints and non-goals;
+- requested deliverables and observable behavior;
+- explicit constraints, examples, and non-goals;
 - compatibility, security, performance, migration, rollout, and data requirements;
-- requested tests and implicit regression coverage;
+- requested tests and implicit regression expectations;
 - external actions or safety gates;
-- ambiguous terms that materially change the solution.
+- referenced versions, providers, standards, URLs, and documentation;
+- ambiguous terms that can materially change the solution.
 
-Treat a request containing several large changes as several planning workstreams. Do not collapse them into a generic TODO such as “implement everything,” “complete the migration,” or “finish backend and frontend.”
+Give each distinct request part a stable id such as `P001`. Treat several large changes as several workstreams. Never collapse them into a generic task such as "implement everything" or "finish the migration."
 
-Resolve ambiguity from the repository, existing documentation, tests, or authoritative external documentation whenever possible. Record a bounded assumption when the ambiguity is low risk. Ask for user input only when a high-impact decision cannot be inferred safely.
+Resolve ambiguity from repository evidence or authoritative sources whenever possible. Record bounded low-risk assumptions. Ask for user input only when a high-impact decision cannot be inferred safely.
 
-## 3. Study the repository and subject
+## 3. Pass the adaptive study gate
 
-Inspect enough of the repository to understand the real change surface before selecting task boundaries. At minimum, inspect relevant:
+Read [ADAPTIVE_STUDY.md](ADAPTIVE_STUDY.md) and create `/tmp/study-spec.json` before drafting requirements or TODOs.
 
-- agent or repository instructions;
-- README, architecture documents, ADRs, and module boundaries;
+### 3.1 Identify material questions
+
+List questions whose answers can change:
+
+- architecture or ownership;
+- compatibility or public contracts;
+- data or migration order;
+- security or authorization;
+- provider, protocol, or dependency behavior;
+- task boundaries or dependencies;
+- acceptance criteria or validation commands.
+
+Give every question a stable id, importance, status, evidence ids, resolution, and planning impact. A ready study may not contain open questions. High-importance questions must be resolved rather than assumed.
+
+### 3.2 Study internal repository evidence first
+
+Inspect relevant:
+
+- agent and repository instructions;
+- README files, architecture documents, ADRs, and module boundaries;
 - build files, dependency manifests, and generated-code rules;
 - production code near the requested behavior;
-- existing tests and test conventions;
+- existing tests, fixtures, and test conventions;
 - schemas, migrations, interfaces, protocols, and public APIs;
-- CI commands and validation entry points;
-- recent history when it explains conventions or compatibility constraints.
+- CI commands and release validation;
+- recent history when it explains compatibility or design choices.
 
-Use read-only research subagents for independent workstreams when that reduces context pressure. Have the orchestrator synthesize their findings rather than forwarding raw logs.
+Record every material internal source with a repository location, concrete finding, and planning impact. Internal study is mandatory even when the orchestrator already knows the technology.
 
-Research external documentation when the request depends on unfamiliar, version-sensitive, security-sensitive, or current behavior. Prefer primary official documentation and record the finding. When external research is unnecessary, record the reason in `request_analysis.research_decision`; do not leave the field absent.
+Use read-only exploration subagents for independent workstreams when helpful. The orchestrator must synthesize their findings instead of forwarding raw logs.
+
+### 3.3 Decide on external research adaptively
+
+After the first repository scan, explicitly evaluate every trigger:
+
+- the user requested research or verification;
+- the domain is unfamiliar;
+- behavior is version-sensitive;
+- behavior is security-sensitive;
+- behavior may have changed recently;
+- the repository lacks a material contract;
+- evidence conflicts;
+- a technology or provider choice is required;
+- a wrong assumption would be high risk.
+
+When any trigger is true, research authoritative external sources. Prefer official documentation, standards, research papers, and vendor advisories. Match the exact repository version or date where possible. Record source authority, version/date, finding, and planning impact.
+
+When every trigger is false, external research is not required. Record a substantive rationale explaining why repository evidence is sufficient. Do not browse merely because the request is large.
+
+If required evidence cannot be obtained or a material contradiction remains, mark research `blocked`, keep the study not ready, and stop planning.
+
+### 3.4 Synthesize evidence
+
+Translate evidence into exact strings for:
+
+- planning constraints;
+- derived requirements;
+- risks;
+- validation implications.
+
+Every internal source finding must later appear exactly in `request_analysis.repository_findings`. Every external source finding must later appear exactly in `request_analysis.research_findings`.
+
+Every synthesized constraint, requirement, and risk must be copied exactly into the corresponding plan field. Every validation implication must appear in a task acceptance criterion, implementation note, or validation command.
+
+### 3.5 Review and validate study sufficiency
+
+Use a fresh study reviewer whenever supported. Check internal coverage, trigger honesty, source quality, contradiction resolution, question resolution, planning impact, and the stopping rule.
+
+Validate before drafting requirements or TODOs:
+
+```bash
+python <skill-dir>/scripts/studyctl.py validate \
+  --spec /tmp/study-spec.json
+```
+
+Do not continue until this command passes.
 
 ## 4. Build the requirements inventory
 
-Create a complete ordered inventory before tasks. Give each request part a stable id such as `P001`, then give each requirement a stable id such as `R001`.
+After the study gate passes, create a complete ordered requirements inventory. Give every requirement a stable id such as `R001`.
 
 Classify each requirement by:
 
 - `source`: `user`, `repository`, `research`, or `inferred`;
 - `priority`: `must`, `should`, or `could`.
 
-Use `inferred` only for work necessary to make an explicit request safe, testable, compatible, or operable. Do not silently expand product scope.
+Use `inferred` only for work necessary to make an explicit request safe, compatible, testable, or operable. Do not silently expand product scope.
 
-After drafting tasks, create traceability in both directions:
+Copy study synthesis exactly:
+
+- constraints into `global_constraints`;
+- derived requirements into requirement `text`;
+- risks into `request_analysis.risks`;
+- validation implications into task criteria, guidance, or commands.
+
+Create bidirectional traceability:
 
 - every request part must be covered by one or more requirement `request_part_ids`;
 - every requirement must be covered by one or more task `requirement_ids`;
 - every task must cover at least one requirement;
-- acceptance criteria must demonstrate the mapped requirements;
-- validation commands must provide evidence for the acceptance criteria.
+- acceptance criteria must demonstrate mapped requirements;
+- validation commands must provide evidence for acceptance criteria.
 
-The deterministic plan validator rejects uncovered request parts, uncovered requirements, unknown request-part ids, and unknown requirement ids.
+The deterministic validator rejects uncovered request parts, uncovered requirements, unknown ids, and tasks without mapped requirements.
 
 ## 5. Decompose recursively
 
-Start with major request workstreams, then repeatedly split each candidate task until every leaf is independently implementable and verifiable.
+Start with request workstreams, then split repeatedly until every leaf is independently implementable and verifiable.
 
 Split a candidate task when any of these is true:
 
 - it contains more than one independently failing outcome;
 - it crosses unrelated subsystems or ownership boundaries;
-- it combines discovery, architecture selection, implementation, migration, rollout, and broad regression testing in one unit;
+- it combines discovery, architecture selection, implementation, migration, rollout, and broad regression testing;
 - one part could be completed and validated without the others;
-- it requires different tools, environments, or safety gates;
+- it requires different tools, environments, external contracts, or safety gates;
 - it contains multiple risky migrations or compatibility transitions;
-- a worker would need future task definitions to understand what success means;
-- failure would not reveal which part of the task was wrong;
+- a worker would need future task definitions to know what success means;
+- failure would not reveal which part was wrong;
 - the task would be rated `extreme`.
 
 Useful boundaries often appear between:
 
-- data model or schema changes;
+- schema and data migration;
 - domain or service behavior;
 - API or protocol integration;
 - UI or client behavior;
-- migration or backfill phases;
+- backfill and rollout phases;
 - automated tests at different levels;
-- rollout, observability, and compatibility checks.
+- observability, compatibility, and release checks.
 
 Stop splitting only when all are true:
 
@@ -121,48 +200,49 @@ Stop splitting only when all are true:
 - the likely change surface is bounded;
 - acceptance criteria are observable;
 - deterministic validation can decide success;
-- additional splitting would create artificial handoffs or repeated context loading.
+- further splitting would create artificial handoffs or repeated context loading.
 
-Rate each executable TODO `low`, `medium`, or `high`. `extreme` is not a valid leaf and is rejected. A `high` task requires a substantive `atomicity_rationale` explaining why further splitting would weaken independent implementation or validation.
+Rate each executable TODO `low`, `medium`, or `high`. `Extreme` is invalid. A `high` task needs a substantive atomicity rationale explaining why further splitting would weaken implementation or validation.
 
-Avoid the opposite failure mode: do not turn every file edit or assertion into a separate TODO. Keep tightly coupled edits together when they implement one behavior and share one validation set.
+Avoid file-by-file microtasks. Keep tightly coupled edits together when they implement one behavior and share one validation boundary.
 
-Keep the human-facing `TODO.md` deliberately terse: exactly one status line per task. Store requirements, complexity, model route, dependencies, validation, and atomicity evidence only in the task definition and manifest.
+Keep `TODO.md` terse: exactly one status line per task. Store evidence, requirements, complexity, routing, dependencies, validation, and atomicity details elsewhere.
 
 ## 6. Review the plan independently
 
-After drafting the plan, start a fresh planning reviewer in a separate subagent or process whenever the runtime supports it. Give the reviewer:
+After drafting the plan, start a fresh planning reviewer whenever supported. Give it:
 
 - the complete user request;
-- the compact request/repository analysis;
+- compact study evidence and synthesis;
 - the requirements inventory;
 - the draft task graph;
 - the decomposition rules in this file.
 
-Do not give the reviewer implementation responsibility. Ask it to search for:
+Do not assign implementation. Ask the reviewer to find:
 
 - missing or distorted requirements;
+- study findings that were not translated into the plan;
 - unsupported assumptions;
 - oversized or mixed-outcome TODOs;
 - unnecessary microtasks;
 - missing dependencies or cycles;
 - weak acceptance criteria;
-- validations that do not prove the requirement;
+- validations that do not prove requirements;
 - unsafe autostart actions;
-- missing regression, compatibility, or rollout coverage.
+- missing regression, compatibility, migration, or rollout coverage.
 
-Revise the plan and repeat review until there are no unresolved findings. Record the final review in `plan_review`. A review is approved only when all four checks are true:
+Revise until no unresolved findings remain. A plan is approved only when all four checks are true:
 
 - `coverage_complete`;
 - `tasks_atomic`;
 - `dependencies_valid`;
 - `validations_sufficient`.
 
-Use a strong planning model for large multi-workstream changes. Use max capability when architecture, security, concurrency, data migration, or repeated planning-review failures justify it. Do not use an economy model to create or approve a difficult plan merely to save credits.
+Use a strong planning model for difficult multi-workstream changes. Use maximum capability when architecture, security, concurrency, data migration, or repeated review failures justify it.
 
-## 7. Pass the deterministic quality gate
+## 7. Pass deterministic quality gates
 
-Create the plan only after analysis and review:
+Create the plan only after study and review:
 
 ```bash
 python <skill-dir>/scripts/planctl.py create \
@@ -170,38 +250,62 @@ python <skill-dir>/scripts/planctl.py create \
   --spec /tmp/plan-spec.json
 ```
 
-Then run both checks:
+Attach the validated study. This checks exact integration into the plan:
 
 ```bash
+python <skill-dir>/scripts/studyctl.py attach \
+  --spec /tmp/study-spec.json \
+  --plan .ai-work/<plan-id>
+```
+
+Then run all gates:
+
+```bash
+python <skill-dir>/scripts/studyctl.py validate-plan --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl.py validate --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl.py audit --plan .ai-work/<plan-id>
 ```
 
-The quality gate rejects, among other problems:
+The combined gates reject, among other problems:
 
+- missing or shallow internal evidence;
+- an external-research decision without explicit trigger assessment;
+- `not_needed` while any external trigger is true;
+- required research without authoritative sources;
+- high-impact questions left open or assumed;
+- ready studies with failed review checks;
+- study findings not copied into the plan;
 - missing request or repository analysis;
-- missing or duplicate request parts or requirements;
-- request parts without requirement coverage;
-- uncovered requirements;
+- request parts or requirements without coverage;
 - tasks without requirement ids;
-- unknown requirement references;
 - missing complexity or atomicity rationale;
-- `extreme` executable tasks;
-- unresolved open questions with autostart;
-- an unapproved or incomplete plan review;
+- executable `extreme` tasks;
+- unresolved plan questions with autostart;
+- incomplete plan review;
 - dependency cycles;
 - missing acceptance criteria or validation commands.
 
-Do not autostart execution when either command fails.
+Do not autostart when any command fails.
 
-## 8. Replan when execution disproves the plan
+## 8. Replan when execution disproves the study or plan
 
-Treat planning as a strong hypothesis, not permission to force an oversized task through. If execution reveals a material missing requirement, wrong dependency, or task that should be split:
+Treat study and planning as strong hypotheses, not permission to force an invalid task through. Re-enter the complete protocol when execution reveals:
+
+- a material missing requirement or repository surface;
+- a different dependency or protocol version;
+- a new external contract or security constraint;
+- conflicting implementation and test behavior;
+- a wrong dependency;
+- an oversized task that should be split.
+
+Then:
 
 1. stop dispatching downstream tasks;
-2. preserve the concrete evidence and current implementation state;
+2. preserve concrete evidence and current implementation state;
 3. return the affected task to a safe pending or blocked state;
-4. revise the plan through the same analysis, traceability, review, and validation process;
-5. resume only after the revised plan passes the quality gate.
+4. update the study spec and repeat study review;
+5. revise requirements and tasks through full traceability and plan review;
+6. reattach the study and run every quality gate;
+7. resume only after all gates pass.
 
-Do not hide newly discovered scope inside a worker report or silently broaden a TODO.
+Do not hide new evidence or scope inside a worker report. Do not silently broaden a TODO.

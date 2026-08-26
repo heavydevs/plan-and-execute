@@ -16,6 +16,10 @@ import {
   validateBundledSkill
 } from '../lib/installer.js';
 
+const packageVersion = JSON.parse(
+  fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8')
+).version;
+
 function temporaryDirectory() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'plan-and-execute-test-'));
 }
@@ -85,7 +89,7 @@ test('installs managed copies for Claude and Codex in a workspace', () => {
     const status = getStatus({ agent: 'both', scope: 'workspace', workspaceDir: root });
     assert.ok(status.every((item) => item.installed && item.owned && item.valid));
     assert.ok(status.every((item) => item.managed && item.modified === false));
-    assert.ok(status.every((item) => item.version === '0.3.0'));
+    assert.ok(status.every((item) => item.version === packageVersion));
     assert.ok(status.every((item) => item.sourceHash === item.currentHash));
   } finally {
     cleanup(root);
