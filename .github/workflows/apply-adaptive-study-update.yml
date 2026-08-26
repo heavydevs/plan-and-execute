@@ -63,9 +63,65 @@ jobs:
           echo "240c9ec9cd4d0d515fb91fadce0942e8cbe721130e67f6287554f8efdc1f4902  /tmp/adaptive-study-update.tar.xz" \
             | sha256sum --check --strict
           tar -xJf /tmp/adaptive-study-update.tar.xz -C "${GITHUB_WORKSPACE}"
+
           sed -i \
             's/Before drafting requirements or TODOs, perform mandatory internal repository study, explicitly assess adaptive external-research triggers,/Before drafting requirements or TODOs, run the adaptive study gate: perform mandatory internal repository study, explicitly assess external-research triggers,/' \
             skill/plan-and-execute/agents/openai.yaml
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          cli = Path("test/cli.test.js")
+          cli_text = cli.read_text(encoding="utf-8")
+          cli_anchor = "const cli = path.join(root, 'bin', 'plan-and-execute.js');\n"
+          cli_replacement = (
+              cli_anchor
+              + "const packageVersion = JSON.parse(\n"
+              + "  fs.readFileSync(path.join(root, 'package.json'), 'utf8')\n"
+              + ").version;\n"
+          )
+          if cli_anchor not in cli_text:
+              raise SystemExit("cli version anchor not found")
+          cli_text = cli_text.replace(cli_anchor, cli_replacement, 1)
+          old_cli_assertion = r"    assert.match(version.stdout, /^0\.3\.0\s*$/);"
+          if old_cli_assertion not in cli_text:
+              raise SystemExit("cli version assertion not found")
+          cli_text = cli_text.replace(
+              old_cli_assertion,
+              "    assert.equal(version.stdout.trim(), packageVersion);",
+              1,
+          )
+          cli.write_text(cli_text, encoding="utf-8")
+
+          installer = Path("test/installer.test.js")
+          installer_text = installer.read_text(encoding="utf-8")
+          installer_anchor = "} from '../lib/installer.js';\n"
+          installer_replacement = (
+              installer_anchor
+              + "\nconst packageVersion = JSON.parse(\n"
+              + "  fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8')\n"
+              + ").version;\n"
+          )
+          if installer_anchor not in installer_text:
+              raise SystemExit("installer version anchor not found")
+          installer_text = installer_text.replace(
+              installer_anchor,
+              installer_replacement,
+              1,
+          )
+          old_installer_assertion = (
+              "    assert.ok(status.every((item) => item.version === '0.3.0'));"
+          )
+          if old_installer_assertion not in installer_text:
+              raise SystemExit("installer version assertion not found")
+          installer_text = installer_text.replace(
+              old_installer_assertion,
+              "    assert.ok(status.every((item) => item.version === packageVersion));",
+              1,
+          )
+          installer.write_text(installer_text, encoding="utf-8")
+          PY
+
           rm -f .github/workflows/apply-adaptive-study-update.yml
           chmod +x \
             skill/plan-and-execute/scripts/studyctl.py \
