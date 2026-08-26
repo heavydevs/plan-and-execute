@@ -1,6 +1,6 @@
 ---
 name: plan-and-execute
-description: Deeply study a large software request and its repository, pass an adaptive evidence gate, create a requirements-traceable plan with deliberately minimal global or task-scoped execution context, and execute isolated resumable TODOs with deterministic validation, active-plan discovery, guarded cancellation, Claude Code/Codex routing, and safe cleanup. Use for long implementations, migrations, refactors, multi-workstream or test-heavy changes, for resuming an unfinished implementation, for cancelling/resetting plan state, without arguments to resume-or-create a guided request, or with a requirements file path.
+description: Deeply study a large software request and its repository, pass an adaptive evidence gate, create a requirements-traceable plan whose TODO boundaries deliberately isolate unrelated AI context, persist resumable subtasks, transfer only validated target-specific learnings, and execute fresh workers with deterministic validation, active-plan discovery, guarded cancellation, optional Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code CLI, or Trae Agent routing, and safe cleanup. Use for long implementations, migrations, refactors, multi-workstream or test-heavy changes, for resuming an unfinished implementation, for cancelling/resetting plan state, without arguments to resume-or-create a guided request, or with a requirements file path.
 ---
 
 # Plan and Execute
@@ -128,12 +128,15 @@ Treat the complete argument text as the request. Preserve every detail, example,
 - Do not draft requirements or executable TODOs until `studyctl.py validate` passes.
 - Translate study findings exactly into plan constraints, derived requirements, risks, and validation implications.
 - Map every request-part id to at least one requirement id, every requirement to at least one executable TODO, and every TODO back to requirements.
-- Recursively split work until each TODO has one coherent outcome and an independent validation path.
+- Recursively split work until each TODO has one coherent outcome, one independent validation path, and one context surface whose retained reasoning is useful across the whole TODO.
+- Split unrelated domains even when they use the same architectural pattern. For example, independent person and store CRUDs normally become separate TODOs when their controllers, services, entities, rules, and tests do not share an invariant or failure boundary.
+- Do not split mechanically by file or class. Keep a domain controller, service, entity, and focused tests together when they implement one rule set and benefit from the same worker context.
 - Reject executable `extreme` work and split it further.
 - Require a substantive atomicity rationale for every `high` complexity TODO.
+- Require every schema-v4 TODO to declare a `context_boundary`, a stable resumable `subtasks` checklist, and any directional `learning_targets` whose future workers could benefit from concise validated findings.
 - Evaluate progressive execution context only after the draft TODO graph exists: create `CONTEXT.md` only for universal indispensable information, create scoped files only for at least two but not all TODOs, keep single-task information in that task definition, and otherwise omit shared context.
 - Ground every context item in evidence, keep it one-line and operational, and reject duplication or prose summaries.
-- Review the study and the plan in fresh contexts whenever supported; require `plan_review.contexts_minimal` to be true for schema v3.
+- Review the study and the plan in fresh contexts whenever supported; require `plan_review.contexts_minimal` and `plan_review.context_boundaries_sound` to be true for schema v4.
 - Do not autostart until `studyctl.py validate-plan`, `planctl.py validate`, and `planctl.py audit` all succeed.
 
 Read [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md) before collecting evidence. Then read [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md) before drafting the plan and [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md) before deciding shared worker context.
@@ -164,20 +167,21 @@ If the study is blocked or not ready, do not plan. Resolve the gap, record a bou
 4. Copy every synthesized risk exactly into `request_analysis.risks`.
 5. Copy every synthesized planning constraint exactly into `global_constraints`.
 6. Create stable requirements such as `R001`; copy every synthesized derived requirement exactly as requirement text.
-7. Group requirements into workstreams and recursively split each into executable leaf TODOs.
+7. Group requirements into workstreams and recursively split each into executable leaf TODOs. For every candidate grouping, ask whether a fresh worker would materially benefit from retaining the same decisions, invariants, files, debugging evidence, and validation history. Split when the answer is no.
 8. Include every synthesized validation implication in at least one task acceptance criterion, implementation note, or validation command.
-9. Give every TODO one objective, mapped requirements, complexity, atomicity rationale, scope boundaries, dependencies, expected files, acceptance criteria, validation commands, provider preference, model tier, and reasoning effort.
-10. Evaluate progressive execution context using [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md):
+9. Give every TODO one objective, mapped requirements, complexity, atomicity rationale, scope boundaries, dependencies, expected files, acceptance criteria, validation commands, provider preference, model tier, reasoning effort, `context_boundary`, and one or more stable resumable subtasks.
+10. Predeclare `learning_targets` only when a later TODO is sufficiently similar to reuse a difficult validated procedure, decision, code reference, pitfall, or validation technique. Make every relationship directional and name the narrow topics that may cross the boundary. Do not transfer chat transcripts, broad history, or speculative advice.
+11. Evaluate progressive execution context using [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md):
     - explicitly choose `create` or `omit` for global `CONTEXT.md`;
     - place only information needed by every TODO in global context;
     - create a scoped `contexts/<topic>.md` only when the same information is needed by at least two and fewer than all TODOs;
     - keep information for a single TODO inside its task definition;
     - include concise `necessity` and grounded `source_refs` for every context item.
-11. Start a fresh plan reviewer with the request, compact evidence, requirements, draft graph, and execution-context proposal, but no implementation assignment.
-12. Revise until coverage, atomicity, dependencies, validation, and `contexts_minimal` all pass with no unresolved findings.
-13. Write `/tmp/plan-spec.json` following [references/PLAN_SPEC.md](references/PLAN_SPEC.md).
-14. Create the plan with the correct request-file mode from the input rules.
-15. Attach the validated study and prove that its findings affected the plan:
+12. Start a fresh plan reviewer with the request, compact evidence, requirements, draft graph, context-boundary rationales, subtask checkpoints, learning relationships, and execution-context proposal, but no implementation assignment.
+13. Revise until coverage, atomicity, dependencies, validation, `contexts_minimal`, and `context_boundaries_sound` all pass with no unresolved findings.
+14. Write `/tmp/plan-spec.json` following [references/PLAN_SPEC.md](references/PLAN_SPEC.md).
+15. Create the plan with the correct request-file mode from the input rules.
+16. Attach the validated study and prove that its findings affected the plan:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py attach \
@@ -185,7 +189,7 @@ python <skill-dir>/scripts/studyctl.py attach \
   --plan .ai-work/<plan-id>
 ```
 
-16. Run all quality gates:
+17. Run all quality gates:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py validate-plan --plan .ai-work/<plan-id>
@@ -193,13 +197,13 @@ python <skill-dir>/scripts/planctl.py validate --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl.py audit --plan .ai-work/<plan-id>
 ```
 
-17. Register the validated plan as the active implementation:
+18. Register the validated plan as the active implementation:
 
 ```bash
 python <skill-dir>/scripts/lifecyclectl.py activate   --plan .ai-work/<plan-id> --json
 ```
 
-18. Start execution immediately after all gates pass unless a genuine safety gate requires approval.
+19. Start execution immediately after all gates pass unless a genuine safety gate requires approval.
 
 Do not replace analysis with a shallow checklist. Do not use generic TODOs such as "implement everything" or "finish migration." Split by independently failing outcomes and validation boundaries, not by arbitrary file count.
 
@@ -213,18 +217,25 @@ Do not replace analysis with a shallow checklist. Do not use generic TODOs such 
 - Keep detailed metadata in task files and `manifest.json`.
 - Update status only through `planctl.py`; never hand-edit `TODO.md`.
 
+## Resumable subtask checklist
+
+Every schema-v4 task definition contains a controller-rendered checklist of stable subtasks. The manifest is authoritative: start, complete, or reset a checkpoint only through `planctl.py subtask-start`, `subtask-complete`, or `subtask-reset`. A parent TODO may complete only after every required subtask is complete. After process, host, or power interruption, preserve completed checkpoints and return only the interrupted `in_progress` subtask to `pending`, so a fresh worker can continue without the previous chat history.
+
 ## Non-negotiable execution contract
 
 - Store planning state only under `.ai-work/<plan-id>/`.
-- Preserve `study.json`, `STUDY.md`, `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, optional `CONTEXT.md`, optional scoped files under `contexts/`, and one definition per TODO; include `REQUEST.md` when input came from a file.
+- Preserve `study.json`, `STUDY.md`, `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, optional `CONTEXT.md`, optional scoped files under `contexts/`, validated target-specific files under `learnings/`, and one definition per TODO; include `REQUEST.md` when input came from a file.
 - Treat `manifest.json` as the source of truth and update task state only through `planctl.py`.
 - Treat `.ai-work/.active-plan.json` only as a discoverable pointer; `manifest.json` remains authoritative.
 - Persist every transition before dispatching another worker so a new invocation can resume without chat history.
-- Recover an orphaned `in_progress` task to `pending` without incrementing technical failures; preserve partial source changes for the next worker and deterministic validation.
+- Recover an orphaned `in_progress` task to `pending` without incrementing technical failures; preserve completed subtask checkpoints, return only an interrupted subtask to `pending`, and preserve partial source changes for the next worker and deterministic validation.
 - Never start a native worker while a live external runner lease exists.
-- Give each implementation worker exactly one task-definition path plus only the files listed under `Assigned execution context` in that task definition. Do not pass the parent chat, whole plan, study files, analysis files, future task definitions, or unassigned context files.
-- Require the worker to report the exact assigned paths in `context_files_read`; reject missing or extra context reads.
+- Give each implementation worker exactly one task-definition path plus only the files listed under `Assigned execution context` and `Assigned validated learnings` in that task definition. Do not pass the parent chat, whole plan, study files, analysis files, future task definitions, result reports, worker logs, or unassigned context/learning files.
+- Require the worker to report the exact assigned paths in `context_files_read` and `learning_files_read`; reject missing or extra reads.
 - Treat context artifacts as immutable planning files.
+- Treat learning artifacts as immutable orchestrator-generated projections. Create them only after source-task deterministic validation, only for predeclared untouched future TODOs, and validate their content against manifest state rather than trusting a hash alone.
+- Persist subtask transitions through `planctl.py subtask-start`, `subtask-complete`, and `subtask-reset`; never let workers hand-edit task checklists or `manifest.json`.
+- Do not complete a parent TODO until every required subtask is complete.
 - Permit workers to read repository source, tests, build files, and runtime output relevant to their task.
 - Permit another task definition only when allowlisted and needed for a dependency, ambiguity, or validation conflict; record the reason.
 - Re-run every deterministic validation command outside the worker before marking success.
@@ -272,9 +283,9 @@ Read [references/WORKFLOW.md](references/WORKFLOW.md) for both modes and [refere
 2. Get the next runnable task with `planctl.py next --json`.
 3. Select and record the actual route.
 4. Claim the task.
-5. Spawn a fresh worker with only its definition and the exact context files assigned there.
-6. Require a report matching `references/completion-report.schema.json`, including exact `context_files_read`.
-7. Reject the report when assigned and reported context reads differ, then re-run every validation command from the repository root.
+5. Spawn a fresh worker with only its definition and the exact context and validated-learning files assigned there.
+6. Require a report matching `references/completion-report.schema.json`, including exact `context_files_read`, exact `learning_files_read`, completed subtask ids, and only predeclared reusable learnings.
+7. Reject the report when assigned and reported reads differ or required subtasks remain incomplete, then re-run every validation command from the repository root.
 8. Mark success only after deterministic validation passes.
 9. On technical failure, record evidence and retry with the next escalation route.
 10. On usage or rate limits, preserve state and resume without increasing technical-failure count.

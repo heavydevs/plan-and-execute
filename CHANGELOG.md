@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here.
 
+## 0.7.0 - 2026-08-26
+
+- Adds schema-v4 TODO boundaries that explicitly justify why one fresh worker should keep the selected concerns in the same context.
+- Requires planners and reviewers to split independent semantic domains, such as unrelated person and store CRUDs, while avoiding mechanical file-by-file microtasks.
+- Adds a durable required-subtask checklist to every schema-v4 task definition, with controller-owned start, complete, reset, interruption recovery, and parent-completion gates.
+- Preserves completed subtasks after power, host, or provider interruption so another fresh AI can continue from the first unfinished checkpoint without prior chat history.
+- Adds directional `learning_targets` and concise `learnings/<source>-to-<target>.md` artifacts for validated, evidence-grounded discoveries that are relevant to declared future TODOs.
+- Treats declared learning sources as context prerequisites so a target cannot race ahead before its possible learning artifacts are finalized.
+- Rejects undeclared, backward, stale, oversized, unreferenced, tampered, or late learning transfer; immutable plan-time execution context remains separate from runtime discoveries.
+- Requires workers to report exact `context_files_read`, `learning_files_read`, and `completed_subtask_ids` values before deterministic validation can accept the task.
+- Adds opt-in isolated worker adapters for Gemini CLI, Qwen Code, Kimi Code CLI, and Trae Agent alongside Claude Code and Codex.
+- Uses the current Kimi prompt-mode contract without incompatible approval flags; provider-specific retry exit codes remain configurable instead of being assumed.
+- Keeps Claude Code and Codex as the only standard skill-installation targets, the only quick-start pair, and the default provider order.
+- Extends `pae resume --provider`, `pae doctor`, model routing, lifecycle recovery, completion-report schema, examples, bilingual documentation, and package metadata.
+- Adds dedicated task-memory and provider-adapter self-tests plus integrated package validation for schema-v1 through schema-v4 compatibility.
+
 ## 0.6.0 - 2026-08-26
 
 - Adds schema-v3 progressive execution context with an explicit create/omit decision for global `CONTEXT.md`.

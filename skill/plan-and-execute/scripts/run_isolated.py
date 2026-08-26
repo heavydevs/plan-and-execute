@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execute plan-and-execute tasks in fresh Claude Code or Codex processes.
+"""Execute plan-and-execute tasks in fresh supported coding-agent processes.
 
 Each provider call starts a new, non-persistent session. The only planning file
 named in the worker prompt is the current task definition. State, retries,
@@ -107,11 +107,12 @@ def clamp_effort(provider_cfg: dict[str, Any], tier: str, effort: str) -> str:
 def candidate_providers(task: dict[str, Any], config: dict[str, Any], override: str | None) -> list[str]:
     requested = override or task.get("provider", "auto")
     order = [str(item) for item in config.get("provider_order", ["claude", "codex"])]
-    order = [item for item in order if item in {"claude", "codex"}]
+    supported = planctl.VALID_PROVIDERS - {"auto"}
+    order = [item for item in order if item in supported]
     if not order:
         order = ["claude", "codex"]
 
-    if requested in {"claude", "codex"}:
+    if requested in supported:
         providers = [requested]
         allow_fallback = bool(task.get("allow_provider_fallback", True)) and bool(
             config.get("allow_provider_fallback", True)
@@ -191,21 +192,47 @@ Assigned task definition: {relative_task}
 Task id: {task['id']}
 Attempt: {task['attempts'] + 1}
 Route: {route['provider']} / {route['model']} / effort {route['effort']}
+Subtask controller: {SCRIPT_DIR / 'planctl.py'}
+Plan workspace: {plan_dir}
 
 Mandatory isolation rules:
 1. Read the assigned task definition first. It is the only task definition assigned to you.
-2. Then read every file listed under `Assigned execution context` in that task definition. Read no other context file.
+2. Then read every file listed under `Assigned execution context`, followed by every file under `Assigned validated learnings`. Read no other context or learning file.
 3. Do not open PLAN.md, TODO.md, manifest.json, orchestrator.config.json, result files, logs, or any unassigned task definition under {plan_dir}.
 4. You may read and edit repository source, tests, build files, and runtime output needed for this task.
 5. Existing changes in the working tree may belong to earlier completed tasks. Preserve them and do not broadly revert or reformat unrelated code.
 6. Open another task definition only when the assigned definition explicitly permits its id and a dependency, ambiguity, or validation conflict makes it necessary. Report the id and reason.
 7. Implement only this task, run its required validation commands, and avoid speculative work outside scope.
-8. Do not edit any planning or context artifact. The orchestrator owns plan state.
+8. Do not edit any planning, context, or learning artifact. The orchestrator owns plan state. The only allowed planning-state write is invoking the dedicated subtask controller for this task.
 9. Do not ask for conversational context. When blocked, stop safely and report the concrete blocker.
-10. Report `context_files_read` using the plan-relative names from the task frontmatter, such as `CONTEXT.md` or `contexts/topic.md`; use an empty list when none are assigned.
+10. Checkpoint resumable work with these exact controller commands, never by editing the checklist:
+    - start: `python {SCRIPT_DIR / 'planctl.py'} subtask-start --plan {plan_dir} --task {task['id']} --subtask <id>`
+    - complete: `python {SCRIPT_DIR / 'planctl.py'} subtask-complete --plan {plan_dir} --task {task['id']} --subtask <id>`
+11. Report `context_files_read` and `learning_files_read` using the exact plan-relative names from task frontmatter; use empty lists when none are assigned.
+12. Report every completed checklist id in `completed_subtask_ids`. Report reusable learnings only for predeclared downstream targets and only with concrete references.
 
 Return only the completion report requested by the configured JSON schema. Use status "completed" only when the task is implemented and its required checks pass; otherwise use "blocked".
 """
+
+
+def configured_model_args(flag: str, model: str) -> list[str]:
+    return [] if not model or model == "default" else [flag, model]
+
+
+def redact_command(command: list[str]) -> list[str]:
+    """Hide embedded worker prompts regardless of provider argument ordering."""
+    redacted: list[str] = []
+    for item in command:
+        text = str(item)
+        if (
+            "\n" in text
+            or text.startswith("You are a fresh, isolated implementation worker")
+            or text.startswith("You are a fresh, isolated final summarizer")
+        ):
+            redacted.append("<prompt>")
+        else:
+            redacted.append(text)
+    return redacted
 
 
 def build_worker_command(
@@ -218,12 +245,13 @@ def build_worker_command(
     provider_cfg = config[provider]
     prefix = command_prefix(provider_cfg.get("command", provider))
     schema_path = completion_schema_path()
+    schema = planctl.read_json(schema_path)
+    schema_text = json.dumps(schema, ensure_ascii=False, separators=(",", ":"))
     extra_args = provider_cfg.get("extra_args", [])
     if not isinstance(extra_args, list) or not all(isinstance(item, str) for item in extra_args):
         raise RunnerError(f"{provider}.extra_args must be a list of strings")
 
     if provider == "claude":
-        schema_text = json.dumps(planctl.read_json(schema_path), ensure_ascii=False, separators=(",", ":"))
         command = prefix + [
             "--bare",
             "--print",
@@ -232,36 +260,107 @@ def build_worker_command(
             "json",
             "--permission-mode",
             str(provider_cfg.get("permission_mode", "auto")),
-            "--model",
-            route["model"],
-            "--effort",
-            route["effort"],
-            "--json-schema",
-            schema_text,
         ]
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(["--effort", route["effort"], "--json-schema", schema_text])
         command.extend(extra_args)
         command.append(prompt)
         return command
 
-    command = prefix + [
-        "exec",
-        "--ephemeral",
-        "--sandbox",
-        str(provider_cfg.get("sandbox", "workspace-write")),
-        "--model",
-        route["model"],
-        "-c",
-        f'model_reasoning_effort="{route["effort"]}"',
-        "--output-schema",
-        str(schema_path),
-        "--output-last-message",
-        str(result_path),
-    ]
-    if provider_cfg.get("ignore_user_config"):
-        command.append("--ignore-user-config")
-    command.extend(extra_args)
-    command.append(prompt)
-    return command
+    if provider == "codex":
+        command = prefix + [
+            "exec",
+            "--ephemeral",
+            "--sandbox",
+            str(provider_cfg.get("sandbox", "workspace-write")),
+        ]
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(
+            [
+                "-c",
+                f'model_reasoning_effort="{route["effort"]}"',
+                "--output-schema",
+                str(schema_path),
+                "--output-last-message",
+                str(result_path),
+            ]
+        )
+        if provider_cfg.get("ignore_user_config"):
+            command.append("--ignore-user-config")
+        command.extend(extra_args)
+        command.append(prompt)
+        return command
+
+    if provider == "gemini":
+        command = prefix + [
+            "--approval-mode",
+            str(provider_cfg.get("approval_mode", "yolo")),
+            "--output-format",
+            "json",
+        ]
+        if provider_cfg.get("disable_extensions", True):
+            command.extend(["--extensions", "none"])
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(extra_args)
+        command.extend(["--prompt", prompt])
+        return command
+
+    if provider == "qwen":
+        command = prefix
+        if provider_cfg.get("safe_mode", True):
+            command.append("--safe-mode")
+        if provider_cfg.get("sandbox", False):
+            command.append("--sandbox")
+        command.extend([
+            "--output-format",
+            "json",
+            "--approval-mode",
+            str(provider_cfg.get("approval_mode", "yolo")),
+            "--json-schema",
+            schema_text,
+        ])
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(extra_args)
+        command.extend(["--prompt", prompt])
+        return command
+
+    if provider == "kimi":
+        command = prefix + [
+            "--output-format",
+            "stream-json",
+        ]
+        permission_mode = str(provider_cfg.get("permission_mode", "auto")).strip()
+        if permission_mode:
+            if permission_mode not in {"auto", "plan", "yolo"}:
+                raise RunnerError(
+                    "kimi.permission_mode must be auto, plan, yolo, or an empty string"
+                )
+            command.append(f"--{permission_mode}")
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(extra_args)
+        command.extend(["--prompt", prompt])
+        return command
+
+    if provider == "trae":
+        trajectory_path = result_path.parent.parent / "logs" / (
+            result_path.stem + "-trae-trajectory.json"
+        )
+        command = prefix + [
+            "run",
+            prompt,
+            "--working-dir",
+            ".",
+            "--trajectory-file",
+            str(trajectory_path),
+        ]
+        model_provider = str(provider_cfg.get("model_provider", "")).strip()
+        if model_provider:
+            command.extend(["--provider", model_provider])
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(extra_args)
+        return command
+
+    raise RunnerError(f"Unsupported provider adapter: {provider}")
 
 
 def pump_stream(
@@ -294,7 +393,7 @@ def run_process(
     stdout_lines: list[str] = []
     stderr_lines: list[str] = []
     with log_path.open("w", encoding="utf-8", newline="\n") as log:
-        log.write("COMMAND: " + shlex.join(command[:-1] + ["<prompt>"]) + "\n\n")
+        log.write("COMMAND: " + shlex.join(redact_command(command)) + "\n\n")
         log.flush()
         try:
             process = subprocess.Popen(
@@ -348,11 +447,74 @@ def run_process(
     return return_code, "".join(stdout_lines), "".join(stderr_lines)
 
 
+def decode_json_candidates(text: str, *, maximum: int = 200) -> list[Any]:
+    """Decode full JSON, JSONL, fenced JSON, and embedded JSON objects defensively."""
+    stripped = text.strip()
+    if not stripped:
+        return []
+    values: list[Any] = []
+    fingerprints: set[str] = set()
+
+    def add(value: Any) -> None:
+        try:
+            fingerprint = json.dumps(value, ensure_ascii=False, sort_keys=True)
+        except (TypeError, ValueError):
+            fingerprint = repr(value)
+        if fingerprint not in fingerprints:
+            fingerprints.add(fingerprint)
+            values.append(value)
+
+    try:
+        add(json.loads(stripped))
+    except json.JSONDecodeError:
+        pass
+
+    for match in re.finditer(r"```(?:json)?\s*([\s\S]*?)```", stripped, re.IGNORECASE):
+        try:
+            add(json.loads(match.group(1).strip()))
+        except json.JSONDecodeError:
+            continue
+
+    for line in reversed(stripped.splitlines()):
+        candidate = line.strip()
+        if not candidate.startswith(("{", "[")):
+            continue
+        try:
+            add(json.loads(candidate))
+        except json.JSONDecodeError:
+            continue
+        if len(values) >= maximum:
+            return values
+
+    decoder = json.JSONDecoder()
+    starts = [index for index, char in enumerate(stripped) if char in "{["]
+    for start in reversed(starts[-maximum:]):
+        try:
+            value, _end = decoder.raw_decode(stripped[start:])
+        except json.JSONDecodeError:
+            continue
+        add(value)
+        if len(values) >= maximum:
+            break
+    return values
+
+
 def extract_report(value: Any) -> dict[str, Any] | None:
     if isinstance(value, dict):
         if value.get("status") in {"completed", "blocked"} and isinstance(value.get("summary"), str):
             return value
-        for key in ("structured_output", "output", "result", "message", "content"):
+        for key in (
+            "structured_output",
+            "output",
+            "result",
+            "response",
+            "message",
+            "content",
+            "answer",
+            "final_message",
+            "final_output",
+            "data",
+        ):
             if key in value:
                 found = extract_report(value[key])
                 if found:
@@ -368,33 +530,24 @@ def extract_report(value: Any) -> dict[str, Any] | None:
                 return found
     elif isinstance(value, str):
         text = value.strip()
-        if text.startswith("{"):
-            try:
-                return extract_report(json.loads(text))
-            except json.JSONDecodeError:
-                return None
+        for candidate in decode_json_candidates(text):
+            if candidate == value:
+                continue
+            found = extract_report(candidate)
+            if found:
+                return found
     return None
 
 
 def parse_provider_report(provider: str, stdout: str, result_path: Path) -> dict[str, Any] | None:
     candidates: list[Any] = []
     if result_path.is_file():
-        try:
-            candidates.append(json.loads(result_path.read_text(encoding="utf-8")))
-        except json.JSONDecodeError:
-            candidates.append(result_path.read_text(encoding="utf-8"))
+        result_text = result_path.read_text(encoding="utf-8")
+        candidates.extend(decode_json_candidates(result_text))
+        candidates.append(result_text)
     if stdout.strip():
-        try:
-            candidates.append(json.loads(stdout))
-        except json.JSONDecodeError:
-            for line in reversed(stdout.splitlines()):
-                line = line.strip()
-                if line.startswith("{"):
-                    try:
-                        candidates.append(json.loads(line))
-                        break
-                    except json.JSONDecodeError:
-                        continue
+        candidates.extend(decode_json_candidates(stdout))
+        candidates.append(stdout)
     for candidate in candidates:
         report = extract_report(candidate)
         if report:
@@ -404,6 +557,23 @@ def parse_provider_report(provider: str, stdout: str, result_path: Path) -> dict
 
 def is_rate_limited(text: str) -> bool:
     return any(pattern.search(text) for pattern in RATE_LIMIT_PATTERNS)
+
+
+def configured_retry_exit_codes(provider: str, config: dict[str, Any]) -> set[int]:
+    provider_cfg = config.get(provider, {})
+    raw = provider_cfg.get("retry_exit_codes", []) if isinstance(provider_cfg, dict) else []
+    if not isinstance(raw, list) or any(isinstance(item, bool) or not isinstance(item, int) for item in raw):
+        raise RunnerError(f"{provider}.retry_exit_codes must be a list of integers")
+    return set(raw)
+
+
+def is_provider_availability_failure(
+    provider: str,
+    return_code: int,
+    text: str,
+    config: dict[str, Any],
+) -> bool:
+    return return_code in configured_retry_exit_codes(provider, config) or is_rate_limited(text)
 
 
 def output_tail(text: str, length: int = 3000) -> str:
@@ -488,10 +658,24 @@ def git_changed_files(repo_root: Path) -> list[str]:
 def release_interrupted_task(plan_dir: Path, manifest: dict[str, Any], task_id: str) -> None:
     task = planctl.find_task(manifest, task_id)
     if task.get("status") == "in_progress":
+        recovered_subtasks = planctl.recover_in_progress_subtasks(
+            task, "Execution interrupted; safe to resume."
+        )
         task["status"] = "pending"
         task["last_error"] = "Execution interrupted; safe to resume."
-        task["history"].append({"at": planctl.now_utc(), "event": "interrupted"})
-        planctl.append_event(manifest, "task_interrupted", task_id=task["id"])
+        task["history"].append(
+            {
+                "at": planctl.now_utc(),
+                "event": "interrupted",
+                "recovered_subtasks": recovered_subtasks,
+            }
+        )
+        planctl.append_event(
+            manifest,
+            "task_interrupted",
+            task_id=task["id"],
+            recovered_subtasks=recovered_subtasks,
+        )
         planctl.save_manifest(plan_dir, manifest)
 
 
@@ -532,7 +716,7 @@ def execute_one_task(
         prompt = worker_prompt(plan_dir, manifest, task, route)
         command = build_worker_command(route["provider"], route, config, prompt, result_path)
         if dry_run:
-            print(json.dumps({"task": task["id"], "route": route, "command": command[:-1] + ["<prompt>"]}, indent=2))
+            print(json.dumps({"task": task["id"], "route": route, "command": redact_command(command)}, indent=2))
             return False
 
         print(
@@ -555,7 +739,9 @@ def execute_one_task(
             raise
 
         combined = f"{stdout}\n{stderr}"
-        if return_code != 0 and is_rate_limited(combined):
+        if return_code != 0 and is_provider_availability_failure(
+            route["provider"], return_code, combined, config
+        ):
             planctl.fail_task(
                 plan_dir,
                 manifest,
@@ -589,6 +775,16 @@ def execute_one_task(
             )
             planctl.fail_task(plan_dir, manifest, task["id"], reason)
             print(f"[task {task['id']}] context assignment was not acknowledged", file=sys.stderr)
+            return False
+        expected_learning_files = list(task.get("learning_files", []))
+        reported_learning_files = report.get("learning_files_read")
+        if reported_learning_files != expected_learning_files:
+            reason = (
+                "Worker learning report mismatch: expected "
+                f"{expected_learning_files!r}, received {reported_learning_files!r}"
+            )
+            planctl.fail_task(plan_dir, manifest, task["id"], reason)
+            print(f"[task {task['id']}] learning assignment was not acknowledged", file=sys.stderr)
             return False
         if report.get("status") != "completed":
             reason = str(report.get("blocked_reason") or report.get("summary") or "Worker reported blocked")
@@ -711,31 +907,158 @@ def build_summary_command(
             "text",
             "--permission-mode",
             "plan",
-            "--model",
-            route["model"],
-            "--effort",
-            route["effort"],
         ]
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(["--effort", route["effort"]])
         command.extend(extra_args)
         command.append(prompt)
         return command
-    command = prefix + [
-        "exec",
-        "--ephemeral",
-        "--sandbox",
-        "read-only",
-        "--model",
-        route["model"],
-        "-c",
-        f'model_reasoning_effort="{route["effort"]}"',
-        "--output-last-message",
-        str(output_path),
-    ]
-    if provider_cfg.get("ignore_user_config"):
-        command.append("--ignore-user-config")
-    command.extend(extra_args)
-    command.append(prompt)
-    return command
+    if provider == "codex":
+        command = prefix + [
+            "exec",
+            "--ephemeral",
+            "--sandbox",
+            "read-only",
+        ]
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(
+            [
+                "-c",
+                f'model_reasoning_effort="{route["effort"]}"',
+                "--output-last-message",
+                str(output_path),
+            ]
+        )
+        if provider_cfg.get("ignore_user_config"):
+            command.append("--ignore-user-config")
+        command.extend(extra_args)
+        command.append(prompt)
+        return command
+    if provider == "gemini":
+        command = prefix + [
+            "--approval-mode",
+            str(provider_cfg.get("summary_approval_mode", "default")),
+            "--output-format",
+            "json",
+        ]
+        if provider_cfg.get("disable_extensions", True):
+            command.extend(["--extensions", "none"])
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(extra_args)
+        command.extend(["--prompt", prompt])
+        return command
+    if provider == "qwen":
+        command = prefix
+        if provider_cfg.get("safe_mode", True):
+            command.append("--safe-mode")
+        command.extend([
+            "--approval-mode",
+            "plan",
+            "--output-format",
+            "json",
+        ])
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(extra_args)
+        command.extend(["--prompt", prompt])
+        return command
+    if provider == "kimi":
+        command = prefix + [
+            "--output-format",
+            "stream-json",
+        ]
+        permission_mode = str(
+            provider_cfg.get("summary_permission_mode", "plan")
+        ).strip()
+        if permission_mode:
+            if permission_mode not in {"auto", "plan", "yolo"}:
+                raise RunnerError(
+                    "kimi.summary_permission_mode must be auto, plan, yolo, or an empty string"
+                )
+            command.append(f"--{permission_mode}")
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(extra_args)
+        command.extend(["--prompt", prompt])
+        return command
+    if provider == "trae":
+        trajectory_path = output_path.parent / "logs" / "final-summary-trae-trajectory.json"
+        command = prefix + [
+            "run",
+            prompt,
+            "--working-dir",
+            ".",
+            "--trajectory-file",
+            str(trajectory_path),
+        ]
+        model_provider = str(provider_cfg.get("model_provider", "")).strip()
+        if model_provider:
+            command.extend(["--provider", model_provider])
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(extra_args)
+        return command
+    raise RunnerError(f"Unsupported summary provider adapter: {provider}")
+
+
+def extract_text_output(value: Any) -> str:
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return ""
+        if text.startswith(("{", "[")):
+            try:
+                nested = json.loads(text)
+            except json.JSONDecodeError:
+                return text
+            found = extract_text_output(nested)
+            return found or text
+        return text
+    if isinstance(value, list):
+        for item in reversed(value):
+            found = extract_text_output(item)
+            if found:
+                return found
+        return ""
+    if isinstance(value, dict):
+        for key in (
+            "response",
+            "result",
+            "final_message",
+            "final_output",
+            "answer",
+            "content",
+            "message",
+            "output",
+            "text",
+        ):
+            if key in value:
+                found = extract_text_output(value[key])
+                if found:
+                    return found
+        for nested in reversed(list(value.values())):
+            found = extract_text_output(nested)
+            if found:
+                return found
+    return ""
+
+
+def summary_stdout_text(provider: str, stdout: str, output_path: Path) -> str:
+    if provider == "codex":
+        return output_path.read_text(encoding="utf-8").strip() if output_path.is_file() else ""
+    if not stdout.strip():
+        return ""
+    try:
+        return extract_text_output(json.loads(stdout))
+    except json.JSONDecodeError:
+        for line in reversed(stdout.splitlines()):
+            candidate = line.strip()
+            if not candidate:
+                continue
+            try:
+                found = extract_text_output(json.loads(candidate))
+            except json.JSONDecodeError:
+                continue
+            if found:
+                return found
+        return stdout.strip()
 
 
 def summary_route(config: dict[str, Any], provider_override: str | None = None) -> dict[str, str]:
@@ -780,17 +1103,16 @@ def generate_final_summary(
             stream_output=False,
         )
         combined = f"{stdout}\n{stderr}"
-        if return_code != 0 and is_rate_limited(combined):
+        if return_code != 0 and is_provider_availability_failure(
+            route["provider"], return_code, combined, config
+        ):
             if wait_after_rate_limit(config, rate_cycle, no_wait):
                 rate_cycle += 1
                 continue
         if return_code == 0:
-            if route["provider"] == "claude":
-                summary = stdout.strip()
-                if summary:
-                    planctl.atomic_write_text(output_path, summary + "\n")
-            else:
-                summary = output_path.read_text(encoding="utf-8").strip() if output_path.is_file() else ""
+            summary = summary_stdout_text(route["provider"], stdout, output_path)
+            if summary and route["provider"] != "codex":
+                planctl.atomic_write_text(output_path, summary + "\n")
             if summary:
                 return summary + "\n", output_path.relative_to(plan_dir).as_posix()
         fallback = planctl.deterministic_summary(manifest)
@@ -910,7 +1232,11 @@ def install_signal_handlers() -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--plan", required=True, help="Path to the plan workspace")
-    parser.add_argument("--provider", choices=["claude", "codex"], help="Override task provider")
+    parser.add_argument(
+        "--provider",
+        choices=sorted(planctl.VALID_PROVIDERS - {"auto"}),
+        help="Override task provider",
+    )
     parser.add_argument("--once", action="store_true", help="Execute at most one task")
     parser.add_argument("--dry-run", action="store_true", help="Print the next provider command without executing")
     parser.add_argument("--no-wait", action="store_true", help="Do not wait and retry on rate/usage limits")

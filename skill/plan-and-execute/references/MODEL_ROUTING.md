@@ -5,11 +5,12 @@
 1. Logical tiers
 2. Planning and review routes
 3. Generated defaults
-4. Worker-selection heuristics
-5. Escalation schedule
-6. Provider fallback
-7. Cost and summary policy
-8. Configuration
+4. Supported execution providers
+5. Worker-selection heuristics
+6. Escalation schedule
+7. Provider fallback
+8. Cost and summary policy
+9. Configuration
 
 ## 1. Logical tiers
 
@@ -43,7 +44,7 @@ Do not use `economy` as the sole planner or reviewer for a complex multi-workstr
 
 ## 3. Generated defaults
 
-The generated `orchestrator.config.json` uses these defaults as of 2026-08-25:
+The generated `orchestrator.config.json` uses these defaults as of 2026-08-26:
 
 | Logical tier | Claude Code alias | Codex model |
 |---|---|---|
@@ -54,9 +55,39 @@ The generated `orchestrator.config.json` uses these defaults as of 2026-08-25:
 
 Model catalogs change. Treat the generated file as user-editable routing configuration, not a permanent claim about model availability. Keep logical tiers stable and update only the mapping.
 
+The default `provider_order` remains:
+
+```json
+["claude", "codex"]
+```
+
+Gemini, Qwen, Kimi, and Trae are present in configuration with the model sentinel `default`, but they are never selected automatically until the user adds them to `provider_order` or explicitly requests one for a task/resume operation.
+
 The default summary route is `economy` with `low` effort.
 
-## 4. Worker-selection heuristics
+## 4. Supported execution providers
+
+| Provider id | CLI | Isolation/output strategy | Default status |
+|---|---|---|---|
+| `claude` | Claude Code | fresh print process, no session persistence, JSON Schema result | installed/quick-start target |
+| `codex` | Codex CLI | ephemeral exec, output schema, result file | installed/quick-start target |
+| `gemini` | Gemini CLI | fresh headless prompt, JSON envelope, defensive report extraction | optional execution backend |
+| `qwen` | Qwen Code | fresh headless prompt, JSON + terminal JSON Schema | optional execution backend |
+| `kimi` | Kimi Code CLI | fresh `--prompt` run, `stream-json`, defensive final-report extraction | optional execution backend |
+| `trae` | Trae Agent | fresh `trae-cli run`, trajectory file, defensive report extraction | optional execution backend |
+
+The additional providers are runner adapters. They do not change the default skill installation destinations or imply that every CLI has the same native Agent Skills discovery contract.
+
+Provider-specific notes:
+
+- Gemini and Qwen unattended approval modes can execute writes and shell commands; use only in a trusted repository and preserve each product's sandbox/policy controls.
+- Qwen `safe_mode` disables loaded customizations but does not itself create a host sandbox. Enable its sandbox explicitly when required.
+- Current Kimi Code supports non-interactive `--prompt` runs with `text` or `stream-json` output. The worker adapter uses the documented `--auto` permission mode; the final summarizer uses `--plan`. Keep Kimi opt-in and use it only in a trusted workspace.
+- Kimi Code currently has no native final JSON Schema flag, so the runner validates and defensively extracts the completion object from its event stream.
+- Trae Agent has no native completion-schema contract in the adapter; the prompt requires strict JSON and the runner performs defensive extraction.
+- Optional provider model ids remain user-configurable. `default` means omit the model flag and let that CLI select its configured default.
+
+## 5. Worker-selection heuristics
 
 Choose `economy` when all are true:
 
@@ -81,7 +112,7 @@ Reserve `max` for a task that remains blocked after lower routes produced concre
 
 Provider selection should follow user preference, repository conventions, available CLI authentication, and task fit. Do not assert that one provider is universally superior. With `provider: auto`, use the configured order and switch only after the configured technical-failure budget.
 
-## 5. Escalation schedule
+## 6. Escalation schedule
 
 The strict runner uses `functional_failures_per_provider = 4` by default. For each provider:
 
@@ -107,7 +138,7 @@ Do not increment functional failures for:
 
 Persist availability events separately and retry the same route. Route planning defects back through the planning protocol instead of escalating a worker blindly.
 
-## 6. Provider fallback
+## 7. Provider fallback
 
 Use fallback only when:
 
@@ -119,7 +150,9 @@ For an explicitly provider-locked task, set `allow_provider_fallback` to `false`
 
 A fallback worker still receives only the current task definition. It diagnoses the repository's current state and recorded validation failure, not the previous provider's chat transcript.
 
-## 7. Cost and summary policy
+Provider-specific retryable exit codes may be configured with `retry_exit_codes`. Kimi's documented temporary-failure code `75` is enabled by default; all providers also use rate-limit/quota text detection. Do not copy one CLI's exit-code contract into another provider.
+
+## 8. Cost and summary policy
 
 - Spend stronger reasoning on decomposition before execution when it prevents large incorrect workstreams.
 - Avoid strong or max models for state rendering, status updates, deterministic validation, or final prose.
@@ -128,13 +161,13 @@ A fallback worker still receives only the current task definition. It diagnoses 
 - Keep worker prompts small by referencing one task file instead of pasting the whole plan.
 - Avoid parallel write agents solely to reduce elapsed time; conflict resolution can cost more than sequential execution.
 
-## 8. Configuration
+## 9. Configuration
 
 Each plan contains `orchestrator.config.json`. Common edits:
 
 ```json
 {
-  "provider_order": ["codex", "claude"],
+  "provider_order": ["claude", "codex"],
   "allow_provider_fallback": true,
   "functional_failures_per_provider": 4,
   "rate_limit": {
@@ -157,6 +190,49 @@ Each plan contains `orchestrator.config.json`. Common edits:
       "strong": "gpt-5.6",
       "max": "gpt-5.6"
     }
+  },
+  "gemini": {
+    "command": "gemini",
+    "models": {
+      "economy": "default",
+      "standard": "default",
+      "strong": "default",
+      "max": "default"
+    },
+    "approval_mode": "yolo"
+  },
+  "qwen": {
+    "command": "qwen",
+    "models": {
+      "economy": "default",
+      "standard": "default",
+      "strong": "default",
+      "max": "default"
+    },
+    "safe_mode": true,
+    "approval_mode": "yolo"
+  },
+  "kimi": {
+    "command": "kimi",
+    "models": {
+      "economy": "default",
+      "standard": "default",
+      "strong": "default",
+      "max": "default"
+    },
+    "permission_mode": "auto",
+    "summary_permission_mode": "plan",
+    "retry_exit_codes": [75]
+  },
+  "trae": {
+    "command": "trae-cli",
+    "models": {
+      "economy": "default",
+      "standard": "default",
+      "strong": "default",
+      "max": "default"
+    },
+    "model_provider": ""
   }
 }
 ```

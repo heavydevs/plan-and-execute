@@ -90,6 +90,7 @@ def sample_spec() -> dict:
             "dependencies_valid": True,
             "validations_sufficient": True,
             "contexts_minimal": True,
+            "context_boundaries_sound": True,
             "unresolved_findings": [],
             "notes": [
                 "Every requirement maps to a task and both tasks have independent validation."
@@ -103,6 +104,18 @@ def sample_spec() -> dict:
                 "requirement_ids": ["R001"],
                 "complexity": "low",
                 "atomicity_rationale": "This task has one file-creation outcome and one direct existence check.",
+                "context_boundary": {
+                    "shared_context": [
+                        "Creating implemented.txt and proving its existence share one marker-file contract."
+                    ],
+                    "why_one_todo": (
+                        "The file creation and its direct existence check are one cohesive outcome; "
+                        "splitting them would create an artificial handoff without reducing context."
+                    ),
+                    "separate_from": [
+                        "Marker content verification belongs to TODO 002 and needs no creation transcript."
+                    ],
+                },
                 "scope": {
                     "in": ["Create the marker file"],
                     "out": ["No unrelated refactoring"],
@@ -110,6 +123,13 @@ def sample_spec() -> dict:
                 },
                 "acceptance_criteria": ["implemented.txt exists"],
                 "validation_commands": ["test -f implemented.txt"],
+                "subtasks": [
+                    {
+                        "id": "S001",
+                        "title": "Create the bounded marker file",
+                        "objective": "implemented.txt exists without unrelated repository changes.",
+                    }
+                ],
                 "provider": "auto",
                 "model_tier": "economy",
                 "reasoning_effort": "low",
@@ -121,6 +141,18 @@ def sample_spec() -> dict:
                 "requirement_ids": ["R002"],
                 "complexity": "low",
                 "atomicity_rationale": "This task has one content outcome and one deterministic grep check.",
+                "context_boundary": {
+                    "shared_context": [
+                        "Correcting marker contents and running grep share one deterministic content contract."
+                    ],
+                    "why_one_todo": (
+                        "The content correction and grep validation use the same file invariant, while the "
+                        "worker needs only repository state rather than TODO 001 conversation history."
+                    ),
+                    "separate_from": [
+                        "Initial marker creation belongs to TODO 001 and is already represented on disk."
+                    ],
+                },
                 "dependencies": [1],
                 "scope": {
                     "in": ["Check or update implemented.txt"],
@@ -129,6 +161,13 @@ def sample_spec() -> dict:
                 },
                 "acceptance_criteria": ["The marker contains implemented"],
                 "validation_commands": ["grep -q implemented implemented.txt"],
+                "subtasks": [
+                    {
+                        "id": "S001",
+                        "title": "Verify and correct marker contents",
+                        "objective": "implemented.txt contains the expected word and the grep check passes.",
+                    }
+                ],
                 "provider": "auto",
                 "model_tier": "economy",
                 "reasoning_effort": "low",
@@ -155,6 +194,9 @@ if "--json-schema" in args:
         "risks": [],
         "follow_ups": [],
         "context_files_read": ["CONTEXT.md"],
+        "learning_files_read": [],
+        "completed_subtask_ids": ["S001"],
+        "reusable_learnings": [],
         "related_task_reads": [],
         "blocked_reason": None
     }
@@ -175,7 +217,7 @@ def test_plan_state() -> None:
         plan_dir = planctl.create_plan(repo, spec, ".ai-work", "state-test")
         loaded_dir, manifest = planctl.load_plan(plan_dir)
         assert loaded_dir == plan_dir.resolve()
-        assert manifest["schema_version"] == 3
+        assert manifest["schema_version"] == 4
         assert not planctl.validate_plan(plan_dir, manifest)
         assert (plan_dir / "ANALYSIS.md").is_file()
         assert (plan_dir / "PLAN_REVIEW.md").is_file()
@@ -205,12 +247,28 @@ def test_plan_state() -> None:
             plan_dir,
             manifest,
             "001",
-            {"changed_files": ["implemented.txt"], "validation_results": []},
+            {
+                "changed_files": ["implemented.txt"],
+                "validation_results": [],
+                "completed_subtask_ids": ["S001"],
+                "reusable_learnings": [],
+            },
             "results/001.json",
         )
         assert planctl.next_runnable_task(manifest)["id"] == "002"
         planctl.claim_task(plan_dir, manifest, "002", route)
-        planctl.complete_task(plan_dir, manifest, "002", {"changed_files": [], "validation_results": []}, None)
+        planctl.complete_task(
+            plan_dir,
+            manifest,
+            "002",
+            {
+                "changed_files": [],
+                "validation_results": [],
+                "completed_subtask_ids": ["S001"],
+                "reusable_learnings": [],
+            },
+            None,
+        )
         assert manifest["state"] == "completed"
         planctl.mark_summary(plan_dir, manifest, "FINAL_SUMMARY.md")
         (repo / "implemented.txt").write_text("preserve me\n", encoding="utf-8")

@@ -10,17 +10,33 @@ import {
   validateBundledSkill
 } from '../lib/installer.js';
 
+function fail(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+function requireFile(relativePath) {
+  const absolute = path.join(SKILL_SOURCE, relativePath);
+  if (!fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) {
+    fail(`Bundled skill is missing ${relativePath}.`);
+  }
+  return absolute;
+}
+
+function requireText(text, needles, label) {
+  for (const needle of needles) {
+    if (!text.includes(needle)) fail(`${label} is missing required text: ${needle}`);
+  }
+}
+
 validateBundledSkill();
 
 const skillFiles = [];
 function walk(directory, output) {
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
     const absolute = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      walk(absolute, output);
-    } else if (entry.isFile()) {
-      output.push(absolute);
-    }
+    if (entry.isDirectory()) walk(absolute, output);
+    else if (entry.isFile()) output.push(absolute);
   }
 }
 walk(SKILL_SOURCE, skillFiles);
@@ -30,7 +46,6 @@ const forbidden = new Map([
   ['github.com/luizcgvrj/plan-and-execute', []],
   ['github:luizcgvrj/plan-and-execute', []]
 ]);
-
 const repositoryFiles = [];
 for (const rootEntry of fs.readdirSync(process.cwd(), { withFileTypes: true })) {
   if (['.git', 'node_modules', '.ai-work'].includes(rootEntry.name)) continue;
@@ -38,64 +53,51 @@ for (const rootEntry of fs.readdirSync(process.cwd(), { withFileTypes: true })) 
   if (rootEntry.isDirectory()) walk(absolute, repositoryFiles);
   else if (rootEntry.isFile()) repositoryFiles.push(absolute);
 }
-
 for (const file of repositoryFiles) {
-  if (path.relative(process.cwd(), file) === path.join('tools', 'validate-skill.js')) {
-    continue;
-  }
+  if (path.relative(process.cwd(), file) === path.join('tools', 'validate-skill.js')) continue;
   const buffer = fs.readFileSync(file);
   for (const [needle, matches] of forbidden) {
-    if (buffer.includes(Buffer.from(needle))) {
-      matches.push(path.relative(process.cwd(), file));
-    }
+    if (buffer.includes(Buffer.from(needle))) matches.push(path.relative(process.cwd(), file));
   }
 }
-
 for (const [needle, matches] of forbidden) {
-  if (matches.length > 0) {
-    console.error(`Forbidden legacy reference ${needle} found in: ${matches.join(', ')}`);
-    process.exit(1);
-  }
+  if (matches.length > 0) fail(`Forbidden legacy reference ${needle} found in: ${matches.join(', ')}`);
 }
 
-const requiredSkillFiles = [
+for (const relative of [
   'SKILL.md',
   path.join('agents', 'openai.yaml'),
   path.join('references', 'ADAPTIVE_STUDY.md'),
+  path.join('references', 'EXECUTION_CONTEXT.md'),
+  path.join('references', 'PLANNING_PROTOCOL.md'),
+  path.join('references', 'PLAN_SPEC.md'),
+  path.join('references', 'WORKFLOW.md'),
+  path.join('references', 'LIFECYCLE.md'),
+  path.join('references', 'MODEL_ROUTING.md'),
+  path.join('references', 'completion-report.schema.json'),
+  path.join('references', 'plan-spec.example.json'),
   path.join('references', 'study-spec.example.json'),
   path.join('scripts', 'studyctl.py'),
   path.join('scripts', 'study_self_test.py'),
-  path.join('references', 'EXECUTION_CONTEXT.md'),
-  path.join('scripts', 'context_self_test.py')
-];
-for (const relative of requiredSkillFiles) {
-  if (!fs.existsSync(path.join(SKILL_SOURCE, relative))) {
-    console.error(`Bundled skill is missing ${relative}.`);
-    process.exit(1);
-  }
-}
+  path.join('scripts', 'context_self_test.py'),
+  path.join('scripts', 'lifecycle_self_test.py'),
+  path.join('scripts', 'task_memory_self_test.py'),
+  path.join('scripts', 'provider_self_test.py')
+]) requireFile(relative);
 
-const metadata = fs.readFileSync(path.join(SKILL_SOURCE, 'agents', 'openai.yaml'), 'utf8');
-if (!metadata.includes('display_name: "Plan and Execute"')) {
-  console.error('agents/openai.yaml does not contain the expected display_name.');
-  process.exit(1);
-}
-if (!metadata.includes('adaptive study')) {
-  console.error('agents/openai.yaml must mention the adaptive study gate.');
-  process.exit(1);
-}
+const metadata = fs.readFileSync(requireFile(path.join('agents', 'openai.yaml')), 'utf8');
+requireText(metadata, [
+  'display_name: Plan and Execute',
+  'adaptive study',
+  'resume',
+  'execution context',
+  'context_boundaries_sound',
+  'validated-learning',
+  'resumable'
+], 'agents/openai.yaml');
 
-if (!metadata.toLowerCase().includes('resume')) {
-  console.error('agents/openai.yaml must mention resumable lifecycle and resume behavior.');
-  process.exit(1);
-}
-if (!metadata.toLowerCase().includes('execution context')) {
-  console.error('agents/openai.yaml must mention minimal execution context.');
-  process.exit(1);
-}
-
-const skill = fs.readFileSync(path.join(SKILL_SOURCE, 'SKILL.md'), 'utf8');
-for (const requiredText of [
+const skill = fs.readFileSync(requireFile('SKILL.md'), 'utf8');
+requireText(skill, [
   'No arguments: resume an implementation or create a request',
   '--move-request',
   'Pass the adaptive study gate before planning',
@@ -111,19 +113,18 @@ for (const requiredText of [
   'Evaluate progressive execution context',
   'references/EXECUTION_CONTEXT.md',
   'contexts_minimal',
-  'Assigned execution context'
-]) {
-  if (!skill.includes(requiredText)) {
-    console.error(`SKILL.md is missing required workflow text: ${requiredText}`);
-    process.exit(1);
-  }
-}
+  'context_boundaries_sound',
+  'Assigned execution context',
+  'Assigned validated learnings',
+  'Resumable subtask checklist',
+  'Gemini CLI',
+  'Qwen Code',
+  'Kimi Code CLI',
+  'Trae Agent'
+], 'SKILL.md');
 
-const studyProtocol = fs.readFileSync(
-  path.join(SKILL_SOURCE, 'references', 'ADAPTIVE_STUDY.md'),
-  'utf8'
-);
-for (const requiredText of [
+const studyProtocol = fs.readFileSync(requireFile(path.join('references', 'ADAPTIVE_STUDY.md')), 'utf8');
+requireText(studyProtocol, [
   'Mandatory internal study',
   'Conditional external research',
   'user_requested',
@@ -131,89 +132,100 @@ for (const requiredText of [
   'security_sensitive',
   'studyctl.py attach',
   'exact-text rule'
-]) {
-  if (!studyProtocol.includes(requiredText)) {
-    console.error(`ADAPTIVE_STUDY.md is missing required protocol text: ${requiredText}`);
-    process.exit(1);
-  }
-}
+], 'ADAPTIVE_STUDY.md');
 
-const studyExample = JSON.parse(
-  fs.readFileSync(path.join(SKILL_SOURCE, 'references', 'study-spec.example.json'), 'utf8')
-);
+const studyExample = JSON.parse(fs.readFileSync(requireFile(path.join('references', 'study-spec.example.json')), 'utf8'));
 if (studyExample.schema_version !== 1 || !studyExample.synthesis?.ready_for_planning) {
-  console.error('study-spec.example.json must be a ready schema version 1 example.');
-  process.exit(1);
+  fail('study-spec.example.json must be a ready schema version 1 example.');
 }
 
-const contextProtocol = fs.readFileSync(
-  path.join(SKILL_SOURCE, 'references', 'EXECUTION_CONTEXT.md'),
-  'utf8'
-);
-for (const requiredText of [
+const contextProtocol = fs.readFileSync(requireFile(path.join('references', 'EXECUTION_CONTEXT.md')), 'utf8');
+requireText(contextProtocol, [
   'Omission is the default',
   'CONTEXT.md',
   'Scoped context files',
   'single TODO',
   'source_refs',
-  'contexts_minimal'
-]) {
-  if (!contextProtocol.includes(requiredText)) {
-    console.error(`EXECUTION_CONTEXT.md is missing required protocol text: ${requiredText}`);
-    process.exit(1);
-  }
-}
+  'contexts_minimal',
+  'Validated execution learnings',
+  'learning_files_read'
+], 'EXECUTION_CONTEXT.md');
 
-const planctl = fs.readFileSync(path.join(SKILL_SOURCE, 'scripts', 'planctl.py'), 'utf8');
-for (const requiredText of [
-  'SCHEMA_VERSION = 3',
-  'GLOBAL_CONTEXT_FILE = "CONTEXT.md"',
+const planctl = fs.readFileSync(requireFile(path.join('scripts', 'planctl.py')), 'utf8');
+requireText(planctl, [
+  'SCHEMA_VERSION = 4',
+  'SUPPORTED_SCHEMA_VERSIONS = {1, 2, 3, 4}',
+  'CONTEXT_BOUNDARY_REVIEW_CHECK = "context_boundaries_sound"',
+  'VALID_SUBTASK_STATUSES',
+  'VALID_LEARNING_KINDS',
   'normalize_execution_context',
   'validate_context_artifacts',
-  'contexts_minimal'
-]) {
-  if (!planctl.includes(requiredText)) {
-    console.error(`planctl.py is missing execution-context support: ${requiredText}`);
-    process.exit(1);
-  }
+  'materialize_learning_artifacts',
+  'subtask-start',
+  'subtask-complete',
+  'provider_order": ["claude", "codex"]'
+], 'planctl.py');
+for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae']) {
+  if (!planctl.includes(`"${provider}"`)) fail(`planctl.py must support provider ${provider}.`);
 }
 
 const completionSchema = JSON.parse(
-  fs.readFileSync(path.join(SKILL_SOURCE, 'references', 'completion-report.schema.json'), 'utf8')
+  fs.readFileSync(requireFile(path.join('references', 'completion-report.schema.json')), 'utf8')
 );
-if (!completionSchema.required?.includes('context_files_read')) {
-  console.error('completion-report.schema.json must require context_files_read.');
-  process.exit(1);
+for (const field of [
+  'context_files_read',
+  'learning_files_read',
+  'completed_subtask_ids',
+  'reusable_learnings'
+]) {
+  if (!completionSchema.required?.includes(field)) {
+    fail(`completion-report.schema.json must require ${field}.`);
+  }
+}
+
+const planExample = JSON.parse(
+  fs.readFileSync(requireFile(path.join('references', 'plan-spec.example.json')), 'utf8')
+);
+if (!planExample.tasks?.length || !planExample.tasks.every((task) => (
+  task.context_boundary && Array.isArray(task.subtasks) && task.subtasks.length > 0
+))) {
+  fail('plan-spec.example.json must contain schema-v4 context boundaries and subtasks.');
+}
+if (planExample.plan_review?.context_boundaries_sound !== true) {
+  fail('plan-spec.example.json must approve context_boundaries_sound.');
 }
 
 const readme = fs.readFileSync(path.join(process.cwd(), 'README.md'), 'utf8');
-if (!readme.startsWith('# Plan and Execute\n\n**Turn large coding requests into an evidence-backed')) {
-  console.error('README.md must begin with the evidence-backed outcome introduction.');
-  process.exit(1);
-}
-if (!readme.includes('## Adaptive study gate')) {
-  console.error('README.md must document the adaptive study gate.');
-  process.exit(1);
-}
-if (!readme.includes('## Progressive execution context')) {
-  console.error('README.md must document progressive execution context.');
-  process.exit(1);
-}
-if (!fs.existsSync(path.join(process.cwd(), 'README.pt-BR.md'))) {
-  console.error('README.pt-BR.md is required.');
-  process.exit(1);
-}
+requireText(readme, [
+  '# Plan and Execute',
+  '## Supported AI workers',
+  '## Quick start: Claude Code and Codex',
+  '## Why TODO boundaries matter',
+  '## Resumable subtasks inside every TODO',
+  '## Selective validated learning',
+  '## Adaptive study gate',
+  '## Progressive execution context',
+  'Gemini CLI',
+  'Qwen Code',
+  'Kimi Code CLI',
+  'Trae Agent',
+  '"provider_order": ["claude", "codex"]'
+], 'README.md');
+const readmePt = fs.readFileSync(path.join(process.cwd(), 'README.pt-BR.md'), 'utf8');
+requireText(readmePt, [
+  '## IAs suportadas para execução',
+  '## Tutorial rápido: Claude Code e Codex',
+  '## Por que a fronteira dos TODOs importa',
+  '## Subtarefas retomáveis dentro de cada TODO',
+  '## Aprendizado validado e seletivo'
+], 'README.pt-BR.md');
 
 const packageMetadata = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
-if (packageMetadata.version !== '0.6.0') {
-  console.error(`Expected package version 0.6.0, found ${packageMetadata.version}.`);
-  process.exit(1);
+if (packageMetadata.version !== '0.7.0') {
+  fail(`Expected package version 0.7.0, found ${packageMetadata.version}.`);
 }
 if (!packageMetadata.repository?.url?.includes('heavydevs/plan-and-execute')) {
-  console.error('package.json must point to heavydevs/plan-and-execute.');
-  process.exit(1);
+  fail('package.json must point to heavydevs/plan-and-execute.');
 }
 
-console.log(
-  `Skill ${SKILL_NAME} validated (${skillFiles.length} files, sha256 ${computeDirectoryHash(SKILL_SOURCE)}).`
-);
+console.log(`Skill ${SKILL_NAME} validated (${skillFiles.length} files, sha256 ${computeDirectoryHash(SKILL_SOURCE)}).`);

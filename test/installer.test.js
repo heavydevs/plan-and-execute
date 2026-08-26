@@ -12,6 +12,7 @@ import {
   installSkill,
   readSkillName,
   resolveTargets,
+  runDoctor,
   uninstallSkill,
   validateBundledSkill
 } from '../lib/installer.js';
@@ -50,6 +51,20 @@ test('resolves workspace destinations for both agents', () => {
       path.join(root, '.agents', 'skills', SKILL_NAME)
     ]);
     assert.ok(targets.every((target) => target.scope === 'workspace'));
+  } finally {
+    cleanup(root);
+  }
+});
+
+test('optional execution providers are not skill installation targets', () => {
+  const root = temporaryDirectory();
+  try {
+    for (const provider of ['gemini', 'qwen', 'kimi', 'trae']) {
+      assert.throws(
+        () => resolveTargets({ agent: provider, scope: 'workspace', workspaceDir: root }),
+        /Agente invalido/
+      );
+    }
   } finally {
     cleanup(root);
   }
@@ -247,6 +262,17 @@ test('hash ignores the installer marker but detects content changes', () => {
   } finally {
     cleanup(root);
   }
+});
+
+test('doctor remains scoped to standard installed CLIs', () => {
+  const report = runDoctor();
+  assert.equal(report.bundledSkillValid, true);
+  assert.ok(Object.hasOwn(report, 'claude'));
+  assert.ok(Object.hasOwn(report, 'codex'));
+  assert.equal(Object.hasOwn(report, 'gemini'), false);
+  assert.equal(Object.hasOwn(report, 'qwen'), false);
+  assert.equal(Object.hasOwn(report, 'kimi'), false);
+  assert.equal(Object.hasOwn(report, 'trae'), false);
 });
 
 test('refuses to replace a symbolic-link destination', { skip: process.platform === 'win32' }, () => {

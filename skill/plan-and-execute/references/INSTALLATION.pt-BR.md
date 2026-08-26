@@ -2,6 +2,8 @@
 
 [English version](INSTALLATION.md)
 
+A instalação padrão é intencionalmente limitada ao Claude Code e ao Codex. O runner estrito também pode usar Gemini CLI, Qwen Code, Kimi Code CLI e Trae Agent como backends opcionais de execução depois que essas CLIs estiverem instaladas, autenticadas e configuradas no plano. Elas não são novos destinos da opção `--agent`.
+
 ## Instalação recomendada com npx
 
 Para Claude e Codex no perfil do usuário:
@@ -126,13 +128,36 @@ Para preservar o plano após o sucesso:
 python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id> --no-cleanup
 ```
 
+## Provedores opcionais de execução
+
+O `provider_order` gerado continua sendo `claude`, seguido de `codex`. Para optar explicitamente por outro backend:
+
+```bash
+pae resume --provider gemini
+pae resume --provider qwen
+pae resume --provider kimi
+pae resume --provider trae
+```
+
+Backends não interativos opcionais podem aprovar automaticamente escrita de arquivos e comandos de shell. Use-os somente em workspaces confiáveis e respeite os controles de sandbox, permissões e políticas organizacionais de cada CLI. Consulte [MODEL_ROUTING.md](MODEL_ROUTING.md).
+
 ## Verificar a instalação
 
 ```bash
 python <skill-dir>/scripts/self_test.py
 ```
 
-O teste cobre criação e validação do arquivo de solicitação, detecção do VS Code, cópia/movimentação do pedido, checklist sucinto, rastreabilidade, grafo de tarefas, escalonamento, execução isolada, validação determinística, resumo e limpeza segura.
+Execute também as suítes focadas:
+
+```bash
+python <skill-dir>/scripts/context_self_test.py
+python <skill-dir>/scripts/lifecycle_self_test.py
+python <skill-dir>/scripts/study_self_test.py
+python <skill-dir>/scripts/task_memory_self_test.py
+python <skill-dir>/scripts/provider_self_test.py
+```
+
+Em conjunto, elas cobrem limites de TODO baseados em contexto, retomada de subtarefas persistentes, transferência seletiva de aprendizados validados, adaptadores de provedores, rastreabilidade, escalonamento, validação determinística, resumo e limpeza segura.
 
 ## CLI de ciclo de vida após a instalação
 

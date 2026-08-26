@@ -67,6 +67,7 @@ def sample_spec(title: str = "Lifecycle sample") -> dict:
             "dependencies_valid": True,
             "validations_sufficient": True,
             "contexts_minimal": True,
+            "context_boundaries_sound": True,
             "unresolved_findings": [],
             "notes": ["The single task covers the complete sample requirement."],
         },
@@ -80,6 +81,16 @@ def sample_spec(title: str = "Lifecycle sample") -> dict:
                 "requirement_ids": ["R001"],
                 "complexity": "low",
                 "atomicity_rationale": "This task has one file outcome and one deterministic content check.",
+                "context_boundary": {
+                    "shared_context": [
+                        "Creating the lifecycle marker and validating its contents share one file contract."
+                    ],
+                    "why_one_todo": (
+                        "The fixture has one cohesive implementation outcome, so splitting creation from "
+                        "its deterministic validation would add an artificial handoff without reducing context."
+                    ),
+                    "separate_from": [],
+                },
                 "scope": {
                     "in": ["Create implemented.txt"],
                     "out": ["No unrelated changes"],
@@ -89,6 +100,13 @@ def sample_spec(title: str = "Lifecycle sample") -> dict:
                 "implementation_guidance": [],
                 "acceptance_criteria": ["implemented.txt contains implemented"],
                 "validation_commands": ["grep -q implemented implemented.txt"],
+                "subtasks": [
+                    {
+                        "id": "S001",
+                        "title": "Create and validate the marker",
+                        "objective": "implemented.txt contains implemented and the deterministic grep succeeds.",
+                    }
+                ],
                 "provider": "auto",
                 "model_tier": "economy",
                 "reasoning_effort": "low",
@@ -117,7 +135,12 @@ def complete_sample_plan(plan_dir: Path) -> None:
         plan_dir,
         manifest,
         task["id"],
-        {"changed_files": ["implemented.txt"], "validation_results": []},
+        {
+            "changed_files": ["implemented.txt"],
+            "validation_results": [],
+            "completed_subtask_ids": ["S001"],
+            "reusable_learnings": [],
+        },
         None,
     )
     planctl.mark_summary(plan_dir, manifest, "FINAL_SUMMARY.md")

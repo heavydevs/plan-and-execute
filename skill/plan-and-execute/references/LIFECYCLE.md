@@ -29,7 +29,7 @@ $plan-and-execute        # Codex
 ```
 
 1. Inspect the current workspace with `lifecyclectl.py current`.
-2. If an unfinished implementation exists and no runner is live, recover interrupted task state and continue from the next runnable TODO.
+2. If an unfinished implementation exists and no runner is live, recover interrupted parent/subtask state and continue from the next runnable TODO and first incomplete checkpoint.
 3. If a runner is already live, report it and do not start a duplicate execution.
 4. If no unfinished implementation exists, create the guided request file exactly as the normal intake flow does.
 
@@ -74,18 +74,19 @@ An implementation remains actionable when TODOs are unfinished or when all TODOs
 
 ## 4. Interruption recovery
 
-A controlled `Ctrl+C` returns the current task to `pending`. A power loss, terminated process, or disconnected machine may leave a task as `in_progress`.
+A controlled `Ctrl+C` returns the current task to `pending`. A power loss, terminated process, or disconnected machine may leave a parent task and one child subtask as `in_progress`.
 
 Before resuming under an exclusive runner lease:
 
 1. reload `manifest.json` from disk;
 2. find every task still marked `in_progress`;
-3. return it to `pending`;
-4. append a `recovered_after_interruption` history event;
-5. do not increase `functional_failures`;
-6. preserve the attempt count, logs, result files, generated `CONTEXT.md`/`contexts/*.md`, and all partial repository changes.
+3. return the parent to `pending`;
+4. return only its `in_progress` subtask to `pending` while preserving completed sibling checkpoints;
+5. append a `recovered_after_interruption` history event with recovered subtask ids;
+6. do not increase `functional_failures`;
+7. preserve the attempt count, logs, result files, generated `CONTEXT.md`/`contexts/*.md`, assigned `learnings/*.md`, and all partial repository changes.
 
-Context assignments are reconstructed from `manifest.json` and revalidated on resume; they are not regenerated or hand-edited unless the plan is revised. The next fresh worker must inspect the current working tree and either continue, repair, or replace the partial implementation within the assigned task scope. Deterministic validation still decides whether the task is complete.
+Context, learning, and subtask assignments are reconstructed from `manifest.json` and revalidated on resume; they are not regenerated or hand-edited unless the plan is revised. The next fresh worker reads the task checklist, skips completed checkpoints, inspects the current working tree, and continues, repairs, or replaces partial implementation within scope. Deterministic validation still decides whether the parent is complete.
 
 ## 5. Runner lease and concurrency
 
@@ -130,7 +131,7 @@ pae cancel
 This command:
 
 - stops the live local runner when possible;
-- removes the active plan directory, task definitions, global/scoped context files, logs, results, study, manifest, and active pointer;
+- removes the active plan directory, task definitions, global/scoped context files, validated learning artifacts, logs, results, study, manifest, and active pointer;
 - removes unfinished intake drafts in the workspace;
 - leaves all implementation changes in the repository untouched.
 
@@ -180,6 +181,10 @@ Useful CLI variants:
 ```bash
 pae current --json
 pae resume --provider codex
+pae resume --provider gemini
+pae resume --provider qwen
+pae resume --provider kimi
+pae resume --provider trae
 pae resume --once
 pae resume --no-wait
 pae resume --no-cleanup
@@ -196,18 +201,19 @@ Use the active Claude Code or Codex orchestrator when nested provider processes 
 - rediscover the plan from disk;
 - reload the manifest rather than relying on chat history;
 - recover stale `in_progress` state when no external lease is live;
-- dispatch a fresh worker for exactly one task definition and only its assigned execution-context files;
-- require exact `context_files_read` in the worker report;
+- dispatch a fresh worker for exactly one task definition and only its assigned execution-context and validated-learning files;
+- require exact `context_files_read`, `learning_files_read`, and completed subtask ids in the worker report;
+- checkpoint work only through `planctl.py` subtask commands; never edit the rendered checklist;
 - persist each state transition immediately;
 - clear active state after final summary generation.
 
-The orchestrator should be operationally stateless even when the surrounding chat retains history. Do not resend the request, study, complete plan, or previous worker reports to the next worker. Optional global/scoped context files are the only intentionally persisted cross-task worker context and remain immutable until replanning.
+The orchestrator should be operationally stateless even when the surrounding chat retains history. Do not resend the request, study, complete plan, previous worker reports, or logs to the next worker. Optional global/scoped context files preserve immutable plan-time knowledge; target-specific learning files preserve only concise validated discoveries authorized during planning.
 
 ### Strict external-runner mode
 
 Use `pae resume` or `lifecyclectl.py resume` when nested execution is allowed. This mode provides the strongest process isolation, atomic lease, automatic interruption recovery, rate-limit handling, and end-to-end continuation.
 
-Both modes read and update the same plan workspace, so a plan may be resumed with either Claude Code or Codex when routing rules permit.
+Both modes read and update the same plan workspace. Native mode remains Claude Code/Codex-centric; strict mode may route to Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code CLI, or Trae Agent when the optional backend is configured and allowed.
 
 ## 10. Safety boundaries
 
@@ -218,5 +224,7 @@ Both modes read and update the same plan workspace, so a plan may be resumed wit
 - Never start a second runner while a live lease exists.
 - Never silently choose among multiple unfinished plans.
 - Never count a power, network, or process interruption as a technical implementation failure.
+- Never erase completed subtask checkpoints during interruption recovery.
+- Never rewrite a target's learning assignment after that target has begun execution.
 - Never create a new request while a resumable unfinished plan exists.
 - Never leave a terminal implementation marked active after its final summary is generated.

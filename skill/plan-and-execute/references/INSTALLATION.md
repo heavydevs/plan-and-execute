@@ -2,6 +2,8 @@
 
 [Versão em português](INSTALLATION.pt-BR.md)
 
+The standard installation intentionally targets only Claude Code and Codex. The strict runner can also use Gemini CLI, Qwen Code, Kimi Code CLI, and Trae Agent as optional execution backends after those CLIs are installed, authenticated, and added to a plan's routing configuration. They are not additional `--agent` installation destinations.
+
 ## Recommended: install with npx
 
 Install for both agents in your user profile:
@@ -175,13 +177,34 @@ python <skill-dir>/scripts/run_isolated.py \
 
 Every plan creates `.ai-work/<plan-id>/orchestrator.config.json`. Adjust the concrete model mapping when the models available to your account differ. Tasks keep using logical `economy`, `standard`, `strong`, and `max` tiers.
 
+The generated provider order remains `claude`, then `codex`. To opt into another backend, either add its id to `provider_order` or run, for example:
+
+```bash
+pae resume --provider gemini
+pae resume --provider qwen
+pae resume --provider kimi
+pae resume --provider trae
+```
+
+Optional unattended backends may approve file writes and shell commands automatically. Use them only in trusted workspaces and review each CLI's sandbox, permission, and organizational-policy controls. See [MODEL_ROUTING.md](MODEL_ROUTING.md).
+
 ## Verify the installation
 
 ```bash
 python <skill-dir>/scripts/self_test.py
 ```
 
-The self-test covers request-file creation and validation, VS Code editor selection, request copy/move semantics, concise TODO rendering, traceability, task-graph rules, state transitions, model escalation, isolated execution, deterministic validation, final summarization, and safe cleanup.
+Run the focused suites as well:
+
+```bash
+python <skill-dir>/scripts/context_self_test.py
+python <skill-dir>/scripts/lifecycle_self_test.py
+python <skill-dir>/scripts/study_self_test.py
+python <skill-dir>/scripts/task_memory_self_test.py
+python <skill-dir>/scripts/provider_self_test.py
+```
+
+Together they cover request-file handling, context-cohesive TODO boundaries, persistent subtask recovery, selective validated learning transfer, provider adapters, traceability, escalation, deterministic validation, final summarization, and safe cleanup.
 
 ## Lifecycle CLI after installation
 

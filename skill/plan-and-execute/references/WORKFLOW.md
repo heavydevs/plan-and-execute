@@ -29,10 +29,10 @@ Read `INTAKE.md` for commands, editor selection, and recovery behavior.
 Use separate roles even when one provider implements all of them:
 
 - **Analyzer/researcher:** studies the complete request, repository, tests, architecture, and any authoritative external material needed to understand the work.
-- **Planner:** turns the analysis into stable requirements, workstreams, a dependency graph, executable leaf TODOs, and an explicit minimal execution-context decision.
-- **Plan reviewer:** receives the full request, compact analysis, requirements, draft graph, and proposed context assignments in a fresh context; searches for omissions, oversized tasks, weak dependencies, unverifiable acceptance criteria, and unnecessary or leaked context.
+- **Planner:** turns the analysis into stable requirements, workstreams, a dependency graph, context-cohesive leaf TODOs, resumable subtask checkpoints, directional learning targets, and an explicit minimal execution-context decision.
+- **Plan reviewer:** receives the full request, compact analysis, requirements, draft graph, task context boundaries, subtasks, learning relationships, and proposed context assignments in a fresh context; searches for omissions, unrelated work sharing one worker history, oversized tasks hidden behind subtasks, weak dependencies, unverifiable acceptance criteria, and unnecessary or leaked context.
 - **Orchestrator:** owns the approved plan graph, task state, route decisions, deterministic validation, replanning decisions, final handoff, and cleanup.
-- **Worker:** receives exactly one task definition plus only its assigned global/scoped context files, edits implementation files, runs task-local checks, and returns a structured report including `context_files_read`.
+- **Worker:** receives exactly one task definition plus only its assigned global/scoped context and validated target-specific learning files, checkpoints stable subtasks through the controller, edits implementation files, runs task-local checks, and returns a structured report including exact read lists, completed subtask ids, and optional predeclared reusable learnings.
 - **Summarizer:** receives a prepared evidence bundle only after the plan succeeds and writes the final handoff using an economy-tier model.
 
 The orchestrator may coordinate all planning state. Implementation workers must not browse plan-wide files or unassigned context files. A fresh native subagent reduces chat-history contamination; a fresh external CLI process gives a stricter boundary. Neither boundary bypasses system policy, repository instructions, sandboxing, permissions, or organizational controls.
@@ -83,7 +83,11 @@ Group requirements into coherent workstreams, identify dependencies, then recurs
 
 Split again when a TODO contains multiple independent outcomes, crosses unrelated subsystems, has separable migration and rollout stages, combines implementation with broad test or documentation work, contains more than one independently failing validation boundary, or would be rated `extreme`.
 
+Also split when retained worker context from one concern would not materially help another. Two independent CRUD domains normally become two TODOs even when their controller/service/entity shapes look alike. Keep one domain's tightly coupled layers together only when they share rules, decisions, failure diagnosis, and focused validation.
+
 Do not create artificial file-by-file microtasks. Keep a technically difficult task as one `high`-complexity leaf only when it still has one coherent outcome and splitting it would create harmful handoffs or weaker validation. Record that reasoning in `atomicity_rationale`.
+
+For schema v4, record the decision in each task's `context_boundary`, define one or more stable `subtasks`, and predeclare only narrow directional `learning_targets` for future TODOs that could reuse expensive validated findings.
 
 ### 3.5 Design progressive execution context
 
@@ -96,7 +100,9 @@ After task boundaries are stable, read `EXECUTION_CONTEXT.md` and decide whether
 
 Every item must be grounded through `source_refs`, state one operational fact or constraint, and include a necessity that explains why every assigned TODO needs it. Do not copy the request, study, plan, TODO status, or generic advice.
 
-Record the explicit decision in schema-v3 `execution_context`. `planctl.py` generates file paths and exact task assignments.
+Record the explicit decision in schema-v4 `execution_context`. `planctl.py` generates file paths and exact task assignments.
+
+Keep this immutable plan-time context separate from execution learnings. A completed validated source TODO may create a concise `learnings/<source>-to-<target>.md` file only for a predeclared untouched future target. It must contain grounded code/procedure/decision/pitfall/validation findings, never a transcript or broad plan history.
 
 ### 3.6 Review in a fresh context
 
@@ -106,6 +112,7 @@ Give the plan reviewer:
 - compact repository and research findings;
 - the full requirements inventory;
 - the draft task graph with requirement mappings, complexity ratings, dependencies, acceptance criteria, and validation commands;
+- every task's context-boundary rationale, subtask checklist, and directional learning targets;
 - the explicit global/scoped execution-context proposal.
 
 Do not assign implementation to the reviewer. Require it to challenge:
@@ -115,6 +122,10 @@ Do not assign implementation to the reviewer. Require it to challenge:
 - requirements that have no TODO;
 - TODOs that cover no requirement;
 - TODOs with multiple independent outcomes;
+- TODOs whose concerns would not benefit from the same retained worker context;
+- independent domains combined only because they use the same framework pattern;
+- top-level outcomes hidden inside subtasks;
+- broad or bidirectional learning relationships that would recreate plan/chat history;
 - hidden cross-task dependencies or cycles;
 - validations that cannot prove the acceptance criteria;
 - high-complexity tasks whose atomicity rationale is weak;
@@ -125,11 +136,11 @@ Do not assign implementation to the reviewer. Require it to challenge:
 - single-task information moved into an unnecessary file;
 - missing evidence grounding or excessive prose.
 
-Revise and repeat until all review checks, including `contexts_minimal`, are true and `unresolved_findings` is empty. Record the approved result in `plan_review`.
+Revise and repeat until all review checks, including `contexts_minimal` and `context_boundaries_sound`, are true and `unresolved_findings` is empty. Record the approved result in `plan_review`.
 
 ### 3.7 Create and gate the plan
 
-Write a schema-v3 JSON spec following `PLAN_SPEC.md`, then create the plan using the request source selected above:
+Write a schema-v4 JSON spec following `PLAN_SPEC.md`, then create the plan using the request source selected above:
 
 ```bash
 # Inline request
@@ -183,18 +194,30 @@ Use the client's native subagent mechanism. Construct a minimal worker prompt co
 - assigned task id;
 - absolute or repository-relative path to its task definition;
 - instruction to read every file listed under `Assigned execution context` in that definition;
+- instruction to read every file listed under `Assigned validated learnings` after plan-time context;
 - prohibition on reading other plan files or unassigned context files;
 - prohibition on editing context artifacts;
+- exact subtask controller commands for the assigned parent TODO;
 - permission to read and edit relevant source and tests;
 - instruction to preserve unrelated working-tree changes;
 - requirement to run task-local validation;
-- the completion-report schema, including exact `context_files_read`.
+- the completion-report schema, including exact `context_files_read`, `learning_files_read`, `completed_subtask_ids`, and narrowly predeclared `reusable_learnings`.
 
-Do not paste the full user request, `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, `TODO.md`, the manifest, prior worker reports, or definitions for later tasks. The task definition plus its assigned context files must contain the bounded context needed by that worker. Information used by only one TODO stays in the task definition.
+Do not paste the full user request, `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, `TODO.md`, the manifest, prior worker reports, logs, or definitions for later tasks. The task definition plus its assigned context and validated-learning files must contain the bounded context needed by that worker. Information used by only one TODO stays in the task definition. The scheduler must not dispatch a target until every task that declared it as a learning target has completed.
 
 ### Validate independently
 
-The worker's report is evidence, not the acceptance decision. First verify that `context_files_read` exactly matches the task's generated `context_files`; reject missing or extra reads. From the orchestrator thread, execute every validation command listed in the manifest. Save command, exit code, and a concise output tail.
+The worker's report is evidence, not the acceptance decision. First verify that `context_files_read` and `learning_files_read` exactly match generated assignments; reject missing or extra reads. Reconcile completed subtask ids and reject parent completion while any required checkpoint remains incomplete. From the orchestrator thread, execute every validation command listed in the manifest. Save command, exit code, and a concise output tail.
+
+Checkpoint long work without editing Markdown:
+
+```bash
+python <skill-dir>/scripts/planctl.py subtask-start --plan <plan-path> --task 001 --subtask S001
+python <skill-dir>/scripts/planctl.py subtask-complete --plan <plan-path> --task 001 --subtask S001
+python <skill-dir>/scripts/planctl.py subtask-reset --plan <plan-path> --task 001 --subtask S001
+```
+
+An interruption preserves completed checkpoints and resets only an in-progress subtask to pending.
 
 On success, write a JSON report under `<plan-path>/results/` and complete the task:
 
@@ -241,15 +264,16 @@ The runner:
 2. selects the next runnable task;
 3. resolves provider, model, and effort from logical routing;
 4. persists the claimed state;
-5. starts a new non-persistent Claude Code or Codex process;
-6. names only the current task definition and requires only its assigned context files;
-7. rejects a report whose `context_files_read` differs from the assignment;
+5. starts a new non-persistent process for the configured Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code CLI, or Trae Agent backend;
+6. names only the current task definition and requires only its assigned context and validated-learning files;
+7. rejects a report whose context/learning read lists or completed subtask ids violate the assignment;
 8. captures provider output and logs under the plan directory;
 9. re-runs deterministic validation from the repository root;
 10. completes, retries, escalates, or blocks the task;
 11. waits and retries usage limits without escalation;
-12. generates the final summary with the configured economy route;
-13. prints the summary and removes only the sentinel-protected plan directory.
+12. materializes only predeclared target-specific learnings after deterministic source validation;
+13. generates the final summary with the configured economy route;
+14. prints the summary and removes only the sentinel-protected plan directory.
 
 Useful flags:
 
