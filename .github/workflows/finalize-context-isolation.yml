@@ -1,0 +1,47 @@
+name: Finalize context-isolation implementation
+
+on:
+  push:
+    branches:
+      - feat/context-isolated-todos-providers
+    paths:
+      - .github/workflows/finalize-context-isolation.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out implementation branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/context-isolated-todos-providers
+          fetch-depth: 0
+
+      - name: Verify materialized implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -d .pae-bootstrap
+          test -f skill/plan-and-execute/scripts/task_memory_self_test.py
+          test -f skill/plan-and-execute/scripts/provider_self_test.py
+          grep -q '"version": "0.7.0"' package.json
+          grep -q 'context_boundary' skill/plan-and-execute/scripts/planctl.py
+          grep -q 'gemini' skill/plan-and-execute/scripts/run_isolated.py
+          npm run check
+
+      - name: Remove publication-only workflows
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/apply-context-isolation-payload.yml
+          rm -f .github/workflows/apply-context-isolation-payload-retry.yml
+          rm -f .github/workflows/finalize-context-isolation.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          git diff --cached --check
+          git commit -m "chore: remove implementation bootstrap workflows"
+          git push origin HEAD:feat/context-isolated-todos-providers
