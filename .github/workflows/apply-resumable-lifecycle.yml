@@ -1,0 +1,73 @@
+name: Apply resumable lifecycle update
+
+on:
+  push:
+    branches:
+      - feat/resumable-lifecycle
+    paths:
+      - .github/workflows/apply-resumable-lifecycle.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply-test-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out update branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Apply lifecycle source and documentation changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/apply_lifecycle_code.py
+          python3 tools/apply_lifecycle_docs.py
+          chmod +x \
+            bin/plan-and-execute.js \
+            tools/run-skill-self-test.js \
+            skill/plan-and-execute/scripts/lifecyclectl.py \
+            skill/plan-and-execute/scripts/lifecycle_self_test.py \
+            skill/plan-and-execute/scripts/run_isolated.py
+          rm -f \
+            tools/apply_lifecycle_code.py \
+            tools/apply_lifecycle_docs.py
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run complete validation suite
+        run: npm run check
+
+      - name: Verify npm package contents
+        run: npm pack --dry-run --ignore-scripts
+
+      - name: Build clean validated branch commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f \
+            .github/workflows/apply-resumable-lifecycle.yml \
+            .github/workflows/export-source-update.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          tree=$(git write-tree)
+          parent=$(git rev-parse origin/main)
+          commit=$(printf '%s\n' "feat: add resumable implementation lifecycle" | git commit-tree "$tree" -p "$parent")
+          git push --force origin "$commit:refs/heads/${GITHUB_REF_NAME}"
