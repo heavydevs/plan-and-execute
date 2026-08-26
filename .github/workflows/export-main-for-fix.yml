@@ -1,0 +1,30 @@
+name: Export repository snapshot for repair
+
+on:
+  push:
+    branches:
+      - chore/export-main-for-fix
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Upload repository snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: plan-and-execute-main
+          path: |
+            .
+            !.git/**
+          include-hidden-files: true
+          retention-days: 1
