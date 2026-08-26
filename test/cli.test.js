@@ -8,6 +8,9 @@ import test from 'node:test';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const cli = path.join(root, 'bin', 'plan-and-execute.js');
+const packageVersion = JSON.parse(
+  fs.readFileSync(path.join(root, 'package.json'), 'utf8')
+).version;
 
 function temporaryDirectory() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'plan-and-execute-cli-'));
@@ -56,7 +59,7 @@ test('CLI paths, dry-run and version are automation friendly', () => {
 
     const version = run(['--version']);
     assert.equal(version.status, 0, version.stderr);
-    assert.match(version.stdout, /^0\.3\.0\s*$/);
+    assert.equal(version.stdout.trim(), packageVersion);
   } finally {
     fs.rmSync(workspace, { recursive: true, force: true });
   }

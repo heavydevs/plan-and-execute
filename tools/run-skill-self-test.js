@@ -6,23 +6,41 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const testScript = path.join(root, 'skill', 'plan-and-execute', 'scripts', 'self_test.py');
+const scripts = [
+  path.join(root, 'skill', 'plan-and-execute', 'scripts', 'self_test.py'),
+  path.join(root, 'skill', 'plan-and-execute', 'scripts', 'study_self_test.py')
+];
 const candidates = process.platform === 'win32'
-  ? [['py', ['-3', testScript]], ['python', [testScript]], ['python3', [testScript]]]
-  : [['python3', [testScript]], ['python', [testScript]]];
+  ? [['py', ['-3']], ['python', []], ['python3', []]]
+  : [['python3', []], ['python', []]];
 
-for (const [command, args] of candidates) {
-  const result = spawnSync(command, args, {
+let selected = null;
+for (const [command, prefixArgs] of candidates) {
+  const probe = spawnSync(command, [...prefixArgs, '--version'], {
+    cwd: root,
+    stdio: 'ignore',
+    windowsHide: true
+  });
+  if (!probe.error && probe.status === 0) {
+    selected = [command, prefixArgs];
+    break;
+  }
+}
+
+if (!selected) {
+  console.error('Python 3 was not found. Install Python 3.10+ to run the skill self-tests.');
+  process.exit(1);
+}
+
+const [command, prefixArgs] = selected;
+for (const script of scripts) {
+  const result = spawnSync(command, [...prefixArgs, script], {
     cwd: root,
     stdio: 'inherit',
     windowsHide: true,
     env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' }
   });
-  if (result.error?.code === 'ENOENT') {
-    continue;
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
   }
-  process.exit(result.status ?? 1);
 }
-
-console.error('Python 3 nao foi encontrado. Instale Python 3.10+ para executar o self-test da skill.');
-process.exit(1);

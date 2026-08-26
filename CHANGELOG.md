@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## 0.4.0 - 2026-08-26
+
+- Adds an adaptive pre-plan study gate that must pass before requirements or executable TODOs are drafted.
+- Makes internal repository study mandatory and records concrete source locations, findings, and planning impact.
+- Evaluates explicit external-research triggers instead of making web research always required or relying on a free-form decision string.
+- Requires authoritative version-appropriate external sources only when a trigger is active, and allows repository-only planning when every trigger is false.
+- Adds stable material-question and evidence ids, high-impact question rules, an independent study review, and a stopping rule.
+- Adds `studyctl.py` with `validate`, `render`, `attach`, and `validate-plan` commands.
+- Adds deterministic proof that internal and external findings were copied into plan analysis and that synthesized constraints, requirements, risks, and validation implications affected the plan.
+- Preserves canonical evidence as `study.json` and `STUDY.md` with a SHA-256 hash in `manifest.json`.
+- Re-enters the study gate when execution discovers a material unknown, different version, contradictory contract, or new security, migration, or compatibility risk.
+- Adds protocol documentation, a complete study-spec example, Python self-tests, validation rules, bilingual README updates, and CI packaging of `skill.zip`.
+
 ## 0.3.0 - 2026-08-25
 
 - Adds a no-argument guided intake flow that creates a localized Markdown request draft and opens it in VS Code or another available editor.

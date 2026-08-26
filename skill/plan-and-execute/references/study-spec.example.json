@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "request_summary": "Add idempotent notification delivery while preserving retries and rolling-deployment compatibility.",
+  "material_questions": [
+    {
+      "id": "Q001",
+      "question": "Where are delivery state transitions and retry behavior defined?",
+      "importance": "high",
+      "status": "resolved",
+      "resolution": "The delivery service owns the state transition and focused service tests define retry compatibility.",
+      "evidence_ids": [
+        "I001",
+        "I002"
+      ],
+      "planning_impact": "Keep persistence and service transition work separate, and preserve failed attempts as retryable."
+    },
+    {
+      "id": "Q002",
+      "question": "Does the external provider support a stable idempotency key?",
+      "importance": "high",
+      "status": "resolved",
+      "resolution": "The versioned provider API accepts an idempotency key on delivery requests.",
+      "evidence_ids": [
+        "I003",
+        "E001"
+      ],
+      "planning_impact": "Use the existing message id as the provider idempotency key without changing the public API."
+    }
+  ],
+  "internal_sources": [
+    {
+      "id": "I001",
+      "kind": "implementation",
+      "location": "src/main/java/example/NotificationDeliveryService.java:40-180",
+      "finding": "The delivery service records failure before returning control to the queue so genuine failures remain retryable.",
+      "planning_impact": "Preserve the failed-state transition and validate it independently from duplicate suppression."
+    },
+    {
+      "id": "I002",
+      "kind": "tests",
+      "location": "src/test/java/example/NotificationDeliveryServiceTest.java:75-220",
+      "finding": "Focused service tests cover first-attempt failure and successful retry without timing sleeps.",
+      "planning_impact": "Reuse the focused service test target and keep retry scenarios deterministic."
+    },
+    {
+      "id": "I003",
+      "kind": "build",
+      "location": "pom.xml:90-110",
+      "finding": "The repository pins provider-client version 4.2.1.",
+      "planning_impact": "Research and implement against provider-client version 4.2.1 rather than current unversioned examples."
+    }
+  ],
+  "external_research": {
+    "decision": "required",
+    "rationale": "Provider idempotency behavior is version-sensitive and is not defined by repository code, so the exact official API contract must be verified.",
+    "trigger_assessment": {
+      "user_requested": false,
+      "unfamiliar_domain": false,
+      "version_sensitive": true,
+      "security_sensitive": false,
+      "current_behavior": false,
+      "repository_gap": true,
+      "conflicting_evidence": false,
+      "technology_selection": false,
+      "high_risk": true
+    },
+    "sources": [
+      {
+        "id": "E001",
+        "source_type": "official_documentation",
+        "title": "Delivery requests and idempotency",
+        "publisher": "Example Provider",
+        "url": "https://example.com/docs/4.2.1/delivery/idempotency",
+        "version_or_date": "Provider client 4.2.1, retrieved 2026-08-26",
+        "finding": "Provider client 4.2.1 sends a caller-supplied idempotency key and treats a repeated key as the same delivery request.",
+        "planning_impact": "Pass the stable message id as the idempotency key and add a duplicate-delivery regression test.",
+        "why_authoritative": "This is the provider's official versioned API documentation for the exact client version pinned by the repository."
+      }
+    ]
+  },
+  "synthesis": {
+    "planning_constraints": [
+      "Do not hold a database transaction across the provider call."
+    ],
+    "derived_requirements": [
+      "Keep failed first attempts retryable.",
+      "Pass the stable message id as the provider idempotency key."
+    ],
+    "risks": [
+      "Changing delivery state transitions could suppress legitimate retries.",
+      "Using unversioned provider behavior could implement an unsupported idempotency contract."
+    ],
+    "validation_implications": [
+      "Run the focused delivery retry tests.",
+      "Cover repeated provider idempotency keys without timing sleeps."
+    ],
+    "unresolved_questions": [],
+    "stopping_reason": "Repository ownership, retry behavior, the pinned dependency version, and the provider contract are resolved by concrete evidence; further research is unlikely to change architecture or task boundaries.",
+    "ready_for_planning": true
+  },
+  "review": {
+    "reviewer": "fresh strong-tier study reviewer",
+    "internal_coverage_sufficient": true,
+    "external_decision_justified": true,
+    "source_quality_sufficient": true,
+    "findings_translated_to_plan": true,
+    "contradictions_resolved": true,
+    "notes": [
+      "Confirmed that the exact pinned provider version was used for external research.",
+      "Confirmed that both high-impact questions are resolved and each finding changes constraints, requirements, risks, or validation.",
+      "Confirmed that additional searching is unlikely to change the proposed task boundaries."
+    ]
+  }
+}
