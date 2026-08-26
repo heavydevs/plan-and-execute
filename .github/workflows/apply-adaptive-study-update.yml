@@ -64,6 +64,8 @@ jobs:
             | sha256sum --check --strict
           tar -xJf /tmp/adaptive-study-update.tar.xz -C "${GITHUB_WORKSPACE}"
 
+          git restore --source=HEAD --worktree .github/workflows/ci.yml
+
           sed -i \
             's/Before drafting requirements or TODOs, perform mandatory internal repository study, explicitly assess adaptive external-research triggers,/Before drafting requirements or TODOs, run the adaptive study gate: perform mandatory internal repository study, explicitly assess external-research triggers,/' \
             skill/plan-and-execute/agents/openai.yaml
@@ -122,10 +124,11 @@ jobs:
           installer.write_text(installer_text, encoding="utf-8")
           PY
 
-          rm -f .github/workflows/apply-adaptive-study-update.yml
           chmod +x \
             skill/plan-and-execute/scripts/studyctl.py \
-            skill/plan-and-execute/scripts/study_self_test.py
+            skill/plan-and-execute/scripts/study_self_test.py \
+            tools/run-skill-self-test.js \
+            tools/validate-skill.js
 
       - name: Install dependencies
         run: npm ci
@@ -136,7 +139,7 @@ jobs:
       - name: Verify npm package contents
         run: npm pack --dry-run --ignore-scripts
 
-      - name: Commit validated update
+      - name: Commit validated non-workflow changes
         shell: bash
         run: |
           set -euo pipefail
