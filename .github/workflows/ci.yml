@@ -27,3 +27,28 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm pack --dry-run
+      - name: Package installable skill
+        if: matrix.node-version == 24
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+
+          root = Path('skill/plan-and-execute')
+          output = Path('skill.zip')
+          with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:
+              for source in sorted(root.rglob('*')):
+                  if source.is_file():
+                      target = Path('plan-and-execute') / source.relative_to(root)
+                      archive.write(source, target)
+          if output.stat().st_size > 25 * 1024 * 1024:
+              raise SystemExit('skill.zip exceeds the 25 MB upload limit')
+          PY
+      - name: Upload installable skill
+        if: matrix.node-version == 24
+        uses: actions/upload-artifact@v4
+        with:
+          name: plan-and-execute-skill
+          path: skill.zip
+          if-no-files-found: error
