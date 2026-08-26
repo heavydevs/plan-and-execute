@@ -6,41 +6,31 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const scripts = [
-  path.join(root, 'skill', 'plan-and-execute', 'scripts', 'self_test.py'),
-  path.join(root, 'skill', 'plan-and-execute', 'scripts', 'study_self_test.py')
+const scriptDirectory = path.join(root, 'skill', 'plan-and-execute', 'scripts');
+const testScripts = [
+  path.join(scriptDirectory, 'self_test.py'),
+  path.join(scriptDirectory, 'study_self_test.py'),
+  path.join(scriptDirectory, 'lifecycle_self_test.py'),
+  path.join(scriptDirectory, 'context_self_test.py')
 ];
 const candidates = process.platform === 'win32'
   ? [['py', ['-3']], ['python', []], ['python3', []]]
   : [['python3', []], ['python', []]];
-
-let selected = null;
-for (const [command, prefixArgs] of candidates) {
-  const probe = spawnSync(command, [...prefixArgs, '--version'], {
-    cwd: root,
-    stdio: 'ignore',
-    windowsHide: true
-  });
-  if (!probe.error && probe.status === 0) {
-    selected = [command, prefixArgs];
-    break;
-  }
+let python = null;
+for (const [command, prefix] of candidates) {
+  const probe = spawnSync(command, [...prefix, '--version'], { cwd: root, encoding: 'utf8', windowsHide: true });
+  if (probe.error?.code === 'ENOENT') continue;
+  if (probe.status === 0) { python = [command, prefix]; break; }
 }
-
-if (!selected) {
-  console.error('Python 3 was not found. Install Python 3.10+ to run the skill self-tests.');
+if (!python) {
+  console.error('Python 3 nao foi encontrado. Instale Python 3.10+ para executar os self-tests da skill.');
   process.exit(1);
 }
-
-const [command, prefixArgs] = selected;
-for (const script of scripts) {
-  const result = spawnSync(command, [...prefixArgs, script], {
-    cwd: root,
-    stdio: 'inherit',
-    windowsHide: true,
+for (const testScript of testScripts) {
+  const [command, prefix] = python;
+  const result = spawnSync(command, [...prefix, testScript], {
+    cwd: root, stdio: 'inherit', windowsHide: true,
     env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' }
   });
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
-  }
+  if (result.status !== 0) process.exit(result.status ?? 1);
 }

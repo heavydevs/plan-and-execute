@@ -47,6 +47,17 @@ def sample_spec(title: str = "Lifecycle sample") -> dict:
             }
         ],
         "global_constraints": ["Preserve implementation files during lifecycle cleanup"],
+        "execution_context": {
+            "global": {
+                "decision": "omit",
+                "rationale": (
+                    "The lifecycle fixture has one self-contained TODO, so a shared context file "
+                    "would repeat information already present in that task definition."
+                ),
+                "items": [],
+            },
+            "scoped": [],
+        },
         "plan_review": {
             "status": "approved",
             "reviewer": "fresh lifecycle test reviewer",
@@ -55,6 +66,7 @@ def sample_spec(title: str = "Lifecycle sample") -> dict:
             "tasks_atomic": True,
             "dependencies_valid": True,
             "validations_sufficient": True,
+            "contexts_minimal": True,
             "unresolved_findings": [],
             "notes": ["The single task covers the complete sample requirement."],
         },

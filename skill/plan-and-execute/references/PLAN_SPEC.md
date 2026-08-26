@@ -1,4 +1,4 @@
-# Plan specification (schema v2)
+# Plan specification (schema v3)
 
 ## Contents
 
@@ -6,27 +6,33 @@
 2. Root fields
 3. Request analysis fields
 4. Requirement fields
-5. Plan review fields
-6. Task fields
-7. Recursive decomposition rules
-8. Complete example
-9. Quality checklist
-10. Legacy plans
+5. Progressive execution context
+6. Plan review fields
+7. Task fields
+8. Recursive decomposition rules
+9. Complete example
+10. Quality checklist
+11. Legacy plans
 
 ## 1. Quality model
 
-Create a directed acyclic graph of bounded executable tasks only after studying the full request, repository, and material external behavior. Schema v2 adds deterministic checks for:
+Create a directed acyclic graph of bounded executable TODOs only after the complete request, repository, and material external behavior have been studied.
 
-- a recorded request/repository analysis with stable request-part ids;
-- a complete requirements inventory with stable ids;
+Schema v3 deterministically checks:
+
 - request-part-to-requirement-to-task traceability;
-- task complexity and atomicity rationale;
-- rejection of `extreme` executable tasks;
-- an approved separate plan-review pass;
+- concrete request and repository analysis;
+- explicit task complexity and atomicity;
+- rejection of executable `extreme` work;
+- an approved independent review;
 - empty material open questions before autostart;
-- dependency, acceptance, and validation integrity.
+- dependency, acceptance, and validation integrity;
+- an explicit decision to create or omit global worker context;
+- strict assignment of scoped context to only the TODOs that need it;
+- concise, grounded, non-duplicated context artifacts;
+- reviewer approval that `contexts_minimal` is true.
 
-The schema cannot prove semantic perfection by itself. Combine it with the planning procedure in [PLANNING_PROTOCOL.md](PLANNING_PROTOCOL.md) and an independent reviewer.
+The schema cannot prove semantic perfection. Combine it with [ADAPTIVE_STUDY.md](ADAPTIVE_STUDY.md), [PLANNING_PROTOCOL.md](PLANNING_PROTOCOL.md), [EXECUTION_CONTEXT.md](EXECUTION_CONTEXT.md), and independent review.
 
 ## 2. Root fields
 
@@ -34,31 +40,32 @@ The schema cannot prove semantic perfection by itself. Combine it with the plann
 |---|---:|---|
 | `title` | yes | Human-readable plan title. |
 | `summary` | yes | Overall desired outcome. |
-| `language` | no | Handoff language, such as `Portuguese (Brazil)`; default `auto`. |
-| `request_analysis` | yes | Evidence that the full request and relevant repository were studied. |
+| `language` | no | Handoff language; default `auto`. |
+| `request_analysis` | yes | Evidence that the complete request and repository were studied. |
 | `requirements` | yes | Non-empty inventory of explicit and necessary derived requirements. |
 | `global_constraints` | no | Repository, compatibility, security, or rollout constraints. |
-| `plan_review` | yes | Approved result of the independent plan-review pass. |
-| `autostart` | no | Start after validation and audit; default `true`. |
-| `cleanup_on_success` | no | Delete planning artifacts after final summary; default `true`. |
-| `tasks` | yes | Non-empty array of executable task objects. |
+| `execution_context` | yes in v3 | Explicit minimal global/scoped worker-context decision. |
+| `plan_review` | yes | Approved independent plan review. |
+| `autostart` | no | Start after all gates pass; default `true`. |
+| `cleanup_on_success` | no | Delete planning artifacts after the final summary; default `true`. |
+| `tasks` | yes | Non-empty array of executable TODO objects. |
 
 ## 3. Request analysis fields
 
-`request_analysis` is required and becomes `ANALYSIS.md` in the plan directory.
+`request_analysis` becomes `ANALYSIS.md`.
 
 | Field | Required | Meaning |
 |---|---:|---|
-| `request_parts` | yes | Non-empty list covering every distinct requested outcome or workstream. Use objects with `id` and `text`; plain strings receive ordered ids `P001`, `P002`, and so on. |
-| `repository_findings` | yes | Non-empty list of concrete findings from repository inspection. For a greenfield repository, record that fact and its consequences. |
-| `research_decision` | yes | Explain what external research was needed, or why none was needed. |
-| `research_findings` | no | Material findings from authoritative external sources. |
+| `request_parts` | yes | Every distinct requested outcome or workstream, with stable ids such as `P001`. |
+| `repository_findings` | yes | Concrete findings from repository inspection. |
+| `research_decision` | yes | What external research was needed, or why none was needed. |
+| `research_findings` | no | Material conclusions from authoritative external sources. |
 | `assumptions` | no | Bounded assumptions used to make the plan executable. |
 | `risks` | no | Technical, compatibility, rollout, data, security, or operational risks. |
-| `open_questions` | no | Material unresolved questions. Must be empty when `autostart` is true. |
-| `decomposition_strategy` | yes | Explain the workstreams, boundaries, dependency order, and why the chosen TODO granularity is appropriate. |
+| `open_questions` | no | Material unresolved questions; must be empty when `autostart` is true. |
+| `decomposition_strategy` | yes | Workstreams, boundaries, dependency order, and granularity rationale. |
 
-Each request part becomes a traceability anchor. Prefer this form:
+Preferred request part:
 
 ```json
 {
@@ -67,11 +74,9 @@ Each request part becomes a traceability anchor. Prefer this form:
 }
 ```
 
-Do not use `research_findings` as a raw link dump. Record the conclusion that affects implementation.
+Do not use findings as raw file or link lists. Record conclusions that change planning.
 
 ## 4. Requirement fields
-
-Prefer requirement objects:
 
 ```json
 {
@@ -85,69 +90,158 @@ Prefer requirement objects:
 
 | Field | Required | Meaning |
 |---|---:|---|
-| `id` | no | Stable id. Omitted ids normalize by order to `R001`, `R002`, and so on. |
+| `id` | no | Stable id; omitted ids normalize to `R001`, `R002`, and so on. |
 | `text` | yes | One clear requirement. |
 | `source` | no | `user`, `repository`, `research`, or `inferred`; default `user`. |
 | `priority` | no | `must`, `should`, or `could`; default `must`. |
-| `request_part_ids` | yes for `user`; optional otherwise | Request parts that led to this requirement. Every request part must be covered by at least one requirement. |
+| `request_part_ids` | yes for `user` | Request parts that produced the requirement. |
 
-Schema v2 requires requirement objects rather than string shorthand so the request-to-requirement mapping is explicit and auditable.
+Every request part must map to at least one requirement. Every requirement must map to at least one task. Use `inferred` only for work required to make an explicit request safe, compatible, testable, or operable.
 
-Every request part must map to at least one requirement. Every requirement, including `should` and `could`, must map to at least one task. Remove a requirement instead of leaving it knowingly uncovered.
+## 5. Progressive execution context
 
-Use `inferred` only for work necessary to make an explicit request safe, compatible, testable, or operable. Do not silently add unrelated product scope.
+`execution_context` is required in schema v3 even when no context file is created. Read [EXECUTION_CONTEXT.md](EXECUTION_CONTEXT.md) before authoring it.
 
-## 5. Plan review fields
+### 5.1 Global decision
 
-`plan_review` is required and becomes `PLAN_REVIEW.md`.
+```json
+{
+  "global": {
+    "decision": "omit",
+    "rationale": "Every non-obvious constraint is task-specific, so a shared file would duplicate task definitions.",
+    "items": []
+  }
+}
+```
+
+| Field | Required | Meaning |
+|---|---:|---|
+| `decision` | yes | `create` or `omit`. |
+| `rationale` | yes | Why universal shared context is or is not needed. |
+| `items` | yes | Empty for `omit`; non-empty for `create`. |
+| `file` | generated | `CONTEXT.md` for `create`, otherwise `null`. Do not author manually. |
+
+Create global context only for information needed by every executable TODO.
+
+### 5.2 Context item
+
+```json
+{
+  "id": "G001",
+  "kind": "constraint",
+  "text": "Preserve the existing public API and wire format throughout the implementation.",
+  "necessity": "Every TODO may affect behavior observed through the public contract, so each worker needs this boundary.",
+  "source_refs": ["request:P001", "ADR-004"]
+}
+```
+
+| Field | Required | Meaning |
+|---|---:|---|
+| `id` | no | Stable item id; generated by position when omitted. |
+| `kind` | yes | `fact`, `constraint`, `decision`, `interface`, or `validation`. |
+| `text` | yes | One operational line, 15–280 characters. |
+| `necessity` | yes | One line explaining why every assigned TODO needs it. |
+| `source_refs` | yes | One to four evidence references. |
+
+The rendered context file includes the concise `text` and compact source references. `necessity` stays in the manifest/review metadata to avoid repeated prompt cost.
+
+### 5.3 Scoped context
+
+```json
+{
+  "id": "oauth-rollout",
+  "title": "OAuth rollout contract",
+  "rationale": "Only the authentication and migration TODOs participate in the dual-login transition.",
+  "task_ids": [1, 2],
+  "items": [
+    {
+      "id": "C001",
+      "kind": "interface",
+      "text": "Password login remains available until the OAuth migration completion flag is enabled.",
+      "necessity": "Both assigned TODOs must implement the same rollout boundary.",
+      "source_refs": ["request:P002", "study:I006"]
+    }
+  ]
+}
+```
+
+| Field | Required | Meaning |
+|---|---:|---|
+| `id` | yes | Lowercase kebab-case identifier, used to generate `contexts/<id>.md`. |
+| `title` | yes | Short file title. |
+| `rationale` | yes | Why exactly the assigned TODOs share this context. |
+| `task_ids` | yes | At least two known TODO ids and fewer than all TODOs. |
+| `items` | yes | Non-empty list of context items. |
+| `file` | generated | `contexts/<id>.md`. Do not author manually. |
+
+Context for a single TODO belongs in that task definition. Context for all TODOs belongs in global context.
+
+### 5.4 Limits and generated assignments
+
+The validator enforces:
+
+- at most 8 global items;
+- at most 8 scoped files;
+- at most 8 items per scoped file;
+- at most 24 items across all files;
+- at most 3,200 rendered characters per file;
+- no duplicated context text across files;
+- exact task-to-file assignment;
+- no tampering or unassigned references.
+
+`planctl.py` generates each task's `context_files` array and writes the same paths under `Assigned execution context` in its definition. Do not include `context_files` in the input spec.
+
+## 6. Plan review fields
+
+`plan_review` becomes `PLAN_REVIEW.md`.
 
 | Field | Required | Meaning |
 |---|---:|---|
 | `status` | yes | Must be `approved`. |
-| `reviewer` | yes | Name or route of the separate reviewer, such as `fresh Claude planning subagent`. |
-| `rounds` | yes | Integer of at least 1. Increase when review caused a revision. |
+| `reviewer` | yes | Separate reviewer or explicit second-pass route. |
+| `rounds` | yes | Integer of at least 1. |
 | `coverage_complete` | yes | Must be `true`. |
 | `tasks_atomic` | yes | Must be `true`. |
 | `dependencies_valid` | yes | Must be `true`. |
 | `validations_sufficient` | yes | Must be `true`. |
-| `unresolved_findings` | yes | Must be an empty list before creation/autostart. |
-| `notes` | yes | Non-empty list recording what the reviewer checked and any revisions made. |
+| `contexts_minimal` | yes in v3 | Must be `true`; confirms global/scoped context is necessary, grounded, and narrow. |
+| `unresolved_findings` | yes | Must be empty. |
+| `notes` | yes | What the reviewer checked and what changed. |
 
-Use a fresh subagent or process whenever supported. If the runtime cannot create one, perform an explicit second-pass review with the strongest available route and record that limitation in `notes`.
+The reviewer must verify that global items apply to every TODO, scoped items apply to every assigned TODO and no others, one-task information remains in the task definition, and omission is deliberate.
 
-## 6. Task fields
+## 7. Task fields
 
 | Field | Required | Meaning |
 |---|---:|---|
-| `id` | no | Numeric or short string id. Numeric ids normalize to three digits. |
+| `id` | no | Numeric or short string id; numeric ids normalize to three digits. |
 | `title` | yes | One bounded outcome. |
 | `objective` | yes | Exact result the worker must produce. |
-| `requirement_ids` | yes | Non-empty list of requirements this task helps satisfy. |
-| `complexity` | yes | `low`, `medium`, or `high`. `extreme` is rejected and must be split. |
-| `atomicity_rationale` | yes | Explain why this is one executable TODO. A `high` task needs a substantive rationale for not splitting further. |
+| `requirement_ids` | yes | Non-empty list of requirements this task satisfies. |
+| `complexity` | yes | `low`, `medium`, or `high`; `extreme` is rejected. |
+| `atomicity_rationale` | yes | Why this is one executable TODO. |
 | `scope.in` | no | Work explicitly included. |
 | `scope.out` | no | Work explicitly excluded. |
 | `scope.expected_files` | no | Repository-relative files likely to change. |
 | `dependencies` | no | Task ids that must complete first. |
-| `implementation_guidance` | no | Non-obvious constraints or recommended approach. |
-| `acceptance_criteria` | yes | Non-empty list of observable success conditions. |
-| `validation_commands` | yes | Non-empty list of shell commands run from repository root. |
+| `implementation_guidance` | no | Non-obvious task-specific constraints or approach. |
+| `acceptance_criteria` | yes | Observable success conditions. |
+| `validation_commands` | yes | Commands run from the repository root. |
 | `provider` | no | `auto`, `claude`, or `codex`; default `auto`. |
-| `model_tier` | no | `economy`, `standard`, `strong`, or `max`; default `standard`. |
-| `reasoning_effort` | no | `low`, `medium`, `high`, `xhigh`, or `max`; default `medium`. |
-| `allow_provider_fallback` | no | Permit switching provider after repeated failures; default `true`. |
-| `related_task_reads` | no | Narrow allowlist of other task definitions that may be read only when blocked. |
-| `max_attempts` | no | Maximum technical failures before blocking; default `8`. |
+| `model_tier` | no | `economy`, `standard`, `strong`, or `max`. |
+| `reasoning_effort` | no | `low`, `medium`, `high`, `xhigh`, or `max`. |
+| `allow_provider_fallback` | no | Permit provider fallback; default `true`. |
+| `related_task_reads` | no | Narrow allowlist of other task definitions. |
+| `max_attempts` | no | Technical-failure limit; default `8`. |
+| `context_files` | generated | Exact global/scoped context assigned to the task. Do not author. |
 
 Every expected file path must be repository-relative and must not contain `..`.
 
-A task may map to several requirements when one coherent change satisfies them together. Do not use requirement mapping to justify combining unrelated outcomes.
+A high-complexity task needs a substantive rationale explaining why further splitting would create artificial handoffs or weaker validation.
 
-## 7. Recursive decomposition rules
+## 8. Recursive decomposition rules
 
-Build workstreams from the request parts, then split each workstream until every leaf task is independently understandable and verifiable.
-
-Split when one of these changes:
+Split a candidate task when any of these changes independently:
 
 - subsystem or responsibility;
 - data model, service logic, protocol, UI, or rollout layer;
@@ -156,103 +250,116 @@ Split when one of these changes:
 - independently failing outcome;
 - implementation ownership or required tooling.
 
-Split when a task combines several independently useful outcomes. Examples that usually require decomposition:
+Tasks that usually require decomposition include:
 
 - schema migration + service integration + backfill + rollout;
 - backend API + frontend UI + analytics instrumentation;
-- investigate an unknown architecture + implement the selected design;
-- upgrade a framework + refactor breaking APIs + update all tests + deploy;
+- architecture discovery + implementation;
+- framework upgrade + breaking refactor + broad test migration;
 - security redesign + credential rotation + production cutover.
 
-Do not split when adjacent edits are inseparable parts of one behavior and one validation set. Avoid file-by-file TODOs that force each worker to rediscover the same context.
+Do not split inseparable edits that implement one behavior and share one validation set. Avoid file-by-file TODOs that force repeated rediscovery.
 
-An executable leaf may be `high` complexity when it is technically difficult but still has one coherent outcome. Explain why additional splitting would create artificial handoffs or make validation weaker. An `extreme` leaf is always invalid.
+After decomposition, decide execution context from the resulting task graph. Do not use a global context file to compensate for oversized or ambiguous tasks.
 
-## 8. Complete example
+## 9. Complete example
 
 ```json
 {
   "title": "Add idempotent notification delivery",
-  "summary": "Add database-backed idempotency, integrate it into delivery, and cover retries with automated tests.",
-  "language": "Portuguese (Brazil)",
+  "summary": "Add database-backed idempotency, integrate it into delivery, and cover retries.",
+  "language": "English",
   "request_analysis": {
     "request_parts": [
-      {
-        "id": "P001",
-        "text": "Persist delivery idempotency keys"
-      },
-      {
-        "id": "P002",
-        "text": "Prevent duplicate provider sends while preserving retries"
-      },
-      {
-        "id": "P003",
-        "text": "Add deterministic automated coverage"
-      }
+      {"id": "P001", "text": "Persist delivery idempotency keys"},
+      {"id": "P002", "text": "Prevent duplicate sends while preserving retries"},
+      {"id": "P003", "text": "Add deterministic automated coverage"}
     ],
     "repository_findings": [
-      "Delivery already runs inside a repository transaction before the external provider call",
-      "Database migrations are versioned under db/migrations and must support rolling deployment",
-      "Service and repository tests use Maven test selectors"
+      "Delivery already records provider attempts before updating final state.",
+      "Database migrations must support rolling deployment.",
+      "Focused service tests run through Maven selectors."
     ],
-    "research_decision": "No external research is required because the repository already defines the transaction and migration conventions needed for this change.",
+    "research_decision": "No external research is required because the repository defines the transaction, migration, and retry contracts.",
     "research_findings": [],
-    "assumptions": [
-      "The delivery key can be derived from the existing message id"
-    ],
-    "risks": [
-      "Holding a database transaction across the provider call would increase lock duration",
-      "A non-backward-compatible migration could break rolling deployment"
-    ],
+    "assumptions": ["The existing message id can seed the delivery key."],
+    "risks": ["A non-backward-compatible migration could break rolling deployment."],
     "open_questions": [],
-    "decomposition_strategy": "Separate persistence, service integration, and end-to-end regression coverage because they have different failure modes, files, and validation commands. Keep repository schema and reservation methods together because they form one atomic persistence contract."
+    "decomposition_strategy": "Separate persistence, service integration, and end-to-end regression because they have independent change and validation boundaries."
   },
   "requirements": [
     {
       "id": "R001",
-      "text": "Reserve a delivery key atomically so it can be accepted only once",
+      "text": "Reserve a delivery key atomically so it is accepted only once.",
       "source": "user",
       "priority": "must",
       "request_part_ids": ["P001", "P002"]
     },
     {
       "id": "R002",
-      "text": "Preserve retry behavior after a genuine first-attempt failure",
+      "text": "Keep a genuine failed first attempt retryable.",
       "source": "user",
       "priority": "must",
       "request_part_ids": ["P002"]
     },
     {
       "id": "R003",
-      "text": "Keep the database migration safe for rolling deployment",
-      "source": "repository",
-      "priority": "must",
-      "request_part_ids": ["P001"]
-    },
-    {
-      "id": "R004",
-      "text": "Add automated tests for duplicate delivery and successful retry",
+      "text": "Add automated duplicate and retry coverage.",
       "source": "user",
       "priority": "must",
       "request_part_ids": ["P003"]
     }
   ],
   "global_constraints": [
-    "Do not change unrelated formatting",
-    "Do not hold a database transaction across the external provider call"
+    "Do not hold a database transaction across the provider call.",
+    "Preserve unrelated working-tree changes."
   ],
+  "execution_context": {
+    "global": {
+      "decision": "create",
+      "rationale": "Every TODO must preserve rolling-deployment compatibility while working in the same repository state.",
+      "items": [
+        {
+          "id": "G001",
+          "kind": "constraint",
+          "text": "Keep all schema and service changes compatible with rolling deployment.",
+          "necessity": "Persistence, integration, and regression TODOs can each introduce incompatible assumptions.",
+          "source_refs": ["request:P001", "repository:migration-policy"]
+        }
+      ]
+    },
+    "scoped": [
+      {
+        "id": "delivery-state-machine",
+        "title": "Delivery state machine",
+        "rationale": "Only persistence and service integration modify delivery state transitions.",
+        "task_ids": [1, 2],
+        "items": [
+          {
+            "id": "C001",
+            "kind": "interface",
+            "text": "A failed provider attempt must leave the delivery key retryable rather than completed.",
+            "necessity": "Both persistence and service workers must implement the same failure transition.",
+            "source_refs": ["request:P002", "tests/DeliveryRetryTest.java"]
+          }
+        ]
+      }
+    ]
+  },
   "plan_review": {
     "status": "approved",
-    "reviewer": "fresh strong-tier planning subagent",
+    "reviewer": "fresh strong-tier planning reviewer",
     "rounds": 2,
     "coverage_complete": true,
     "tasks_atomic": true,
     "dependencies_valid": true,
     "validations_sufficient": true,
+    "contexts_minimal": true,
     "unresolved_findings": [],
     "notes": [
-      "Round 1 found that rolling-deployment compatibility was not mapped; R003 was added",
-      "The original integration-and-test task was split because service behavior and end-to-end regression have independent failure modes"
+      "Confirmed every request part and requirement is covered.",
+      "Restricted delivery-state context to TODOs 001 and 002.",
+      "Confirmed the rolling-deployment item is universal and non-duplicative."
     ]
   },
   "autostart": true,
@@ -261,38 +368,19 @@ An executable leaf may be `high` complexity when it is technically difficult but
     {
       "id": 1,
       "title": "Add idempotency persistence",
-      "objective": "Create the migration and repository operations needed to reserve and complete a delivery key atomically.",
-      "requirement_ids": ["R001", "R003"],
+      "objective": "Create the migration and repository operations for atomic delivery-key reservation.",
+      "requirement_ids": ["R001", "R002"],
       "complexity": "medium",
-      "atomicity_rationale": "The migration and repository methods define one persistence contract and share one repository-level validation boundary.",
+      "atomicity_rationale": "The migration and repository methods form one persistence contract with one focused validation boundary.",
       "scope": {
-        "in": [
-          "Add the schema migration",
-          "Add repository methods with atomic reservation semantics"
-        ],
-        "out": [
-          "Do not change message dispatch yet"
-        ],
-        "expected_files": [
-          "db/migrations/20260825_add_delivery_key.sql",
-          "src/main/java/example/DeliveryKeyRepository.java",
-          "src/test/java/example/DeliveryKeyRepositoryTest.java"
-        ]
+        "in": ["Schema migration", "Atomic reservation repository methods"],
+        "out": ["Do not change provider dispatch yet"],
+        "expected_files": ["db/migrations/add_delivery_key.sql", "src/DeliveryRepository.java"]
       },
       "dependencies": [],
-      "implementation_guidance": [
-        "Make migration safe for rolling deployment",
-        "Use the repository transaction already used by delivery records"
-      ],
-      "acceptance_criteria": [
-        "A key can be reserved exactly once",
-        "A completed key can be queried",
-        "The migration has a rollback path"
-      ],
-      "validation_commands": [
-        "./mvnw -q -Dtest=DeliveryKeyRepositoryTest test",
-        "git diff --check"
-      ],
+      "implementation_guidance": ["Do not hold a transaction across the provider call."],
+      "acceptance_criteria": ["A key can be reserved exactly once.", "Failure leaves the key retryable."],
+      "validation_commands": ["./mvnw -q -Dtest=DeliveryRepositoryTest test", "git diff --check"],
       "provider": "auto",
       "model_tier": "standard",
       "reasoning_effort": "medium"
@@ -300,35 +388,19 @@ An executable leaf may be `high` complexity when it is technically difficult but
     {
       "id": 2,
       "title": "Integrate idempotency into delivery",
-      "objective": "Prevent duplicate notification delivery by using the reservation API before dispatch while keeping genuine failures retryable.",
+      "objective": "Use reservation before dispatch while preserving genuine retry behavior.",
       "requirement_ids": ["R001", "R002"],
       "complexity": "high",
-      "atomicity_rationale": "Reservation, dispatch decision, and completion state form one service-level state transition. Splitting them would leave intermediate tasks that cannot be validated as correct behavior independently.",
+      "atomicity_rationale": "Reservation, dispatch decision, and completion state are one service transition; splitting would leave unverifiable intermediate behavior.",
       "scope": {
-        "in": [
-          "Integrate reservation and completion into the delivery service",
-          "Preserve existing retry behavior for genuine failures"
-        ],
-        "out": [
-          "Do not redesign the queue consumer"
-        ],
-        "expected_files": [
-          "src/main/java/example/NotificationDeliveryService.java",
-          "src/test/java/example/NotificationDeliveryServiceTest.java"
-        ]
+        "in": ["Delivery service integration"],
+        "out": ["Do not redesign the queue consumer"],
+        "expected_files": ["src/DeliveryService.java", "test/DeliveryServiceTest.java"]
       },
       "dependencies": [1],
-      "implementation_guidance": [
-        "Do not hold a database transaction across the external provider call"
-      ],
-      "acceptance_criteria": [
-        "A duplicate delivery key is acknowledged without sending twice",
-        "A failed first attempt remains retryable"
-      ],
-      "validation_commands": [
-        "./mvnw -q -Dtest=NotificationDeliveryServiceTest test",
-        "git diff --check"
-      ],
+      "implementation_guidance": ["A duplicate key must not call the provider again."],
+      "acceptance_criteria": ["Duplicate delivery is acknowledged without a second send.", "A failed first attempt remains retryable."],
+      "validation_commands": ["./mvnw -q -Dtest=DeliveryServiceTest test", "git diff --check"],
       "provider": "claude",
       "model_tier": "strong",
       "reasoning_effort": "high",
@@ -337,32 +409,20 @@ An executable leaf may be `high` complexity when it is technically difficult but
     {
       "id": 3,
       "title": "Add end-to-end retry coverage",
-      "objective": "Cover duplicate, failed-first-attempt, and successful-retry scenarios at the service boundary.",
-      "requirement_ids": ["R002", "R004"],
+      "objective": "Cover duplicate, failed-first-attempt, and successful-retry scenarios.",
+      "requirement_ids": ["R002", "R003"],
       "complexity": "medium",
-      "atomicity_rationale": "The scenarios share one end-to-end fixture and collectively validate the externally observable retry contract.",
+      "atomicity_rationale": "The scenarios share one fixture and prove one externally observable retry contract.",
       "scope": {
-        "in": [
-          "Add deterministic automated tests"
-        ],
-        "out": [
-          "No production behavior changes unless a test exposes a bug"
-        ],
-        "expected_files": [
-          "src/test/java/example/NotificationDeliveryE2ETest.java"
-        ]
+        "in": ["Deterministic end-to-end tests"],
+        "out": ["No production redesign"],
+        "expected_files": ["test/DeliveryE2ETest.java"]
       },
       "dependencies": [2],
-      "acceptance_criteria": [
-        "Tests fail without idempotency and pass with the implementation",
-        "Tests do not depend on timing sleeps"
-      ],
-      "validation_commands": [
-        "./mvnw -q -Dtest=NotificationDeliveryE2ETest test",
-        "./mvnw -q test",
-        "git diff --check"
-      ],
-      "provider": "codex",
+      "implementation_guidance": [],
+      "acceptance_criteria": ["Tests fail without idempotency and pass with it.", "Tests use no timing sleeps."],
+      "validation_commands": ["./mvnw -q -Dtest=DeliveryE2ETest test", "git diff --check"],
+      "provider": "auto",
       "model_tier": "standard",
       "reasoning_effort": "medium"
     }
@@ -370,47 +430,34 @@ An executable leaf may be `high` complexity when it is technically difficult but
 }
 ```
 
-Create and inspect it with the request-source mode that applies:
+## 10. Quality checklist
+
+Before creation, confirm:
+
+- every request part maps to a requirement;
+- every requirement maps to a TODO;
+- every TODO maps back to requirements;
+- no task is `extreme`;
+- high-complexity tasks have substantive atomicity rationale;
+- acceptance criteria are observable;
+- validation commands prove the criteria;
+- open questions are empty when autostarting;
+- global context is either explicitly omitted or universally necessary;
+- scoped files serve at least two and fewer than all TODOs;
+- single-task information stays in its task definition;
+- context items are concise, grounded, stable, and non-duplicated;
+- all five v3 review checks, including `contexts_minimal`, are true;
+- unresolved review findings are empty.
+
+After creation, run:
 
 ```bash
-# Inline request
-python <skill-dir>/scripts/planctl.py create --repo-root . --spec /tmp/plan-spec.json
-
-# Generated request draft: move it into the plan as REQUEST.md
-python <skill-dir>/scripts/planctl.py create --repo-root . --spec /tmp/plan-spec.json \
-  --request-file ".ai-work/intake/request-YYYYMMDD-HHMMSS.md" --move-request
-
-# Caller-owned requirements file: copy it into REQUEST.md and preserve the source
-python <skill-dir>/scripts/planctl.py create --repo-root . --spec /tmp/plan-spec.json \
-  --request-file "docs/change-request.md"
-
 python <skill-dir>/scripts/planctl.py validate --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl.py audit --plan .ai-work/<plan-id>
 ```
 
-## 9. Quality checklist
+## 11. Legacy plans
 
-Before creation, confirm:
+`planctl.py` can read schema-v1 and schema-v2 plans created by earlier releases. They keep their original validation contract and do not require `execution_context` or `contexts_minimal`.
 
-- every request part appears in `request_analysis.request_parts` with a stable id;
-- every request part id maps to at least one requirement;
-- repository findings are concrete rather than generic;
-- research-sensitive facts were verified or explicitly deemed unnecessary;
-- every explicit and necessary derived requirement has a stable id;
-- every requirement is covered by at least one TODO;
-- every TODO maps to at least one requirement;
-- every TODO has one outcome and an atomicity rationale;
-- `TODO.md` will be a concise one-line-per-task status index, while all execution metadata remains in task definitions;
-- no TODO has `extreme` complexity;
-- every `high` TODO genuinely cannot be split without weakening independent validation;
-- every dependency is explicit and no cycle exists;
-- acceptance criteria are observable;
-- validation commands are executable from repository root and prove the mapped requirements;
-- write tasks do not run concurrently in the same worktree;
-- risky actions have an authorization gate;
-- the independent reviewer approved the final revision with no unresolved findings;
-- the final task includes broad regression validation when appropriate.
-
-## 10. Legacy plans
-
-`planctl.py` continues to validate and resume existing schema-v1 plan directories. Every new plan created by the updated skill uses schema v2 and receives the analysis, traceability, complexity, and plan-review gates described above.
+New plans always use schema v3. Do not backfill context into a legacy plan by hand. Replan through the current protocol when progressive execution context is needed.

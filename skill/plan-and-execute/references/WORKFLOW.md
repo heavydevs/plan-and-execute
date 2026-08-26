@@ -29,13 +29,13 @@ Read `INTAKE.md` for commands, editor selection, and recovery behavior.
 Use separate roles even when one provider implements all of them:
 
 - **Analyzer/researcher:** studies the complete request, repository, tests, architecture, and any authoritative external material needed to understand the work.
-- **Planner:** turns the analysis into stable requirements, workstreams, a dependency graph, and executable leaf TODOs.
-- **Plan reviewer:** receives the full request, compact analysis, requirements, and draft graph in a fresh context; searches for omissions, oversized tasks, weak dependencies, and unverifiable acceptance criteria.
+- **Planner:** turns the analysis into stable requirements, workstreams, a dependency graph, executable leaf TODOs, and an explicit minimal execution-context decision.
+- **Plan reviewer:** receives the full request, compact analysis, requirements, draft graph, and proposed context assignments in a fresh context; searches for omissions, oversized tasks, weak dependencies, unverifiable acceptance criteria, and unnecessary or leaked context.
 - **Orchestrator:** owns the approved plan graph, task state, route decisions, deterministic validation, replanning decisions, final handoff, and cleanup.
-- **Worker:** receives exactly one task definition, edits implementation files, runs task-local checks, and returns a structured report.
+- **Worker:** receives exactly one task definition plus only its assigned global/scoped context files, edits implementation files, runs task-local checks, and returns a structured report including `context_files_read`.
 - **Summarizer:** receives a prepared evidence bundle only after the plan succeeds and writes the final handoff using an economy-tier model.
 
-The orchestrator may coordinate all planning state. Implementation workers must not browse plan-wide files. A fresh native subagent reduces chat-history contamination; a fresh external CLI process gives a stricter boundary. Neither boundary bypasses system policy, repository instructions, sandboxing, permissions, or organizational controls.
+The orchestrator may coordinate all planning state. Implementation workers must not browse plan-wide files or unassigned context files. A fresh native subagent reduces chat-history contamination; a fresh external CLI process gives a stricter boundary. Neither boundary bypasses system policy, repository instructions, sandboxing, permissions, or organizational controls.
 
 ## 3. Deep planning workflow
 
@@ -85,14 +85,28 @@ Split again when a TODO contains multiple independent outcomes, crosses unrelate
 
 Do not create artificial file-by-file microtasks. Keep a technically difficult task as one `high`-complexity leaf only when it still has one coherent outcome and splitting it would create harmful handoffs or weaker validation. Record that reasoning in `atomicity_rationale`.
 
-### 3.5 Review in a fresh context
+### 3.5 Design progressive execution context
+
+After task boundaries are stable, read `EXECUTION_CONTEXT.md` and decide whether any information should be shared across fresh workers.
+
+- Create global `CONTEXT.md` only for concise non-obvious information needed by every TODO.
+- Create `contexts/<topic>.md` only for concise information needed by at least two and fewer than all TODOs.
+- Keep information used by a single TODO inside that task definition.
+- Omit information that does not materially affect correct implementation or validation.
+
+Every item must be grounded through `source_refs`, state one operational fact or constraint, and include a necessity that explains why every assigned TODO needs it. Do not copy the request, study, plan, TODO status, or generic advice.
+
+Record the explicit decision in schema-v3 `execution_context`. `planctl.py` generates file paths and exact task assignments.
+
+### 3.6 Review in a fresh context
 
 Give the plan reviewer:
 
 - the complete user request;
 - compact repository and research findings;
 - the full requirements inventory;
-- the draft task graph with requirement mappings, complexity ratings, dependencies, acceptance criteria, and validation commands.
+- the draft task graph with requirement mappings, complexity ratings, dependencies, acceptance criteria, and validation commands;
+- the explicit global/scoped execution-context proposal.
 
 Do not assign implementation to the reviewer. Require it to challenge:
 
@@ -105,13 +119,17 @@ Do not assign implementation to the reviewer. Require it to challenge:
 - validations that cannot prove the acceptance criteria;
 - high-complexity tasks whose atomicity rationale is weak;
 - any `extreme` executable task;
-- unsafe autostart or unresolved material questions.
+- unsafe autostart or unresolved material questions;
+- global context that is not required by every TODO;
+- scoped context assigned too broadly, too narrowly, or duplicated;
+- single-task information moved into an unnecessary file;
+- missing evidence grounding or excessive prose.
 
-Revise and repeat until all review checks are true and `unresolved_findings` is empty. Record the approved result in `plan_review`.
+Revise and repeat until all review checks, including `contexts_minimal`, are true and `unresolved_findings` is empty. Record the approved result in `plan_review`.
 
-### 3.6 Create and gate the plan
+### 3.7 Create and gate the plan
 
-Write a schema-v2 JSON spec following `PLAN_SPEC.md`, then create the plan using the request source selected above:
+Write a schema-v3 JSON spec following `PLAN_SPEC.md`, then create the plan using the request source selected above:
 
 ```bash
 # Inline request
@@ -136,7 +154,7 @@ python <skill-dir>/scripts/planctl.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl.py audit --plan <plan-path>
 ```
 
-Inspect `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, and the audit output. Execution may start only after both commands succeed and no safety approval is pending.
+Inspect `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, optional `CONTEXT.md`, optional `contexts/*.md`, each task's `Assigned execution context`, and the audit output. Execution may start only after both commands succeed and no safety approval is pending.
 
 ## 4. Native subagent execution
 
@@ -164,17 +182,19 @@ Use the client's native subagent mechanism. Construct a minimal worker prompt co
 - repository root;
 - assigned task id;
 - absolute or repository-relative path to its task definition;
-- prohibition on reading other plan files;
+- instruction to read every file listed under `Assigned execution context` in that definition;
+- prohibition on reading other plan files or unassigned context files;
+- prohibition on editing context artifacts;
 - permission to read and edit relevant source and tests;
 - instruction to preserve unrelated working-tree changes;
 - requirement to run task-local validation;
-- the completion-report schema.
+- the completion-report schema, including exact `context_files_read`.
 
-Do not paste the full user request, `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, `TODO.md`, the manifest, prior worker reports, or definitions for later tasks. The task definition must contain the bounded context needed by that worker.
+Do not paste the full user request, `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, `TODO.md`, the manifest, prior worker reports, or definitions for later tasks. The task definition plus its assigned context files must contain the bounded context needed by that worker. Information used by only one TODO stays in the task definition.
 
 ### Validate independently
 
-The worker's report is evidence, not the acceptance decision. From the orchestrator thread, execute every validation command listed in the manifest. Save command, exit code, and a concise output tail.
+The worker's report is evidence, not the acceptance decision. First verify that `context_files_read` exactly matches the task's generated `context_files`; reject missing or extra reads. From the orchestrator thread, execute every validation command listed in the manifest. Save command, exit code, and a concise output tail.
 
 On success, write a JSON report under `<plan-path>/results/` and complete the task:
 
@@ -222,13 +242,14 @@ The runner:
 3. resolves provider, model, and effort from logical routing;
 4. persists the claimed state;
 5. starts a new non-persistent Claude Code or Codex process;
-6. names only the current task definition in the worker prompt;
-7. captures provider output and logs under the plan directory;
-8. re-runs deterministic validation from the repository root;
-9. completes, retries, escalates, or blocks the task;
-10. waits and retries usage limits without escalation;
-11. generates the final summary with the configured economy route;
-12. prints the summary and removes only the sentinel-protected plan directory.
+6. names only the current task definition and requires only its assigned context files;
+7. rejects a report whose `context_files_read` differs from the assignment;
+8. captures provider output and logs under the plan directory;
+9. re-runs deterministic validation from the repository root;
+10. completes, retries, escalates, or blocks the task;
+11. waits and retries usage limits without escalation;
+12. generates the final summary with the configured economy route;
+13. prints the summary and removes only the sentinel-protected plan directory.
 
 Useful flags:
 
@@ -279,7 +300,7 @@ Classify failures before changing the route:
 - **Planning defect:** missing scope, wrong dependency, oversized TODO, impossible acceptance criterion, or validation that does not prove the outcome.
 - **Safety gate:** destructive or irreversible action lacking authorization. Stop and retain the plan.
 
-Do not treat a planning defect as a normal worker failure. Pause downstream dispatch, update the analysis and requirements if needed, recursively decompose again, run a fresh review, recreate or safely revise the plan, and require `validate` plus `audit` to pass before resuming.
+Do not treat a planning defect as a normal worker failure. Pause downstream dispatch, update the analysis and requirements if needed, recursively decompose again, regenerate execution-context assignments, run a fresh review, recreate or safely revise the plan, and require `validate` plus `audit` to pass before resuming.
 
 Use the route schedule in `MODEL_ROUTING.md` for true technical failures. Preserve failure evidence so a stronger attempt can diagnose the current repository state without reading prior chat history.
 
@@ -311,7 +332,22 @@ Cleanup verifies the sentinel, repository root, work-root location, plan id, com
 - Do not autostart an unapproved production deployment, credential rotation, irreversible database migration, broad deletion, or similarly high-impact action.
 - Do not run multiple write workers in the same working tree. Use sequential tasks or separate worktrees.
 - Do not treat a model-generated success statement as validation.
-- Do not let a worker rewrite the plan to make its own work appear successful.
+- Do not let a worker rewrite the plan or context artifacts to make its own work appear successful.
+- Do not expose global or scoped context to a TODO that was not assigned that file.
 - Do not clean up a failed or partially completed plan unless the user explicitly requests forced deletion.
 - Automatic continuation requires a live host or runner process. Disk state makes restart resumable but cannot execute while the machine and all agent processes are stopped.
 - Provider subscriptions, permissions, organizational policies, and sandboxes remain authoritative; this workflow does not bypass them.
+
+## Resumable lifecycle entry
+
+Before beginning or resuming implementation, follow the lifecycle contract in [LIFECYCLE.md](LIFECYCLE.md).
+
+```bash
+python <skill-dir>/scripts/lifecyclectl.py current --repo-root . --json
+```
+
+- `action: create_request` means no unfinished implementation exists.
+- `action: resume` means reload the returned plan from disk, recover orphaned task state, rerun quality gates, and continue from the next runnable TODO.
+- `action: already_running` means an external runner owns a live lease; do not dispatch another worker.
+
+For strict process-isolated continuation use `pae resume`. Before native resume use `lifecyclectl.py recover --plan .ai-work/<plan-id>`. After final summary generation, deactivate the plan before guarded cleanup. `pae cancel` removes the active planning state without reverting implementation changes; `pae reset` removes every recognized plan-and-execute plan in the workspace.

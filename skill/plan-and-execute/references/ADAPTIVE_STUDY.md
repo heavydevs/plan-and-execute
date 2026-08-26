@@ -172,7 +172,7 @@ A study marked ready may not contain open questions. A high-importance question 
 
 ## 6. Synthesis into the plan
 
-Evidence is useful only when it changes the plan. Synthesize findings into any applicable category:
+Evidence is useful only when it changes the plan. Synthesize findings into any applicable category. After the TODO graph exists, a small subset of these grounded findings may also become progressive execution-context items under [EXECUTION_CONTEXT.md](EXECUTION_CONTEXT.md), but only when every assigned TODO needs them:
 
 - `planning_constraints`: exact constraints that must be copied into `global_constraints`;
 - `derived_requirements`: exact requirement text that must appear in the requirements inventory;
@@ -181,7 +181,7 @@ Evidence is useful only when it changes the plan. Synthesize findings into any a
 
 Also copy every internal `finding` exactly into `request_analysis.repository_findings`. Copy every external-source `finding` exactly into `request_analysis.research_findings`.
 
-This exact-text rule is intentional. It makes `studyctl.py attach` able to prove deterministically that the study affected the plan instead of becoming an unused research note.
+This exact-text rule is intentional. It makes `studyctl.py attach` able to prove deterministically that the study affected the plan instead of becoming an unused research note. Do not copy the entire study into `CONTEXT.md`; context items remain one-line operational derivatives grounded through `source_refs`.
 
 Example synthesis:
 

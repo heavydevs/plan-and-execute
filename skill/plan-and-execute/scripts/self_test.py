@@ -59,6 +59,28 @@ def sample_spec() -> dict:
             },
         ],
         "global_constraints": ["Do not edit unrelated files"],
+        "execution_context": {
+            "global": {
+                "decision": "create",
+                "rationale": (
+                    "Both TODOs must preserve the same narrow file boundary, so one concise "
+                    "shared invariant prevents inconsistent edits without repeating it in each task."
+                ),
+                "items": [
+                    {
+                        "id": "G001",
+                        "kind": "constraint",
+                        "text": "Only implemented.txt may be created or changed by this sample plan.",
+                        "necessity": (
+                            "Every TODO can modify the marker file, and each must avoid unrelated "
+                            "working-tree changes throughout execution."
+                        ),
+                        "source_refs": ["request:P001", "global_constraints[0]"],
+                    }
+                ],
+            },
+            "scoped": [],
+        },
         "plan_review": {
             "status": "approved",
             "reviewer": "fresh planning reviewer",
@@ -67,6 +89,7 @@ def sample_spec() -> dict:
             "tasks_atomic": True,
             "dependencies_valid": True,
             "validations_sufficient": True,
+            "contexts_minimal": True,
             "unresolved_findings": [],
             "notes": [
                 "Every requirement maps to a task and both tasks have independent validation."
@@ -131,6 +154,7 @@ if "--json-schema" in args:
         "validations": [{"command": "worker check", "passed": True, "details": "ok"}],
         "risks": [],
         "follow_ups": [],
+        "context_files_read": ["CONTEXT.md"],
         "related_task_reads": [],
         "blocked_reason": None
     }
@@ -151,14 +175,21 @@ def test_plan_state() -> None:
         plan_dir = planctl.create_plan(repo, spec, ".ai-work", "state-test")
         loaded_dir, manifest = planctl.load_plan(plan_dir)
         assert loaded_dir == plan_dir.resolve()
-        assert manifest["schema_version"] == 2
+        assert manifest["schema_version"] == 3
         assert not planctl.validate_plan(plan_dir, manifest)
         assert (plan_dir / "ANALYSIS.md").is_file()
         assert (plan_dir / "PLAN_REVIEW.md").is_file()
+        assert (plan_dir / planctl.GLOBAL_CONTEXT_FILE).is_file()
+        assert manifest["tasks"][0]["context_files"] == [planctl.GLOBAL_CONTEXT_FILE]
+        assert manifest["tasks"][1]["context_files"] == [planctl.GLOBAL_CONTEXT_FILE]
+        first_task_text = (plan_dir / manifest["tasks"][0]["file"]).read_text(encoding="utf-8")
+        assert ".ai-work/state-test/CONTEXT.md" in first_task_text
         audit = planctl.render_audit(manifest)
         assert "P001" in audit and "P002" in audit
         assert "R001" in audit and "R002" in audit
         assert "extreme: 0" in audit
+        assert "Global decision: **create**" in audit
+        assert "Context minimality review: **pass**" in audit
         git_status = subprocess.run(
             ["git", "status", "--porcelain"], cwd=repo, check=True, text=True, stdout=subprocess.PIPE
         ).stdout
@@ -270,6 +301,14 @@ def test_analysis_and_review_are_mandatory() -> None:
     spec = sample_spec()
     spec["plan_review"]["coverage_complete"] = False
     assert_plan_rejected(spec, "coverage_complete")
+
+    spec = sample_spec()
+    spec.pop("execution_context")
+    assert_plan_rejected(spec, "execution_context")
+
+    spec = sample_spec()
+    spec["plan_review"]["contexts_minimal"] = False
+    assert_plan_rejected(spec, "contexts_minimal")
 
 
 def test_autostart_rejects_open_questions() -> None:

@@ -82,6 +82,8 @@ test('installs managed copies for Claude and Codex in a workspace', () => {
       assert.equal(readSkillName(result.destination), SKILL_NAME);
       assert.ok(fs.existsSync(path.join(result.destination, 'scripts', 'planctl.py')));
       assert.ok(fs.existsSync(path.join(result.destination, 'scripts', 'requestctl.py')));
+      assert.ok(fs.existsSync(path.join(result.destination, 'scripts', 'lifecyclectl.py')));
+      assert.ok(fs.existsSync(path.join(result.destination, 'references', 'LIFECYCLE.md')));
       assert.ok(fs.existsSync(path.join(result.destination, 'references', 'INTAKE.md')));
       assert.ok(fs.existsSync(path.join(result.destination, INSTALL_MARKER)));
     }

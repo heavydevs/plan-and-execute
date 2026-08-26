@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented here.
 
+## 0.6.0 - 2026-08-26
+
+- Adds schema-v3 progressive execution context with an explicit create/omit decision for global `CONTEXT.md`.
+- Creates scoped `contexts/<topic>.md` files only for information shared by at least two and fewer than all TODOs.
+- Keeps single-TODO information in the task definition and makes shared-context omission the default.
+- Grounds every context item through `source_refs` and stores its minimality rationale separately from rendered worker context.
+- Enforces hard limits on file count, item count, line length, total rendered size, duplicate text, and task assignment.
+- Generates exact `context_files` mappings and an `Assigned execution context` section in every task definition.
+- Requires fresh workers to read exactly their assigned context files and report `context_files_read`; missing or extra reads are rejected.
+- Detects context tampering and prevents references to unassigned scoped context.
+- Adds `contexts_minimal` to independent plan review and updates audit output, examples, bilingual documentation, installer validation, and self-tests.
+- Preserves generated context across interruption/resume and removes it with guarded plan cleanup, cancel, or reset.
+
+## 0.5.0 - 2026-08-26
+
+- Makes the no-argument skill invocation state-aware: resume the unique unfinished implementation before creating a new request.
+- Adds `.ai-work/.active-plan.json` discovery with stale-pointer repair and ambiguity protection.
+- Adds atomic runner leases to prevent concurrent strict runners in the same plan.
+- Recovers tasks left `in_progress` after power, network, or process interruption without counting a technical failure.
+- Adds `lifecyclectl.py` for current, activate, recover, resume, deactivate, cancel, and reset operations.
+- Adds `pae current`, `pae resume`, `pae cancel`, and `pae reset` for both Claude Code and Codex workspaces.
+- Clears active lifecycle state after final summary generation, including completed plans retained with `--no-cleanup`.
+- Makes cancel/reset remove recognized plan artifacts and status while preserving repository implementation changes.
+- Adds lifecycle documentation and deterministic self-tests for pointer repair, interruption recovery, duplicate-runner prevention, completion, cancellation, and reset safety.
+
 ## 0.4.0 - 2026-08-26
 
 - Adds an adaptive pre-plan study gate that must pass before requirements or executable TODOs are drafted.
