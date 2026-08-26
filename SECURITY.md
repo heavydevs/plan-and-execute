@@ -1,7 +1,7 @@
-# Security Policy
+# Security policy
 
-Nao publique vulnerabilidades como issue publica.
+Report vulnerabilities privately to the maintainers of the `heavydevs/plan-and-execute` repository. Do not open a public issue containing an exploit, credential, token, private repository content, or other sensitive material.
 
-Ao relatar um problema, inclua a versao do pacote, sistema operacional, comando executado e um exemplo minimo sem credenciais ou dados privados. Ate que um canal privado seja configurado no repositorio, use o recurso privado de Security Advisories do GitHub.
+The project treats request files and planning artifacts as potentially sensitive. Generated drafts live under `.ai-work`, are excluded from Git status when possible, and are removed only through guarded workflow steps. Review request content before sharing logs or artifacts publicly.
 
-O instalador nao executa `postinstall`, nao solicita credenciais e somente escreve nos destinos explicitamente selecionados.
+Supported security fixes target the latest released version.

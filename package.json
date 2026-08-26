@@ -1,7 +1,7 @@
 {
   "name": "@luizcgvrj/plan-and-execute",
-  "version": "0.2.0",
-  "description": "Install the plan-and-execute skill for deep request analysis, traceable recursive planning, and isolated Claude Code or Codex execution.",
+  "version": "0.3.0",
+  "description": "Install the plan-and-execute skill for guided request capture, deep request analysis, traceable recursive planning, and isolated Claude Code or Codex execution.",
   "type": "module",
   "bin": {
     "plan-and-execute": "bin/plan-and-execute.js",
@@ -13,14 +13,16 @@
     "skill/",
     "docs/",
     "README.md",
+    "README.pt-BR.md",
     "LICENSE"
   ],
   "scripts": {
+    "clean": "node tools/clean-generated.js",
     "validate:skill": "node tools/validate-skill.js",
     "test:node": "node --test test/*.test.js",
     "test:skill": "node tools/run-skill-self-test.js",
     "test": "npm run test:node && npm run test:skill",
-    "check": "npm run validate:skill && npm test",
+    "check": "npm run clean && npm run validate:skill && npm test",
     "prepack": "npm run check"
   },
   "engines": {
@@ -28,11 +30,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/luizcgvrj/plan-and-execute.git"
+    "url": "git+https://github.com/heavydevs/plan-and-execute.git"
   },
-  "homepage": "https://github.com/luizcgvrj/plan-and-execute#readme",
+  "homepage": "https://github.com/heavydevs/plan-and-execute#readme",
   "bugs": {
-    "url": "https://github.com/luizcgvrj/plan-and-execute/issues"
+    "url": "https://github.com/heavydevs/plan-and-execute/issues"
   },
   "keywords": [
     "agent-skill",

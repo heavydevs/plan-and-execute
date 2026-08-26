@@ -1,4 +1,4 @@
 interface:
   display_name: "Plan and Execute"
-  short_description: "Study, plan, review, and execute large coding changes"
-  default_prompt: "Use $plan-and-execute to study the complete request and relevant repository deeply, inventory every requirement, recursively split large workstreams into requirements-traceable leaf TODOs, review the draft plan in a fresh context, require validate and audit quality gates, then execute each approved TODO in an isolated worker with deterministic validation, resumable state, evidence-based escalation, economical final summarization, and cleanup limited to planning artifacts."
+  short_description: "Capture, study, plan, review, and execute large coding changes"
+  default_prompt: "Use $plan-and-execute. If no request was supplied, create and open the guided request file, then wait for my confirmation. If I supplied a file path, use that complete file as the request. Study the request and repository deeply, inventory every requirement, recursively split large workstreams into traceable leaf TODOs, keep TODO.md to one concise line per task, review the plan in a fresh context, require validate and audit quality gates, then execute each approved TODO in an isolated worker with deterministic validation, resumable state, evidence-based escalation, economical final summarization, and cleanup limited to planning artifacts."

@@ -2,16 +2,29 @@
 
 ## Contents
 
-1. Roles and context boundaries
-2. Deep planning workflow
-3. Native subagent execution
-4. Strict external-runner execution
-5. State and quality commands
-6. Failure, replanning, and escalation
-7. Final summary and cleanup
-8. Safety and operating limits
+1. Resolve request input
+2. Roles and context boundaries
+3. Deep planning workflow
+4. Native subagent execution
+5. Strict external-runner execution
+6. State and quality commands
+7. Failure, replanning, and escalation
+8. Final summary and cleanup
+9. Safety and operating limits
 
-## 1. Roles and context boundaries
+## 1. Resolve request input
+
+Before analysis, choose exactly one request source:
+
+- **No arguments:** create and open a draft with `requestctl.py create`, stop, and wait for the user to choose the localized continue action. After confirmation, validate and extract the same path.
+- **Existing file path:** validate and extract that regular file. Preserve it when importing into the plan.
+- **Inline arguments:** use the complete text as the request.
+
+For a generated draft, create the plan with `--request-file <path> --move-request`. For a caller-owned file, use `--request-file <path>` without move. In both cases the plan preserves the request as `REQUEST.md` and validates its SHA-256.
+
+Read `INTAKE.md` for commands, editor selection, and recovery behavior.
+
+## 2. Roles and context boundaries
 
 Use separate roles even when one provider implements all of them:
 
@@ -24,11 +37,11 @@ Use separate roles even when one provider implements all of them:
 
 The orchestrator may coordinate all planning state. Implementation workers must not browse plan-wide files. A fresh native subagent reduces chat-history contamination; a fresh external CLI process gives a stricter boundary. Neither boundary bypasses system policy, repository instructions, sandboxing, permissions, or organizational controls.
 
-## 2. Deep planning workflow
+## 3. Deep planning workflow
 
 Do not draft TODOs directly from the first reading of the request. Complete the following loop first.
 
-### 2.1 Preserve and inventory the request
+### 3.1 Preserve and inventory the request
 
 Read the entire request and record every independently testable or constrainable part in `request_analysis.request_parts` with stable ids such as `P001`. Include:
 
@@ -41,7 +54,7 @@ Read the entire request and record every independently testable or constrainable
 
 Do not merge unrelated outcomes merely because they appeared in one paragraph.
 
-### 2.2 Study the repository and subject matter
+### 3.2 Study the repository and subject matter
 
 Inspect the repository before choosing task boundaries. Read the closest instruction files, entry points, architecture, schemas, interfaces, build configuration, tests, fixtures, migrations, CI workflows, and existing patterns relevant to the request. Record concrete findings in `request_analysis.repository_findings`.
 
@@ -49,13 +62,13 @@ Use read-only exploration subagents for independent areas when that reduces cont
 
 Decide whether external research is materially needed. Use authoritative sources for unfamiliar, current, version-sensitive, protocol-sensitive, or security-sensitive facts. Record conclusions that affect the implementation, or explicitly record why external research was unnecessary.
 
-### 2.3 Build a complete requirements inventory
+### 3.3 Build a complete requirements inventory
 
 Assign stable requirement ids such as `R001`. Preserve source, priority, and the originating `request_part_ids`. Requirements may come from the user, repository constraints, verified research, or an explicitly recorded inference.
 
 Before continuing, map every request part to one or more requirement `request_part_ids` and verify that none is uncovered. Do not silently discard a difficult, ambiguous, or secondary request.
 
-### 2.4 Decompose recursively
+### 3.4 Decompose recursively
 
 Group requirements into coherent workstreams, identify dependencies, then recursively split each workstream until every leaf TODO has:
 
@@ -72,7 +85,7 @@ Split again when a TODO contains multiple independent outcomes, crosses unrelate
 
 Do not create artificial file-by-file microtasks. Keep a technically difficult task as one `high`-complexity leaf only when it still has one coherent outcome and splitting it would create harmful handoffs or weaker validation. Record that reasoning in `atomicity_rationale`.
 
-### 2.5 Review in a fresh context
+### 3.5 Review in a fresh context
 
 Give the plan reviewer:
 
@@ -96,14 +109,28 @@ Do not assign implementation to the reviewer. Require it to challenge:
 
 Revise and repeat until all review checks are true and `unresolved_findings` is empty. Record the approved result in `plan_review`.
 
-### 2.6 Create and gate the plan
+### 3.6 Create and gate the plan
 
-Write a schema-v2 JSON spec following `PLAN_SPEC.md`, then run:
+Write a schema-v2 JSON spec following `PLAN_SPEC.md`, then create the plan using the request source selected above:
 
 ```bash
+# Inline request
 python <skill-dir>/scripts/planctl.py create \
   --repo-root . \
   --spec /tmp/plan-spec.json
+
+# Generated draft: move it into REQUEST.md
+python <skill-dir>/scripts/planctl.py create \
+  --repo-root . \
+  --spec /tmp/plan-spec.json \
+  --request-file "<generated-draft>" \
+  --move-request
+
+# Caller-owned file: copy it into REQUEST.md and preserve the source
+python <skill-dir>/scripts/planctl.py create \
+  --repo-root . \
+  --spec /tmp/plan-spec.json \
+  --request-file "<provided-file>"
 
 python <skill-dir>/scripts/planctl.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl.py audit --plan <plan-path>
@@ -111,7 +138,7 @@ python <skill-dir>/scripts/planctl.py audit --plan <plan-path>
 
 Inspect `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, and the audit output. Execution may start only after both commands succeed and no safety approval is pending.
 
-## 3. Native subagent execution
+## 4. Native subagent execution
 
 Use native mode while the skill is running inside Claude Code or Codex.
 
@@ -180,7 +207,7 @@ python <skill-dir>/scripts/planctl.py fail \
 
 Repeat until no runnable task remains.
 
-## 4. Strict external-runner execution
+## 5. Strict external-runner execution
 
 Run strict mode from a VS Code terminal or CI shell outside a nested invocation of the same agent CLI:
 
@@ -215,7 +242,7 @@ python <skill-dir>/scripts/run_isolated.py --plan <plan-path> --no-cleanup
 
 The default configuration waits across rate-limit cycles while the runner remains alive. Interrupting it leaves disk state safe to resume with the same command.
 
-## 5. State and quality commands
+## 6. State and quality commands
 
 ```bash
 # Structural integrity, dependency graph, required planning evidence
@@ -240,9 +267,9 @@ python <skill-dir>/scripts/planctl.py reset --plan <plan-path> --task 001
 python <skill-dir>/scripts/planctl.py summary --plan <plan-path>
 ```
 
-Do not edit status markers in `TODO.md`; it is regenerated from the manifest.
+Do not edit status markers in `TODO.md`; it is regenerated from the manifest. It must remain a one-line-per-task status index. Model routing, requirements, dependencies, complexity, and validation belong in task definitions and `manifest.json`, not in the checklist.
 
-## 6. Failure, replanning, and escalation
+## 7. Failure, replanning, and escalation
 
 Classify failures before changing the route:
 
@@ -256,7 +283,7 @@ Do not treat a planning defect as a normal worker failure. Pause downstream disp
 
 Use the route schedule in `MODEL_ROUTING.md` for true technical failures. Preserve failure evidence so a stronger attempt can diagnose the current repository state without reading prior chat history.
 
-## 7. Final summary and cleanup
+## 8. Final summary and cleanup
 
 After every task is completed:
 
@@ -279,7 +306,7 @@ python <skill-dir>/scripts/planctl.py cleanup --plan <plan-path>
 
 Cleanup verifies the sentinel, repository root, work-root location, plan id, completed state, and generated summary before deletion. It removes only `<repo>/.ai-work/<plan-id>` and removes `.ai-work` itself only when empty.
 
-## 8. Safety and operating limits
+## 9. Safety and operating limits
 
 - Do not autostart an unapproved production deployment, credential rotation, irreversible database migration, broad deletion, or similarly high-impact action.
 - Do not run multiple write workers in the same working tree. Use sequential tasks or separate worktrees.

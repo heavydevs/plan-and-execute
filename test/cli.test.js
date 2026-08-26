@@ -56,7 +56,7 @@ test('CLI paths, dry-run and version are automation friendly', () => {
 
     const version = run(['--version']);
     assert.equal(version.status, 0, version.stderr);
-    assert.match(version.stdout, /^0\.2\.0\s*$/);
+    assert.match(version.stdout, /^0\.3\.0\s*$/);
   } finally {
     fs.rmSync(workspace, { recursive: true, force: true });
   }

@@ -77,13 +77,15 @@ test('installs managed copies for Claude and Codex in a workspace', () => {
     for (const result of results) {
       assert.equal(readSkillName(result.destination), SKILL_NAME);
       assert.ok(fs.existsSync(path.join(result.destination, 'scripts', 'planctl.py')));
+      assert.ok(fs.existsSync(path.join(result.destination, 'scripts', 'requestctl.py')));
+      assert.ok(fs.existsSync(path.join(result.destination, 'references', 'INTAKE.md')));
       assert.ok(fs.existsSync(path.join(result.destination, INSTALL_MARKER)));
     }
 
     const status = getStatus({ agent: 'both', scope: 'workspace', workspaceDir: root });
     assert.ok(status.every((item) => item.installed && item.owned && item.valid));
     assert.ok(status.every((item) => item.managed && item.modified === false));
-    assert.ok(status.every((item) => item.version === '0.2.0'));
+    assert.ok(status.every((item) => item.version === '0.3.0'));
     assert.ok(status.every((item) => item.sourceHash === item.currentHash));
   } finally {
     cleanup(root);

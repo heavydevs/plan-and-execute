@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import json
 import os
 import re
@@ -19,12 +20,15 @@ import tempfile
 from pathlib import Path
 from typing import Any, Iterable
 
+import requestctl
+
 SCHEMA_VERSION = 2
 SUPPORTED_SCHEMA_VERSIONS = {1, 2}
 SENTINEL = ".orchestrator-plan"
 MANIFEST = "manifest.json"
 CONFIG = "orchestrator.config.json"
 WORK_ROOT_DEFAULT = ".ai-work"
+REQUEST_FILE = "REQUEST.md"
 VALID_PROVIDERS = {"auto", "claude", "codex"}
 VALID_TIERS = {"economy", "standard", "strong", "max"}
 VALID_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
@@ -711,7 +715,20 @@ def render_requirement_list(requirements: list[dict[str, Any]]) -> str:
 
 def render_analysis(manifest: dict[str, Any]) -> str:
     analysis = manifest["request_analysis"]
+    request_source = manifest.get("request_source")
+    if request_source:
+        original_request = (
+            f"The complete user-authored request is preserved in `{request_source['file']}` "
+            f"(import mode: {request_source['import_mode']}; source name: "
+            f"`{request_source['source_name']}`)."
+        )
+    else:
+        original_request = "The request was supplied directly through the agent conversation."
     return f"""# Request and repository analysis — {manifest['title']}
+
+## Original request
+
+{original_request}
 
 ## Distinct request parts
 
@@ -814,6 +831,7 @@ def render_plan(manifest: dict[str, Any]) -> str:
 
 ## Planning evidence
 
+{f"- Original user-authored request: `{manifest['request_source']['file']}`" if manifest.get('request_source') else "- Original request source: agent conversation"}
 - Full request/repository analysis: `ANALYSIS.md`
 - Independent plan review: `PLAN_REVIEW.md`
 - Every request part maps to at least one requirement.
@@ -912,25 +930,21 @@ Return a concise report with: status, summary, changed files, validations execut
 def render_todo(manifest: dict[str, Any]) -> str:
     marker = {
         "pending": "[ ]",
-        "in_progress": "[-]",
+        "in_progress": "[ ]",
         "completed": "[x]",
-        "blocked": "[!]",
+        "blocked": "[ ]",
     }
     lines = [f"# TODO — {manifest['title']}", ""]
     for task in manifest["tasks"]:
-        deps = f"; deps: {', '.join(task['dependencies'])}" if task["dependencies"] else ""
-        requirements = ",".join(task.get("requirement_ids", [])) or "legacy"
-        complexity = task.get("complexity", "legacy")
-        route = ""
-        if task.get("current_route"):
-            current = task["current_route"]
-            route = f"; {current.get('provider')}/{current.get('model')}/{current.get('effort')}"
+        suffix = ""
+        if task["status"] == "in_progress":
+            suffix = " _(in progress)_"
+        elif task["status"] == "blocked":
+            suffix = " _(blocked)_"
         lines.append(
-            f"- {marker.get(task['status'], '[?]')} **{task['id']}** {task['title']} "
-            f"(`{task['file']}`; requirements: {requirements}; complexity: {complexity}; "
-            f"attempts: {task['attempts']}; failures: {task['functional_failures']}{deps}{route})"
+            f"- {marker.get(task['status'], '[?]')} **{task['id']}** — {task['title']}{suffix}"
         )
-    lines.extend(["", f"Plan state: **{manifest['state']}**", f"Updated: `{manifest['updated_at']}`", ""])
+    lines.append("")
     return "\n".join(lines)
 
 
@@ -976,7 +990,14 @@ def save_manifest(plan_dir: Path, manifest: dict[str, Any]) -> None:
     atomic_write_text(plan_dir / "TODO.md", render_todo(manifest))
 
 
-def create_plan(repo_root: Path, spec: dict[str, Any], work_root: str, plan_id: str | None) -> Path:
+def create_plan(
+    repo_root: Path,
+    spec: dict[str, Any],
+    work_root: str,
+    plan_id: str | None,
+    request_file: str | Path | None = None,
+    move_request: bool = False,
+) -> Path:
     repo_root = repo_root.expanduser().resolve()
     if not repo_root.is_dir():
         raise PlanError(f"Repository root is not a directory: {repo_root}")
@@ -1013,6 +1034,31 @@ def create_plan(repo_root: Path, spec: dict[str, Any], work_root: str, plan_id: 
     ]
     validate_task_graph(tasks)
     requirement_coverage(requirements, tasks)
+
+    request_source_path: Path | None = None
+    request_source: dict[str, Any] | None = None
+    if request_file is not None:
+        try:
+            inspection = requestctl.inspect_request_file(request_file)
+        except requestctl.RequestError as exc:
+            raise PlanError(str(exc)) from exc
+        if not inspection["ready"]:
+            raise PlanError(
+                "The request file has no meaningful user-authored instructions; "
+                "fill it in and save it before creating the plan"
+            )
+        request_source_path = Path(inspection["path"])
+        request_bytes = request_source_path.read_bytes()
+        request_source = {
+            "file": REQUEST_FILE,
+            "source_name": request_source_path.name,
+            "original_path": str(request_source_path),
+            "import_mode": "move" if move_request else "copy",
+            "source_removed": False,
+            "sha256": hashlib.sha256(request_bytes).hexdigest(),
+        }
+    elif move_request:
+        raise PlanError("--move-request requires --request-file")
 
     if plan_id:
         normalized_plan_id = slugify(plan_id)
@@ -1058,6 +1104,17 @@ def create_plan(repo_root: Path, spec: dict[str, Any], work_root: str, plan_id: 
         "tasks": tasks,
         "events": [{"at": created, "type": "plan_created"}],
     }
+    if request_source is not None:
+        manifest["request_source"] = request_source
+        manifest["events"].append(
+            {
+                "at": created,
+                "type": "request_imported",
+                "file": REQUEST_FILE,
+                "import_mode": request_source["import_mode"],
+            }
+        )
+        shutil.copy2(request_source_path, plan_dir / REQUEST_FILE)
 
     atomic_write_json(
         plan_dir / SENTINEL,
@@ -1077,6 +1134,24 @@ def create_plan(repo_root: Path, spec: dict[str, Any], work_root: str, plan_id: 
     if git_exclude:
         manifest["git_exclude"] = git_exclude
         save_manifest(plan_dir, manifest)
+    if request_source_path is not None and move_request:
+        destination = (plan_dir / REQUEST_FILE).resolve()
+        if request_source_path.resolve() != destination:
+            try:
+                request_source_path.unlink()
+                manifest["request_source"]["source_removed"] = True
+                intake_directory = repo_root / work_relative / requestctl.INTAKE_DIRECTORY
+                try:
+                    if request_source_path.parent.resolve() == intake_directory.resolve():
+                        request_source_path.parent.rmdir()
+                except OSError:
+                    pass
+                append_event(manifest, "request_source_moved", file=REQUEST_FILE)
+                save_manifest(plan_dir, manifest)
+            except OSError as exc:
+                manifest["request_source"]["move_error"] = str(exc)
+                append_event(manifest, "request_source_move_failed", error=str(exc))
+                save_manifest(plan_dir, manifest)
     return plan_dir
 
 
@@ -1184,6 +1259,27 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
             errors.append(f"Task {task_id}: missing acceptance criteria")
         if not task.get("validation_commands"):
             errors.append(f"Task {task_id}: missing validation commands")
+    request_source = manifest.get("request_source")
+    if request_source is not None:
+        if not isinstance(request_source, dict):
+            errors.append("request_source must be an object")
+        else:
+            relative_request = request_source.get("file")
+            if relative_request != REQUEST_FILE:
+                errors.append(f"request_source.file must be {REQUEST_FILE}")
+            request_path = plan_dir / REQUEST_FILE
+            if not request_path.is_file() or request_path.is_symlink():
+                errors.append(f"Missing or invalid {REQUEST_FILE}")
+            else:
+                expected_hash = request_source.get("sha256")
+                actual_hash = hashlib.sha256(request_path.read_bytes()).hexdigest()
+                if expected_hash != actual_hash:
+                    errors.append(f"{REQUEST_FILE} hash does not match request_source.sha256")
+                try:
+                    if not requestctl.inspect_request_file(request_path)["ready"]:
+                        errors.append(f"{REQUEST_FILE} contains no meaningful request")
+                except requestctl.RequestError as exc:
+                    errors.append(str(exc))
     if not (plan_dir / CONFIG).is_file():
         errors.append(f"Missing {CONFIG}")
     return errors
@@ -1428,7 +1524,14 @@ def command_create(args: argparse.Namespace) -> None:
     spec = read_json(Path(args.spec).expanduser().resolve())
     if not isinstance(spec, dict):
         raise PlanError("Plan spec root must be an object")
-    plan_dir = create_plan(Path(args.repo_root), spec, args.work_root, args.plan_id)
+    plan_dir = create_plan(
+        Path(args.repo_root),
+        spec,
+        args.work_root,
+        args.plan_id,
+        request_file=args.request_file,
+        move_request=args.move_request,
+    )
     print(plan_dir)
 
 
@@ -1525,6 +1628,15 @@ def build_parser() -> argparse.ArgumentParser:
     create.add_argument("--spec", required=True)
     create.add_argument("--work-root", default=WORK_ROOT_DEFAULT)
     create.add_argument("--plan-id")
+    create.add_argument(
+        "--request-file",
+        help="Preserve a validated user-authored request as REQUEST.md in the plan workspace",
+    )
+    create.add_argument(
+        "--move-request",
+        action="store_true",
+        help="Remove the source request file after it is safely copied into the plan workspace",
+    )
     create.set_defaults(func=command_create)
 
     validate = sub.add_parser("validate", help="Validate a plan workspace")

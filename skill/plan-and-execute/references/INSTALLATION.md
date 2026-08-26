@@ -1,78 +1,84 @@
-# Instalação no Claude Code e no Codex
+# Install Plan and Execute for Claude Code and Codex
 
-## Instalação recomendada com npm ou npx
+[Versão em português](INSTALLATION.pt-BR.md)
 
-O repositório oficial da skill inclui um instalador sem dependências externas. Ele copia a pasta completa da skill para o destino correto e registra um marcador local para permitir atualização e remoção seguras.
+## Recommended: install with npx
 
-Enquanto o pacote ainda não estiver publicado no npm, execute diretamente do GitHub:
+Install for both agents in your user profile:
 
 ```bash
-npx --yes --package=github:luizcgvrj/plan-and-execute \
+npx --yes --package=github:heavydevs/plan-and-execute \
   plan-and-execute install --agent both --scope user
 ```
 
-Depois da publicação no npm:
+Install only in the current workspace:
 
 ```bash
-npx --yes @luizcgvrj/plan-and-execute install --agent both --scope user
+npx --yes --package=github:heavydevs/plan-and-execute \
+  plan-and-execute install --agent both --scope workspace
 ```
 
-Opções principais:
+After the npm package is published:
+
+```bash
+npx --yes @luizcgvrj/plan-and-execute \
+  install --agent both --scope user
+```
+
+Main options:
 
 ```text
 --agent claude|codex|both
 --scope user|workspace
---cwd <diretório-do-workspace>
+--cwd <workspace-directory>
 --force
 --dry-run
 --json
 ```
 
-Exemplos:
+Examples:
 
 ```bash
-# Claude e Codex para todos os projetos do usuário
-npx --yes @luizcgvrj/plan-and-execute install --agent both --scope user
+# Claude and Codex for every project of the current user
+npx --yes --package=github:heavydevs/plan-and-execute \
+  plan-and-execute install --agent both --scope user
 
-# Somente Claude no workspace atual
-npx --yes @luizcgvrj/plan-and-execute install --agent claude --scope workspace
+# Claude only in the current workspace
+npx --yes --package=github:heavydevs/plan-and-execute \
+  plan-and-execute install --agent claude --scope workspace
 
-# Somente Codex em outro workspace
-npx --yes @luizcgvrj/plan-and-execute install --agent codex --scope workspace --cwd /caminho/do/projeto
+# Codex only in another workspace
+npx --yes --package=github:heavydevs/plan-and-execute \
+  plan-and-execute install --agent codex --scope workspace --cwd /path/to/project
 
-# Verificar instalações
-npx --yes @luizcgvrj/plan-and-execute status --agent both --scope user
-
-# Atualizar uma cópia gerenciada pelo instalador
-npx --yes @luizcgvrj/plan-and-execute install --agent both --scope user
-
-# Remover
-npx --yes @luizcgvrj/plan-and-execute uninstall --agent both --scope user
+# Inspect and remove installations
+pae status both --global
+pae uninstall both --global
 ```
 
-O instalador atualiza automaticamente uma instalação não modificada. Se os arquivos instalados tiverem sido editados manualmente, ele interrompe a operação para preservar as mudanças. Use `--force` somente quando quiser substituir ou remover essas alterações locais.
+The installer automatically updates an intact managed copy. If installed files were edited manually, it stops before overwriting or deleting them. Use `--force` only when those local changes should be replaced.
 
-## Destinos utilizados
+## Installation targets
 
-Escopo `workspace`:
+Workspace scope:
 
 ```text
 <workspace>/.claude/skills/plan-and-execute/SKILL.md
 <workspace>/.agents/skills/plan-and-execute/SKILL.md
 ```
 
-Escopo `user`:
+User scope:
 
 ```text
 ~/.claude/skills/plan-and-execute/SKILL.md
 ~/.agents/skills/plan-and-execute/SKILL.md
 ```
 
-No Windows, `~` corresponde normalmente a `%USERPROFILE%`.
+On Windows, `~` normally maps to `%USERPROFILE%`.
 
-## Instalação manual por projeto
+## Manual workspace installation
 
-Depois de extrair o pacote da skill, copie a pasta completa `plan-and-execute`:
+Copy the complete `plan-and-execute` directory:
 
 ```bash
 mkdir -p .claude/skills .agents/skills
@@ -80,7 +86,7 @@ cp -R plan-and-execute .claude/skills/
 cp -R plan-and-execute .agents/skills/
 ```
 
-## Instalação manual pessoal
+## Manual user installation
 
 ```bash
 mkdir -p ~/.claude/skills ~/.agents/skills
@@ -88,9 +94,9 @@ cp -R plan-and-execute ~/.claude/skills/
 cp -R plan-and-execute ~/.agents/skills/
 ```
 
-## Uma única cópia com links simbólicos
+## One shared copy with symbolic links
 
-Em Linux ou macOS:
+Linux or macOS:
 
 ```bash
 mkdir -p .shared-agent-skills .claude/skills .agents/skills
@@ -103,43 +109,53 @@ ln -sfn ../../.shared-agent-skills/plan-and-execute \
   .agents/skills/plan-and-execute
 ```
 
-## Uso no VS Code
+The npm installer intentionally creates real copies rather than links into the temporary `npx` cache.
 
-No Claude Code:
+## Use in VS Code
 
-```text
-/plan-and-execute Implemente esta mudança grande, incluindo testes automatizados: ...
-```
-
-No Codex:
+No-argument guided request:
 
 ```text
-$plan-and-execute Implemente esta mudança grande, incluindo testes automatizados: ...
+/plan-and-execute
 ```
 
-Pedido recomendado:
+or:
 
 ```text
-Use plan-and-execute. Estude integralmente o pedido, o repositório e o assunto antes de planejar. Inventarie cada parte do pedido, crie requisitos rastreáveis, divida recursivamente cada workstream grande em TODOs executáveis com validação independente, revise o plano em contexto novo e só inicie depois que validate e audit passarem. Use subagentes novos, um por tarefa. Escalone modelo e esforço somente após falha técnica comprovada. Ao final, gere o resumo com modelo econômico e apague apenas os artefatos de planejamento.
+$plan-and-execute
 ```
 
-## Executor estrito no terminal integrado
+The skill creates and opens a guided request file. Save it and select the continue action in the agent chat.
 
-Para exigir um processo novo e sem sessão persistida a cada tentativa, primeiro deixe a skill criar o plano e depois execute:
+Inline request:
+
+```text
+$plan-and-execute Implement the described migration, including automated tests and rollback documentation.
+```
+
+Requirements file:
+
+```text
+$plan-and-execute docs/migration-request.md
+```
+
+## Strict runner in an integrated terminal
+
+After the skill creates the plan:
 
 ```bash
 python .claude/skills/plan-and-execute/scripts/run_isolated.py \
   --plan .ai-work/<plan-id>
 ```
 
-ou:
+or:
 
 ```bash
 python .agents/skills/plan-and-execute/scripts/run_isolated.py \
   --plan .ai-work/<plan-id>
 ```
 
-Para inspecionar sem executar:
+Dry run:
 
 ```bash
 python <skill-dir>/scripts/run_isolated.py \
@@ -147,7 +163,7 @@ python <skill-dir>/scripts/run_isolated.py \
   --dry-run
 ```
 
-Para preservar os arquivos de planejamento após o sucesso durante os primeiros testes:
+Preserve planning files after success during early trials:
 
 ```bash
 python <skill-dir>/scripts/run_isolated.py \
@@ -155,14 +171,14 @@ python <skill-dir>/scripts/run_isolated.py \
   --no-cleanup
 ```
 
-## Ajuste dos modelos
+## Model mapping
 
-Cada plano gera `.ai-work/<plan-id>/orchestrator.config.json`. Edite o mapeamento lógico quando os modelos disponíveis na sua conta forem diferentes. As tarefas continuam usando os níveis `economy`, `standard`, `strong` e `max`, evitando acoplamento permanente aos nomes comerciais.
+Every plan creates `.ai-work/<plan-id>/orchestrator.config.json`. Adjust the concrete model mapping when the models available to your account differ. Tasks keep using logical `economy`, `standard`, `strong`, and `max` tiers.
 
-## Teste da instalação
+## Verify the installation
 
 ```bash
 python <skill-dir>/scripts/self_test.py
 ```
 
-O teste cria repositórios temporários, verifica a rastreabilidade `Pxxx -> Rxxx -> TODO`, rejeita cobertura incompleta e tarefas extremas, valida o grafo e as transições de estado, simula um provedor, executa validações, gera um resumo e confirma que a limpeza preserva a implementação.
+The self-test covers request-file creation and validation, VS Code editor selection, request copy/move semantics, concise TODO rendering, traceability, task-graph rules, state transitions, model escalation, isolated execution, deterministic validation, final summarization, and safe cleanup.

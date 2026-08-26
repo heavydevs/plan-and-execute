@@ -370,10 +370,20 @@ An executable leaf may be `high` complexity when it is technically difficult but
 }
 ```
 
-Create and inspect it with:
+Create and inspect it with the request-source mode that applies:
 
 ```bash
+# Inline request
 python <skill-dir>/scripts/planctl.py create --repo-root . --spec /tmp/plan-spec.json
+
+# Generated request draft: move it into the plan as REQUEST.md
+python <skill-dir>/scripts/planctl.py create --repo-root . --spec /tmp/plan-spec.json \
+  --request-file ".ai-work/intake/request-YYYYMMDD-HHMMSS.md" --move-request
+
+# Caller-owned requirements file: copy it into REQUEST.md and preserve the source
+python <skill-dir>/scripts/planctl.py create --repo-root . --spec /tmp/plan-spec.json \
+  --request-file "docs/change-request.md"
+
 python <skill-dir>/scripts/planctl.py validate --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl.py audit --plan .ai-work/<plan-id>
 ```
@@ -390,6 +400,7 @@ Before creation, confirm:
 - every requirement is covered by at least one TODO;
 - every TODO maps to at least one requirement;
 - every TODO has one outcome and an atomicity rationale;
+- `TODO.md` will be a concise one-line-per-task status index, while all execution metadata remains in task definitions;
 - no TODO has `extreme` complexity;
 - every `high` TODO genuinely cannot be split without weakening independent validation;
 - every dependency is explicit and no cycle exists;

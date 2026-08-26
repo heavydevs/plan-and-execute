@@ -1,3 +1,6 @@
 **/__pycache__/**
 **/*.pyc
 .ai-work/
+node_modules/
+*.tgz
+coverage/

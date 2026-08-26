@@ -16,6 +16,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 import planctl  # noqa: E402
+import requestctl  # noqa: E402
 import run_isolated  # noqa: E402
 
 
@@ -324,6 +325,112 @@ def test_symlink_work_root_rejected() -> None:
         else:
             raise AssertionError("Symlinked work root should have been rejected")
 
+
+
+def write_completed_request(path: Path, language: str = "en") -> None:
+    template = requestctl.render_template(language)
+    content = (
+        "Implement a complete authentication migration with compatibility, automated tests, "
+        "rollback guidance, and deterministic validation for every requested outcome."
+    )
+    template = template.replace(
+        requestctl.REQUEST_START,
+        requestctl.REQUEST_START + "\n\n" + content,
+        1,
+    )
+    requestctl.atomic_write_text(path, template)
+
+
+def test_request_intake_and_vscode_editor() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        draft, language = requestctl.create_request_file(repo, language="en")
+        assert language == "en"
+        assert draft.parent == repo / ".ai-work" / "intake"
+        raw = draft.read_text(encoding="utf-8")
+        assert requestctl.INSTRUCTIONS_START in raw
+        assert requestctl.REQUEST_START in raw
+        assert "Continue — I finished writing the request" in raw
+        assert requestctl.inspect_request_file(draft)["ready"] is False
+        assert requestctl.latest_request_file(repo) == draft
+
+        command, editor = requestctl.choose_editor_command(
+            draft,
+            env={"VSCODE_PID": "123"},
+            which=lambda executable: f"/fake/{executable}" if executable == "code" else None,
+        )
+        assert editor == "code"
+        assert command == ["code", "--reuse-window", str(draft)]
+
+        write_completed_request(draft)
+        inspected = requestctl.inspect_request_file(draft)
+        assert inspected["ready"] is True
+        assert "authentication migration" in inspected["request_text"]
+
+
+def test_request_copy_move_and_concise_todo() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp) / "copy-repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        source = Path(temp) / "requirements.md"
+        write_completed_request(source)
+        plan_dir = planctl.create_plan(
+            repo,
+            sample_spec(),
+            ".ai-work",
+            "copy-request",
+            request_file=source,
+        )
+        assert source.is_file(), "External request files must be preserved by default"
+        assert (plan_dir / planctl.REQUEST_FILE).is_file()
+        _, manifest = planctl.load_plan(plan_dir)
+        assert manifest["request_source"]["import_mode"] == "copy"
+        assert manifest["request_source"]["source_removed"] is False
+        assert not planctl.validate_plan(plan_dir, manifest)
+
+        todo = (plan_dir / "TODO.md").read_text(encoding="utf-8")
+        task_lines = [line for line in todo.splitlines() if line.startswith("- [")]
+        assert task_lines == [
+            "- [ ] **001** — Create implementation marker",
+            "- [ ] **002** — Verify marker contents",
+        ]
+        lowered = todo.lower()
+        for forbidden in (
+            "provider",
+            "model",
+            "reasoning",
+            "complexity",
+            "requirements",
+            "attempts",
+            "tasks/",
+        ):
+            assert forbidden not in lowered
+
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp) / "move-repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        draft, _ = requestctl.create_request_file(repo, language="pt-BR")
+        write_completed_request(draft, "pt-BR")
+        plan_dir = planctl.create_plan(
+            repo,
+            sample_spec(),
+            ".ai-work",
+            "move-request",
+            request_file=draft,
+            move_request=True,
+        )
+        assert not draft.exists(), "Generated intake drafts must move into the plan workspace"
+        assert not (repo / ".ai-work" / "intake").exists()
+        assert (plan_dir / planctl.REQUEST_FILE).is_file()
+        _, manifest = planctl.load_plan(plan_dir)
+        assert manifest["request_source"]["import_mode"] == "move"
+        assert manifest["request_source"]["source_removed"] is True
+        assert not planctl.validate_plan(plan_dir, manifest)
+
 def test_end_to_end_runner() -> None:
     with tempfile.TemporaryDirectory() as temp:
         repo = Path(temp) / "repo"
@@ -368,6 +475,8 @@ def main() -> int:
     test_autostart_rejects_open_questions()
     test_route_escalation()
     test_symlink_work_root_rejected()
+    test_request_intake_and_vscode_editor()
+    test_request_copy_move_and_concise_todo()
     test_end_to_end_runner()
     print("All plan-and-execute self-tests passed.")
     return 0

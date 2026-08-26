@@ -1,171 +1,241 @@
-# plan-and-execute
+# Plan and Execute
 
-Skill para Claude Code e Codex que transforma mudancas longas de software em tarefas pequenas, isoladas, retomaveis e validadas de forma deterministica.
+**Turn large coding requests into a reviewed, traceable execution plan — then run each task in a fresh, focused agent context.**
 
-O repositorio inclui:
+Plan and Execute helps Claude Code and Codex handle migrations, refactors, multi-workstream features, and other changes that are too large for a single chat context. It studies the full request and repository first, proves that every requirement is covered, splits oversized work recursively, validates every task independently, and keeps the implementation resumable on disk.
 
-- planejamento profundo antes da execucao, com estudo do pedido, repositorio e fontes externas quando necessario;
-- rastreabilidade completa `pedido (Pxxx) -> requisito (Rxxx) -> TODO`;
-- decomposicao recursiva de workstreams grandes e rejeicao de TODO executavel `extreme`;
-- revisao independente do plano e quality gates `validate` + `audit`;
-- a skill `plan-and-execute` completa;
-- um instalador npm sem dependencias externas;
-- suporte a Claude Code, Codex ou ambos;
-- instalacao no workspace ou no perfil do usuario;
-- verificacao por hash para preservar alteracoes locais;
-- testes Node e Python;
-- workflows de CI e publicacao no npm por OIDC.
+What you gain:
 
-## Instalacao rapida
+- fewer requirements lost between planning and implementation;
+- smaller worker contexts with one task definition at a time;
+- deterministic validation instead of “the agent says it is done”;
+- model/effort escalation only when technical evidence justifies it;
+- safe resume after interruptions or provider limits;
+- a compact TODO list without hiding the detailed task contracts;
+- one install flow for Claude Code, Codex, or both.
 
-### Direto do GitHub, antes da publicacao no npm
+[Português](README.pt-BR.md)
+
+## Quick start
+
+### 1. Install for Claude Code and Codex
+
+For your user profile:
 
 ```bash
-npx --yes --package=github:luizcgvrj/plan-and-execute \
+npx --yes --package=github:heavydevs/plan-and-execute \
   plan-and-execute install --agent both --scope user
 ```
 
-### Depois da publicacao no npm
+Or only in the current workspace:
+
+```bash
+npx --yes --package=github:heavydevs/plan-and-execute \
+  plan-and-execute install --agent both --scope workspace
+```
+
+### 2. Start a large request
+
+Claude Code:
+
+```text
+/plan-and-execute
+```
+
+Codex:
+
+```text
+$plan-and-execute
+```
+
+With no arguments, the skill creates a guided Markdown request file and opens it in your editor. When running from VS Code, it reuses the active VS Code window when the `code` CLI is available.
+
+Write the complete request, save the file, then choose:
+
+```text
+Continue — I finished writing the request
+```
+
+The skill moves that draft into the execution workspace as `REQUEST.md`, studies it and the repository, creates and reviews the development plan, passes its quality gates, and starts execution.
+
+### 3. Or pass the request directly
+
+Inline request:
+
+```text
+$plan-and-execute Migrate authentication to OAuth, preserve password login during rollout, add automated tests, and document rollback.
+```
+
+Requirements file:
+
+```text
+$plan-and-execute docs/oauth-migration-request.md
+```
+
+A caller-owned file is copied into the plan and preserved at its original location.
+
+## How it works
+
+```text
+complete request
+      ↓
+request parts (P001, P002, ...)
+      ↓
+requirements (R001, R002, ...)
+      ↓
+reviewed executable TODOs
+      ↓
+one fresh worker per TODO
+      ↓
+independent validation
+      ↓
+economical final summary + safe cleanup
+```
+
+Before implementation, the orchestrator:
+
+1. reads the entire request;
+2. inspects relevant code, tests, architecture, schemas, build files, and CI commands;
+3. researches authoritative sources when current or version-sensitive facts matter;
+4. inventories every request part and requirement;
+5. recursively splits each workstream until every leaf task has one coherent outcome;
+6. rejects executable tasks rated `extreme`;
+7. asks a fresh reviewer to challenge coverage, dependencies, atomicity, and validation;
+8. runs deterministic `validate` and `audit` gates;
+9. starts execution only after the plan passes.
+
+During implementation, each worker sees one task definition rather than the whole chat or future tasks. The orchestrator reruns the required validation commands before marking that task complete.
+
+## Request intake modes
+
+### Guided editor flow
+
+Invoke the skill without arguments. It creates:
+
+```text
+.ai-work/intake/request-YYYYMMDD-HHMMSS.md
+```
+
+The top of the file contains short instructions. The rest provides sections for goals, requirements, constraints, context, tests, and definition of done.
+
+After you confirm that editing is finished, the file becomes:
+
+```text
+.ai-work/<plan-id>/REQUEST.md
+```
+
+The temporary intake copy is removed only after the plan has safely preserved and validated it.
+
+### Existing file
+
+Pass one existing regular file path as the complete invocation argument. The skill validates the file, reads it in full, and copies it to `REQUEST.md`. Directories, missing files, and symbolic links are rejected.
+
+### Inline text
+
+Any other non-empty arguments are treated as the complete inline request.
+
+## Concise TODO, detailed task contracts
+
+`TODO.md` is intentionally easy to scan:
+
+```markdown
+# TODO — OAuth migration
+
+- [x] **001** — Add OAuth persistence model
+- [ ] **002** — Implement authorization-code callback _(in progress)_
+- [ ] **003** — Preserve password-login compatibility
+- [ ] **004** — Add migration and rollback tests
+```
+
+It contains one line per item. Provider, model, reasoning effort, complexity, requirement mappings, dependencies, acceptance criteria, and validation commands live in each file under `tasks/` and in `manifest.json`.
+
+## Installation options
+
+### Directly from GitHub
+
+```bash
+npx --yes --package=github:heavydevs/plan-and-execute \
+  plan-and-execute install --agent both --scope user
+```
+
+### From npm after publication
+
+The current package name remains `@luizcgvrj/plan-and-execute`:
 
 ```bash
 npx --yes @luizcgvrj/plan-and-execute \
   install --agent both --scope user
 ```
 
-### CLI instalada globalmente
+### Global CLI
 
 ```bash
 npm install --global @luizcgvrj/plan-and-execute
 pae install both --global
 ```
 
-`pae` e o alias curto de `plan-and-execute`.
+`pae` is the short alias for `plan-and-execute`.
 
-## Destinos
+### Targets
 
-| Agente | Workspace | Usuario |
+| Agent | Workspace | User profile |
 | --- | --- | --- |
 | Claude Code | `.claude/skills/plan-and-execute` | `~/.claude/skills/plan-and-execute` |
 | Codex | `.agents/skills/plan-and-execute` | `~/.agents/skills/plan-and-execute` |
 
-No Windows, `~` normalmente corresponde a `%USERPROFILE%`.
+See [the installation guide](skill/plan-and-execute/references/INSTALLATION.md) for manual copies, symlinks, updates, removal, and Windows examples.
 
-## Comandos
+## Installer commands
 
 ```bash
-# Instalar para os dois agentes no workspace atual
+# Install both agents in the current workspace
 pae install both --local
 
-# Instalar somente para Claude no perfil do usuario
+# Install only Claude for the current user
 pae install claude --global
 
-# Instalar somente para Codex em outro workspace
-pae install codex --cwd /caminho/do/projeto
+# Install Codex in another workspace
+pae install codex --cwd /path/to/project
 
-# Mostrar os destinos calculados
+# Inspect targets and installation state
 pae paths both --global
+pae status both --global
 
-# Verificar estado, versao e alteracoes locais
-pae status both --local
-
-# Diagnosticar Node, Python, Claude CLI e Codex CLI
+# Diagnose Node, Python, and provider CLIs
 pae doctor
 
-# Simular sem alterar arquivos
+# Preview without changing files
 pae install both --local --dry-run
 
-# Atualizar mesmo quando a copia instalada foi editada
-pae install both --global --force
-
-# Remover uma instalacao gerenciada
+# Remove managed copies
 pae uninstall both --global
 ```
 
-As mesmas opcoes podem ser escritas de forma explicita:
+The installer has no runtime dependencies and no `postinstall` mutation. It writes only after an explicit `install` command. A local marker and content hash protect manually modified installations from accidental overwrite or removal.
 
-```text
---agent claude|codex|both
---scope workspace|user
---cwd <diretorio>
---force
---dry-run
---json
-```
+## Execution modes
 
-## Comportamento de seguranca
+### Native mode
 
-O instalador copia a skill; ele nao cria um link para o cache temporario do `npx`.
+Use the active Claude Code or Codex chat. The orchestrator creates a fresh native subagent for each runnable task and passes only that task definition.
 
-Cada instalacao recebe `.plan-and-execute-install.json` com versao e SHA-256 do conteudo. Assim, o instalador consegue:
+### Strict external runner
 
-- reconhecer uma copia que ele gerencia;
-- nao fazer nada quando a copia ja esta atualizada;
-- atualizar automaticamente uma copia gerenciada e intacta;
-- interromper antes de sobrescrever alteracoes locais;
-- exigir `--force` para substituir ou remover conteudo modificado;
-- recusar diretorios de outra skill e destinos que sejam links simbolicos;
-- substituir a pasta de forma atomica, com restauracao em caso de falha.
-
-O pacote nao usa `postinstall`: nenhuma pasta do usuario ou do projeto e modificada apenas por instalar a dependencia npm. A alteracao ocorre somente depois de um comando `install` explicito.
-
-## Planejamento profundo e verificavel
-
-Antes de executar, a skill agora exige:
-
-1. leitura integral do pedido e inventario de cada parte como `P001`, `P002`, etc.;
-2. inspecao concreta do repositorio e pesquisa autoritativa quando o assunto for atual, desconhecido, sensivel a versao ou a seguranca;
-3. requisitos `R001`, `R002`, etc. ligados explicitamente aos itens `Pxxx`;
-4. decomposicao recursiva de cada workstream ate chegar a TODOs com um resultado coerente e validacao independente;
-5. rejeicao de qualquer TODO executavel classificado como `extreme`;
-6. justificativa de atomicidade para TODOs `high`;
-7. revisao do plano em contexto novo;
-8. validacao estrutural e auditoria de cobertura antes do autostart.
-
-Cada plano novo gera `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, `TODO.md` e um arquivo de definicao por tarefa. O comando de auditoria mostra a cadeia completa de cobertura:
-
-```bash
-python <skill-dir>/scripts/planctl.py audit --plan .ai-work/<plan-id>
-```
-
-A quantidade de TODOs nao e fixa: uma solicitacao com varios blocos grandes pode produzir varios workstreams, e cada bloco e dividido novamente quando possui resultados, riscos ou validacoes independentes. Ao mesmo tempo, a skill evita microtarefas artificiais por arquivo.
-
-## Como invocar a skill
-
-No Claude Code:
-
-```text
-/plan-and-execute Implemente esta mudanca grande, incluindo testes automatizados: ...
-```
-
-No Codex CLI ou na extensao do VS Code:
-
-```text
-$plan-and-execute Implemente esta mudanca grande, incluindo testes automatizados: ...
-```
-
-Exemplo de pedido:
-
-```text
-Use plan-and-execute. Estude integralmente o pedido, o repositorio e o assunto antes de planejar. Inventarie cada parte do pedido, crie requisitos rastreaveis, divida recursivamente cada workstream grande em TODOs executaveis com validacao independente, revise o plano em contexto novo e so inicie depois que validate e audit passarem. Use um trabalhador novo para cada tarefa. Escalone esforco e modelo somente depois de falha tecnica comprovada. No final, resuma com um modelo economico e remova apenas os artefatos temporarios de planejamento.
-```
-
-## Executor estrito
-
-O modo nativo usa subagentes do cliente atual. Para obter processos totalmente novos, sem sessao persistida, e permitir roteamento entre Claude CLI e Codex CLI, use o runner Python da skill em um terminal externo:
+Use a terminal outside the active nested provider session when you need a new process for every attempt, exact CLI model routing, or automatic rate-limit waiting:
 
 ```bash
 python .agents/skills/plan-and-execute/scripts/run_isolated.py \
   --plan .ai-work/<plan-id>
 ```
 
-ou:
+or:
 
 ```bash
 python .claude/skills/plan-and-execute/scripts/run_isolated.py \
   --plan .ai-work/<plan-id>
 ```
 
-Para preservar o plano durante os primeiros testes:
+Preserve the plan after a successful trial run:
 
 ```bash
 python <skill-dir>/scripts/run_isolated.py \
@@ -173,15 +243,55 @@ python <skill-dir>/scripts/run_isolated.py \
   --no-cleanup
 ```
 
-## Requisitos
+## Plan workspace
 
-- Node.js 18.17 ou superior para o instalador;
-- Python 3.10 ou superior para os scripts da skill;
-- Claude Code e/ou Codex instalados para executar tarefas reais;
-- GitHub CLI opcional para publicar o repositorio;
-- conta npm opcional para publicar no registro.
+```text
+.ai-work/<plan-id>/
+├── REQUEST.md                 # when the request came from a file
+├── ANALYSIS.md
+├── PLAN.md
+├── PLAN_REVIEW.md
+├── TODO.md                    # one concise line per task
+├── manifest.json              # source of truth
+├── orchestrator.config.json
+├── tasks/                     # detailed isolated task contracts
+├── results/
+└── logs/
+```
 
-## Desenvolvimento
+The plan validator checks request hashes, traceability, task complexity, review approval, dependencies, task files, acceptance criteria, and validation commands.
+
+## Model routing and recovery
+
+Tasks use logical tiers:
+
+```text
+economy → standard → strong → max
+```
+
+The concrete provider/model mapping is stored in `orchestrator.config.json` so it can evolve without rewriting every task. Functional failures can increase effort, model tier, and eventually provider. Rate limits or exhausted credits preserve the task as pending and do not count as technical failures.
+
+Restarting the runner resumes from `manifest.json`. A stopped computer or process cannot restart itself; launch the same command again or use an external service/CI scheduler.
+
+## Safety model
+
+- write-heavy tasks run sequentially unless isolated in separate worktrees;
+- workers do not receive the full plan or future task definitions;
+- deterministic validation runs outside the worker;
+- a planning defect triggers replanning instead of blind model escalation;
+- cleanup requires a plan sentinel, completed tasks, and a generated summary;
+- cleanup removes only the exact `.ai-work/<plan-id>` directory;
+- implementation files, tests, commits, and unrelated plans are preserved.
+
+## Development
+
+Requirements:
+
+- Node.js 18.17 or newer for the installer;
+- Python 3.10 or newer for skill scripts;
+- Claude Code and/or Codex for real agent execution.
+
+Run all checks:
 
 ```bash
 npm ci
@@ -189,34 +299,19 @@ npm run check
 npm pack --dry-run
 ```
 
-`npm run check` executa:
+The checks cover the Node installer and CLI, request-file/editor intake, request copy/move semantics, traceability, recursive-planning gates, state transitions, model escalation, strict-runner simulation, validation, summarization, and guarded cleanup.
 
-1. validacao estrutural e busca pelo nome antigo;
-2. testes unitarios e de integracao do instalador;
-3. self-test completo dos scripts Python da skill.
+## Documentation
 
-## Estrutura do repositorio
+- [Portuguese README](README.pt-BR.md)
+- [Request intake](skill/plan-and-execute/references/INTAKE.md)
+- [Deep planning protocol](skill/plan-and-execute/references/PLANNING_PROTOCOL.md)
+- [Execution workflow](skill/plan-and-execute/references/WORKFLOW.md)
+- [Plan specification](skill/plan-and-execute/references/PLAN_SPEC.md)
+- [Model routing](skill/plan-and-execute/references/MODEL_ROUTING.md)
+- [Installation](skill/plan-and-execute/references/INSTALLATION.md)
+- [Publishing](docs/PUBLISHING.md)
 
-```text
-plan-and-execute/
-├── bin/plan-and-execute.js
-├── lib/installer.js
-├── skill/plan-and-execute/
-│   ├── SKILL.md
-│   ├── agents/openai.yaml
-│   ├── references/
-│   └── scripts/
-├── test/
-├── tools/
-├── docs/PUBLISHING.md
-├── package.json
-└── .github/workflows/
-```
-
-## Publicacao
-
-As instrucoes para criar o repositorio, testar diretamente pelo GitHub, confirmar o scope npm e habilitar Trusted Publishing estao em [docs/PUBLISHING.md](docs/PUBLISHING.md).
-
-## Licenca
+## License
 
 MIT.

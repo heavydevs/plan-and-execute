@@ -28,6 +28,14 @@ Do not confuse a long checklist with a good plan. Prefer the smallest set of tas
 
 ## 2. Study the complete request
 
+Resolve the request source before drafting tasks:
+
+- for no-argument invocation, wait until the user confirms the generated draft is saved, validate it with `requestctl.py`, and move it into the plan as `REQUEST.md` only when the plan is created;
+- for a caller-provided file path, validate and copy it into the plan as `REQUEST.md` while preserving the source;
+- for inline invocation text, treat the complete argument text as the request.
+
+When `REQUEST.md` exists, treat its user-authored body as the authoritative request and preserve it unchanged as planning evidence. Do not mistake the template instructions or headings for requirements.
+
 Read the full request before drafting tasks. Extract and record:
 
 - requested deliverables and behaviors;
@@ -118,6 +126,8 @@ Stop splitting only when all are true:
 Rate each executable TODO `low`, `medium`, or `high`. `extreme` is not a valid leaf and is rejected. A `high` task requires a substantive `atomicity_rationale` explaining why further splitting would weaken independent implementation or validation.
 
 Avoid the opposite failure mode: do not turn every file edit or assertion into a separate TODO. Keep tightly coupled edits together when they implement one behavior and share one validation set.
+
+Keep the human-facing `TODO.md` deliberately terse: exactly one status line per task. Store requirements, complexity, model route, dependencies, validation, and atomicity evidence only in the task definition and manifest.
 
 ## 6. Review the plan independently
 

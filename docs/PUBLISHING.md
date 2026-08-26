@@ -1,106 +1,70 @@
-# Publicacao no GitHub e no npm
+# Publishing to GitHub and npm
 
-## 1. Usar um repositorio, nao apenas GitHub Projects
+[Versão em português](PUBLISHING.pt-BR.md)
 
-GitHub Projects e um quadro para organizar issues e pull requests. O codigo, o historico de versoes, as releases e os workflows precisam ficar em um repositorio.
+## Repository
 
-Nome recomendado:
+The canonical repository is:
 
 ```text
-luizcgvrj/plan-and-execute
+heavydevs/plan-and-execute
 ```
 
-O GitHub Project pode ser criado depois e associado ao repositorio para acompanhar melhorias.
-
-## 2. Criar e enviar o repositorio
-
-Extraia o ZIP do repositorio e entre na pasta:
+Clone and validate it:
 
 ```bash
-unzip plan-and-execute-repo.zip
+git clone https://github.com/heavydevs/plan-and-execute.git
 cd plan-and-execute
+npm ci
+npm run check
 ```
 
-Com GitHub CLI autenticado:
+## Test distribution directly from GitHub
+
+No npm publication is required:
 
 ```bash
-git init -b main
-git add .
-git commit -m "feat: publish plan-and-execute skill and installer"
-
-gh auth login
-gh repo create luizcgvrj/plan-and-execute \
-  --public \
-  --source=. \
-  --remote=origin \
-  --push
-```
-
-Sem GitHub CLI, crie um repositorio vazio na interface e execute:
-
-```bash
-git init -b main
-git add .
-git commit -m "feat: publish plan-and-execute skill and installer"
-git remote add origin git@github.com:luizcgvrj/plan-and-execute.git
-git push -u origin main
-```
-
-Nao adicione README, `.gitignore` ou licenca na criacao remota, pois o pacote ja contem esses arquivos.
-
-## 3. Testar a distribuicao direta pelo GitHub
-
-Depois do push, nenhuma publicacao npm e necessaria para testar:
-
-```bash
-npx --yes --package=github:luizcgvrj/plan-and-execute \
+npx --yes --package=github:heavydevs/plan-and-execute \
   plan-and-execute --version
 ```
 
-Instalacao em um workspace temporario:
+Test a temporary workspace:
 
 ```bash
 TEMP_DIR="$(mktemp -d)"
 
-npx --yes --package=github:luizcgvrj/plan-and-execute \
+npx --yes --package=github:heavydevs/plan-and-execute \
   plan-and-execute install --agent both --scope workspace --cwd "$TEMP_DIR"
 
-npx --yes --package=github:luizcgvrj/plan-and-execute \
+npx --yes --package=github:heavydevs/plan-and-execute \
   plan-and-execute status --agent both --scope workspace --cwd "$TEMP_DIR"
 
 rm -rf "$TEMP_DIR"
 ```
 
-O npm aceita repositorios Git como package spec, incluindo o atalho `github:owner/repo`.
+## Confirm the npm scope
 
-## 4. Confirmar o scope npm
-
-O `package.json` usa:
+`package.json` currently uses:
 
 ```json
 "name": "@luizcgvrj/plan-and-execute"
 ```
 
-O nome pressupoe uma conta ou organizacao npm com o scope `@luizcgvrj`. O username do GitHub e o username do npm sao independentes.
-
-Confirme antes da primeira publicacao:
+The GitHub organization and npm scope are independent. Confirm control of the npm scope before publishing:
 
 ```bash
 npm login
 npm whoami
 ```
 
-Se o username ou scope npm for diferente, altere:
+If a future release moves to `@heavydevs/plan-and-execute`, update:
 
-- `name` no `package.json`;
-- exemplos npm no `README.md`;
-- exemplos npm em `skill/plan-and-execute/references/INSTALLATION.md`.
+- `name` in `package.json` and `package-lock.json`;
+- npm commands in both README files;
+- npm commands in both installation guides;
+- trusted-publisher configuration.
 
-O instalador le o nome do pacote diretamente do `package.json`, entao nao precisa de outra alteracao interna.
-
-## 5. Primeira publicacao publica
-
-Pacotes com scope sao privados por padrao. Para publicar este pacote como publico:
+## First public npm release
 
 ```bash
 npm ci
@@ -108,91 +72,74 @@ npm run check
 npm publish --access public
 ```
 
-A publicacao direta exige uma conta npm com 2FA ou outra forma de autenticacao aceita pelo registro.
-
-Depois, valide:
+Then verify:
 
 ```bash
 npx --yes @luizcgvrj/plan-and-execute --version
 ```
 
-## 6. Configurar Trusted Publishing com GitHub Actions
+## Trusted Publishing with GitHub Actions
 
-Depois que o pacote existir no npm, configure um Trusted Publisher para evitar um token npm permanente no GitHub.
+After the package exists on npm, configure a GitHub Actions trusted publisher for:
 
-Pela CLI atual do npm:
+```text
+organization: heavydevs
+repository: plan-and-execute
+workflow: publish.yml
+```
+
+Using a recent npm CLI:
 
 ```bash
 npm install --global npm@latest
 
 npm trust github @luizcgvrj/plan-and-execute \
-  --repo luizcgvrj/plan-and-execute \
+  --repo heavydevs/plan-and-execute \
   --file publish.yml \
   --allow-publish \
   --yes
 ```
 
-Ou configure na pagina do pacote no npm:
+The included workflow uses a GitHub-hosted runner, OIDC (`id-token: write`), Node.js 24, a recent npm CLI, tests before publication, and package provenance for a public repository/package when supported by npm.
 
-- provider: GitHub Actions;
-- organization/user: `luizcgvrj`;
-- repository: `plan-and-execute`;
-- workflow filename: `publish.yml`;
-- allowed action: `npm publish`.
+## Release a new version
 
-O workflow incluido usa:
-
-- GitHub-hosted runner;
-- `id-token: write` para OIDC;
-- Node.js 24;
-- npm 11.5.1 ou superior;
-- `repository.url` correspondente ao repositorio;
-- publicacao somente depois dos testes;
-- proveniencia automatica para repositorio e pacote publicos.
-
-## 7. Publicar novas versoes
-
-Atualize a versao:
+Update the version and changelog:
 
 ```bash
 npm version patch
 ```
 
-Ou use `minor`/`major` conforme o tipo de mudanca.
-
-Envie o commit e a tag:
+Use `minor` or `major` when appropriate. Push the commit and tag:
 
 ```bash
 git push origin main --follow-tags
 ```
 
-Crie a GitHub Release que dispara `.github/workflows/publish.yml`:
+Create the GitHub Release that triggers `.github/workflows/publish.yml`:
 
 ```bash
 VERSION="$(node -p "require('./package.json').version")"
 gh release create "v${VERSION}" --generate-notes
 ```
 
-O workflow confirma que a tag `v<versao>` corresponde ao `package.json`, executa os testes e publica.
+The workflow verifies that the tag matches `package.json`, runs all checks, and publishes.
 
-## 8. Validar cada release
-
-```bash
-npx --yes @luizcgvrj/plan-and-execute --version
-npx --yes @luizcgvrj/plan-and-execute doctor
-npx --yes @luizcgvrj/plan-and-execute status --agent both --scope user
-```
-
-Teste tambem em workspace temporario antes de recomendar a versao:
+## Release checklist
 
 ```bash
-TEMP_DIR="$(mktemp -d)"
-
-npx --yes @luizcgvrj/plan-and-execute \
-  install --agent both --scope workspace --cwd "$TEMP_DIR"
-
-npx --yes @luizcgvrj/plan-and-execute \
-  uninstall --agent both --scope workspace --cwd "$TEMP_DIR"
-
-rm -rf "$TEMP_DIR"
+npm ci
+npm run check
+npm pack --dry-run
+npx --yes --package=. plan-and-execute --version
 ```
+
+Also verify:
+
+- no generated `.ai-work` content is committed;
+- `README.md` starts with the current quick guide;
+- `README.pt-BR.md` remains aligned;
+- `skill/plan-and-execute/SKILL.md` and all referenced files are packaged;
+- `scripts/requestctl.py` is executable and included;
+- the installed skill passes `scripts/self_test.py`;
+- the GitHub Actions CI run succeeds before creating a release.
