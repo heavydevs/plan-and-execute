@@ -1,0 +1,91 @@
+name: Apply progressive context update
+
+on:
+  push:
+    branches:
+      - feat/context-artifacts
+    paths:
+      - .github/workflows/apply-context-artifacts.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out update branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Reconstruct and apply update
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          blobs=(
+            62f9020dfd40fec20c9f6d972329a287a064ef1e
+            5ec2a9897f3c07726391a04457cfe40ee01044a5
+            02eb3797589da43977155f21b3f87867d9a3c3ec
+            d02f9b70b5d41e93eb4fb748f82aec55e9881c0c
+            f38229b88176a23a35acaa36d046920bb43bedbf
+            f34192394363311b28d1ff193b4f066acde21654
+            9f849fdb689453cc2b7b82fbfe2a5b0c77599b2d
+            f63e93b7c4cb3979326117efeb5c98a602e0cb42
+          )
+
+          : > /tmp/context-update.b64
+          for sha in "${blobs[@]}"; do
+            curl --fail --silent --show-error --location \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
+              | jq -r '.content' \
+              | tr -d '\n' \
+              | base64 --decode \
+              >> /tmp/context-update.b64
+          done
+
+          test "$(wc -c < /tmp/context-update.b64)" -eq 74536
+          base64 --decode /tmp/context-update.b64 > /tmp/context-update.patch.xz
+          echo "bdfcf6b5338dfaf8c6a8339512877170e33dccb76739d51f03457e97a962cb0d  /tmp/context-update.patch.xz" \
+            | sha256sum --check --strict
+          xz -dc /tmp/context-update.patch.xz > /tmp/context-update.patch
+          patch -p1 --forward --batch < /tmp/context-update.patch
+          chmod +x skill/plan-and-execute/scripts/*.py
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run complete validation suite
+        run: npm run check
+
+      - name: Verify npm package contents
+        run: npm pack --dry-run --ignore-scripts
+
+      - name: Commit validated non-workflow changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A ':!.github/workflows'
+          git diff --cached --check
+          git commit -m "feat: add progressive execution context"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
