@@ -84,6 +84,66 @@
         "string",
         "null"
       ]
+    },
+    "learning_files_read": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "completed_subtask_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "reusable_learnings": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "code",
+              "procedure",
+              "decision",
+              "pitfall",
+              "validation"
+            ]
+          },
+          "guidance": {
+            "type": "string",
+            "minLength": 35,
+            "maxLength": 420
+          },
+          "references": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 6,
+            "items": {
+              "type": "string"
+            }
+          },
+          "target_task_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "kind",
+          "guidance",
+          "references",
+          "target_task_ids"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
@@ -94,6 +154,9 @@
     "risks",
     "follow_ups",
     "context_files_read",
+    "learning_files_read",
+    "completed_subtask_ids",
+    "reusable_learnings",
     "related_task_reads",
     "blocked_reason"
   ],

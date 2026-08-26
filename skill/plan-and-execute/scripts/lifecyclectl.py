@@ -382,9 +382,17 @@ def recover_interrupted_tasks(plan_arg: str | Path, *, allow_live_lease: bool = 
             f"Cannot recover while another runner is live (pid={lease.get('pid')})"
         )
     recovered = 0
+    recovered_subtasks: list[dict[str, str]] = []
     for task in manifest.get("tasks", []):
         if task.get("status") != "in_progress":
             continue
+        for subtask_id in planctl.recover_in_progress_subtasks(
+            task,
+            "Previous execution ended unexpectedly; recovered for resume.",
+        ):
+            recovered_subtasks.append(
+                {"task_id": str(task.get("id")), "subtask_id": subtask_id}
+            )
         task["status"] = "pending"
         task["last_error"] = "Previous execution ended unexpectedly; recovered for resume."
         task.setdefault("history", []).append(
@@ -396,6 +404,7 @@ def recover_interrupted_tasks(plan_arg: str | Path, *, allow_live_lease: bool = 
             manifest,
             "execution_recovered",
             recovered_tasks=recovered,
+            recovered_subtasks=recovered_subtasks,
             technical_failures_added=0,
         )
         planctl.save_manifest(plan_dir, manifest)
@@ -609,7 +618,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     resume = sub.add_parser("resume", help="Resume the active implementation with the strict runner")
     common(resume)
-    resume.add_argument("--provider", choices=["claude", "codex"])
+    resume.add_argument(
+        "--provider",
+        choices=sorted(planctl.VALID_PROVIDERS - {"auto"}),
+    )
     resume.add_argument("--once", action="store_true")
     resume.add_argument("--no-wait", action="store_true")
     resume.add_argument("--no-cleanup", action="store_true")

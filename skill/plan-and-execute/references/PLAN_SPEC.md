@@ -1,4 +1,4 @@
-# Plan specification (schema v3)
+# Plan specification (schema v4)
 
 ## Contents
 
@@ -18,7 +18,7 @@
 
 Create a directed acyclic graph of bounded executable TODOs only after the complete request, repository, and material external behavior have been studied.
 
-Schema v3 deterministically checks:
+Schema v4 deterministically checks:
 
 - request-part-to-requirement-to-task traceability;
 - concrete request and repository analysis;
@@ -30,7 +30,10 @@ Schema v3 deterministically checks:
 - an explicit decision to create or omit global worker context;
 - strict assignment of scoped context to only the TODOs that need it;
 - concise, grounded, non-duplicated context artifacts;
-- reviewer approval that `contexts_minimal` is true.
+- reviewer approval that `contexts_minimal` and `context_boundaries_sound` are true;
+- explicit context-cohesion evidence for every TODO;
+- at least one stable resumable subtask per TODO;
+- directional, predeclared, target-specific learning relationships and tamper-resistant generated artifacts.
 
 The schema cannot prove semantic perfection. Combine it with [ADAPTIVE_STUDY.md](ADAPTIVE_STUDY.md), [PLANNING_PROTOCOL.md](PLANNING_PROTOCOL.md), [EXECUTION_CONTEXT.md](EXECUTION_CONTEXT.md), and independent review.
 
@@ -44,7 +47,7 @@ The schema cannot prove semantic perfection. Combine it with [ADAPTIVE_STUDY.md]
 | `request_analysis` | yes | Evidence that the complete request and repository were studied. |
 | `requirements` | yes | Non-empty inventory of explicit and necessary derived requirements. |
 | `global_constraints` | no | Repository, compatibility, security, or rollout constraints. |
-| `execution_context` | yes in v3 | Explicit minimal global/scoped worker-context decision. |
+| `execution_context` | yes in v3+ | Explicit minimal global/scoped worker-context decision. |
 | `plan_review` | yes | Approved independent plan review. |
 | `autostart` | no | Start after all gates pass; default `true`. |
 | `cleanup_on_success` | no | Delete planning artifacts after the final summary; default `true`. |
@@ -100,7 +103,7 @@ Every request part must map to at least one requirement. Every requirement must 
 
 ## 5. Progressive execution context
 
-`execution_context` is required in schema v3 even when no context file is created. Read [EXECUTION_CONTEXT.md](EXECUTION_CONTEXT.md) before authoring it.
+`execution_context` is required in schema v3+ even when no context file is created. Read [EXECUTION_CONTEXT.md](EXECUTION_CONTEXT.md) before authoring it.
 
 ### 5.1 Global decision
 
@@ -204,7 +207,8 @@ The validator enforces:
 | `tasks_atomic` | yes | Must be `true`. |
 | `dependencies_valid` | yes | Must be `true`. |
 | `validations_sufficient` | yes | Must be `true`. |
-| `contexts_minimal` | yes in v3 | Must be `true`; confirms global/scoped context is necessary, grounded, and narrow. |
+| `contexts_minimal` | yes in v3+ | Must be `true`; confirms global/scoped context is necessary, grounded, and narrow. |
+| `context_boundaries_sound` | yes in v4 | Must be `true`; confirms each TODO is a useful fresh-context boundary, independent domains were split, and subtasks/learning edges do not hide oversized work. |
 | `unresolved_findings` | yes | Must be empty. |
 | `notes` | yes | What the reviewer checked and what changed. |
 
@@ -227,17 +231,76 @@ The reviewer must verify that global items apply to every TODO, scoped items app
 | `implementation_guidance` | no | Non-obvious task-specific constraints or approach. |
 | `acceptance_criteria` | yes | Observable success conditions. |
 | `validation_commands` | yes | Commands run from the repository root. |
-| `provider` | no | `auto`, `claude`, or `codex`; default `auto`. |
+| `provider` | no | `auto`, `claude`, `codex`, `gemini`, `qwen`, `kimi`, or `trae`; default `auto`. Optional providers are execution backends, not default install targets. |
 | `model_tier` | no | `economy`, `standard`, `strong`, or `max`. |
 | `reasoning_effort` | no | `low`, `medium`, `high`, `xhigh`, or `max`. |
 | `allow_provider_fallback` | no | Permit provider fallback; default `true`. |
 | `related_task_reads` | no | Narrow allowlist of other task definitions. |
 | `max_attempts` | no | Technical-failure limit; default `8`. |
-| `context_files` | generated | Exact global/scoped context assigned to the task. Do not author. |
+| `context_boundary` | yes in v4 | Why the work benefits from one fresh worker context and what adjacent concerns were deliberately excluded. |
+| `subtasks` | yes in v4 | Stable resumable checkpoints inside the parent TODO. At least one must be required. |
+| `learning_targets` | no in v4 | Directional declarations for narrow validated findings that may help untouched future TODOs. |
+| `context_files` | generated | Exact global/scoped plan-time context assigned to the task. Do not author. |
+| `learning_files` | generated | Exact validated source-task learning artifacts assigned to the target. Do not author. |
 
 Every expected file path must be repository-relative and must not contain `..`.
 
 A high-complexity task needs a substantive rationale explaining why further splitting would create artificial handoffs or weaker validation.
+
+### 7.1 Context boundary
+
+```json
+{
+  "context_boundary": {
+    "shared_context": [
+      "The controller, service, entity, and focused tests implement one person-lifecycle invariant."
+    ],
+    "why_one_todo": "The same domain rules and validation evidence are needed across every layer, so one fresh worker context avoids an artificial handoff.",
+    "separate_from": [
+      "Store CRUD is independent and belongs to another TODO because it shares no domain invariant or focused validation."
+    ]
+  }
+}
+```
+
+`shared_context` must name concrete retained context, not generic framework familiarity. `why_one_todo` must explain why that context is useful throughout the TODO. `separate_from` records adjacent independent concerns deliberately kept outside the boundary.
+
+### 7.2 Resumable subtasks
+
+```json
+{
+  "subtasks": [
+    {
+      "id": "S001",
+      "title": "Implement the person domain contract",
+      "objective": "Entity and service rules satisfy the bounded acceptance criteria."
+    },
+    {
+      "id": "S002",
+      "title": "Expose and validate the person controller",
+      "objective": "Focused controller tests pass against the completed domain contract."
+    }
+  ]
+}
+```
+
+Subtasks are durable checkpoints inside one parent TODO. They may be strings or objects, normalize to stable ids, and default to `required: true`. At least one required subtask is mandatory. Runtime status is generated in `manifest.json`; do not author `status`, timestamps, or history in the input spec.
+
+### 7.3 Directional learning targets
+
+```json
+{
+  "learning_targets": [
+    {
+      "task_id": "004",
+      "reason": "Both TODOs use the same repository transaction helper, and the target can reuse one validated deadlock-avoidance procedure without reading the source worker history.",
+      "topics": ["transaction ordering", "focused deadlock regression"]
+    }
+  ]
+}
+```
+
+Targets must be later TODOs. The declaration authorizes only the named topics; it does not pre-create a file. It also makes every declared source a context prerequisite for that target, preventing target execution before the source either publishes a validated artifact or completes with nothing reusable. After deterministic source validation, the controller may create one concise `learnings/<source>-to-<target>.md` artifact only when the source reports a grounded reusable finding and the target has never started. `learning_files`, `published_learning_files`, and `learning_artifacts` are generated state.
 
 ## 8. Recursive decomposition rules
 
@@ -249,6 +312,7 @@ Split a candidate task when any of these changes independently:
 - validation environment or safety gate;
 - independently failing outcome;
 - implementation ownership or required tooling.
+- usefulness of retained AI context: split when reasoning from one concern would not materially help the other.
 
 Tasks that usually require decomposition include:
 
@@ -260,171 +324,204 @@ Tasks that usually require decomposition include:
 
 Do not split inseparable edits that implement one behavior and share one validation set. Avoid file-by-file TODOs that force repeated rediscovery.
 
+Independent person and store CRUDs normally become separate TODOs even when both follow the same framework pattern. A controller, service, entity, repository, and focused tests for one domain may remain together when they share one rule set and validation boundary.
+
 After decomposition, decide execution context from the resulting task graph. Do not use a global context file to compensate for oversized or ambiguous tasks.
 
 ## 9. Complete example
 
 ```json
 {
-  "title": "Add idempotent notification delivery",
-  "summary": "Add database-backed idempotency, integrate it into delivery, and cover retries.",
+  "title": "Implement sample feature",
+  "summary": "Create two bounded changes and verify them.",
   "language": "English",
   "request_analysis": {
     "request_parts": [
-      {"id": "P001", "text": "Persist delivery idempotency keys"},
-      {"id": "P002", "text": "Prevent duplicate sends while preserving retries"},
-      {"id": "P003", "text": "Add deterministic automated coverage"}
+      {
+        "id": "P001",
+        "text": "Create an implementation marker"
+      },
+      {
+        "id": "P002",
+        "text": "Verify the marker contains the requested value"
+      }
     ],
     "repository_findings": [
-      "Delivery already records provider attempts before updating final state.",
-      "Database migrations must support rolling deployment.",
-      "Focused service tests run through Maven selectors."
+      "The sample repository is intentionally minimal and has no existing implementation files."
     ],
-    "research_decision": "No external research is required because the repository defines the transaction, migration, and retry contracts.",
+    "research_decision": "No external research is needed for a local marker-file test.",
     "research_findings": [],
-    "assumptions": ["The existing message id can seed the delivery key."],
-    "risks": ["A non-backward-compatible migration could break rolling deployment."],
+    "assumptions": [
+      "The test environment provides POSIX shell commands."
+    ],
+    "risks": [
+      "A broad file edit could accidentally touch unrelated files."
+    ],
     "open_questions": [],
-    "decomposition_strategy": "Separate persistence, service integration, and end-to-end regression because they have independent change and validation boundaries."
+    "decomposition_strategy": "Separate file creation from content verification so each outcome has one deterministic check."
   },
   "requirements": [
     {
       "id": "R001",
-      "text": "Reserve a delivery key atomically so it is accepted only once.",
+      "text": "Create implemented.txt without unrelated changes",
       "source": "user",
       "priority": "must",
-      "request_part_ids": ["P001", "P002"]
+      "request_part_ids": [
+        "P001"
+      ]
     },
     {
       "id": "R002",
-      "text": "Keep a genuine failed first attempt retryable.",
+      "text": "Ensure implemented.txt contains the word implemented",
       "source": "user",
       "priority": "must",
-      "request_part_ids": ["P002"]
-    },
-    {
-      "id": "R003",
-      "text": "Add automated duplicate and retry coverage.",
-      "source": "user",
-      "priority": "must",
-      "request_part_ids": ["P003"]
+      "request_part_ids": [
+        "P002"
+      ]
     }
   ],
   "global_constraints": [
-    "Do not hold a database transaction across the provider call.",
-    "Preserve unrelated working-tree changes."
+    "Do not edit unrelated files"
   ],
   "execution_context": {
     "global": {
       "decision": "create",
-      "rationale": "Every TODO must preserve rolling-deployment compatibility while working in the same repository state.",
+      "rationale": "Both TODOs must preserve the same narrow file boundary, so one concise shared invariant prevents inconsistent edits without repeating it in each task.",
       "items": [
         {
           "id": "G001",
           "kind": "constraint",
-          "text": "Keep all schema and service changes compatible with rolling deployment.",
-          "necessity": "Persistence, integration, and regression TODOs can each introduce incompatible assumptions.",
-          "source_refs": ["request:P001", "repository:migration-policy"]
+          "text": "Only implemented.txt may be created or changed by this sample plan.",
+          "necessity": "Every TODO can modify the marker file, and each must avoid unrelated working-tree changes throughout execution.",
+          "source_refs": [
+            "request:P001",
+            "global_constraints[0]"
+          ]
         }
       ]
     },
-    "scoped": [
-      {
-        "id": "delivery-state-machine",
-        "title": "Delivery state machine",
-        "rationale": "Only persistence and service integration modify delivery state transitions.",
-        "task_ids": [1, 2],
-        "items": [
-          {
-            "id": "C001",
-            "kind": "interface",
-            "text": "A failed provider attempt must leave the delivery key retryable rather than completed.",
-            "necessity": "Both persistence and service workers must implement the same failure transition.",
-            "source_refs": ["request:P002", "tests/DeliveryRetryTest.java"]
-          }
-        ]
-      }
-    ]
+    "scoped": []
   },
   "plan_review": {
     "status": "approved",
-    "reviewer": "fresh strong-tier planning reviewer",
-    "rounds": 2,
+    "reviewer": "fresh planning reviewer",
+    "rounds": 1,
     "coverage_complete": true,
     "tasks_atomic": true,
     "dependencies_valid": true,
     "validations_sufficient": true,
     "contexts_minimal": true,
+    "context_boundaries_sound": true,
     "unresolved_findings": [],
     "notes": [
-      "Confirmed every request part and requirement is covered.",
-      "Restricted delivery-state context to TODOs 001 and 002.",
-      "Confirmed the rolling-deployment item is universal and non-duplicative."
+      "Every requirement maps to a task and both tasks have independent validation."
     ]
   },
-  "autostart": true,
-  "cleanup_on_success": true,
   "tasks": [
     {
       "id": 1,
-      "title": "Add idempotency persistence",
-      "objective": "Create the migration and repository operations for atomic delivery-key reservation.",
-      "requirement_ids": ["R001", "R002"],
-      "complexity": "medium",
-      "atomicity_rationale": "The migration and repository methods form one persistence contract with one focused validation boundary.",
-      "scope": {
-        "in": ["Schema migration", "Atomic reservation repository methods"],
-        "out": ["Do not change provider dispatch yet"],
-        "expected_files": ["db/migrations/add_delivery_key.sql", "src/DeliveryRepository.java"]
+      "title": "Create implementation marker",
+      "objective": "Create implemented.txt in the repository root.",
+      "requirement_ids": [
+        "R001"
+      ],
+      "complexity": "low",
+      "atomicity_rationale": "This task has one file-creation outcome and one direct existence check.",
+      "context_boundary": {
+        "shared_context": [
+          "Creating implemented.txt and proving its existence share one marker-file contract."
+        ],
+        "why_one_todo": "The file creation and its direct existence check are one cohesive outcome; splitting them would create an artificial handoff without reducing context.",
+        "separate_from": [
+          "Marker content verification belongs to TODO 002 and needs no creation transcript."
+        ]
       },
-      "dependencies": [],
-      "implementation_guidance": ["Do not hold a transaction across the provider call."],
-      "acceptance_criteria": ["A key can be reserved exactly once.", "Failure leaves the key retryable."],
-      "validation_commands": ["./mvnw -q -Dtest=DeliveryRepositoryTest test", "git diff --check"],
+      "scope": {
+        "in": [
+          "Create the marker file"
+        ],
+        "out": [
+          "No unrelated refactoring"
+        ],
+        "expected_files": [
+          "implemented.txt"
+        ]
+      },
+      "acceptance_criteria": [
+        "implemented.txt exists"
+      ],
+      "validation_commands": [
+        "test -f implemented.txt"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Create the bounded marker file",
+          "objective": "implemented.txt exists without unrelated repository changes."
+        }
+      ],
       "provider": "auto",
-      "model_tier": "standard",
-      "reasoning_effort": "medium"
+      "model_tier": "economy",
+      "reasoning_effort": "low",
+      "learning_targets": [
+        {
+          "task_id": "002",
+          "reason": "TODO 002 can reuse only the validated marker-file diagnosis from TODO 001 without inheriting its worker transcript.",
+          "topics": [
+            "marker creation order",
+            "missing-file diagnosis"
+          ]
+        }
+      ]
     },
     {
       "id": 2,
-      "title": "Integrate idempotency into delivery",
-      "objective": "Use reservation before dispatch while preserving genuine retry behavior.",
-      "requirement_ids": ["R001", "R002"],
-      "complexity": "high",
-      "atomicity_rationale": "Reservation, dispatch decision, and completion state are one service transition; splitting would leave unverifiable intermediate behavior.",
-      "scope": {
-        "in": ["Delivery service integration"],
-        "out": ["Do not redesign the queue consumer"],
-        "expected_files": ["src/DeliveryService.java", "test/DeliveryServiceTest.java"]
+      "title": "Verify marker contents",
+      "objective": "Ensure implemented.txt contains the expected word.",
+      "requirement_ids": [
+        "R002"
+      ],
+      "complexity": "low",
+      "atomicity_rationale": "This task has one content outcome and one deterministic grep check.",
+      "context_boundary": {
+        "shared_context": [
+          "Correcting marker contents and running grep share one deterministic content contract."
+        ],
+        "why_one_todo": "The content correction and grep validation use the same file invariant, while the worker needs only repository state rather than TODO 001 conversation history.",
+        "separate_from": [
+          "Initial marker creation belongs to TODO 001 and is already represented on disk."
+        ]
       },
-      "dependencies": [1],
-      "implementation_guidance": ["A duplicate key must not call the provider again."],
-      "acceptance_criteria": ["Duplicate delivery is acknowledged without a second send.", "A failed first attempt remains retryable."],
-      "validation_commands": ["./mvnw -q -Dtest=DeliveryServiceTest test", "git diff --check"],
-      "provider": "claude",
-      "model_tier": "strong",
-      "reasoning_effort": "high",
-      "related_task_reads": [1]
-    },
-    {
-      "id": 3,
-      "title": "Add end-to-end retry coverage",
-      "objective": "Cover duplicate, failed-first-attempt, and successful-retry scenarios.",
-      "requirement_ids": ["R002", "R003"],
-      "complexity": "medium",
-      "atomicity_rationale": "The scenarios share one fixture and prove one externally observable retry contract.",
+      "dependencies": [
+        1
+      ],
       "scope": {
-        "in": ["Deterministic end-to-end tests"],
-        "out": ["No production redesign"],
-        "expected_files": ["test/DeliveryE2ETest.java"]
+        "in": [
+          "Check or update implemented.txt"
+        ],
+        "out": [
+          "No unrelated files"
+        ],
+        "expected_files": [
+          "implemented.txt"
+        ]
       },
-      "dependencies": [2],
-      "implementation_guidance": [],
-      "acceptance_criteria": ["Tests fail without idempotency and pass with it.", "Tests use no timing sleeps."],
-      "validation_commands": ["./mvnw -q -Dtest=DeliveryE2ETest test", "git diff --check"],
+      "acceptance_criteria": [
+        "The marker contains implemented"
+      ],
+      "validation_commands": [
+        "grep -q implemented implemented.txt"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Verify and correct marker contents",
+          "objective": "implemented.txt contains the expected word and the grep check passes."
+        }
+      ],
       "provider": "auto",
-      "model_tier": "standard",
-      "reasoning_effort": "medium"
+      "model_tier": "economy",
+      "reasoning_effort": "low"
     }
   ]
 }
@@ -446,7 +543,10 @@ Before creation, confirm:
 - scoped files serve at least two and fewer than all TODOs;
 - single-task information stays in its task definition;
 - context items are concise, grounded, stable, and non-duplicated;
-- all five v3 review checks, including `contexts_minimal`, are true;
+- all six v4 review checks, including `contexts_minimal` and `context_boundaries_sound`, are true;
+- every TODO has a substantive `context_boundary`;
+- every TODO has one or more stable subtasks and at least one required checkpoint;
+- each learning target points forward, names narrow topics, and is justified by specific reusable reasoning;
 - unresolved review findings are empty.
 
 After creation, run:
@@ -458,6 +558,6 @@ python <skill-dir>/scripts/planctl.py audit --plan .ai-work/<plan-id>
 
 ## 11. Legacy plans
 
-`planctl.py` can read schema-v1 and schema-v2 plans created by earlier releases. They keep their original validation contract and do not require `execution_context` or `contexts_minimal`.
+`planctl.py` can read schema-v1, schema-v2, and schema-v3 plans created by earlier releases. They keep their original validation contract; schema-v1/v2 do not require `execution_context` or `contexts_minimal`, and schema-v3 does not require v4 context boundaries, subtasks, or learning relationships.
 
-New plans always use schema v3. Do not backfill context into a legacy plan by hand. Replan through the current protocol when progressive execution context is needed.
+New plans always use schema v4. Do not backfill context into a legacy plan by hand. Replan through the current protocol when progressive execution context is needed.

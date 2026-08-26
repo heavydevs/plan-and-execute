@@ -40,6 +40,18 @@ def context_spec() -> dict:
             "requirement_ids": ["R003"],
             "complexity": "low",
             "atomicity_rationale": "This task has one documentation outcome and one direct content check.",
+            "context_boundary": {
+                "shared_context": [
+                    "Writing MARKER.md and checking its existence share one documentation contract."
+                ],
+                "why_one_todo": (
+                    "The note and its direct file check are one bounded documentation outcome, and "
+                    "implementation-worker history would add noise rather than useful context."
+                ),
+                "separate_from": [
+                    "Marker implementation and verification remain isolated in TODOs 001 and 002."
+                ],
+            },
             "dependencies": [2],
             "scope": {
                 "in": ["Add a concise marker contract note"],
@@ -49,6 +61,13 @@ def context_spec() -> dict:
             "implementation_guidance": [],
             "acceptance_criteria": ["MARKER.md describes creation and verification"],
             "validation_commands": ["test -f MARKER.md"],
+            "subtasks": [
+                {
+                    "id": "S001",
+                    "title": "Write the marker contract note",
+                    "objective": "MARKER.md describes creation and verification without changing marker behavior.",
+                }
+            ],
             "provider": "auto",
             "model_tier": "economy",
             "reasoning_effort": "low",
@@ -106,7 +125,7 @@ def test_global_and_scoped_context_are_minimal_and_mapped() -> None:
         repo = create_repo(Path(temp))
         plan_dir = planctl.create_plan(repo, context_spec(), ".ai-work", "context-map")
         _, manifest = planctl.load_plan(plan_dir)
-        assert manifest["schema_version"] == 3
+        assert manifest["schema_version"] == 4
         assert not planctl.validate_plan(plan_dir, manifest)
 
         global_file = plan_dir / planctl.GLOBAL_CONTEXT_FILE

@@ -22,8 +22,8 @@ from typing import Any, Iterable
 
 import requestctl
 
-SCHEMA_VERSION = 3
-SUPPORTED_SCHEMA_VERSIONS = {1, 2, 3}
+SCHEMA_VERSION = 4
+SUPPORTED_SCHEMA_VERSIONS = {1, 2, 3, 4}
 SENTINEL = ".orchestrator-plan"
 MANIFEST = "manifest.json"
 CONFIG = "orchestrator.config.json"
@@ -31,10 +31,12 @@ WORK_ROOT_DEFAULT = ".ai-work"
 REQUEST_FILE = "REQUEST.md"
 GLOBAL_CONTEXT_FILE = "CONTEXT.md"
 CONTEXT_DIRECTORY = "contexts"
-VALID_PROVIDERS = {"auto", "claude", "codex"}
+LEARNING_DIRECTORY = "learnings"
+VALID_PROVIDERS = {"auto", "claude", "codex", "gemini", "qwen", "kimi", "trae"}
 VALID_TIERS = {"economy", "standard", "strong", "max"}
 VALID_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
 VALID_STATUSES = {"pending", "in_progress", "completed", "blocked"}
+VALID_SUBTASK_STATUSES = {"pending", "in_progress", "completed"}
 VALID_COMPLEXITIES = {"low", "medium", "high", "extreme"}
 VALID_REQUIREMENT_SOURCES = {"user", "repository", "research", "inferred"}
 VALID_PRIORITIES = {"must", "should", "could"}
@@ -45,8 +47,10 @@ REQUIRED_REVIEW_CHECKS = (
     "validations_sufficient",
 )
 CONTEXT_REVIEW_CHECK = "contexts_minimal"
+CONTEXT_BOUNDARY_REVIEW_CHECK = "context_boundaries_sound"
 VALID_CONTEXT_DECISIONS = {"create", "omit"}
 VALID_CONTEXT_KINDS = {"fact", "constraint", "decision", "interface", "validation"}
+VALID_LEARNING_KINDS = {"code", "procedure", "decision", "pitfall", "validation"}
 MAX_GLOBAL_CONTEXT_ITEMS = 8
 MAX_SCOPED_CONTEXTS = 8
 MAX_SCOPED_CONTEXT_ITEMS = 8
@@ -57,6 +61,19 @@ MAX_CONTEXT_RATIONALE_CHARS = 500
 MAX_CONTEXT_SOURCE_REFS = 4
 MAX_CONTEXT_SOURCE_REF_CHARS = 160
 MAX_CONTEXT_FILE_CHARS = 3200
+MAX_TASK_SHARED_CONTEXT_ITEMS = 8
+MAX_TASK_BOUNDARY_TEXT_CHARS = 900
+MAX_TASK_BOUNDARY_ITEM_CHARS = 240
+MAX_SUBTASKS_PER_TASK = 24
+MAX_SUBTASK_TITLE_CHARS = 180
+MAX_SUBTASK_OBJECTIVE_CHARS = 600
+MAX_LEARNING_TARGETS_PER_TASK = 12
+MAX_LEARNING_TOPICS = 8
+MAX_LEARNING_TOPIC_CHARS = 120
+MAX_REUSABLE_LEARNINGS = 8
+MAX_LEARNING_GUIDANCE_CHARS = 420
+MAX_LEARNING_REFERENCES = 6
+MAX_LEARNING_FILE_CHARS = 4200
 
 
 class PlanError(RuntimeError):
@@ -71,6 +88,8 @@ def review_checks_for_schema(schema_version: Any) -> tuple[str, ...]:
     checks = list(REQUIRED_REVIEW_CHECKS)
     if version >= 3:
         checks.append(CONTEXT_REVIEW_CHECK)
+    if version >= 4:
+        checks.append(CONTEXT_BOUNDARY_REVIEW_CHECK)
     return tuple(checks)
 
 
@@ -90,6 +109,21 @@ def normalize_task_id(value: Any) -> str:
         return f"{int(text):03d}"
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,31}", text):
         raise PlanError(f"Invalid task id: {value!r}")
+    return text
+
+
+def normalize_subtask_id(value: Any, index: int | None = None) -> str:
+    if value is None or not str(value).strip():
+        if index is None:
+            raise PlanError("Subtask id is required")
+        return f"S{index + 1:03d}"
+    text = str(value).strip().upper()
+    if text.isdigit():
+        return f"S{int(text):03d}"
+    if re.fullmatch(r"S\d+", text):
+        return f"S{int(text[1:]):03d}"
+    if not re.fullmatch(r"[A-Z][A-Z0-9_-]{0,31}", text):
+        raise PlanError(f"Invalid subtask id: {value!r}")
     return text
 
 
@@ -952,6 +986,80 @@ def default_config() -> dict[str, Any]:
             },
             "extra_args": [],
         },
+        "gemini": {
+            "command": "gemini",
+            "models": {
+                "economy": "default",
+                "standard": "default",
+                "strong": "default",
+                "max": "default",
+            },
+            "approval_mode": "yolo",
+            "summary_approval_mode": "plan",
+            "disable_extensions": True,
+            "max_effort_by_tier": {
+                "economy": "medium",
+                "standard": "high",
+                "strong": "max",
+                "max": "max",
+            },
+            "extra_args": [],
+        },
+        "qwen": {
+            "command": "qwen",
+            "models": {
+                "economy": "default",
+                "standard": "default",
+                "strong": "default",
+                "max": "default",
+            },
+            "approval_mode": "yolo",
+            "safe_mode": True,
+            "sandbox": False,
+            "max_effort_by_tier": {
+                "economy": "medium",
+                "standard": "high",
+                "strong": "max",
+                "max": "max",
+            },
+            "extra_args": [],
+        },
+        "kimi": {
+            "command": "kimi",
+            "models": {
+                "economy": "default",
+                "standard": "default",
+                "strong": "default",
+                "max": "default",
+            },
+            "permission_mode": "auto",
+            "summary_permission_mode": "plan",
+            "retry_exit_codes": [75],
+            "max_effort_by_tier": {
+                "economy": "medium",
+                "standard": "high",
+                "strong": "max",
+                "max": "max",
+            },
+            "extra_args": [],
+        },
+        "trae": {
+            "command": "trae-cli",
+            "models": {
+                "economy": "default",
+                "standard": "default",
+                "strong": "default",
+                "max": "default",
+            },
+            "model_provider": "",
+            "max_effort_by_tier": {
+                "economy": "medium",
+                "standard": "high",
+                "strong": "max",
+                "max": "max",
+            },
+            "extra_args": [],
+        },
         "summary": {
             "provider": "auto",
             "model_tier": "economy",
@@ -973,6 +1081,141 @@ def normalize_scope(raw: Any, field: str) -> dict[str, list[str]]:
             for item in ensure_str_list(raw.get("expected_files"), f"{field}.expected_files")
         ],
     }
+
+
+def normalize_context_boundary(raw: Any, task_id: str) -> dict[str, Any]:
+    field = f"Task {task_id} context_boundary"
+    if not isinstance(raw, dict):
+        raise PlanError(
+            f"{field} must be an object that explains why the TODO deserves one fresh worker context"
+        )
+    shared_context = ensure_str_list(raw.get("shared_context"), f"{field}.shared_context")
+    if not shared_context:
+        raise PlanError(f"{field}.shared_context must contain at least one cohesive context item")
+    if len(shared_context) > MAX_TASK_SHARED_CONTEXT_ITEMS:
+        raise PlanError(
+            f"{field}.shared_context may contain at most {MAX_TASK_SHARED_CONTEXT_ITEMS} items"
+        )
+    for item in shared_context:
+        if len(item) > MAX_TASK_BOUNDARY_ITEM_CHARS:
+            raise PlanError(
+                f"{field}.shared_context items may not exceed {MAX_TASK_BOUNDARY_ITEM_CHARS} characters"
+            )
+    why_one_todo = ensure_text(raw.get("why_one_todo"), f"{field}.why_one_todo")
+    if len(why_one_todo) < 40:
+        raise PlanError(
+            f"{field}.why_one_todo must substantively explain why retained context helps the whole TODO"
+        )
+    if len(why_one_todo) > MAX_TASK_BOUNDARY_TEXT_CHARS:
+        raise PlanError(
+            f"{field}.why_one_todo may not exceed {MAX_TASK_BOUNDARY_TEXT_CHARS} characters"
+        )
+    separate_from = ensure_str_list(raw.get("separate_from"), f"{field}.separate_from")
+    if len(separate_from) > MAX_TASK_SHARED_CONTEXT_ITEMS:
+        raise PlanError(
+            f"{field}.separate_from may contain at most {MAX_TASK_SHARED_CONTEXT_ITEMS} items"
+        )
+    for item in separate_from:
+        if len(item) > MAX_TASK_BOUNDARY_ITEM_CHARS:
+            raise PlanError(
+                f"{field}.separate_from items may not exceed {MAX_TASK_BOUNDARY_ITEM_CHARS} characters"
+            )
+    return {
+        "shared_context": shared_context,
+        "why_one_todo": why_one_todo,
+        "separate_from": separate_from,
+    }
+
+
+def normalize_subtasks(raw: Any, task_id: str) -> list[dict[str, Any]]:
+    items = ensure_list(raw, f"Task {task_id} subtasks")
+    if not items:
+        raise PlanError(f"Task {task_id} requires at least one resumable subtask")
+    if len(items) > MAX_SUBTASKS_PER_TASK:
+        raise PlanError(
+            f"Task {task_id} may contain at most {MAX_SUBTASKS_PER_TASK} subtasks"
+        )
+    result: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, item in enumerate(items):
+        if isinstance(item, str):
+            raw_item: dict[str, Any] = {"title": item}
+        elif isinstance(item, dict):
+            raw_item = item
+        else:
+            raise PlanError(f"Task {task_id} subtasks[{index}] must be a string or object")
+        subtask_id = normalize_subtask_id(raw_item.get("id"), index)
+        if subtask_id in seen:
+            raise PlanError(f"Task {task_id} contains duplicate subtask id {subtask_id}")
+        seen.add(subtask_id)
+        title = ensure_text(raw_item.get("title"), f"Task {task_id} subtask {subtask_id} title")
+        if len(title) > MAX_SUBTASK_TITLE_CHARS:
+            raise PlanError(
+                f"Task {task_id} subtask {subtask_id} title may not exceed "
+                f"{MAX_SUBTASK_TITLE_CHARS} characters"
+            )
+        objective = str(raw_item.get("objective", "")).strip()
+        if len(objective) > MAX_SUBTASK_OBJECTIVE_CHARS:
+            raise PlanError(
+                f"Task {task_id} subtask {subtask_id} objective may not exceed "
+                f"{MAX_SUBTASK_OBJECTIVE_CHARS} characters"
+            )
+        result.append(
+            {
+                "id": subtask_id,
+                "title": title,
+                "objective": objective,
+                "required": bool(raw_item.get("required", True)),
+                "status": "pending",
+                "started_at": None,
+                "completed_at": None,
+                "history": [],
+            }
+        )
+    if not any(item["required"] for item in result):
+        raise PlanError(f"Task {task_id} must have at least one required subtask")
+    return result
+
+
+def normalize_learning_targets(raw: Any, task_id: str) -> list[dict[str, Any]]:
+    items = ensure_list(raw, f"Task {task_id} learning_targets")
+    if len(items) > MAX_LEARNING_TARGETS_PER_TASK:
+        raise PlanError(
+            f"Task {task_id} may declare at most {MAX_LEARNING_TARGETS_PER_TASK} learning targets"
+        )
+    result: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            raise PlanError(f"Task {task_id} learning_targets[{index}] must be an object")
+        target_id = normalize_task_id(item.get("task_id"))
+        if target_id in seen:
+            raise PlanError(f"Task {task_id} contains duplicate learning target {target_id}")
+        seen.add(target_id)
+        reason = ensure_text(
+            item.get("reason"), f"Task {task_id} learning target {target_id} reason"
+        )
+        if len(reason) < 20 or len(reason) > MAX_TASK_BOUNDARY_TEXT_CHARS:
+            raise PlanError(
+                f"Task {task_id} learning target {target_id} reason must be 20-"
+                f"{MAX_TASK_BOUNDARY_TEXT_CHARS} characters"
+            )
+        topics = ensure_str_list(
+            item.get("topics"), f"Task {task_id} learning target {target_id} topics"
+        )
+        if not topics or len(topics) > MAX_LEARNING_TOPICS:
+            raise PlanError(
+                f"Task {task_id} learning target {target_id} must declare 1-"
+                f"{MAX_LEARNING_TOPICS} topics"
+            )
+        for topic in topics:
+            if len(topic) > MAX_LEARNING_TOPIC_CHARS:
+                raise PlanError(
+                    f"Task {task_id} learning target {target_id} topic may not exceed "
+                    f"{MAX_LEARNING_TOPIC_CHARS} characters"
+                )
+        result.append({"task_id": target_id, "reason": reason, "topics": topics})
+    return result
 
 
 def normalize_task(
@@ -1048,6 +1291,10 @@ def normalize_task(
     if not validations:
         raise PlanError(f"Task {task_id} requires at least one validation command")
 
+    context_boundary = normalize_context_boundary(raw.get("context_boundary"), task_id)
+    subtasks = normalize_subtasks(raw.get("subtasks"), task_id)
+    learning_targets = normalize_learning_targets(raw.get("learning_targets"), task_id)
+
     return {
         "id": task_id,
         "slug": slugify(title, f"task-{task_id}"),
@@ -1056,6 +1303,7 @@ def normalize_task(
         "requirement_ids": requirement_ids,
         "complexity": complexity,
         "atomicity_rationale": atomicity_rationale,
+        "context_boundary": context_boundary,
         "scope": normalize_scope(raw.get("scope"), f"Task {task_id} scope"),
         "dependencies": dependencies,
         "implementation_guidance": ensure_str_list(
@@ -1068,6 +1316,10 @@ def normalize_task(
         "reasoning_effort": effort,
         "allow_provider_fallback": bool(raw.get("allow_provider_fallback", True)),
         "related_task_reads": related,
+        "subtasks": subtasks,
+        "learning_targets": learning_targets,
+        "learning_files": [],
+        "published_learning_files": [],
         "max_attempts": max_attempts,
         "status": "pending",
         "attempts": 0,
@@ -1109,6 +1361,7 @@ def validate_task_graph(tasks: list[dict[str, Any]]) -> None:
     if len(ids) != len(set(ids)):
         raise PlanError("Task ids must be unique")
     known = set(ids)
+    position = {task_id: index for index, task_id in enumerate(ids)}
     for task in tasks:
         for dep in task["dependencies"]:
             if dep not in known:
@@ -1118,6 +1371,19 @@ def validate_task_graph(tasks: list[dict[str, Any]]) -> None:
         for related in task["related_task_reads"]:
             if related not in known:
                 raise PlanError(f"Task {task['id']} references unknown related task {related}")
+        for target in task.get("learning_targets", []):
+            target_id = target.get("task_id") if isinstance(target, dict) else None
+            if target_id not in known:
+                raise PlanError(
+                    f"Task {task['id']} references unknown learning target {target_id}"
+                )
+            if target_id == task["id"]:
+                raise PlanError(f"Task {task['id']} cannot publish learning to itself")
+            if position[target_id] <= position[task["id"]]:
+                raise PlanError(
+                    f"Task {task['id']} learning target {target_id} must be a later TODO; "
+                    "learning edges are directional and must not reintroduce prior chat history"
+                )
     detect_cycles(tasks)
 
 
@@ -1345,11 +1611,44 @@ def render_task(
     related_files = task.get("related_task_files", [])
     expected = task["scope"]["expected_files"]
     context_files = task.get("context_files", [])
+    learning_files = task.get("learning_files", [])
     context_references = [
         context_reference(work_root, plan_id, relative) for relative in context_files
     ]
+    learning_references = [
+        context_reference(work_root, plan_id, relative) for relative in learning_files
+    ]
     context_frontmatter = ", ".join(context_files) or "none"
+    learning_frontmatter = ", ".join(learning_files) or "none"
     context_markdown = markdown_list([f"`{item}`" for item in context_references])
+    learning_markdown = markdown_list([f"`{item}`" for item in learning_references])
+    boundary = task.get("context_boundary") if isinstance(task.get("context_boundary"), dict) else {}
+    shared_context = boundary.get("shared_context", []) if isinstance(boundary, dict) else []
+    separate_from = boundary.get("separate_from", []) if isinstance(boundary, dict) else []
+    why_one_todo = str(boundary.get("why_one_todo", "Legacy task definition"))
+    subtask_lines: list[str] = []
+    for subtask in task.get("subtasks", []):
+        marker = "[x]" if subtask.get("status") == "completed" else "[ ]"
+        suffix = ""
+        if subtask.get("status") == "in_progress":
+            suffix = " _(in progress)_"
+        elif not subtask.get("required", True):
+            suffix = " _(optional)_"
+        subtask_lines.append(
+            f"- {marker} **{subtask.get('id', '?')}** — {subtask.get('title', '')}{suffix}"
+        )
+        objective = str(subtask.get("objective", "")).strip()
+        if objective:
+            subtask_lines.append(f"  - {objective}")
+    subtasks_markdown = "\n".join(subtask_lines) or "- None (legacy task)"
+    learning_targets = []
+    for target in task.get("learning_targets", []):
+        if isinstance(target, dict):
+            topics = ", ".join(target.get("topics", [])) or "unspecified"
+            learning_targets.append(
+                f"**{target.get('task_id', '?')}** — {target.get('reason', '')} "
+                f"(topics: {topics})"
+            )
     return f"""---
 task_id: "{task['id']}"
 plan_id: "{plan_id}"
@@ -1361,6 +1660,7 @@ complexity: "{task['complexity']}"
 requirements: "{', '.join(task['requirement_ids'])}"
 dependencies: "{dependency_text}"
 context_files: "{context_frontmatter}"
+learning_files: "{learning_frontmatter}"
 allowed_related_task_reads: "{related_text}"
 ---
 
@@ -1379,6 +1679,14 @@ allowed_related_task_reads: "{related_text}"
 - Complexity: **{task['complexity']}**
 - Why this is one executable TODO: {task['atomicity_rationale']}
 
+## Context-isolation boundary
+
+- Why one fresh worker context helps this whole TODO: {why_one_todo}
+- Context that is genuinely shared by all subtasks:
+{markdown_list(shared_context)}
+- Concerns deliberately isolated into other TODOs:
+{markdown_list(separate_from)}
+
 ## Isolation contract
 
 This task definition and the exact execution-context files listed below are the only planning artifacts assigned to this worker. Read the task definition first, then read every assigned context file. Do not discover or open any other context file, `PLAN.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, result files, logs, or unrelated task definitions. You may read repository source, tests, build files, and runtime output relevant to this task.
@@ -1388,6 +1696,22 @@ Another task definition may be opened only when one of the explicitly allowed ta
 ## Assigned execution context
 
 {context_markdown}
+
+## Assigned validated learnings
+
+{learning_markdown}
+
+These files are concise, immutable artifacts produced only after another TODO passed deterministic validation. Read exactly the assigned files, never a previous worker transcript or an unassigned learning file.
+
+## Resumable subtask checklist
+
+{subtasks_markdown}
+
+The manifest is authoritative. Checkpoint progress only through the dedicated `planctl.py subtask-start` and `subtask-complete` commands supplied by the orchestrator. Never edit this checklist directly.
+
+## Eligible future learning targets
+
+{markdown_list(learning_targets)}
 
 ## In scope
 
@@ -1423,7 +1747,7 @@ Another task definition may be opened only when one of the explicitly allowed ta
 
 ## Completion report
 
-Return a concise report with: status, summary, changed files, validations executed, remaining risks, follow-ups, context files read, and any related task definition read with its reason. Do not edit planning or context files directly.
+Return a concise report with: status, summary, changed files, validations executed, remaining risks, follow-ups, context files read, learning files read, completed subtask ids, any reusable learnings for predeclared future targets, and any related task definition read with its reason. Do not edit planning, context, learning, or checklist files directly.
 """
 
 def render_todo(manifest: dict[str, Any]) -> str:
@@ -1487,6 +1811,19 @@ def save_manifest(plan_dir: Path, manifest: dict[str, Any]) -> None:
         manifest["state"] = "planned"
     atomic_write_json(plan_dir / MANIFEST, manifest)
     atomic_write_text(plan_dir / "TODO.md", render_todo(manifest))
+    plan_id = str(manifest.get("plan_id", ""))
+    work_root = str(manifest.get("work_root", WORK_ROOT_DEFAULT))
+    # Schema-v4 task definitions are live projections of authoritative child
+    # state. Preserve the historical schema-v1-v3 behavior exactly: those
+    # task files remain immutable after plan creation.
+    if int(manifest.get("schema_version", 0)) >= 4 and plan_id:
+        for task in manifest.get("tasks", []):
+            path_value = task.get("file")
+            if isinstance(path_value, str) and path_value:
+                atomic_write_text(
+                    plan_dir / path_value,
+                    render_task(task, plan_id, work_root),
+                )
 
 
 def create_plan(
@@ -1576,6 +1913,7 @@ def create_plan(
     (plan_dir / "tasks").mkdir()
     (plan_dir / "results").mkdir()
     (plan_dir / "logs").mkdir()
+    (plan_dir / LEARNING_DIRECTORY).mkdir()
 
     created = now_utc()
     for task in tasks:
@@ -1606,6 +1944,7 @@ def create_plan(
         "created_at": created,
         "updated_at": created,
         "tasks": tasks,
+        "learning_artifacts": [],
         "events": [{"at": created, "type": "plan_created"}],
     }
     if request_source is not None:
@@ -1678,7 +2017,7 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
     except PlanError as exc:
         errors.append(str(exc))
 
-    if schema_version in {2, 3}:
+    if schema_version in {2, 3, 4}:
         analysis: dict[str, Any] | None = None
         normalized_requirements: list[dict[str, Any]] = []
         try:
@@ -1744,8 +2083,11 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
             if not (plan_dir / required_file).is_file():
                 errors.append(f"Missing {required_file}")
 
-    if schema_version == 3:
+    if schema_version in {3, 4}:
         errors.extend(validate_context_artifacts(plan_dir, manifest, tasks))
+
+    if schema_version == 4:
+        errors.extend(validate_learning_artifacts(plan_dir, manifest, tasks))
 
     for task in tasks:
         task_id = task.get("id", "?")
@@ -1763,10 +2105,78 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
         task_path = plan_dir / rel
         if not task_path.is_file():
             errors.append(f"Task {task_id}: definition file missing: {rel}")
+        elif schema_version == 4:
+            expected_task = render_task(
+                task,
+                str(manifest.get("plan_id", "")),
+                str(manifest.get("work_root", WORK_ROOT_DEFAULT)),
+            )
+            try:
+                if task_path.read_text(encoding="utf-8") != expected_task:
+                    errors.append(
+                        f"Task {task_id}: definition file does not match authoritative manifest state"
+                    )
+            except OSError as exc:
+                errors.append(f"Task {task_id}: could not read definition file: {exc}")
         if not task.get("acceptance_criteria"):
             errors.append(f"Task {task_id}: missing acceptance criteria")
         if not task.get("validation_commands"):
             errors.append(f"Task {task_id}: missing validation commands")
+        if schema_version == 4:
+            try:
+                normalize_context_boundary(task.get("context_boundary"), str(task_id))
+            except PlanError as exc:
+                errors.append(str(exc))
+            subtasks = task.get("subtasks")
+            if not isinstance(subtasks, list) or not subtasks:
+                errors.append(f"Task {task_id}: missing resumable subtasks")
+            else:
+                ids: list[str] = []
+                active: list[str] = []
+                required: list[str] = []
+                completed_required: list[str] = []
+                for index, subtask in enumerate(subtasks):
+                    if not isinstance(subtask, dict):
+                        errors.append(f"Task {task_id}: subtask {index} must be an object")
+                        continue
+                    try:
+                        subtask_id = normalize_subtask_id(subtask.get("id"), index)
+                    except PlanError as exc:
+                        errors.append(f"Task {task_id}: {exc}")
+                        continue
+                    ids.append(subtask_id)
+                    status = subtask.get("status")
+                    if status not in VALID_SUBTASK_STATUSES:
+                        errors.append(
+                            f"Task {task_id} subtask {subtask_id}: invalid status {status!r}"
+                        )
+                    if status == "in_progress":
+                        active.append(subtask_id)
+                    if subtask.get("required", True):
+                        required.append(subtask_id)
+                        if status == "completed":
+                            completed_required.append(subtask_id)
+                    title = subtask.get("title")
+                    if not isinstance(title, str) or not title.strip():
+                        errors.append(f"Task {task_id} subtask {subtask_id}: missing title")
+                if len(ids) != len(set(ids)):
+                    errors.append(f"Task {task_id}: duplicate subtask ids")
+                if len(active) > 1:
+                    errors.append(
+                        f"Task {task_id}: more than one subtask is in progress: {', '.join(active)}"
+                    )
+                if active and task.get("status") != "in_progress":
+                    errors.append(
+                        f"Task {task_id}: subtask is in progress while parent status is {task.get('status')}"
+                    )
+                if task.get("status") == "completed" and set(required) != set(completed_required):
+                    errors.append(
+                        f"Task {task_id}: completed parent has incomplete required subtasks"
+                    )
+            try:
+                normalize_learning_targets(task.get("learning_targets"), str(task_id))
+            except PlanError as exc:
+                errors.append(str(exc))
     request_source = manifest.get("request_source")
     if request_source is not None:
         if not isinstance(request_source, dict):
@@ -1800,7 +2210,7 @@ def render_audit(manifest: dict[str, Any]) -> str:
         f"- Schema: **{schema_version}**",
         f"- Tasks: **{len(manifest.get('tasks', []))}**",
     ]
-    if schema_version in {2, 3}:
+    if schema_version in {2, 3, 4}:
         request_parts = manifest.get("request_analysis", {}).get("request_parts", [])
         requirements = manifest.get("requirements", [])
         request_coverage = request_part_coverage(request_parts, requirements)
@@ -1843,7 +2253,7 @@ def render_audit(manifest: dict[str, Any]) -> str:
                 "- extreme: 0 (rejected by validation)",
             ]
         )
-        if schema_version == 3:
+        if schema_version in {3, 4}:
             execution_context = manifest.get("execution_context", {})
             global_context = execution_context.get("global", {})
             scoped = execution_context.get("scoped", [])
@@ -1860,6 +2270,26 @@ def render_audit(manifest: dict[str, Any]) -> str:
                     f"- Scoped files: {len(scoped)}",
                     f"- Total task-to-context assignments: {assigned_reads}",
                     "- Context minimality review: **pass**",
+                ]
+            )
+        if schema_version == 4:
+            subtask_total = sum(
+                len(task.get("subtasks", [])) for task in manifest.get("tasks", [])
+            )
+            learning_edges = sum(
+                len(task.get("learning_targets", []))
+                for task in manifest.get("tasks", [])
+            )
+            learning_files = len(manifest.get("learning_artifacts", []))
+            lines.extend(
+                [
+                    "",
+                    "## Context-isolated resumability",
+                    "",
+                    "- Context-boundary review: **pass**",
+                    f"- Persisted subtasks: {subtask_total}",
+                    f"- Predeclared learning edges: {learning_edges}",
+                    f"- Validated learning artifacts materialized: {learning_files}",
                 ]
             )
     else:
@@ -1880,16 +2310,623 @@ def find_task(manifest: dict[str, Any], task_id: str) -> dict[str, Any]:
     raise PlanError(f"Unknown task id: {task_id}")
 
 
+def learning_source_ids(manifest: dict[str, Any], target_id: str) -> list[str]:
+    """Return earlier tasks that may publish validated learnings to one target."""
+    normalized = normalize_task_id(target_id)
+    sources: list[str] = []
+    for source in manifest.get("tasks", []):
+        for relation in source.get("learning_targets", []):
+            if isinstance(relation, dict) and relation.get("task_id") == normalized:
+                sources.append(str(source.get("id")))
+                break
+    return sources
+
+
 def next_runnable_task(manifest: dict[str, Any]) -> dict[str, Any] | None:
     completed = {task["id"] for task in manifest["tasks"] if task["status"] == "completed"}
     for task in manifest["tasks"]:
-        if task["status"] == "pending" and set(task["dependencies"]).issubset(completed):
+        context_prerequisites = set(learning_source_ids(manifest, task["id"]))
+        if (
+            task["status"] == "pending"
+            and set(task["dependencies"]).issubset(completed)
+            and context_prerequisites.issubset(completed)
+        ):
             return task
     return None
 
 
 def append_event(manifest: dict[str, Any], event_type: str, **details: Any) -> None:
     manifest.setdefault("events", []).append({"at": now_utc(), "type": event_type, **details})
+
+
+def find_subtask(task: dict[str, Any], subtask_id: str) -> dict[str, Any]:
+    normalized = normalize_subtask_id(subtask_id)
+    for subtask in task.get("subtasks", []):
+        if subtask.get("id") == normalized:
+            return subtask
+    raise PlanError(f"Task {task.get('id', '?')} has no subtask {subtask_id}")
+
+
+def completed_subtask_ids(task: dict[str, Any]) -> list[str]:
+    return [
+        str(subtask.get("id"))
+        for subtask in task.get("subtasks", [])
+        if subtask.get("status") == "completed"
+    ]
+
+
+def recover_in_progress_subtasks(task: dict[str, Any], reason: str) -> list[str]:
+    recovered: list[str] = []
+    for subtask in task.get("subtasks", []):
+        if subtask.get("status") != "in_progress":
+            continue
+        subtask["status"] = "pending"
+        subtask["started_at"] = None
+        subtask.setdefault("history", []).append(
+            {"at": now_utc(), "event": "recovered", "reason": reason[:500]}
+        )
+        recovered.append(str(subtask.get("id")))
+    return recovered
+
+
+def set_subtask_state(
+    plan_dir: Path,
+    manifest: dict[str, Any],
+    task_id: str,
+    subtask_id: str,
+    state: str,
+) -> dict[str, Any]:
+    if state not in VALID_SUBTASK_STATUSES:
+        raise PlanError(f"Invalid subtask state {state!r}")
+    task = find_task(manifest, task_id)
+    if not task.get("subtasks"):
+        raise PlanError(f"Task {task['id']} is a legacy task without resumable subtasks")
+    subtask = find_subtask(task, subtask_id)
+    previous = str(subtask.get("status", "pending"))
+    if state == "in_progress":
+        if task.get("status") != "in_progress":
+            raise PlanError(f"Task {task['id']} must be in progress before starting a subtask")
+        if previous == "in_progress":
+            return subtask
+        if previous == "completed":
+            raise PlanError(
+                f"Subtask {subtask['id']} is completed; reset it explicitly before restarting"
+            )
+        active = [
+            item.get("id")
+            for item in task.get("subtasks", [])
+            if item.get("status") == "in_progress" and item is not subtask
+        ]
+        if active:
+            raise PlanError(
+                f"Task {task['id']} already has in-progress subtask(s): {', '.join(active)}"
+            )
+        subtask["status"] = "in_progress"
+        subtask["started_at"] = subtask.get("started_at") or now_utc()
+        event = "started"
+    elif state == "completed":
+        if task.get("status") != "in_progress":
+            raise PlanError(f"Task {task['id']} must be in progress before completing a subtask")
+        if previous == "completed":
+            return subtask
+        if previous != "in_progress":
+            raise PlanError(
+                f"Subtask {subtask['id']} must be in progress before it can be completed"
+            )
+        subtask["status"] = "completed"
+        subtask["completed_at"] = now_utc()
+        event = "completed"
+    else:
+        if task.get("status") == "completed":
+            raise PlanError(f"Completed task {task['id']} cannot reset subtask state")
+        if previous == "pending":
+            return subtask
+        subtask["status"] = "pending"
+        subtask["started_at"] = None
+        subtask["completed_at"] = None
+        event = "reset"
+    subtask.setdefault("history", []).append(
+        {"at": now_utc(), "event": event, "previous_status": previous}
+    )
+    task.setdefault("history", []).append(
+        {"at": now_utc(), "event": f"subtask_{event}", "subtask_id": subtask["id"]}
+    )
+    append_event(
+        manifest,
+        f"subtask_{event}",
+        task_id=task["id"],
+        subtask_id=subtask["id"],
+    )
+    save_manifest(plan_dir, manifest)
+    return subtask
+
+
+def reconcile_reported_subtasks(task: dict[str, Any], report: dict[str, Any]) -> None:
+    if not task.get("subtasks"):
+        return
+    raw_ids = report.get("completed_subtask_ids", [])
+    if not isinstance(raw_ids, list):
+        raise PlanError("completed_subtask_ids must be a list")
+    reported = [normalize_subtask_id(item) for item in raw_ids]
+    if len(reported) != len(set(reported)):
+        raise PlanError("completed_subtask_ids must not contain duplicates")
+    known = {str(item.get("id")) for item in task.get("subtasks", [])}
+    unknown = sorted(set(reported) - known)
+    if unknown:
+        raise PlanError(
+            f"Task {task['id']} report references unknown completed subtasks: {', '.join(unknown)}"
+        )
+    for subtask in task.get("subtasks", []):
+        if subtask.get("id") in reported and subtask.get("status") != "completed":
+            previous = str(subtask.get("status", "pending"))
+            subtask["status"] = "completed"
+            subtask["started_at"] = subtask.get("started_at") or now_utc()
+            subtask["completed_at"] = now_utc()
+            subtask.setdefault("history", []).append(
+                {"at": now_utc(), "event": "completed_from_report", "previous_status": previous}
+            )
+    required = {
+        str(item.get("id"))
+        for item in task.get("subtasks", [])
+        if item.get("required", True)
+    }
+    completed = set(completed_subtask_ids(task))
+    missing = sorted(required - completed)
+    if missing:
+        raise PlanError(
+            f"Task {task['id']} cannot complete; required subtasks remain: {', '.join(missing)}"
+        )
+    if set(reported) != completed:
+        raise PlanError(
+            f"Task {task['id']} report must list every completed subtask exactly; "
+            f"expected {sorted(completed)!r}, received {sorted(set(reported))!r}"
+        )
+
+
+def declared_learning_target(task: dict[str, Any], target_id: str) -> dict[str, Any] | None:
+    for target in task.get("learning_targets", []):
+        if isinstance(target, dict) and target.get("task_id") == target_id:
+            return target
+    return None
+
+
+def normalize_learning_reference(value: Any, field: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise PlanError(f"{field} must be a non-empty string")
+    text = value.strip()
+    if "\n" in text or "\r" in text or len(text) > 240:
+        raise PlanError(f"{field} must be one line and at most 240 characters")
+    lowered = text.lower().replace("\\", "/")
+    if "/.ai-work/" in f"/{lowered}" or lowered.startswith(".ai-work/"):
+        raise PlanError(f"{field} may not reference planning artifacts")
+    return text
+
+
+def normalize_reusable_learnings(
+    task: dict[str, Any], report: dict[str, Any]
+) -> list[dict[str, Any]]:
+    raw = report.get("reusable_learnings", [])
+    if not isinstance(raw, list):
+        raise PlanError("reusable_learnings must be a list")
+    if len(raw) > MAX_REUSABLE_LEARNINGS:
+        raise PlanError(
+            f"reusable_learnings may contain at most {MAX_REUSABLE_LEARNINGS} items"
+        )
+    declared = {
+        str(item.get("task_id"))
+        for item in task.get("learning_targets", [])
+        if isinstance(item, dict)
+    }
+    result: list[dict[str, Any]] = []
+    for index, item in enumerate(raw):
+        field = f"reusable_learnings[{index}]"
+        if not isinstance(item, dict):
+            raise PlanError(f"{field} must be an object")
+        kind = str(item.get("kind", "")).strip().lower()
+        if kind not in VALID_LEARNING_KINDS:
+            raise PlanError(f"{field}.kind must be one of {sorted(VALID_LEARNING_KINDS)}")
+        guidance = ensure_text(item.get("guidance"), f"{field}.guidance")
+        if len(guidance) < 35 or len(guidance) > MAX_LEARNING_GUIDANCE_CHARS:
+            raise PlanError(
+                f"{field}.guidance must be 35-{MAX_LEARNING_GUIDANCE_CHARS} characters"
+            )
+        references = ensure_list(item.get("references"), f"{field}.references")
+        if not references or len(references) > MAX_LEARNING_REFERENCES:
+            raise PlanError(
+                f"{field}.references must contain 1-{MAX_LEARNING_REFERENCES} entries"
+            )
+        clean_references = [
+            normalize_learning_reference(value, f"{field}.references[{ref_index}]")
+            for ref_index, value in enumerate(references)
+        ]
+        target_values = ensure_list(item.get("target_task_ids"), f"{field}.target_task_ids")
+        if not target_values:
+            raise PlanError(f"{field}.target_task_ids must not be empty")
+        target_ids = [normalize_task_id(value) for value in target_values]
+        if len(target_ids) != len(set(target_ids)):
+            raise PlanError(f"{field}.target_task_ids must not contain duplicates")
+        undeclared = sorted(set(target_ids) - declared)
+        if undeclared:
+            raise PlanError(
+                f"Task {task['id']} attempted to publish learning to undeclared target(s): "
+                + ", ".join(undeclared)
+            )
+        result.append(
+            {
+                "kind": kind,
+                "guidance": guidance,
+                "references": clean_references,
+                "target_task_ids": target_ids,
+            }
+        )
+    return result
+
+
+def learning_artifact_path(source_id: str, target_id: str) -> str:
+    return f"{LEARNING_DIRECTORY}/{source_id}-to-{target_id}.md"
+
+
+def render_learning_artifact(
+    source_task: dict[str, Any],
+    target_task: dict[str, Any],
+    declaration: dict[str, Any],
+    learnings: list[dict[str, Any]],
+) -> str:
+    lines = [
+        f"# Validated learning — {source_task['id']} → {target_task['id']}",
+        "",
+        "This artifact contains only concise findings from a completed TODO that passed deterministic validation. It is not a worker transcript and must not be expanded with general history.",
+        "",
+        "## Applicability declared during planning",
+        "",
+        f"- Source TODO: **{source_task['id']} — {source_task['title']}**",
+        f"- Target TODO: **{target_task['id']} — {target_task['title']}**",
+        f"- Why similar: {declaration['reason']}",
+        f"- Topics: {', '.join(declaration['topics'])}",
+        "",
+        "## Reusable findings",
+        "",
+    ]
+    for index, learning in enumerate(learnings, start=1):
+        lines.extend(
+            [
+                f"### {index}. {learning['kind']}",
+                "",
+                learning["guidance"],
+                "",
+                "References:",
+                *[f"- `{reference}`" for reference in learning["references"]],
+                "",
+            ]
+        )
+    content = "\n".join(lines).rstrip() + "\n"
+    if len(content) > MAX_LEARNING_FILE_CHARS:
+        raise PlanError(
+            f"Learning artifact {source_task['id']}->{target_task['id']} exceeds "
+            f"{MAX_LEARNING_FILE_CHARS} characters; make the findings more concise"
+        )
+    return content
+
+
+def materialize_learning_artifacts(
+    plan_dir: Path,
+    manifest: dict[str, Any],
+    task: dict[str, Any],
+    report: dict[str, Any],
+) -> list[str]:
+    learnings = normalize_reusable_learnings(task, report)
+    if not learnings:
+        return []
+
+    by_target: dict[str, list[dict[str, Any]]] = {}
+    for learning in learnings:
+        for target_id in learning["target_task_ids"]:
+            by_target.setdefault(target_id, []).append(learning)
+
+    artifacts = manifest.setdefault("learning_artifacts", [])
+    if not isinstance(artifacts, list):
+        raise PlanError("manifest.learning_artifacts must be a list")
+
+    existing_files = {
+        str(item.get("file"))
+        for item in artifacts
+        if isinstance(item, dict) and item.get("file")
+    }
+    prepared: list[dict[str, Any]] = []
+    for declaration in task.get("learning_targets", []):
+        if not isinstance(declaration, dict):
+            continue
+        target_id = str(declaration.get("task_id", ""))
+        target_learnings = by_target.get(target_id)
+        if not target_learnings:
+            continue
+        target_task = find_task(manifest, target_id)
+        if (
+            target_task.get("status") != "pending"
+            or int(target_task.get("attempts", 0)) != 0
+            or target_task.get("started_at") is not None
+        ):
+            raise PlanError(
+                f"Task {task['id']} cannot publish learning to TODO {target_id}: "
+                "the target has already started, so changing its assigned context would be unsafe"
+            )
+        relative = learning_artifact_path(task["id"], target_id)
+        if relative in existing_files or (plan_dir / relative).exists():
+            raise PlanError(f"Learning artifact already exists: {relative}")
+        artifact_items = [
+            {
+                "kind": learning["kind"],
+                "guidance": learning["guidance"],
+                "references": list(learning["references"]),
+            }
+            for learning in target_learnings
+        ]
+        content = render_learning_artifact(
+            task,
+            target_task,
+            declaration,
+            artifact_items,
+        )
+        prepared.append(
+            {
+                "target_task": target_task,
+                "relative": relative,
+                "content": content,
+                "artifact": {
+                    "source_task_id": task["id"],
+                    "target_task_id": target_id,
+                    "file": relative,
+                    "reason": declaration["reason"],
+                    "topics": list(declaration["topics"]),
+                    "items": artifact_items,
+                    "item_count": len(artifact_items),
+                    "created_at": now_utc(),
+                },
+            }
+        )
+
+    # Every normalized learning must map to one of the task's declared targets.
+    prepared_targets = {item["artifact"]["target_task_id"] for item in prepared}
+    missing_targets = sorted(set(by_target) - prepared_targets)
+    if missing_targets:
+        raise PlanError(
+            f"Task {task['id']} could not materialize declared learning target(s): "
+            + ", ".join(missing_targets)
+        )
+
+    written: list[Path] = []
+    try:
+        for item in prepared:
+            path = plan_dir / item["relative"]
+            atomic_write_text(path, item["content"])
+            written.append(path)
+            item["artifact"]["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    except Exception:
+        for path in written:
+            try:
+                path.unlink()
+            except FileNotFoundError:
+                pass
+        raise
+
+    created: list[str] = []
+    for item in prepared:
+        relative = item["relative"]
+        artifacts.append(item["artifact"])
+        target_files = item["target_task"].setdefault("learning_files", [])
+        if relative not in target_files:
+            target_files.append(relative)
+        source_files = task.setdefault("published_learning_files", [])
+        if relative not in source_files:
+            source_files.append(relative)
+        created.append(relative)
+    return created
+
+
+def validate_learning_artifacts(
+    plan_dir: Path,
+    manifest: dict[str, Any],
+    tasks: list[dict[str, Any]],
+) -> list[str]:
+    errors: list[str] = []
+    directory = plan_dir / LEARNING_DIRECTORY
+    if not directory.is_dir() or directory.is_symlink():
+        return [f"Missing or invalid {LEARNING_DIRECTORY}/ directory"]
+    task_by_id = {str(task.get("id")): task for task in tasks}
+    artifacts = manifest.get("learning_artifacts", [])
+    if not isinstance(artifacts, list):
+        return ["manifest.learning_artifacts must be a list"]
+    expected_files: set[str] = set()
+    expected_target_files: dict[str, list[str]] = {task_id: [] for task_id in task_by_id}
+    expected_source_files: dict[str, list[str]] = {task_id: [] for task_id in task_by_id}
+    for index, artifact in enumerate(artifacts):
+        field = f"learning_artifacts[{index}]"
+        if not isinstance(artifact, dict):
+            errors.append(f"{field} must be an object")
+            continue
+        source_id = str(artifact.get("source_task_id", ""))
+        target_id = str(artifact.get("target_task_id", ""))
+        source = task_by_id.get(source_id)
+        target = task_by_id.get(target_id)
+        if source is None or target is None:
+            errors.append(f"{field} references unknown source or target task")
+            continue
+        declaration = declared_learning_target(source, target_id)
+        if declaration is None:
+            errors.append(f"{field} is not backed by a declared learning target")
+            continue
+        if artifact.get("reason") != declaration.get("reason"):
+            errors.append(f"{field}.reason does not match the planned learning relationship")
+        if artifact.get("topics") != declaration.get("topics"):
+            errors.append(f"{field}.topics do not match the planned learning relationship")
+        items = artifact.get("items")
+        if not isinstance(items, list) or not items:
+            errors.append(f"{field}.items must be a non-empty list")
+            continue
+        if artifact.get("item_count") != len(items):
+            errors.append(f"{field}.item_count does not match its items")
+        clean_items: list[dict[str, Any]] = []
+        for item_index, item in enumerate(items):
+            item_field = f"{field}.items[{item_index}]"
+            if not isinstance(item, dict):
+                errors.append(f"{item_field} must be an object")
+                continue
+            kind = item.get("kind")
+            guidance = item.get("guidance")
+            references = item.get("references")
+            if kind not in VALID_LEARNING_KINDS:
+                errors.append(f"{item_field}.kind is invalid")
+            if (
+                not isinstance(guidance, str)
+                or len(guidance.strip()) < 35
+                or len(guidance.strip()) > MAX_LEARNING_GUIDANCE_CHARS
+            ):
+                errors.append(f"{item_field}.guidance is invalid")
+            if not isinstance(references, list) or not references:
+                errors.append(f"{item_field}.references must be a non-empty list")
+                continue
+            try:
+                clean_references = [
+                    normalize_learning_reference(value, f"{item_field}.references[{ref_index}]")
+                    for ref_index, value in enumerate(references)
+                ]
+            except PlanError as exc:
+                errors.append(str(exc))
+                continue
+            clean_items.append(
+                {
+                    "kind": kind,
+                    "guidance": guidance.strip() if isinstance(guidance, str) else guidance,
+                    "references": clean_references,
+                }
+            )
+        expected_relative = learning_artifact_path(source_id, target_id)
+        relative = artifact.get("file")
+        if relative != expected_relative:
+            errors.append(f"{field}.file must be {expected_relative}")
+            continue
+        if relative in expected_files:
+            errors.append(f"Duplicate learning artifact file {relative}")
+            continue
+        expected_files.add(relative)
+        expected_target_files[target_id].append(relative)
+        expected_source_files[source_id].append(relative)
+        path = plan_dir / relative
+        if not path.is_file() or path.is_symlink():
+            errors.append(f"Missing or invalid learning artifact {relative}")
+            continue
+        try:
+            actual_content = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            errors.append(f"Could not read learning artifact {relative}: {exc}")
+            continue
+        if len(actual_content) > MAX_LEARNING_FILE_CHARS:
+            errors.append(f"Learning artifact {relative} exceeds the size limit")
+        if len(clean_items) == len(items):
+            try:
+                expected_content = render_learning_artifact(
+                    source,
+                    target,
+                    declaration,
+                    clean_items,
+                )
+                if actual_content != expected_content:
+                    errors.append(
+                        f"Learning artifact {relative} does not match authoritative manifest state"
+                    )
+            except PlanError as exc:
+                errors.append(str(exc))
+        actual_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+        if actual_hash != artifact.get("sha256"):
+            errors.append(f"Learning artifact {relative} hash mismatch")
+    actual_files = {
+        path.relative_to(plan_dir).as_posix()
+        for path in directory.iterdir()
+        if path.is_file()
+    }
+    unexpected = sorted(actual_files - expected_files)
+    missing = sorted(expected_files - actual_files)
+    if unexpected:
+        errors.append("Unexpected learning artifacts: " + ", ".join(unexpected))
+    if missing:
+        errors.append("Missing learning artifacts: " + ", ".join(missing))
+    for task_id, task in task_by_id.items():
+        actual_target = task.get("learning_files", [])
+        if actual_target != expected_target_files[task_id]:
+            errors.append(
+                f"Task {task_id}: learning_files mismatch; expected "
+                f"{expected_target_files[task_id]!r}, received {actual_target!r}"
+            )
+        actual_source = task.get("published_learning_files", [])
+        if actual_source != expected_source_files[task_id]:
+            errors.append(
+                f"Task {task_id}: published_learning_files mismatch; expected "
+                f"{expected_source_files[task_id]!r}, received {actual_source!r}"
+            )
+    return errors
+
+
+def remove_learning_artifacts_from_source(
+    plan_dir: Path,
+    manifest: dict[str, Any],
+    task: dict[str, Any],
+) -> list[str]:
+    artifacts = manifest.get("learning_artifacts", [])
+    if not isinstance(artifacts, list):
+        raise PlanError("manifest.learning_artifacts must be a list")
+    selected = [
+        artifact
+        for artifact in artifacts
+        if isinstance(artifact, dict) and artifact.get("source_task_id") == task.get("id")
+    ]
+    if not selected:
+        task["published_learning_files"] = []
+        return []
+
+    for artifact in selected:
+        target = find_task(manifest, str(artifact.get("target_task_id", "")))
+        if (
+            target.get("status") != "pending"
+            or int(target.get("attempts", 0)) != 0
+            or target.get("started_at") is not None
+        ):
+            raise PlanError(
+                f"Cannot reset completed task {task['id']}: learning artifact "
+                f"{artifact.get('file')} has already become part of TODO {target['id']} execution"
+            )
+
+    removed: list[str] = []
+    selected_files = {
+        str(artifact.get("file"))
+        for artifact in selected
+        if isinstance(artifact.get("file"), str)
+    }
+    for relative in sorted(selected_files):
+        path = plan_dir / checked_relative_path(relative, "learning artifact file")
+        if path.is_symlink():
+            raise PlanError(f"Refusing to remove symlinked learning artifact: {relative}")
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        removed.append(relative)
+
+    manifest["learning_artifacts"] = [
+        artifact
+        for artifact in artifacts
+        if not (
+            isinstance(artifact, dict)
+            and artifact.get("source_task_id") == task.get("id")
+        )
+    ]
+    for target in manifest.get("tasks", []):
+        target["learning_files"] = [
+            relative
+            for relative in target.get("learning_files", [])
+            if relative not in selected_files
+        ]
+    task["published_learning_files"] = []
+    return removed
 
 
 def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: dict[str, Any] | None) -> dict[str, Any]:
@@ -1900,6 +2937,16 @@ def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: di
     missing = [dep for dep in task["dependencies"] if dep not in completed]
     if missing:
         raise PlanError(f"Task {task['id']} has incomplete dependencies: {', '.join(missing)}")
+    pending_learning_sources = [
+        source_id
+        for source_id in learning_source_ids(manifest, task["id"])
+        if source_id not in completed
+    ]
+    if pending_learning_sources:
+        raise PlanError(
+            f"Task {task['id']} is waiting for declared learning source(s): "
+            + ", ".join(pending_learning_sources)
+        )
     task["status"] = "in_progress"
     task["attempts"] += 1
     task["started_at"] = task["started_at"] or now_utc()
@@ -1920,6 +2967,13 @@ def complete_task(
     task = find_task(manifest, task_id)
     if task["status"] != "in_progress":
         raise PlanError(f"Task {task['id']} is not in progress")
+    if isinstance(report, dict):
+        reconcile_reported_subtasks(task, report)
+        published_learning_files = materialize_learning_artifacts(
+            plan_dir, manifest, task, report
+        )
+    else:
+        published_learning_files = []
     changed_files = report.get("changed_files", []) if isinstance(report, dict) else []
     if not isinstance(changed_files, list):
         changed_files = []
@@ -1936,8 +2990,20 @@ def complete_task(
     task["changed_files"] = clean_files
     task["validation_results"] = report.get("validation_results", []) if isinstance(report, dict) else []
     task["result_file"] = result_file
-    task["history"].append({"at": now_utc(), "event": "completed", "result_file": result_file})
-    append_event(manifest, "task_completed", task_id=task["id"])
+    task["history"].append(
+        {
+            "at": now_utc(),
+            "event": "completed",
+            "result_file": result_file,
+            "published_learning_files": published_learning_files,
+        }
+    )
+    append_event(
+        manifest,
+        "task_completed",
+        task_id=task["id"],
+        published_learning_files=published_learning_files,
+    )
     save_manifest(plan_dir, manifest)
     return task
 
@@ -1953,6 +3019,7 @@ def fail_task(
     task = find_task(manifest, task_id)
     if task["status"] != "in_progress":
         raise PlanError(f"Task {task['id']} is not in progress")
+    recovered_subtasks = recover_in_progress_subtasks(task, reason)
     if rate_limited:
         task["rate_limit_events"] += 1
         event = "rate_limited"
@@ -1964,19 +3031,69 @@ def fail_task(
         task["status"] = "blocked"
     else:
         task["status"] = "pending"
-    task["history"].append({"at": now_utc(), "event": event, "reason": task["last_error"]})
-    append_event(manifest, f"task_{event}", task_id=task["id"], reason=task["last_error"])
+    task["history"].append(
+        {
+            "at": now_utc(),
+            "event": event,
+            "reason": task["last_error"],
+            "recovered_subtasks": recovered_subtasks,
+        }
+    )
+    append_event(
+        manifest,
+        f"task_{event}",
+        task_id=task["id"],
+        reason=task["last_error"],
+        recovered_subtasks=recovered_subtasks,
+    )
     save_manifest(plan_dir, manifest)
     return task
 
 
 def reset_task(plan_dir: Path, manifest: dict[str, Any], task_id: str) -> dict[str, Any]:
     task = find_task(manifest, task_id)
+    was_completed = task.get("status") == "completed"
+    removed_learning_files = (
+        remove_learning_artifacts_from_source(plan_dir, manifest, task)
+        if was_completed
+        else []
+    )
+    if was_completed:
+        reset_subtasks: list[str] = []
+        for subtask in task.get("subtasks", []):
+            previous = str(subtask.get("status", "pending"))
+            subtask["status"] = "pending"
+            subtask["started_at"] = None
+            subtask["completed_at"] = None
+            subtask.setdefault("history", []).append(
+                {"at": now_utc(), "event": "reset_with_parent", "previous_status": previous}
+            )
+            reset_subtasks.append(str(subtask.get("id")))
+        recovered_subtasks = reset_subtasks
+    else:
+        recovered_subtasks = recover_in_progress_subtasks(task, "Parent task reset")
     task["status"] = "pending"
     task["last_error"] = None
     task["current_route"] = None
-    task["history"].append({"at": now_utc(), "event": "reset"})
-    append_event(manifest, "task_reset", task_id=task["id"])
+    task["completed_at"] = None
+    task["result_file"] = None
+    task["changed_files"] = []
+    task["validation_results"] = []
+    task["history"].append(
+        {
+            "at": now_utc(),
+            "event": "reset",
+            "recovered_subtasks": recovered_subtasks,
+            "removed_learning_files": removed_learning_files,
+        }
+    )
+    append_event(
+        manifest,
+        "task_reset",
+        task_id=task["id"],
+        recovered_subtasks=recovered_subtasks,
+        removed_learning_files=removed_learning_files,
+    )
     save_manifest(plan_dir, manifest)
     return task
 
@@ -2118,6 +3235,42 @@ def command_claim(args: argparse.Namespace) -> None:
     print(json.dumps(task, ensure_ascii=False, indent=2))
 
 
+def command_subtask_start(args: argparse.Namespace) -> None:
+    plan_dir, manifest = load_plan(args.plan)
+    subtask = set_subtask_state(
+        plan_dir,
+        manifest,
+        args.task,
+        args.subtask,
+        "in_progress",
+    )
+    print(json.dumps(subtask, ensure_ascii=False, indent=2))
+
+
+def command_subtask_complete(args: argparse.Namespace) -> None:
+    plan_dir, manifest = load_plan(args.plan)
+    subtask = set_subtask_state(
+        plan_dir,
+        manifest,
+        args.task,
+        args.subtask,
+        "completed",
+    )
+    print(json.dumps(subtask, ensure_ascii=False, indent=2))
+
+
+def command_subtask_reset(args: argparse.Namespace) -> None:
+    plan_dir, manifest = load_plan(args.plan)
+    subtask = set_subtask_state(
+        plan_dir,
+        manifest,
+        args.task,
+        args.subtask,
+        "pending",
+    )
+    print(json.dumps(subtask, ensure_ascii=False, indent=2))
+
+
 def command_complete(args: argparse.Namespace) -> None:
     plan_dir, manifest = load_plan(args.plan)
     report = parse_json_arg(args.report, {})
@@ -2201,6 +3354,33 @@ def build_parser() -> argparse.ArgumentParser:
     claim.add_argument("--route", help="JSON object or JSON file")
     claim.set_defaults(func=command_claim)
 
+    subtask_start = sub.add_parser(
+        "subtask-start",
+        help="Checkpoint one resumable subtask as in progress",
+    )
+    subtask_start.add_argument("--plan", required=True)
+    subtask_start.add_argument("--task", required=True)
+    subtask_start.add_argument("--subtask", required=True)
+    subtask_start.set_defaults(func=command_subtask_start)
+
+    subtask_complete = sub.add_parser(
+        "subtask-complete",
+        help="Checkpoint one resumable subtask as completed",
+    )
+    subtask_complete.add_argument("--plan", required=True)
+    subtask_complete.add_argument("--task", required=True)
+    subtask_complete.add_argument("--subtask", required=True)
+    subtask_complete.set_defaults(func=command_subtask_complete)
+
+    subtask_reset = sub.add_parser(
+        "subtask-reset",
+        help="Reset one resumable subtask to pending",
+    )
+    subtask_reset.add_argument("--plan", required=True)
+    subtask_reset.add_argument("--task", required=True)
+    subtask_reset.add_argument("--subtask", required=True)
+    subtask_reset.set_defaults(func=command_subtask_reset)
+
     complete = sub.add_parser("complete", help="Mark a task completed")
     complete.add_argument("--plan", required=True)
     complete.add_argument("--task", required=True)
@@ -2219,6 +3399,7 @@ def build_parser() -> argparse.ArgumentParser:
     reset.add_argument("--plan", required=True)
     reset.add_argument("--task", required=True)
     reset.set_defaults(func=command_reset)
+
 
     summary = sub.add_parser("summary", help="Generate a deterministic summary")
     summary.add_argument("--plan", required=True)

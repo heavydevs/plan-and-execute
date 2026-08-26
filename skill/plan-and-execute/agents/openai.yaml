@@ -1,4 +1,33 @@
 interface:
-  display_name: "Plan and Execute"
-  short_description: "Study, plan, resume, and execute with minimal context"
-  default_prompt: "Use $plan-and-execute. Route exact lifecycle commands current/status, resume/continue, cancel, and reset before request parsing. With no arguments, inspect .ai-work lifecycle state first: resume the unique unfinished plan from disk when present, refuse duplicate execution when a live runner lease exists, and create the guided request file only when the workspace is idle. Before planning, run the adaptive study gate with mandatory internal repository evidence and conditional authoritative external research. After the draft TODO graph exists, evaluate progressive execution context: omit shared context by default, create CONTEXT.md only for concise information needed by every TODO, create scoped context files only for strict multi-task subsets, and keep single-task information in that task definition. Require contexts_minimal review, then execute each TODO in a fresh isolated worker that reads exactly its assigned context files, reports context_files_read, and passes deterministic validation. Persist state for resume, recover orphaned tasks without counting an interruption as a technical failure, clear active status after final summary generation, and make cancel/reset remove only recognized planning and lifecycle artifacts while preserving implementation changes."
+  display_name: Plan and Execute
+  short_description: Isolate TODO context, persist checkpoints, and execute safely
+  default_prompt: 'Use $plan-and-execute. Route exact lifecycle commands current/status,
+    resume/continue, cancel, and reset before request parsing. With no arguments,
+    inspect .ai-work lifecycle state first: resume the unique unfinished plan from
+    disk when present, refuse duplicate execution when a live runner lease exists,
+    and create the guided request file only when the workspace is idle. Before planning,
+    run the adaptive study gate with mandatory internal repository evidence and conditional
+    authoritative external research. After the draft TODO graph exists, evaluate progressive
+    execution context: omit shared context by default, create CONTEXT.md only for
+    concise information needed by every TODO, create scoped context files only for
+    strict multi-task subsets, and keep single-task information in that task definition.
+    Require every schema-v4 TODO to justify one context-cohesive worker boundary, split
+    independent domains even when they share framework patterns, define stable resumable
+    subtasks, and predeclare only directional target-specific learning relationships.
+    Require contexts_minimal and context_boundaries_sound review, then execute each TODO
+    in a fresh isolated worker that reads exactly its assigned context and validated-learning
+    files, checkpoints subtasks through planctl.py, reports exact read lists and completed
+    checkpoints, and passes deterministic validation. Materialize concise learning files
+    only after source validation and only for untouched declared future TODOs. Persist state
+    for resume, preserve completed subtasks across interruption, clear active status after
+    final summary generation, and make cancel/reset remove only recognized planning and
+    lifecycle artifacts while preserving implementation changes.'
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

@@ -22,7 +22,23 @@ const lifecycleScript = path.join(
   'lifecyclectl.py'
 );
 
-const HELP = `plan-and-execute (alias: pae) - instala e controla a skill no Claude Code e/ou Codex
+const EXECUTION_PROVIDERS = Object.freeze([
+  'claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae'
+]);
+const OPTIONAL_PROVIDER_COMMANDS = Object.freeze({
+  gemini: 'gemini',
+  qwen: 'qwen',
+  kimi: 'kimi',
+  trae: 'trae-cli'
+});
+
+const HELP = `plan-and-execute (alias: pae) - instala a skill no Claude Code/Codex e controla execucoes isoladas
+
+Provedores de execucao suportados:
+  claude, codex, gemini, qwen, kimi, trae
+
+A instalacao padrao da skill e o tutorial rapido continuam restritos a Claude Code e Codex.
+Gemini, Qwen, Kimi e Trae sao backends opcionais de execucao.
 
 Uso da implementacao:
   pae current [opcoes]              Mostrar a implementacao ativa
@@ -46,8 +62,8 @@ Opcoes gerais:
   -v, --version                     Mostrar versao
 
 Opcoes de execucao:
-  --provider <claude|codex>          Sobrescrever provedor na retomada
-  --once                            Executar no maximo um TODO
+  --provider <nome>                 claude|codex|gemini|qwen|kimi|trae
+  --once                            Executar no maximo um TODO pai
   --no-wait                         Nao aguardar automaticamente limites de uso
   --no-cleanup                      Manter o plano concluido para inspecao
   --all                             Com cancel, remover todos os planos reconhecidos
@@ -63,6 +79,7 @@ Exemplos:
   pae current
   pae resume
   pae resume --provider codex --once
+  pae resume --provider gemini --once
   pae cancel
   pae reset --force
   npx @luizcgvrj/plan-and-execute install both --global
@@ -114,7 +131,7 @@ export function parseArguments(argv) {
       case '--claude': options.agent = 'claude'; break;
       case '--codex': options.agent = 'codex'; break;
       case '--both': options.agent = 'both'; break;
-      case '--provider': options.provider = requireValue(args, index, arg); index += 1; break;
+      case '--provider': options.provider = requireValue(args, index, arg).toLowerCase(); index += 1; break;
       case '--once': options.once = true; break;
       case '--no-wait': options.noWait = true; break;
       case '--no-cleanup': options.noCleanup = true; break;
@@ -127,8 +144,10 @@ export function parseArguments(argv) {
       default: throw new Error(`Opcao desconhecida: ${arg}`);
     }
   }
-  if (options.provider && !['claude', 'codex'].includes(options.provider)) {
-    throw new Error(`Provedor invalido: ${options.provider}. Use claude ou codex.`);
+  if (options.provider && !EXECUTION_PROVIDERS.includes(options.provider)) {
+    throw new Error(
+      `Provedor invalido: ${options.provider}. Use ${EXECUTION_PROVIDERS.join(', ')}.`
+    );
   }
   return { command, options, showHelp, showVersion };
 }
@@ -150,6 +169,33 @@ function printResults(results, json) {
   }
 }
 
+function probeCommand(command, args = ['--version']) {
+  const result = spawnSync(command, args, {
+    encoding: 'utf8',
+    timeout: 5000,
+    windowsHide: true
+  });
+  if (result.error?.code === 'ENOENT') return null;
+  const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`.trim();
+  return {
+    command,
+    available: result.status === 0,
+    version: output.split(/\r?\n/).find(Boolean) ?? null,
+    exitCode: result.status
+  };
+}
+
+function executionDoctorReport() {
+  const report = runDoctor();
+  for (const [provider, command] of Object.entries(OPTIONAL_PROVIDER_COMMANDS)) {
+    report[provider] = probeCommand(command);
+  }
+  report.executionProviders = [...EXECUTION_PROVIDERS];
+  report.defaultProviderOrder = ['claude', 'codex'];
+  report.standardInstallTargets = ['claude', 'codex'];
+  return report;
+}
+
 function printDoctor(report, json) {
   if (json) { console.log(JSON.stringify(report, null, 2)); return; }
   console.log(`Pacote: ${report.package} v${report.packageVersion}`);
@@ -158,6 +204,11 @@ function printDoctor(report, json) {
   console.log(`Python: ${report.python?.version ?? 'nao encontrado (necessario para executar a skill)'}`);
   console.log(`Claude CLI: ${report.claude?.version ?? 'nao encontrado'}`);
   console.log(`Codex CLI: ${report.codex?.version ?? 'nao encontrado'}`);
+  console.log(`Gemini CLI (opcional): ${report.gemini?.version ?? 'nao encontrado'}`);
+  console.log(`Qwen Code (opcional): ${report.qwen?.version ?? 'nao encontrado'}`);
+  console.log(`Kimi Code CLI (opcional): ${report.kimi?.version ?? 'nao encontrado'}`);
+  console.log(`Trae Agent (opcional): ${report.trae?.version ?? 'nao encontrado'}`);
+  console.log(`Ordem padrao: ${report.defaultProviderOrder.join(' -> ')}`);
 }
 
 function pythonCandidates(scriptArgs) {
@@ -220,7 +271,7 @@ async function main() {
       case 'status': printResults(getStatus(options), options.json); break;
       case 'paths': printResults(resolveTargets(options).map((target) => ({ ...target, action: 'target' })), options.json); break;
       case 'uninstall': printResults(uninstallSkill(options), options.json); break;
-      case 'doctor': printDoctor(runDoctor(), options.json); break;
+      case 'doctor': printDoctor(executionDoctorReport(), options.json); break;
       case 'current': process.exitCode = runLifecycle(lifecycleArguments('current', options), options); break;
       case 'resume': process.exitCode = runLifecycle(lifecycleArguments('resume', options), options, { stream: true }); break;
       case 'cancel': process.exitCode = runLifecycle(lifecycleArguments('cancel', options), options); break;
