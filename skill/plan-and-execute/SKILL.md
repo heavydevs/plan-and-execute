@@ -1,11 +1,11 @@
 ---
 name: plan-and-execute
-description: Deeply study a large software request and its repository, pass an adaptive evidence gate, create a requirements-traceable plan whose TODO boundaries deliberately isolate unrelated AI context, persist resumable subtasks, transfer only validated target-specific learnings, and execute fresh workers with deterministic validation, active-plan discovery, guarded cancellation, optional Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code CLI, or Trae Agent routing, and safe cleanup. Use for long implementations, migrations, refactors, multi-workstream or test-heavy changes, for resuming an unfinished implementation, for cancelling/resetting plan state, without arguments to resume-or-create a guided request, or with a requirements file path.
+description: Adaptively triage software-request complexity, spend repository and internet study only where it can materially improve the implementation, create a requirements-traceable plan whose TODO boundaries isolate unrelated AI context, persist resumable subtasks, transfer only validated target-specific learnings, and execute fresh workers with deterministic validation and optional Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code CLI, or Trae Agent routing. Use for implementations, migrations, refactors, multi-workstream or test-heavy changes, resuming unfinished work, cancelling/resetting plan state, guided request intake, or a requirements file path.
 ---
 
 # Plan and Execute
 
-Resolve the complete request, study internal and conditionally external evidence, prove that the evidence is sufficient before drafting requirements or TODOs, build and review a traceable plan, then execute one isolated verifiable TODO at a time. Treat persisted lifecycle state as authoritative so an interrupted implementation can resume without prior chat context.
+Resolve the complete request, classify how much study is worth paying for, gather only the internal or external evidence that can materially improve the implementation, build and review a traceable plan, then execute one isolated verifiable TODO at a time. Treat persisted lifecycle state as authoritative so an interrupted implementation can resume without prior chat context.
 
 ## Route lifecycle commands before request interpretation
 
@@ -118,15 +118,14 @@ Treat the complete argument text as the request. Preserve every detail, example,
 
 ## Non-negotiable study and planning contract
 
-- Read the complete request before collecting evidence or drafting TODOs.
+- Read the complete request before collecting broad evidence or drafting TODOs.
 - Inventory every distinct outcome, constraint, activity, test expectation, compatibility need, migration, risk, and non-goal as a stable request part such as `P001`.
-- Identify material questions that can change architecture, compatibility, risk, task boundaries, or validation.
-- Always inspect relevant internal repository evidence before planning: instructions, architecture, implementation, tests, build files, schemas, interfaces, CI, and explanatory history.
-- Evaluate every external-research trigger explicitly after the first internal scan.
-- Research authoritative external sources only when one or more triggers are true, including explicit user request, unfamiliar domain, version-sensitive or current behavior, security sensitivity, repository gaps, conflicting evidence, technology selection, or high risk.
-- Record a substantive reason when external research is unnecessary. Never make web research mandatory for a fully repository-local change with sufficient internal evidence.
-- Do not draft requirements or executable TODOs until `studyctl.py validate` passes.
-- Translate study findings exactly into plan constraints, derived requirements, risks, and validation implications.
+- Classify the request as `simple`, `medium`, or `complex` before broad repository inspection. Quantity alone is never a reason to classify a request as complex.
+- Use the least expensive study depth that can still change architecture, compatibility, task boundaries, risk, or validation.
+- For `simple`, skip pre-plan repository and internet study when the request is direct, low-risk, fully scoped, and independent of external facts. Record the skip decision instead of manufacturing evidence.
+- For `medium`, do not ask the user about study depth. Automatically use `related_packages` or `workspace_keywords`, prefer search/filter tools before opening files, and use focused external research only when a material trigger exists.
+- For `complex`, ask the user both fixed-choice study questions before broad exploration unless the request already contains those choices. Do not silently broaden the selected scope.
+- Do not draft requirements or executable TODOs until the adaptive study decision/spec passes `studyctl.py validate`; a simple fast-path spec may legitimately contain zero repository sources and zero external sources.
 - Map every request-part id to at least one requirement id, every requirement to at least one executable TODO, and every TODO back to requirements.
 - Recursively split work until each TODO has one coherent outcome, one independent validation path, and one context surface whose retained reasoning is useful across the whole TODO.
 - Split unrelated domains even when they use the same architectural pattern. For example, independent person and store CRUDs normally become separate TODOs when their controllers, services, entities, rules, and tests do not share an invariant or failure boundary.
@@ -136,52 +135,63 @@ Treat the complete argument text as the request. Preserve every detail, example,
 - Require every schema-v4 TODO to declare a `context_boundary`, a stable resumable `subtasks` checklist, and any directional `learning_targets` whose future workers could benefit from concise validated findings.
 - Evaluate progressive execution context only after the draft TODO graph exists: create `CONTEXT.md` only for universal indispensable information, create scoped files only for at least two but not all TODOs, keep single-task information in that task definition, and otherwise omit shared context.
 - Ground every context item in evidence, keep it one-line and operational, and reject duplication or prose summaries.
-- Review the study and the plan in fresh contexts whenever supported; require `plan_review.contexts_minimal` and `plan_review.context_boundaries_sound` to be true for schema v4.
+- Match review cost to study cost: concise self-check for a simple fast path, separate review for medium only when uncertainty/risk warrants it, and a fresh reviewer for complex requests whenever supported.
+- Require `plan_review.contexts_minimal` and `plan_review.context_boundaries_sound` to be true for schema v4.
 - Do not autostart until `studyctl.py validate-plan`, `planctl.py validate`, and `planctl.py audit` all succeed.
 
 Read [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md) before collecting evidence. Then read [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md) before drafting the plan and [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md) before deciding shared worker context.
 
 ## Pass the adaptive study gate before planning
 
-1. Parse the request into stable request parts and material questions.
-2. Inspect repository sources and record each concrete location, finding, and planning impact.
-3. Evaluate all external-research triggers only after the initial repository scan.
-4. When triggered, research primary authoritative sources matching the repository's exact version or date whenever possible.
-5. Resolve high-impact questions, reconcile contradictions, and synthesize exact planning constraints, derived requirements, risks, and validation implications.
-6. Review evidence sufficiency and record why further research is unlikely to change the plan materially.
-7. Write `/tmp/study-spec.json` following [references/study-spec.example.json](references/study-spec.example.json).
-8. Validate it before drafting requirements or TODOs:
+1. Read the request and classify complexity before broad repository exploration:
+   - `simple`: direct, routine, low-risk, no material architectural/external uncertainty;
+   - `medium`: bounded change that benefits from package-local or keyword-filtered discovery;
+   - `complex`: cross-cutting architecture, migration, compatibility, security, data-integrity, ownership, provider, or high-risk uncertainty.
+2. Treat quantity separately from complexity. Many independent direct edits may remain `simple`.
+3. For `simple`, set internal and external depth to `none`, record why study was skipped, and proceed without opening unrelated repository context.
+4. For `medium`, choose internal depth automatically:
+   - `related_packages` when the owning module is already clear;
+   - `workspace_keywords` when ownership/symbols/tests must be located. Search first; open only high-signal matches and expand narrowly.
+5. For `complex`, ask both questions in one chat turn and end the turn before broad study. Use exactly these fixed choices:
+   - Internal: **Pacotes relacionados** / **Busca por palavras-chave em todo o workspace** / **Projeto completo**.
+   - External: **Sem estudo externo** / **Pesquisa focalizada** / **Pesquisa ampla**.
+   Record `selection_source: user`. If the request already specifies one of the fixed choices, reuse it instead of asking again.
+6. Evaluate external triggers. Medium requests automatically use `focused` research when a trigger is material. Complex requests honor the user's external choice. Never invent an external fact when the user chose no external study; block on unresolved high-impact facts when necessary.
+7. Resolve only material questions whose answers can change the plan. A simple fast path may have zero material questions.
+8. Write `/tmp/study-spec.json` using study schema v2 and [references/study-spec.example.json](references/study-spec.example.json). Existing schema-v1 study attachments remain supported.
+9. Validate before drafting requirements or TODOs:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py validate \
   --spec /tmp/study-spec.json
 ```
 
-If the study is blocked or not ready, do not plan. Resolve the gap, record a bounded low-risk assumption, or request user input only when a high-impact decision cannot be inferred safely.
+If the study is blocked or not ready, resolve the gap, record a bounded low-risk assumption, or request user input only when a high-impact decision cannot be inferred safely. Do not escalate from the selected study depth silently; re-enter the triage gate when broader context is genuinely necessary.
 
 ## Build the traceable plan
 
-1. Copy every internal study `finding` exactly into `request_analysis.repository_findings`.
-2. Copy every external source `finding` exactly into `request_analysis.research_findings`.
-3. Record the external decision and rationale in `request_analysis.research_decision`.
-4. Copy every synthesized risk exactly into `request_analysis.risks`.
-5. Copy every synthesized planning constraint exactly into `global_constraints`.
-6. Create stable requirements such as `R001`; copy every synthesized derived requirement exactly as requirement text.
-7. Group requirements into workstreams and recursively split each into executable leaf TODOs. For every candidate grouping, ask whether a fresh worker would materially benefit from retaining the same decisions, invariants, files, debugging evidence, and validation history. Split when the answer is no.
-8. Include every synthesized validation implication in at least one task acceptance criterion, implementation note, or validation command.
-9. Give every TODO one objective, mapped requirements, complexity, atomicity rationale, scope boundaries, dependencies, expected files, acceptance criteria, validation commands, provider preference, model tier, reasoning effort, `context_boundary`, and one or more stable resumable subtasks.
-10. Predeclare `learning_targets` only when a later TODO is sufficiently similar to reuse a difficult validated procedure, decision, code reference, pitfall, or validation technique. Make every relationship directional and name the narrow topics that may cross the boundary. Do not transfer chat transcripts, broad history, or speculative advice.
-11. Evaluate progressive execution context using [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md):
+1. Copy `internal_study.plan_finding` exactly into `request_analysis.repository_findings` for study schema v2. This is the auditable skip/selection decision even when no repository source was opened.
+2. Also copy every actual internal study `finding` exactly into `request_analysis.repository_findings`.
+3. Copy every external source `finding` exactly into `request_analysis.research_findings`.
+4. Record the external decision, selected depth, and rationale in `request_analysis.research_decision`.
+5. Copy every synthesized risk exactly into `request_analysis.risks`.
+6. Copy every synthesized planning constraint exactly into `global_constraints`.
+7. Create stable requirements such as `R001`; copy every synthesized derived requirement exactly as requirement text.
+8. Group requirements into workstreams and recursively split each into executable leaf TODOs. For every candidate grouping, ask whether a fresh worker would materially benefit from retaining the same decisions, invariants, files, debugging evidence, and validation history. Split when the answer is no.
+9. Include every synthesized validation implication in at least one task acceptance criterion, implementation note, or validation command.
+10. Give every TODO one objective, mapped requirements, complexity, atomicity rationale, scope boundaries, dependencies, expected files, acceptance criteria, validation commands, provider preference, model tier, reasoning effort, `context_boundary`, and one or more stable resumable subtasks.
+11. Predeclare `learning_targets` only when a later TODO is sufficiently similar to reuse a difficult validated procedure, decision, code reference, pitfall, or validation technique. Make every relationship directional and name the narrow topics that may cross the boundary. Do not transfer chat transcripts, broad history, or speculative advice.
+12. Evaluate progressive execution context using [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md):
     - explicitly choose `create` or `omit` for global `CONTEXT.md`;
     - place only information needed by every TODO in global context;
     - create a scoped `contexts/<topic>.md` only when the same information is needed by at least two and fewer than all TODOs;
     - keep information for a single TODO inside its task definition;
     - include concise `necessity` and grounded `source_refs` for every context item.
-12. Start a fresh plan reviewer with the request, compact evidence, requirements, draft graph, context-boundary rationales, subtask checkpoints, learning relationships, and execution-context proposal, but no implementation assignment.
-13. Revise until coverage, atomicity, dependencies, validation, `contexts_minimal`, and `context_boundaries_sound` all pass with no unresolved findings.
-14. Write `/tmp/plan-spec.json` following [references/PLAN_SPEC.md](references/PLAN_SPEC.md).
-15. Create the plan with the correct request-file mode from the input rules.
-16. Attach the validated study and prove that its findings affected the plan:
+13. Start a fresh plan reviewer with the request, compact evidence, requirements, draft graph, context-boundary rationales, subtask checkpoints, learning relationships, and execution-context proposal, but no implementation assignment.
+14. Revise until coverage, atomicity, dependencies, validation, `contexts_minimal`, and `context_boundaries_sound` all pass with no unresolved findings.
+15. Write `/tmp/plan-spec.json` following [references/PLAN_SPEC.md](references/PLAN_SPEC.md).
+16. Create the plan with the correct request-file mode from the input rules.
+17. Attach the validated study and prove that its findings affected the plan:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py attach \
@@ -189,7 +199,7 @@ python <skill-dir>/scripts/studyctl.py attach \
   --plan .ai-work/<plan-id>
 ```
 
-17. Run all quality gates:
+18. Run all quality gates:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py validate-plan --plan .ai-work/<plan-id>
@@ -197,13 +207,13 @@ python <skill-dir>/scripts/planctl.py validate --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl.py audit --plan .ai-work/<plan-id>
 ```
 
-18. Register the validated plan as the active implementation:
+19. Register the validated plan as the active implementation:
 
 ```bash
 python <skill-dir>/scripts/lifecyclectl.py activate   --plan .ai-work/<plan-id> --json
 ```
 
-19. Start execution immediately after all gates pass unless a genuine safety gate requires approval.
+20. Start execution immediately after all gates pass unless a genuine safety gate requires approval.
 
 Do not replace analysis with a shallow checklist. Do not use generic TODOs such as "implement everything" or "finish migration." Split by independently failing outcomes and validation boundaries, not by arbitrary file count.
 

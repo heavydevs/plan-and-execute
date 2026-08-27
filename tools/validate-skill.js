@@ -125,18 +125,32 @@ requireText(skill, [
 
 const studyProtocol = fs.readFileSync(requireFile(path.join('references', 'ADAPTIVE_STUDY.md')), 'utf8');
 requireText(studyProtocol, [
-  'Mandatory internal study',
-  'Conditional external research',
+  'Classify the request before broad repository inspection',
+  'Fixed study choices for complex requests',
+  'Pacotes relacionados',
+  'Busca por palavras-chave em todo o workspace',
+  'Projeto completo',
+  'Sem estudo externo',
+  'Pesquisa focalizada',
+  'Pesquisa ampla',
   'user_requested',
   'version_sensitive',
   'security_sensitive',
   'studyctl.py attach',
-  'exact-text rule'
+  'internal_study.plan_finding'
 ], 'ADAPTIVE_STUDY.md');
 
 const studyExample = JSON.parse(fs.readFileSync(requireFile(path.join('references', 'study-spec.example.json')), 'utf8'));
-if (studyExample.schema_version !== 1 || !studyExample.synthesis?.ready_for_planning) {
-  fail('study-spec.example.json must be a ready schema version 1 example.');
+if (
+  studyExample.schema_version !== 2 ||
+  studyExample.complexity_assessment?.level !== 'complex' ||
+  studyExample.internal_study?.selection_source !== 'user' ||
+  studyExample.internal_study?.depth !== 'workspace_keywords' ||
+  studyExample.external_research?.selection_source !== 'user' ||
+  studyExample.external_research?.depth !== 'focused' ||
+  !studyExample.synthesis?.ready_for_planning
+) {
+  fail('study-spec.example.json must demonstrate the ready schema-v2 complex-request choice contract.');
 }
 
 const contextProtocol = fs.readFileSync(requireFile(path.join('references', 'EXECUTION_CONTEXT.md')), 'utf8');

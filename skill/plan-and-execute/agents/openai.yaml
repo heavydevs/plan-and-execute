@@ -6,8 +6,10 @@ interface:
     inspect .ai-work lifecycle state first: resume the unique unfinished plan from
     disk when present, refuse duplicate execution when a live runner lease exists,
     and create the guided request file only when the workspace is idle. Before planning,
-    run the adaptive study gate with mandatory internal repository evidence and conditional
-    authoritative external research. After the draft TODO graph exists, evaluate progressive
+    classify request complexity before broad exploration and run the adaptive study gate: skip
+    repository/internet study for direct simple work, use automatic related-package or keyword-filtered
+    discovery for medium work, and for complex work ask the fixed internal and external depth choices
+    before broad study. After the draft TODO graph exists, evaluate progressive
     execution context: omit shared context by default, create CONTEXT.md only for
     concise information needed by every TODO, create scoped context files only for
     strict multi-task subsets, and keep single-task information in that task definition.

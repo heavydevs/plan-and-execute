@@ -2,283 +2,209 @@
 
 ## Contents
 
-1. Purpose
-2. Position in the workflow
-3. Mandatory internal study
-4. Conditional external research
-5. Material questions and evidence
-6. Synthesis into the plan
-7. Independent review and stopping rule
-8. Study specification
-9. Commands
-10. Re-entering the gate during execution
+1. Goal
+2. Triage before repository study
+3. Fixed study choices for complex requests
+4. Simple fast path
+5. Medium focused path
+6. Complex user-selected path
+7. External research triggers
+8. Evidence and synthesis
+9. Review and stopping rule
+10. Study specification and commands
+11. Re-entering the gate
 
-## 1. Purpose
+## 1. Goal
 
-Use this gate before drafting requirements or executable TODOs. Its purpose is not to collect the largest possible amount of information. Its purpose is to resolve the questions that can materially change architecture, compatibility, task boundaries, risk, or validation.
+Spend context only where it can change the implementation. Do not equate a long request or many direct edits with architectural complexity. Classify the request before broad repository inspection, then choose the least expensive study depth that can still produce a reliable plan.
 
-Internal repository study is always required. External research is adaptive: perform it only when one or more explicit triggers are true. A local, well-defined change may proceed without web research when repository evidence is sufficient and the decision is recorded.
+The gate always records the decision, but the study itself may be empty. A simple request can pass with zero repository sources and zero external sources. A medium request gets bounded discovery. A complex request asks the user to choose both internal and external study depth before broad exploration begins.
 
-The gate has two checks:
+`studyctl.py validate` validates the classification, the selected study strategy, evidence when present, and readiness for planning. `studyctl.py attach` later proves that the study decision and any findings reached the plan.
 
-1. `studyctl.py validate` proves that the request and repository were studied, that the external-research decision was deliberate, and that the evidence is sufficient to begin planning.
-2. `studyctl.py attach` runs after plan creation and proves that the study findings were copied into the plan's constraints, requirements, risks, and task validation.
+## 2. Triage before repository study
 
-Do not draft requirements or TODOs before the first check passes. Do not autostart execution before the attachment check and the normal plan gates pass.
+Read the complete request first. Before opening broad repository context, classify it as `simple`, `medium`, or `complex`.
 
-## 2. Position in the workflow
+### Simple
 
-Use this order:
+Use `simple` when all material behavior is explicit and routine:
 
-```text
-complete request
-      |
-      v
-material questions
-      |
-      v
-mandatory internal repository study
-      |
-      v
-external trigger assessment
-      |-----------------------------|
-      v                             v
-research required              research not needed
-      |                             |
-      v                             |
-authoritative external sources     |
-      |-----------------------------|
-      v
-synthesis + independent study review
-      |
-      v
-studyctl validate
-      |
-      v
-requirements and TODO plan
-      |
-      v
-studyctl attach + validate-plan
-      |
-      v
-planctl validate + audit
-      |
-      v
-execution
-```
+- target behavior and acceptance are direct;
+- no architectural choice is required;
+- no migration, security boundary, concurrency boundary, or compatibility contract is uncertain;
+- external facts or exact current versions cannot materially change the implementation;
+- validation is obvious or already specified.
 
-The first repository pass should happen before the external-research decision. Repository evidence often answers the question directly, identifies the exact dependency version, or narrows the external search to the relevant official documentation.
+The number of edits is not a complexity signal by itself. Twenty independent text/config changes can remain simple if each is direct and low-risk.
 
-## 3. Mandatory internal study
+### Medium
 
-Inspect enough repository evidence to understand the real change surface. Select only categories that are relevant, but do not skip a relevant category merely because the request sounds familiar.
+Use `medium` when the solution is bounded but some repository discovery is useful:
 
-Possible evidence categories:
+- ownership or exact files are not fully known;
+- a related package/module and its tests must be located;
+- symbols or keywords should be searched across the workspace;
+- a small number of related files or contracts must be inspected;
+- focused external verification may be needed for a version-sensitive fact.
 
-- `instructions`: agent instructions, repository conventions, contribution rules, or local policy files;
-- `architecture`: README files, architecture documents, ADRs, module boundaries, and ownership boundaries;
-- `implementation`: production code and runtime behavior near the requested change;
-- `tests`: existing tests, fixtures, test style, failure modes, and regression expectations;
-- `build`: dependency manifests, generated-code rules, packaging, and build commands;
-- `schema`: database schemas, migrations, serialization formats, and data compatibility;
-- `interface`: public APIs, protocols, events, commands, and integration contracts;
-- `ci`: validation entry points, supported runtimes, and release checks;
-- `history`: recent commits or decisions that explain compatibility or design constraints;
-- `other`: any concrete internal source that changes the plan.
+Medium requests must not ask the user to choose study depth. Choose automatically and keep the search bounded.
 
-Each internal source must record:
+### Complex
 
-- a stable evidence id such as `I001`;
-- its category;
-- a concrete repository location;
-- the finding, not merely that a file was opened;
-- the planning impact.
+Use `complex` when broader context may change architecture, task boundaries, risk, or validation, for example:
 
-Weak evidence:
+- multiple subsystems share one invariant or rollout boundary;
+- migrations, compatibility, security, authorization, concurrency, or data integrity are material;
+- ownership is unclear across packages;
+- a technology/provider/architecture choice is required;
+- external contracts materially affect design;
+- wrong assumptions could create substantial rework or production risk.
 
-```json
-{
-  "location": "src/",
-  "finding": "Looked at the source code",
-  "planning_impact": "Implement the feature"
-}
-```
+Quantity alone never makes a request complex.
 
-Useful evidence:
+Record the classification in `complexity_assessment` with a concise rationale and concrete signals. Do not perform a repository-wide scan merely to justify the classification.
 
-```json
-{
-  "id": "I001",
-  "kind": "implementation",
-  "location": "src/delivery.py:84-151; tests/test_delivery.py:120-230",
-  "finding": "Delivery retries keep failed records pending and the focused tests assert a second provider attempt.",
-  "planning_impact": "Preserve the pending-on-failure transition and keep retry compatibility in a separately validated task."
-}
-```
+## 3. Fixed study choices for complex requests
 
-## 4. Conditional external research
+For a `complex` request, ask both questions in the same chat turn before broad study. Use native choice UI when available; otherwise present exactly these fixed labels.
 
-Evaluate every trigger explicitly after the initial internal scan.
+### Internal study
+
+1. **Pacotes relacionados** — inspect only packages/modules directly related to the request, plus their focused tests, build/configuration, schemas, and interfaces.
+2. **Busca por palavras-chave em todo o workspace** — search the whole workspace for request terms, symbols, APIs, table names, events, or error strings, then open only the highest-signal matches and their immediate dependency/test neighborhood.
+3. **Projeto completo** — systematically inspect repository structure, instructions, architecture, major modules, build/CI, schemas/interfaces, tests, and relevant history across the project. Do not literally dump or read every file; sample and drill down according to evidence.
+
+### External study
+
+1. **Sem estudo externo** — do not browse external sources. Proceed only if unresolved high-impact questions can still be resolved internally; otherwise mark the study blocked.
+2. **Pesquisa focalizada** — research only the exact official documentation, standard, advisory, or versioned contract directly needed by the request.
+3. **Pesquisa ampla** — research the exact official sources plus relevant release notes, standards, advisories, authoritative issue/repository material, or research needed to compare alternatives and risks.
+
+Do not ask open-ended “how much should I study?” questions. Do not invent additional options. If the user already specified one of these preferences in the request, record it as the user selection and do not ask again.
+
+After asking, end the turn before broad study. Resume after the user chooses.
+
+## 4. Simple fast path
+
+For a simple request:
+
+- set `internal_study.selection_source` to `automatic`;
+- set `internal_study.depth` to `none`;
+- keep `internal_sources` empty;
+- keep `material_questions` empty when there is no material uncertainty;
+- set external depth to `none` and all external triggers to false;
+- allow synthesis lists to remain empty when no study finding creates a plan constraint;
+- record a concise `internal_study.plan_finding` explaining why study was skipped.
+
+The plan must copy `internal_study.plan_finding` exactly into `request_analysis.repository_findings`. This preserves an auditable decision without pretending repository evidence was collected.
+
+Reading a file explicitly supplied by the user or opening the exact target during implementation is not a mandatory pre-plan study pass.
+
+## 5. Medium focused path
+
+For a medium request, automatically choose one internal depth:
+
+- `related_packages` when ownership is already fairly clear and only the local module neighborhood matters;
+- `workspace_keywords` when locating ownership, symbols, tests, integrations, or configuration requires repository-wide filtering.
+
+Use search/filtering tools before opening files. Prefer symbol search, filename search, grep/ripgrep, code search, import/reference search, or repository search. Open only the strongest matches first, then expand one dependency/test hop when evidence justifies it.
+
+Do not escalate to a full-project study merely because many matching files exist. Escalate the request to `complex` only when the discovered coupling or risk can materially change architecture or task boundaries; then ask the fixed user choices before continuing broad exploration.
+
+For external research on a medium request:
+
+- use `none` when no external trigger is true;
+- use `focused` automatically when one or more triggers are material;
+- use `broad` only when the user explicitly selected it.
+
+## 6. Complex user-selected path
+
+For a complex request:
+
+- `internal_study.selection_source` must be `user`;
+- internal depth must be exactly `related_packages`, `workspace_keywords`, or `full_project`;
+- `external_research.selection_source` must be `user`;
+- external depth must be exactly `none`, `focused`, or `broad`.
+
+Honor the selected depth. Do not silently broaden it. If execution or study reveals a material unknown outside the selected scope, explain the gap and re-enter this gate rather than quietly consuming more context.
+
+A user choice of **Sem estudo externo** does not permit inventing external facts. Resolve high-impact questions internally, record a bounded low-risk assumption, or mark the study blocked.
+
+## 7. External research triggers
+
+Evaluate these triggers after classification. For medium requests, use them to decide between automatic `none` and `focused`. For complex requests, record them even though the user chooses depth.
 
 | Trigger | Set to true when |
 | --- | --- |
-| `user_requested` | The request explicitly asks for external research, verification, current information, or supplied external sources that must be checked. |
-| `unfamiliar_domain` | The orchestrator lacks enough reliable knowledge to choose or validate the approach. |
+| `user_requested` | The user explicitly asked for external research or verification. |
+| `unfamiliar_domain` | Reliable implementation depends on knowledge the orchestrator does not have. |
 | `version_sensitive` | Correct behavior depends on an exact library, runtime, API, protocol, or product version. |
-| `security_sensitive` | Authentication, authorization, cryptography, secrets, sandboxing, vulnerability behavior, or security guidance materially affects the solution. |
-| `current_behavior` | The fact may have changed recently, including provider APIs, product capabilities, standards, or supported versions. |
+| `security_sensitive` | Security guidance materially affects the solution. |
+| `current_behavior` | The fact may have changed recently. |
 | `repository_gap` | The repository does not define a material contract needed for planning. |
-| `conflicting_evidence` | Internal documentation, code, tests, or prior assumptions disagree. |
-| `technology_selection` | The plan requires choosing among tools, frameworks, providers, or architectural alternatives. |
-| `high_risk` | A wrong assumption could cause data loss, incompatible rollout, security exposure, or costly rework. |
+| `conflicting_evidence` | Repository evidence conflicts. |
+| `technology_selection` | The solution requires choosing among technologies/providers/architectures. |
+| `high_risk` | A wrong external assumption could cause data loss, incompatibility, exposure, or costly rework. |
 
-Decision rules:
+When external research is performed, prefer primary official documentation, standards, research papers, vendor advisories, and exact-version sources. Record findings, not link dumps.
 
-- `required`: at least one trigger is true and authoritative external sources were consulted.
-- `not_needed`: every trigger is false and the rationale explains why internal evidence is sufficient.
-- `blocked`: at least one trigger is true, but required evidence cannot be obtained or a material contradiction remains. The study must not be ready for planning.
+## 8. Evidence and synthesis
 
-When research is required:
+For every internal source that is actually opened, record:
 
-1. Prefer primary official documentation, standards, research papers, and vendor advisories.
-2. Match the repository's exact dependency or protocol version whenever possible.
-3. Record the publication date or version used.
-4. Record the conclusion that changes planning, not a raw link dump.
-5. Explain why the source is authoritative for the question.
-6. Reconcile conflicts. Do not silently choose the source that best matches the desired implementation.
+- stable id such as `I001`;
+- kind;
+- concrete repository location;
+- finding;
+- planning impact.
 
-External research is not automatically required merely because a task is large. It is required when external facts can materially change the plan.
+For every external source, record stable id, source type, title, publisher, HTTPS URL, version/date, finding, planning impact, and why it is authoritative.
 
-## 5. Material questions and evidence
+Material questions need stable ids only when there are material questions. A simple fast-path study may legitimately have none.
 
-Before collecting evidence, list the questions that can change the solution. Examples:
+Translate evidence into only the planning effects it creates:
 
-- Which module owns the state transition?
-- What compatibility contract must be preserved?
-- Which exact runtime or dependency version is supported?
-- Does the provider guarantee idempotency for this operation?
-- Which migration order supports rolling deployment?
-- Which validation command proves the behavior?
+- `planning_constraints`;
+- `derived_requirements`;
+- `risks`;
+- `validation_implications`.
 
-Give every question a stable id such as `Q001`, importance, status, evidence ids, resolution, and planning impact.
+A simple fast path may leave all four lists empty.
 
-Question status:
+When building the plan:
 
-- `resolved`: evidence supports a concrete answer;
-- `assumed`: bounded evidence supports a low- or medium-impact assumption;
-- `open`: the question is unresolved and may block planning.
+- copy `internal_study.plan_finding` exactly into `request_analysis.repository_findings` for study schema v2;
+- also copy every actual internal source `finding` exactly into `request_analysis.repository_findings`;
+- copy every external source `finding` exactly into `request_analysis.research_findings`;
+- copy synthesized constraints, requirements, risks, and validation implications into their corresponding plan fields.
 
-A study marked ready may not contain open questions. A high-importance question may not remain assumed; resolve it or mark the study blocked.
+## 9. Review and stopping rule
 
-## 6. Synthesis into the plan
+Match review cost to study cost:
 
-Evidence is useful only when it changes the plan. Synthesize findings into any applicable category. After the TODO graph exists, a small subset of these grounded findings may also become progressive execution-context items under [EXECUTION_CONTEXT.md](EXECUTION_CONTEXT.md), but only when every assigned TODO needs them:
+- simple fast path: a concise orchestrator self-check is sufficient;
+- medium: use a separate reviewer only when evidence conflicts, risk rises, or the plan boundary is uncertain;
+- complex: use a fresh reviewer whenever supported.
 
-- `planning_constraints`: exact constraints that must be copied into `global_constraints`;
-- `derived_requirements`: exact requirement text that must appear in the requirements inventory;
-- `risks`: exact risks that must be copied into `request_analysis.risks`;
-- `validation_implications`: phrases that must appear in a task acceptance criterion, implementation note, or validation command.
+Always stop when additional evidence is unlikely to change architecture, compatibility, task boundaries, risk, or validation. “More files exist” is not a reason to keep reading.
 
-Also copy every internal `finding` exactly into `request_analysis.repository_findings`. Copy every external-source `finding` exactly into `request_analysis.research_findings`.
+A ready study may not contain open high-impact questions. A high-importance question may not remain merely assumed.
 
-This exact-text rule is intentional. It makes `studyctl.py attach` able to prove deterministically that the study affected the plan instead of becoming an unused research note. Do not copy the entire study into `CONTEXT.md`; context items remain one-line operational derivatives grounded through `source_refs`.
+## 10. Study specification and commands
 
-Example synthesis:
+Use study schema v2 for new plans. Schema v1 remains supported for existing plans.
 
-```json
-{
-  "planning_constraints": [
-    "Do not hold a database transaction across the provider call."
-  ],
-  "derived_requirements": [
-    "Keep failed first attempts retryable."
-  ],
-  "risks": [
-    "A non-backward-compatible migration could break rolling deployment."
-  ],
-  "validation_implications": [
-    "Run the focused delivery retry tests."
-  ]
-}
-```
+Example: [study-spec.example.json](study-spec.example.json)
 
-When writing the plan spec:
-
-- copy the constraint string exactly into `global_constraints`;
-- create a requirement with the derived-requirement string exactly as its `text`;
-- copy the risk string exactly into `request_analysis.risks`;
-- include the validation-implication phrase in at least one task acceptance criterion, implementation note, or validation command.
-
-## 7. Independent review and stopping rule
-
-Review the study in a fresh subagent or process whenever supported. The reviewer must check:
-
-- internal repository coverage is sufficient for the request;
-- every external trigger was evaluated honestly;
-- the external-research decision is justified;
-- source authority, date, and version are adequate;
-- material contradictions are resolved;
-- high-impact questions are resolved;
-- evidence was translated into planning constraints, requirements, risks, or validation;
-- further research is unlikely to change the plan materially.
-
-Record the reviewer, all five boolean checks, and notes. If the runtime cannot create a fresh reviewer, perform an explicit second pass with the strongest available route and record that limitation.
-
-The stopping rule must explain why the evidence is now sufficient. Stop when:
-
-- all high-impact questions are resolved;
-- relevant repository surfaces have been inspected;
-- required external sources are authoritative and version-appropriate;
-- contradictions are resolved or explicitly block planning;
-- the findings have concrete planning impact;
-- more searching is unlikely to change architecture, task boundaries, compatibility, risk, or validation.
-
-Do not continue research merely to accumulate links. Do not stop because a time budget expired while a high-impact question remains unresolved.
-
-## 8. Study specification
-
-Use [study-spec.example.json](study-spec.example.json) as the starting shape.
-
-Required root fields:
-
-| Field | Meaning |
-| --- | --- |
-| `schema_version` | Study schema version; currently `1`. |
-| `request_summary` | Compact statement of the complete requested outcome. |
-| `material_questions` | Questions that can materially change the plan. |
-| `internal_sources` | Concrete repository evidence; always non-empty. |
-| `external_research` | Trigger assessment, decision, rationale, and sources. |
-| `synthesis` | Exact plan constraints, requirements, risks, and validation implications. |
-| `review` | Independent sufficiency review. |
-
-The validator rejects shallow placeholders, unknown evidence ids, missing trigger assessments, unjustified `not_needed` decisions, required research without sources, high-impact assumptions, ready studies with unresolved questions, and failed review checks.
-
-## 9. Commands
-
-Validate before drafting requirements or TODOs:
+Validate before drafting executable TODOs:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py validate \
   --spec /tmp/study-spec.json
 ```
 
-Inspect a blocked study without allowing planning to start:
-
-```bash
-python <skill-dir>/scripts/studyctl.py validate \
-  --spec /tmp/study-spec.json \
-  --allow-not-ready
-```
-
-Render a human-readable preview:
-
-```bash
-python <skill-dir>/scripts/studyctl.py render \
-  --spec /tmp/study-spec.json \
-  --output /tmp/STUDY.md
-```
-
-After creating the plan, attach the evidence and verify exact integration:
+Attach after plan creation:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py attach \
@@ -286,32 +212,21 @@ python <skill-dir>/scripts/studyctl.py attach \
   --plan .ai-work/<plan-id>
 ```
 
-Validate the preserved gate before execution or after resume:
+Validate attached evidence on resume:
 
 ```bash
 python <skill-dir>/scripts/studyctl.py validate-plan \
   --plan .ai-work/<plan-id>
 ```
 
-The attachment adds:
+## 11. Re-entering the gate
 
-```text
-.ai-work/<plan-id>/
-|-- study.json
-|-- STUDY.md
-`-- manifest.json  # study_gate metadata and hash
-```
+Reclassify and reconsider depth when execution reveals:
 
-The normal `planctl.py validate` and `planctl.py audit` checks still run after the study gate.
+- an unexpected subsystem or ownership boundary;
+- a contradictory public contract;
+- a new migration/security/data-integrity risk;
+- an exact version requirement not previously known;
+- a task boundary that no longer isolates coherent context.
 
-## 10. Re-entering the gate during execution
-
-Execution can disprove the original study. Re-enter this protocol when a worker discovers:
-
-- an undocumented external contract;
-- a different dependency version than the one researched;
-- a material contradiction between code and tests;
-- a new security, migration, compatibility, or data risk;
-- a task boundary that depends on an unresolved question.
-
-Stop downstream dispatch, update the study specification, repeat independent review, revise the plan, attach the updated study, and run every quality gate again. Do not hide new scope or evidence inside a worker report.
+Do not automatically jump to full-project or broad external research. Re-run the same triage. If the request is now complex and the required depth would exceed the user's prior selection, ask the fixed choices again.
