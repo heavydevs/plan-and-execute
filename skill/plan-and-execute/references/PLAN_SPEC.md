@@ -16,12 +16,12 @@
 
 ## 1. Quality model
 
-Create a directed acyclic graph of bounded executable TODOs only after the complete request, repository, and material external behavior have been studied.
+Create a directed acyclic graph of bounded executable TODOs only after the complete request has passed adaptive study triage and any selected internal or external evidence has been collected.
 
 Schema v4 deterministically checks:
 
 - request-part-to-requirement-to-task traceability;
-- concrete request and repository analysis;
+- a concrete adaptive study decision plus repository evidence only when the selected depth collected it;
 - explicit task complexity and atomicity;
 - rejection of executable `extreme` work;
 - an approved independent review;
@@ -44,7 +44,7 @@ The schema cannot prove semantic perfection. Combine it with [ADAPTIVE_STUDY.md]
 | `title` | yes | Human-readable plan title. |
 | `summary` | yes | Overall desired outcome. |
 | `language` | no | Handoff language; default `auto`. |
-| `request_analysis` | yes | Evidence that the complete request and repository were studied. |
+| `request_analysis` | yes | Complete request analysis plus the adaptive study decision and any evidence actually collected. |
 | `requirements` | yes | Non-empty inventory of explicit and necessary derived requirements. |
 | `global_constraints` | no | Repository, compatibility, security, or rollout constraints. |
 | `execution_context` | yes in v3+ | Explicit minimal global/scoped worker-context decision. |
@@ -60,7 +60,7 @@ The schema cannot prove semantic perfection. Combine it with [ADAPTIVE_STUDY.md]
 | Field | Required | Meaning |
 |---|---:|---|
 | `request_parts` | yes | Every distinct requested outcome or workstream, with stable ids such as `P001`. |
-| `repository_findings` | yes | Concrete findings from repository inspection. |
+| `repository_findings` | yes | Study-schema-v2 `internal_study.plan_finding` plus concrete internal findings when repository evidence was actually collected. |
 | `research_decision` | yes | What external research was needed, or why none was needed. |
 | `research_findings` | no | Material conclusions from authoritative external sources. |
 | `assumptions` | no | Bounded assumptions used to make the plan executable. |

@@ -66,75 +66,80 @@ Resolve ambiguity from repository evidence or authoritative sources whenever pos
 
 ## 3. Pass the adaptive study gate
 
-Read [ADAPTIVE_STUDY.md](ADAPTIVE_STUDY.md) and create `/tmp/study-spec.json` before drafting requirements or TODOs.
+Read [ADAPTIVE_STUDY.md](ADAPTIVE_STUDY.md) and create `/tmp/study-spec.json` before drafting requirements or TODOs. The gate is mandatory; repository or internet study is not.
 
-### 3.1 Identify material questions
+### 3.1 Classify before broad exploration
 
-List questions whose answers can change:
+Classify the request as `simple`, `medium`, or `complex` from the complete request and only the minimum explicit context needed to understand it.
 
-- architecture or ownership;
-- compatibility or public contracts;
-- data or migration order;
-- security or authorization;
-- provider, protocol, or dependency behavior;
-- task boundaries or dependencies;
-- acceptance criteria or validation commands.
+- `simple`: direct, routine, low-risk, no material architecture/compatibility/external uncertainty;
+- `medium`: bounded but ownership, symbols, tests, or one exact contract needs focused discovery;
+- `complex`: cross-cutting architecture, migration, security, data integrity, ownership, provider choice, or high-risk uncertainty can change the plan.
 
-Give every question a stable id, importance, status, evidence ids, resolution, and planning impact. A ready study may not contain open questions. High-importance questions must be resolved rather than assumed.
+Do not use request length, file count, or number of independent direct edits as a proxy for complexity.
 
-### 3.2 Study internal repository evidence first
+### 3.2 Choose the least expensive internal depth
 
-Inspect relevant:
+For `simple`, use `none`. Do not scan the repository before planning. Record `internal_study.plan_finding` explaining why broad study would not change the solution.
 
-- agent and repository instructions;
-- README files, architecture documents, ADRs, and module boundaries;
-- build files, dependency manifests, and generated-code rules;
-- production code near the requested behavior;
-- existing tests, fixtures, and test conventions;
-- schemas, migrations, interfaces, protocols, and public APIs;
-- CI commands and release validation;
-- recent history when it explains compatibility or design choices.
+For `medium`, choose automatically:
 
-Record every material internal source with a repository location, concrete finding, and planning impact. Internal study is mandatory even when the orchestrator already knows the technology.
+- `related_packages` when ownership is clear enough to stay inside a bounded module neighborhood;
+- `workspace_keywords` when repository-wide filtering is needed to locate ownership, tests, schemas, integrations, or configuration.
 
-Use read-only exploration subagents for independent workstreams when helpful. The orchestrator must synthesize their findings instead of forwarding raw logs.
+Search before reading. Open high-signal matches first and expand only when a concrete finding requires another dependency/test hop.
 
-### 3.3 Decide on external research adaptively
+For `complex`, ask the user before broad study using exactly these internal choices:
 
-After the first repository scan, explicitly evaluate every trigger:
+1. **Pacotes relacionados**
+2. **Busca por palavras-chave em todo o workspace**
+3. **Projeto completo**
 
-- the user requested research or verification;
-- the domain is unfamiliar;
-- behavior is version-sensitive;
-- behavior is security-sensitive;
-- behavior may have changed recently;
-- the repository lacks a material contract;
-- evidence conflicts;
-- a technology or provider choice is required;
-- a wrong assumption would be high risk.
+Record the choice with `selection_source: user`. Reuse an explicit fixed choice already present in the request instead of asking again.
 
-When any trigger is true, research authoritative external sources. Prefer official documentation, standards, research papers, and vendor advisories. Match the exact repository version or date where possible. Record source authority, version/date, finding, and planning impact.
+### 3.3 Choose external depth
 
-When every trigger is false, external research is not required. Record a substantive rationale explaining why repository evidence is sufficient. Do not browse merely because the request is large.
+Evaluate material external triggers: explicit user request, unfamiliar domain, version-sensitive behavior, security sensitivity, current behavior, repository gaps, conflicting evidence, technology selection, or high risk.
 
-If required evidence cannot be obtained or a material contradiction remains, mark research `blocked`, keep the study not ready, and stop planning.
+For `simple`, external depth is `none`; if a material external trigger exists, classify at least `medium`.
 
-### 3.4 Synthesize evidence
+For `medium`, choose automatically:
 
-Translate evidence into exact strings for:
+- `none` when no trigger is material;
+- `focused` when exact official/versioned evidence can change the solution.
 
-- planning constraints;
-- derived requirements;
-- risks;
-- validation implications.
+For `complex`, ask the user in the same chat turn as the internal question using exactly:
 
-Every internal source finding must later appear exactly in `request_analysis.repository_findings`. Every external source finding must later appear exactly in `request_analysis.research_findings`.
+1. **Sem estudo externo**
+2. **Pesquisa focalizada**
+3. **Pesquisa ampla**
 
-Every synthesized constraint, requirement, and risk must be copied exactly into the corresponding plan field. Every validation implication must appear in a task acceptance criterion, implementation note, or validation command.
+Honor the selected depth. A no-external-study choice does not authorize invented facts; block planning if a high-impact question remains unresolved.
 
-### 3.5 Review and validate study sufficiency
+### 3.4 Record evidence only when collected
 
-Use a fresh study reviewer whenever supported. Check internal coverage, trigger honesty, source quality, contradiction resolution, question resolution, planning impact, and the stopping rule.
+When repository sources are actually opened, record stable ids, concrete locations, findings, and planning impacts. When external research is performed, prefer exact-version official documentation, standards, research papers, and vendor advisories, and record conclusions rather than link dumps.
+
+A simple fast path may have:
+
+- zero `internal_sources`;
+- zero `material_questions`;
+- zero external sources;
+- empty synthesis lists.
+
+Every schema-v2 study still records `complexity_assessment`, `internal_study`, external depth/selection, and a stopping reason.
+
+### 3.5 Synthesize and review proportionally
+
+Copy `internal_study.plan_finding` exactly into `request_analysis.repository_findings`. Also copy every actual internal source finding and every external source finding exactly into the matching plan analysis fields. Translate only material evidence into constraints, derived requirements, risks, and validation implications.
+
+Match review cost to study cost:
+
+- simple: concise self-check;
+- medium: separate review only when uncertainty, conflict, or risk warrants it;
+- complex: fresh review whenever supported.
+
+Stop when more evidence is unlikely to change architecture, compatibility, task boundaries, risk, or validation.
 
 Validate before drafting requirements or TODOs:
 
@@ -143,7 +148,7 @@ python <skill-dir>/scripts/studyctl.py validate \
   --spec /tmp/study-spec.json
 ```
 
-Do not continue until this command passes.
+Schema v2 is required for newly created studies. Schema-v1 attachments remain valid for existing plans.
 
 ## 4. Build the requirements inventory
 

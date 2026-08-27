@@ -28,7 +28,7 @@ Read `INTAKE.md` for commands, editor selection, and recovery behavior.
 
 Use separate roles even when one provider implements all of them:
 
-- **Analyzer/researcher:** studies the complete request, repository, tests, architecture, and any authoritative external material needed to understand the work.
+- **Analyzer/researcher:** classifies request complexity first, then gathers only the repository, test, architecture, or authoritative external evidence allowed by the adaptive study depth.
 - **Planner:** turns the analysis into stable requirements, workstreams, a dependency graph, context-cohesive leaf TODOs, resumable subtask checkpoints, directional learning targets, and an explicit minimal execution-context decision.
 - **Plan reviewer:** receives the full request, compact analysis, requirements, draft graph, task context boundaries, subtasks, learning relationships, and proposed context assignments in a fresh context; searches for omissions, unrelated work sharing one worker history, oversized tasks hidden behind subtasks, weak dependencies, unverifiable acceptance criteria, and unnecessary or leaked context.
 - **Orchestrator:** owns the approved plan graph, task state, route decisions, deterministic validation, replanning decisions, final handoff, and cleanup.
@@ -37,7 +37,7 @@ Use separate roles even when one provider implements all of them:
 
 The orchestrator may coordinate all planning state. Implementation workers must not browse plan-wide files or unassigned context files. A fresh native subagent reduces chat-history contamination; a fresh external CLI process gives a stricter boundary. Neither boundary bypasses system policy, repository instructions, sandboxing, permissions, or organizational controls.
 
-## 3. Deep planning workflow
+## 3. Adaptive planning workflow
 
 Do not draft TODOs directly from the first reading of the request. Complete the following loop first.
 
@@ -54,13 +54,17 @@ Read the entire request and record every independently testable or constrainable
 
 Do not merge unrelated outcomes merely because they appeared in one paragraph.
 
-### 3.2 Study the repository and subject matter
+### 3.2 Triage study depth and collect bounded evidence
 
-Inspect the repository before choosing task boundaries. Read the closest instruction files, entry points, architecture, schemas, interfaces, build configuration, tests, fixtures, migrations, CI workflows, and existing patterns relevant to the request. Record concrete findings in `request_analysis.repository_findings`.
+Run the adaptive study gate before broad repository reading. Request quantity does not determine study depth.
 
-Use read-only exploration subagents for independent areas when that reduces context pressure. Synthesize findings into the analysis instead of passing raw exploration logs to workers.
+- **Simple:** skip repository and internet study, record the explicit skip rationale in `internal_study.plan_finding`, and proceed without unrelated exploration.
+- **Medium:** automatically choose `related_packages` or `workspace_keywords`; search/filter first and open only high-signal matches plus narrowly justified dependencies/tests. Automatically use focused external research only when a material trigger exists.
+- **Complex:** before broad exploration, ask the fixed internal choices **Pacotes relacionados**, **Busca por palavras-chave em todo o workspace**, or **Projeto completo**, and the fixed external choices **Sem estudo externo**, **Pesquisa focalizada**, or **Pesquisa ampla**. Honor the selected scope.
 
-Decide whether external research is materially needed. Use authoritative sources for unfamiliar, current, version-sensitive, protocol-sensitive, or security-sensitive facts. Record conclusions that affect the implementation, or explicitly record why external research was unnecessary.
+If deeper coupling is discovered than the current classification or selected scope supports, re-enter triage instead of silently widening the context window.
+
+Copy `internal_study.plan_finding` and every actual internal finding into `request_analysis.repository_findings`; copy any external findings into `request_analysis.research_findings`.
 
 ### 3.3 Build a complete requirements inventory
 

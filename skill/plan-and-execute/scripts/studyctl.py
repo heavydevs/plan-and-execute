@@ -2,10 +2,10 @@
 """Validate and preserve adaptive pre-plan study evidence.
 
 The study gate is intentionally independent from planctl.py so existing plan
-schema versions remain compatible. A study is validated before requirements
-and TODOs are drafted, then attached to a created plan to prove that its
-findings were translated into constraints, requirements, risks, and task
-validation.
+schema versions remain compatible. New studies first classify request complexity
+and may skip evidence collection entirely, perform bounded discovery, or honor
+user-selected complex-study depth. The validated decision and any findings are
+then attached to the plan.
 """
 
 from __future__ import annotations
@@ -22,7 +22,8 @@ from pathlib import Path
 from typing import Any, Iterable
 from urllib.parse import urlparse
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+SUPPORTED_SCHEMA_VERSIONS = {1, 2}
 STUDY_JSON = "study.json"
 STUDY_MD = "STUDY.md"
 MANIFEST = "manifest.json"
@@ -42,6 +43,11 @@ VALID_INTERNAL_KINDS = {
     "history",
     "other",
 }
+VALID_COMPLEXITY_LEVELS = {"simple", "medium", "complex"}
+VALID_INTERNAL_SELECTION_SOURCES = {"automatic", "user"}
+VALID_INTERNAL_DEPTHS = {"none", "related_packages", "workspace_keywords", "full_project"}
+VALID_EXTERNAL_SELECTION_SOURCES = {"automatic", "user"}
+VALID_EXTERNAL_DEPTHS = {"none", "focused", "broad"}
 VALID_EXTERNAL_DECISIONS = {"required", "not_needed", "blocked"}
 VALID_EXTERNAL_SOURCE_TYPES = {
     "official_documentation",
@@ -131,11 +137,11 @@ def require_unique(items: Iterable[dict[str, Any]], field: str) -> None:
         seen.add(item_id)
 
 
-def normalize_internal_sources(raw: Any) -> list[dict[str, str]]:
+def normalize_internal_sources(raw: Any, *, required: bool = True) -> list[dict[str, str]]:
     items = ensure_list(raw, "internal_sources")
-    if not items:
+    if required and not items:
         raise StudyError(
-            "internal_sources must contain concrete repository evidence before planning"
+            "internal_sources must contain concrete repository evidence for the selected study depth"
         )
     normalized: list[dict[str, str]] = []
     for index, item in enumerate(items):
@@ -165,6 +171,76 @@ def normalize_internal_sources(raw: Any) -> list[dict[str, str]]:
         )
     require_unique(normalized, "internal source")
     return normalized
+
+
+def normalize_complexity_assessment(raw: Any) -> dict[str, Any]:
+    data = ensure_object(raw, "complexity_assessment")
+    level = ensure_text(data.get("level"), "complexity_assessment.level").lower()
+    if level not in VALID_COMPLEXITY_LEVELS:
+        raise StudyError(
+            "complexity_assessment.level must be simple, medium, or complex"
+        )
+    signals = ensure_str_list(data.get("signals"), "complexity_assessment.signals")
+    if not signals:
+        raise StudyError(
+            "complexity_assessment.signals must record concrete complexity or simplicity signals"
+        )
+    return {
+        "level": level,
+        "rationale": ensure_text(
+            data.get("rationale"), "complexity_assessment.rationale", 24
+        ),
+        "signals": signals,
+    }
+
+
+def normalize_internal_study(raw: Any, complexity_level: str) -> dict[str, str]:
+    data = ensure_object(raw, "internal_study")
+    selection_source = ensure_text(
+        data.get("selection_source"), "internal_study.selection_source"
+    ).lower()
+    if selection_source not in VALID_INTERNAL_SELECTION_SOURCES:
+        raise StudyError(
+            "internal_study.selection_source must be automatic or user"
+        )
+    depth = ensure_text(data.get("depth"), "internal_study.depth").lower()
+    if depth not in VALID_INTERNAL_DEPTHS:
+        raise StudyError(
+            "internal_study.depth must be none, related_packages, workspace_keywords, or full_project"
+        )
+
+    if complexity_level == "simple":
+        if selection_source != "automatic" or depth != "none":
+            raise StudyError(
+                "simple requests must use automatic internal study depth none; classify as medium if discovery is needed"
+            )
+    elif complexity_level == "medium":
+        if selection_source != "automatic":
+            raise StudyError(
+                "medium requests choose internal study automatically without asking the user"
+            )
+        if depth not in {"related_packages", "workspace_keywords"}:
+            raise StudyError(
+                "medium requests must use related_packages or workspace_keywords internal study"
+            )
+    elif complexity_level == "complex":
+        if selection_source != "user":
+            raise StudyError(
+                "complex requests must record the user's fixed-choice internal study selection"
+            )
+        if depth not in {"related_packages", "workspace_keywords", "full_project"}:
+            raise StudyError(
+                "complex requests must use one of the three fixed internal study choices"
+            )
+
+    return {
+        "selection_source": selection_source,
+        "depth": depth,
+        "rationale": ensure_text(data.get("rationale"), "internal_study.rationale", 24),
+        "plan_finding": ensure_text(
+            data.get("plan_finding"), "internal_study.plan_finding", 24
+        ),
+    }
 
 
 def normalize_external_sources(raw: Any) -> list[dict[str, str]]:
@@ -251,7 +327,7 @@ def normalize_trigger_assessment(raw: Any) -> dict[str, bool]:
     return normalized
 
 
-def normalize_external_research(raw: Any) -> dict[str, Any]:
+def normalize_external_research_v1(raw: Any) -> dict[str, Any]:
     data = ensure_object(raw, "external_research")
     decision = ensure_text(data.get("decision"), "external_research.decision").lower()
     if decision not in VALID_EXTERNAL_DECISIONS:
@@ -296,9 +372,103 @@ def normalize_external_research(raw: Any) -> dict[str, Any]:
     }
 
 
-def normalize_questions(raw: Any, known_evidence_ids: set[str]) -> list[dict[str, Any]]:
+def normalize_external_research_v2(raw: Any, complexity_level: str) -> dict[str, Any]:
+    data = ensure_object(raw, "external_research")
+    decision = ensure_text(data.get("decision"), "external_research.decision").lower()
+    if decision not in VALID_EXTERNAL_DECISIONS:
+        raise StudyError(
+            "external_research.decision must be required, not_needed, or blocked"
+        )
+    selection_source = ensure_text(
+        data.get("selection_source"), "external_research.selection_source"
+    ).lower()
+    if selection_source not in VALID_EXTERNAL_SELECTION_SOURCES:
+        raise StudyError(
+            "external_research.selection_source must be automatic or user"
+        )
+    depth = ensure_text(data.get("depth"), "external_research.depth").lower()
+    if depth not in VALID_EXTERNAL_DEPTHS:
+        raise StudyError("external_research.depth must be none, focused, or broad")
+
+    triggers = normalize_trigger_assessment(data.get("trigger_assessment"))
+    sources = normalize_external_sources(data.get("sources"))
+    triggered = [field for field, value in triggers.items() if value]
+    rationale = ensure_text(data.get("rationale"), "external_research.rationale", 24)
+
+    if complexity_level == "simple":
+        if selection_source != "automatic" or depth != "none":
+            raise StudyError(
+                "simple requests must skip external study automatically; classify as medium if external verification is material"
+            )
+        if triggered:
+            raise StudyError(
+                "simple requests cannot keep external-research triggers true; classify as medium or complex"
+            )
+    elif complexity_level == "medium":
+        if selection_source == "automatic" and depth not in {"none", "focused"}:
+            raise StudyError(
+                "automatic external study for medium requests may be none or focused only"
+            )
+        if selection_source == "automatic" and triggered and depth == "none":
+            raise StudyError(
+                "medium requests with external triggers must perform focused research"
+            )
+        if depth == "broad" and selection_source != "user":
+            raise StudyError(
+                "broad external research for a medium request requires an explicit user choice"
+            )
+    elif complexity_level == "complex":
+        if selection_source != "user":
+            raise StudyError(
+                "complex requests must record the user's fixed-choice external study selection"
+            )
+
+    if depth == "none":
+        if decision != "not_needed":
+            raise StudyError(
+                "external_research.decision must be not_needed when depth is none"
+            )
+        if sources:
+            raise StudyError(
+                "external_research.sources must be empty when depth is none"
+            )
+    else:
+        if decision == "not_needed":
+            raise StudyError(
+                "external research with focused or broad depth cannot be marked not_needed"
+            )
+        if decision == "required" and not sources:
+            raise StudyError(
+                "external research marked required must include authoritative sources"
+            )
+        if decision == "required" and not triggered and selection_source != "user":
+            raise StudyError(
+                "automatic external research marked required must identify at least one trigger"
+            )
+
+    if decision == "blocked" and not triggered and selection_source != "user":
+        raise StudyError(
+            "blocked automatic external research must identify at least one trigger"
+        )
+
+    return {
+        "decision": decision,
+        "selection_source": selection_source,
+        "depth": depth,
+        "rationale": rationale,
+        "trigger_assessment": triggers,
+        "sources": sources,
+    }
+
+
+def normalize_questions(
+    raw: Any,
+    known_evidence_ids: set[str],
+    *,
+    required: bool = True,
+) -> list[dict[str, Any]]:
     items = ensure_list(raw, "material_questions")
-    if not items:
+    if required and not items:
         raise StudyError(
             "material_questions must identify the decisions that the study needs to resolve"
         )
@@ -363,7 +533,7 @@ def normalize_questions(raw: Any, known_evidence_ids: set[str]) -> list[dict[str
     return normalized
 
 
-def normalize_synthesis(raw: Any) -> dict[str, Any]:
+def normalize_synthesis(raw: Any, *, allow_empty_impacts: bool = False) -> dict[str, Any]:
     data = ensure_object(raw, "synthesis")
     normalized: dict[str, Any] = {}
     total_impacts = 0
@@ -371,7 +541,7 @@ def normalize_synthesis(raw: Any) -> dict[str, Any]:
         values = ensure_str_list(data.get(field), f"synthesis.{field}")
         normalized[field] = values
         total_impacts += len(values)
-    if total_impacts == 0:
+    if total_impacts == 0 and not allow_empty_impacts:
         raise StudyError(
             "synthesis must translate evidence into at least one planning impact"
         )
@@ -405,22 +575,14 @@ def normalize_review(raw: Any) -> dict[str, Any]:
     return normalized
 
 
-def normalize_study(raw: Any, *, require_ready: bool = True) -> dict[str, Any]:
-    data = ensure_object(raw, "study spec")
-    schema_version = data.get("schema_version", SCHEMA_VERSION)
-    if schema_version != SCHEMA_VERSION:
-        raise StudyError(
-            f"Unsupported study schema_version {schema_version!r}; expected {SCHEMA_VERSION}"
-        )
-
-    internal_sources = normalize_internal_sources(data.get("internal_sources"))
-    external_research = normalize_external_research(data.get("external_research"))
-    evidence_ids = {item["id"] for item in internal_sources}
-    evidence_ids.update(item["id"] for item in external_research["sources"])
-    questions = normalize_questions(data.get("material_questions"), evidence_ids)
-    synthesis = normalize_synthesis(data.get("synthesis"))
-    review = normalize_review(data.get("review"))
-
+def validate_ready_state(
+    questions: list[dict[str, Any]],
+    external_research: dict[str, Any],
+    synthesis: dict[str, Any],
+    review: dict[str, Any],
+    *,
+    require_ready: bool,
+) -> None:
     ready = synthesis["ready_for_planning"]
     open_questions = [item for item in questions if item["status"] == "open"]
     high_assumptions = [
@@ -464,17 +626,93 @@ def normalize_study(raw: Any, *, require_ready: bool = True) -> dict[str, Any]:
             "study is valid but not ready for planning; resolve the recorded gaps first"
         )
 
+
+def normalize_study_v1(data: dict[str, Any], *, require_ready: bool) -> dict[str, Any]:
+    internal_sources = normalize_internal_sources(data.get("internal_sources"), required=True)
+    external_research = normalize_external_research_v1(data.get("external_research"))
+    evidence_ids = {item["id"] for item in internal_sources}
+    evidence_ids.update(item["id"] for item in external_research["sources"])
+    questions = normalize_questions(data.get("material_questions"), evidence_ids, required=True)
+    synthesis = normalize_synthesis(data.get("synthesis"), allow_empty_impacts=False)
+    review = normalize_review(data.get("review"))
+    validate_ready_state(
+        questions,
+        external_research,
+        synthesis,
+        review,
+        require_ready=require_ready,
+    )
     return {
-        "schema_version": SCHEMA_VERSION,
-        "request_summary": ensure_text(
-            data.get("request_summary"), "request_summary", 12
-        ),
+        "schema_version": 1,
+        "request_summary": ensure_text(data.get("request_summary"), "request_summary", 12),
         "material_questions": questions,
         "internal_sources": internal_sources,
         "external_research": external_research,
         "synthesis": synthesis,
         "review": review,
     }
+
+
+def normalize_study_v2(data: dict[str, Any], *, require_ready: bool) -> dict[str, Any]:
+    complexity = normalize_complexity_assessment(data.get("complexity_assessment"))
+    internal_study = normalize_internal_study(data.get("internal_study"), complexity["level"])
+    internal_required = internal_study["depth"] != "none"
+    internal_sources = normalize_internal_sources(
+        data.get("internal_sources"), required=internal_required
+    )
+    if internal_study["depth"] == "none" and internal_sources:
+        raise StudyError(
+            "internal_sources must be empty when internal_study.depth is none"
+        )
+
+    external_research = normalize_external_research_v2(
+        data.get("external_research"), complexity["level"]
+    )
+    evidence_ids = {item["id"] for item in internal_sources}
+    evidence_ids.update(item["id"] for item in external_research["sources"])
+    fast_path = (
+        complexity["level"] == "simple"
+        and internal_study["depth"] == "none"
+        and external_research["depth"] == "none"
+    )
+    questions = normalize_questions(
+        data.get("material_questions"), evidence_ids, required=not fast_path
+    )
+    synthesis = normalize_synthesis(
+        data.get("synthesis"), allow_empty_impacts=fast_path
+    )
+    review = normalize_review(data.get("review"))
+    validate_ready_state(
+        questions,
+        external_research,
+        synthesis,
+        review,
+        require_ready=require_ready,
+    )
+
+    return {
+        "schema_version": 2,
+        "request_summary": ensure_text(data.get("request_summary"), "request_summary", 12),
+        "complexity_assessment": complexity,
+        "internal_study": internal_study,
+        "material_questions": questions,
+        "internal_sources": internal_sources,
+        "external_research": external_research,
+        "synthesis": synthesis,
+        "review": review,
+    }
+
+
+def normalize_study(raw: Any, *, require_ready: bool = True) -> dict[str, Any]:
+    data = ensure_object(raw, "study spec")
+    schema_version = data.get("schema_version", 1)
+    if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
+        raise StudyError(
+            f"Unsupported study schema_version {schema_version!r}; expected one of {sorted(SUPPORTED_SCHEMA_VERSIONS)}"
+        )
+    if schema_version == 1:
+        return normalize_study_v1(data, require_ready=require_ready)
+    return normalize_study_v2(data, require_ready=require_ready)
 
 
 def read_json(path: Path, field: str) -> Any:
@@ -552,19 +790,38 @@ def render_study(study: dict[str, Any]) -> str:
         for field in REVIEW_CHECKS
     )
     synthesis = study["synthesis"]
+
+    adaptive = ""
+    if study["schema_version"] >= 2:
+        complexity = study["complexity_assessment"]
+        internal_study = study["internal_study"]
+        adaptive = f"""## Adaptive study triage
+
+- Complexity: **{complexity['level']}**
+- Complexity rationale: {complexity['rationale']}
+- Complexity signals: {', '.join(complexity['signals'])}
+- Internal selection source: **{internal_study['selection_source']}**
+- Internal depth: **{internal_study['depth']}**
+- Internal rationale: {internal_study['rationale']}
+- Plan finding: {internal_study['plan_finding']}
+- External selection source: **{external['selection_source']}**
+- External depth: **{external['depth']}**
+
+"""
+
     return f"""# Adaptive pre-plan study
 
 ## Request summary
 
 {study['request_summary']}
 
-## Material questions
+{adaptive}## Material questions
 
-{chr(10).join(questions)}
+{chr(10).join(questions) if questions else '- None'}
 
 ## Internal repository evidence
 
-{chr(10).join(internal)}
+{chr(10).join(internal) if internal else '- None'}
 
 ## External research decision
 
@@ -640,6 +897,12 @@ def verify_plan_integration(study: dict[str, Any], manifest: dict[str, Any]) -> 
         raise StudyError("plan manifest has no request_analysis object")
 
     repository_findings = find_exact_strings(analysis.get("repository_findings"))
+    if study["schema_version"] >= 2:
+        plan_finding = study["internal_study"]["plan_finding"]
+        if plan_finding not in repository_findings:
+            raise StudyError(
+                "plan request_analysis.repository_findings must copy internal_study.plan_finding exactly"
+            )
     missing_internal = [
         item["id"]
         for item in study["internal_sources"]
@@ -746,7 +1009,7 @@ def attach_study(spec_path: Path, plan_arg: str | Path) -> dict[str, Any]:
     atomic_write_text(plan_dir / STUDY_MD, render_study(study))
 
     metadata = {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": study["schema_version"],
         "json_file": STUDY_JSON,
         "markdown_file": STUDY_MD,
         "sha256": digest,
@@ -757,6 +1020,14 @@ def attach_study(spec_path: Path, plan_arg: str | Path) -> dict[str, Any]:
         "internal_source_count": len(study["internal_sources"]),
         "external_source_count": len(study["external_research"]["sources"]),
     }
+    if study["schema_version"] >= 2:
+        metadata.update(
+            {
+                "complexity_level": study["complexity_assessment"]["level"],
+                "internal_study_depth": study["internal_study"]["depth"],
+                "external_study_depth": study["external_research"]["depth"],
+            }
+        )
     manifest["study_gate"] = metadata
     events = manifest.setdefault("events", [])
     if isinstance(events, list):
@@ -777,7 +1048,8 @@ def validate_plan_study(plan_arg: str | Path) -> dict[str, Any]:
     metadata = manifest.get("study_gate")
     if not isinstance(metadata, dict):
         raise StudyError("plan manifest has no attached study_gate metadata")
-    if metadata.get("schema_version") != SCHEMA_VERSION:
+    metadata_schema = metadata.get("schema_version")
+    if metadata_schema not in SUPPORTED_SCHEMA_VERSIONS:
         raise StudyError("plan study_gate schema version is invalid")
     if metadata.get("json_file") != STUDY_JSON or metadata.get("markdown_file") != STUDY_MD:
         raise StudyError("plan study_gate file names are invalid")
@@ -794,6 +1066,8 @@ def validate_plan_study(plan_arg: str | Path) -> dict[str, Any]:
     if digest != metadata.get("sha256"):
         raise StudyError("study.json hash does not match manifest study_gate.sha256")
     study = normalize_study(json.loads(raw_bytes.decode("utf-8")), require_ready=True)
+    if study["schema_version"] != metadata_schema:
+        raise StudyError("manifest study_gate schema version is stale")
     expected_markdown = render_study(study)
     if markdown_path.read_text(encoding="utf-8") != expected_markdown:
         raise StudyError("STUDY.md does not match the canonical study.json rendering")
@@ -808,6 +1082,15 @@ def validate_plan_study(plan_arg: str | Path) -> dict[str, Any]:
     for field, expected in expected_counts.items():
         if metadata.get(field) != expected:
             raise StudyError(f"manifest study_gate {field} is stale")
+    if study["schema_version"] >= 2:
+        expected_strategy = {
+            "complexity_level": study["complexity_assessment"]["level"],
+            "internal_study_depth": study["internal_study"]["depth"],
+            "external_study_depth": study["external_research"]["depth"],
+        }
+        for field, expected in expected_strategy.items():
+            if metadata.get(field) != expected:
+                raise StudyError(f"manifest study_gate {field} is stale")
     if metadata.get("ready_for_planning") is not True:
         raise StudyError("manifest study_gate is not ready for planning")
     return metadata
@@ -864,7 +1147,11 @@ def main(argv: list[str] | None = None) -> int:
             print_result(
                 {
                     "valid": True,
+                    "schema_version": study["schema_version"],
                     "ready_for_planning": study["synthesis"]["ready_for_planning"],
+                    "complexity_level": study.get("complexity_assessment", {}).get("level", "legacy"),
+                    "internal_study_depth": study.get("internal_study", {}).get("depth", "legacy"),
+                    "external_study_depth": study["external_research"].get("depth", "legacy"),
                     "external_research_decision": study["external_research"]["decision"],
                     "material_questions": len(study["material_questions"]),
                     "internal_sources": len(study["internal_sources"]),
