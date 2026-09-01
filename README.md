@@ -48,6 +48,23 @@ npx @luizcgvrj/plan-and-execute install both --global
 
 Then invoke the skill from Claude Code or Codex with a large implementation request, a requirements-file path, or no arguments. With no arguments it resumes the unique unfinished implementation first; it creates a guided request draft only when the workspace is idle.
 
+## Precise, concise derived artifacts
+
+The original user request remains complete evidence. Token reduction starts only when the skill derives study, requirements, plans, TODO definitions, context, learnings, reports, and handoffs.
+
+Derived text follows a deterministic writing contract:
+
+- one semantic job per field;
+- concrete nouns, conditions, and observable outcomes;
+- stable ids, paths, symbols, commands, versions, and thresholds instead of repeated explanation;
+- explicit per-field character/list budgets;
+- rejection of high-confidence vague wording such as `as appropriate`, `as needed`, `etc.`, `and/or`, `adequate`, `robust`, `quickly`, and similar Portuguese forms;
+- no silent truncation of requirements: an oversized/vague derived field must be rewritten precisely or split into atomic items.
+
+The runtime routes planning and execution through `planctl_concise.py`, `studyctl_concise.py`, `lifecyclectl_concise.py`, and `run_concise.py`. These compatibility entrypoints install the concise contract over the existing deterministic controllers, preserving lifecycle, resume, validation, and cleanup behavior.
+
+See [Precise artifact writing](skill/plan-and-execute/references/ARTIFACT_WRITING.md).
+
 ## Why TODO boundaries matter
 
 A fresh worker should receive one coherent semantic problem, not an arbitrary bundle of files or everything mentioned in the same paragraph.
@@ -100,13 +117,13 @@ Each schema-v4 task definition contains its own stable checklist. The authoritat
 }
 ```
 
-Workers checkpoint progress only through the controller:
+Workers checkpoint progress only through the concise controller:
 
 ```bash
-python <skill-dir>/scripts/planctl.py subtask-start \
+python <skill-dir>/scripts/planctl_concise.py subtask-start \
   --plan .ai-work/<plan-id> --task 001 --subtask S001
 
-python <skill-dir>/scripts/planctl.py subtask-complete \
+python <skill-dir>/scripts/planctl_concise.py subtask-complete \
   --plan .ai-work/<plan-id> --task 001 --subtask S001
 ```
 
@@ -142,38 +159,36 @@ A declared learning source is also a context prerequisite: the target does not s
 
 A learning entry must be short, evidence-grounded, useful to the declared target, and classified as code, procedure, decision, pitfall, or validation. It can point to exact code, tests, commands, or a compact technical explanation.
 
-The mechanism rejects:
+The mechanism rejects undeclared/backward targets, targets that already started, oversized/unreferenced notes, transcripts/logs/full reports, and attempts to mutate immutable plan-time context with runtime discoveries.
 
-- undeclared or backward targets;
-- targets that already started;
-- empty, oversized, or unreferenced notes;
-- copied transcripts, logs, or full reports;
-- file tampering, including content whose hash was manually recalculated;
-- mutable execution discoveries written into immutable `CONTEXT.md` files.
-
-Workers must report the exact `learning_files_read` list. Empty learning output creates no file and costs no future tokens.
+Workers report the exact `learning_files_read` list. Empty learning output creates no file and costs no future tokens.
 
 ## Adaptive study gate
 
 The skill does not draft TODOs from a first reading. It first:
 
 1. preserves and inventories every independently testable request part;
-2. studies repository instructions, architecture, entry points, schemas, tests, CI, and relevant existing patterns;
-3. decides whether current authoritative external research is materially required;
-4. resolves high-impact questions and records evidence plus planning impact;
-5. passes an independent study review and stopping rule;
-6. converts findings into requirements, risks, constraints, and validation implications.
+2. classifies complexity before broad exploration;
+3. searches/localizes repository evidence before reading broadly;
+4. decides whether current authoritative external research is materially required;
+5. resolves high-impact questions and records only evidence plus planning impact;
+6. passes an independent study review and stopping rule;
+7. converts findings into requirements, risks, constraints, and validation implications.
 
-The canonical study is stored as `study.json` and rendered as `STUDY.md`. Planning is blocked until `studyctl.py validate-plan` succeeds.
+The canonical study is stored as `study.json` and rendered as a compact `STUDY.md`. Planning is blocked until:
+
+```bash
+python <skill-dir>/scripts/studyctl_concise.py validate-plan --plan .ai-work/<plan-id>
+```
 
 ## Progressive execution context
 
 Plan-time shared context is deliberate and immutable:
 
 - omit shared context by default;
-- create `CONTEXT.md` only for concise information needed by every TODO;
+- create `CONTEXT.md` only for information needed by every TODO;
 - create `contexts/<topic>.md` only for strict multi-task subsets;
-- keep information needed by one TODO in that task definition;
+- keep single-TODO information in that task definition;
 - keep runtime discoveries in validated learning files, not in plan-time context.
 
 Every worker must report exactly which assigned context and learning files it read. Missing and extra reads are rejected.
@@ -202,7 +217,7 @@ A generated plan resembles:
 └── logs/
 ```
 
-`TODO.md` stays intentionally terse. Requirements, scope, context boundary, subtasks, learning relationships, acceptance criteria, route, and validation commands live in the task definitions and manifest.
+`manifest.json` is authoritative. `TODO.md` stays one line per task. Worker task files contain only execution-relevant objective, assigned context/learnings, checkpoints, scope, non-obvious guidance, acceptance, and validation; full planning/review rationale remains in structured state instead of being repeated for every worker.
 
 ## Execution modes
 
@@ -210,7 +225,7 @@ A generated plan resembles:
 
 Inside Claude Code or Codex, the orchestrator may dispatch one fresh native subagent per TODO. Each worker receives only:
 
-- its task definition;
+- its compact task definition;
 - exact assigned plan-time context files;
 - exact assigned validated learning files;
 - repository instructions and source files it legitimately needs.
@@ -222,10 +237,10 @@ It does not receive the full request, whole plan, future tasks, prior transcript
 From a terminal or CI shell:
 
 ```bash
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
+python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id>
 ```
 
-The runner starts a new non-persistent provider process for each TODO, independently executes validation commands, handles escalation and provider availability, and writes bounded logs and results.
+The runner starts a new non-persistent provider process for each TODO, independently executes validation commands, handles escalation/provider availability, bounds diagnostic output, and builds the final summary from compact authoritative state rather than rereading raw worker reports.
 
 The generated default route remains:
 
@@ -270,15 +285,17 @@ The lifecycle controller repairs stale pointers, prevents concurrent strict runn
 
 Plan-and-execute does not bypass provider permissions, sandboxes, repository policies, organizational controls, or system policy.
 
-Optional headless providers may use unattended approval modes so they can edit files and execute commands without a human prompt. Review each provider configuration carefully, use its sandbox or container isolation where available, and run only in a trusted workspace. Trae can be configured with a container; Qwen and Gemini expose their own approval and sandbox controls; Kimi workers use the documented `--auto` mode, while final summaries use `--plan`. Kimi remains opt-in and should run only in a trusted workspace.
+Optional headless providers may use unattended approval modes so they can edit files and execute commands without a human prompt. Review each provider configuration carefully, use its sandbox or container isolation where available, and run only in a trusted workspace.
 
 The runner also enforces:
 
 - one write worker at a time in a working tree;
 - deterministic validation outside the worker's self-report;
-- bounded task and learning context;
+- bounded task, context, learning, report, failure, and final-summary input;
 - guarded plan cleanup with sentinel and repository-root checks;
 - no automatic destructive deployment, credential rotation, broad deletion, or irreversible migration without authorization.
+
+After successful final validation and handoff, cleanup removes only the verified planning/control workspace. Implementation files, tests, generated product artifacts, commits, and unrelated repository changes remain.
 
 ## Installation and maintenance
 
@@ -302,10 +319,11 @@ Detailed installation references:
 npm run check
 ```
 
-This runs generated-artifact cleanup, skill/package validation, Node tests, and all Python self-tests, including context isolation, task memory, lifecycle recovery, study evidence, and provider adapter coverage.
+This runs generated-artifact cleanup, skill/package validation, Node tests, and all Python self-tests, including concise-artifact budgets/vagueness, context isolation, task memory, lifecycle recovery, study evidence, token efficiency, cleanup preservation, and provider adapter coverage.
 
 Key references:
 
+- [Precise artifact writing](skill/plan-and-execute/references/ARTIFACT_WRITING.md)
 - [Adaptive study](skill/plan-and-execute/references/ADAPTIVE_STUDY.md)
 - [Planning protocol](skill/plan-and-execute/references/PLANNING_PROTOCOL.md)
 - [Plan schema](skill/plan-and-execute/references/PLAN_SPEC.md)
@@ -313,6 +331,7 @@ Key references:
 - [Workflow](skill/plan-and-execute/references/WORKFLOW.md)
 - [Lifecycle](skill/plan-and-execute/references/LIFECYCLE.md)
 - [Model routing](skill/plan-and-execute/references/MODEL_ROUTING.md)
+- [Token efficiency](skill/plan-and-execute/references/TOKEN_EFFICIENCY.md)
 
 ## License
 
