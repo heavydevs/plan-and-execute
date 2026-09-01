@@ -13,7 +13,8 @@ const testScripts = [
   'lifecycle_self_test.py',
   'context_self_test.py',
   'task_memory_self_test.py',
-  'provider_self_test.py'
+  'provider_self_test.py',
+  'token_efficiency_self_test.py'
 ].map((name) => path.join(scriptDirectory, name));
 const candidates = process.platform === 'win32'
   ? [['py', ['-3']], ['python', []], ['python3', []]]

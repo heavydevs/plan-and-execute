@@ -1,29 +1,7 @@
 interface:
   display_name: Plan and Execute
   short_description: Isolate TODO context, persist checkpoints, and execute safely
-  default_prompt: 'Use $plan-and-execute. Route exact lifecycle commands current/status,
-    resume/continue, cancel, and reset before request parsing. With no arguments,
-    inspect .ai-work lifecycle state first: resume the unique unfinished plan from
-    disk when present, refuse duplicate execution when a live runner lease exists,
-    and create the guided request file only when the workspace is idle. Before planning,
-    classify request complexity before broad exploration and run the adaptive study gate: skip
-    repository/internet study for direct simple work, use automatic related-package or keyword-filtered
-    discovery for medium work, and for complex work ask the fixed internal and external depth choices
-    before broad study. After the draft TODO graph exists, evaluate progressive
-    execution context: omit shared context by default, create CONTEXT.md only for
-    concise information needed by every TODO, create scoped context files only for
-    strict multi-task subsets, and keep single-task information in that task definition.
-    Require every schema-v4 TODO to justify one context-cohesive worker boundary, split
-    independent domains even when they share framework patterns, define stable resumable
-    subtasks, and predeclare only directional target-specific learning relationships.
-    Require contexts_minimal and context_boundaries_sound review, then execute each TODO
-    in a fresh isolated worker that reads exactly its assigned context and validated-learning
-    files, checkpoints subtasks through planctl.py, reports exact read lists and completed
-    checkpoints, and passes deterministic validation. Materialize concise learning files
-    only after source validation and only for untouched declared future TODOs. Persist state
-    for resume, preserve completed subtasks across interruption, clear active status after
-    final summary generation, and make cancel/reset remove only recognized planning and
-    lifecycle artifacts while preserving implementation changes.'
+  default_prompt: 'Use $plan-and-execute. Treat context as a budget: load detailed references only for the current phase, persist authoritative state on disk, execute each TODO in a fresh isolated worker with only its assigned task/context/learnings, rerun deterministic validation outside workers, and after successful final verification and handoff delete only the verified planning/control workspace while preserving all implementation changes.'
   icon_small: assets/icon.svg
   icon_large: assets/icon.svg
 policy:
