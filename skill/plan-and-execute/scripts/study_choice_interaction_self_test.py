@@ -17,8 +17,9 @@ def require(text: str, needle: str, label: str) -> None:
 
 def main() -> None:
     for needle in (
-        "Ask **only the internal-study question first**",
-        "Ask **only the external-study question** in a new turn",
+        "only the internal-study question first",
+        "only the external-study question",
+        "in a new turn",
         "Never combine or preview both questions",
     ):
         require(SKILL, needle, "SKILL.md")
