@@ -23,19 +23,46 @@ Use focused external research only for a material trigger such as version-sensit
 
 Use when architecture, migration, security, compatibility, data integrity, ownership, or another high-impact uncertainty can materially change the plan.
 
-Select one internal depth:
+Complex requests use two user choices in a fixed order. **Ask only one choice per chat turn. Never combine the internal and external questions in one message.**
+
+#### Choice 1 — internal study
+
+If the request does not already determine the internal depth, present exactly one single-select multiple-choice question:
+
+**Qual deve ser a profundidade do estudo interno do repositório?**
 
 - **Pacotes relacionados** -> `related_packages`
 - **Busca por palavras-chave em todo o workspace** -> `workspace_keywords`
 - **Projeto completo** -> `full_project`
 
-Select one external depth:
+Use the platform's native single-choice UI when available. Do not use a free-form question when a choice UI is supported. If no native choice UI exists, render only this question plus the three numbered options and ask the user to select exactly one. Do not mention or preview the external-study question in this turn. End the turn after asking.
+
+After the user selects an internal option, record it with `selection_source: user`. Do not start broad repository study yet if the external choice is still missing.
+
+#### Choice 2 — external study
+
+Only after the internal choice is known, and only if the request does not already determine the external depth, present a second single-select multiple-choice question in a new chat turn:
+
+**Qual deve ser a profundidade do estudo externo?**
 
 - **Sem estudo externo** -> `none`
 - **Pesquisa focalizada** -> `focused`
 - **Pesquisa ampla** -> `broad`
 
-If the user already explicitly requested broad/deep repository + internet study, treat that as `Projeto completo` + `Pesquisa ampla`; do not ask again.
+Again, use the platform's native single-choice UI when available; otherwise render only this question plus the three numbered options and require exactly one selection. Do not repeat the internal question or its options. End the turn after asking.
+
+After the user selects the external option, record it with `selection_source: user` and continue the adaptive study in that response.
+
+#### Already-specified choices
+
+Resolve missing choices independently:
+
+- if both choices are already explicit in the request, ask nothing;
+- if only the internal choice is explicit, ask only the external question;
+- if only the external choice is explicit, still ask the internal question first; after its answer, the external choice is already known, so continue without asking again;
+- if the user explicitly requested broad/deep repository **and** internet study, treat that as `Projeto completo` + `Pesquisa ampla` and ask nothing.
+
+Never ask both questions together for convenience, even when both are missing.
 
 ## 2. Search first, read second
 
