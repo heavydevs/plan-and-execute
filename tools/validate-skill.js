@@ -23,14 +23,18 @@ function requireFile(relativePath) {
   return absolute;
 }
 
+function read(relativePath) {
+  return fs.readFileSync(requireFile(relativePath), 'utf8');
+}
+
 function requireText(text, needles, label) {
   for (const needle of needles) {
     if (!text.includes(needle)) fail(`${label} is missing required text: ${needle}`);
   }
 }
 
-function read(relativePath) {
-  return fs.readFileSync(requireFile(relativePath), 'utf8');
+function requireMax(text, maximum, label) {
+  if (text.length > maximum) fail(`${label} is too large: ${text.length} > ${maximum}`);
 }
 
 validateBundledSkill();
@@ -71,6 +75,7 @@ for (const relative of [
   'SKILL.md',
   path.join('agents', 'openai.yaml'),
   path.join('references', 'ADAPTIVE_STUDY.md'),
+  path.join('references', 'ARTIFACT_WRITING.md'),
   path.join('references', 'EXECUTION_CONTEXT.md'),
   path.join('references', 'PLANNING_PROTOCOL.md'),
   path.join('references', 'PLAN_SPEC.md'),
@@ -81,10 +86,17 @@ for (const relative of [
   path.join('references', 'completion-report.schema.json'),
   path.join('references', 'plan-spec.example.json'),
   path.join('references', 'study-spec.example.json'),
+  path.join('scripts', 'artifact_contract.py'),
+  path.join('scripts', 'runner_contract.py'),
+  path.join('scripts', 'planctl_concise.py'),
+  path.join('scripts', 'studyctl_concise.py'),
+  path.join('scripts', 'lifecyclectl_concise.py'),
+  path.join('scripts', 'run_concise.py'),
   path.join('scripts', 'planctl.py'),
   path.join('scripts', 'studyctl.py'),
   path.join('scripts', 'run_isolated.py'),
-  path.join('scripts', 'token_efficiency_self_test.py')
+  path.join('scripts', 'token_efficiency_self_test.py'),
+  path.join('scripts', 'artifact_concision_self_test.py')
 ]) requireFile(relative);
 
 const metadata = read(path.join('agents', 'openai.yaml'));
@@ -96,13 +108,13 @@ requireText(metadata, [
   'planning/control workspace',
   'implementation changes'
 ], 'agents/openai.yaml');
-if (metadata.length > 1400) fail(`agents/openai.yaml is too large for the always-loaded surface: ${metadata.length}`);
+requireMax(metadata, 1400, 'agents/openai.yaml');
 
 const skill = read('SKILL.md');
 requireText(skill, [
   'Treat context as a budget',
-  'Route lifecycle commands first',
-  'Pass the adaptive study gate',
+  'original request',
+  'references/ARTIFACT_WRITING.md',
   'references/ADAPTIVE_STUDY.md',
   'references/PLANNING_PROTOCOL.md',
   'references/EXECUTION_CONTEXT.md',
@@ -111,32 +123,57 @@ requireText(skill, [
   'references/TOKEN_EFFICIENCY.md',
   'contexts_minimal',
   'context_boundaries_sound',
-  'fresh worker',
+  'planctl_concise.py',
+  'studyctl_concise.py',
+  'lifecyclectl_concise.py',
+  'run_concise.py',
   'deterministic validation',
-  'planctl.py cleanup',
   'Preserve all implementation changes'
 ], 'SKILL.md');
-if (skill.length > 14000) fail(`SKILL.md is too large for the always-loaded control plane: ${skill.length}`);
+requireMax(skill, 12000, 'SKILL.md');
 
-const studyProtocol = read(path.join('references', 'ADAPTIVE_STUDY.md'));
-requireText(studyProtocol, [
-  'Classify the request before broad repository inspection',
-  'Pacotes relacionados',
-  'Busca por palavras-chave em todo o workspace',
-  'Projeto completo',
-  'Sem estudo externo',
-  'Pesquisa focalizada',
-  'Pesquisa ampla',
-  'studyctl.py attach'
-], 'ADAPTIVE_STUDY.md');
+const writing = read(path.join('references', 'ARTIFACT_WRITING.md'));
+requireText(writing, [
+  'one field, one job',
+  'Vague wording rejected',
+  'Derived-text budgets',
+  'EARS-like',
+  'original request',
+  'final handoff'
+], 'ARTIFACT_WRITING.md');
+requireMax(writing, 14000, 'ARTIFACT_WRITING.md');
 
-const planningProtocol = read(path.join('references', 'PLANNING_PROTOCOL.md'));
-requireText(planningProtocol, [
+const planning = read(path.join('references', 'PLANNING_PROTOCOL.md'));
+requireText(planning, [
   'context_boundary',
   'learning_targets',
   'contexts_minimal',
-  'context_boundaries_sound'
+  'context_boundaries_sound',
+  'Deterministic quality gates',
+  'planctl_concise.py'
 ], 'PLANNING_PROTOCOL.md');
+requireMax(planning, 12000, 'PLANNING_PROTOCOL.md');
+
+const planSpec = read(path.join('references', 'PLAN_SPEC.md'));
+requireText(planSpec, [
+  'schema v4',
+  'request_analysis',
+  'execution_context',
+  'context_boundary',
+  'learning_targets',
+  'planctl_concise.py'
+], 'PLAN_SPEC.md');
+requireMax(planSpec, 12000, 'PLAN_SPEC.md');
+
+const workflow = read(path.join('references', 'WORKFLOW.md'));
+requireText(workflow, [
+  'planctl_concise.py',
+  'run_concise.py',
+  'Fresh workers',
+  'Never concatenate raw worker reports',
+  'SUMMARY_INPUT.json'
+], 'WORKFLOW.md');
+requireMax(workflow, 12000, 'WORKFLOW.md');
 
 const contextProtocol = read(path.join('references', 'EXECUTION_CONTEXT.md'));
 requireText(contextProtocol, [
@@ -155,8 +192,30 @@ requireText(tokenProtocol, [
   'Fresh workers are cheaper than polluted long histories',
   'Preserve stable prefixes for provider prompt caching',
   'Bound tool and report output',
+  'Final summary uses compact authoritative state',
   'Never optimize away these quality anchors'
 ], 'TOKEN_EFFICIENCY.md');
+requireMax(tokenProtocol, 10000, 'TOKEN_EFFICIENCY.md');
+
+const artifactContract = read(path.join('scripts', 'artifact_contract.py'));
+requireText(artifactContract, [
+  'VAGUE_PATTERNS',
+  'PLAN_BUDGETS',
+  'STUDY_BUDGETS',
+  'completion_summary',
+  'render_task',
+  'render_learning_artifact',
+  'install_plan_contract',
+  'install_study_contract'
+], 'artifact_contract.py');
+
+const runnerContract = read(path.join('scripts', 'runner_contract.py'));
+requireText(runnerContract, [
+  'output_tail',
+  'SUMMARY_INPUT.json',
+  'completion_summary',
+  'Return only the handoff Markdown'
+], 'runner_contract.py');
 
 const planctl = read(path.join('scripts', 'planctl.py'));
 requireText(planctl, [
@@ -175,6 +234,14 @@ for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae']) {
 const completionSchema = JSON.parse(read(path.join('references', 'completion-report.schema.json')));
 for (const field of ['context_files_read', 'learning_files_read', 'completed_subtask_ids', 'reusable_learnings']) {
   if (!completionSchema.required?.includes(field)) fail(`completion-report.schema.json must require ${field}.`);
+}
+if (completionSchema.properties?.summary?.maxLength !== 360) fail('completion summary must be capped at 360 chars.');
+if (completionSchema.properties?.validations?.items?.properties?.details?.maxLength !== 600) fail('validation details must be capped at 600 chars.');
+if (completionSchema.properties?.risks?.maxItems !== 8 || completionSchema.properties?.follow_ups?.maxItems !== 8) {
+  fail('completion risks/follow_ups must be capped at 8 items.');
+}
+if (completionSchema.properties?.reusable_learnings?.items?.properties?.guidance?.maxLength !== 320) {
+  fail('reusable learning guidance must be capped at 320 chars.');
 }
 
 const studyExample = JSON.parse(read(path.join('references', 'study-spec.example.json')));

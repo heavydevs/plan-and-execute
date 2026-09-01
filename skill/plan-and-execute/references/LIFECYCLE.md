@@ -1,230 +1,107 @@
-# Resumable implementation lifecycle
+# Lifecycle protocol
 
-## Contents
+Use this file only for active-plan discovery, resume, cancellation, reset, and cleanup. Lifecycle state is deterministic; do not spend model tokens narrating it.
 
-1. Design goals
-2. User experience
-3. Active-plan discovery
-4. Interruption recovery
-5. Runner lease and concurrency
-6. Completion and cleanup
-7. Cancellation and reset
-8. Commands
-9. Native and strict execution
-10. Safety boundaries
+Use `lifecyclectl_concise.py` so any recovery rewrite keeps compact task projections.
 
-## 1. Design goals
-
-Treat the filesystem as the source of truth for implementation progress. A chat, terminal, network connection, or computer may disappear at any time; the next invocation must be able to determine whether to resume work or start a new request without relying on prior conversation context.
-
-Use one `plan-and-execute` skill. Do not split lifecycle operations into separate skills because request intake, study, planning, execution, resume, and cancellation share one manifest and one safety model. The `pae` CLI is an optional cross-provider convenience layer over the same skill scripts.
-
-## 2. User experience
-
-The default skill invocation is state-aware:
-
-```text
-/plan-and-execute        # Claude Code
-$plan-and-execute        # Codex
-```
-
-1. Inspect the current workspace with `lifecyclectl.py current`.
-2. If an unfinished implementation exists and no runner is live, recover interrupted parent/subtask state and continue from the next runnable TODO and first incomplete checkpoint.
-3. If a runner is already live, report it and do not start a duplicate execution.
-4. If no unfinished implementation exists, create the guided request file exactly as the normal intake flow does.
-
-Explicit lifecycle commands are also available:
-
-```text
-/plan-and-execute current
-/plan-and-execute resume
-/plan-and-execute cancel
-/plan-and-execute reset
-```
-
-The npm CLI exposes the same workflow for either provider:
+## Current/status
 
 ```bash
-pae current
-pae resume
-pae cancel
-pae reset
+python <skill-dir>/scripts/lifecyclectl_concise.py current --repo-root . --json
 ```
 
-## 3. Active-plan discovery
+Interpretation:
 
-The canonical pointer is:
+- `idle` -> no unique unfinished plan; normal intake may start;
+- one actionable plan -> resume it;
+- multiple unfinished plans -> require an explicit selection/cancel/reset instead of guessing;
+- live runner lease -> do not start a duplicate runner.
 
-```text
-.ai-work/.active-plan.json
-```
+The active pointer is `.ai-work/.active-plan.json`. It is lifecycle metadata, not implementation state.
 
-It contains only lifecycle metadata: schema version, plan id, repository-relative plan path, repository root, and timestamps. `manifest.json` remains the source of truth for TODO state.
+## Activate
 
-Discovery rules:
-
-- validate the pointer and the plan sentinel before trusting it;
-- ignore and clear a pointer to a fully summarized implementation;
-- when the pointer is missing or stale, scan only recognized plan directories under `.ai-work/`;
-- repair the pointer automatically when exactly one unfinished plan exists;
-- refuse to choose silently when several unfinished plans exist;
-- never treat an intake draft as an active implementation.
-
-An implementation remains actionable when TODOs are unfinished or when all TODOs finished but final summarization did not complete.
-
-## 4. Interruption recovery
-
-A controlled `Ctrl+C` returns the current task to `pending`. A power loss, terminated process, or disconnected machine may leave a parent task and one child subtask as `in_progress`.
-
-Before resuming under an exclusive runner lease:
-
-1. reload `manifest.json` from disk;
-2. find every task still marked `in_progress`;
-3. return the parent to `pending`;
-4. return only its `in_progress` subtask to `pending` while preserving completed sibling checkpoints;
-5. append a `recovered_after_interruption` history event with recovered subtask ids;
-6. do not increase `functional_failures`;
-7. preserve the attempt count, logs, result files, generated `CONTEXT.md`/`contexts/*.md`, assigned `learnings/*.md`, and all partial repository changes.
-
-Context, learning, and subtask assignments are reconstructed from `manifest.json` and revalidated on resume; they are not regenerated or hand-edited unless the plan is revised. The next fresh worker reads the task checklist, skips completed checkpoints, inspects the current working tree, and continues, repairs, or replaces partial implementation within scope. Deterministic validation still decides whether the parent is complete.
-
-## 5. Runner lease and concurrency
-
-The strict runner owns an atomic lease at:
-
-```text
-.ai-work/<plan-id>/.runner-lease.json
-```
-
-The lease is created with exclusive filesystem semantics and records the process id, hostname, nonce, and creation time. It prevents two external runners from editing the same workspace concurrently.
-
-- a live local process blocks another resume;
-- a dead local process leaves a stale lease that is removed during the next resume;
-- a recent lease from another host is treated conservatively as live;
-- `cancel --force` is required to override a runner that cannot be stopped safely;
-- only the lease owner may release its lease normally.
-
-Write-heavy TODOs remain sequential unless the plan deliberately isolates them in separate worktrees.
-
-## 6. Completion and cleanup
-
-When every TODO passes deterministic validation:
-
-1. create or recover the final summary;
-2. mark `summary_status` as generated;
-3. clear `.ai-work/.active-plan.json` before deleting the plan directory;
-4. remove the exact recognized plan directory through guarded cleanup;
-5. preserve implementation files, tests, commits, and unrelated repository content.
-
-If the process stops after task completion but before summarization, the implementation remains active and the next default invocation finishes the handoff. If it stops after summary generation but before cleanup, discovery clears the terminal pointer so a new request is not blocked.
-
-`--no-cleanup` retains the completed plan for inspection but still clears the active pointer. A retained completed plan is history, not an active implementation.
-
-## 7. Cancellation and reset
-
-Cancel removes planning and lifecycle state, not source changes.
+After study/plan gates succeed:
 
 ```bash
-pae cancel
+python <skill-dir>/scripts/lifecyclectl_concise.py activate --plan <plan-path> --json
 ```
 
-This command:
+Do not activate a completed plan. Do not replace another unfinished active plan unless an explicit lifecycle action resolves it.
 
-- stops the live local runner when possible;
-- removes the active plan directory, task definitions, global/scoped context files, validated learning artifacts, logs, results, study, manifest, and active pointer;
-- removes unfinished intake drafts in the workspace;
-- leaves all implementation changes in the repository untouched.
+## Resume
 
-For a workspace containing several recognized plans:
+Resume from disk state, never from old chat history.
+
+1. discover the unique active/actionable plan;
+2. acquire the runner lease;
+3. recover interrupted `in_progress` task/subtask state;
+4. preserve completed subtasks and repository changes;
+5. continue with a fresh worker for the next runnable TODO.
+
+Strict execution:
 
 ```bash
-pae cancel --all
-# equivalent full reset
-pae reset
+python <skill-dir>/scripts/run_concise.py --plan <plan-path>
 ```
 
-Use `--force` only when a runner cannot stop normally or a lease from another host has been independently confirmed stale.
+An interruption is not automatically a technical failure. Recovery resets the interrupted task/subtask state needed for safe continuation without discarding implementation changes.
 
-Cancellation is intentionally not a rollback. Automatically reverting source files could destroy pre-existing work or changes already shared with other tasks. Use version control explicitly when implementation changes themselves must be reverted.
+## Lease
 
-## 8. Commands
+`.runner-lease.json` prevents duplicate runners.
 
-Direct skill-script commands:
+- A live local PID blocks another runner.
+- A stale local lease can be recovered.
+- Remote-host leases are treated conservatively for their configured freshness window.
+- Cancellation may stop the live owned runner before deleting planning state.
+
+Do not pass lease contents to implementation workers.
+
+## Cancel
+
+Cancel means stop the active plan and delete its recognized planning/control artifacts while preserving current repository implementation changes.
 
 ```bash
-# Decide whether default invocation should resume or create a request
-python <skill-dir>/scripts/lifecyclectl.py current --repo-root . --json
-
-# Mark a validated plan active before native execution
-python <skill-dir>/scripts/lifecyclectl.py activate \
-  --plan .ai-work/<plan-id> --json
-
-# Recover stale in-progress tasks for native execution
-python <skill-dir>/scripts/lifecyclectl.py recover \
-  --plan .ai-work/<plan-id> --json
-
-# Strict process-isolated resume
-python <skill-dir>/scripts/lifecyclectl.py resume \
-  --repo-root .
-
-# Cancel the active implementation
-python <skill-dir>/scripts/lifecyclectl.py cancel \
-  --repo-root . --json
-
-# Remove every recognized plan-and-execute artifact in the workspace
-python <skill-dir>/scripts/lifecyclectl.py reset \
-  --repo-root . --json
+python <skill-dir>/scripts/lifecyclectl_concise.py cancel --repo-root . --json
 ```
 
-Useful CLI variants:
+The command must not run arbitrary rollback/revert/clean operations on the repository.
+
+## Reset
+
+Reset removes all recognized plan-and-execute plan workspaces under the configured work root while preserving unrelated directories and repository implementation changes.
 
 ```bash
-pae current --json
-pae resume --provider codex
-pae resume --provider gemini
-pae resume --provider qwen
-pae resume --provider kimi
-pae resume --provider trae
-pae resume --once
-pae resume --no-wait
-pae resume --no-cleanup
-pae cancel --force
-pae reset --force
+python <skill-dir>/scripts/lifecyclectl_concise.py reset --repo-root . --json
 ```
 
-## 9. Native and strict execution
+Only directories with the expected plan sentinel/path validation are eligible.
 
-### Native mode
+## Successful completion cleanup
 
-Use the active Claude Code or Codex orchestrator when nested provider processes are prohibited. On every invocation:
+After every TODO and final deterministic validation pass:
 
-- rediscover the plan from disk;
-- reload the manifest rather than relying on chat history;
-- recover stale `in_progress` state when no external lease is live;
-- dispatch a fresh worker for exactly one task definition and only its assigned execution-context and validated-learning files;
-- require exact `context_files_read`, `learning_files_read`, and completed subtask ids in the worker report;
-- checkpoint work only through `planctl.py` subtask commands; never edit the rendered checklist;
-- persist each state transition immediately;
-- clear active state after final summary generation.
+1. generate final handoff;
+2. mark summary generated;
+3. clear active pointer;
+4. delete the verified plan directory.
 
-The orchestrator should be operationally stateless even when the surrounding chat retains history. Do not resend the request, study, complete plan, previous worker reports, or logs to the next worker. Optional global/scoped context files preserve immutable plan-time knowledge; target-specific learning files preserve only concise validated discoveries authorized during planning.
+```bash
+python <skill-dir>/scripts/planctl_concise.py cleanup --plan <plan-path>
+```
 
-### Strict external-runner mode
+Cleanup must refuse unsafe paths/symlinks, incomplete plans, or missing summary state unless an explicit force path is used by a deliberate lifecycle operation.
 
-Use `pae resume` or `lifecyclectl.py resume` when nested execution is allowed. This mode provides the strongest process isolation, atomic lease, automatic interruption recovery, rate-limit handling, and end-to-end continuation.
+The product of the plan remains: source changes, tests, generated product files, commits, and unrelated repository state are outside the plan directory and must not be removed.
 
-Both modes read and update the same plan workspace. Native mode remains Claude Code/Codex-centric; strict mode may route to Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code CLI, or Trae Agent when the optional backend is configured and allowed.
+## What belongs in lifecycle context
 
-## 10. Safety boundaries
+Only include facts needed to choose one lifecycle action:
 
-- Never delete a directory without a valid plan sentinel and matching manifest.
-- Never follow symlinks in lifecycle state, plan roots, or intake cleanup.
-- Never remove implementation files during cancel or lifecycle cleanup.
-- Remove generated context artifacts with the recognized plan, but never treat them as implementation files.
-- Never start a second runner while a live lease exists.
-- Never silently choose among multiple unfinished plans.
-- Never count a power, network, or process interruption as a technical implementation failure.
-- Never erase completed subtask checkpoints during interruption recovery.
-- Never rewrite a target's learning assignment after that target has begun execution.
-- Never create a new request while a resumable unfinished plan exists.
-- Never leave a terminal implementation marked active after its final summary is generated.
+- plan id/path/state;
+- task counts/current runnable state;
+- lease live/stale status;
+- whether summary/cleanup remains pending.
+
+Do not load PLAN.md, task definitions, study, logs, or worker reports merely to answer lifecycle status.

@@ -1,381 +1,175 @@
-# Workflow reference
+# Execution workflow
 
-## Contents
+Use this reference only after the plan is approved. Planning rules live in `PLANNING_PROTOCOL.md`; writing budgets live in `ARTIFACT_WRITING.md`; model escalation lives in `MODEL_ROUTING.md`.
 
-1. Resolve request input
-2. Roles and context boundaries
-3. Deep planning workflow
-4. Native subagent execution
-5. Strict external-runner execution
-6. State and quality commands
-7. Failure, replanning, and escalation
-8. Final summary and cleanup
-9. Safety and operating limits
+## Roles
 
-## 1. Resolve request input
+- **Orchestrator:** authoritative plan state, scheduling, validation, escalation, final handoff, cleanup.
+- **Worker:** one TODO, assigned context/learnings, repository evidence needed for that TODO, structured report.
+- **Summarizer:** compact completed-task state only; never raw worker transcripts.
 
-Before analysis, choose exactly one request source:
+Fresh workers reduce context contamination. Disk state, not chat history, carries progress.
 
-- **No arguments:** create and open a draft with `requestctl.py create`, stop, and wait for the user to choose the localized continue action. After confirmation, validate and extract the same path.
-- **Existing file path:** validate and extract that regular file. Preserve it when importing into the plan.
-- **Inline arguments:** use the complete text as the request.
+## Native execution loop
 
-For a generated draft, create the plan with `--request-file <path> --move-request`. For a caller-owned file, use `--request-file <path>` without move. In both cases the plan preserves the request as `REQUEST.md` and validates its SHA-256.
-
-Read `INTAKE.md` for commands, editor selection, and recovery behavior.
-
-## 2. Roles and context boundaries
-
-Use separate roles even when one provider implements all of them:
-
-- **Analyzer/researcher:** classifies request complexity first, then gathers only the repository, test, architecture, or authoritative external evidence allowed by the adaptive study depth.
-- **Planner:** turns the analysis into stable requirements, workstreams, a dependency graph, context-cohesive leaf TODOs, resumable subtask checkpoints, directional learning targets, and an explicit minimal execution-context decision.
-- **Plan reviewer:** receives the full request, compact analysis, requirements, draft graph, task context boundaries, subtasks, learning relationships, and proposed context assignments in a fresh context; searches for omissions, unrelated work sharing one worker history, oversized tasks hidden behind subtasks, weak dependencies, unverifiable acceptance criteria, and unnecessary or leaked context.
-- **Orchestrator:** owns the approved plan graph, task state, route decisions, deterministic validation, replanning decisions, final handoff, and cleanup.
-- **Worker:** receives exactly one task definition plus only its assigned global/scoped context and validated target-specific learning files, checkpoints stable subtasks through the controller, edits implementation files, runs task-local checks, and returns a structured report including exact read lists, completed subtask ids, and optional predeclared reusable learnings.
-- **Summarizer:** receives a prepared evidence bundle only after the plan succeeds and writes the final handoff using an economy-tier model.
-
-The orchestrator may coordinate all planning state. Implementation workers must not browse plan-wide files or unassigned context files. A fresh native subagent reduces chat-history contamination; a fresh external CLI process gives a stricter boundary. Neither boundary bypasses system policy, repository instructions, sandboxing, permissions, or organizational controls.
-
-## 3. Adaptive planning workflow
-
-Do not draft TODOs directly from the first reading of the request. Complete the following loop first.
-
-### 3.1 Preserve and inventory the request
-
-Read the entire request and record every independently testable or constrainable part in `request_analysis.request_parts` with stable ids such as `P001`. Include:
-
-- requested outcomes and user-visible behavior;
-- each large subrequest or workstream;
-- automated-test expectations;
-- compatibility, migration, performance, security, and operational constraints;
-- explicit exclusions and non-goals;
-- approval boundaries for destructive or irreversible work.
-
-Do not merge unrelated outcomes merely because they appeared in one paragraph.
-
-### 3.2 Triage study depth and collect bounded evidence
-
-Run the adaptive study gate before broad repository reading. Request quantity does not determine study depth.
-
-- **Simple:** skip repository and internet study, record the explicit skip rationale in `internal_study.plan_finding`, and proceed without unrelated exploration.
-- **Medium:** automatically choose `related_packages` or `workspace_keywords`; search/filter first and open only high-signal matches plus narrowly justified dependencies/tests. Automatically use focused external research only when a material trigger exists.
-- **Complex:** before broad exploration, ask the fixed internal choices **Pacotes relacionados**, **Busca por palavras-chave em todo o workspace**, or **Projeto completo**, and the fixed external choices **Sem estudo externo**, **Pesquisa focalizada**, or **Pesquisa ampla**. Honor the selected scope.
-
-If deeper coupling is discovered than the current classification or selected scope supports, re-enter triage instead of silently widening the context window.
-
-Copy `internal_study.plan_finding` and every actual internal finding into `request_analysis.repository_findings`; copy any external findings into `request_analysis.research_findings`.
-
-### 3.3 Build a complete requirements inventory
-
-Assign stable requirement ids such as `R001`. Preserve source, priority, and the originating `request_part_ids`. Requirements may come from the user, repository constraints, verified research, or an explicitly recorded inference.
-
-Before continuing, map every request part to one or more requirement `request_part_ids` and verify that none is uncovered. Do not silently discard a difficult, ambiguous, or secondary request.
-
-### 3.4 Decompose recursively
-
-Group requirements into coherent workstreams, identify dependencies, then recursively split each workstream until every leaf TODO has:
-
-- one coherent outcome;
-- one bounded implementation responsibility;
-- explicit in-scope and out-of-scope boundaries;
-- a small enough context surface for one fresh worker;
-- observable acceptance criteria;
-- deterministic validation independent of the worker's success claim;
-- mapped `requirement_ids`;
-- a clear dependency position in the graph.
-
-Split again when a TODO contains multiple independent outcomes, crosses unrelated subsystems, has separable migration and rollout stages, combines implementation with broad test or documentation work, contains more than one independently failing validation boundary, or would be rated `extreme`.
-
-Also split when retained worker context from one concern would not materially help another. Two independent CRUD domains normally become two TODOs even when their controller/service/entity shapes look alike. Keep one domain's tightly coupled layers together only when they share rules, decisions, failure diagnosis, and focused validation.
-
-Do not create artificial file-by-file microtasks. Keep a technically difficult task as one `high`-complexity leaf only when it still has one coherent outcome and splitting it would create harmful handoffs or weaker validation. Record that reasoning in `atomicity_rationale`.
-
-For schema v4, record the decision in each task's `context_boundary`, define one or more stable `subtasks`, and predeclare only narrow directional `learning_targets` for future TODOs that could reuse expensive validated findings.
-
-### 3.5 Design progressive execution context
-
-After task boundaries are stable, read `EXECUTION_CONTEXT.md` and decide whether any information should be shared across fresh workers.
-
-- Create global `CONTEXT.md` only for concise non-obvious information needed by every TODO.
-- Create `contexts/<topic>.md` only for concise information needed by at least two and fewer than all TODOs.
-- Keep information used by a single TODO inside that task definition.
-- Omit information that does not materially affect correct implementation or validation.
-
-Every item must be grounded through `source_refs`, state one operational fact or constraint, and include a necessity that explains why every assigned TODO needs it. Do not copy the request, study, plan, TODO status, or generic advice.
-
-Record the explicit decision in schema-v4 `execution_context`. `planctl.py` generates file paths and exact task assignments.
-
-Keep this immutable plan-time context separate from execution learnings. A completed validated source TODO may create a concise `learnings/<source>-to-<target>.md` file only for a predeclared untouched future target. It must contain grounded code/procedure/decision/pitfall/validation findings, never a transcript or broad plan history.
-
-### 3.6 Review in a fresh context
-
-Give the plan reviewer:
-
-- the complete user request;
-- compact repository and research findings;
-- the full requirements inventory;
-- the draft task graph with requirement mappings, complexity ratings, dependencies, acceptance criteria, and validation commands;
-- every task's context-boundary rationale, subtask checklist, and directional learning targets;
-- the explicit global/scoped execution-context proposal.
-
-Do not assign implementation to the reviewer. Require it to challenge:
-
-- missing, duplicated, or distorted requirements;
-- request parts that have no requirement;
-- requirements that have no TODO;
-- TODOs that cover no requirement;
-- TODOs with multiple independent outcomes;
-- TODOs whose concerns would not benefit from the same retained worker context;
-- independent domains combined only because they use the same framework pattern;
-- top-level outcomes hidden inside subtasks;
-- broad or bidirectional learning relationships that would recreate plan/chat history;
-- hidden cross-task dependencies or cycles;
-- validations that cannot prove the acceptance criteria;
-- high-complexity tasks whose atomicity rationale is weak;
-- any `extreme` executable task;
-- unsafe autostart or unresolved material questions;
-- global context that is not required by every TODO;
-- scoped context assigned too broadly, too narrowly, or duplicated;
-- single-task information moved into an unnecessary file;
-- missing evidence grounding or excessive prose.
-
-Revise and repeat until all review checks, including `contexts_minimal` and `context_boundaries_sound`, are true and `unresolved_findings` is empty. Record the approved result in `plan_review`.
-
-### 3.7 Create and gate the plan
-
-Write a schema-v4 JSON spec following `PLAN_SPEC.md`, then create the plan using the request source selected above:
+### 1. Select
 
 ```bash
-# Inline request
-python <skill-dir>/scripts/planctl.py create \
-  --repo-root . \
-  --spec /tmp/plan-spec.json
-
-# Generated draft: move it into REQUEST.md
-python <skill-dir>/scripts/planctl.py create \
-  --repo-root . \
-  --spec /tmp/plan-spec.json \
-  --request-file "<generated-draft>" \
-  --move-request
-
-# Caller-owned file: copy it into REQUEST.md and preserve the source
-python <skill-dir>/scripts/planctl.py create \
-  --repo-root . \
-  --spec /tmp/plan-spec.json \
-  --request-file "<provided-file>"
-
-python <skill-dir>/scripts/planctl.py validate --plan <plan-path>
-python <skill-dir>/scripts/planctl.py audit --plan <plan-path>
+python <skill-dir>/scripts/planctl_concise.py next --plan <plan-path> --json
 ```
 
-Inspect `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, optional `CONTEXT.md`, optional `contexts/*.md`, each task's `Assigned execution context`, and the audit output. Execution may start only after both commands succeed and no safety approval is pending.
+### 2. Claim
 
-## 4. Native subagent execution
-
-Use native mode while the skill is running inside Claude Code or Codex.
-
-### Select and claim the next task
+Choose a route, then:
 
 ```bash
-python <skill-dir>/scripts/planctl.py next --plan <plan-path> --json
-```
-
-Choose the actual model route, then claim it:
-
-```bash
-python <skill-dir>/scripts/planctl.py claim \
+python <skill-dir>/scripts/planctl_concise.py claim \
   --plan <plan-path> \
   --task 001 \
-  --route '{"provider":"claude","tier":"standard","model":"sonnet","effort":"medium"}'
+  --route '{"provider":"codex","tier":"standard","model":"...","effort":"medium"}'
 ```
 
-### Dispatch a fresh worker
+### 3. Dispatch one fresh worker
 
-Use the client's native subagent mechanism. Construct a minimal worker prompt containing only:
+Prompt with only:
 
 - repository root;
-- assigned task id;
-- absolute or repository-relative path to its task definition;
-- instruction to read every file listed under `Assigned execution context` in that definition;
-- instruction to read every file listed under `Assigned validated learnings` after plan-time context;
-- prohibition on reading other plan files or unassigned context files;
-- prohibition on editing context artifacts;
-- exact subtask controller commands for the assigned parent TODO;
-- permission to read and edit relevant source and tests;
-- instruction to preserve unrelated working-tree changes;
-- requirement to run task-local validation;
-- the completion-report schema, including exact `context_files_read`, `learning_files_read`, `completed_subtask_ids`, and narrowly predeclared `reusable_learnings`.
+- task id and task-definition path;
+- instruction to read exactly the context/learning files listed there;
+- checkpoint controller path;
+- permission to inspect/edit relevant repository files;
+- completion-report schema path.
 
-Do not paste the full user request, `ANALYSIS.md`, `PLAN.md`, `PLAN_REVIEW.md`, `TODO.md`, the manifest, prior worker reports, logs, or definitions for later tasks. The task definition plus its assigned context and validated-learning files must contain the bounded context needed by that worker. Information used by only one TODO stays in the task definition. The scheduler must not dispatch a target until every task that declared it as a learning target has completed.
+Do not paste the original request, full plan, study, manifest, TODO list, prior reports, logs, or future tasks.
 
-### Validate independently
+The compact task file contains only execution-relevant information: objective, context/learnings, checkpoints, scope, non-obvious guidance, acceptance, validation, and narrow publishable learning topics.
 
-The worker's report is evidence, not the acceptance decision. First verify that `context_files_read` and `learning_files_read` exactly match generated assignments; reject missing or extra reads. Reconcile completed subtask ids and reject parent completion while any required checkpoint remains incomplete. From the orchestrator thread, execute every validation command listed in the manifest. Save command, exit code, and a concise output tail.
-
-Checkpoint long work without editing Markdown:
+### 4. Checkpoint
 
 ```bash
-python <skill-dir>/scripts/planctl.py subtask-start --plan <plan-path> --task 001 --subtask S001
-python <skill-dir>/scripts/planctl.py subtask-complete --plan <plan-path> --task 001 --subtask S001
-python <skill-dir>/scripts/planctl.py subtask-reset --plan <plan-path> --task 001 --subtask S001
+python <skill-dir>/scripts/planctl_concise.py subtask-start \
+  --plan <plan-path> --task 001 --subtask S001
+
+python <skill-dir>/scripts/planctl_concise.py subtask-complete \
+  --plan <plan-path> --task 001 --subtask S001
 ```
 
-An interruption preserves completed checkpoints and resets only an in-progress subtask to pending.
+Use `subtask-reset` only when that checkpoint must be deliberately redone. Never edit task Markdown for state.
 
-On success, write a JSON report under `<plan-path>/results/` and complete the task:
+### 5. Validate independently
+
+The worker report is evidence, not acceptance. The orchestrator must:
+
+1. verify exact context/learning read lists;
+2. verify completed required subtasks;
+3. run every task validation command from the repository root;
+4. keep full command output in logs and only bounded diagnostic tails in state.
+
+### 6. Complete or fail
+
+Success:
 
 ```bash
-python <skill-dir>/scripts/planctl.py complete \
+python <skill-dir>/scripts/planctl_concise.py complete \
   --plan <plan-path> \
   --task 001 \
   --report <plan-path>/results/001.json \
   --result-file results/001.json
 ```
 
-On functional failure, preserve the exact blocker and return the task to pending:
+Functional failure:
 
 ```bash
-python <skill-dir>/scripts/planctl.py fail \
-  --plan <plan-path> \
-  --task 001 \
-  --reason "Unit test X failed with ..."
+python <skill-dir>/scripts/planctl_concise.py fail \
+  --plan <plan-path> --task 001 \
+  --reason "Focused failure evidence or log reference"
 ```
 
-For a usage or rate limit, preserve retry state without incrementing functional failures:
+Usage/rate limit:
 
 ```bash
-python <skill-dir>/scripts/planctl.py fail \
-  --plan <plan-path> \
-  --task 001 \
-  --reason "Provider usage limit" \
-  --rate-limited
+python <skill-dir>/scripts/planctl_concise.py fail \
+  --plan <plan-path> --task 001 \
+  --reason "Provider usage limit" --rate-limited
 ```
 
-Repeat until no runnable task remains.
+A completion report is deliberately bounded: summary <= 360 chars; validation detail <= 600; risks/follow-ups <= 8 items of 240 chars; reusable learning guidance <= 320 chars. Empty risk/follow-up arrays are preferred to boilerplate.
 
-## 5. Strict external-runner execution
+On completion, only the compact summary/risks/follow-ups needed for final handoff are promoted into manifest task state. Raw provider output remains in result/log files inside the ephemeral plan workspace.
 
-Run strict mode from a VS Code terminal or CI shell outside a nested invocation of the same agent CLI:
+## Strict external runner
+
+From a terminal/CI outside a nested provider invocation:
 
 ```bash
-python <skill-dir>/scripts/run_isolated.py --plan <plan-path>
+python <skill-dir>/scripts/run_concise.py --plan <plan-path>
 ```
 
-The runner:
-
-1. validates the approved plan and configuration;
-2. selects the next runnable task;
-3. resolves provider, model, and effort from logical routing;
-4. persists the claimed state;
-5. starts a new non-persistent process for the configured Claude Code, Codex, Gemini CLI, Qwen Code, Kimi Code CLI, or Trae Agent backend;
-6. names only the current task definition and requires only its assigned context and validated-learning files;
-7. rejects a report whose context/learning read lists or completed subtask ids violate the assignment;
-8. captures provider output and logs under the plan directory;
-9. re-runs deterministic validation from the repository root;
-10. completes, retries, escalates, or blocks the task;
-11. waits and retries usage limits without escalation;
-12. materializes only predeclared target-specific learnings after deterministic source validation;
-13. generates the final summary with the configured economy route;
-14. prints the summary and removes only the sentinel-protected plan directory.
-
-Useful flags:
+Useful flags remain compatible with `run_isolated.py`:
 
 ```bash
-python <skill-dir>/scripts/run_isolated.py --plan <plan-path> --dry-run
-python <skill-dir>/scripts/run_isolated.py --plan <plan-path> --once --no-cleanup
-python <skill-dir>/scripts/run_isolated.py --plan <plan-path> --provider codex
-python <skill-dir>/scripts/run_isolated.py --plan <plan-path> --no-wait
-python <skill-dir>/scripts/run_isolated.py --plan <plan-path> --no-cleanup
+python <skill-dir>/scripts/run_concise.py --plan <plan-path> --dry-run
+python <skill-dir>/scripts/run_concise.py --plan <plan-path> --once --no-cleanup
+python <skill-dir>/scripts/run_concise.py --plan <plan-path> --provider codex
+python <skill-dir>/scripts/run_concise.py --plan <plan-path> --no-wait
 ```
 
-The default configuration waits across rate-limit cycles while the runner remains alive. Interrupting it leaves disk state safe to resume with the same command.
+The runner validates state, starts a new non-persistent provider process per TODO, checks the report, reruns deterministic validation, materializes only validated predeclared learnings, escalates only on technical evidence, and cleans planning state after the final handoff.
 
-## 6. State and quality commands
+## State commands
 
 ```bash
-# Structural integrity, dependency graph, required planning evidence
-python <skill-dir>/scripts/planctl.py validate --plan <plan-path>
-
-# Requirement coverage, review status, and task-complexity distribution
-python <skill-dir>/scripts/planctl.py audit --plan <plan-path>
-
-# Human-readable checklist
-python <skill-dir>/scripts/planctl.py status --plan <plan-path>
-
-# Full machine-readable state
-python <skill-dir>/scripts/planctl.py status --plan <plan-path> --json
-
-# Next task whose dependencies are complete
-python <skill-dir>/scripts/planctl.py next --plan <plan-path> --json
-
-# Reset a blocked or abandoned task to pending
-python <skill-dir>/scripts/planctl.py reset --plan <plan-path> --task 001
-
-# Deterministic fallback summary
-python <skill-dir>/scripts/planctl.py summary --plan <plan-path>
+python <skill-dir>/scripts/planctl_concise.py validate --plan <plan-path>
+python <skill-dir>/scripts/planctl_concise.py audit --plan <plan-path>
+python <skill-dir>/scripts/planctl_concise.py status --plan <plan-path>
+python <skill-dir>/scripts/planctl_concise.py status --plan <plan-path> --json
+python <skill-dir>/scripts/planctl_concise.py reset --plan <plan-path> --task 001
 ```
 
-Do not edit status markers in `TODO.md`; it is regenerated from the manifest. It must remain a one-line-per-task status index. Model routing, requirements, dependencies, complexity, and validation belong in task definitions and `manifest.json`, not in the checklist.
+`TODO.md` remains one line per task. `manifest.json` is the authoritative machine state.
 
-## 7. Failure, replanning, and escalation
+## Failure and escalation
 
-Classify failures before changing the route:
+Classify before changing the route:
 
-- **Technical:** implementation error, test failure, invalid structured report, timeout, or tool error caused by the attempted solution.
-- **Environmental but actionable:** missing dependency, unavailable service, permission issue, or corrupted workspace. Record the blocker; escalate only when a stronger model could plausibly diagnose it.
-- **Provider availability:** usage limit, rate limit, temporary capacity, or exhausted credits. Wait or resume without increasing functional failures.
-- **Planning defect:** missing scope, wrong dependency, oversized TODO, impossible acceptance criterion, or validation that does not prove the outcome.
-- **Safety gate:** destructive or irreversible action lacking authorization. Stop and retain the plan.
+- **technical:** implementation/test/report/tool failure caused by the attempted solution;
+- **environmental actionable:** repository/toolchain issue that the worker can repair within scope;
+- **provider availability/usage:** retry/fallback without counting a technical failure;
+- **planning invalidation:** evidence disproves a material requirement, dependency, context boundary, or validation assumption — stop downstream work and replan.
 
-Do not treat a planning defect as a normal worker failure. Pause downstream dispatch, update the analysis and requirements if needed, recursively decompose again, regenerate execution-context assignments, run a fresh review, recreate or safely revise the plan, and require `validate` plus `audit` to pass before resuming.
+Persist the smallest diagnostic excerpt that can guide the next attempt plus a log reference when available. Do not copy full logs into `last_error`.
 
-Use the route schedule in `MODEL_ROUTING.md` for true technical failures. Preserve failure evidence so a stronger attempt can diagnose the current repository state without reading prior chat history.
+Escalate effort/tier/provider only when the failure evidence justifies it. Do not preemptively route every TODO to the strongest model.
 
-## 8. Final summary and cleanup
+## Validated learning
 
-After every task is completed:
+After a source TODO passes deterministic validation, it may publish only learnings that:
 
-1. Prepare a compact summary input from plan metadata, requirement coverage, validated task reports, and diff statistics.
-2. Spawn a fresh economy-tier summarizer.
-3. Return the summary to the orchestrator chat or terminal.
-4. Mark the summary generated:
+- target a predeclared untouched future TODO;
+- match predeclared topics;
+- state one concrete code/procedure/decision/pitfall/validation finding;
+- cite repository symbols/paths/commands;
+- save meaningful rediscovery cost.
 
-```bash
-python <skill-dir>/scripts/planctl.py mark-summary \
-  --plan <plan-path> \
-  --summary-file FINAL_SUMMARY.md
-```
+No transcript, generic advice, or plan history belongs in learning files.
 
-5. Clean up:
+## Final handoff
 
-```bash
-python <skill-dir>/scripts/planctl.py cleanup --plan <plan-path>
-```
+After all TODOs complete:
 
-Cleanup verifies the sentinel, repository root, work-root location, plan id, completed state, and generated summary before deletion. It removes only `<repo>/.ai-work/<plan-id>` and removes `.ai-work` itself only when empty.
+1. reload final manifest state;
+2. construct `SUMMARY_INPUT.json` from goal, per-task compact completion memory, validation status, changed files, and bounded git status/diff stat;
+3. generate a concise handoff from that input only;
+4. mark summary generated;
+5. clear lifecycle active state;
+6. delete only the sentinel-protected plan workspace unless retention was explicitly requested.
 
-## 9. Safety and operating limits
+Never concatenate raw worker reports or logs into the final summarizer prompt.
 
-- Do not autostart an unapproved production deployment, credential rotation, irreversible database migration, broad deletion, or similarly high-impact action.
-- Do not run multiple write workers in the same working tree. Use sequential tasks or separate worktrees.
-- Do not treat a model-generated success statement as validation.
-- Do not let a worker rewrite the plan or context artifacts to make its own work appear successful.
-- Do not expose global or scoped context to a TODO that was not assigned that file.
-- Do not clean up a failed or partially completed plan unless the user explicitly requests forced deletion.
-- Automatic continuation requires a live host or runner process. Disk state makes restart resumable but cannot execute while the machine and all agent processes are stopped.
-- Provider subscriptions, permissions, organizational policies, and sandboxes remain authoritative; this workflow does not bypass them.
+## Safety
 
-## Resumable lifecycle entry
-
-Before beginning or resuming implementation, follow the lifecycle contract in [LIFECYCLE.md](LIFECYCLE.md).
-
-```bash
-python <skill-dir>/scripts/lifecyclectl.py current --repo-root . --json
-```
-
-- `action: create_request` means no unfinished implementation exists.
-- `action: resume` means reload the returned plan from disk, recover orphaned task state, rerun quality gates, and continue from the next runnable TODO.
-- `action: already_running` means an external runner owns a live lease; do not dispatch another worker.
-
-For strict process-isolated continuation use `pae resume`. Before native resume use `lifecyclectl.py recover --plan .ai-work/<plan-id>`. After final summary generation, deactivate the plan before guarded cleanup. `pae cancel` removes the active planning state without reverting implementation changes; `pae reset` removes every recognized plan-and-execute plan in the workspace.
+- Preserve unrelated working-tree changes.
+- Never use cleanup to revert implementation output.
+- Keep plan artifacts under the configured plan work root.
+- Reject symlink/path escapes through existing lifecycle/plan guards.
+- Retain plan state when execution, final validation, or summary generation fails so resume remains possible.
