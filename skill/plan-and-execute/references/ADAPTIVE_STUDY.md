@@ -49,6 +49,20 @@ Recommend external depth using these rules:
 - **Pesquisa focalizada** when one or a few version/API/security/compatibility questions can materially change the plan;
 - **Pesquisa ampla** when external uncertainty is broad, high-risk, rapidly changing, or the request explicitly requires broad research/comparison.
 
+#### Interactive choice UI
+
+Before writing choice text, inspect the tools exposed by the current host. If a native interactive single-choice question tool exists, **use it** so the user can answer by clicking with the mouse. Do not render a duplicate Markdown/numbered choice list when the native tool call succeeds.
+
+Host rules:
+
+- **VS Code**: prefer the built-in `vscode/askQuestions` tool (also referenced as `#vscode/askQuestions` in VS Code prompt/tool contexts). Invoke it with exactly one question for the current turn and the three choices below as clickable **single-select** options.
+- **Other hosts**: use an equivalent native single-choice/ask-user tool when one is actually exposed; do not invent a tool name or claim buttons exist when the host does not support them.
+- Preserve the literal **`(recomendado)`** suffix in the clickable option label. If the native tool separately supports recommended-answer metadata/highlighting, use it too when safe, but the visible suffix is still required.
+- The UI recommendation must not preselect or submit an option automatically. The user must click/select one choice explicitly.
+- Do not enable multi-select for these two questions.
+- Do not include free-text input as the primary response path when three clickable choices are supported.
+- If the interactive tool is unavailable, disabled, or rejected by the host, fall back to the same question plus exactly three numbered text options. This fallback is the only case where the choice list should be written directly in chat.
+
 #### Choice 1 — internal study
 
 If the request does not already determine the internal depth, present exactly one single-select multiple-choice question:
@@ -61,7 +75,7 @@ If the request does not already determine the internal depth, present exactly on
 
 Append **`(recomendado)`** to exactly one of the three displayed labels according to the recommendation rules above.
 
-Use the platform's native single-choice UI when available. Do not use a free-form question when a choice UI is supported. If no native choice UI exists, render only this question plus the three numbered options and ask the user to select exactly one. Do not mention or preview the external-study question in this turn. End the turn after asking.
+Use the interactive-choice rules above. In VS Code, call `vscode/askQuestions` so the three options are clickable; otherwise use the host's equivalent native single-choice tool. Only if no such tool is usable, render this question with three numbered options in chat. Do not mention or preview the external-study question in this turn. End the turn after asking.
 
 After the user selects an internal option, record it with `selection_source: user`. Do not start broad repository study yet if the external choice is still missing.
 
@@ -77,7 +91,7 @@ Only after the internal choice is known, and only if the request does not alread
 
 Append **`(recomendado)`** to exactly one of the three displayed labels according to the recommendation rules above.
 
-Again, use the platform's native single-choice UI when available; otherwise render only this question plus the three numbered options and require exactly one selection. Do not repeat the internal question or its options. End the turn after asking.
+Again, use the interactive-choice rules above. In VS Code, call `vscode/askQuestions` so the three options are clickable; otherwise use the host's equivalent native single-choice tool. Only if no such tool is usable, render this question with three numbered options in chat. Do not repeat the internal question or its options. End the turn after asking.
 
 After the user selects the external option, record it with `selection_source: user` and continue the adaptive study in that response.
 
