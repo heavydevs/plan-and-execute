@@ -1,165 +1,161 @@
-# Token and context efficiency
+# Token-efficiency contract
 
-Use this reference when designing prompts, changing the harness, reviewing execution context, or deciding whether extra study is worth its token cost.
+Use this reference when reviewing prompt/context cost or changing the harness. `ARTIFACT_WRITING.md` owns prose precision/budgets; this file owns **where tokens are spent**.
 
-## Goal
+## Objective
 
-Minimize total model tokens and repeated context while preserving implementation quality, requirement coverage, deterministic validation, and resumability. Optimize the whole workflow, not only individual prompts.
+Minimize tokens that do not improve the implementation decision.
+
+A token is justified when it carries current-task requirements, evidence, a decision boundary, failure diagnosis, or validation signal. Everything else should be retrieved later, referenced by id/path, stored outside model context, or omitted.
 
 ## 1. Spend model tokens only on judgment
 
-Prefer deterministic code for operations that do not require semantic judgment:
+Use deterministic code for:
 
-- lifecycle discovery and state transitions;
-- requirement/plan schema validation;
-- dependency resolution and next-task selection;
-- file/path allowlists;
-- completion-report validation;
-- subtask checkpoints;
+- lifecycle/state transitions;
+- dependency scheduling;
+- requirement coverage checks;
+- character/list budgets and high-confidence vague-word checks;
+- filesystem/path safety;
 - validation command execution;
-- summary-input aggregation;
-- cleanup and safety checks.
+- log storage and tail selection;
+- cleanup.
 
-A model should receive the result of those operations, not re-derive them from large files or chat history.
+Use models for ambiguity resolution, architecture, decomposition, implementation, debugging, and synthesis that genuinely require reasoning.
 
 ## 2. Progressive disclosure beats one large prompt
 
-Keep the skill entrypoint small and load detailed references only at their phase:
+Load only the current phase reference:
 
-1. lifecycle/intake;
-2. adaptive study;
-3. planning/decomposition;
-4. execution-context design;
-5. provider routing/execution;
-6. final summary/cleanup.
+- intake -> `INTAKE.md`;
+- study -> `ADAPTIVE_STUDY.md`;
+- planning -> `PLANNING_PROTOCOL.md`, then context/spec references when needed;
+- execution -> `WORKFLOW.md` and routing only when selecting/escalating a route.
 
-Do not preload provider-specific, lifecycle, schema, or installation documentation merely because it exists.
+Do not preload the whole skill reference directory.
 
-## 3. Search first, read second
+## 3. Preserve the request; compress derived state
 
-For repository study:
+Never shorten the user's original request merely to save tokens. Preserve it verbatim when imported.
 
-- use filename/symbol/keyword/reference search before opening files;
-- inspect the smallest high-signal range that answers the question;
-- expand one dependency/test hop only when the current evidence creates a material question;
-- prefer structural summaries (tree, imports, test names, diff stat) over dumping files;
-- stop when more evidence is unlikely to change architecture, compatibility, task boundaries, risk, or validation.
+Derived artifacts must be smaller because they replace repeated prose with:
 
-For external study, record concise findings and planning impact. Do not carry raw articles into execution workers.
+- stable `P...` / `R...` / TODO ids;
+- atomic fields;
+- paths/symbols/commands;
+- requirement -> TODO mappings;
+- compact completion memory.
 
-## 4. Context is assigned by necessity, not relevance
+Do not copy request paragraphs into study, requirements, PLAN.md, and every task file.
 
-A fact belongs in a worker's assigned context only if omitting it materially increases the chance of an incorrect implementation or validation result.
+## 4. Search first, read second
 
-Use this order:
+For repository work:
 
-1. task definition for task-local facts;
-2. scoped context for facts required by multiple but not all TODOs;
-3. global context only for facts required by every TODO;
-4. omit facts that can be cheaply rediscovered from nearby source.
+1. search filenames/symbols/keywords;
+2. rank likely files;
+3. open focused ranges/files plus necessary dependencies/tests;
+4. widen only when evidence requires it.
 
-Prefer references to repository paths, symbols, commands, and requirement ids over pasted source code.
+For external research, prefer authoritative targeted sources. Save the conclusion + planning impact, not article text.
 
 ## 5. Fresh workers are cheaper than polluted long histories
 
-Start each executable TODO with a fresh worker. Do not pass:
+One TODO starts one fresh worker. Pass only:
 
-- parent conversation history;
-- previous worker transcripts;
-- whole PLAN.md or TODO.md;
-- unrelated task definitions;
-- raw study notes;
-- prior logs or reports unless a precise validated learning was predeclared for this target.
+- one task-definition path;
+- exact assigned context files;
+- exact assigned validated-learning files;
+- repository root and compact execution rules.
 
-Persist durable state in `manifest.json`, task definitions, context files, subtask checkpoints, and validated learning artifacts instead.
+Never pass parent chat, full plan, study, future tasks, logs, or previous raw worker reports.
 
-## 6. Cross-task learning must have positive expected value
+Persist resume state in the manifest/subtasks, not conversational history.
 
-Create a learning edge only when all are true:
+## 6. Minimize shared context
 
-- the target task is later and untouched;
-- the source and target share a specific difficult procedure, invariant, pitfall, decision, or validation method;
-- rediscovering that information is plausibly more expensive than reading the learning file;
-- the source finding has passed deterministic validation;
-- the learning can be expressed concisely with concrete references.
+Default to no `CONTEXT.md`.
 
-Do not transfer generic framework knowledge, broad summaries, logs, or speculative advice. An empty learning report is preferred to low-value context.
+Create global/scoped context only when the same non-obvious fact is required by all assigned TODOs. Prefer source references to repeated explanation. Keep single-task facts in that task definition.
 
-## 7. Preserve stable prefixes for provider prompt caching
+A relevant fact is not automatically a necessary shared fact.
 
-When a provider supports prompt caching, maximize reusable stable prefixes:
+## 7. Reuse only expensive validated discoveries
 
-- put invariant worker rules before task-specific identifiers/data;
-- avoid timestamps, attempt numbers, absolute ephemeral paths, or other changing fields early in the prompt when they are not needed there;
-- keep schemas/invariant instructions byte-stable where possible;
-- append dynamic task data after the stable contract.
+`learning_targets` are sparse and directional. Publish a learning only after source deterministic validation and only if a future declared target would otherwise spend meaningful effort rediscovering it.
 
-Caching is an optimization, never a correctness dependency. Providers without compatible caching must still work correctly.
+Prefer:
 
-## 8. Bound tool and report output
+`validation — Reproduce vendor timeout with test X before changing retry order. (refs: test symbol, command)`
 
-Large tool output can dominate context even when the prompt is small.
+Avoid broad “what we learned” summaries.
 
-- store full logs/results on disk;
-- return only status, bounded tails, selected errors, and stable file references to the orchestrator;
-- cap repeated failure excerpts;
-- deduplicate repeated validation output;
-- keep completion reports structured and concise;
-- do not embed complete reports in future worker prompts.
+## 8. Preserve stable prefixes for provider prompt caching
 
-When a later model needs detail, point it to the exact file/range rather than copying the content into orchestration context.
+Keep stable execution rules before dynamic repository/task/route data when provider caching can benefit. Avoid timestamps, task-specific prose, or volatile state in the stable prefix.
 
-## 9. Avoid redundant validation by models
+Do not duplicate the same rule in the system/default prompt, task file, worker prompt, and report schema. Assign one authoritative layer whenever possible.
 
-The worker may run task-local checks while implementing, but authoritative pass/fail is the orchestrator's deterministic rerun. Do not ask a second model to reinterpret successful deterministic output unless there is a semantic risk that the command cannot cover.
+## 9. Bound tool and report output
 
-Plan review should be proportional:
+Full output belongs in plan logs. Model/state context gets only the portion needed to decide the next action.
 
-- simple: orchestrator self-check;
-- medium: fresh review only when uncertainty/risk/boundary ambiguity warrants it;
-- complex: fresh review when supported.
+Current concise contract:
 
-## 10. Summarize from authoritative compact state
+- validation `output_tail`: <= 800 chars;
+- persisted failure reason: <= ~1,400 chars;
+- completion summary: <= 360 chars;
+- validation detail: <= 600 chars;
+- risks/follow-ups: <= 8 x 240 chars;
+- reusable learning guidance: <= 320 chars;
+- final repository-change summary: bounded git status/diff stat.
 
-The final summary should be built from:
+Do not copy stack traces or full build output into a retry prompt when an error excerpt + log path is enough.
 
-- completed task ids/titles;
+## 10. Final summary uses compact authoritative state
+
+Never concatenate worker reports into the final summarizer input.
+
+`SUMMARY_INPUT.json` should contain only:
+
+- goal;
+- task id/title + compact completion summary;
 - changed files;
-- bounded worker summaries if useful;
-- deterministic validation results;
-- remaining recorded risks/follow-ups;
-- a bounded git diff stat.
+- deterministic validation status;
+- recorded remaining risks/follow-ups;
+- bounded repository change summary.
 
-Do not concatenate full worker reports by default. The summarizer must not need plan files or historical chat.
+The raw result/log files remain available for debugging before cleanup but are not re-consumed by default.
 
-## 11. Model routing is a token-cost control
+## 11. Route proportionally
 
-Start at the least expensive tier/effort that is credible for the TODO. Escalate after concrete technical failure or evidence of insufficient reasoning capacity. Do not use a stronger model merely because the overall request is complex; route each isolated TODO independently.
+Start with the cheapest tier/effort plausibly capable of the TODO. Escalate from concrete technical evidence, not because the overall request was large.
 
-Cheap tasks include direct localized edits with deterministic acceptance. Stronger routes are justified by architecture, concurrency, security, migrations, ambiguous failures, or repeated unsuccessful attempts.
+Large plans often contain many low/medium leaves. Do not force every leaf onto the model used for planning.
 
 ## 12. Never optimize away these quality anchors
 
-Do not remove or excessively compress:
+Token reduction must not remove:
 
-- complete user requirements and constraints;
-- task-local invariants and acceptance criteria;
-- dependency and ownership boundaries;
-- concrete failure evidence required to repair the current TODO;
-- validation commands and their authoritative outcomes;
-- recovery/checkpoint state;
-- safety checks around destructive actions.
+- complete user-request evidence;
+- requirement coverage/traceability;
+- task scope/invariants;
+- observable acceptance criteria;
+- deterministic validation commands/results;
+- material failure evidence;
+- resume checkpoints;
+- safety/path/cleanup guards.
 
-The objective is fewer irrelevant/repeated tokens, not less necessary information.
+When concision and correctness appear to conflict, first remove repetition and process narration. If a distinction still matters to implementation or validation, keep it.
 
 ## Research basis
 
-The strategy follows several converging findings/practices:
+The contract reflects converging evidence:
 
-- modern provider prompt caching rewards repeated stable prompt prefixes, so stable instructions should precede dynamic task data;
-- provider guidance on context engineering recommends compacting long histories and preserving structured state/artifacts instead of replaying transcripts;
-- repository-level software-engineering research consistently benefits from localization/retrieval before generation rather than feeding an entire repository;
-- long-context research shows that merely adding more context does not guarantee better use of information, supporting selective retrieval and concise task-local context;
-- prompt-compression research demonstrates that irrelevant/redundant context can be reduced substantially, but this skill intentionally uses deterministic selection and structured memory rather than lossy compression for correctness-critical contracts.
+- OpenAI model guidance favors lean prompts, stating each instruction once and exposing only relevant tools/examples; internal coding-agent evaluations report directional quality/token/cost improvements from simplification. https://developers.openai.com/api/docs/guides/latest-model
+- Anthropic recommends finding the smallest set of high-signal tokens and using progressive disclosure / just-in-time retrieval. https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
+- `Lost in the Middle` shows that more long-context input does not guarantee better use of information. arXiv:2307.03172
+- RepoCoder/Repoformer support selective repository retrieval; CodePlan supports explicit dependency-aware planning; Agentless shows strong value from structured localization + repair + deterministic validation.
+- NASA/INCOSE/EARS requirements guidance supports atomic, concise, unambiguous, verifiable derived requirements; see `ARTIFACT_WRITING.md`.
 
-Treat these as design principles. Provider-specific behavior may change, so verify current official documentation when changing caching, model, context-window, or billing assumptions.
+Treat reported vendor/paper percentages as directional. Validate this skill with its own regression suite and representative real requests.
