@@ -21,6 +21,10 @@ def main() -> None:
         "only the external-study question",
         "in a new turn",
         "Never combine or preview both questions",
+        "(recomendado)",
+        "exactly one recommendation",
+        "never preselect it",
+        "canonical option value",
     ):
         require(SKILL, needle, "SKILL.md")
 
@@ -32,6 +36,18 @@ def main() -> None:
         "Do not mention or preview the external-study question in this turn",
         "Do not repeat the internal question or its options",
         "Never ask both questions together for convenience",
+        "Recommendation marker",
+        "exactly one recommended option",
+        "(recomendado)",
+        "never preselect the recommended option",
+        "keep the underlying canonical value unchanged",
+        "strip/ignore the display suffix",
+        "Pacotes relacionados",
+        "Busca por palavras-chave em todo o workspace",
+        "Projeto completo",
+        "Sem estudo externo",
+        "Pesquisa focalizada",
+        "Pesquisa ampla",
     ):
         require(STUDY, needle, "ADAPTIVE_STUDY.md")
 
@@ -39,6 +55,9 @@ def main() -> None:
     external_pos = STUDY.index("Choice 2 — external study")
     if internal_pos >= external_pos:
         raise AssertionError("Internal study choice must be defined before external study choice")
+
+    if STUDY.count("Append **`(recomendado)`** to exactly one") != 2:
+        raise AssertionError("Both study questions must require exactly one recommended display option")
 
     print("Sequential study-choice interaction contract validated.")
 
