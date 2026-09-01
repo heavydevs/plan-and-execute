@@ -2,22 +2,22 @@
 
 **Transforme pedidos grandes de programação em planos de implementação estudados, isolados por contexto e retomáveis.**
 
-O `plan-and-execute` estuda o pedido completo e o repositório antes de planejar, cria TODOs rastreáveis aos requisitos, entrega a cada TODO um contexto novo, persiste checkpoints de subtarefas, valida a implementação independentemente e encaminha apenas aprendizados verificados e úteis para TODOs futuros semelhantes.
+O `plan-and-execute` estuda o pedido completo e o repositório antes de planejar, cria TODOs rastreáveis aos requisitos, entrega a cada TODO um contexto novo, persiste checkpoints, valida a implementação independentemente e encaminha apenas aprendizados verificados e úteis para TODOs futuros semelhantes.
 
 [Read in English](README.md)
 
 ## IAs suportadas para execução
 
-| IA / agente | Suporte de execução | Instalação padrão da skill | Rota padrão | Observação |
+| IA / agente | Suporte de execução | Instalação padrão | Rota padrão | Observação |
 |---|---:|---:|---:|---|
-| Claude Code | Sim | Sim | Primeiro | Destino padrão do tutorial rápido |
-| OpenAI Codex | Sim | Sim | Segundo | Destino padrão do tutorial rápido |
+| Claude Code | Sim | Sim | Primeiro | Destino padrão do tutorial |
+| OpenAI Codex | Sim | Sim | Segundo | Destino padrão do tutorial |
 | Google Gemini CLI | Sim | Não | Opcional | Processo CLI headless novo |
 | Qwen Code | Sim | Não | Opcional | Processo CLI headless novo |
 | Kimi Code CLI | Sim | Não | Opcional | Processo novo em prompt mode |
 | Trae Agent | Sim | Não | Opcional | Processo novo com `trae-cli run` |
 
-O instalador npm instala a skill intencionalmente apenas no **Claude Code**, no **Codex** ou em **ambos**. Gemini, Qwen, Kimi e Trae são backends opcionais de execução configurados dentro do plano; eles não entram silenciosamente na ordem padrão de provedores.
+O instalador npm instala a skill apenas no **Claude Code**, no **Codex** ou em **ambos**. Gemini, Qwen, Kimi e Trae são backends opcionais configurados dentro de um plano; não entram silenciosamente na ordem padrão.
 
 ## Tutorial rápido: Claude Code e Codex
 
@@ -27,41 +27,53 @@ Requisitos:
 - Python 3.10 ou superior;
 - Claude Code e/ou Codex instalados e autenticados.
 
-Instale no workspace atual para os dois agentes padrão:
+Instale no workspace atual:
 
 ```bash
 npx @luizcgvrj/plan-and-execute install both
 ```
 
-Ou instale para apenas um:
+Ou para apenas um agente:
 
 ```bash
 npx @luizcgvrj/plan-and-execute install claude
 npx @luizcgvrj/plan-and-execute install codex
 ```
 
-Instale no perfil do usuário:
+Instalação global:
 
 ```bash
 npx @luizcgvrj/plan-and-execute install both --global
 ```
 
-Depois, invoque a skill no Claude Code ou Codex com um pedido grande de implementação, com o caminho de um arquivo de requisitos ou sem argumentos. Sem argumentos, ela primeiro retoma a única implementação inacabada; só cria um rascunho guiado quando o workspace está ocioso.
+Depois, invoque a skill com um pedido grande, um caminho de arquivo de requisitos ou sem argumentos. Sem argumentos, ela retoma primeiro a única implementação inacabada; só cria um rascunho guiado quando o workspace está ocioso.
+
+## Artefatos derivados objetivos e precisos
+
+O pedido original do usuário continua sendo evidência integral. A economia de tokens começa apenas quando a skill deriva estudo, requisitos, plano, definições de TODO, contexto, aprendizados, relatórios e handoff final.
+
+O texto derivado segue um contrato determinístico:
+
+- um trabalho semântico por campo;
+- substantivos, condições e resultados observáveis;
+- ids, caminhos, símbolos, comandos, versões e limites no lugar de explicações repetidas;
+- orçamento explícito de caracteres e quantidade de itens por campo;
+- rejeição de termos vagos de alta confiança, como `conforme apropriado`, `conforme necessário`, `quando necessário`, `e/ou`, `adequado`, `robusto`, `rapidamente` e equivalentes em inglês;
+- nenhuma truncagem silenciosa de requisito: campo vago ou grande demais precisa ser reescrito com precisão ou dividido em itens atômicos.
+
+O runtime usa `planctl_concise.py`, `studyctl_concise.py`, `lifecyclectl_concise.py` e `run_concise.py`. Esses entrypoints instalam o contrato conciso sobre os controllers determinísticos existentes, preservando lifecycle, resume, validação e cleanup.
+
+Veja [Escrita precisa dos artefatos](skill/plan-and-execute/references/ARTIFACT_WRITING.md).
 
 ## Por que a fronteira dos TODOs importa
 
 Um worker novo deve receber um problema semântico coerente, não um conjunto arbitrário de arquivos nem tudo o que apareceu no mesmo parágrafo.
 
-Imagine um pedido com:
+Exemplo: um pedido contém um CRUD completo de pessoa e outro de loja. Quando os domínios não compartilham invariantes de negócio, transações, lifecycle ou uma fronteira real de validação, eles pertencem a **TODOs separados**. O histórico do worker de pessoa não ajuda materialmente o worker de loja.
 
-- um CRUD completo de pessoa, com entidade, serviço, controller, validações e testes próprios;
-- um CRUD completo de loja, com outra entidade, outro serviço, outro controller, outras regras e outros testes.
+A regra oposta também vale: não crie um TODO por arquivo. Entidade, serviço, controller, migração e testes focados podem permanecer juntos quando implementam um comportamento e se beneficiam do mesmo contexto.
 
-Quando os dois domínios não compartilham invariantes de negócio, transações, estado de ciclo de vida ou uma fronteira real de validação, devem ser **TODOs separados**. O histórico e a exploração do worker de pessoa não ajudam materialmente o worker de loja.
-
-A regra oposta também é importante: não crie um TODO para cada arquivo. Entidade, serviço, controller, migração e testes focados podem permanecer juntos quando implementam um único comportamento e se beneficiam do mesmo contexto de trabalho.
-
-O schema v4 exige que cada tarefa registre um `context_boundary`:
+O schema v4 registra `context_boundary`:
 
 ```json
 {
@@ -75,11 +87,11 @@ O schema v4 exige que cada tarefa registre um `context_boundary`:
 }
 ```
 
-Um revisor independente do plano precisa aprovar `context_boundaries_sound` antes da execução.
+Um revisor independente precisa aprovar `context_boundaries_sound` antes da execução.
 
 ## Subtarefas retomáveis dentro de cada TODO
 
-Cada definição de tarefa do schema v4 contém sua própria checklist estável. O estado autoritativo fica no `manifest.json`; os arquivos Markdown são projeções regeneradas.
+Cada TODO do schema v4 contém checkpoints estáveis. O estado autoritativo fica em `manifest.json`; Markdown é projeção regenerada.
 
 ```json
 {
@@ -100,25 +112,21 @@ Cada definição de tarefa do schema v4 contém sua própria checklist estável.
 }
 ```
 
-O worker registra checkpoints somente pelo controller:
+O worker registra checkpoints somente pelo controller conciso:
 
 ```bash
-python <skill-dir>/scripts/planctl.py subtask-start \
+python <skill-dir>/scripts/planctl_concise.py subtask-start \
   --plan .ai-work/<plan-id> --task 001 --subtask S001
 
-python <skill-dir>/scripts/planctl.py subtask-complete \
+python <skill-dir>/scripts/planctl_concise.py subtask-complete \
   --plan .ai-work/<plan-id> --task 001 --subtask S001
 ```
 
-Depois de falta de energia, processo encerrado ou interrupção do provedor, as subtarefas concluídas continuam concluídas. Apenas a subtarefa interrompida em `in_progress` volta para `pending`. Outra IA, em um contexto novo, continua do primeiro checkpoint inacabado sem ler a conversa anterior.
-
-O TODO pai não pode ser concluído enquanto houver subtarefa obrigatória pendente.
+Após interrupção, subtarefas concluídas continuam concluídas. Apenas checkpoint interrompido em `in_progress` volta a `pending`. Outra IA continua do primeiro checkpoint inacabado sem reler a conversa anterior.
 
 ## Aprendizado validado e seletivo
 
-Contextos novos economizam tokens, mas às vezes um TODO descobre uma solução difícil que deve ajudar outro TODO semelhante. O Plan and Execute cria uma ponte estreita de aprendizado sem carregar o chat da tarefa de origem.
-
-O planejador declara antecipadamente os alvos direcionais:
+Contextos novos economizam tokens, mas um TODO pode descobrir algo caro que ajuda um TODO futuro semelhante. O planejador declara antecipadamente um alvo estreito:
 
 ```json
 {
@@ -132,51 +140,43 @@ O planejador declara antecipadamente os alvos direcionais:
 }
 ```
 
-Somente depois que a tarefa de origem passa pela validação determinística o orquestrador pode criar um arquivo conciso como:
+Somente depois da validação determinística da origem o orquestrador pode criar:
 
 ```text
 .ai-work/<plan-id>/learnings/001-to-002.md
 ```
 
-Uma origem de aprendizado declarada também é um pré-requisito de contexto: o alvo não começa antes que todas as origens capazes de ensiná-lo terminem. Se a origem não encontrou nada reutilizável, nenhum arquivo é criado e o alvo não gasta tokens adicionais.
+Se não houver descoberta reutilizável, nenhum arquivo é criado. Aprendizados precisam ser curtos, fundamentados em evidência e específicos ao alvo. Transcrições, logs, relatórios completos e conselhos genéricos são rejeitados.
 
-Cada aprendizado precisa ser curto, fundamentado em evidências, relevante ao alvo declarado e classificado como código, procedimento, decisão, armadilha ou validação. Ele pode apontar para código exato, testes, comandos ou uma explicação técnica compacta.
-
-O mecanismo rejeita:
-
-- alvos não declarados ou voltados para trás;
-- alvos que já começaram;
-- notas vazias, excessivas ou sem referências;
-- transcrições, logs ou relatórios completos;
-- adulteração do arquivo, mesmo quando alguém recalcula manualmente o hash;
-- descobertas mutáveis gravadas nos arquivos imutáveis `CONTEXT.md`.
-
-O worker precisa informar a lista exata `learning_files_read`. Quando não existe aprendizado útil, nenhum arquivo é criado e nenhum token futuro é gasto com ele.
+O worker reporta a lista exata `learning_files_read`.
 
 ## Gate adaptativo de estudo
 
-A skill não cria TODOs depois de uma leitura superficial. Antes disso, ela:
+Antes de planejar, a skill:
 
 1. preserva e inventaria cada parte independentemente testável do pedido;
-2. estuda instruções, arquitetura, entry points, schemas, testes, CI e padrões relevantes do repositório;
-3. decide se pesquisa externa atual e autoritativa é materialmente necessária;
-4. resolve perguntas de alto impacto e registra evidência e impacto no planejamento;
-5. passa por revisão independente do estudo e por uma regra de parada;
-6. converte os achados em requisitos, riscos, restrições e implicações de validação.
+2. classifica a complexidade antes de explorar amplamente;
+3. localiza evidência no repositório antes de abrir arquivos em massa;
+4. decide se pesquisa externa atual/autoritativa é materialmente necessária;
+5. resolve perguntas de alto impacto e registra somente evidência + impacto no plano;
+6. passa por revisão independente e regra de parada;
+7. converte achados em requisitos, riscos, restrições e implicações de validação.
 
-O estudo canônico fica em `study.json` e é renderizado como `STUDY.md`. O planejamento fica bloqueado até `studyctl.py validate-plan` passar.
+O estudo canônico fica em `study.json` e uma projeção compacta em `STUDY.md`. O planejamento fica bloqueado até:
+
+```bash
+python <skill-dir>/scripts/studyctl_concise.py validate-plan --plan .ai-work/<plan-id>
+```
 
 ## Contexto progressivo de execução
 
-O contexto compartilhado criado durante o planejamento é deliberado e imutável:
-
 - omitir contexto compartilhado é o padrão;
-- criar `CONTEXT.md` apenas para informação concisa necessária a todos os TODOs;
-- criar `contexts/<topic>.md` apenas para subconjuntos estritos de tarefas;
-- manter informação usada por um único TODO na própria definição;
-- manter descobertas de execução nos arquivos de aprendizado validado, não no contexto de planejamento.
+- criar `CONTEXT.md` apenas para informação necessária a todos os TODOs;
+- criar `contexts/<topic>.md` apenas para subconjuntos estritos;
+- manter informação de um único TODO na própria tarefa;
+- manter descobertas de execução em aprendizados validados, não no contexto imutável do plano.
 
-Cada worker precisa reportar exatamente quais arquivos atribuídos de contexto e aprendizado leu. Leituras ausentes ou extras são rejeitadas.
+Cada worker reporta exatamente quais arquivos atribuídos de contexto e aprendizado leu. Leituras ausentes ou extras são rejeitadas.
 
 ## Estrutura de um plano
 
@@ -192,40 +192,38 @@ Cada worker precisa reportar exatamente quais arquivos atribuídos de contexto e
 ├── PLAN.md
 ├── PLAN_REVIEW.md
 ├── TODO.md
-├── CONTEXT.md                 # opcional, contexto universal do planejamento
-├── contexts/                  # opcional, contexto restrito do planejamento
-├── learnings/                 # aprendizados validados de origem para alvo
-├── tasks/                     # uma definição limitada por TODO
+├── CONTEXT.md                 # opcional
+├── contexts/                  # opcional
+├── learnings/                 # aprendizados validados
+├── tasks/                     # contrato compacto de cada TODO
 ├── results/
 └── logs/
 ```
 
-O `TODO.md` continua propositalmente curto. Requisitos, escopo, fronteira de contexto, subtarefas, relações de aprendizado, critérios de aceitação, rota e comandos de validação ficam nas definições de tarefa e no manifest.
+`manifest.json` é autoritativo. `TODO.md` fica em uma linha por tarefa. A definição que o worker lê contém somente objetivo, contexto/aprendizados atribuídos, checkpoints, escopo, orientação não óbvia, aceitação e validação; justificativas de planejamento/review permanecem no estado estruturado em vez de serem repetidas para cada worker.
 
 ## Modos de execução
 
 ### Workers nativos em contexto novo
 
-Dentro do Claude Code ou Codex, o orquestrador pode criar um subagente novo para cada TODO. Cada worker recebe apenas:
+Dentro do Claude Code ou Codex, cada worker recebe apenas:
 
-- sua definição de tarefa;
-- os arquivos exatos de contexto de planejamento atribuídos;
-- os arquivos exatos de aprendizado validado atribuídos;
-- instruções do repositório e arquivos-fonte realmente necessários.
+- a definição compacta de sua tarefa;
+- os arquivos exatos de contexto atribuídos;
+- os aprendizados validados atribuídos;
+- instruções e código do repositório realmente necessários.
 
-Ele não recebe o pedido completo, o plano inteiro, tarefas futuras, transcrições anteriores ou relatórios não relacionados.
+Ele não recebe pedido completo, plano inteiro, tarefas futuras, transcrições antigas ou relatórios não relacionados.
 
 ### Runner externo estrito
 
-Em um terminal ou CI:
-
 ```bash
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
+python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id>
 ```
 
-O runner inicia um processo novo e não persistente do provedor para cada TODO, executa independentemente os comandos de validação, trata escalonamento e indisponibilidade e grava logs e resultados limitados.
+O runner cria um processo não persistente por TODO, executa validação independentemente, trata escalonamento/indisponibilidade, limita saída diagnóstica e monta o resumo final a partir de estado autoritativo compacto — sem reler relatórios brutos de workers.
 
-A rota padrão gerada continua sendo:
+Rota padrão:
 
 ```json
 {
@@ -233,15 +231,7 @@ A rota padrão gerada continua sendo:
 }
 ```
 
-Para usar outra CLI instalada e autenticada, altere o `orchestrator.config.json` ou associe um provedor à tarefa:
-
-```json
-{
-  "provider_order": ["gemini", "qwen", "claude", "codex"]
-}
-```
-
-Também é possível sobrescrever uma retomada:
+Outras CLIs permanecem opt-in via `orchestrator.config.json`, task provider ou resume:
 
 ```bash
 pae resume --provider gemini --once
@@ -250,7 +240,7 @@ pae resume --provider kimi --once
 pae resume --provider trae --once
 ```
 
-Use `pae doctor --json` para verificar as CLIs disponíveis. Os provedores opcionais nunca são obrigatórios para a instalação padrão.
+Use `pae doctor --json` para verificar CLIs disponíveis.
 
 ## Comandos de ciclo de vida
 
@@ -258,25 +248,25 @@ Use `pae doctor --json` para verificar as CLIs disponíveis. Os provedores opcio
 pae current                     # inspecionar implementação ativa
 pae resume                      # recuperar e continuar
 pae resume --once               # executar no máximo um TODO pai
-pae cancel                      # remover o plano ativo e preservar o código
-pae reset --force               # remover todos os planos reconhecidos no workspace
+pae cancel                      # remover plano ativo e preservar código
+pae reset --force               # remover planos reconhecidos do workspace
 ```
 
-O controller corrige ponteiros antigos, impede runners estritos concorrentes, recupera estado interrompido de tarefa/subtarefa e preserva checkpoints concluídos.
+O lifecycle corrige ponteiros antigos, impede runners concorrentes, recupera tarefa/subtarefa interrompida e preserva checkpoints concluídos.
 
 ## Segurança
 
-O Plan and Execute não contorna permissões, sandboxes, regras do repositório, políticas organizacionais ou políticas de sistema dos provedores.
+O Plan and Execute não contorna permissões, sandboxes, regras do repositório, políticas organizacionais ou políticas de sistema.
 
-Provedores headless opcionais podem usar modos de aprovação automática para editar arquivos e executar comandos sem interação. Revise cada configuração, use sandbox ou container quando disponível e execute somente em workspaces confiáveis. O Trae pode trabalhar em container; Qwen e Gemini expõem controles próprios de aprovação e sandbox; workers do Kimi usam o modo documentado `--auto`, enquanto o resumo final usa `--plan`. O Kimi continua opt-in e deve rodar apenas em workspace confiável.
+O runner impõe:
 
-O runner também impõe:
-
-- apenas um worker de escrita por vez no mesmo working tree;
+- um worker de escrita por vez no mesmo working tree;
 - validação determinística fora da declaração de sucesso do worker;
-- contexto limitado por tarefa e por aprendizado;
-- limpeza protegida por sentinel e validação da raiz do repositório;
-- nenhuma implantação destrutiva, rotação de credenciais, exclusão ampla ou migração irreversível automática sem autorização.
+- limites para task/context/learning/report/falha/input do sumário;
+- cleanup protegido por sentinel e validação da raiz;
+- nenhuma operação destrutiva irreversível automática sem autorização.
+
+Depois da validação final e do handoff, o cleanup remove somente o workspace verificado de planejamento/controle. Código, testes, artefatos de produto, commits e alterações não relacionadas permanecem.
 
 ## Instalação e manutenção
 
@@ -287,9 +277,9 @@ pae doctor --json
 pae uninstall both --cwd /caminho/do/projeto
 ```
 
-O instalador usa marcador de propriedade e SHA-256 do diretório. Ele se recusa a sobrescrever destinos não gerenciados, modificados, não relacionados ou links simbólicos fora das condições de segurança documentadas.
+O instalador usa marcador de propriedade e SHA-256 do diretório e se recusa a sobrescrever destinos não gerenciados, modificados, não relacionados ou links simbólicos fora das condições documentadas.
 
-Referências de instalação:
+Referências:
 
 - [Guia em português](skill/plan-and-execute/references/INSTALLATION.pt-BR.md)
 - [English installation guide](skill/plan-and-execute/references/INSTALLATION.md)
@@ -300,10 +290,11 @@ Referências de instalação:
 npm run check
 ```
 
-Esse comando limpa artefatos gerados, valida skill e pacote, executa testes Node e todos os self-tests Python, incluindo isolamento de contexto, memória de tarefas, recuperação do ciclo de vida, evidências do estudo e adaptadores de provedores.
+Esse comando limpa artefatos gerados, valida skill/pacote, executa testes Node e todos os self-tests Python, incluindo orçamento/vagueza dos artefatos, isolamento de contexto, memória de tarefas, lifecycle, estudo, economia de tokens, preservação no cleanup e adaptadores de provedores.
 
 Referências principais:
 
+- [Escrita precisa dos artefatos](skill/plan-and-execute/references/ARTIFACT_WRITING.md)
 - [Estudo adaptativo](skill/plan-and-execute/references/ADAPTIVE_STUDY.md)
 - [Protocolo de planejamento](skill/plan-and-execute/references/PLANNING_PROTOCOL.md)
 - [Schema do plano](skill/plan-and-execute/references/PLAN_SPEC.md)
@@ -311,6 +302,7 @@ Referências principais:
 - [Workflow](skill/plan-and-execute/references/WORKFLOW.md)
 - [Ciclo de vida](skill/plan-and-execute/references/LIFECYCLE.md)
 - [Roteamento de modelos](skill/plan-and-execute/references/MODEL_ROUTING.md)
+- [Economia de tokens](skill/plan-and-execute/references/TOKEN_EFFICIENCY.md)
 
 ## Licença
 
