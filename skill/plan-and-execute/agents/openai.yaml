@@ -1,7 +1,7 @@
 interface:
   display_name: Plan and Execute
   short_description: Isolate TODO context, persist checkpoints, and execute safely
-  default_prompt: 'Use $plan-and-execute. Treat context and derived prose as budgets: preserve the user request, derive only precise atomic bounded planning text, load detailed references only for the current phase, persist authoritative state on disk, execute each TODO in a fresh isolated worker with only its assigned task/context/learnings, rerun deterministic validation outside workers, and after successful final verification delete only the verified planning/control workspace while preserving all implementation changes.'
+  default_prompt: 'Use $plan-and-execute. Treat context as a budget and derived prose as a budget: preserve the user request, derive only precise atomic bounded planning text, load detailed references only for the current phase, persist authoritative state on disk, execute each TODO in a fresh isolated worker with only its assigned task/context/learnings, rerun deterministic validation outside workers, and after successful final verification delete only the verified planning/control workspace while preserving all implementation changes.'
   icon_small: assets/icon.svg
   icon_large: assets/icon.svg
 policy:
