@@ -1,169 +1,101 @@
 # Model and provider routing
 
-## Contents
+Load only when selecting or escalating a route. Keep task prompts/provider history out of this reference.
 
-1. Logical tiers
-2. Planning and review routes
-3. Generated defaults
-4. Supported execution providers
-5. Worker-selection heuristics
-6. Escalation schedule
-7. Provider fallback
-8. Cost and summary policy
-9. Configuration
+## Logical tiers
 
-## 1. Logical tiers
+- `economy`: mechanical/narrow work, deterministic bookkeeping, final summarization.
+- `standard`: ordinary bounded repository implementation/debugging/tests.
+- `strong`: architecture-sensitive, security, concurrency, migration, cross-module synthesis, difficult debugging.
+- `max`: hardest unresolved work after evidence-backed lower-route failure; use sparingly.
 
-Route work by capability requirement rather than permanently hardcoding a commercial model name:
+Choose the lowest tier plausibly able to satisfy the TODO acceptance criteria. A large overall request does not make every leaf TODO strong/max.
 
-- `economy`: narrow, mechanical, read-heavy, formatting, deterministic bookkeeping, or final summarization.
-- `standard`: ordinary repository exploration, localized implementation, routine debugging, and most test additions.
-- `strong`: broad synthesis, architecture-sensitive design, concurrency, security, complex migrations, difficult debugging, or repeated standard-tier failure.
-- `max`: the hardest unresolved analysis or implementation after evidence-backed failure; use sparingly.
+## Planning and review
 
-Use the lowest tier that can reliably satisfy the role's acceptance criteria. Increase reasoning effort before replacing a capable model with a more expensive tier.
+Planning needs enough capability to avoid expensive bad decomposition:
 
-## 2. Planning and review routes
+- simple/medium plan: usually `standard`;
+- complex architecture/migration/security/multi-workstream plan: usually `strong`;
+- `max`: only after concrete unresolved constraints/review failures justify it.
 
-Planning is a first-class technical task, not economy-tier bookkeeping.
+Plan review runs in a fresh context and should be at least `standard`; match stronger planning for high-risk plans. Economy is appropriate for final summarization, not as the sole planner/reviewer of complex work.
 
-Use at least `standard` for request analysis and repository study. Start with `strong` when the request has multiple large workstreams, cross-module architecture, migrations, security boundaries, concurrency, distributed state, unclear ownership, or a large unfamiliar codebase.
+## Execution heuristics
 
-Use `max` for planning only when one of these applies:
+Use `economy` when scope/files are explicit, no architecture choice remains, deterministic checks are strong, and failure is cheap to detect.
 
-- the strong-tier planner cannot resolve conflicting constraints after concrete repository and research evidence;
-- two review rounds still find material omissions or oversized tasks;
-- the change combines several high-risk domains such as security, data migration, and distributed consistency;
-- an architecture decision has a broad, difficult-to-reverse compatibility impact.
+Use `standard` for normal bounded TODOs.
 
-Run the plan reviewer in a fresh context. Use at least `standard`; match or exceed the planner's tier for high-risk plans. The reviewer must challenge coverage and decomposition rather than merely restating the plan.
+Start `strong` when the **leaf itself** requires substantial reasoning about distributed state, concurrency, transactions, security, compatible schema/protocol migration, subtle performance behavior, or a difficult evidence-heavy defect.
 
-Use read-only research workers at `standard` for bounded repository areas. Raise an individual research worker to `strong` only when its subject requires broad synthesis or difficult technical judgment.
+Reserve `max` for concrete lower-tier failure evidence.
 
-Do not use `economy` as the sole planner or reviewer for a complex multi-workstream request. Reserve it for mechanical state work and final summarization.
+## Escalation
 
-## 3. Generated defaults
+Default runner policy uses four functional failures per provider:
 
-The generated `orchestrator.config.json` uses these defaults as of 2026-08-26:
+| Previous technical failures | Next route |
+|---:|---|
+| 0 | requested tier/effort |
+| 1 | same tier, higher effort |
+| 2 | one higher tier, at least high effort |
+| 3 | up to two higher tiers, at least xhigh, capped by provider support |
 
-| Logical tier | Claude Code alias | Codex model |
+After the provider failure budget, switch to the next configured provider only when fallback is allowed/available. A task blocks at its `max_attempts` limit.
+
+Do **not** count these as technical failures:
+
+- rate/quota/usage reset windows;
+- temporary provider capacity;
+- host interruption;
+- a planning defect that requires new decomposition/dependencies.
+
+Rate/availability events retry the appropriate route. Planning defects return to planning instead of escalating blindly.
+
+## Provider fallback
+
+Fallback requires:
+
+- global + task fallback permission;
+- installed/authenticated alternate CLI;
+- compliance with repository/data/organization policy.
+
+A fallback worker gets current task state/failure evidence, never the previous provider chat transcript.
+
+## Default provider mapping
+
+Logical mappings are configuration, not permanent capability claims. Current generated defaults:
+
+| Tier | Claude Code | Codex |
 |---|---|---|
-| `economy` | `haiku` | `gpt-5.6-luna` |
-| `standard` | `sonnet` | `gpt-5.6-terra` |
-| `strong` | `opus` | `gpt-5.6` |
-| `max` | `opus` with higher effort | `gpt-5.6` with higher effort |
+| economy | `haiku` | `gpt-5.6-luna` |
+| standard | `sonnet` | `gpt-5.6-terra` |
+| strong | `opus` | `gpt-5.6` |
+| max | `opus` + higher effort | `gpt-5.6` + higher effort |
 
-Model catalogs change. Treat the generated file as user-editable routing configuration, not a permanent claim about model availability. Keep logical tiers stable and update only the mapping.
-
-The default `provider_order` remains:
+Default provider order:
 
 ```json
 ["claude", "codex"]
 ```
 
-Gemini, Qwen, Kimi, and Trae are present in configuration with the model sentinel `default`, but they are never selected automatically until the user adds them to `provider_order` or explicitly requests one for a task/resume operation.
+Gemini, Qwen, Kimi, and Trae remain optional adapters until explicitly selected or added to `provider_order`. `default` model sentinel means omit that provider's explicit model flag.
 
-The default summary route is `economy` with `low` effort.
+## Cost/context policy
 
-## 4. Supported execution providers
+- Spend stronger reasoning on decomposition when it prevents large wrong workstreams.
+- Do not use strong/max for status rendering, deterministic validation, cleanup, or final prose.
+- Keep one task-definition path as the worker's primary prompt payload.
+- Increase route capability from failure evidence, not fear.
+- Avoid parallel write workers unless repository isolation/worktrees remove conflict/reconciliation cost.
+- Final summary uses economy + low effort when available.
 
-| Provider id | CLI | Isolation/output strategy | Default status |
-|---|---|---|---|
-| `claude` | Claude Code | fresh print process, no session persistence, JSON Schema result | installed/quick-start target |
-| `codex` | Codex CLI | ephemeral exec, output schema, result file | installed/quick-start target |
-| `gemini` | Gemini CLI | fresh headless prompt, JSON envelope, defensive report extraction | optional execution backend |
-| `qwen` | Qwen Code | fresh headless prompt, JSON + terminal JSON Schema | optional execution backend |
-| `kimi` | Kimi Code CLI | fresh `--prompt` run, `stream-json`, defensive final-report extraction | optional execution backend |
-| `trae` | Trae Agent | fresh `trae-cli run`, trajectory file, defensive report extraction | optional execution backend |
+## Configuration
 
-The additional providers are runner adapters. They do not change the default skill installation destinations or imply that every CLI has the same native Agent Skills discovery contract.
+Plan-specific values live in `orchestrator.config.json`; scripts remain provider-agnostic.
 
-Provider-specific notes:
-
-- Gemini and Qwen unattended approval modes can execute writes and shell commands; use only in a trusted repository and preserve each product's sandbox/policy controls.
-- Qwen `safe_mode` disables loaded customizations but does not itself create a host sandbox. Enable its sandbox explicitly when required.
-- Current Kimi Code supports non-interactive `--prompt` runs with `text` or `stream-json` output. The worker adapter uses the documented `--auto` permission mode; the final summarizer uses `--plan`. Keep Kimi opt-in and use it only in a trusted workspace.
-- Kimi Code currently has no native final JSON Schema flag, so the runner validates and defensively extracts the completion object from its event stream.
-- Trae Agent has no native completion-schema contract in the adapter; the prompt requires strict JSON and the runner performs defensive extraction.
-- Optional provider model ids remain user-configurable. `default` means omit the model flag and let that CLI select its configured default.
-
-## 5. Worker-selection heuristics
-
-Choose `economy` when all are true:
-
-- scope is narrow and explicit;
-- expected files are known;
-- no architectural choice is required;
-- deterministic checks are strong;
-- failure is cheap to detect and retry.
-
-Choose `standard` for ordinary bounded implementation work.
-
-Choose `strong` initially when a leaf task includes one or more of:
-
-- distributed state, concurrency, transactions, or data consistency;
-- authentication, authorization, secrets, or security boundaries;
-- backward-compatible schema or protocol migration;
-- broad cross-module design that remains one coherent outcome;
-- subtle performance or memory behavior;
-- an ambiguous production-only defect with substantial evidence to synthesize.
-
-Reserve `max` for a task that remains blocked after lower routes produced concrete failure evidence.
-
-Provider selection should follow user preference, repository conventions, available CLI authentication, and task fit. Do not assert that one provider is universally superior. With `provider: auto`, use the configured order and switch only after the configured technical-failure budget.
-
-## 6. Escalation schedule
-
-The strict runner uses `functional_failures_per_provider = 4` by default. For each provider:
-
-| Functional failures already recorded | Next route |
-|---:|---|
-| 0 | Requested tier and requested effort. |
-| 1 | Same tier, one higher effort level. |
-| 2 | One higher tier, at least `high` effort. |
-| 3 | Up to two higher tiers, at least `xhigh` effort, capped by model support. |
-
-After four functional failures, switch to the next available provider when fallback is allowed. Repeat the route ladder there. Clamp tier and effort to configured maxima.
-
-A task becomes `blocked` when `functional_failures` reaches its `max_attempts` value.
-
-Do not increment functional failures for:
-
-- HTTP 429 or equivalent rate limiting;
-- subscription usage reset windows;
-- exhausted credits that will replenish;
-- temporary provider capacity;
-- an interrupted host process;
-- a discovered planning defect that requires decomposition or dependency repair.
-
-Persist availability events separately and retry the same route. Route planning defects back through the planning protocol instead of escalating a worker blindly.
-
-## 7. Provider fallback
-
-Use fallback only when:
-
-- `allow_provider_fallback` is true globally and for the task;
-- the alternate CLI is installed and authenticated;
-- switching does not violate data, organizational, or repository policy.
-
-For an explicitly provider-locked task, set `allow_provider_fallback` to `false`.
-
-A fallback worker still receives only the current task definition. It diagnoses the repository's current state and recorded validation failure, not the previous provider's chat transcript.
-
-Provider-specific retryable exit codes may be configured with `retry_exit_codes`. Kimi's documented temporary-failure code `75` is enabled by default; all providers also use rate-limit/quota text detection. Do not copy one CLI's exit-code contract into another provider.
-
-## 8. Cost and summary policy
-
-- Spend stronger reasoning on decomposition before execution when it prevents large incorrect workstreams.
-- Avoid strong or max models for state rendering, status updates, deterministic validation, or final prose.
-- Let scripts manage state, coverage checks, validation, and cleanup.
-- Use economy models for final summarization after all checks pass.
-- Keep worker prompts small by referencing one task file instead of pasting the whole plan.
-- Avoid parallel write agents solely to reduce elapsed time; conflict resolution can cost more than sequential execution.
-
-## 9. Configuration
-
-Each plan contains `orchestrator.config.json`. Common edits:
+Common controls:
 
 ```json
 {
@@ -174,67 +106,10 @@ Each plan contains `orchestrator.config.json`. Common edits:
     "auto_wait": true,
     "wait_seconds": 300,
     "max_wait_cycles": 0
-  },
-  "claude": {
-    "models": {
-      "economy": "haiku",
-      "standard": "sonnet",
-      "strong": "opus",
-      "max": "opus"
-    }
-  },
-  "codex": {
-    "models": {
-      "economy": "gpt-5.6-luna",
-      "standard": "gpt-5.6-terra",
-      "strong": "gpt-5.6",
-      "max": "gpt-5.6"
-    }
-  },
-  "gemini": {
-    "command": "gemini",
-    "models": {
-      "economy": "default",
-      "standard": "default",
-      "strong": "default",
-      "max": "default"
-    },
-    "approval_mode": "yolo"
-  },
-  "qwen": {
-    "command": "qwen",
-    "models": {
-      "economy": "default",
-      "standard": "default",
-      "strong": "default",
-      "max": "default"
-    },
-    "safe_mode": true,
-    "approval_mode": "yolo"
-  },
-  "kimi": {
-    "command": "kimi",
-    "models": {
-      "economy": "default",
-      "standard": "default",
-      "strong": "default",
-      "max": "default"
-    },
-    "permission_mode": "auto",
-    "summary_permission_mode": "plan",
-    "retry_exit_codes": [75]
-  },
-  "trae": {
-    "command": "trae-cli",
-    "models": {
-      "economy": "default",
-      "standard": "default",
-      "strong": "default",
-      "max": "default"
-    },
-    "model_provider": ""
   }
 }
 ```
 
-`max_wait_cycles: 0` means no cycle limit while the runner remains alive. The backoff is capped at one hour per wait.
+Provider-specific model ids, commands, permission modes, and retry exit codes remain in that generated config. Preserve them when editing a real plan; there is no need to copy the full config into prompts or task definitions.
+
+Security note: unattended provider write/shell modes are appropriate only in a trusted workspace and never bypass the provider/host sandbox or organizational policy.
