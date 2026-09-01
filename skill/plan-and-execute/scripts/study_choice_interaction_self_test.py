@@ -25,6 +25,11 @@ def main() -> None:
         "exactly one recommendation",
         "never preselect it",
         "canonical option value",
+        "native interactive single-choice tool",
+        "vscode/askQuestions",
+        "click with the mouse",
+        "do not duplicate those options",
+        "Fall back to numbered text only",
     ):
         require(SKILL, needle, "SKILL.md")
 
@@ -32,7 +37,15 @@ def main() -> None:
         "Ask only one choice per chat turn",
         "Choice 1 — internal study",
         "Choice 2 — external study",
-        "native single-choice UI",
+        "Interactive choice UI",
+        "vscode/askQuestions",
+        "#vscode/askQuestions",
+        "clicking with the mouse",
+        "clickable **single-select** options",
+        "Do not render a duplicate Markdown/numbered choice list",
+        "Do not enable multi-select",
+        "free-text input",
+        "fall back to the same question plus exactly three numbered text options",
         "Do not mention or preview the external-study question in this turn",
         "Do not repeat the internal question or its options",
         "Never ask both questions together for convenience",
@@ -59,7 +72,10 @@ def main() -> None:
     if STUDY.count("Append **`(recomendado)`** to exactly one") != 2:
         raise AssertionError("Both study questions must require exactly one recommended display option")
 
-    print("Sequential study-choice interaction contract validated.")
+    if STUDY.count("call `vscode/askQuestions` so the three options are clickable") != 2:
+        raise AssertionError("Both study questions must use VS Code clickable choices when available")
+
+    print("Sequential clickable study-choice interaction contract validated.")
 
 
 if __name__ == "__main__":
