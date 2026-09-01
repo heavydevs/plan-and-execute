@@ -1,281 +1,112 @@
-# Progressive execution context
+# Execution context and validated learning
 
-## Contents
+Use this file after TODO boundaries are stable. The purpose is to give each fresh worker the **minimum non-obvious knowledge it cannot cheaply recover itself**.
 
-1. Purpose
-2. Position in planning
-3. Decision hierarchy
-4. Global `CONTEXT.md`
-5. Scoped context files
-6. Information for a single TODO
-7. Content quality rules
-8. Plan-spec contract
-9. Validated execution learnings
-10. Worker isolation
-11. Review and replanning
+## Omission is the default
 
-## 1. Purpose
-
-Create execution-context files only when they reduce repeated rediscovery without widening worker scope. The goal is a smaller, more reliable prompt for each fresh worker, not a second copy of the request, study, or plan.
-
-Omission is the default. A context artifact is justified only when a non-obvious fact, constraint, decision, interface contract, or validation rule is materially needed by more than one TODO.
-
-Context files must be:
-
-- concise enough to reread on every assigned worker invocation;
-- grounded in named request, repository, research, requirement, or decision evidence;
-- stable across the TODOs that receive them;
-- operationally useful to implementation or validation;
-- narrower than the complete request and plan.
-
-## 2. Position in planning
-
-Decide execution context after the requirements inventory and draft task graph exist, but before final plan review and plan creation.
+A fact being relevant does not justify a shared context file.
 
 Use this order:
 
-```text
-request + adaptive study
-          |
-          v
-requirements and draft TODO graph
-          |
-          v
-progressive execution-context decision
-          |
-          v
-fresh plan review, including contexts_minimal and context_boundaries_sound
-          |
-          v
-schema-v4 plan creation and validation
-```
+1. Can the worker cheaply read the fact from its own source/test files? -> omit.
+2. Is the fact needed by one TODO only? -> keep it in that task definition.
+3. Is it needed by at least two but fewer than all TODOs? -> scoped context.
+4. Is it required by every TODO? -> global `CONTEXT.md`.
 
-The task graph must exist first because the planner cannot know whether information is universal, shared by a strict subset, or relevant to a single TODO until task boundaries are clear.
+Do not create context merely to summarize the request, study, architecture, TODO graph, or coding conventions already available in repository instructions.
 
-## 3. Decision hierarchy
+## Global `CONTEXT.md`
 
-Classify each candidate fact with this strict hierarchy:
+Create only when every TODO needs the same non-obvious fact/constraint.
 
-1. **Every TODO needs it:** consider global `CONTEXT.md`.
-2. **At least two, but not every, TODO need it:** consider a scoped file under `contexts/`.
-3. **Only a single TODO needs it:** keep it in that task definition.
-4. **No TODO needs it to implement or validate correctly:** omit it.
+Each item has:
 
-Before creating any file, ask:
-
-- Would a capable fresh worker likely make a material mistake without this information?
-- Is the information non-obvious from the assigned task definition and nearby source?
-- Will every assigned TODO use it, rather than merely find it interesting?
-- Is it stable enough not to become stale during the plan?
-- Can it be stated as one concise operational line?
-
-If any answer is no, omit the item or move it to a narrower location.
-
-## 4. Global `CONTEXT.md`
-
-Create `CONTEXT.md` only when at least one item is indispensable to every executable TODO.
-
-Appropriate global items include:
-
-- a repository-wide compatibility boundary every task must preserve;
-- a universal security constraint;
-- one architectural ownership rule that governs every workstream;
-- a cross-cutting interface invariant used by every task;
-- a validation rule that every worker must follow.
-
-Do not place these in global context:
-
-- a summary of the request;
-- the full architecture or study;
-- TODO status or dependencies;
-- generic advice such as "write tests" or "follow existing patterns";
-- facts that apply only to some tasks;
-- details easily rediscovered from one nearby file;
-- rationale prose intended for reviewers rather than workers.
-
-When no universal item survives this test, set the global decision to `omit` and record a substantive rationale. Do not create an empty `CONTEXT.md`.
-
-## 5. Scoped context files
-
-Scoped context files live under:
-
-```text
-contexts/<topic>.md
-```
-
-Create one only when the same narrow information is materially required by at least two TODOs and a strict subset of the complete task graph.
-
-Examples:
-
-- `contexts/oauth-rollout.md` for authentication implementation and migration TODOs, but not documentation-only work;
-- `contexts/event-schema.md` for producer and consumer TODOs that share one event contract;
-- `contexts/mobile-compatibility.md` for two client TODOs, but not backend persistence work.
-
-Each scoped file must declare exactly which task ids receive it. The planner then references the file only in those task-definition files. Unassigned workers must not read it.
-
-A scoped file that applies to every TODO belongs in global context. A scoped file that applies to a single TODO belongs in that task definition. Do not create overlapping files that repeat the same item.
-
-## 6. Information for a single TODO
-
-Information needed by a single TODO must remain in its task definition under scope, implementation guidance, acceptance criteria, or validation commands.
-
-Do not create a separate context file for a single TODO. A one-task file adds another read, increases indirection, and weakens the guarantee that the task definition is self-contained.
-
-## 7. Content quality rules
-
-Represent each context item with:
-
-- a stable id;
+- `id`;
 - `kind`: `fact`, `constraint`, `decision`, `interface`, or `validation`;
-- one-line `text` describing the operational information;
-- a one-line `necessity` explaining why the assigned TODOs need it;
-- one to four `source_refs` grounding it in evidence.
+- `text`: one operational statement;
+- `necessity`: why every assigned TODO needs it;
+- `source_refs`: stable evidence ids/paths/symbols.
 
-`source_refs` may identify, for example:
+Example:
 
-- `request:P001`;
-- `requirement:R004`;
-- `study:I003`;
-- `research:E002`;
-- `README.md:42-61`;
-- `src/auth/session.ts:110-168`;
-- `ADR-007`.
+`G001 constraint — API v2 keeps response field 'id' as a string. (source: R004)`
 
-The rendered worker file contains the concise operational text and compact source references. The longer necessity explanation remains in `manifest.json` and review material so it does not consume every worker's context.
+Prefer this to a paragraph about API compatibility history.
 
-Deterministic limits enforce restraint:
+## Scoped context files
 
-- global file: at most 8 items;
-- each scoped file: at most 8 items;
-- all context files combined: at most 24 items;
-- at most 8 scoped files;
-- each rendered file: at most 3,200 characters;
-- each item text: one line, 15 to 280 characters;
-- duplicate item text across files is rejected.
+Create `contexts/<topic>.md` only for a strict subset of at least two TODOs.
 
-These are ceilings, not targets. Most plans should use zero to three items.
+A scoped context must have a concrete sharing reason, such as two TODOs implementing opposite sides of one protocol/interface. Do not use a scoped file because tasks merely share a language/framework.
 
-## 8. Plan-spec contract
+Avoid overlapping scoped files with the same fact. Put each shared fact at the narrowest correct scope.
 
-Schema v4 requires an explicit `execution_context` decision even when no files are created:
+## Context budgets
 
-```json
-{
-  "execution_context": {
-    "global": {
-      "decision": "omit",
-      "rationale": "Every non-obvious constraint is specific to one TODO, so a shared file would duplicate task definitions.",
-      "items": []
-    },
-    "scoped": []
-  }
-}
-```
+The concise controller enforces smaller limits than the legacy renderer:
 
-A plan with global and scoped context may use:
+- context text <= 220 chars;
+- necessity <= 260;
+- context rationale <= 320;
+- context file <= 2200 chars;
+- task context-boundary rationale <= 360;
+- context-boundary item <= 200.
 
-```json
-{
-  "execution_context": {
-    "global": {
-      "decision": "create",
-      "rationale": "Every TODO must preserve the same public compatibility boundary.",
-      "items": [
-        {
-          "id": "G001",
-          "kind": "constraint",
-          "text": "Preserve the existing public API and wire format throughout the implementation.",
-          "necessity": "Every TODO can modify behavior observed through the existing contract, so all workers need this boundary.",
-          "source_refs": ["request:P001", "ADR-004"]
-        }
-      ]
-    },
-    "scoped": [
-      {
-        "id": "oauth-rollout",
-        "title": "OAuth rollout contract",
-        "rationale": "Only TODOs 001 and 002 participate in the dual-login rollout transition.",
-        "task_ids": [1, 2],
-        "items": [
-          {
-            "id": "C001",
-            "kind": "interface",
-            "text": "Password login remains available until the OAuth migration completion flag is enabled.",
-            "necessity": "Both authentication and migration workers must implement the same transition boundary.",
-            "source_refs": ["request:P002", "study:I006"]
-          }
-        ]
-      }
-    ]
-  }
-}
-```
+These are maxima. Prefer references over explanation.
 
-File names and each task's `context_files` list are generated by `planctl.py`; do not author them manually.
+## Worker assignment
 
-## 9. Validated execution learnings
+The task definition lists its exact assigned context paths. The worker must read exactly those files before implementation and report them in `context_files_read`.
 
-Plan-time context and execution-time learning solve different problems and must remain separate.
+The orchestrator rejects missing/extra assigned reads. Workers must not browse other plan context files.
 
-- `CONTEXT.md` and `contexts/*.md` are immutable decisions created before execution.
-- `learnings/<source>-to-<target>.md` is an optional immutable projection created only after a source TODO completes and passes deterministic validation.
+Plan-time context is immutable during execution. New discoveries belong in validated execution learnings, not by mutating `CONTEXT.md` for later tasks.
 
-A learning file is not a mutable knowledge base and not a place to summarize prior work. It exists only when the plan predeclared a directional `learning_targets` relationship and the source worker reported a concise, evidence-backed finding relevant to that untouched future TODO.
+## Validated execution learnings
 
-Each learning file contains:
+A completed TODO may publish a learning only when:
 
-- source and target TODO ids;
-- the plan-time reason those TODOs are similar;
-- narrow approved topics;
-- at most a few reusable findings of kind `code`, `procedure`, `decision`, `pitfall`, or `validation`;
-- concrete repository paths, symbols, commands, tests, or external references.
+- the target is a predeclared later TODO in `learning_targets`;
+- the target has not started;
+- the finding matches the declared topics;
+- source TODO deterministic validation passed;
+- the finding would save meaningful rediscovery effort;
+- the learning has concrete source references.
 
-It must never contain:
+Learning kinds: `code`, `procedure`, `decision`, `pitfall`, `validation`.
 
-- the worker transcript or hidden reasoning;
-- raw logs or complete completion reports;
-- broad request, study, plan, or TODO summaries;
-- mutable task status;
-- advice for undeclared targets;
-- speculative conclusions that were not supported by the validated implementation.
+A good item:
 
-The controller creates one file per source-target pair, validates it against authoritative manifest data, assigns it only to the target, and rejects publication after the target has begun. A declared source is a context prerequisite, so the target waits for all of its sources to complete. No reusable finding means no file and no extra read.
+`validation — Reproduce vendor timeout with test VendorClientTest.timeout before changing retry order. (refs: tests/...::timeout, ./gradlew ...)`
 
-## 10. Worker isolation
+Bad items:
 
-A worker receives:
+- `We learned a lot about the vendor API.`
+- transcript/history summaries;
+- generic framework advice;
+- conclusions with no source reference;
+- information the target can retrieve cheaply from its own files.
 
-- exactly one task definition;
-- the global file only when it exists;
-- only the scoped files listed under `Assigned execution context` in that task definition.
-- only target-specific files listed under `Assigned validated learnings` in that task definition.
+Learning guidance is capped at 320 chars; a target-specific learning file is capped at 2200 chars.
 
-The worker must:
+The worker reports assigned learning reads in `learning_files_read`; the orchestrator verifies the exact set.
 
-1. read the task definition first;
-2. read every assigned context file;
-3. read every assigned validated-learning file after the plan-time context files;
-4. read no unassigned context/learning file or other planning artifact;
-5. never edit context or learning files;
-6. report the exact plan-relative paths in `context_files_read` and `learning_files_read`.
+## Review checks
 
-The orchestrator rejects a completion report when either declared read list does not exactly match the task assignment. This prevents silent omission and accidental context leakage.
+The fresh plan review must set:
 
-Fresh worker processes still provide the main context isolation. Progressive plan-time files preserve stable cross-task constraints; validated learning files preserve only narrow post-validation discoveries that would otherwise be expensive to rediscover.
+- `contexts_minimal`: no unnecessary global/scoped/single-task duplication;
+- `context_boundaries_sound`: each TODO groups concerns that materially benefit from one worker history and isolates unrelated domains.
 
-## 11. Review and replanning
+Reject the plan when:
 
-The independent plan reviewer must set `contexts_minimal` to `true` only after verifying that:
+- global context is not required by every TODO;
+- a scoped file serves only one TODO;
+- the same fact appears in global + scoped + task text;
+- context contains process narration or generic advice;
+- independent domains are combined only for framework similarity;
+- broad/bidirectional learning edges recreate plan history.
 
-- global items are relevant to every TODO;
-- each scoped item is relevant to every assigned TODO and no others;
-- single-task information remains in the task definition;
-- no item duplicates request, plan, study, or another context file unnecessarily;
-- every item has useful `source_refs`;
-- omissions are deliberate;
-- context files contain no mutable execution status.
-- every learning edge is directional, narrow, and justified by specific similarity rather than generic framework reuse;
-- no target receives a learning file after its first attempt;
-- learning files remain concise, grounded, target-specific, and free of transcripts.
+## Design principle
 
-If execution changes a shared invariant, task grouping, or evidence source, stop downstream work and replan. Regenerate context files from the revised schema rather than hand-editing them.
+Shared context should behave like an interface: small, stable, sourced, and required by all consumers. Execution learning should behave like a targeted patch note: validated, directional, and only as large as the future target needs.
