@@ -25,6 +25,30 @@ Use when architecture, migration, security, compatibility, data integrity, owner
 
 Complex requests use two user choices in a fixed order. **Ask only one choice per chat turn. Never combine the internal and external questions in one message.**
 
+#### Recommendation marker
+
+Before presenting each missing choice, infer exactly one recommended option from the request and the evidence already visible without broad exploration. Append the literal suffix **`(recomendado)`** to that option's displayed label and to no other option.
+
+The marker is advisory only:
+
+- never preselect the recommended option;
+- always require an explicit user selection;
+- keep the underlying canonical value unchanged;
+- strip/ignore the display suffix when recording the selected canonical value;
+- do not add recommendation rationale unless the user asks for it.
+
+Recommend internal depth using these rules:
+
+- **Pacotes relacionados** when ownership is clear and the likely implementation/test surface is local;
+- **Busca por palavras-chave em todo o workspace** when symbols, ownership, tests, or cross-package references must be located but a full-project read is unlikely to change the plan;
+- **Projeto completo** when architecture, migration, security, data integrity, broad compatibility, or uncertain coupling makes project-wide understanding materially useful.
+
+Recommend external depth using these rules:
+
+- **Sem estudo externo** when repository evidence is sufficient and external facts are unlikely to change implementation or validation;
+- **Pesquisa focalizada** when one or a few version/API/security/compatibility questions can materially change the plan;
+- **Pesquisa ampla** when external uncertainty is broad, high-risk, rapidly changing, or the request explicitly requires broad research/comparison.
+
 #### Choice 1 — internal study
 
 If the request does not already determine the internal depth, present exactly one single-select multiple-choice question:
@@ -34,6 +58,8 @@ If the request does not already determine the internal depth, present exactly on
 - **Pacotes relacionados** -> `related_packages`
 - **Busca por palavras-chave em todo o workspace** -> `workspace_keywords`
 - **Projeto completo** -> `full_project`
+
+Append **`(recomendado)`** to exactly one of the three displayed labels according to the recommendation rules above.
 
 Use the platform's native single-choice UI when available. Do not use a free-form question when a choice UI is supported. If no native choice UI exists, render only this question plus the three numbered options and ask the user to select exactly one. Do not mention or preview the external-study question in this turn. End the turn after asking.
 
@@ -48,6 +74,8 @@ Only after the internal choice is known, and only if the request does not alread
 - **Sem estudo externo** -> `none`
 - **Pesquisa focalizada** -> `focused`
 - **Pesquisa ampla** -> `broad`
+
+Append **`(recomendado)`** to exactly one of the three displayed labels according to the recommendation rules above.
 
 Again, use the platform's native single-choice UI when available; otherwise render only this question plus the three numbered options and require exactly one selection. Do not repeat the internal question or its options. End the turn after asking.
 
