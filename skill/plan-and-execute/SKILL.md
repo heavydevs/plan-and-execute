@@ -34,7 +34,9 @@ Classify before broad exploration:
 
 - `simple`: direct, low-risk, fully scoped; study may be skipped with a precise reason.
 - `medium`: search/filter first; use related-package or workspace-keyword discovery and focused external research only when material.
-- `complex`: select internal depth (**Pacotes relacionados**, **Busca por palavras-chave em todo o workspace**, **Projeto completo**) and external depth (**Sem estudo externo**, **Pesquisa focalizada**, **Pesquisa ampla**). A user request for broad/deep repository + internet study selects the broad options.
+- `complex`: resolve two fixed single-select choices in sequence. Ask **only the internal-study question first**, using native multiple-choice UI when available, and end the turn. After that answer, ask **only the external-study question** in a new turn and end that turn. Never combine or preview both questions. Reuse choices already explicit in the request instead of asking again. A user request for broad/deep repository + internet study selects both broad options automatically.
+
+The fixed internal choices are **Pacotes relacionados**, **Busca por palavras-chave em todo o workspace**, and **Projeto completo**. The fixed external choices are **Sem estudo externo**, **Pesquisa focalizada**, and **Pesquisa ampla**.
 
 Read [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md). Validate/attach study state with `studyctl_concise.py`.
 
