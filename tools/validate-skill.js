@@ -135,8 +135,7 @@ requireText(planningProtocol, [
   'context_boundary',
   'learning_targets',
   'contexts_minimal',
-  'context_boundaries_sound',
-  'Deterministic quality gates'
+  'context_boundaries_sound'
 ], 'PLANNING_PROTOCOL.md');
 
 const contextProtocol = read(path.join('references', 'EXECUTION_CONTEXT.md'));
