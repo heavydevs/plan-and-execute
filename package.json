@@ -1,7 +1,7 @@
 {
   "name": "@luizcgvrj/plan-and-execute",
-  "version": "0.7.0",
-  "description": "Install plan-and-execute for evidence-backed planning, context-isolated TODOs, resumable subtasks, selective validated learning, and fresh Claude Code, Codex, Gemini, Qwen, Kimi, or Trae workers.",
+  "version": "0.8.0",
+  "description": "Install selective long-horizon planning with direct-mode escape, late promotion, resumable context-isolated TODOs, model-tier routing, and fresh Claude Code, Codex, Gemini, Qwen, Kimi, or Trae workers.",
   "type": "module",
   "bin": {
     "plan-and-execute": "bin/plan-and-execute.js",
@@ -51,7 +51,9 @@
     "lifecycle",
     "context-engineering",
     "context-isolation",
-    "progressive-context"
+    "progressive-context",
+    "selective-activation",
+    "late-promotion"
   ],
   "author": "Luiz Valenca",
   "license": "MIT",
