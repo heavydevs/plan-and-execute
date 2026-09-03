@@ -1,144 +1,81 @@
 ---
 name: plan-and-execute
-description: Plan and execute software changes with adaptive study, requirements-traceable TODOs, fresh isolated workers, resumable checkpoints, selective cross-task learnings, deterministic validation, model/provider escalation, and safe lifecycle cleanup. Use for implementations, migrations, refactors, multi-workstream or test-heavy changes, resuming/cancelling/resetting plan state, guided request intake, or a requirements file path.
+description: Orchestrate long-horizon software changes that benefit from durable resumability, multiple independently verifiable workstreams, broad repository or external research, repo-wide migration or compatibility work, or isolated delegated execution. Also use when explicitly invoked or for plan lifecycle status, resume, cancel, or reset. Do not use for routine bug fixes, bounded features or refactors, ordinary test updates, or cohesive small/medium changes one agent can implement and validate in the current context, even across several related files. When uncertain, prefer direct execution and promote later only if scope, research needs, resumability value, independent workstreams, or context pressure materially grow.
 ---
 
 # Plan and Execute
 
-Treat context as a budget. Preserve the user's complete request as evidence, but keep every **derived** study, plan, TODO, context, learning, report, and handoff objective, precise, atomic, and bounded. Never save tokens by weakening requirements, traceability, validation, recovery, or safety.
+Treat context as a budget. This entrypoint is a router: pay for the full planning harness only when isolation, persistence, research, or resumability can materially improve the implementation.
 
 ## 1. Route lifecycle commands first
 
-For exact `current`/`status`, `resume`/`continue`, `cancel`, or `reset`, route before request parsing with `lifecyclectl_concise.py`.
+Exact `current`/`status`, `resume`/`continue`, `cancel`, and `reset` always use the lifecycle workflow. Read [references/LIFECYCLE.md](references/LIFECYCLE.md) only for those operations.
 
-- `current` / `status`: inspect lifecycle state.
-- `resume` / `continue`: recover the unique unfinished plan and continue with fresh workers.
-- `cancel`: delete the active planning/control workspace; preserve implementation changes.
-- `reset`: delete recognized plan-and-execute workspaces; preserve implementation changes.
+## 2. Decide DIRECT vs ORCHESTRATED before creating state
 
-Read [references/LIFECYCLE.md](references/LIFECYCLE.md) only for lifecycle operations.
+An explicit user invocation of `plan-and-execute`, an existing requirements file passed for orchestration, or a lifecycle command selects **ORCHESTRATED**.
 
-## 2. Resolve the request
+For implicit invocation, select **ORCHESTRATED** only when at least one strong signal is present:
 
-- No arguments: inspect lifecycle state; if idle, use [references/INTAKE.md](references/INTAKE.md).
-- One existing regular file: validate/extract it with `requestctl.py` and preserve it as request evidence.
-- Otherwise: use the complete inline text.
+- two or more independently verifiable workstreams whose retained reasoning would not materially help each other;
+- broad repository study or substantial external research is needed before implementation choices are safe;
+- repo-wide migration, compatibility, security, data-integrity, concurrency, or cross-module work needs durable coordination;
+- the work is likely to cross sessions, providers, quota windows, or context compaction and durable resume state has real value;
+- isolated delegated workers materially reduce unrelated context or allow independent validation.
 
-Never truncate or rewrite the user's original request merely to save tokens. Concision begins when creating derived artifacts.
+File count alone is not a signal. A cohesive controller/service/entity/test change may stay direct even when it touches many related files.
 
-Before producing derived text, read [references/ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md). Its contract is mandatory: one semantic job per field, concrete nouns/conditions, observable outcomes, bounded prose, no filler, and no unresolved vague wording in executable requirements.
+### DIRECT EXIT
 
-## 3. Pass the adaptive study gate
+If none of the strong signals applies and the skill was selected implicitly:
 
-Classify before broad exploration:
+- create no `.ai-work` directory, study, requirements inventory, plan, TODO, task file, worker, or lifecycle state;
+- do not read orchestration references;
+- stop applying this skill and implement/validate the request directly in the current agent context;
+- keep shared reasoning in the current conversation while it remains useful.
 
-- `simple`: direct, low-risk, fully scoped; study may be skipped with a precise reason.
-- `medium`: search/filter first; use related-package or workspace-keyword discovery and focused external research only when material.
-- `complex`: resolve two fixed single-select choices in sequence. Ask **only the internal-study question first** and end the turn. After that answer, ask **only the external-study question** in a new turn and end that turn. Before rendering text choices, inspect the host's available interaction tools. If a native interactive single-choice tool is available, **use it instead of prose options** so the user can click with the mouse. In VS Code, prefer `vscode/askQuestions` / `#vscode/askQuestions`, with one question and three clickable single-select options; do not duplicate those options in normal chat text after a successful tool call. Fall back to numbered text only when no interactive choice tool is available or enabled. Never combine or preview both questions. Before each missing question, infer exactly one recommendation from the request and visible risk signals and append the literal suffix **`(recomendado)`** to that displayed option. The recommendation is advisory only: never preselect it, never change the canonical option value, and still require an explicit user choice. Reuse choices already explicit in the request instead of asking again. A user request for broad/deep repository + internet study selects both broad options automatically.
+When uncertain, prefer DIRECT. A false negative can be promoted later; an unnecessary plan has already spent tokens and time.
 
-The fixed internal choices are **Pacotes relacionados**, **Busca por palavras-chave em todo o workspace**, and **Projeto completo**. The fixed external choices are **Sem estudo externo**, **Pesquisa focalizada**, and **Pesquisa ampla**.
+Read [references/ROUTING.md](references/ROUTING.md) only when the boundary is genuinely ambiguous or when changing routing behavior/evals.
 
-Read [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md). Validate/attach study state with `studyctl_concise.py`.
+## 3. Promote late when a direct task grows
 
-Study artifacts record conclusions, not research narration:
+A DIRECT request may become orchestration-worthy after implementation starts. Promote when substantial work remains and one or more of these becomes true:
 
-- one evidence item = finding + planning impact;
-- cite exact path/symbol/source where possible;
-- omit search history, dead ends, generic observations, and raw source dumps;
-- stop when additional evidence is unlikely to change architecture, compatibility, TODO boundaries, risk, or validation.
+- discovered scope splits into independent outcomes;
+- broad research or migration/compatibility analysis becomes necessary;
+- interruption/quota risk makes durable resume state valuable;
+- the host reports high context pressure and substantial non-cohesive work remains.
 
-## 4. Build a traceable, context-cohesive plan
+Context pressure is a secondary signal, never a universal fixed percentage. Do not wait for a hard 90% threshold when semantic scope already justifies promotion, and do not promote a nearly finished cohesive task merely because context is high.
 
-Read [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md), [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md), then [references/PLAN_SPEC.md](references/PLAN_SPEC.md) when writing the spec.
+On promotion, read [references/PROMOTION.md](references/PROMOTION.md). Persist completed work, validated results, active decisions, relevant code, blockers/risks, and **remaining outcomes** with `promotectl.py`; then create TODOs only for remaining work. Never invent retroactive TODOs for work already completed.
 
-Required properties:
+## 4. Run the full harness only after ORCHESTRATED is selected
 
-- stable request parts (`P...`) and requirements (`R...`) with bidirectional coverage;
-- one coherent outcome and independent validation boundary per executable TODO;
-- explicit scope, dependencies, acceptance, validation, routing, `context_boundary`, and resumable subtasks;
-- unrelated domains split even when framework patterns match;
-- no executable `extreme` TODO; justify retained `high` TODOs;
-- shared execution context omitted by default; `CONTEXT.md` only for facts required by every TODO; scoped files only for strict multi-TODO subsets;
-- sparse, directional `learning_targets` only for expensive validated knowledge a later TODO would otherwise rediscover;
-- review approval of coverage, atomicity, dependencies, validation, `contexts_minimal`, and `context_boundaries_sound`.
+Read [references/ORCHESTRATION.md](references/ORCHESTRATION.md). It owns adaptive study, traceable requirements, TODO decomposition, task-definition files, model/provider routing, resumable subtasks, validated cross-task learnings, deterministic validation, lifecycle recovery, final handoff, and guarded cleanup.
 
-Derived fields must satisfy the artifact-writing budgets. Short precise text is preferred to padded rationale. Do not use minimum length as a reason to repeat context.
+These invariants remain non-negotiable in every orchestrated or promoted plan:
 
-Create and gate with the concise controller:
-
-```bash
-python <skill-dir>/scripts/planctl_concise.py create --repo-root . --spec /tmp/plan-spec.json
-python <skill-dir>/scripts/studyctl_concise.py validate-plan --plan .ai-work/<plan-id>
-python <skill-dir>/scripts/planctl_concise.py validate --plan .ai-work/<plan-id>
-python <skill-dir>/scripts/planctl_concise.py audit --plan .ai-work/<plan-id>
-python <skill-dir>/scripts/lifecyclectl_concise.py activate --plan .ai-work/<plan-id> --json
-```
-
-Autostart after all gates unless a genuine safety gate blocks execution.
-
-## 5. Execute one isolated TODO at a time
-
-Read [references/WORKFLOW.md](references/WORKFLOW.md) when execution begins and [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md) only for routing/escalation.
-
-For each TODO:
-
-1. Reload authoritative state from disk.
-2. Claim only the next runnable TODO through `planctl_concise.py`.
-3. Start a fresh worker with one task-definition path plus exactly its assigned context/learning files; never pass parent chat, whole plan, study files, future task files, raw reports, or logs.
-4. Let the worker inspect only repository evidence needed for that TODO.
-5. Checkpoint subtasks through `planctl_concise.py`; never edit planning Markdown for state.
-6. Require the bounded completion-report schema: concise summary/details, exact read lists, completed subtask ids, and only predeclared reusable learnings.
-7. Re-run every deterministic validation command outside the worker before success.
-8. Persist only compact completion memory needed for final handoff; full provider/tool output stays in logs.
-9. Escalate effort/model/provider only after concrete technical evidence; usage/rate limits are not technical failures.
-10. If execution disproves a material planning assumption, stop downstream work and re-enter study/planning gates.
-
-Strict external execution uses:
-
-```bash
-python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id>
-```
-
-The compact worker task file is an execution contract, not a duplicate planning dossier. Planning-only atomicity/review prose stays authoritative in `manifest.json` rather than being repeated for every worker.
-
-## 6. Apply the token-efficiency contract
-
-Read [references/TOKEN_EFFICIENCY.md](references/TOKEN_EFFICIENCY.md) when reviewing context cost or changing the harness.
-
-Always:
-
-- prefer ids/paths/symbols/commands over repeated explanation;
-- search/filter before opening files;
-- use structured state instead of chat history;
-- keep stable prompt prefixes before dynamic data when caching can help;
-- bound logs, failure excerpts, validation tails, worker reports, and final-summary input;
-- use deterministic code for filtering, state, validation, and cleanup; spend model tokens on judgment;
-- route each TODO to the cheapest model/effort credibly able to solve it;
-- preserve complete requirements, task invariants, acceptance criteria, material failure evidence, validation commands/outcomes, checkpoints, and safety checks.
-
-## 7. Finish and remove planning state
-
-After the last TODO and final deterministic validation pass:
-
-1. Build final-summary input from compact authoritative task state, validation results, and bounded repository-change evidence — never raw worker reports.
-2. Generate the concise handoff with the economy summary route when available.
-3. Mark the summary generated and clear the active lifecycle pointer.
-4. Run guarded cleanup with `planctl_concise.py cleanup`.
-
-Cleanup is mandatory on successful completion unless the user explicitly requests plan retention. Delete only the verified `.ai-work/<plan-id>/` planning/control workspace (and an empty work root when safe). **Preserve all implementation changes**, tests, product artifacts, commits, and unrelated repository files. If completion, final validation, or summary generation fails, retain plan state for diagnosis/resume.
+- `manifest.json` is authoritative; `TODO.md` remains the terse status index;
+- every executable TODO has its own bounded definition and resumable subtasks;
+- every TODO declares `provider`, `model_tier`, and `reasoning_effort`; choose the lowest credible capability for that leaf task and escalate only from evidence;
+- quota/rate-limit exhaustion and host interruption are not technical failures;
+- another compatible AI/provider can resume from persisted state without the previous chat transcript;
+- implementation changes, tests, generated product artifacts, and commits survive plan cleanup.
 
 ## Reference map
 
-Load only the phase-specific reference:
-
-- Precise derived writing: [references/ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md)
-- Intake: [references/INTAKE.md](references/INTAKE.md)
-- Lifecycle: [references/LIFECYCLE.md](references/LIFECYCLE.md)
-- Study: [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md)
-- Planning: [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md)
+- Full long-horizon workflow: [references/ORCHESTRATION.md](references/ORCHESTRATION.md)
+- Precise derived artifact writing: [references/ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md)
+- Guided request intake: [references/INTAKE.md](references/INTAKE.md)
+- Direct/orchestrated routing: [references/ROUTING.md](references/ROUTING.md)
+- Late direct -> orchestrated handoff: [references/PROMOTION.md](references/PROMOTION.md)
+- Lifecycle/resume: [references/LIFECYCLE.md](references/LIFECYCLE.md)
+- Adaptive study: [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md)
+- Planning/decomposition: [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md)
 - Execution context/learnings: [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md)
 - Plan schema: [references/PLAN_SPEC.md](references/PLAN_SPEC.md)
 - Execution: [references/WORKFLOW.md](references/WORKFLOW.md)
-- Routing: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)
+- Model/provider routing: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)
 - Token economics: [references/TOKEN_EFFICIENCY.md](references/TOKEN_EFFICIENCY.md)
-- Installation: [references/INSTALLATION.md](references/INSTALLATION.md)

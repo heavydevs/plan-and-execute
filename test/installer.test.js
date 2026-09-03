@@ -5,11 +5,14 @@ import path from 'node:path';
 import test from 'node:test';
 
 import {
+  ACTIVATION_MODES,
   INSTALL_MARKER,
   SKILL_NAME,
+  SKILL_SOURCE,
   computeDirectoryHash,
   getStatus,
   installSkill,
+  normalizeActivation,
   readSkillName,
   resolveTargets,
   runDoctor,
@@ -38,8 +41,31 @@ function writeManualSkill(destination, name = SKILL_NAME) {
   );
 }
 
+function read(destination, relativePath) {
+  return fs.readFileSync(path.join(destination, relativePath), 'utf8');
+}
+
 test('bundled skill is valid and uses the short name', () => {
   assert.equal(validateBundledSkill(), true);
+  assert.deepEqual(ACTIVATION_MODES, ['selective', 'explicit']);
+  assert.equal(normalizeActivation(undefined), 'selective');
+  assert.equal(normalizeActivation('manual'), 'explicit');
+});
+
+test('bundled source remains selective and is never rewritten by explicit installs', () => {
+  const skillBefore = read(SKILL_SOURCE, 'SKILL.md');
+  const metadataBefore = read(SKILL_SOURCE, path.join('agents', 'openai.yaml'));
+  assert.doesNotMatch(skillBefore, /^disable-model-invocation:\s*true$/m);
+  assert.match(metadataBefore, /^\s*allow_implicit_invocation:\s*true$/m);
+
+  const root = temporaryDirectory();
+  try {
+    installSkill({ agent: 'both', workspaceDir: root, activation: 'explicit' });
+    assert.equal(read(SKILL_SOURCE, 'SKILL.md'), skillBefore);
+    assert.equal(read(SKILL_SOURCE, path.join('agents', 'openai.yaml')), metadataBefore);
+  } finally {
+    cleanup(root);
+  }
 });
 
 test('resolves workspace destinations for both agents', () => {
@@ -86,38 +112,105 @@ test('accepts local/project and user/global aliases', () => {
   }
 });
 
-test('installs managed copies for Claude and Codex in a workspace', () => {
+test('selective is the default and installs managed copies for Claude and Codex', () => {
   const root = temporaryDirectory();
   try {
     const results = installSkill({ agent: 'both', scope: 'workspace', workspaceDir: root });
     assert.equal(results.length, 2);
     assert.ok(results.every((item) => item.action === 'installed'));
+    assert.ok(results.every((item) => item.activation === 'selective'));
 
     for (const result of results) {
       assert.equal(readSkillName(result.destination), SKILL_NAME);
       assert.ok(fs.existsSync(path.join(result.destination, 'scripts', 'planctl.py')));
-      assert.ok(fs.existsSync(path.join(result.destination, 'scripts', 'requestctl.py')));
-      assert.ok(fs.existsSync(path.join(result.destination, 'scripts', 'lifecyclectl.py')));
-      assert.ok(fs.existsSync(path.join(result.destination, 'references', 'LIFECYCLE.md')));
-      assert.ok(fs.existsSync(path.join(result.destination, 'references', 'INTAKE.md')));
+      assert.ok(fs.existsSync(path.join(result.destination, 'scripts', 'promotectl.py')));
+      assert.ok(fs.existsSync(path.join(result.destination, 'references', 'PROMOTION.md')));
       assert.ok(fs.existsSync(path.join(result.destination, INSTALL_MARKER)));
+      const marker = JSON.parse(read(result.destination, INSTALL_MARKER));
+      assert.equal(marker.schemaVersion, 2);
+      assert.equal(marker.activation, 'selective');
+      assert.equal(marker.installedHash, computeDirectoryHash(result.destination));
     }
+
+    const claude = results.find((item) => item.agent === 'claude');
+    const codex = results.find((item) => item.agent === 'codex');
+    assert.doesNotMatch(read(claude.destination, 'SKILL.md'), /^disable-model-invocation:\s*true$/m);
+    assert.match(read(codex.destination, path.join('agents', 'openai.yaml')), /^\s*allow_implicit_invocation:\s*true$/m);
 
     const status = getStatus({ agent: 'both', scope: 'workspace', workspaceDir: root });
     assert.ok(status.every((item) => item.installed && item.owned && item.valid));
     assert.ok(status.every((item) => item.managed && item.modified === false));
     assert.ok(status.every((item) => item.version === packageVersion));
-    assert.ok(status.every((item) => item.sourceHash === item.currentHash));
+    assert.ok(status.every((item) => item.sourceHash));
+    assert.ok(status.every((item) => item.installedHash === item.currentHash));
+    assert.ok(status.every((item) => item.activation === 'selective'));
   } finally {
     cleanup(root);
   }
 });
 
-test('reinstall is idempotent when the installed hash is current', () => {
+test('explicit mode disables automatic model invocation per host without changing routing runtime', () => {
   const root = temporaryDirectory();
   try {
-    installSkill({ agent: 'claude', workspaceDir: root });
-    const [second] = installSkill({ agent: 'claude', workspaceDir: root });
+    const results = installSkill({ agent: 'both', workspaceDir: root, activation: 'explicit' });
+    const claude = results.find((item) => item.agent === 'claude');
+    const codex = results.find((item) => item.agent === 'codex');
+
+    assert.match(read(claude.destination, 'SKILL.md'), /^disable-model-invocation:\s*true$/m);
+    assert.match(
+      read(codex.destination, path.join('agents', 'openai.yaml')),
+      /^\s*allow_implicit_invocation:\s*false$/m
+    );
+    assert.equal(
+      read(codex.destination, 'SKILL.md').includes('`provider`, `model_tier`, and `reasoning_effort`'),
+      true
+    );
+
+    const status = getStatus({ agent: 'both', workspaceDir: root });
+    assert.ok(status.every((item) => item.managed && item.modified === false));
+    assert.ok(status.every((item) => item.activation === 'explicit'));
+    assert.ok(status.every((item) => item.installedHash === item.currentHash));
+    assert.ok(results.some((item) => item.installedHash !== item.sourceHash));
+  } finally {
+    cleanup(root);
+  }
+});
+
+test('switches activation mode safely without force when managed copy is untouched', () => {
+  const root = temporaryDirectory();
+  try {
+    installSkill({ agent: 'both', workspaceDir: root, activation: 'explicit' });
+    const switched = installSkill({ agent: 'both', workspaceDir: root, activation: 'selective' });
+    assert.ok(switched.every((item) => item.action === 'updated'));
+
+    const status = getStatus({ agent: 'both', workspaceDir: root });
+    assert.ok(status.every((item) => item.activation === 'selective' && !item.modified));
+    const claude = status.find((item) => item.agent === 'claude');
+    const codex = status.find((item) => item.agent === 'codex');
+    assert.doesNotMatch(read(claude.destination, 'SKILL.md'), /^disable-model-invocation:\s*true$/m);
+    assert.match(read(codex.destination, path.join('agents', 'openai.yaml')), /allow_implicit_invocation:\s*true/);
+  } finally {
+    cleanup(root);
+  }
+});
+
+test('rejects an invalid activation mode', () => {
+  const root = temporaryDirectory();
+  try {
+    assert.throws(
+      () => installSkill({ agent: 'claude', workspaceDir: root, activation: 'always' }),
+      /Modo de ativacao invalido/
+    );
+  } finally {
+    cleanup(root);
+  }
+});
+
+test('reinstall is idempotent when activation and installed hash are current', () => {
+  const root = temporaryDirectory();
+  try {
+    installSkill({ agent: 'claude', workspaceDir: root, activation: 'explicit' });
+    const [second] = installSkill({ agent: 'claude', workspaceDir: root, activation: 'explicit' });
     assert.equal(second.action, 'already-current');
   } finally {
     cleanup(root);
@@ -129,7 +222,6 @@ test('detects local edits and requires force before updating', () => {
   try {
     const [target] = installSkill({ agent: 'claude', workspaceDir: root });
     fs.writeFileSync(path.join(target.destination, 'local-change.txt'), 'keep me', 'utf8');
-
     const [status] = getStatus({ agent: 'claude', workspaceDir: root });
     assert.equal(status.modified, true);
     assert.throws(
@@ -137,11 +229,33 @@ test('detects local edits and requires force before updating', () => {
       /alteracoes locais/
     );
     assert.ok(fs.existsSync(path.join(target.destination, 'local-change.txt')));
-
     const [updated] = installSkill({ agent: 'claude', workspaceDir: root, force: true });
     assert.equal(updated.action, 'updated');
     assert.equal(fs.existsSync(path.join(target.destination, 'local-change.txt')), false);
     assert.equal(getStatus({ agent: 'claude', workspaceDir: root })[0].modified, false);
+  } finally {
+    cleanup(root);
+  }
+});
+
+test('recognizes legacy schema-v1 managed installs as selective', () => {
+  const root = temporaryDirectory();
+  try {
+    const destination = path.join(root, '.claude', 'skills', SKILL_NAME);
+    fs.cpSync(SKILL_SOURCE, destination, { recursive: true });
+    const sourceHash = computeDirectoryHash(destination);
+    fs.writeFileSync(path.join(destination, INSTALL_MARKER), JSON.stringify({
+      schemaVersion: 1,
+      skill: SKILL_NAME,
+      package: '@luizcgvrj/plan-and-execute',
+      version: '0.7.0',
+      sourceHash,
+      installedAt: new Date().toISOString()
+    }, null, 2));
+    const [status] = getStatus({ agent: 'claude', workspaceDir: root });
+    assert.equal(status.managed, true);
+    assert.equal(status.modified, false);
+    assert.equal(status.activation, 'selective');
   } finally {
     cleanup(root);
   }
@@ -152,12 +266,10 @@ test('manual copy with the same name requires force before adoption', () => {
   try {
     const destination = path.join(root, '.claude', 'skills', SKILL_NAME);
     writeManualSkill(destination);
-
     assert.throws(
       () => installSkill({ agent: 'claude', workspaceDir: root }),
       /instalada manualmente/
     );
-
     const [result] = installSkill({ agent: 'claude', workspaceDir: root, force: true });
     assert.equal(result.action, 'updated');
     assert.equal(getStatus({ agent: 'claude', workspaceDir: root })[0].managed, true);
@@ -171,7 +283,6 @@ test('force never replaces an unrelated directory', () => {
   try {
     const destination = path.join(root, '.claude', 'skills', SKILL_NAME);
     writeManualSkill(destination, 'another-skill');
-
     assert.throws(
       () => installSkill({ agent: 'claude', workspaceDir: root, force: true }),
       /nao pertence/
@@ -185,11 +296,7 @@ test('force never replaces an unrelated directory', () => {
 test('supports user scope with a custom home directory', () => {
   const home = temporaryDirectory();
   try {
-    const [result] = installSkill({
-      agent: 'codex',
-      scope: 'user',
-      homeDir: home
-    });
+    const [result] = installSkill({ agent: 'codex', scope: 'user', homeDir: home });
     assert.equal(result.destination, path.join(home, '.agents', 'skills', SKILL_NAME));
     assert.equal(readSkillName(result.destination), SKILL_NAME);
   } finally {
@@ -197,16 +304,14 @@ test('supports user scope with a custom home directory', () => {
   }
 });
 
-test('dry-run does not create files', () => {
+test('dry-run explicit mode does not create files', () => {
   const root = temporaryDirectory();
   try {
     const results = installSkill({
-      agent: 'both',
-      scope: 'workspace',
-      workspaceDir: root,
-      dryRun: true
+      agent: 'both', scope: 'workspace', workspaceDir: root, activation: 'explicit', dryRun: true
     });
     assert.ok(results.every((result) => result.action === 'would-install'));
+    assert.ok(results.every((result) => result.activation === 'explicit'));
     assert.equal(fs.existsSync(path.join(root, '.claude')), false);
     assert.equal(fs.existsSync(path.join(root, '.agents')), false);
   } finally {
@@ -217,15 +322,13 @@ test('dry-run does not create files', () => {
 test('uninstall preserves modified content unless force is explicit', () => {
   const root = temporaryDirectory();
   try {
-    const [target] = installSkill({ agent: 'claude', workspaceDir: root });
+    const [target] = installSkill({ agent: 'claude', workspaceDir: root, activation: 'explicit' });
     fs.appendFileSync(path.join(target.destination, 'SKILL.md'), '\nlocal edit\n', 'utf8');
-
     assert.throws(
       () => uninstallSkill({ agent: 'claude', workspaceDir: root }),
       /alteracoes locais/
     );
     assert.ok(fs.existsSync(target.destination));
-
     const [removed] = uninstallSkill({ agent: 'claude', workspaceDir: root, force: true });
     assert.equal(removed.action, 'uninstalled');
     assert.equal(fs.existsSync(target.destination), false);
@@ -239,12 +342,9 @@ test('uninstalls only the selected target', () => {
   try {
     installSkill({ agent: 'both', workspaceDir: root });
     uninstallSkill({ agent: 'claude', workspaceDir: root });
-
     const status = getStatus({ agent: 'both', workspaceDir: root });
-    const claude = status.find((item) => item.agent === 'claude');
-    const codex = status.find((item) => item.agent === 'codex');
-    assert.equal(claude.installed, false);
-    assert.equal(codex.installed, true);
+    assert.equal(status.find((item) => item.agent === 'claude').installed, false);
+    assert.equal(status.find((item) => item.agent === 'codex').installed, true);
   } finally {
     cleanup(root);
   }
@@ -264,15 +364,15 @@ test('hash ignores the installer marker but detects content changes', () => {
   }
 });
 
-test('doctor remains scoped to standard installed CLIs', () => {
+test('doctor reports activation policy while remaining scoped to standard installed CLIs', () => {
   const report = runDoctor();
   assert.equal(report.bundledSkillValid, true);
+  assert.deepEqual(report.activationModes, ['selective', 'explicit']);
+  assert.equal(report.defaultActivation, 'selective');
   assert.ok(Object.hasOwn(report, 'claude'));
   assert.ok(Object.hasOwn(report, 'codex'));
   assert.equal(Object.hasOwn(report, 'gemini'), false);
   assert.equal(Object.hasOwn(report, 'qwen'), false);
-  assert.equal(Object.hasOwn(report, 'kimi'), false);
-  assert.equal(Object.hasOwn(report, 'trae'), false);
 });
 
 test('refuses to replace a symbolic-link destination', { skip: process.platform === 'win32' }, () => {
@@ -283,7 +383,6 @@ test('refuses to replace a symbolic-link destination', { skip: process.platform 
     const destination = path.join(root, '.claude', 'skills', SKILL_NAME);
     fs.mkdirSync(path.dirname(destination), { recursive: true });
     fs.symlinkSync(external, destination, 'dir');
-
     assert.throws(
       () => installSkill({ agent: 'claude', workspaceDir: root, force: true }),
       /link simbolico/

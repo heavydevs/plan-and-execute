@@ -1,7 +1,7 @@
 interface:
   display_name: Plan and Execute
-  short_description: Isolate TODO context, persist checkpoints, and execute safely
-  default_prompt: 'Use $plan-and-execute. Treat context as a budget and derived prose as a budget: preserve the user request, derive only precise atomic bounded planning text, load detailed references only for the current phase, persist authoritative state on disk, execute each TODO in a fresh isolated worker with only its assigned task/context/learnings, rerun deterministic validation outside workers, and after successful final verification delete only the verified planning/control workspace while preserving all implementation changes.'
+  short_description: Orchestrate only long-horizon, resumable coding work
+  default_prompt: 'Use $plan-and-execute. Apply its DIRECT vs ORCHESTRATED gate before creating any plan state. Prefer direct execution for cohesive small/medium work; use the full resumable TODO harness only when independent workstreams, broad research, migration risk, durable resume value, or isolation justify it. If direct work later grows, use the promotion handoff and plan only remaining outcomes. Preserve per-TODO provider/model tier/effort routing, deterministic validation, lifecycle recovery, and implementation changes.'
   icon_small: assets/icon.svg
   icon_large: assets/icon.svg
 policy:

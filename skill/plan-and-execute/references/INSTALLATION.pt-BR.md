@@ -2,22 +2,36 @@
 
 [English version](INSTALLATION.md)
 
-A instalação padrão é intencionalmente limitada ao Claude Code e ao Codex. O runner estrito também pode usar Gemini CLI, Qwen Code, Kimi Code CLI e Trae Agent como backends opcionais de execução depois que essas CLIs estiverem instaladas, autenticadas e configuradas no plano. Elas não são novos destinos da opção `--agent`.
+A instalação padrão continua limitada ao Claude Code e ao Codex. Gemini CLI, Qwen Code, Kimi Code CLI e Trae Agent permanecem backends opcionais de execução; não são novos destinos de `--agent`.
+
+## Modo de ativação
+
+O instalador agora possui dois modos:
+
+- `selective` — **padrão e recomendado**. A skill continua elegível para seleção automática, mas a description restritiva e o gate DIRECT/ORCHESTRATED deixam trabalho pequeno/médio coeso no contexto atual do agente.
+- `explicit` — desliga a invocação automática pelo modelo. Use quando quiser que o harness seja carregado somente após invocar/nomear `plan-and-execute` explicitamente.
+
+O modo `explicit` é aplicado de forma específica por host:
+
+- Claude recebe `disable-model-invocation: true` no frontmatter do `SKILL.md` instalado.
+- Codex recebe `policy.allow_implicit_invocation: false` no `agents/openai.yaml` instalado.
+
+O pacote fonte permanece sempre `selective`. O marker gerenciado registra o hash da fonte e o hash da variante realmente instalada, preservando a proteção contra alterações locais. Uma instalação intacta pode alternar `explicit ↔ selective` sem `--force`.
 
 ## Instalação recomendada com npx
 
-Para Claude e Codex no perfil do usuário:
+Claude e Codex no perfil do usuário, com roteamento seletivo:
 
 ```bash
 npx --yes --package=github:heavydevs/plan-and-execute \
   plan-and-execute install --agent both --scope user
 ```
 
-Somente no workspace atual:
+Somente por invocação explícita:
 
 ```bash
 npx --yes --package=github:heavydevs/plan-and-execute \
-  plan-and-execute install --agent both --scope workspace
+  plan-and-execute install --agent both --scope user --activation explicit
 ```
 
 Após a publicação no npm:
@@ -32,33 +46,47 @@ Opções principais:
 ```text
 --agent claude|codex|both
 --scope user|workspace
+--activation selective|explicit
+--selective
+--explicit
 --cwd <diretório-do-workspace>
 --force
 --dry-run
 --json
 ```
 
-O instalador atualiza automaticamente uma cópia gerenciada e intacta. Caso os arquivos instalados tenham sido editados, ele interrompe antes de substituir ou apagar. Use `--force` somente quando quiser descartar essas alterações locais.
+Exemplos:
+
+```bash
+pae install both --global
+pae install both --global --activation explicit
+pae install both --global --selective
+pae install claude --local
+pae status both --global
+pae uninstall both --global
+```
+
+O instalador atualiza uma cópia gerenciada intacta automaticamente. Se houver edição local, ele para antes de sobrescrever/remover. Use `--force` somente para descartar conscientemente essas alterações.
 
 ## Destinos
 
-Escopo de workspace:
+Workspace:
 
 ```text
 <workspace>/.claude/skills/plan-and-execute/SKILL.md
 <workspace>/.agents/skills/plan-and-execute/SKILL.md
 ```
 
-Escopo do usuário:
+Perfil do usuário:
 
 ```text
 ~/.claude/skills/plan-and-execute/SKILL.md
 ~/.agents/skills/plan-and-execute/SKILL.md
 ```
 
-No Windows, `~` normalmente corresponde a `%USERPROFILE%`.
+## Instalação manual
 
-## Instalação manual no workspace
+Copiar o diretório empacotado manualmente instala a configuração fonte `selective`:
 
 ```bash
 mkdir -p .claude/skills .agents/skills
@@ -66,34 +94,14 @@ cp -R plan-and-execute .claude/skills/
 cp -R plan-and-execute .agents/skills/
 ```
 
-## Instalação manual no perfil do usuário
+Prefira o instalador do pacote para `explicit`, pois ele aplica o metadata correto por host e registra o hash da variante.
 
-```bash
-mkdir -p ~/.claude/skills ~/.agents/skills
-cp -R plan-and-execute ~/.claude/skills/
-cp -R plan-and-execute ~/.agents/skills/
-```
+## Comportamento de invocação
 
-## Uso no VS Code
-
-Sem parâmetros, com arquivo guiado:
+Uma demanda rotineira e coesa deve continuar fora do harness. Invocação explícita sempre seleciona a orquestração:
 
 ```text
-/plan-and-execute
-```
-
-ou:
-
-```text
-$plan-and-execute
-```
-
-A skill cria e abre o arquivo de solicitação. Salve-o e escolha a opção de continuar no chat.
-
-Pedido inline:
-
-```text
-$plan-and-execute Implemente a migração descrita, com testes automatizados e documentação de rollback.
+$plan-and-execute Implemente esta migração entre módulos com checkpoints retomáveis.
 ```
 
 Arquivo de requisitos:
@@ -102,35 +110,32 @@ Arquivo de requisitos:
 $plan-and-execute docs/requisitos-da-migracao.md
 ```
 
-## Runner estrito no terminal
+Sem argumentos, a skill primeiro procura uma implementação inacabada única para retomar; só cria um pedido guiado quando o workspace está ocioso.
+
+## Promoção tardia
+
+Se uma tarefa começar DIRECT e depois revelar workstreams independentes, pesquisa ampla, migração/compatibilidade ou risco real de interrupção, use `references/PROMOTION.md` e `scripts/promotectl.py` para gerar um handoff compacto. O plano promovido contém **somente o trabalho restante**. Trabalho já concluído/validado vira histórico, nunca TODO retroativo.
+
+## Runner e retomada
+
+Depois que existir um plano orquestrado/promovido:
 
 ```bash
-python .claude/skills/plan-and-execute/scripts/run_isolated.py \
-  --plan .ai-work/<plan-id>
+pae resume
+pae resume --provider codex --once
 ```
 
-ou:
+Ou diretamente:
 
 ```bash
-python .agents/skills/plan-and-execute/scripts/run_isolated.py \
-  --plan .ai-work/<plan-id>
+python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
 ```
 
-Para simular:
+Cada TODO preserva `provider`, `model_tier` e `reasoning_effort` lógicos, além de subtarefas/checkpoints e comandos de validação. Assim outra IA/provedor compatível pode retomar quando os créditos/quota acabarem, sem precisar do chat anterior. Limite de uso não é contado como falha técnica.
 
-```bash
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id> --dry-run
-```
+## Provedores opcionais
 
-Para preservar o plano após o sucesso:
-
-```bash
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id> --no-cleanup
-```
-
-## Provedores opcionais de execução
-
-O `provider_order` gerado continua sendo `claude`, seguido de `codex`. Para optar explicitamente por outro backend:
+A ordem padrão continua `claude`, depois `codex`. Para optar por outro backend:
 
 ```bash
 pae resume --provider gemini
@@ -139,17 +144,19 @@ pae resume --provider kimi
 pae resume --provider trae
 ```
 
-Backends não interativos opcionais podem aprovar automaticamente escrita de arquivos e comandos de shell. Use-os somente em workspaces confiáveis e respeite os controles de sandbox, permissões e políticas organizacionais de cada CLI. Consulte [MODEL_ROUTING.md](MODEL_ROUTING.md).
+Respeite sandbox, permissões e políticas organizacionais de cada CLI.
 
-## Verificar a instalação
+## Verificação
 
 ```bash
-python <skill-dir>/scripts/self_test.py
+npm run check
 ```
 
-Execute também as suítes focadas:
+Suítes focadas novas e existentes:
 
 ```bash
+python <skill-dir>/scripts/routing_self_test.py
+python <skill-dir>/scripts/promotion_self_test.py
 python <skill-dir>/scripts/context_self_test.py
 python <skill-dir>/scripts/lifecycle_self_test.py
 python <skill-dir>/scripts/study_self_test.py
@@ -157,9 +164,9 @@ python <skill-dir>/scripts/task_memory_self_test.py
 python <skill-dir>/scripts/provider_self_test.py
 ```
 
-Em conjunto, elas cobrem limites de TODO baseados em contexto, retomada de subtarefas persistentes, transferência seletiva de aprendizados validados, adaptadores de provedores, rastreabilidade, escalonamento, validação determinística, resumo e limpeza segura.
+O corpus de roteamento inclui casos positivos, promoção tardia e near-miss negatives que mencionam implementação/refactor/vários arquivos, mas devem permanecer DIRECT.
 
-## CLI de ciclo de vida após a instalação
+## CLI de ciclo de vida
 
 ```bash
 pae current
@@ -168,4 +175,4 @@ pae cancel
 pae reset
 ```
 
-Use `--cwd /caminho/do/projeto` para outro workspace. Os comandos usam o mesmo estado `.ai-work` da skill instalada; não é necessária uma skill separada para o ciclo de vida.
+Use `--cwd /caminho/do/projeto` para outro workspace. O estado persistido continua em `.ai-work` e pode ser retomado por outro agente compatível.

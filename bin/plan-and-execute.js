@@ -5,6 +5,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import {
+  ACTIVATION_MODES,
   getPackageVersion,
   getStatus,
   installSkill,
@@ -33,6 +34,10 @@ const OPTIONAL_PROVIDER_COMMANDS = Object.freeze({
 });
 
 const HELP = `plan-and-execute (alias: pae) - instala a skill no Claude Code/Codex e controla execucoes isoladas
+
+A ativacao padrao e selective: tarefas pequenas/medias coesas ficam no agente atual;
+a skill orquestra somente trabalho long-horizon que justifica plano persistente.
+Use --activation explicit para impedir invocacao automatica da skill.
 
 Provedores de execucao suportados:
   claude, codex, gemini, qwen, kimi, trae
@@ -69,11 +74,14 @@ Opcoes de execucao:
   --all                             Com cancel, remover todos os planos reconhecidos
 
 Opcoes de instalacao:
-  --agent <claude|codex|both>        Destino. Padrao: both
-  --scope <workspace|user>           Projeto atual ou perfil do usuario. Padrao: workspace
-  --local                            Alias de --scope workspace
-  --global                           Alias de --scope user
-  --dry-run                          Mostrar operacoes sem alterar arquivos
+  --agent <claude|codex|both>       Destino. Padrao: both
+  --scope <workspace|user>          Projeto atual ou perfil do usuario. Padrao: workspace
+  --activation <selective|explicit> Auto seletivo (padrao) ou somente invocacao explicita
+  --selective                       Alias de --activation selective
+  --explicit                        Alias de --activation explicit
+  --local                           Alias de --scope workspace
+  --global                          Alias de --scope user
+  --dry-run                         Mostrar operacoes sem alterar arquivos
 
 Exemplos:
   pae current
@@ -83,6 +91,7 @@ Exemplos:
   pae cancel
   pae reset --force
   npx @luizcgvrj/plan-and-execute install both --global
+  pae install both --activation explicit --global
   pae install codex --cwd /caminho/do/projeto
 `;
 
@@ -93,9 +102,7 @@ function fail(message, code = 1) {
 
 function requireValue(args, index, option) {
   const value = args[index + 1];
-  if (!value || value.startsWith('-')) {
-    throw new Error(`A opcao ${option} exige um valor.`);
-  }
+  if (!value || value.startsWith('-')) throw new Error(`A opcao ${option} exige um valor.`);
   return value;
 }
 
@@ -104,8 +111,8 @@ export function parseArguments(argv) {
   let command = 'help';
   if (args.length > 0 && !args[0].startsWith('-')) command = args.shift();
   const options = {
-    agent: 'both', scope: 'workspace', workspaceDir: process.cwd(), force: false,
-    dryRun: false, json: false, provider: null, once: false, noWait: false,
+    agent: 'both', scope: 'workspace', workspaceDir: process.cwd(), activation: 'selective',
+    force: false, dryRun: false, json: false, provider: null, once: false, noWait: false,
     noCleanup: false, allPlans: false
   };
   let showHelp = false;
@@ -126,6 +133,10 @@ export function parseArguments(argv) {
         options.scope = requireValue(args, index, arg); index += 1; break;
       case '--workspace': case '--project-dir': case '--cwd': case '-C':
         options.workspaceDir = requireValue(args, index, arg); index += 1; break;
+      case '--activation':
+        options.activation = requireValue(args, index, arg).toLowerCase(); index += 1; break;
+      case '--selective': options.activation = 'selective'; break;
+      case '--explicit': options.activation = 'explicit'; break;
       case '--global': case '-g': options.scope = 'user'; break;
       case '--local': options.scope = 'workspace'; break;
       case '--claude': options.agent = 'claude'; break;
@@ -145,9 +156,10 @@ export function parseArguments(argv) {
     }
   }
   if (options.provider && !EXECUTION_PROVIDERS.includes(options.provider)) {
-    throw new Error(
-      `Provedor invalido: ${options.provider}. Use ${EXECUTION_PROVIDERS.join(', ')}.`
-    );
+    throw new Error(`Provedor invalido: ${options.provider}. Use ${EXECUTION_PROVIDERS.join(', ')}.`);
+  }
+  if (!ACTIVATION_MODES.includes(options.activation)) {
+    throw new Error(`Modo de ativacao invalido: ${options.activation}. Use ${ACTIVATION_MODES.join(' ou ')}.`);
   }
   return { command, options, showHelp, showVersion };
 }
@@ -164,17 +176,17 @@ function printResults(results, json) {
         else if (result.managed) status = `instalada${result.version ? ` (v${result.version})` : ''}`;
         else status = 'instalada manualmente';
       }
-      console.log(`${result.agent}/${result.scope}: ${status} - ${result.destination}`);
-    } else console.log(`${result.agent}/${result.scope}: ${result.action} - ${result.destination}`);
+      const activation = result.activation ? `, ativacao=${result.activation}` : '';
+      console.log(`${result.agent}/${result.scope}: ${status}${activation} - ${result.destination}`);
+    } else {
+      const activation = result.activation ? ` (${result.activation})` : '';
+      console.log(`${result.agent}/${result.scope}: ${result.action}${activation} - ${result.destination}`);
+    }
   }
 }
 
 function probeCommand(command, args = ['--version']) {
-  const result = spawnSync(command, args, {
-    encoding: 'utf8',
-    timeout: 5000,
-    windowsHide: true
-  });
+  const result = spawnSync(command, args, { encoding: 'utf8', timeout: 5000, windowsHide: true });
   if (result.error?.code === 'ENOENT') return null;
   const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`.trim();
   return {
@@ -201,6 +213,7 @@ function printDoctor(report, json) {
   console.log(`Pacote: ${report.package} v${report.packageVersion}`);
   console.log(`Node: ${report.node}`);
   console.log(`Skill embutida: ${report.bundledSkillValid ? 'valida' : 'invalida'}`);
+  console.log(`Ativacao padrao: ${report.defaultActivation}`);
   console.log(`Python: ${report.python?.version ?? 'nao encontrado (necessario para executar a skill)'}`);
   console.log(`Claude CLI: ${report.claude?.version ?? 'nao encontrado'}`);
   console.log(`Codex CLI: ${report.codex?.version ?? 'nao encontrado'}`);

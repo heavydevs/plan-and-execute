@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression checks for sequential complex-study choice prompts."""
+"""Regression checks for sequential complex-study choice prompts after progressive disclosure."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parent.parent
 SKILL = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+ORCHESTRATION = (SKILL_DIR / "references" / "ORCHESTRATION.md").read_text(encoding="utf-8")
 STUDY = (SKILL_DIR / "references" / "ADAPTIVE_STUDY.md").read_text(encoding="utf-8")
 
 
@@ -16,22 +17,10 @@ def require(text: str, needle: str, label: str) -> None:
 
 
 def main() -> None:
-    for needle in (
-        "only the internal-study question first",
-        "only the external-study question",
-        "in a new turn",
-        "Never combine or preview both questions",
-        "(recomendado)",
-        "exactly one recommendation",
-        "never preselect it",
-        "canonical option value",
-        "native interactive single-choice tool",
-        "vscode/askQuestions",
-        "click with the mouse",
-        "do not duplicate those options",
-        "Fall back to numbered text only",
-    ):
-        require(SKILL, needle, "SKILL.md")
+    # The router must point to orchestration, and orchestration must route study detail
+    # to ADAPTIVE_STUDY instead of duplicating the interaction contract in SKILL.md.
+    require(SKILL, "references/ORCHESTRATION.md", "SKILL.md")
+    require(ORCHESTRATION, "ADAPTIVE_STUDY.md", "ORCHESTRATION.md")
 
     for needle in (
         "Ask only one choice per chat turn",
@@ -68,14 +57,12 @@ def main() -> None:
     external_pos = STUDY.index("Choice 2 — external study")
     if internal_pos >= external_pos:
         raise AssertionError("Internal study choice must be defined before external study choice")
-
     if STUDY.count("Append **`(recomendado)`** to exactly one") != 2:
         raise AssertionError("Both study questions must require exactly one recommended display option")
-
     if STUDY.count("call `vscode/askQuestions` so the three options are clickable") != 2:
         raise AssertionError("Both study questions must use VS Code clickable choices when available")
 
-    print("Sequential clickable study-choice interaction contract validated.")
+    print("Sequential clickable study-choice interaction contract validated through progressive disclosure.")
 
 
 if __name__ == "__main__":
