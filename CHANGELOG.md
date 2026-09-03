@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here.
 
+## 0.8.0 - 2026-09-03
+
+- Changes automatic routing to **DIRECT by default, ORCHESTRATED by evidence, with late PROMOTION when direct work grows**.
+- Narrows the skill description with explicit near-miss negatives so routine bug fixes, bounded features/refactors, ordinary test changes, and cohesive multi-file edits do not automatically pay for the planning harness.
+- Replaces the large entrypoint with a compact routing control plane; full study/planning/execution details now load only after orchestration is selected.
+- Adds a true DIRECT exit that creates no `.ai-work`, study, requirements inventory, TODOs, task files, workers, or lifecycle state.
+- Adds `PROMOTION.md` and `promotectl.py` for compact direct-to-orchestrated handoff containing completed work, validated results, active decisions, relevant code, blockers/risks, remaining outcomes, optional context pressure, and bounded git evidence.
+- Plans only remaining work after promotion; completed implementation is never rewritten as retroactive TODOs.
+- Treats context-window pressure as a secondary signal rather than a universal fixed 90% trigger; high context alone does not promote nearly finished cohesive work.
+- Preserves the complete orchestrated contract: persistent `TODO.md`, one task definition per TODO, authoritative `manifest.json`, resumable subtasks, deterministic validation, learning boundaries, cleanup safety, and resume without previous chat history.
+- Preserves per-TODO logical `provider`, `model_tier`, and `reasoning_effort` recommendations so another compatible model/provider can resume after quota/availability changes.
+- Adds `--activation selective|explicit` plus `--selective`/`--explicit` installer aliases. Selective remains the default; explicit installs Claude with `disable-model-invocation: true` and Codex with `allow_implicit_invocation: false`.
+- Upgrades the installer ownership marker to schema v2 with both source and installed-variant hashes while remaining backward-compatible with schema-v1 managed copies.
+- Adds a 28-case routing regression corpus covering positive orchestration, late promotion, and near-miss DIRECT requests, plus dedicated routing and promotion self-tests.
+- Updates bilingual installation/project documentation and integrated validation for the selective activation architecture.
+
 ## 0.7.0 - 2026-08-26
 
 - Adds schema-v4 TODO boundaries that explicitly justify why one fresh worker should keep the selected concerns in the same context.

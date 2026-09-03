@@ -2,22 +2,36 @@
 
 [Versão em português](INSTALLATION.pt-BR.md)
 
-The standard installation intentionally targets only Claude Code and Codex. The strict runner can also use Gemini CLI, Qwen Code, Kimi Code CLI, and Trae Agent as optional execution backends after those CLIs are installed, authenticated, and added to a plan's routing configuration. They are not additional `--agent` installation destinations.
+The standard installation intentionally targets only Claude Code and Codex. Gemini CLI, Qwen Code, Kimi Code CLI, and Trae Agent remain optional execution backends after they are installed, authenticated, and added to plan routing; they are not `--agent` installation destinations.
+
+## Activation mode
+
+The installer now has two activation modes:
+
+- `selective` — **default and recommended**. The skill remains available for automatic selection, but its narrow description and DIRECT/ORCHESTRATED gate keep routine cohesive work in the current agent context.
+- `explicit` — disables automatic model invocation. Use this when you want the harness only after explicitly naming/invoking `plan-and-execute`.
+
+`explicit` is applied per host without maintaining separate bundled skills:
+
+- Claude installed copies receive `disable-model-invocation: true` in `SKILL.md` frontmatter.
+- Codex installed copies receive `policy.allow_implicit_invocation: false` in `agents/openai.yaml`.
+
+The package source always remains `selective`. The installer records both the source hash and the transformed installed hash so local-edit protection still works for either mode. An untouched managed installation can switch modes without `--force`.
 
 ## Recommended: install with npx
 
-Install for both agents in your user profile:
+Install for both agents in your user profile with selective activation:
 
 ```bash
 npx --yes --package=github:heavydevs/plan-and-execute \
   plan-and-execute install --agent both --scope user
 ```
 
-Install only in the current workspace:
+Install explicit-only instead:
 
 ```bash
 npx --yes --package=github:heavydevs/plan-and-execute \
-  plan-and-execute install --agent both --scope workspace
+  plan-and-execute install --agent both --scope user --activation explicit
 ```
 
 After the npm package is published:
@@ -32,6 +46,9 @@ Main options:
 ```text
 --agent claude|codex|both
 --scope user|workspace
+--activation selective|explicit
+--selective
+--explicit
 --cwd <workspace-directory>
 --force
 --dry-run
@@ -41,17 +58,17 @@ Main options:
 Examples:
 
 ```bash
-# Claude and Codex for every project of the current user
-npx --yes --package=github:heavydevs/plan-and-execute \
-  plan-and-execute install --agent both --scope user
+# Claude and Codex for every project; selective auto-routing
+pae install both --global
+
+# Never auto-invoke the harness
+pae install both --global --activation explicit
+
+# Return an untouched managed installation to selective mode
+pae install both --global --selective
 
 # Claude only in the current workspace
-npx --yes --package=github:heavydevs/plan-and-execute \
-  plan-and-execute install --agent claude --scope workspace
-
-# Codex only in another workspace
-npx --yes --package=github:heavydevs/plan-and-execute \
-  plan-and-execute install --agent codex --scope workspace --cwd /path/to/project
+pae install claude --local
 
 # Inspect and remove installations
 pae status both --global
@@ -78,9 +95,9 @@ User scope:
 
 On Windows, `~` normally maps to `%USERPROFILE%`.
 
-## Manual workspace installation
+## Manual installation
 
-Copy the complete `plan-and-execute` directory:
+Copying the bundled directory manually gives you the source `selective` configuration:
 
 ```bash
 mkdir -p .claude/skills .agents/skills
@@ -88,115 +105,68 @@ cp -R plan-and-execute .claude/skills/
 cp -R plan-and-execute .agents/skills/
 ```
 
-## Manual user installation
+Prefer the package installer when you want `explicit` mode because it applies the host-specific metadata safely and records the installed variant hash.
 
-```bash
-mkdir -p ~/.claude/skills ~/.agents/skills
-cp -R plan-and-execute ~/.claude/skills/
-cp -R plan-and-execute ~/.agents/skills/
-```
+## Invocation behavior
 
-## One shared copy with symbolic links
-
-Linux or macOS:
-
-```bash
-mkdir -p .shared-agent-skills .claude/skills .agents/skills
-cp -R plan-and-execute .shared-agent-skills/
-
-ln -sfn ../../.shared-agent-skills/plan-and-execute \
-  .claude/skills/plan-and-execute
-
-ln -sfn ../../.shared-agent-skills/plan-and-execute \
-  .agents/skills/plan-and-execute
-```
-
-The npm installer intentionally creates real copies rather than links into the temporary `npx` cache.
-
-## Use in VS Code
-
-No-argument guided request:
+A routine cohesive request should normally remain outside the harness. Explicit invocation always selects orchestration:
 
 ```text
-/plan-and-execute
+$plan-and-execute Implement the described cross-module migration with resumable checkpoints.
 ```
 
-or:
-
-```text
-$plan-and-execute
-```
-
-The skill creates and opens a guided request file. Save it and select the continue action in the agent chat.
-
-Inline request:
-
-```text
-$plan-and-execute Implement the described migration, including automated tests and rollback documentation.
-```
-
-Requirements file:
+A requirements file can also be handed to the orchestrated workflow:
 
 ```text
 $plan-and-execute docs/migration-request.md
 ```
 
-## Strict runner in an integrated terminal
+No-argument invocation first checks lifecycle state, resuming a unique unfinished implementation before creating a guided request.
 
-After the skill creates the plan:
+## Late promotion from direct work
 
-```bash
-python .claude/skills/plan-and-execute/scripts/run_isolated.py \
-  --plan .ai-work/<plan-id>
-```
+If a task starts directly but later grows into independent workstreams, broad research, migration/compatibility work, or meaningful resume risk, use `references/PROMOTION.md` and `scripts/promotectl.py` to create a compact handoff. The promoted plan covers **remaining work only**; completed work is retained as validated history rather than rewritten as retroactive TODOs.
 
-or:
+## Strict runner
 
-```bash
-python .agents/skills/plan-and-execute/scripts/run_isolated.py \
-  --plan .ai-work/<plan-id>
-```
-
-Dry run:
+After an orchestrated/promoted plan exists:
 
 ```bash
-python <skill-dir>/scripts/run_isolated.py \
-  --plan .ai-work/<plan-id> \
-  --dry-run
+pae resume
 ```
 
-Preserve planning files after success during early trials:
+or directly:
 
 ```bash
-python <skill-dir>/scripts/run_isolated.py \
-  --plan .ai-work/<plan-id> \
-  --no-cleanup
+python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
 ```
 
-## Model mapping
-
-Every plan creates `.ai-work/<plan-id>/orchestrator.config.json`. Adjust the concrete model mapping when the models available to your account differ. Tasks keep using logical `economy`, `standard`, `strong`, and `max` tiers.
-
-The generated provider order remains `claude`, then `codex`. To opt into another backend, either add its id to `provider_order` or run, for example:
+Useful options:
 
 ```bash
-pae resume --provider gemini
-pae resume --provider qwen
-pae resume --provider kimi
-pae resume --provider trae
+pae resume --provider codex --once
+pae resume --provider gemini --once
+python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id> --dry-run
+python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id> --no-cleanup
 ```
 
-Optional unattended backends may approve file writes and shell commands automatically. Use them only in trusted workspaces and review each CLI's sandbox, permission, and organizational-policy controls. See [MODEL_ROUTING.md](MODEL_ROUTING.md).
+## Model mapping and provider fallback
+
+Every orchestrated TODO keeps logical `provider`, `model_tier`, and `reasoning_effort` requirements. Concrete model ids live in `.ai-work/<plan-id>/orchestrator.config.json`, allowing another compatible provider/model to resume when quota, availability, or account capabilities change.
+
+The default provider order remains `claude`, then `codex`. Optional execution backends can be selected with `pae resume --provider <name>` or configured in the plan. Usage/quota exhaustion does not count as a technical implementation failure.
 
 ## Verify the installation
 
 ```bash
-python <skill-dir>/scripts/self_test.py
+npm run check
 ```
 
-Run the focused suites as well:
+Focused skill suites include:
 
 ```bash
+python <skill-dir>/scripts/routing_self_test.py
+python <skill-dir>/scripts/promotion_self_test.py
 python <skill-dir>/scripts/context_self_test.py
 python <skill-dir>/scripts/lifecycle_self_test.py
 python <skill-dir>/scripts/study_self_test.py
@@ -204,9 +174,9 @@ python <skill-dir>/scripts/task_memory_self_test.py
 python <skill-dir>/scripts/provider_self_test.py
 ```
 
-Together they cover request-file handling, context-cohesive TODO boundaries, persistent subtask recovery, selective validated learning transfer, provider adapters, traceability, escalation, deterministic validation, final summarization, and safe cleanup.
+The routing corpus contains positive orchestration cases, late-promotion cases, and near-miss negatives that mention implementation/refactors/multiple files but should remain DIRECT.
 
-## Lifecycle CLI after installation
+## Lifecycle CLI
 
 ```bash
 pae current
@@ -215,4 +185,4 @@ pae cancel
 pae reset
 ```
 
-Use `--cwd /path/to/project` for another workspace. These commands use the same `.ai-work` state as the installed skill; no separate lifecycle skill is required.
+Use `--cwd /path/to/project` for another workspace. Lifecycle state remains in `.ai-work`; another compatible AI/provider can resume without the old chat transcript.

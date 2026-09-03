@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {"id":"D001","expected_route":"direct","near_miss":false,"prompt":"Fix the null check in UserService and add a regression test."},
+    {"id":"D002","expected_route":"direct","near_miss":true,"prompt":"Implement one new account endpoint across DTO, service, controller and focused tests."},
+    {"id":"D003","expected_route":"direct","near_miss":true,"prompt":"Refactor the payment formatter used in 18 call sites and update its tests."},
+    {"id":"D004","expected_route":"direct","near_miss":true,"prompt":"Add a database column, update the entity and expose it through the existing API with tests."},
+    {"id":"D005","expected_route":"direct","near_miss":false,"prompt":"Rename a helper and update all references in the package."},
+    {"id":"D006","expected_route":"direct","near_miss":true,"prompt":"Implement pagination for this bounded endpoint; it touches seven related files."},
+    {"id":"D007","expected_route":"direct","near_miss":true,"prompt":"Refactor one authentication module to remove duplicate parsing and keep existing behavior."},
+    {"id":"D008","expected_route":"direct","near_miss":false,"prompt":"Update the unit tests for the parser change already made."},
+    {"id":"D009","expected_route":"direct","near_miss":true,"prompt":"Implement a single cohesive CRUD for person with entity, service, controller and tests."},
+    {"id":"D010","expected_route":"direct","near_miss":false,"prompt":"Fix the CSS build configuration and verify the frontend build."},
+    {"id":"D011","expected_route":"direct","near_miss":true,"prompt":"Change one serialization contract across model, mapper, endpoint and focused compatibility tests."},
+    {"id":"D012","expected_route":"direct","near_miss":false,"prompt":"Move one package to a new folder and fix its imports."},
+    {"id":"D013","expected_route":"direct","near_miss":true,"prompt":"Implement a medium-sized cohesive feature in this module and keep everything in the current context."},
+    {"id":"D014","expected_route":"direct","near_miss":false,"prompt":"Diagnose this failing test, fix the bug and run the relevant suite."},
+    {"id":"D015","expected_route":"direct","near_miss":true,"prompt":"Update one REST resource and its migration; no other subsystem changes."},
+
+    {"id":"O001","expected_route":"orchestrated","near_miss":false,"prompt":"Implement unrelated person and store CRUDs with separate business rules, controllers, services and tests."},
+    {"id":"O002","expected_route":"orchestrated","near_miss":false,"prompt":"Migrate authentication, billing and audit to a new identity model while preserving compatibility."},
+    {"id":"O003","expected_route":"orchestrated","near_miss":false,"prompt":"Research storage options broadly using authoritative sources, choose one, then implement it across independent subsystems."},
+    {"id":"O004","expected_route":"orchestrated","near_miss":false,"prompt":"Execute this multi-session implementation and make every workstream resumable if provider credits run out."},
+    {"id":"O005","expected_route":"orchestrated","near_miss":false,"prompt":"Refactor three independent modules with separate validation boundaries and no useful shared implementation context."},
+    {"id":"O006","expected_route":"orchestrated","near_miss":false,"prompt":"Perform a repo-wide protocol migration with compatibility, data integrity and rollback-sensitive validation."},
+    {"id":"O007","expected_route":"orchestrated","near_miss":false,"prompt":"Study the whole repository and external vendor docs, then plan and implement the requested architecture change."},
+    {"id":"O008","expected_route":"orchestrated","near_miss":false,"prompt":"Use plan-and-execute explicitly for this change and keep a durable TODO checklist for handoff."},
+    {"id":"O009","expected_route":"orchestrated","near_miss":false,"prompt":"Implement four independent integrations; each can fail and be validated separately and the work may span quota windows."},
+    {"id":"O010","expected_route":"orchestrated","near_miss":false,"prompt":"Resume the active plan-and-execute implementation from its persisted TODO state."},
+
+    {"id":"P001","expected_route":"promote","near_miss":false,"prompt":"Direct work discovered two independent subsystems and 80% context usage with substantial work remaining."},
+    {"id":"P002","expected_route":"promote","near_miss":false,"prompt":"A bounded task started directly but now requires broad vendor research and a compatibility migration."},
+    {"id":"P003","expected_route":"direct","near_miss":true,"prompt":"Context is 92% full but only one tiny cohesive test fix remains; do not promote."}
+  ]
+}

@@ -1,10 +1,34 @@
 # Plan and Execute
 
-**Turn large coding requests into evidence-backed, context-isolated, resumable implementation plans.**
+**Use a persistent multi-worker plan only when it earns its cost.**
 
-`plan-and-execute` studies the complete request and repository before planning, creates requirements-traceable TODOs, gives each TODO a fresh worker context, persists subtask checkpoints, validates implementation independently, and selectively forwards only useful verified learnings to similar future TODOs.
+`plan-and-execute` is a selective orchestration skill for Claude Code and OpenAI Codex. Routine cohesive small/medium coding requests stay in the agent's current context. Long-horizon work can enter the full evidence-backed workflow immediately, or a task that grows during implementation can be promoted later without throwing away completed work.
 
 [Leia em Português](README.pt-BR.md)
+
+## What changed in 0.8
+
+The skill now follows:
+
+```text
+DIRECT by default -> ORCHESTRATE by evidence -> PROMOTE when necessary
+```
+
+This solves a real cost problem with agent skills: a broad skill description can cause ordinary implementation prompts to pay for study, planning, traceability, task files, and fresh workers even when one conversation would have been faster and cheaper.
+
+The full harness is still intact when orchestration is justified. An orchestrated or promoted implementation still has:
+
+- a terse persistent `TODO.md` checklist;
+- one bounded definition file per TODO;
+- `manifest.json` as authoritative lifecycle state;
+- resumable subtasks/checkpoints;
+- request-part -> requirement -> TODO traceability;
+- per-TODO `provider`, `model_tier`, and `reasoning_effort` recommendations;
+- deterministic validation outside worker self-reports;
+- provider/model escalation and fallback;
+- quota/rate-limit events that preserve state instead of counting as technical failure;
+- recovery by another compatible AI without the old chat transcript;
+- guarded cleanup that removes planning/control state but preserves implementation changes.
 
 ## Supported AI workers
 
@@ -17,190 +41,152 @@
 | Kimi Code CLI | Yes | No | Opt-in | Fresh prompt-mode CLI process |
 | Trae Agent | Yes | No | Opt-in | Fresh `trae-cli run` process |
 
-The npm installer intentionally installs the skill only for **Claude Code**, **Codex**, or **both**. Gemini, Qwen, Kimi, and Trae are optional execution backends configured inside a plan; they are not silently added to the default provider order.
+The npm installer intentionally installs the skill only for Claude Code, Codex, or both. Other providers are optional execution backends configured inside an orchestrated plan.
 
-## Quick start: Claude Code and Codex
+## Quick start
 
 Requirements:
 
-- Node.js 18.17 or newer;
-- Python 3.10 or newer;
+- Node.js 18.17+;
+- Python 3.10+;
 - Claude Code and/or Codex installed and authenticated.
 
-Install in the current workspace for both standard agents:
+Install for both agents in the current workspace:
 
 ```bash
 npx @luizcgvrj/plan-and-execute install both
 ```
 
-Or install for one agent:
-
-```bash
-npx @luizcgvrj/plan-and-execute install claude
-npx @luizcgvrj/plan-and-execute install codex
-```
-
-Install in your user profile:
+Install globally for the current user:
 
 ```bash
 npx @luizcgvrj/plan-and-execute install both --global
 ```
 
-Then invoke the skill from Claude Code or Codex with a large implementation request, a requirements-file path, or no arguments. With no arguments it resumes the unique unfinished implementation first; it creates a guided request draft only when the workspace is idle.
+The default activation is **selective**. To make the skill explicit-only:
 
-## Precise, concise derived artifacts
+```bash
+pae install both --global --activation explicit
+```
 
-The original user request remains complete evidence. Token reduction starts only when the skill derives study, requirements, plans, TODO definitions, context, learnings, reports, and handoffs.
+Return an untouched managed installation to selective mode:
 
-Derived text follows a deterministic writing contract:
+```bash
+pae install both --global --selective
+```
 
-- one semantic job per field;
-- concrete nouns, conditions, and observable outcomes;
-- stable ids, paths, symbols, commands, versions, and thresholds instead of repeated explanation;
-- explicit per-field character/list budgets;
-- rejection of high-confidence vague wording such as `as appropriate`, `as needed`, `etc.`, `and/or`, `adequate`, `robust`, `quickly`, and similar Portuguese forms;
-- no silent truncation of requirements: an oversized/vague derived field must be rewritten precisely or split into atomic items.
+See [installation details](skill/plan-and-execute/references/INSTALLATION.md).
 
-The runtime routes planning and execution through `planctl_concise.py`, `studyctl_concise.py`, `lifecyclectl_concise.py`, and `run_concise.py`. These compatibility entrypoints install the concise contract over the existing deterministic controllers, preserving lifecycle, resume, validation, and cleanup behavior.
+## Selective activation
 
-See [Precise artifact writing](skill/plan-and-execute/references/ARTIFACT_WRITING.md).
+The bundled skill description is intentionally narrow. Automatic orchestration is appropriate when at least one strong signal exists, such as:
+
+- multiple independently verifiable workstreams whose retained reasoning does not substantially help each other;
+- broad repository study or substantial current external research before implementation is safe;
+- repo-wide migration, compatibility, security, data-integrity, concurrency, or cross-module coordination;
+- likely work across sessions, providers, quota windows, or context compaction where durable resume state has real value;
+- isolated delegated workers that materially reduce unrelated context or improve independent validation.
+
+The following are **not** sufficient by themselves:
+
+- the words “implement”, “refactor”, or “fix”;
+- several related files;
+- controller + service + entity + tests for one cohesive rule set;
+- an ordinary bounded feature or bug fix;
+- a nearly finished task with high context usage.
+
+File count is weak evidence. Semantic independence and durable coordination value matter more.
+
+### DIRECT mode
+
+If the skill is implicitly considered but no strong orchestration signal exists, it exits immediately:
+
+- no `.ai-work` directory;
+- no study artifact;
+- no requirements inventory;
+- no plan/TODO/task files;
+- no fresh worker solely for process compliance;
+- no lifecycle state.
+
+The main agent keeps implementing and validating in its current useful context.
+
+## Late promotion
+
+A direct task is not trapped in DIRECT mode. If implementation reveals materially larger scope, it can be promoted.
+
+Promotion is useful when substantial work remains and, for example:
+
+- one request splits into independent remaining outcomes;
+- broad research becomes necessary;
+- migration/compatibility/security uncertainty appears;
+- interruption or quota risk makes durable resume important;
+- context pressure becomes high **and** the remaining work is substantial enough to benefit from a durable handoff.
+
+Context percentage is deliberately secondary. There is no universal “90% means orchestrate” rule.
+
+`promotectl.py` validates a compact handoff containing only durable state:
+
+- original goal;
+- completed work;
+- validated results;
+- active decisions/invariants;
+- relevant paths/symbols;
+- blockers/risks;
+- remaining outcomes;
+- optional context-pressure observation;
+- bounded git branch/status/diff-stat evidence.
+
+Example:
+
+```bash
+python <skill-dir>/scripts/promotectl.py validate \
+  --spec /tmp/pae-promotion-spec.json --json
+
+python <skill-dir>/scripts/promotectl.py render \
+  --repo-root . \
+  --spec /tmp/pae-promotion-spec.json \
+  --output /tmp/pae-promotion-request.md \
+  --json
+```
+
+The generated request is then planned normally, but **only for remaining outcomes**. Completed work is never fabricated as retroactive TODOs.
+
+See [promotion protocol](skill/plan-and-execute/references/PROMOTION.md).
+
+## Full orchestrated workflow
+
+Once ORCHESTRATED is selected, the existing robust workflow remains:
+
+1. Preserve the complete request.
+2. Perform only the internal/external study depth that can change architecture, compatibility, task boundaries, risk, or validation.
+3. Inventory stable request parts and observable requirements.
+4. Split work by context-cohesive outcomes and independent validation boundaries.
+5. Review coverage, atomicity, dependencies, validation, and context minimality.
+6. Persist the plan under `.ai-work/<plan-id>/`.
+7. Execute one isolated TODO at a time with only its assigned execution context and validated learnings.
+8. Re-run deterministic validation outside the worker.
+9. Persist every state transition before moving on.
+10. Resume safely after host/provider/quota interruption.
+11. Generate a compact handoff and remove only verified planning/control state after success.
+
+The entrypoint is intentionally small; detailed orchestration lives in [ORCHESTRATION.md](skill/plan-and-execute/references/ORCHESTRATION.md) and phase-specific references are loaded only when needed.
 
 ## Why TODO boundaries matter
 
-A fresh worker should receive one coherent semantic problem, not an arbitrary bundle of files or everything mentioned in the same paragraph.
+A fresh worker should receive one coherent semantic problem, not an arbitrary file bundle.
 
-Suppose a request asks for:
+Two unrelated CRUDs with independent models, rules, and tests usually become two TODOs even if they use the same framework pattern. Conversely, a controller, service, entity, migration, and focused tests can stay in one TODO when they implement one invariant and benefit from the same reasoning context.
 
-- a complete person CRUD with its own entity, service, controller, validation, and tests;
-- a complete store CRUD with a separate entity, service, controller, validation, and tests.
+Schema v4 requires `context_boundary`, resumable `subtasks`, and optional directional `learning_targets` for every task.
 
-When the two domains do not share business invariants, transactions, lifecycle state, or a meaningful joint validation boundary, they belong in **separate TODOs**. The person worker's chat history and exploratory context do not materially help the store worker.
-
-The opposite rule also matters: do not create one TODO per file. Tightly coupled entity, service, controller, migration, and focused tests may remain together when they implement one behavior and benefit from the same working context.
-
-Schema v4 requires every task to record a `context_boundary`:
-
-```json
-{
-  "shared_context": [
-    "The service, controller, and tests implement one person-registration contract."
-  ],
-  "why_one_todo": "Splitting these edits would duplicate domain rediscovery and weaken focused validation.",
-  "separate_from": [
-    "Store CRUD has an independent model, rule set, and test boundary."
-  ]
-}
-```
-
-An independent plan reviewer must approve `context_boundaries_sound` before execution starts.
-
-## Resumable subtasks inside every TODO
-
-Each schema-v4 task definition contains its own stable checklist. The authoritative state lives in `manifest.json`; Markdown task files are regenerated projections.
-
-```json
-{
-  "subtasks": [
-    {
-      "id": "S001",
-      "title": "Add the person persistence model",
-      "objective": "Create the entity, migration, and repository operations.",
-      "required": true
-    },
-    {
-      "id": "S002",
-      "title": "Implement the person API",
-      "objective": "Add service rules, controller endpoints, and focused tests.",
-      "required": true
-    }
-  ]
-}
-```
-
-Workers checkpoint progress only through the concise controller:
-
-```bash
-python <skill-dir>/scripts/planctl_concise.py subtask-start \
-  --plan .ai-work/<plan-id> --task 001 --subtask S001
-
-python <skill-dir>/scripts/planctl_concise.py subtask-complete \
-  --plan .ai-work/<plan-id> --task 001 --subtask S001
-```
-
-After a power failure, killed process, or provider interruption, completed subtasks remain completed and only an interrupted `in_progress` subtask returns to `pending`. Another fresh AI can continue from the first unfinished checkpoint without reading the previous conversation.
-
-A parent TODO cannot complete until every required subtask is complete.
-
-## Selective validated learning
-
-Fresh contexts reduce token waste, but sometimes one TODO discovers an expensive solution that a similar later TODO should reuse. Plan-and-execute supports a narrow learning bridge without carrying the source chat forward.
-
-The planner predeclares directional targets:
-
-```json
-{
-  "learning_targets": [
-    {
-      "task_id": 2,
-      "reason": "The store CRUD uses the same framework-specific validation adapter.",
-      "topics": ["validation adapter", "focused test command"]
-    }
-  ]
-}
-```
-
-Only after the source task passes deterministic validation may the orchestrator materialize a concise file such as:
-
-```text
-.ai-work/<plan-id>/learnings/001-to-002.md
-```
-
-A declared learning source is also a context prerequisite: the target does not start until every source that may teach it has completed. A source that found nothing reusable publishes no file, so the target pays no extra token cost.
-
-A learning entry must be short, evidence-grounded, useful to the declared target, and classified as code, procedure, decision, pitfall, or validation. It can point to exact code, tests, commands, or a compact technical explanation.
-
-The mechanism rejects undeclared/backward targets, targets that already started, oversized/unreferenced notes, transcripts/logs/full reports, and attempts to mutate immutable plan-time context with runtime discoveries.
-
-Workers report the exact `learning_files_read` list. Empty learning output creates no file and costs no future tokens.
-
-## Adaptive study gate
-
-The skill does not draft TODOs from a first reading. It first:
-
-1. preserves and inventories every independently testable request part;
-2. classifies complexity before broad exploration;
-3. searches/localizes repository evidence before reading broadly;
-4. decides whether current authoritative external research is materially required;
-5. resolves high-impact questions and records only evidence plus planning impact;
-6. passes an independent study review and stopping rule;
-7. converts findings into requirements, risks, constraints, and validation implications.
-
-The canonical study is stored as `study.json` and rendered as a compact `STUDY.md`. Planning is blocked until:
-
-```bash
-python <skill-dir>/scripts/studyctl_concise.py validate-plan --plan .ai-work/<plan-id>
-```
-
-## Progressive execution context
-
-Plan-time shared context is deliberate and immutable:
-
-- omit shared context by default;
-- create `CONTEXT.md` only for information needed by every TODO;
-- create `contexts/<topic>.md` only for strict multi-task subsets;
-- keep single-TODO information in that task definition;
-- keep runtime discoveries in validated learning files, not in plan-time context.
-
-Every worker must report exactly which assigned context and learning files it read. Missing and extra reads are rejected.
-
-## Plan workspace
+## Persistent TODOs and recovery
 
 A generated plan resembles:
 
 ```text
 .ai-work/<plan-id>/
-├── .plan-and-execute
-├── manifest.json
+├── .orchestrator-plan
+├── manifest.json                 # authoritative state
 ├── orchestrator.config.json
 ├── REQUEST.md
 ├── STUDY.md
@@ -208,110 +194,125 @@ A generated plan resembles:
 ├── ANALYSIS.md
 ├── PLAN.md
 ├── PLAN_REVIEW.md
-├── TODO.md
-├── CONTEXT.md                 # optional, universal plan-time context
-├── contexts/                  # optional, scoped plan-time context
-├── learnings/                 # validated source-to-target runtime learnings
-├── tasks/                     # one bounded task definition per TODO
+├── TODO.md                       # one terse line per parent TODO
+├── CONTEXT.md                    # optional universal context
+├── contexts/                     # optional scoped plan-time context
+├── learnings/                    # validated directional runtime learnings
+├── tasks/                        # one bounded definition per TODO
 ├── results/
 └── logs/
 ```
 
-`manifest.json` is authoritative. `TODO.md` stays one line per task. Worker task files contain only execution-relevant objective, assigned context/learnings, checkpoints, scope, non-obvious guidance, acceptance, and validation; full planning/review rationale remains in structured state instead of being repeated for every worker.
+After interruption, completed subtasks remain complete and only interrupted in-progress state is recovered. Partial source changes are preserved. Another session/provider can continue from disk state without rereading the parent chat.
 
-## Execution modes
-
-### Native fresh workers
-
-Inside Claude Code or Codex, the orchestrator may dispatch one fresh native subagent per TODO. Each worker receives only:
-
-- its compact task definition;
-- exact assigned plan-time context files;
-- exact assigned validated learning files;
-- repository instructions and source files it legitimately needs.
-
-It does not receive the full request, whole plan, future tasks, prior transcripts, or unrelated reports.
-
-### Strict external runner
-
-From a terminal or CI shell:
+Lifecycle commands:
 
 ```bash
-python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id>
+pae current
+pae resume
+pae resume --once
+pae cancel
+pae reset --force
 ```
 
-The runner starts a new non-persistent provider process for each TODO, independently executes validation commands, handles escalation/provider availability, bounds diagnostic output, and builds the final summary from compact authoritative state rather than rereading raw worker reports.
+## Per-TODO model routing
 
-The generated default route remains:
+The plan recommends capability per leaf TODO rather than assigning one expensive model to the whole request.
+
+Logical tiers:
+
+| Tier | Intended use |
+|---|---|
+| `economy` | Mechanical/narrow changes with strong deterministic checks |
+| `standard` | Normal bounded implementation/debugging/tests |
+| `strong` | Architecture-sensitive, security, concurrency, migration, difficult debugging |
+| `max` | Hard unresolved work after evidence-backed lower-route failure |
+
+Each TODO keeps:
 
 ```json
 {
-  "provider_order": ["claude", "codex"]
+  "provider": "auto",
+  "model_tier": "standard",
+  "reasoning_effort": "medium"
 }
 ```
 
-To opt into another installed and authenticated CLI, edit `orchestrator.config.json` or assign a provider to a task:
+Concrete provider model ids are resolved through `orchestrator.config.json`. This keeps the task portable when one provider runs out of quota or a different compatible model is available. Effort/tier/provider escalation follows actual failure evidence, not fear or overall request size.
 
-```json
-{
-  "provider_order": ["gemini", "qwen", "claude", "codex"]
-}
-```
+See [MODEL_ROUTING.md](skill/plan-and-execute/references/MODEL_ROUTING.md).
 
-You may also override a resume run:
+## Selective validated learning
+
+Fresh contexts intentionally do not inherit source chats. When a TODO discovers an expensive validated procedure, decision, pitfall, code reference, or validation technique that a declared future TODO would otherwise rediscover, the orchestrator can publish a compact directional learning file after deterministic validation.
+
+No useful discovery means no learning file and no extra future context cost.
+
+## Execution context
+
+Plan-time shared context is omission-first:
+
+- `CONTEXT.md` only for non-obvious information needed by every TODO;
+- `contexts/<topic>.md` only for a strict multi-TODO subset;
+- single-task facts stay in that task definition;
+- runtime discoveries go to validated learning artifacts, not mutable global context.
+
+## Strict runner and optional providers
+
+Use the lifecycle wrapper:
 
 ```bash
+pae resume
+pae resume --provider codex --once
 pae resume --provider gemini --once
-pae resume --provider qwen --once
-pae resume --provider kimi --once
-pae resume --provider trae --once
 ```
 
-Run `pae doctor --json` to inspect installed CLIs. Optional providers are never required for the standard installation.
-
-## Lifecycle commands
+or:
 
 ```bash
-pae current                     # inspect active implementation
-pae resume                      # recover and continue
-pae resume --once               # execute at most one parent TODO
-pae cancel                      # remove active plan state, preserve code changes
-pae reset --force               # remove all recognized plan state in this workspace
+python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
 ```
 
-The lifecycle controller repairs stale pointers, prevents concurrent strict runners, recovers interrupted task/subtask state, and preserves completed checkpoints.
+The runner starts a fresh process for each TODO, independently reruns validations, bounds diagnostic output, and builds the final summary from compact authoritative state rather than raw worker transcripts.
 
-## Safety model
+## Activation modes
 
-Plan-and-execute does not bypass provider permissions, sandboxes, repository policies, organizational controls, or system policy.
-
-Optional headless providers may use unattended approval modes so they can edit files and execute commands without a human prompt. Review each provider configuration carefully, use its sandbox or container isolation where available, and run only in a trusted workspace.
-
-The runner also enforces:
-
-- one write worker at a time in a working tree;
-- deterministic validation outside the worker's self-report;
-- bounded task, context, learning, report, failure, and final-summary input;
-- guarded plan cleanup with sentinel and repository-root checks;
-- no automatic destructive deployment, credential rotation, broad deletion, or irreversible migration without authorization.
-
-After successful final validation and handoff, cleanup removes only the verified planning/control workspace. Implementation files, tests, generated product artifacts, commits, and unrelated repository changes remain.
-
-## Installation and maintenance
+### Selective — recommended
 
 ```bash
-pae status both --cwd /path/to/project
-pae paths both --cwd /path/to/project
-pae doctor --json
-pae uninstall both --cwd /path/to/project
+pae install both --activation selective
 ```
 
-The installer uses an ownership marker and directory SHA-256. It refuses to overwrite unmanaged, modified, unrelated, or symbolic-link destinations unless the documented safety conditions are met.
+The skill remains discoverable automatically, but routing negatives + the DIRECT exit avoid paying for orchestration on ordinary work.
 
-Detailed installation references:
+### Explicit-only
 
-- [English installation guide](skill/plan-and-execute/references/INSTALLATION.md)
-- [Guia de instalação em português](skill/plan-and-execute/references/INSTALLATION.pt-BR.md)
+```bash
+pae install both --activation explicit
+```
+
+The installer produces host-specific copies:
+
+- Claude: `disable-model-invocation: true`;
+- Codex: `allow_implicit_invocation: false`.
+
+The package source is not mutated. Marker schema v2 records both source and installed hashes, so explicit variants retain the same local-change protection as selective installs.
+
+## Routing regression suite
+
+`references/routing-evals.json` contains direct near-misses, positive orchestration requests, and late-promotion cases. The suite specifically protects against regressions such as:
+
+- “refactor this service/controller/tests” accidentally triggering a plan;
+- “update the same helper in many call sites” triggering only because many files are touched;
+- high context percentage promoting a task when only one tiny cohesive fix remains;
+- large multi-workstream/migration/research requests failing to enter orchestration.
+
+Run:
+
+```bash
+python skill/plan-and-execute/scripts/routing_self_test.py
+python skill/plan-and-execute/scripts/promotion_self_test.py
+```
 
 ## Development
 
@@ -319,19 +320,13 @@ Detailed installation references:
 npm run check
 ```
 
-This runs generated-artifact cleanup, skill/package validation, Node tests, and all Python self-tests, including concise-artifact budgets/vagueness, context isolation, task memory, lifecycle recovery, study evidence, token efficiency, cleanup preservation, and provider adapter coverage.
+This runs package cleanup, skill validation, Node tests, and Python self-tests for lifecycle recovery, study evidence, context isolation, task memory, provider adapters, token efficiency, artifact concision, routing, promotion, and cleanup safety.
 
-Key references:
+## Safety and cleanup
 
-- [Precise artifact writing](skill/plan-and-execute/references/ARTIFACT_WRITING.md)
-- [Adaptive study](skill/plan-and-execute/references/ADAPTIVE_STUDY.md)
-- [Planning protocol](skill/plan-and-execute/references/PLANNING_PROTOCOL.md)
-- [Plan schema](skill/plan-and-execute/references/PLAN_SPEC.md)
-- [Execution context](skill/plan-and-execute/references/EXECUTION_CONTEXT.md)
-- [Workflow](skill/plan-and-execute/references/WORKFLOW.md)
-- [Lifecycle](skill/plan-and-execute/references/LIFECYCLE.md)
-- [Model routing](skill/plan-and-execute/references/MODEL_ROUTING.md)
-- [Token efficiency](skill/plan-and-execute/references/TOKEN_EFFICIENCY.md)
+The skill does not bypass provider sandboxes, permissions, organizational policies, or repository controls. Write-heavy TODOs execute sequentially unless worktree isolation makes parallel writes safe.
+
+After successful final validation and handoff, cleanup deletes only the verified `.ai-work/<plan-id>/` planning/control workspace. Source changes, tests, commits, generated product artifacts, and unrelated repository files remain.
 
 ## License
 

@@ -16,7 +16,9 @@ const testScripts = [
   'provider_self_test.py',
   'token_efficiency_self_test.py',
   'artifact_concision_self_test.py',
-  'study_choice_interaction_self_test.py'
+  'study_choice_interaction_self_test.py',
+  'routing_self_test.py',
+  'promotion_self_test.py'
 ].map((name) => path.join(scriptDirectory, name));
 const candidates = process.platform === 'win32'
   ? [['py', ['-3']], ['python', []], ['python3', []]]

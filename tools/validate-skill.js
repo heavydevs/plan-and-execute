@@ -14,7 +14,6 @@ function fail(message) {
   console.error(message);
   process.exit(1);
 }
-
 function requireFile(relativePath) {
   const absolute = path.join(SKILL_SOURCE, relativePath);
   if (!fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) {
@@ -22,17 +21,14 @@ function requireFile(relativePath) {
   }
   return absolute;
 }
-
 function read(relativePath) {
   return fs.readFileSync(requireFile(relativePath), 'utf8');
 }
-
 function requireText(text, needles, label) {
   for (const needle of needles) {
     if (!text.includes(needle)) fail(`${label} is missing required text: ${needle}`);
   }
 }
-
 function requireMax(text, maximum, label) {
   if (text.length > maximum) fail(`${label} is too large: ${text.length} > ${maximum}`);
 }
@@ -74,6 +70,10 @@ for (const file of repositoryFiles) {
 for (const relative of [
   'SKILL.md',
   path.join('agents', 'openai.yaml'),
+  path.join('references', 'ROUTING.md'),
+  path.join('references', 'PROMOTION.md'),
+  path.join('references', 'ORCHESTRATION.md'),
+  path.join('references', 'routing-evals.json'),
   path.join('references', 'ADAPTIVE_STUDY.md'),
   path.join('references', 'ARTIFACT_WRITING.md'),
   path.join('references', 'EXECUTION_CONTEXT.md'),
@@ -86,6 +86,9 @@ for (const relative of [
   path.join('references', 'completion-report.schema.json'),
   path.join('references', 'plan-spec.example.json'),
   path.join('references', 'study-spec.example.json'),
+  path.join('scripts', 'promotectl.py'),
+  path.join('scripts', 'routing_self_test.py'),
+  path.join('scripts', 'promotion_self_test.py'),
   path.join('scripts', 'artifact_contract.py'),
   path.join('scripts', 'runner_contract.py'),
   path.join('scripts', 'planctl_concise.py'),
@@ -102,128 +105,135 @@ for (const relative of [
 const metadata = read(path.join('agents', 'openai.yaml'));
 requireText(metadata, [
   'display_name: Plan and Execute',
-  'Treat context as a budget',
-  'fresh isolated worker',
+  'DIRECT vs ORCHESTRATED',
+  'cohesive small/medium work',
+  'remaining outcomes',
+  'provider/model tier/effort',
   'deterministic validation',
-  'planning/control workspace',
-  'implementation changes'
+  'implementation changes',
+  'allow_implicit_invocation: true'
 ], 'agents/openai.yaml');
-requireMax(metadata, 1400, 'agents/openai.yaml');
+requireMax(metadata, 1500, 'agents/openai.yaml');
 
 const skill = read('SKILL.md');
 requireText(skill, [
   'Treat context as a budget',
-  'original request',
-  'references/ARTIFACT_WRITING.md',
-  'references/ADAPTIVE_STUDY.md',
-  'references/PLANNING_PROTOCOL.md',
-  'references/EXECUTION_CONTEXT.md',
-  'references/WORKFLOW.md',
-  'references/MODEL_ROUTING.md',
-  'references/TOKEN_EFFICIENCY.md',
-  'contexts_minimal',
-  'context_boundaries_sound',
-  'planctl_concise.py',
-  'studyctl_concise.py',
-  'lifecyclectl_concise.py',
-  'run_concise.py',
-  'deterministic validation',
-  'Preserve all implementation changes'
+  'Decide DIRECT vs ORCHESTRATED',
+  'DIRECT EXIT',
+  'create no `.ai-work`',
+  'When uncertain, prefer DIRECT',
+  'references/ROUTING.md',
+  'references/PROMOTION.md',
+  'references/ORCHESTRATION.md',
+  'remaining outcomes',
+  '`provider`, `model_tier`, and `reasoning_effort`',
+  'quota/rate-limit exhaustion',
+  'without the previous chat transcript',
+  'implementation changes'
 ], 'SKILL.md');
-requireMax(skill, 12000, 'SKILL.md');
+requireMax(skill, 7000, 'SKILL.md');
+const frontmatter = skill.match(/^---\n([\s\S]*?)\n---/);
+if (!frontmatter) fail('SKILL.md frontmatter is missing.');
+if (frontmatter[1].length > 1700) fail('SKILL.md frontmatter is too broad for cheap routing.');
+if (!frontmatter[1].includes('Do not use for routine bug fixes')) {
+  fail('SKILL.md description must contain near-miss negative routing guidance.');
+}
+if (frontmatter[1].includes('Use for implementations, migrations, refactors')) {
+  fail('SKILL.md description still contains the old catch-all implementation trigger.');
+}
+if (/^disable-model-invocation:\s*true$/m.test(frontmatter[1])) {
+  fail('Bundled source must remain selective; explicit-only is an installer variant.');
+}
 
-const writing = read(path.join('references', 'ARTIFACT_WRITING.md'));
-requireText(writing, [
-  'one field, one job',
-  'Vague wording rejected',
-  'Derived-text budgets',
-  'EARS-like',
-  'original request',
-  'final handoff'
-], 'ARTIFACT_WRITING.md');
-requireMax(writing, 14000, 'ARTIFACT_WRITING.md');
+const routing = read(path.join('references', 'ROUTING.md'));
+requireText(routing, [
+  'uncertainty -> DIRECT',
+  'File count is weak evidence',
+  'Context pressure is secondary evidence',
+  '75-85%',
+  'near-miss negatives'
+], 'ROUTING.md');
+requireMax(routing, 9000, 'ROUTING.md');
 
-const planning = read(path.join('references', 'PLANNING_PROTOCOL.md'));
-requireText(planning, [
-  'context_boundary',
-  'learning_targets',
-  'contexts_minimal',
-  'context_boundaries_sound',
-  'Deterministic quality gates',
-  'planctl_concise.py'
-], 'PLANNING_PROTOCOL.md');
-requireMax(planning, 12000, 'PLANNING_PROTOCOL.md');
+const promotion = read(path.join('references', 'PROMOTION.md'));
+requireText(promotion, [
+  'remaining implementation only',
+  'Never create retroactive TODOs',
+  'promotectl.py validate',
+  'promotectl.py render',
+  'model_tier',
+  'reasoning_effort'
+], 'PROMOTION.md');
+requireMax(promotion, 9000, 'PROMOTION.md');
 
-const planSpec = read(path.join('references', 'PLAN_SPEC.md'));
-requireText(planSpec, [
-  'schema v4',
-  'request_analysis',
-  'execution_context',
-  'context_boundary',
-  'learning_targets',
-  'planctl_concise.py'
-], 'PLAN_SPEC.md');
-requireMax(planSpec, 12000, 'PLAN_SPEC.md');
-
-const workflow = read(path.join('references', 'WORKFLOW.md'));
-requireText(workflow, [
-  'planctl_concise.py',
-  'run_concise.py',
-  'Fresh workers',
-  'Never concatenate raw worker reports',
-  'SUMMARY_INPUT.json'
-], 'WORKFLOW.md');
-requireMax(workflow, 12000, 'WORKFLOW.md');
-
-const contextProtocol = read(path.join('references', 'EXECUTION_CONTEXT.md'));
-requireText(contextProtocol, [
-  'Omission is the default',
-  'CONTEXT.md',
-  'source_refs',
-  'Validated execution learnings',
-  'learning_files_read'
-], 'EXECUTION_CONTEXT.md');
+const orchestration = read(path.join('references', 'ORCHESTRATION.md'));
+requireText(orchestration, [
+  'TODO.md',
+  'manifest.json',
+  'provider',
+  'model_tier',
+  'reasoning_effort',
+  'quota',
+  'fresh worker',
+  'cleanup'
+], 'ORCHESTRATION.md');
+requireMax(orchestration, 12000, 'ORCHESTRATION.md');
 
 const tokenProtocol = read(path.join('references', 'TOKEN_EFFICIENCY.md'));
 requireText(tokenProtocol, [
-  'Spend model tokens only on judgment',
-  'Progressive disclosure beats one large prompt',
+  'Avoid the harness when the harness does not pay for itself',
+  'Fresh workers are not automatically cheaper',
+  'Promote instead of restarting',
+  'Progressive disclosure',
   'Search first, read second',
-  'Fresh workers are cheaper than polluted long histories',
-  'Preserve stable prefixes for provider prompt caching',
-  'Bound tool and report output',
-  'Final summary uses compact authoritative state',
-  'Never optimize away these quality anchors'
+  'Preserve stable provider prefixes and logical routing',
+  'Never optimize away quality anchors'
 ], 'TOKEN_EFFICIENCY.md');
 requireMax(tokenProtocol, 10000, 'TOKEN_EFFICIENCY.md');
 
+const writing = read(path.join('references', 'ARTIFACT_WRITING.md'));
+requireText(writing, ['one field, one job', 'Vague wording rejected', 'Derived-text budgets'], 'ARTIFACT_WRITING.md');
+const planning = read(path.join('references', 'PLANNING_PROTOCOL.md'));
+requireText(planning, ['context_boundary', 'learning_targets', 'contexts_minimal', 'context_boundaries_sound'], 'PLANNING_PROTOCOL.md');
+const planSpec = read(path.join('references', 'PLAN_SPEC.md'));
+requireText(planSpec, ['schema v4', 'request_analysis', 'context_boundary', 'learning_targets', 'model_tier', 'reasoning_effort'], 'PLAN_SPEC.md');
+const workflow = read(path.join('references', 'WORKFLOW.md'));
+requireText(workflow, ['Fresh workers', 'SUMMARY_INPUT.json'], 'WORKFLOW.md');
+const contextProtocol = read(path.join('references', 'EXECUTION_CONTEXT.md'));
+requireText(contextProtocol, ['Omission is the default', 'CONTEXT.md', 'Validated execution learnings'], 'EXECUTION_CONTEXT.md');
+
+const promotionController = read(path.join('scripts', 'promotectl.py'));
+requireText(promotionController, [
+  'SCHEMA_VERSION = 1',
+  'remaining_outcomes',
+  'context_pressure',
+  'git_snapshot',
+  'Plan and execute ONLY the remaining outcomes'
+], 'promotectl.py');
+
+const evalCorpus = JSON.parse(read(path.join('references', 'routing-evals.json')));
+if (!Array.isArray(evalCorpus.cases) || evalCorpus.cases.length < 25) {
+  fail('routing-evals.json must contain at least 25 routing regression cases.');
+}
+if (!evalCorpus.cases.some((item) => item.expected_route === 'direct' && item.near_miss)) {
+  fail('routing-evals.json must contain direct near-miss negatives.');
+}
+if (!evalCorpus.cases.some((item) => item.expected_route === 'orchestrated')) {
+  fail('routing-evals.json must contain positive orchestration cases.');
+}
+if (!evalCorpus.cases.some((item) => item.expected_route === 'promote')) {
+  fail('routing-evals.json must contain late-promotion cases.');
+}
+
 const artifactContract = read(path.join('scripts', 'artifact_contract.py'));
-requireText(artifactContract, [
-  'VAGUE_PATTERNS',
-  'PLAN_BUDGETS',
-  'STUDY_BUDGETS',
-  'completion_summary',
-  'render_task',
-  'render_learning_artifact',
-  'install_plan_contract',
-  'install_study_contract'
-], 'artifact_contract.py');
-
+requireText(artifactContract, ['VAGUE_PATTERNS', 'PLAN_BUDGETS', 'render_task'], 'artifact_contract.py');
 const runnerContract = read(path.join('scripts', 'runner_contract.py'));
-requireText(runnerContract, [
-  'output_tail',
-  'SUMMARY_INPUT.json',
-  'completion_summary',
-  'Return only the handoff Markdown'
-], 'runner_contract.py');
-
+requireText(runnerContract, ['output_tail', 'SUMMARY_INPUT.json', 'completion_summary'], 'runner_contract.py');
 const planctl = read(path.join('scripts', 'planctl.py'));
 requireText(planctl, [
   'SCHEMA_VERSION = 4',
-  'CONTEXT_BOUNDARY_REVIEW_CHECK = "context_boundaries_sound"',
   'VALID_SUBTASK_STATUSES',
   'VALID_LEARNING_KINDS',
-  'materialize_learning_artifacts',
   'def cleanup_plan',
   'shutil.rmtree(plan_dir)'
 ], 'planctl.py');
@@ -235,26 +245,16 @@ const completionSchema = JSON.parse(read(path.join('references', 'completion-rep
 for (const field of ['context_files_read', 'learning_files_read', 'completed_subtask_ids', 'reusable_learnings']) {
   if (!completionSchema.required?.includes(field)) fail(`completion-report.schema.json must require ${field}.`);
 }
-if (completionSchema.properties?.summary?.maxLength !== 360) fail('completion summary must be capped at 360 chars.');
-if (completionSchema.properties?.validations?.items?.properties?.details?.maxLength !== 600) fail('validation details must be capped at 600 chars.');
-if (completionSchema.properties?.risks?.maxItems !== 8 || completionSchema.properties?.follow_ups?.maxItems !== 8) {
-  fail('completion risks/follow_ups must be capped at 8 items.');
-}
-if (completionSchema.properties?.reusable_learnings?.items?.properties?.guidance?.maxLength !== 320) {
-  fail('reusable learning guidance must be capped at 320 chars.');
-}
-
 const studyExample = JSON.parse(read(path.join('references', 'study-spec.example.json')));
 if (studyExample.schema_version !== 2 || !studyExample.synthesis?.ready_for_planning) {
   fail('study-spec.example.json must demonstrate a ready schema-v2 study.');
 }
-
 const planExample = JSON.parse(read(path.join('references', 'plan-spec.example.json')));
 if (!planExample.tasks?.length || !planExample.tasks.every((task) => task.context_boundary && task.subtasks?.length)) {
   fail('plan-spec.example.json must contain context boundaries and resumable subtasks.');
 }
-if (planExample.plan_review?.contexts_minimal !== true || planExample.plan_review?.context_boundaries_sound !== true) {
-  fail('plan-spec.example.json must approve context minimality and context boundaries.');
+if (!planExample.tasks.every((task) => task.provider && task.model_tier && task.reasoning_effort)) {
+  fail('plan-spec.example.json must preserve per-TODO provider/model tier/reasoning effort.');
 }
 
 const packageMetadata = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression tests for lean instruction loading and safe successful cleanup."""
+"""Regression tests for selective instruction loading and safe successful cleanup."""
 
 from __future__ import annotations
 
@@ -16,15 +16,23 @@ import planctl  # noqa: E402
 def test_instruction_surface_is_bounded() -> None:
     skill_text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
     agent_text = (SKILL_DIR / "agents" / "openai.yaml").read_text(encoding="utf-8")
-    token_reference = SKILL_DIR / "references" / "TOKEN_EFFICIENCY.md"
+    token_text = (SKILL_DIR / "references" / "TOKEN_EFFICIENCY.md").read_text(encoding="utf-8")
+    orchestration = SKILL_DIR / "references" / "ORCHESTRATION.md"
+    promotion = SKILL_DIR / "references" / "PROMOTION.md"
 
-    # Keep the always-loaded control plane substantially smaller than the former
-    # ~25 KB entrypoint plus ~2.3 KB duplicated default prompt.
-    assert len(skill_text) <= 14000, len(skill_text)
-    assert len(agent_text) <= 1400, len(agent_text)
-    assert token_reference.is_file()
-    assert "load detailed references only for the current phase" in agent_text
-    assert "TOKEN_EFFICIENCY.md" in skill_text
+    # The always-loaded entrypoint is now a router, not the orchestration manual.
+    assert len(skill_text) <= 7000, len(skill_text)
+    assert len(agent_text) <= 1500, len(agent_text)
+    assert orchestration.is_file()
+    assert promotion.is_file()
+    assert "DIRECT vs ORCHESTRATED" in skill_text
+    assert "create no `.ai-work`" in skill_text
+    assert "When uncertain, prefer DIRECT" in skill_text
+    assert "references/ORCHESTRATION.md" in skill_text
+    assert "references/PROMOTION.md" in skill_text
+    assert "cohesive small/medium work" in agent_text
+    assert "Fresh workers are not automatically cheaper" in token_text
+    assert "Promote instead of restarting" in token_text
 
 
 def test_cleanup_deletes_plan_only_and_preserves_product() -> None:
@@ -46,7 +54,7 @@ def test_cleanup_deletes_plan_only_and_preserves_product() -> None:
 def main() -> int:
     test_instruction_surface_is_bounded()
     test_cleanup_deletes_plan_only_and_preserves_product()
-    print("All token-efficiency and cleanup self-tests passed.")
+    print("All selective token-efficiency and cleanup self-tests passed.")
     return 0
 
 
