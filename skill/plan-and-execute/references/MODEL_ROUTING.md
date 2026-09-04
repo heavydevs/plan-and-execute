@@ -33,7 +33,7 @@ Reserve `max` for concrete lower-tier failure evidence.
 
 ## Escalation
 
-Default runner policy uses four functional failures per provider:
+Default runner policy uses four validated functional failures per provider:
 
 | Previous technical failures | Next route |
 |---:|---|
@@ -44,14 +44,25 @@ Default runner policy uses four functional failures per provider:
 
 After the provider failure budget, switch to the next configured provider only when fallback is allowed/available. A task blocks at its `max_attempts` limit.
 
-Do **not** count these as technical failures:
+Classify a failed attempt before changing route:
+
+| Class | State action | Route action |
+|---|---|---|
+| `availability` | persist `deferred_until` with exponential backoff + jitter | retry/switch without consuming functional budget |
+| `environment` | block with actionable host/auth/tool evidence | fix environment; do not escalate model |
+| `contract` | block invalid/missing completion envelope | repair adapter/prompt/schema; do not escalate model |
+| `capability` | record a functional failure | raise effort/tier/provider from evidence |
+| `validation` | record a functional failure and host validation evidence | raise effort/tier/provider from evidence |
+| `planning_invalidation` | block downstream work | return to study/decomposition |
+
+Do **not** count these as functional failures:
 
 - rate/quota/usage reset windows;
 - temporary provider capacity;
 - host interruption;
 - a planning defect that requires new decomposition/dependencies.
 
-Rate/availability events retry the appropriate route. Planning defects return to planning instead of escalating blindly.
+Rate/availability events receive a persisted retry time. With automatic waiting enabled, the process releases its lease, sleeps outside the critical section, then reacquires it; another provider may take over meanwhile. Planning defects return to planning instead of escalating blindly.
 
 ## Provider fallback
 
@@ -62,6 +73,15 @@ Fallback requires:
 - compliance with repository/data/organization policy.
 
 A fallback worker gets current task state/failure evidence, never the previous provider chat transcript.
+
+An operator can persist a new logical route before resuming:
+
+```bash
+python <skill-dir>/scripts/planctl_concise.py route-set \
+  --plan .ai-work/<plan-id> --task 001 --provider codex \
+  --model-tier strong --effort high --unblock
+pae resume --provider codex --takeover
+```
 
 ## Default provider mapping
 
@@ -87,6 +107,7 @@ Gemini, Qwen, Kimi, and Trae remain optional adapters until explicitly selected 
 - Spend stronger reasoning on decomposition when it prevents large wrong workstreams.
 - Do not use strong/max for status rendering, deterministic validation, cleanup, or final prose.
 - Keep one task-definition path as the worker's primary prompt payload.
+- Compile the task definition plus only assigned context/learnings into one immutable packet with source hashes; the worker reads that packet once.
 - Increase route capability from failure evidence, not fear.
 - Avoid parallel write workers unless repository isolation/worktrees remove conflict/reconciliation cost.
 - Final summary uses economy + low effort when available.
@@ -105,11 +126,15 @@ Common controls:
   "rate_limit": {
     "auto_wait": true,
     "wait_seconds": 300,
-    "max_wait_cycles": 0
+    "max_wait_cycles": 0,
+    "jitter_ratio": 0.1,
+    "release_lease_while_waiting": true
   }
 }
 ```
 
 Provider-specific model ids, commands, permission modes, and retry exit codes remain in that generated config. Preserve them when editing a real plan; there is no need to copy the full config into prompts or task definitions.
+
+At startup, the runner records a bounded capability probe for the configured CLI. Claude workers use bare/minimal dynamic prompt sections when supported; Codex workers request JSON events and low verbosity. Optional budget/turn caps remain disabled by default because silent truncation is not a token optimization.
 
 Security note: unattended provider write/shell modes are appropriate only in a trusted workspace and never bypass the provider/host sandbox or organizational policy.

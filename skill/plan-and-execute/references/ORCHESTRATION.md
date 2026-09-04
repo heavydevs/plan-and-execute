@@ -118,11 +118,11 @@ For every runnable TODO:
 2. recover stale/interrupted `in_progress` state when needed;
 3. claim the next runnable TODO through `planctl_concise.py`;
 4. select/record the actual provider/model/effort route;
-5. start a fresh worker with exactly one task-definition path plus assigned context/learning files;
+5. compile the task definition plus assigned context/learnings into one immutable provenance-stamped packet and start a fresh worker with that single path;
 6. never pass parent chat, whole plan, future task definitions, raw reports, or logs;
 7. checkpoint subtasks only through the controller;
-8. require the bounded completion report with exact context/learning read lists and completed subtask ids;
-9. rerun every deterministic validation command outside the worker;
+8. require the bounded completion report with exact context/learning read lists and completed subtask ids; do not ask the worker to self-report changed files or validation results;
+9. compute the per-attempt repository delta and rerun every deterministic validation command outside the worker;
 10. mark success only after validation passes;
 11. materialize only predeclared, validated, target-specific reusable learnings;
 12. continue until all tasks complete or one blocks at its configured limit.
@@ -140,7 +140,8 @@ On resume:
 - return only orphaned `in_progress` task/subtask state to a runnable state;
 - preserve completed parent tasks and completed subtasks;
 - preserve partial repository changes;
-- do not count quota/rate/capacity interruption as technical failure;
+- classify availability, environment, completion-contract, capability, validation, and planning-invalidation failures separately;
+- defer quota/rate/capacity retries without consuming functional failures and release the lease while waiting;
 - dispatch a fresh compatible worker using persisted task/context state, not prior chat history.
 
 Strict external execution uses:

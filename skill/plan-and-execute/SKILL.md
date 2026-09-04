@@ -60,8 +60,10 @@ These invariants remain non-negotiable in every orchestrated or promoted plan:
 - `manifest.json` is authoritative; `TODO.md` remains the terse status index;
 - every executable TODO has its own bounded definition and resumable subtasks;
 - every TODO declares `provider`, `model_tier`, and `reasoning_effort`; choose the lowest credible capability for that leaf task and escalate only from evidence;
-- quota/rate-limit exhaustion and host interruption are not technical failures;
+- quota/rate-limit exhaustion, contract defects, environment faults, and host interruption are distinct failure classes; only validated implementation failures consume the functional escalation budget;
+- state writes are atomic, revision-checked, and fenced by the current heartbeat lease so an obsolete runner cannot overwrite a newer checkpoint;
 - another compatible AI/provider can resume from persisted state without the previous chat transcript;
+- each worker receives one compiled, provenance-stamped task packet; validations and changed-file attribution are recomputed by the host;
 - implementation changes, tests, generated product artifacts, and commits survive plan cleanup.
 
 ## Reference map

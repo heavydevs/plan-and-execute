@@ -79,6 +79,8 @@ Reuse cross-task learnings only when they are expensive, validated, directional,
 
 Keep stable execution rules before dynamic task data when provider caching can benefit. Avoid duplicating rules across system prompt, task file, worker prompt, and report schema.
 
+Compile one immutable packet per task revision containing the task definition and only its assigned context/learning files. Include source paths and hashes for provenance. Point the worker at that single packet instead of asking it to perform repeated discovery reads.
+
 Route each TODO to the cheapest tier/effort credibly able to solve that leaf. Keep logical `model_tier` portable across providers; escalate from concrete failure evidence, not overall request size.
 
 ## 10. Bound tool/report output
@@ -86,6 +88,8 @@ Route each TODO to the cheapest tier/effort credibly able to solve that leaf. Ke
 Full output belongs in logs. Model/state context gets only decision-relevant excerpts. Preserve current bounded completion summaries, validation details, failure reasons, risk/follow-up counts, learning guidance, and final repository-change summaries.
 
 Do not copy full stack traces/build output into retries when an error excerpt + log path is sufficient.
+
+The worker reports decisions and acknowledgements, not facts the host can measure. The host owns deterministic validation results, per-attempt changed-file deltas, token/cache/reasoning counts, cost when supplied by the provider, duration, and turn count. Never attribute the whole pre-existing dirty tree to the current attempt.
 
 ## 11. Final summary uses compact authoritative state
 

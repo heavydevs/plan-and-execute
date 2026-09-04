@@ -28,8 +28,6 @@ def sample_report() -> dict:
     return {
         "status": "completed",
         "summary": "Completed the isolated provider test task.",
-        "changed_files": ["sample.txt"],
-        "validations": [],
         "risks": [],
         "follow_ups": [],
         "context_files_read": [],
@@ -58,6 +56,7 @@ def test_default_provider_policy() -> None:
 
 def test_worker_command_adapters() -> None:
     config = planctl.default_config()
+    config["claude"]["_supports_exclude_dynamic_system_prompt_sections"] = True
     with tempfile.TemporaryDirectory() as temp:
         result_path = Path(temp) / "results" / "001.json"
         result_path.parent.mkdir(parents=True)
@@ -74,11 +73,25 @@ def test_worker_command_adapters() -> None:
 
     claude = commands["claude"]
     assert claude[0] == "claude"
+    assert "--bare" in claude
     assert "--no-session-persistence" in claude
+    assert "--exclude-dynamic-system-prompt-sections" in claude
     assert "--json-schema" in claude
+    config["claude"]["_supports_exclude_dynamic_system_prompt_sections"] = False
+    unsupported_claude = run_isolated.build_worker_command(
+        "claude",
+        {**sample_route(), "provider": "claude"},
+        config,
+        "Implement only the assigned task.",
+        Path("result.json"),
+    )
+    assert "--exclude-dynamic-system-prompt-sections" not in unsupported_claude
 
     codex = commands["codex"]
     assert codex[:3] == ["codex", "exec", "--ephemeral"]
+    assert "--json" in codex
+    assert 'model_verbosity="low"' in codex
+    assert 'model_reasoning_summary="none"' in codex
     assert "--output-schema" in codex
     assert "--output-last-message" in codex
 
@@ -197,6 +210,41 @@ def test_summary_envelopes_and_retry_codes() -> None:
         raise AssertionError("Expected invalid retry_exit_codes to be rejected")
 
 
+def test_provider_metrics_are_host_extracted() -> None:
+    output = "\n".join(
+        [
+            json.dumps(
+                {
+                    "type": "result",
+                    "usage": {
+                        "input_tokens": 100,
+                        "cache_read_input_tokens": 60,
+                        "output_tokens": 25,
+                    },
+                    "total_cost_usd": 0.012,
+                    "duration_ms": 900,
+                    "num_turns": 2,
+                }
+            ),
+            json.dumps(
+                {
+                    "type": "turn.completed",
+                    "usage": {"reasoning_output_tokens": 7},
+                }
+            ),
+        ]
+    )
+    metrics = run_isolated.provider_metrics("codex", output)
+    assert metrics["provider"] == "codex"
+    assert metrics["input_tokens"] == 100
+    assert metrics["cache_read_input_tokens"] == 60
+    assert metrics["output_tokens"] == 25
+    assert metrics["reasoning_output_tokens"] == 7
+    assert metrics["cost_usd"] == 0.012
+    assert metrics["duration_ms"] == 900
+    assert metrics["turns"] == 2
+
+
 def test_kimi_prompt_contract_and_redaction() -> None:
     config = planctl.default_config()
     with tempfile.TemporaryDirectory() as temp:
@@ -256,6 +304,7 @@ def main() -> int:
     test_configured_models_are_forwarded()
     test_provider_report_envelopes()
     test_summary_envelopes_and_retry_codes()
+    test_provider_metrics_are_host_extracted()
     test_kimi_prompt_contract_and_redaction()
     print("All provider-adapter self-tests passed.")
     return 0

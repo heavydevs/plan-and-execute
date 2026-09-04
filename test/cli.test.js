@@ -30,8 +30,20 @@ test('help advertises selective/explicit activation and every execution provider
   }
   assert.match(result.stdout, /install \[claude\|codex\|both\]/);
   assert.match(result.stdout, /--activation <selective\|explicit>/);
+  assert.match(result.stdout, /--takeover/);
   assert.match(result.stdout, /tarefas pequenas\/medias coesas ficam no agente atual/);
   assert.match(result.stdout, /tutorial rapido continuam restritos a Claude Code e Codex/);
+});
+
+test('takeover is accepted as a resume execution option', () => {
+  const workspace = temporaryDirectory();
+  try {
+    const result = run(['resume', '--cwd', workspace, '--provider', 'codex', '--takeover']);
+    assert.equal(result.status, 3, result.stderr);
+    assert.match(result.stdout, /No unfinished plan is active/);
+  } finally {
+    fs.rmSync(workspace, { recursive: true, force: true });
+  }
 });
 
 test('provider override accepts supported backends and rejects unknown names before execution', () => {

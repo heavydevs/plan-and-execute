@@ -199,11 +199,12 @@ A generated plan resembles:
 ├── contexts/                     # optional scoped plan-time context
 ├── learnings/                    # validated directional runtime learnings
 ├── tasks/                        # one bounded definition per TODO
+├── packets/                      # immutable per-revision worker inputs
 ├── results/
 └── logs/
 ```
 
-After interruption, completed subtasks remain complete and only interrupted in-progress state is recovered. Partial source changes are preserved. Another session/provider can continue from disk state without rereading the parent chat.
+After interruption, completed subtasks remain complete and only interrupted in-progress state is recovered. Atomic revision-checked writes plus a heartbeat/epoch lease prevent an obsolete runner from reverting a newer checkpoint. Partial source changes are preserved. Another session/provider can continue from disk state without rereading the parent chat.
 
 Lifecycle commands:
 
@@ -211,9 +212,12 @@ Lifecycle commands:
 pae current
 pae resume
 pae resume --once
+pae resume --provider codex --takeover
 pae cancel
 pae reset --force
 ```
+
+Availability failures persist a deferred retry time without consuming the functional escalation budget. The supervisor releases its lease while waiting, so another provider can take over immediately. Environment and completion-contract failures block for repair; only capability or deterministic-validation failures escalate effort/tier/provider.
 
 ## Per-TODO model routing
 
@@ -270,10 +274,19 @@ pae resume --provider gemini --once
 or:
 
 ```bash
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
+python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id>
 ```
 
-The runner starts a fresh process for each TODO, independently reruns validations, bounds diagnostic output, and builds the final summary from compact authoritative state rather than raw worker transcripts.
+The runner compiles the task definition and only its assigned context/learnings into one provenance-stamped packet, then starts a fresh process for the TODO. The host independently reruns validations, computes changed files from the current attempt rather than the entire dirty tree, records provider token/cache/cost/duration metrics when available, bounds diagnostic output, and builds the final summary from compact authoritative state rather than raw worker transcripts.
+
+To persist a proactive route change for a blocked/pending task before resuming:
+
+```bash
+python <skill-dir>/scripts/planctl_concise.py route-set \
+  --plan .ai-work/<plan-id> --task 001 --provider codex \
+  --model-tier strong --effort high --unblock
+pae resume --provider codex --takeover
+```
 
 ## Activation modes
 

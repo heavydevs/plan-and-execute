@@ -197,19 +197,23 @@ Estrutura típica:
 ├── contexts/                  # opcional
 ├── learnings/
 ├── tasks/
+├── packets/                   # entrada imutável por revisão para o worker
 ├── results/
 └── logs/
 ```
 
-Depois de uma interrupção, subtarefas concluídas continuam concluídas; apenas o estado interrompido é recuperado. Mudanças parciais de código permanecem. Outro agente/provedor pode seguir pelo estado em disco.
+Depois de uma interrupção, subtarefas concluídas continuam concluídas; apenas o estado interrompido é recuperado. Escritas atômicas com revisão e lease de heartbeat/epoch impedem um runner antigo de reverter checkpoints novos. Mudanças parciais de código permanecem. Outro agente/provedor pode seguir pelo estado em disco.
 
 ```bash
 pae current
 pae resume
 pae resume --once
+pae resume --provider codex --takeover
 pae cancel
 pae reset --force
 ```
+
+Falhas de disponibilidade persistem um horário de retry sem consumir o orçamento de escalonamento funcional. O supervisor libera o lease enquanto espera, permitindo takeover imediato por outro provider. Falhas de ambiente ou do contrato de conclusão bloqueiam para correção; apenas falhas de capacidade ou validação determinística escalam esforço/tier/provider.
 
 ## Modelo/nível por TODO
 
@@ -260,10 +264,19 @@ pae resume --provider gemini --once
 Ou:
 
 ```bash
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
+python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id>
 ```
 
-O runner usa processo novo por TODO, reexecuta validações de forma independente, limita saída diagnóstica e gera o resumo final a partir do estado autoritativo compacto.
+O runner compila a definição da tarefa e somente seus contextos/learnings atribuídos em um pacote único com proveniência, depois abre um processo novo para o TODO. O host reexecuta validações, calcula arquivos alterados somente no attempt atual, registra métricas de tokens/cache/custo/duração quando o provider as fornece, limita saída diagnóstica e gera o resumo final a partir do estado autoritativo compacto.
+
+Para persistir proativamente uma nova rota antes da retomada:
+
+```bash
+python <skill-dir>/scripts/planctl_concise.py route-set \
+  --plan .ai-work/<plan-id> --task 001 --provider codex \
+  --model-tier strong --effort high --unblock
+pae resume --provider codex --takeover
+```
 
 ## Modos de ativação
 

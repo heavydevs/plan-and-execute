@@ -128,7 +128,7 @@ pae resume --provider codex --once
 Ou diretamente:
 
 ```bash
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
+python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id>
 ```
 
 Cada TODO preserva `provider`, `model_tier` e `reasoning_effort` lógicos, além de subtarefas/checkpoints e comandos de validação. Assim outra IA/provedor compatível pode retomar quando os créditos/quota acabarem, sem precisar do chat anterior. Limite de uso não é contado como falha técnica.

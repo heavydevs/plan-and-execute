@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import signal
 import socket
 import subprocess
 import sys
@@ -277,25 +278,40 @@ def test_live_runner_is_stopped_by_cancel() -> None:
         repo = make_repo(Path(temp))
         plan_dir = create_plan(repo)
         lifecyclectl.activate_plan(plan_dir)
-        process = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
+        runner_pid = 424242
+        alive = {runner_pid: True}
+        signals: list[int] = []
+        original_kill = lifecyclectl.os.kill
+        original_pid_is_alive = lifecyclectl.pid_is_alive
+
+        def fake_kill(pid: int, signum: int) -> None:
+            assert pid == runner_pid
+            signals.append(signum)
+            if signum != 0:
+                alive[pid] = False
+
+        def fake_pid_is_alive(pid: object) -> bool:
+            return alive.get(int(pid), False)
+
         try:
             lease = {
                 "schema_version": 1,
                 "plan_id": plan_dir.name,
-                "pid": process.pid,
+                "pid": runner_pid,
                 "hostname": socket.gethostname(),
                 "nonce": "cancel-test",
                 "created_at": lifecyclectl.utc_now(),
             }
             planctl.atomic_write_json(plan_dir / lifecyclectl.LEASE_FILE, lease)
+            lifecyclectl.os.kill = fake_kill
+            lifecyclectl.pid_is_alive = fake_pid_is_alive
             result = lifecyclectl.cancel_workspace(repo)
-            process.wait(timeout=5)
             assert result["status"] == "cancelled"
             assert not plan_dir.exists()
+            assert signal.SIGTERM in signals
         finally:
-            if process.poll() is None:
-                process.terminate()
-                process.wait(timeout=5)
+            lifecyclectl.os.kill = original_kill
+            lifecyclectl.pid_is_alive = original_pid_is_alive
 
 
 def main() -> int:

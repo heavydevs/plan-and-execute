@@ -18,6 +18,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 import planctl  # noqa: E402
 import requestctl  # noqa: E402
 import run_isolated  # noqa: E402
+import lifecyclectl  # noqa: E402
 
 
 def sample_spec() -> dict:
@@ -403,6 +404,141 @@ def test_route_escalation() -> None:
     assert switched["provider"] == "codex"
 
 
+def test_interruption_preserves_child_checkpoint() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        plan_dir = planctl.create_plan(repo, sample_spec(), ".ai-work", "interrupt-test")
+        _, stale_parent = planctl.load_plan(plan_dir)
+        route = {"provider": "claude", "model": "haiku", "tier": "economy", "effort": "low"}
+        planctl.claim_task(plan_dir, stale_parent, "001", route)
+
+        _, child = planctl.load_plan(plan_dir)
+        planctl.set_subtask_state(plan_dir, child, "001", "S001", "in_progress")
+        _, child = planctl.load_plan(plan_dir)
+        planctl.set_subtask_state(plan_dir, child, "001", "S001", "completed")
+
+        run_isolated.release_interrupted_task(plan_dir, stale_parent, "001")
+        _, current = planctl.load_plan(plan_dir)
+        task = planctl.find_task(current, "001")
+        assert task["status"] == "pending"
+        assert planctl.find_subtask(task, "S001")["status"] == "completed"
+
+
+def test_deferred_tasks_are_not_runnable() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp)
+        plan_dir = planctl.create_plan(repo, sample_spec(), ".ai-work", "deferred-test")
+        _, manifest = planctl.load_plan(plan_dir)
+        task = planctl.find_task(manifest, "001")
+        task["deferred_until"] = "2999-01-01T00:00:00+00:00"
+        assert planctl.next_runnable_task(manifest) is None
+        task["deferred_until"] = "2000-01-01T00:00:00+00:00"
+        assert planctl.next_runnable_task(manifest)["id"] == "001"
+
+
+def test_failure_classification_and_attempt_delta() -> None:
+    config = planctl.default_config()
+    assert run_isolated.classify_provider_failure(
+        "claude", 1, "Error: quota exceeded", "", config
+    ) == "availability"
+    assert run_isolated.classify_provider_failure(
+        "claude", 1, "bash: tool: command not found", "", config
+    ) == "environment"
+    assert run_isolated.classify_provider_failure(
+        "claude", 1, "Tests failed after implementation", "", config
+    ) == "capability"
+    assert not run_isolated.is_rate_limited("A unit test covers ordinary 429 text")
+
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp)
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        (repo / "older.txt").write_text("old\n", encoding="utf-8")
+        before = run_isolated.git_change_snapshot(repo)
+        (repo / "new.txt").write_text("new\n", encoding="utf-8")
+        assert run_isolated.files_changed_since(repo, before) == ["new.txt"]
+
+
+def test_lease_fences_stale_writer() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp)
+        plan_dir = planctl.create_plan(repo, sample_spec(), ".ai-work", "lease-test")
+        with lifecyclectl.runner_lease(plan_dir) as lease:
+            _, manifest = planctl.load_plan(plan_dir)
+            original = os.environ["PAE_RUNNER_LEASE_NONCE"]
+            os.environ["PAE_RUNNER_LEASE_NONCE"] = "stale"
+            try:
+                try:
+                    planctl.save_manifest(plan_dir, manifest)
+                except planctl.PlanError as exc:
+                    assert "different runner" in str(exc)
+                else:
+                    raise AssertionError("A stale runner must not mutate the plan")
+            finally:
+                os.environ["PAE_RUNNER_LEASE_NONCE"] = original
+            assert int(lease["epoch"]) == int(manifest["lease_epoch"])
+
+            replacement = lifecyclectl.acquire_lease(plan_dir, force=True)
+            assert replacement["epoch"] == lease["epoch"] + 1
+            assert replacement["nonce"] != lease["nonce"]
+            lifecyclectl.write_heartbeat(plan_dir, lease)
+            assert lifecyclectl.read_lease(plan_dir)["nonce"] == replacement["nonce"]
+            lifecyclectl.release_lease(plan_dir, replacement)
+
+
+def test_manifest_revision_rejects_lost_update() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp)
+        plan_dir = planctl.create_plan(repo, sample_spec(), ".ai-work", "revision-test")
+        _, first = planctl.load_plan(plan_dir)
+        _, stale = planctl.load_plan(plan_dir)
+        first["events"].append({"at": planctl.now_utc(), "event": "first_writer"})
+        planctl.save_manifest(plan_dir, first)
+        stale["events"].append({"at": planctl.now_utc(), "event": "lost_update"})
+        try:
+            planctl.save_manifest(plan_dir, stale)
+        except planctl.PlanError as exc:
+            assert "stale revision" in str(exc)
+        else:
+            raise AssertionError("A stale manifest revision must not overwrite newer state")
+
+
+def test_route_set_persists_operator_override() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp)
+        plan_dir = planctl.create_plan(repo, sample_spec(), ".ai-work", "route-set-test")
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT_DIR / "planctl.py"),
+                "route-set",
+                "--plan",
+                str(plan_dir),
+                "--task",
+                "001",
+                "--provider",
+                "codex",
+                "--model-tier",
+                "strong",
+                "--effort",
+                "high",
+            ],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+        )
+        changed = json.loads(completed.stdout)
+        assert changed["provider"] == "codex"
+        assert changed["model_tier"] == "strong"
+        assert changed["reasoning_effort"] == "high"
+        _, current = planctl.load_plan(plan_dir)
+        persisted = planctl.find_task(current, "001")
+        assert persisted["current_route"] is None
+        assert persisted["deferred_until"] is None
+
+
 def test_symlink_work_root_rejected() -> None:
     if not hasattr(os, "symlink"):
         return
@@ -571,6 +707,12 @@ def main() -> int:
     test_analysis_and_review_are_mandatory()
     test_autostart_rejects_open_questions()
     test_route_escalation()
+    test_interruption_preserves_child_checkpoint()
+    test_deferred_tasks_are_not_runnable()
+    test_failure_classification_and_attempt_delta()
+    test_lease_fences_stale_writer()
+    test_manifest_revision_rejects_lost_update()
+    test_route_set_persists_operator_override()
     test_symlink_work_root_rejected()
     test_request_intake_and_vscode_editor()
     test_request_copy_move_and_concise_todo()

@@ -147,9 +147,16 @@ def test_compact_projection_and_completion_memory() -> None:
         route = {"provider": "codex", "model": "test", "tier": "economy", "effort": "low"}
         prompt = run_isolated.worker_prompt(plan_dir, manifest, task, route)
         assert len(prompt) < 2600, len(prompt)
+        assert "Compiled task packet:" in prompt
         assert "ANALYSIS.md" not in prompt
         assert "PLAN.md" not in prompt
         assert "TODO.md" not in prompt
+        packets = list((plan_dir / "packets").glob(f"{task['id']}-r*.md"))
+        assert len(packets) == 1
+        packet_text = packets[0].read_text(encoding="utf-8")
+        assert f"## Source: {task['file']}" in packet_text
+        assert "SHA-256:" in packet_text
+        assert task_text.rstrip() in packet_text
 
         marker = repo / "marker.txt"
         marker.write_text("ready\n", encoding="utf-8")

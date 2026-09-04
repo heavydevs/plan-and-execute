@@ -9,8 +9,11 @@ validation, escalation, summarization, and cleanup are handled by this script.
 from __future__ import annotations
 
 import argparse
+import datetime as dt
+import hashlib
 import json
 import os
+import random
 import re
 import shlex
 import shutil
@@ -34,10 +37,10 @@ EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"]
 RATE_LIMIT_PATTERNS = [
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
-        r"\b429\b",
-        r"rate[ -]?limit",
-        r"usage limit",
-        r"quota exceeded",
+        r"(?:http|error|status|code)[^\n]{0,24}\b429\b",
+        r"(?:exceeded|hit|reached|due to|error:?)[^\n]{0,32}rate[ -]?limit",
+        r"usage limit (?:exceeded|reached)",
+        r"quota (?:is )?exceeded",
         r"insufficient_quota",
         r"too many requests",
         r"credits? (?:exhausted|depleted|used|limit)",
@@ -45,9 +48,52 @@ RATE_LIMIT_PATTERNS = [
     )
 ]
 
+ENVIRONMENT_FAILURE_PATTERNS = [
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"command not found",
+        r"no such file or directory",
+        r"permission denied",
+        r"authentication (?:failed|required)",
+        r"not authenticated",
+        r"invalid api key",
+        r"no space left on device",
+        r"read-only file system",
+        r"network is unreachable",
+        r"connection refused",
+    )
+]
+
+DEFERRED_EXIT_CODE = 75
+_CAPABILITY_CACHE: dict[str, dict[str, Any]] = {}
+
 
 class RunnerError(RuntimeError):
     """Raised for runner-specific failures."""
+
+
+def refresh_manifest(plan_dir: Path, manifest: dict[str, Any]) -> dict[str, Any]:
+    """Refresh a caller-held manifest without invalidating existing references."""
+    _, current = planctl.load_plan(plan_dir)
+    manifest.clear()
+    manifest.update(current)
+    return manifest
+
+
+def classify_provider_failure(
+    provider: str,
+    return_code: int,
+    stderr: str,
+    stdout: str,
+    config: dict[str, Any],
+) -> str:
+    """Classify failures before deciding whether model escalation is useful."""
+    diagnostic = stderr.strip() or stdout.strip()
+    if return_code in configured_retry_exit_codes(provider, config) or is_rate_limited(diagnostic):
+        return "availability"
+    if any(pattern.search(diagnostic) for pattern in ENVIRONMENT_FAILURE_PATTERNS):
+        return "environment"
+    return "capability"
 
 
 def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
@@ -87,6 +133,85 @@ def executable_available(prefix: list[str]) -> bool:
     if os.path.sep in first or (os.path.altsep and os.path.altsep in first):
         return Path(first).expanduser().is_file()
     return shutil.which(first) is not None
+
+
+def probe_provider(provider: str, config: dict[str, Any]) -> dict[str, Any]:
+    provider_cfg = config[provider]
+    prefix = command_prefix(provider_cfg.get("command", provider))
+    cache_key = json.dumps([provider, prefix], ensure_ascii=False)
+    if cache_key in _CAPABILITY_CACHE:
+        return dict(_CAPABILITY_CACHE[cache_key])
+    version = "unknown"
+    help_text = ""
+    try:
+        completed = subprocess.run(
+            prefix + ["--version"],
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=5,
+        )
+        first_line = (completed.stdout or "").strip().splitlines()
+        if completed.returncode == 0 and first_line:
+            version = first_line[0][:160]
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    try:
+        completed = subprocess.run(
+            prefix + ["--help"],
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=5,
+        )
+        if completed.returncode == 0:
+            help_text = completed.stdout or ""
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    feature_flags = {
+        "--bare": "bare",
+        "--json-schema": "json_schema",
+        "--output-schema": "output_schema",
+        "--exclude-dynamic-system-prompt-sections": "exclude_dynamic_system_prompt_sections",
+        "--max-budget-usd": "budget",
+        "--json": "json_events",
+        "--output-format": "structured_output",
+        "--trajectory-file": "trajectory",
+    }
+    features = sorted(name for flag, name in feature_flags.items() if flag in help_text)
+    result = {
+        "command": prefix[0],
+        "version": version,
+        "features": features,
+        "probed_at": planctl.now_utc(),
+    }
+    _CAPABILITY_CACHE[cache_key] = result
+    return dict(result)
+
+
+def record_provider_capabilities(
+    plan_dir: Path,
+    manifest: dict[str, Any],
+    provider: str,
+    capabilities: dict[str, Any],
+) -> None:
+    recorded = manifest.setdefault("provider_capabilities", {})
+    comparable = {key: value for key, value in capabilities.items() if key != "probed_at"}
+    previous = recorded.get(provider)
+    previous_comparable = (
+        {key: value for key, value in previous.items() if key != "probed_at"}
+        if isinstance(previous, dict)
+        else None
+    )
+    if previous_comparable == comparable:
+        return
+    recorded[provider] = capabilities
+    planctl.append_event(manifest, "provider_capabilities_recorded", provider=provider)
+    planctl.save_manifest(plan_dir, manifest)
 
 
 def clamp_index(values: list[str], value: str) -> int:
@@ -178,40 +303,78 @@ def completion_schema_path() -> Path:
     return path
 
 
+def compile_task_packet(
+    plan_dir: Path,
+    manifest: dict[str, Any],
+    task: dict[str, Any],
+) -> Path:
+    """Compile all assigned plan context into one immutable, provenance-marked read."""
+    sections: list[str] = [
+        "# Compiled execution packet",
+        "",
+        f"Plan revision: {manifest.get('revision', 0)}",
+        f"Task id: {task['id']}",
+        "",
+    ]
+    assigned = [task["file"], *task.get("context_files", []), *task.get("learning_files", [])]
+    for relative in assigned:
+        clean = planctl.checked_relative_path(str(relative), "task packet source")
+        path = plan_dir / clean
+        if path.is_symlink() or not path.is_file():
+            raise RunnerError(f"Assigned task packet source is missing or unsafe: {relative}")
+        content = path.read_text(encoding="utf-8")
+        digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        sections.extend(
+            [
+                f"## Source: {clean}",
+                f"SHA-256: `{digest}`",
+                "",
+                content.rstrip(),
+                "",
+            ]
+        )
+    packet_content = "\n".join(sections).rstrip() + "\n"
+    packet_digest = hashlib.sha256(packet_content.encode("utf-8")).hexdigest()[:12]
+    packet = plan_dir / "packets" / (
+        f"{task['id']}-r{manifest.get('revision', 0)}-{packet_digest}.md"
+    )
+    if packet.is_file():
+        if packet.read_text(encoding="utf-8") != packet_content:
+            raise RunnerError(f"Compiled task packet hash collision: {packet}")
+    else:
+        planctl.atomic_write_text(packet, packet_content)
+    return packet
+
+
 def worker_prompt(plan_dir: Path, manifest: dict[str, Any], task: dict[str, Any], route: dict[str, str]) -> str:
     repo_root = Path(manifest["repo_root"])
-    task_file = (plan_dir / task["file"]).resolve()
+    task_file = compile_task_packet(plan_dir, manifest, task).resolve()
     try:
         relative_task = task_file.relative_to(repo_root.resolve()).as_posix()
     except ValueError:
         relative_task = str(task_file)
     return f"""You are a fresh, isolated implementation worker for one bounded task.
 
-Repository root: {repo_root}
-Assigned task definition: {relative_task}
-Task id: {task['id']}
-Attempt: {task['attempts'] + 1}
-Route: {route['provider']} / {route['model']} / effort {route['effort']}
-Subtask controller: {SCRIPT_DIR / 'planctl.py'}
-Plan workspace: {plan_dir}
+Stable execution contract:
+1. Read only the assigned compiled packet; it contains the task capsule and every assigned context and validated learning.
+2. Do not read plan manifests, plan summaries, logs, results, or unassigned task capsules.
+3. You may inspect and edit repository source, tests, build files, and runtime output required by the task.
+4. Preserve pre-existing work. Do not broadly revert, reformat, or modify anything outside scope.
+5. Implement only the assigned task and run every required validation command.
+6. Planning artifacts are orchestrator-owned. Update subtask state only through the supplied controller commands.
+7. If blocked, stop safely and report the concrete blocker; never request missing chat history.
+8. Report exact assigned context/learning paths, completed subtask ids, and only validated reusable learnings for declared targets.
+9. Return only the JSON completion report. Use `completed` only after implementation and required checks pass.
 
-Mandatory isolation rules:
-1. Read the assigned task definition first. It is the only task definition assigned to you.
-2. Then read every file listed under `Assigned execution context`, followed by every file under `Assigned validated learnings`. Read no other context or learning file.
-3. Do not open PLAN.md, TODO.md, manifest.json, orchestrator.config.json, result files, logs, or any unassigned task definition under {plan_dir}.
-4. You may read and edit repository source, tests, build files, and runtime output needed for this task.
-5. Existing changes in the working tree may belong to earlier completed tasks. Preserve them and do not broadly revert or reformat unrelated code.
-6. Open another task definition only when the assigned definition explicitly permits its id and a dependency, ambiguity, or validation conflict makes it necessary. Report the id and reason.
-7. Implement only this task, run its required validation commands, and avoid speculative work outside scope.
-8. Do not edit any planning, context, or learning artifact. The orchestrator owns plan state. The only allowed planning-state write is invoking the dedicated subtask controller for this task.
-9. Do not ask for conversational context. When blocked, stop safely and report the concrete blocker.
-10. Checkpoint resumable work with these exact controller commands, never by editing the checklist:
-    - start: `python {SCRIPT_DIR / 'planctl.py'} subtask-start --plan {plan_dir} --task {task['id']} --subtask <id>`
-    - complete: `python {SCRIPT_DIR / 'planctl.py'} subtask-complete --plan {plan_dir} --task {task['id']} --subtask <id>`
-11. Report `context_files_read` and `learning_files_read` using the exact plan-relative names from task frontmatter; use empty lists when none are assigned.
-12. Report every completed checklist id in `completed_subtask_ids`. Report reusable learnings only for predeclared downstream targets and only with concrete references.
-
-Return only the completion report requested by the configured JSON schema. Use status "completed" only when the task is implemented and its required checks pass; otherwise use "blocked".
+Dynamic task envelope:
+- Repository root: {repo_root}
+- Compiled task packet: {relative_task}
+- Task id: {task['id']}
+- Attempt: {task['attempts'] + 1}
+- Route: {route['provider']} / {route['model']} / effort {route['effort']}
+- Forbidden planning workspace: {plan_dir}
+- Start checkpoint: `python {SCRIPT_DIR / 'planctl.py'} subtask-start --plan {plan_dir} --task {task['id']} --subtask <id>`
+- Complete checkpoint: `python {SCRIPT_DIR / 'planctl.py'} subtask-complete --plan {plan_dir} --task {task['id']} --subtask <id>`
 """
 
 
@@ -261,6 +424,17 @@ def build_worker_command(
             "--permission-mode",
             str(provider_cfg.get("permission_mode", "auto")),
         ]
+        if (
+            provider_cfg.get("exclude_dynamic_system_prompt_sections", True)
+            and provider_cfg.get("_supports_exclude_dynamic_system_prompt_sections", False)
+        ):
+            command.append("--exclude-dynamic-system-prompt-sections")
+        max_budget_usd = float(provider_cfg.get("max_budget_usd", 0) or 0)
+        if max_budget_usd > 0:
+            command.extend(["--max-budget-usd", str(max_budget_usd)])
+        max_turns = int(provider_cfg.get("max_turns", 0) or 0)
+        if max_turns > 0:
+            command.extend(["--max-turns", str(max_turns)])
         command.extend(configured_model_args("--model", route["model"]))
         command.extend(["--effort", route["effort"], "--json-schema", schema_text])
         command.extend(extra_args)
@@ -271,6 +445,7 @@ def build_worker_command(
         command = prefix + [
             "exec",
             "--ephemeral",
+            "--json",
             "--sandbox",
             str(provider_cfg.get("sandbox", "workspace-write")),
         ]
@@ -279,6 +454,10 @@ def build_worker_command(
             [
                 "-c",
                 f'model_reasoning_effort="{route["effort"]}"',
+                "-c",
+                f'model_verbosity="{provider_cfg.get("model_verbosity", "low")}"',
+                "-c",
+                f'model_reasoning_summary="{provider_cfg.get("model_reasoning_summary", "none")}"',
                 "--output-schema",
                 str(schema_path),
                 "--output-last-message",
@@ -555,6 +734,37 @@ def parse_provider_report(provider: str, stdout: str, result_path: Path) -> dict
     return None
 
 
+def provider_metrics(provider: str, stdout: str) -> dict[str, Any]:
+    """Extract only host-reported usage fields; never ask the worker to repeat them."""
+    metrics: dict[str, Any] = {"provider": provider, "captured_at": planctl.now_utc()}
+    for candidate in decode_json_candidates(stdout):
+        if not isinstance(candidate, dict):
+            continue
+        usage = candidate.get("usage")
+        if isinstance(usage, dict):
+            for key in (
+                "input_tokens",
+                "cached_input_tokens",
+                "cache_creation_input_tokens",
+                "cache_read_input_tokens",
+                "output_tokens",
+                "reasoning_output_tokens",
+            ):
+                value = usage.get(key)
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    metrics[key] = value
+        for source, target in (
+            ("total_cost_usd", "cost_usd"),
+            ("duration_ms", "duration_ms"),
+            ("duration_api_ms", "api_duration_ms"),
+            ("num_turns", "turns"),
+        ):
+            value = candidate.get(source)
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                metrics[target] = value
+    return metrics
+
+
 def is_rate_limited(text: str) -> bool:
     return any(pattern.search(text) for pattern in RATE_LIMIT_PATTERNS)
 
@@ -655,7 +865,44 @@ def git_changed_files(repo_root: Path) -> list[str]:
     return sorted(files)
 
 
+def _file_fingerprint(repo_root: Path, relative: str) -> str:
+    path = repo_root / relative
+    try:
+        if path.is_symlink():
+            return "symlink:" + os.readlink(path)
+        if not path.exists():
+            return "missing"
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return "sha256:" + digest.hexdigest()
+    except OSError as exc:
+        return f"error:{type(exc).__name__}"
+
+
+def git_change_snapshot(repo_root: Path) -> dict[str, str]:
+    """Fingerprint dirty paths so one attempt is not credited with older work."""
+    return {
+        relative: _file_fingerprint(repo_root, relative)
+        for relative in git_changed_files(repo_root)
+    }
+
+
+def files_changed_since(repo_root: Path, before: dict[str, str]) -> list[str]:
+    after = git_change_snapshot(repo_root)
+    return sorted(
+        relative
+        for relative in set(before) | set(after)
+        if before.get(relative) != after.get(relative)
+    )
+
+
 def release_interrupted_task(plan_dir: Path, manifest: dict[str, Any], task_id: str) -> None:
+    # Subtask checkpoints are written by child planctl processes while the
+    # provider is running. Always reload before applying an interruption so a
+    # stale parent snapshot cannot erase completed child checkpoints.
+    refresh_manifest(plan_dir, manifest)
     task = planctl.find_task(manifest, task_id)
     if task.get("status") == "in_progress":
         recovered_subtasks = planctl.recover_in_progress_subtasks(
@@ -679,18 +926,32 @@ def release_interrupted_task(plan_dir: Path, manifest: dict[str, Any], task_id: 
         planctl.save_manifest(plan_dir, manifest)
 
 
-def wait_after_rate_limit(config: dict[str, Any], cycle: int, no_wait: bool) -> bool:
+def deferred_retry_at(config: dict[str, Any], cycle: int) -> str:
     rate_cfg = config.get("rate_limit", {})
-    if no_wait or not rate_cfg.get("auto_wait", True):
-        return False
-    max_cycles = int(rate_cfg.get("max_wait_cycles", 0))
-    if max_cycles > 0 and cycle >= max_cycles:
-        return False
     base = max(1, int(rate_cfg.get("wait_seconds", 300)))
     seconds = min(base * (2 ** min(cycle, 4)), 3600)
-    print(f"[rate-limit] Provider unavailable. Retrying automatically in {seconds} seconds. Ctrl+C keeps the plan resumable.")
-    time.sleep(seconds)
-    return True
+    jitter_ratio = max(0.0, min(float(rate_cfg.get("jitter_ratio", 0.1)), 0.5))
+    seconds += random.uniform(0, seconds * jitter_ratio)
+    retry_at = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=seconds)
+    return retry_at.replace(microsecond=0).isoformat()
+
+
+def seconds_until(timestamp: str) -> float:
+    try:
+        target = dt.datetime.fromisoformat(timestamp)
+    except ValueError:
+        return 0.0
+    if target.tzinfo is None:
+        target = target.replace(tzinfo=dt.timezone.utc)
+    return max(0.0, (target - dt.datetime.now(dt.timezone.utc)).total_seconds())
+
+
+def deferred_tasks(manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        task
+        for task in manifest.get("tasks", [])
+        if task.get("status") == "pending" and task.get("deferred_until")
+    ]
 
 
 def normalized_result_file(plan_dir: Path, task: dict[str, Any], route: dict[str, str]) -> Path:
@@ -709,20 +970,27 @@ def execute_one_task(
     no_wait: bool,
 ) -> bool:
     repo_root = Path(manifest["repo_root"])
-    rate_cycle = 0
     while True:
         route = choose_route(task, config, provider_override)
+        capabilities = probe_provider(route["provider"], config)
+        if not dry_run:
+            record_provider_capabilities(plan_dir, manifest, route["provider"], capabilities)
+        if route["provider"] == "claude":
+            config["claude"]["_supports_exclude_dynamic_system_prompt_sections"] = (
+                "exclude_dynamic_system_prompt_sections" in capabilities.get("features", [])
+            )
         result_path = normalized_result_file(plan_dir, task, route)
         prompt = worker_prompt(plan_dir, manifest, task, route)
         command = build_worker_command(route["provider"], route, config, prompt, result_path)
         if dry_run:
-            print(json.dumps({"task": task["id"], "route": route, "command": redact_command(command)}, indent=2))
+            print(json.dumps({"task": task["id"], "route": route, "capabilities": capabilities, "command": redact_command(command)}, indent=2))
             return False
 
         print(
             f"[task {task['id']}] {task['title']} — {route['provider']} / {route['model']} / {route['effort']}",
             flush=True,
         )
+        before_changes = git_change_snapshot(repo_root)
         claimed = planctl.claim_task(plan_dir, manifest, task["id"], route)
         attempt_number = claimed["attempts"]
         log_path = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-{route['provider']}.log"
@@ -739,32 +1007,55 @@ def execute_one_task(
             raise
 
         combined = f"{stdout}\n{stderr}"
-        if return_code != 0 and is_provider_availability_failure(
-            route["provider"], return_code, combined, config
-        ):
+        # Child checkpoint commands may have advanced the plan while the
+        # provider was running. Never apply a result to the pre-launch copy.
+        refresh_manifest(plan_dir, manifest)
+        task = planctl.find_task(manifest, task["id"])
+        metrics = provider_metrics(route["provider"], stdout)
+        metrics.update({"model": route["model"], "effort": route["effort"], "attempt": attempt_number})
+        task["last_attempt_metrics"] = metrics
+        if return_code != 0 and classify_provider_failure(
+            route["provider"], return_code, stderr, stdout, config
+        ) == "availability":
+            retry_at = deferred_retry_at(config, int(task.get("rate_limit_events", 0)))
             planctl.fail_task(
                 plan_dir,
                 manifest,
                 task["id"],
                 f"Provider rate/usage limit (exit {return_code}): {output_tail(combined)}",
                 rate_limited=True,
+                failure_kind="availability",
+                deferred_until=retry_at,
             )
-            task = planctl.find_task(manifest, task["id"])
-            if wait_after_rate_limit(config, rate_cycle, no_wait):
-                rate_cycle += 1
-                continue
-            raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
+            print(
+                f"[availability] Task {task['id']} deferred until {retry_at}; runner lease will be released.",
+                file=sys.stderr,
+            )
+            return False
 
         report = parse_provider_report(route["provider"], stdout, result_path)
         if return_code != 0:
+            failure_kind = classify_provider_failure(
+                route["provider"], return_code, stderr, stdout, config
+            )
             reason = f"Provider exited with {return_code}: {output_tail(combined)}"
-            planctl.fail_task(plan_dir, manifest, task["id"], reason)
-            print(f"[task {task['id']}] provider failure; route will escalate on retry", file=sys.stderr)
+            planctl.fail_task(
+                plan_dir,
+                manifest,
+                task["id"],
+                reason,
+                failure_kind=failure_kind,
+                block=failure_kind == "environment",
+            )
+            action = "blocked for environment repair" if failure_kind == "environment" else "route will escalate on retry"
+            print(f"[task {task['id']}] {failure_kind} failure; {action}", file=sys.stderr)
             return False
         if not report:
             reason = f"Provider returned no valid completion report. Output: {output_tail(combined)}"
-            planctl.fail_task(plan_dir, manifest, task["id"], reason)
-            print(f"[task {task['id']}] invalid report; route will escalate on retry", file=sys.stderr)
+            planctl.fail_task(
+                plan_dir, manifest, task["id"], reason, failure_kind="contract", block=True
+            )
+            print(f"[task {task['id']}] invalid report; blocked without model escalation", file=sys.stderr)
             return False
         expected_context_files = list(task.get("context_files", []))
         reported_context_files = report.get("context_files_read")
@@ -773,7 +1064,9 @@ def execute_one_task(
                 "Worker context report mismatch: expected "
                 f"{expected_context_files!r}, received {reported_context_files!r}"
             )
-            planctl.fail_task(plan_dir, manifest, task["id"], reason)
+            planctl.fail_task(
+                plan_dir, manifest, task["id"], reason, failure_kind="contract", block=True
+            )
             print(f"[task {task['id']}] context assignment was not acknowledged", file=sys.stderr)
             return False
         expected_learning_files = list(task.get("learning_files", []))
@@ -783,19 +1076,27 @@ def execute_one_task(
                 "Worker learning report mismatch: expected "
                 f"{expected_learning_files!r}, received {reported_learning_files!r}"
             )
-            planctl.fail_task(plan_dir, manifest, task["id"], reason)
+            planctl.fail_task(
+                plan_dir, manifest, task["id"], reason, failure_kind="contract", block=True
+            )
             print(f"[task {task['id']}] learning assignment was not acknowledged", file=sys.stderr)
             return False
         if report.get("status") != "completed":
             reason = str(report.get("blocked_reason") or report.get("summary") or "Worker reported blocked")
             if is_rate_limited(reason):
-                planctl.fail_task(plan_dir, manifest, task["id"], reason, rate_limited=True)
-                task = planctl.find_task(manifest, task["id"])
-                if wait_after_rate_limit(config, rate_cycle, no_wait):
-                    rate_cycle += 1
-                    continue
-                raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
-            planctl.fail_task(plan_dir, manifest, task["id"], reason)
+                retry_at = deferred_retry_at(config, int(task.get("rate_limit_events", 0)))
+                planctl.fail_task(
+                    plan_dir,
+                    manifest,
+                    task["id"],
+                    reason,
+                    rate_limited=True,
+                    failure_kind="availability",
+                    deferred_until=retry_at,
+                )
+                print(f"[availability] Task {task['id']} deferred until {retry_at}.", file=sys.stderr)
+                return False
+            planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_kind="capability")
             atomic = {**report, "orchestrator_status": "failed"}
             planctl.atomic_write_json(result_path, atomic)
             print(f"[task {task['id']}] blocked: {reason}", file=sys.stderr)
@@ -809,13 +1110,18 @@ def execute_one_task(
             max(0, int(config.get("validation_timeout_seconds", 1800))),
         )
         report["validation_results"] = validation_results
-        reported_files = report.get("changed_files")
-        if not isinstance(reported_files, list) or not reported_files:
-            report["changed_files"] = git_changed_files(repo_root)
+        report["changed_files"] = files_changed_since(repo_root, before_changes)
+        report["runtime_metrics"] = metrics
         if not passed:
             report["orchestrator_status"] = "validation_failed"
             planctl.atomic_write_json(result_path, report)
-            planctl.fail_task(plan_dir, manifest, task["id"], validation_reason or "Validation failed")
+            planctl.fail_task(
+                plan_dir,
+                manifest,
+                task["id"],
+                validation_reason or "Validation failed",
+                failure_kind="validation",
+            )
             print(f"[task {task['id']}] deterministic validation failed; route will escalate", file=sys.stderr)
             return False
 
@@ -1083,7 +1389,6 @@ def generate_final_summary(
     input_path = compose_summary_input(plan_dir, manifest)
     output_path = plan_dir / "FINAL_SUMMARY.md"
     prompt = summary_prompt(plan_dir, manifest, input_path)
-    rate_cycle = 0
     try:
         route = summary_route(config)
     except RunnerError:
@@ -1091,33 +1396,28 @@ def generate_final_summary(
         planctl.atomic_write_text(output_path, fallback)
         return fallback, output_path.relative_to(plan_dir).as_posix()
 
-    while True:
-        command = build_summary_command(route["provider"], route, config, prompt, output_path)
-        log_path = plan_dir / "logs" / f"final-summary-{route['provider']}.log"
-        print(f"[summary] {route['provider']} / {route['model']} / {route['effort']}", flush=True)
-        return_code, stdout, stderr = run_process(
-            command,
-            Path(manifest["repo_root"]),
-            log_path,
-            timeout_seconds=max(0, int(config.get("task_timeout_seconds", 0))),
-            stream_output=False,
-        )
-        combined = f"{stdout}\n{stderr}"
-        if return_code != 0 and is_provider_availability_failure(
-            route["provider"], return_code, combined, config
-        ):
-            if wait_after_rate_limit(config, rate_cycle, no_wait):
-                rate_cycle += 1
-                continue
-        if return_code == 0:
-            summary = summary_stdout_text(route["provider"], stdout, output_path)
-            if summary and route["provider"] != "codex":
-                planctl.atomic_write_text(output_path, summary + "\n")
-            if summary:
-                return summary + "\n", output_path.relative_to(plan_dir).as_posix()
-        fallback = planctl.deterministic_summary(manifest)
-        planctl.atomic_write_text(output_path, fallback)
-        return fallback, output_path.relative_to(plan_dir).as_posix()
+    command = build_summary_command(route["provider"], route, config, prompt, output_path)
+    log_path = plan_dir / "logs" / f"final-summary-{route['provider']}.log"
+    print(f"[summary] {route['provider']} / {route['model']} / {route['effort']}", flush=True)
+    return_code, stdout, stderr = run_process(
+        command,
+        Path(manifest["repo_root"]),
+        log_path,
+        timeout_seconds=max(0, int(config.get("task_timeout_seconds", 0))),
+        stream_output=False,
+    )
+    if return_code == 0:
+        summary = summary_stdout_text(route["provider"], stdout, output_path)
+        if summary and route["provider"] != "codex":
+            planctl.atomic_write_text(output_path, summary + "\n")
+        if summary:
+            return summary + "\n", output_path.relative_to(plan_dir).as_posix()
+    # Summary generation is optional presentation work. Never hold a completed
+    # plan open or spend stronger-model retries when the deterministic summary
+    # already contains the authoritative result.
+    fallback = planctl.deterministic_summary(manifest)
+    planctl.atomic_write_text(output_path, fallback)
+    return fallback, output_path.relative_to(plan_dir).as_posix()
 
 
 def _run_plan(args: argparse.Namespace) -> int:
@@ -1147,7 +1447,7 @@ def _run_plan(args: argparse.Namespace) -> int:
             task = planctl.next_runnable_task(manifest)
             if task is None:
                 break
-            execute_one_task(
+            completed = execute_one_task(
                 plan_dir,
                 manifest,
                 config,
@@ -1156,7 +1456,8 @@ def _run_plan(args: argparse.Namespace) -> int:
                 dry_run=False,
                 no_wait=args.no_wait,
             )
-            completed_this_run += 1
+            if completed:
+                completed_this_run += 1
             if args.once:
                 break
     except KeyboardInterrupt:
@@ -1191,6 +1492,14 @@ def _run_plan(args: argparse.Namespace) -> int:
     if blocked:
         print(planctl.render_todo(manifest), end="", file=sys.stderr)
         return 4
+    waiting = deferred_tasks(manifest)
+    if waiting:
+        earliest = min(str(task["deferred_until"]) for task in waiting)
+        print(
+            f"Provider availability deferred {len(waiting)} task(s); next retry at {earliest}.",
+            file=sys.stderr,
+        )
+        return DEFERRED_EXIT_CODE
     if completed_this_run == 0:
         print("No runnable task. Check dependencies and task states.", file=sys.stderr)
         print(planctl.render_todo(manifest), end="", file=sys.stderr)
@@ -1203,7 +1512,7 @@ def run_plan(args: argparse.Namespace) -> int:
     """Run or resume a plan under an atomic lease."""
     plan_dir, _ = planctl.load_plan(args.plan)
     lifecyclectl.activate_plan(plan_dir)
-    with lifecyclectl.runner_lease(plan_dir):
+    with lifecyclectl.runner_lease(plan_dir, force=bool(getattr(args, "takeover", False))):
         recovered = lifecyclectl.recover_interrupted_tasks(
             plan_dir,
             allow_live_lease=True,
@@ -1240,6 +1549,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--once", action="store_true", help="Execute at most one task")
     parser.add_argument("--dry-run", action="store_true", help="Print the next provider command without executing")
     parser.add_argument("--no-wait", action="store_true", help="Do not wait and retry on rate/usage limits")
+    parser.add_argument(
+        "--takeover",
+        action="store_true",
+        help="Fence an older runner lease and take over with the selected provider",
+    )
     parser.add_argument("--no-cleanup", action="store_true", help="Keep planning artifacts after success")
     return parser
 
@@ -1248,7 +1562,35 @@ def main() -> int:
     install_signal_handlers()
     args = build_parser().parse_args()
     try:
-        return run_plan(args)
+        wait_cycle = 0
+        while True:
+            result = run_plan(args)
+            if result != DEFERRED_EXIT_CODE or args.no_wait:
+                return result
+            plan_dir, manifest = planctl.load_plan(args.plan)
+            config = load_config(plan_dir)
+            rate_cfg = config.get("rate_limit", {})
+            if not rate_cfg.get("auto_wait", True):
+                return result
+            max_cycles = int(rate_cfg.get("max_wait_cycles", 0))
+            if max_cycles > 0 and wait_cycle >= max_cycles:
+                return result
+            waiting = deferred_tasks(manifest)
+            if not waiting:
+                continue
+            retry_at = min(str(task["deferred_until"]) for task in waiting)
+            delay = seconds_until(retry_at)
+            print(
+                f"[supervisor] Retrying in {int(delay)} seconds. The runner lease is free; "
+                "another provider may take over safely.",
+                flush=True,
+            )
+            try:
+                time.sleep(delay)
+            except KeyboardInterrupt:
+                print("\nDeferred retry stopped; the plan remains resumable.", file=sys.stderr)
+                return 130
+            wait_cycle += 1
     except (planctl.PlanError, RunnerError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

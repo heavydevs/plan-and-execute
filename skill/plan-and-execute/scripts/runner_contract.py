@@ -47,21 +47,22 @@ def install_runner_contract(run_isolated: Any) -> Any:
         task: dict[str, Any],
         route: dict[str, str],
     ) -> str:
-        task_path = (plan_dir / task["file"]).resolve()
+        task_path = run_isolated.compile_task_packet(plan_dir, manifest, task).resolve()
         schema_path = run_isolated.completion_schema_path().resolve()
         return f"""Implement one isolated TODO. Keep context narrow and return only the required JSON report.
 
 Rules:
-1. Read `{task_path}` first, then exactly the context and learning files listed there. Do not read other plan files, task definitions, logs, results, or `.ai-work` artifacts.
+1. Read only the compiled task packet `{task_path}`; it already contains the task capsule and exactly its assigned context/learnings. Do not read other plan files, task definitions, logs, results, or `.ai-work` artifacts.
 2. Read/edit only repository source, tests, build files, and runtime output needed for this TODO. Preserve unrelated working-tree changes.
 3. Stay inside task scope/acceptance. Do not edit planning, context, or learning artifacts.
 4. Checkpoint subtasks only with `{controller}` using `subtask-start`, `subtask-complete`, or `subtask-reset` for parent `{task['id']}`.
-5. Run task validation before reporting completion.
+5. Run task validation before reporting completion; the host reruns it and owns the recorded result.
 6. Report exact context/learning read lists and all completed subtask ids. Read another task definition only when explicitly allowlisted, and report the reason.
 7. Publish learning only to predeclared future targets/topics with concrete repository or command references; prefer no learning to generic advice.
-8. Output one JSON object matching `{schema_path}`. Keep summary, validation details, risks, and follow-ups concise.
+8. Output one JSON object matching `{schema_path}`. Keep summary, risks, and follow-ups concise; do not self-report changed files or validation results.
 
 Repository: `{manifest['repo_root']}`
+Compiled task packet: `{task_path}`
 Task: `{task['id']}`
 Route: {route['provider']} / {route['model']} / {route['effort']}
 """

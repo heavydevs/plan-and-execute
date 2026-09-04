@@ -11,25 +11,6 @@
       "minLength": 1,
       "maxLength": 360
     },
-    "changed_files": {
-      "type": "array",
-      "maxItems": 100,
-      "items": {"type": "string", "maxLength": 300}
-    },
-    "validations": {
-      "type": "array",
-      "maxItems": 16,
-      "items": {
-        "type": "object",
-        "properties": {
-          "command": {"type": "string", "maxLength": 1000},
-          "passed": {"type": "boolean"},
-          "details": {"type": "string", "maxLength": 600}
-        },
-        "required": ["command", "passed", "details"],
-        "additionalProperties": false
-      }
-    },
     "risks": {
       "type": "array",
       "maxItems": 8,
@@ -113,8 +94,6 @@
   "required": [
     "status",
     "summary",
-    "changed_files",
-    "validations",
     "risks",
     "follow_ups",
     "context_files_read",

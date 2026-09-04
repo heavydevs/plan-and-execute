@@ -806,8 +806,23 @@ def atomic_write_text(path: Path, content: str) -> None:
         "w", encoding="utf-8", dir=path.parent, delete=False, newline="\n"
     ) as handle:
         handle.write(content)
+        handle.flush()
+        os.fsync(handle.fileno())
         tmp = Path(handle.name)
     os.replace(tmp, path)
+    # os.replace() makes the rename atomic, while syncing the containing
+    # directory makes the new name durable across a host crash where the
+    # platform supports directory fsync.
+    try:
+        descriptor = os.open(path.parent, os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(descriptor)
+    except OSError:
+        pass
+    finally:
+        os.close(descriptor)
 
 
 def atomic_write_json(path: Path, data: Any) -> None:
@@ -950,6 +965,8 @@ def default_config() -> dict[str, Any]:
             "auto_wait": True,
             "wait_seconds": 300,
             "max_wait_cycles": 0,
+            "jitter_ratio": 0.1,
+            "release_lease_while_waiting": True,
         },
         "claude": {
             "command": "claude",
@@ -960,6 +977,9 @@ def default_config() -> dict[str, Any]:
                 "max": "opus",
             },
             "permission_mode": "auto",
+            "exclude_dynamic_system_prompt_sections": True,
+            "max_budget_usd": 0,
+            "max_turns": 0,
             "max_effort_by_tier": {
                 "economy": "medium",
                 "standard": "high",
@@ -978,6 +998,8 @@ def default_config() -> dict[str, Any]:
             },
             "sandbox": "workspace-write",
             "ignore_user_config": False,
+            "model_verbosity": "low",
+            "model_reasoning_summary": "none",
             "max_effort_by_tier": {
                 "economy": "medium",
                 "standard": "high",
@@ -1325,6 +1347,9 @@ def normalize_task(
         "attempts": 0,
         "functional_failures": 0,
         "rate_limit_events": 0,
+        "contract_failures": 0,
+        "last_failure_kind": None,
+        "deferred_until": None,
         "current_route": None,
         "started_at": None,
         "completed_at": None,
@@ -1332,6 +1357,8 @@ def normalize_task(
         "history": [],
         "changed_files": [],
         "validation_results": [],
+        "attempt_metrics": [],
+        "last_attempt_metrics": None,
         "result_file": None,
     }
 
@@ -1797,6 +1824,28 @@ def load_plan(plan_arg: str | Path) -> tuple[Path, dict[str, Any]]:
 
 
 def save_manifest(plan_dir: Path, manifest: dict[str, Any]) -> None:
+    manifest_path = plan_dir / MANIFEST
+    if manifest_path.is_file():
+        current = read_json(manifest_path)
+        current_revision = max(0, int(current.get("revision", 0)))
+        supplied_revision = max(0, int(manifest.get("revision", 0)))
+        if current_revision != supplied_revision:
+            raise PlanError(
+                f"Plan mutation rejected: stale revision {supplied_revision}; current revision is {current_revision}"
+            )
+    lease_path = plan_dir / ".runner-lease.json"
+    if lease_path.is_file():
+        lease = read_json(lease_path)
+        expected_nonce = os.environ.get("PAE_RUNNER_LEASE_NONCE")
+        expected_epoch = os.environ.get("PAE_RUNNER_LEASE_EPOCH")
+        if not expected_nonce or lease.get("nonce") != expected_nonce:
+            raise PlanError("Plan mutation rejected: a different runner owns the live lease")
+        if expected_epoch and str(lease.get("epoch")) != expected_epoch:
+            raise PlanError("Plan mutation rejected: runner lease epoch is stale")
+        if int(manifest.get("lease_epoch", 0)) > int(lease.get("epoch", 0)):
+            raise PlanError("Plan mutation rejected: manifest belongs to a newer runner lease")
+        manifest["lease_epoch"] = int(lease.get("epoch", 0))
+    manifest["revision"] = max(0, int(manifest.get("revision", 0))) + 1
     manifest["updated_at"] = now_utc()
     statuses = {task["status"] for task in manifest["tasks"]}
     if statuses == {"completed"}:
@@ -1809,7 +1858,7 @@ def save_manifest(plan_dir: Path, manifest: dict[str, Any]) -> None:
         manifest["state"] = "running"
     else:
         manifest["state"] = "planned"
-    atomic_write_json(plan_dir / MANIFEST, manifest)
+    atomic_write_json(manifest_path, manifest)
     atomic_write_text(plan_dir / "TODO.md", render_todo(manifest))
     plan_id = str(manifest.get("plan_id", ""))
     work_root = str(manifest.get("work_root", WORK_ROOT_DEFAULT))
@@ -2324,8 +2373,19 @@ def learning_source_ids(manifest: dict[str, Any], target_id: str) -> list[str]:
 
 def next_runnable_task(manifest: dict[str, Any]) -> dict[str, Any] | None:
     completed = {task["id"] for task in manifest["tasks"] if task["status"] == "completed"}
+    now = dt.datetime.now(dt.timezone.utc)
     for task in manifest["tasks"]:
         context_prerequisites = set(learning_source_ids(manifest, task["id"]))
+        deferred_until = task.get("deferred_until")
+        if deferred_until:
+            try:
+                deferred_time = dt.datetime.fromisoformat(str(deferred_until))
+                if deferred_time.tzinfo is None:
+                    deferred_time = deferred_time.replace(tzinfo=dt.timezone.utc)
+                if deferred_time > now:
+                    continue
+            except ValueError:
+                pass
         if (
             task["status"] == "pending"
             and set(task["dependencies"]).issubset(completed)
@@ -2948,6 +3008,7 @@ def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: di
             + ", ".join(pending_learning_sources)
         )
     task["status"] = "in_progress"
+    task["deferred_until"] = None
     task["attempts"] += 1
     task["started_at"] = task["started_at"] or now_utc()
     task["current_route"] = route
@@ -2987,8 +3048,14 @@ def complete_task(
     task["status"] = "completed"
     task["completed_at"] = now_utc()
     task["last_error"] = None
+    task["last_failure_kind"] = None
+    task["deferred_until"] = None
     task["changed_files"] = clean_files
     task["validation_results"] = report.get("validation_results", []) if isinstance(report, dict) else []
+    runtime_metrics = report.get("runtime_metrics") if isinstance(report, dict) else None
+    if isinstance(runtime_metrics, dict):
+        task["last_attempt_metrics"] = runtime_metrics
+        task.setdefault("attempt_metrics", []).append(runtime_metrics)
     task["result_file"] = result_file
     task["history"].append(
         {
@@ -3015,19 +3082,36 @@ def fail_task(
     reason: str,
     *,
     rate_limited: bool = False,
+    failure_kind: str | None = None,
+    deferred_until: str | None = None,
+    block: bool = False,
 ) -> dict[str, Any]:
     task = find_task(manifest, task_id)
     if task["status"] != "in_progress":
         raise PlanError(f"Task {task['id']} is not in progress")
     recovered_subtasks = recover_in_progress_subtasks(task, reason)
-    if rate_limited:
+    kind = failure_kind or ("availability" if rate_limited else "capability")
+    if kind == "availability":
         task["rate_limit_events"] += 1
-        event = "rate_limited"
+        event = "availability_deferred" if deferred_until else "rate_limited"
+    elif kind == "contract":
+        task["contract_failures"] = int(task.get("contract_failures", 0)) + 1
+        event = "contract_failed"
     else:
-        task["functional_failures"] += 1
-        event = "failed"
+        if kind in {"capability", "validation"}:
+            task["functional_failures"] += 1
+        event = f"{kind}_failed"
+    task["last_failure_kind"] = kind
+    task["deferred_until"] = deferred_until
     task["last_error"] = reason.strip()[:4000]
-    if not rate_limited and task["functional_failures"] >= task["max_attempts"]:
+    runtime_metrics = task.get("last_attempt_metrics")
+    if isinstance(runtime_metrics, dict):
+        recorded = task.setdefault("attempt_metrics", [])
+        if not recorded or recorded[-1] != runtime_metrics:
+            recorded.append(runtime_metrics)
+    if block or kind in {"environment", "planning_invalidation"}:
+        task["status"] = "blocked"
+    elif kind in {"capability", "validation"} and task["functional_failures"] >= task["max_attempts"]:
         task["status"] = "blocked"
     else:
         task["status"] = "pending"
@@ -3035,8 +3119,10 @@ def fail_task(
         {
             "at": now_utc(),
             "event": event,
+            "failure_kind": kind,
             "reason": task["last_error"],
             "recovered_subtasks": recovered_subtasks,
+            "deferred_until": deferred_until,
         }
     )
     append_event(
@@ -3044,7 +3130,9 @@ def fail_task(
         f"task_{event}",
         task_id=task["id"],
         reason=task["last_error"],
+        failure_kind=kind,
         recovered_subtasks=recovered_subtasks,
+        deferred_until=deferred_until,
     )
     save_manifest(plan_dir, manifest)
     return task
@@ -3074,6 +3162,8 @@ def reset_task(plan_dir: Path, manifest: dict[str, Any], task_id: str) -> dict[s
         recovered_subtasks = recover_in_progress_subtasks(task, "Parent task reset")
     task["status"] = "pending"
     task["last_error"] = None
+    task["last_failure_kind"] = None
+    task["deferred_until"] = None
     task["current_route"] = None
     task["completed_at"] = None
     task["result_file"] = None
@@ -3293,6 +3383,33 @@ def command_reset(args: argparse.Namespace) -> None:
     print(json.dumps(task, ensure_ascii=False, indent=2))
 
 
+def command_route_set(args: argparse.Namespace) -> None:
+    plan_dir, manifest = load_plan(args.plan)
+    task = find_task(manifest, args.task)
+    if task.get("status") == "in_progress":
+        raise PlanError("Cannot change route while the task is in progress; use runner --takeover")
+    if args.provider:
+        task["provider"] = args.provider
+    if args.model_tier:
+        task["model_tier"] = args.model_tier
+    if args.effort:
+        task["reasoning_effort"] = args.effort
+    if args.unblock and task.get("status") == "blocked":
+        task["status"] = "pending"
+    task["deferred_until"] = None
+    task["current_route"] = None
+    append_event(
+        manifest,
+        "task_route_changed",
+        task_id=task["id"],
+        provider=task["provider"],
+        model_tier=task["model_tier"],
+        reasoning_effort=task["reasoning_effort"],
+    )
+    save_manifest(plan_dir, manifest)
+    print(json.dumps(task, ensure_ascii=False, indent=2))
+
+
 def command_summary(args: argparse.Namespace) -> None:
     _plan_dir, manifest = load_plan(args.plan)
     print(deterministic_summary(manifest), end="")
@@ -3399,6 +3516,15 @@ def build_parser() -> argparse.ArgumentParser:
     reset.add_argument("--plan", required=True)
     reset.add_argument("--task", required=True)
     reset.set_defaults(func=command_reset)
+
+    route_set = sub.add_parser("route-set", help="Persist a new provider/model route for a task")
+    route_set.add_argument("--plan", required=True)
+    route_set.add_argument("--task", required=True)
+    route_set.add_argument("--provider", choices=sorted(VALID_PROVIDERS))
+    route_set.add_argument("--model-tier", choices=sorted(VALID_TIERS))
+    route_set.add_argument("--effort", choices=sorted(VALID_EFFORTS))
+    route_set.add_argument("--unblock", action="store_true")
+    route_set.set_defaults(func=command_route_set)
 
 
     summary = sub.add_parser("summary", help="Generate a deterministic summary")

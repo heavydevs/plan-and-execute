@@ -47,14 +47,27 @@ python <skill-dir>/scripts/run_concise.py --plan <plan-path>
 
 An interruption is not automatically a technical failure. Recovery resets the interrupted task/subtask state needed for safe continuation without discarding implementation changes.
 
+To proactively move a live plan to another provider/host, stop the previous runner when practical and use:
+
+```bash
+pae resume --provider codex --takeover
+```
+
+Takeover advances the lease epoch and fences the obsolete runner. A later write carrying the old nonce/epoch is rejected instead of reverting newer state.
+
 ## Lease
 
-`.runner-lease.json` prevents duplicate runners.
+`.runner-lease.json` prevents duplicate writers.
 
-- A live local PID blocks another runner.
+- The owner refreshes a heartbeat while it runs.
+- A live local PID blocks another runner unless explicit takeover is requested.
 - A stale local lease can be recovered.
-- Remote-host leases are treated conservatively for their configured freshness window.
+- Remote-host leases are evaluated from their heartbeat and configured grace window.
+- Each acquisition advances a monotonic epoch; manifest writes require the live nonce/epoch.
+- Manifest saves use an optimistic revision check plus durable atomic replacement.
 - Cancellation may stop the live owned runner before deleting planning state.
+
+During a deferred availability retry, the supervisor releases the lease before sleeping. This lets another compatible provider resume immediately instead of waiting for the original quota window.
 
 Do not pass lease contents to implementation workers.
 

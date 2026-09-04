@@ -71,6 +71,7 @@ Opcoes de execucao:
   --once                            Executar no maximo um TODO pai
   --no-wait                         Nao aguardar automaticamente limites de uso
   --no-cleanup                      Manter o plano concluido para inspecao
+  --takeover                        Substituir lease ativo e assumir a execucao
   --all                             Com cancel, remover todos os planos reconhecidos
 
 Opcoes de instalacao:
@@ -87,6 +88,7 @@ Exemplos:
   pae current
   pae resume
   pae resume --provider codex --once
+  pae resume --provider codex --takeover
   pae resume --provider gemini --once
   pae cancel
   pae reset --force
@@ -113,7 +115,7 @@ export function parseArguments(argv) {
   const options = {
     agent: 'both', scope: 'workspace', workspaceDir: process.cwd(), activation: 'selective',
     force: false, dryRun: false, json: false, provider: null, once: false, noWait: false,
-    noCleanup: false, allPlans: false
+    noCleanup: false, takeover: false, allPlans: false
   };
   let showHelp = false;
   let showVersion = false;
@@ -146,6 +148,7 @@ export function parseArguments(argv) {
       case '--once': options.once = true; break;
       case '--no-wait': options.noWait = true; break;
       case '--no-cleanup': options.noCleanup = true; break;
+      case '--takeover': options.takeover = true; break;
       case '--all': options.allPlans = true; break;
       case '--force': case '-f': options.force = true; break;
       case '--dry-run': options.dryRun = true; break;
@@ -262,6 +265,7 @@ function lifecycleArguments(command, options) {
     if (options.once) args.push('--once');
     if (options.noWait) args.push('--no-wait');
     if (options.noCleanup) args.push('--no-cleanup');
+    if (options.takeover) args.push('--takeover');
   }
   return args;
 }

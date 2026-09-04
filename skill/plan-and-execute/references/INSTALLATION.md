@@ -138,7 +138,7 @@ pae resume
 or directly:
 
 ```bash
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
+python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id>
 ```
 
 Useful options:
@@ -146,8 +146,8 @@ Useful options:
 ```bash
 pae resume --provider codex --once
 pae resume --provider gemini --once
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id> --dry-run
-python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id> --no-cleanup
+python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id> --dry-run
+python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id> --no-cleanup
 ```
 
 ## Model mapping and provider fallback

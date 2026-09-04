@@ -13,12 +13,14 @@ import contextlib
 import datetime as dt
 import json
 import os
+import re
 import secrets
 import shutil
 import signal
 import socket
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any, Iterator
@@ -30,9 +32,12 @@ import planctl  # noqa: E402
 
 ACTIVE_FILE = ".active-plan.json"
 LEASE_FILE = ".runner-lease.json"
+HEARTBEAT_DIRECTORY = ".runner-heartbeats"
 LIFECYCLE_SCHEMA_VERSION = 1
 DEFAULT_WORK_ROOT = ".ai-work"
 REMOTE_LEASE_MAX_AGE_SECONDS = 24 * 60 * 60
+LEASE_HEARTBEAT_SECONDS = 30
+REMOTE_HEARTBEAT_GRACE_SECONDS = 3 * LEASE_HEARTBEAT_SECONDS
 
 
 class LifecycleError(RuntimeError):
@@ -303,7 +308,37 @@ def read_lease(plan_dir: Path) -> dict[str, Any] | None:
     path = lease_path(plan_dir)
     if path.is_symlink():
         raise LifecycleError(f"Runner lease must not be a symlink: {path}")
-    return read_json_file(path) if path.is_file() else None
+    lease = read_json_file(path) if path.is_file() else None
+    if not lease:
+        return None
+    nonce = str(lease.get("nonce", ""))
+    if re.fullmatch(r"[0-9a-f]{32}", nonce):
+        heartbeat_directory = plan_dir / HEARTBEAT_DIRECTORY
+        if heartbeat_directory.is_symlink():
+            raise LifecycleError(
+                f"Runner heartbeat directory must not be a symlink: {heartbeat_directory}"
+            )
+        heartbeat = read_json_file(heartbeat_directory / f"{nonce}.json")
+        if heartbeat and heartbeat.get("nonce") == nonce:
+            lease["heartbeat_at"] = heartbeat.get("heartbeat_at", lease.get("heartbeat_at"))
+    return lease
+
+
+def heartbeat_path(plan_dir: Path, token: dict[str, Any]) -> Path:
+    nonce = str(token.get("nonce", ""))
+    if not re.fullmatch(r"[0-9a-f]{32}", nonce):
+        raise LifecycleError("Runner lease has an invalid nonce")
+    directory = plan_dir / HEARTBEAT_DIRECTORY
+    if directory.is_symlink():
+        raise LifecycleError(f"Runner heartbeat directory must not be a symlink: {directory}")
+    return directory / f"{nonce}.json"
+
+
+def write_heartbeat(plan_dir: Path, token: dict[str, Any]) -> None:
+    planctl.atomic_write_json(
+        heartbeat_path(plan_dir, token),
+        {"nonce": token["nonce"], "epoch": token["epoch"], "heartbeat_at": utc_now()},
+    )
 
 
 def lease_is_live(lease: dict[str, Any] | None) -> bool:
@@ -312,11 +347,12 @@ def lease_is_live(lease: dict[str, Any] | None) -> bool:
     host = str(lease.get("hostname", ""))
     if host == socket.gethostname():
         return pid_is_alive(lease.get("pid"))
-    created = parse_time(lease.get("created_at"))
-    if created is None:
+    heartbeat = parse_time(lease.get("heartbeat_at")) or parse_time(lease.get("created_at"))
+    if heartbeat is None:
         return False
-    age = (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-    return age < REMOTE_LEASE_MAX_AGE_SECONDS
+    age = (dt.datetime.now(dt.timezone.utc) - heartbeat).total_seconds()
+    grace = int(lease.get("heartbeat_grace_seconds", REMOTE_LEASE_MAX_AGE_SECONDS))
+    return age < grace
 
 
 def acquire_lease(plan_arg: str | Path, *, force: bool = False) -> dict[str, Any]:
@@ -329,7 +365,10 @@ def acquire_lease(plan_arg: str | Path, *, force: bool = False) -> dict[str, Any
         "pid": os.getpid(),
         "hostname": socket.gethostname(),
         "nonce": secrets.token_hex(16),
+        "epoch": max(0, int(manifest.get("lease_epoch", 0))) + 1,
         "created_at": utc_now(),
+        "heartbeat_at": utc_now(),
+        "heartbeat_grace_seconds": REMOTE_HEARTBEAT_GRACE_SECONDS,
     }
     for _ in range(3):
         try:
@@ -341,13 +380,44 @@ def acquire_lease(plan_arg: str | Path, *, force: bool = False) -> dict[str, Any
                     f"Plan {manifest['plan_id']} is already running "
                     f"(host={existing.get('hostname')}, pid={existing.get('pid')})"
                 )
-            unlink_if_present(path)
+            if existing:
+                release_lease(plan_dir, existing)
+            else:
+                unlink_if_present(path)
             continue
         with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
             json.dump(token, handle, ensure_ascii=False, indent=2)
             handle.write("\n")
             handle.flush()
             os.fsync(handle.fileno())
+        write_heartbeat(plan_dir, token)
+        # A previous owner may have checkpointed after our initial read but
+        # before the replacement lease became visible. Reload now that the
+        # new nonce fences further writes, preserving that last valid update.
+        _, manifest = planctl.load_plan(plan_dir)
+        previous_nonce = os.environ.get("PAE_RUNNER_LEASE_NONCE")
+        previous_epoch = os.environ.get("PAE_RUNNER_LEASE_EPOCH")
+        os.environ["PAE_RUNNER_LEASE_NONCE"] = str(token["nonce"])
+        os.environ["PAE_RUNNER_LEASE_EPOCH"] = str(token["epoch"])
+        try:
+            manifest["lease_epoch"] = token["epoch"]
+            planctl.append_event(manifest, "runner_lease_acquired", lease_epoch=token["epoch"])
+            planctl.save_manifest(plan_dir, manifest)
+        except Exception:
+            current = read_json_file(path)
+            if current and current.get("nonce") == token["nonce"]:
+                unlink_if_present(path)
+            unlink_if_present(heartbeat_path(plan_dir, token))
+            raise
+        finally:
+            if previous_nonce is None:
+                os.environ.pop("PAE_RUNNER_LEASE_NONCE", None)
+            else:
+                os.environ["PAE_RUNNER_LEASE_NONCE"] = previous_nonce
+            if previous_epoch is None:
+                os.environ.pop("PAE_RUNNER_LEASE_EPOCH", None)
+            else:
+                os.environ["PAE_RUNNER_LEASE_EPOCH"] = previous_epoch
         return token
     raise LifecycleError(f"Could not acquire runner lease: {path}")
 
@@ -355,6 +425,8 @@ def acquire_lease(plan_arg: str | Path, *, force: bool = False) -> dict[str, Any
 def release_lease(plan_arg: str | Path, token: dict[str, Any] | None) -> bool:
     plan_dir = Path(plan_arg).expanduser().resolve()
     path = lease_path(plan_dir)
+    if token and re.fullmatch(r"[0-9a-f]{32}", str(token.get("nonce", ""))):
+        unlink_if_present(heartbeat_path(plan_dir, token))
     if not path.exists():
         return False
     current = read_json_file(path)
@@ -368,10 +440,35 @@ def release_lease(plan_arg: str | Path, token: dict[str, Any] | None) -> bool:
 def runner_lease(plan_arg: str | Path, *, force: bool = False) -> Iterator[dict[str, Any]]:
     plan_dir, _ = planctl.load_plan(plan_arg)
     token = acquire_lease(plan_dir, force=force)
+    stop_heartbeat = threading.Event()
+
+    def heartbeat() -> None:
+        while not stop_heartbeat.wait(LEASE_HEARTBEAT_SECONDS):
+            current = read_lease(plan_dir)
+            if not current or current.get("nonce") != token.get("nonce"):
+                return
+            write_heartbeat(plan_dir, token)
+
+    thread = threading.Thread(target=heartbeat, name="pae-lease-heartbeat", daemon=True)
+    thread.start()
+    previous_nonce = os.environ.get("PAE_RUNNER_LEASE_NONCE")
+    previous_epoch = os.environ.get("PAE_RUNNER_LEASE_EPOCH")
+    os.environ["PAE_RUNNER_LEASE_NONCE"] = str(token["nonce"])
+    os.environ["PAE_RUNNER_LEASE_EPOCH"] = str(token["epoch"])
     try:
         yield token
     finally:
+        stop_heartbeat.set()
+        thread.join(timeout=2)
         release_lease(plan_dir, token)
+        if previous_nonce is None:
+            os.environ.pop("PAE_RUNNER_LEASE_NONCE", None)
+        else:
+            os.environ["PAE_RUNNER_LEASE_NONCE"] = previous_nonce
+        if previous_epoch is None:
+            os.environ.pop("PAE_RUNNER_LEASE_EPOCH", None)
+        else:
+            os.environ["PAE_RUNNER_LEASE_EPOCH"] = previous_epoch
 
 
 def recover_interrupted_tasks(plan_arg: str | Path, *, allow_live_lease: bool = False) -> int:
@@ -381,6 +478,8 @@ def recover_interrupted_tasks(plan_arg: str | Path, *, allow_live_lease: bool = 
         raise LifecycleError(
             f"Cannot recover while another runner is live (pid={lease.get('pid')})"
         )
+    if lease and not lease_is_live(lease):
+        release_lease(plan_dir, lease)
     recovered = 0
     recovered_subtasks: list[dict[str, str]] = []
     for task in manifest.get("tasks", []):
@@ -463,10 +562,10 @@ def terminate_live_runner(plan_dir: Path, *, force: bool) -> dict[str, Any] | No
     while time.monotonic() < deadline and pid_is_alive(pid):
         time.sleep(0.1)
     if pid_is_alive(pid):
-        if not force:
-            raise LifecycleError(
-                f"Runner pid {pid} did not stop. Retry with --force to terminate it before cleanup"
-            )
+        # `cancel` is already an explicit request to stop the runner. Once the
+        # local PID and live lease match, escalate after the graceful window;
+        # requiring a second invocation leaves automation wedged on runtimes
+        # where SIGTERM is delayed or ignored.
         kill_signal = getattr(signal, "SIGKILL", signal.SIGTERM)
         os.kill(pid, kill_signal)
         deadline = time.monotonic() + 3.0
@@ -560,7 +659,7 @@ def resume_workspace(args: argparse.Namespace) -> int:
         print(json.dumps(payload, ensure_ascii=False, indent=2) if args.json else payload["message"])
         return 3
     plan_dir, _ = active
-    command = [sys.executable, str(SCRIPT_DIR / "run_isolated.py"), "--plan", str(plan_dir)]
+    command = [sys.executable, str(SCRIPT_DIR / "run_concise.py"), "--plan", str(plan_dir)]
     if args.provider:
         command.extend(["--provider", args.provider])
     if args.once:
@@ -569,6 +668,8 @@ def resume_workspace(args: argparse.Namespace) -> int:
         command.append("--no-wait")
     if args.no_cleanup:
         command.append("--no-cleanup")
+    if args.takeover:
+        command.append("--takeover")
     completed = subprocess.run(command, cwd=root)
     return int(completed.returncode)
 
@@ -625,6 +726,7 @@ def build_parser() -> argparse.ArgumentParser:
     resume.add_argument("--once", action="store_true")
     resume.add_argument("--no-wait", action="store_true")
     resume.add_argument("--no-cleanup", action="store_true")
+    resume.add_argument("--takeover", action="store_true")
 
     cancel = sub.add_parser("cancel", help="Cancel the active implementation and remove its plan state")
     common(cancel)
