@@ -24,34 +24,27 @@ Read `ADAPTIVE_STUDY.md`. Classify study depth based on uncertainty that can cha
 - use focused external research only when authoritative current facts materially affect the plan;
 - use broad project/external study for genuinely complex architecture, migration, security, compatibility, or user-requested research.
 
-Validate study state with `studyctl_concise.py`. Do not manufacture evidence merely to satisfy a planning template.
-
-A late promotion does not automatically require broad research: study only the remaining work and the current repository state.
+Validate study state with `studyctl_concise.py`. Do not manufacture evidence merely to satisfy a planning template. A late promotion studies only remaining work and current repository state.
 
 ## 3. Build requirements-traceable TODOs
 
 Read `PLANNING_PROTOCOL.md`, `EXECUTION_CONTEXT.md`, and `PLAN_SPEC.md` only when drafting the plan.
 
-Inventory stable request parts (`P...`) and requirements (`R...`) for every **remaining** independently testable user outcome/constraint. Map each request part -> requirement -> at least one executable TODO, and map every TODO back to requirements.
+Inventory stable request parts (`P...`) and requirements (`R...`) for every **remaining** independently testable outcome/constraint. Map each request part -> requirement -> executable TODO, and every TODO back to requirements.
 
 Recursively split until every TODO has:
 
-- one coherent outcome;
-- one independent validation boundary;
-- a context surface whose retained reasoning is useful throughout that TODO;
+- one coherent outcome and one independent validation boundary;
+- a context surface whose retained reasoning is useful throughout the TODO;
 - explicit scope in/out and expected files;
-- dependencies;
-- acceptance criteria and deterministic validation commands;
+- dependencies, acceptance criteria, and deterministic validation commands;
 - resumable subtasks/checkpoints;
-- `context_boundary` evidence;
-- optional sparse directional `learning_targets`;
+- `context_boundary` evidence and optional sparse `learning_targets`;
 - `provider`, `model_tier`, and `reasoning_effort`.
 
-Split unrelated domains even when they use the same framework pattern. Do not split mechanically per file: tightly coupled controller/service/entity/migration/tests may remain together when they implement one invariant and benefit from one worker context.
+Split unrelated domains even when they share a framework pattern. Do not split mechanically per file: tightly coupled controller/service/entity/migration/tests may remain together when they implement one invariant and benefit from one worker context.
 
-Reject executable `extreme` TODOs; split further. Justify retained `high` leaves.
-
-For promoted work, never create retroactive TODOs solely to represent completed implementation. Record completed state in `REQUEST.md`; only remaining outcomes are planned.
+Reject executable `extreme` TODOs; split further. Justify retained `high` leaves. For promoted work, never create retroactive TODOs for completed implementation; only remaining outcomes are planned.
 
 ## 4. Keep execution context minimal
 
@@ -64,26 +57,26 @@ Default to no shared `CONTEXT.md`.
 
 Review must approve `contexts_minimal` and `context_boundaries_sound`.
 
-## 5. Preserve task-level model routing
+## 5. Preserve adaptive task-level model routing
 
-Read `MODEL_ROUTING.md` only when choosing or escalating execution routes.
+Read `MODEL_ROUTING.md` only when choosing or escalating routes. It defines provider-independent semantics. When a concrete provider/model must be chosen, read **only** that provider's reference: `MODEL_ROUTING_CODEX.md` for Codex or `MODEL_ROUTING_CLAUDE.md` for Claude Code. Do not load both; a fallback provider loads its file only if fallback occurs.
 
-Each TODO stores logical capability instead of binding unnecessarily to one model:
+Each TODO stores logical capability instead of binding unnecessarily to one concrete model:
 
-- `economy`: mechanical/narrow work and cheap summarization;
-- `standard`: normal bounded repository implementation/debugging/tests;
-- `strong`: architecture-sensitive, security, concurrency, transaction, compatibility/migration, or difficult evidence-heavy work;
-- `max`: only after concrete unresolved lower-tier failure evidence.
+- `economy`: exploration, mechanical/narrow work, cheap summarization;
+- `standard`: normal bounded implementation/debugging/tests;
+- `strong`: subtle/high-risk/weakly verifiable or difficult evidence-heavy work;
+- `max`: frontier/long-horizon work when semantic need or concrete lower-route failure justifies it.
 
-Use the lowest tier plausibly able to satisfy the leaf acceptance criteria. A large plan does not make every TODO `strong`.
+Use the lowest credible capability for the leaf. Verifiability and blast radius matter more than overall request size. A newer frontier family at low/medium effort may be a cheaper strong route than an older model at high effort; provider references own that calibration.
 
-Keep `provider: auto` when equivalent providers may execute the task. Pin a provider only when the task genuinely depends on it. Record the actual execution route separately in lifecycle/task state; the recommendation remains portable for another compatible AI.
+Keep `provider: auto` when equivalent providers may execute the task. Pin only when the task genuinely depends on a provider. Record the actual execution route separately so another compatible AI can resume.
 
-Escalate from technical evidence: effort -> model tier -> provider. Rate/quota exhaustion, temporary capacity, or host interruption are not technical failures and must not consume the functional failure budget.
+Escalate from technical evidence. Rate/quota exhaustion, temporary capacity, unavailable models, or host interruption are not technical failures and must not consume the functional failure budget.
 
 ## 6. Review and create the durable plan
 
-Use a fresh reviewer for complex plans when supported. Revise until coverage, atomicity, dependencies, validations, context minimality, and context boundaries all pass with no unresolved material findings.
+Use a fresh reviewer for complex plans when supported. Revise until coverage, atomicity, dependencies, validations, context minimality, and context boundaries pass with no unresolved material findings.
 
 Create/gate using concise controllers:
 
@@ -96,23 +89,19 @@ python <skill-dir>/scripts/planctl_concise.py audit --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/lifecyclectl_concise.py activate --plan .ai-work/<plan-id> --json
 ```
 
-Use the request-file copy/move semantics defined by `INTAKE.md`. For late promotion, copy the rendered `/tmp` request so the compact handoff becomes `.ai-work/<plan-id>/REQUEST.md`.
+Use the request-file semantics in `INTAKE.md`. For late promotion, copy the rendered `/tmp` request so the compact handoff becomes `.ai-work/<plan-id>/REQUEST.md`. Autostart after gates unless a genuine safety/authorization gate blocks execution.
 
-Autostart after all gates unless a genuine safety/authorization gate blocks execution.
+## 7. Persist checklist and task definitions
 
-## 7. Persist the checklist and task definitions
+`TODO.md` is terse: exactly one line per parent task, plus short in-progress/blocked suffix when applicable. Detailed metadata belongs in `manifest.json` and one definition file per TODO.
 
-`TODO.md` is intentionally terse: exactly one line per parent task, plus short in-progress/blocked suffix when applicable. Detailed metadata belongs in `manifest.json` and one definition file per TODO.
+`manifest.json` is authoritative. Never hand-edit task/subtask status, retries, or routing state.
 
-`manifest.json` is authoritative. Never hand-edit task status, subtask status, retries, or routing state.
-
-Every task definition must remain sufficient for a fresh compatible worker to execute without the parent chat transcript. It includes objective, assigned execution context/learnings, resumable subtasks, scope, non-obvious guidance, acceptance, deterministic validation, and logical route recommendation.
+Every task definition must be sufficient for a fresh compatible worker without the parent chat transcript. It includes objective, assigned execution context/learnings, resumable subtasks, scope, non-obvious guidance, acceptance, deterministic validation, and logical route recommendation.
 
 ## 8. Execute one isolated TODO at a time
 
-Read `WORKFLOW.md` when execution begins.
-
-For every runnable TODO:
+Read `WORKFLOW.md` when execution begins. For every runnable TODO:
 
 1. reload authoritative state from disk;
 2. recover stale/interrupted `in_progress` state when needed;
@@ -131,17 +120,16 @@ Write-heavy tasks are sequential unless repository isolation/worktrees remove re
 
 ## 9. Resume across quota/session/provider failure
 
-Lifecycle state exists specifically so implementation survives lost credits, process termination, host restart, or provider switching.
+Lifecycle state exists so implementation survives lost credits, process termination, host restart, or provider switching.
 
 On resume:
 
 - discover the unique active/actionable plan;
 - acquire/recover the runner lease;
-- return only orphaned `in_progress` task/subtask state to a runnable state;
-- preserve completed parent tasks and completed subtasks;
-- preserve partial repository changes;
+- return only orphaned `in_progress` task/subtask state to runnable state;
+- preserve completed tasks/subtasks and partial repository changes;
 - do not count quota/rate/capacity interruption as technical failure;
-- dispatch a fresh compatible worker using persisted task/context state, not prior chat history.
+- dispatch a fresh compatible worker from persisted task/context state, not prior chat history.
 
 Strict external execution uses:
 

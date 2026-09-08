@@ -32,7 +32,7 @@ If no strong signal applies and the skill was selected implicitly:
 - create no `.ai-work`, study, requirements inventory, plan, TODO, task file, worker, or lifecycle state;
 - do not read orchestration references;
 - implement/validate directly in current useful context;
-- **continue applying the model-economy rules below**; DIRECT exits the harness, not economical routing.
+- **continue applying model economy**; DIRECT exits the harness, not adaptive model routing.
 
 When uncertain, prefer DIRECT. An unnecessary plan has already spent tokens/time. Read [references/ROUTING.md](references/ROUTING.md) only for a genuinely ambiguous boundary.
 
@@ -41,14 +41,13 @@ When uncertain, prefer DIRECT. An unnecessary plan has already spent tokens/time
 These rules apply even when no plan is created:
 
 1. Use deterministic tools directly for one-off filename/symbol lookup, build/test/lint, or other mechanical operations.
-2. If repository/log/doc exploration would load substantial disposable context, delegate it to the cheapest credible **read-only** subagent and request only a compact evidence map. Prefer Claude Explore/Haiku or Codex Luna low; use medium only for bounded multi-hop tracing.
-3. Do not spawn a subagent for one or two obvious reads, or a swarm for sequential work. Prefer at most two concurrent explorers unless branches are genuinely independent.
-4. Normal bounded implementation starts standard; difficult/high-risk engineering starts strong. Frontier/max models are escalation specialists, not default managers.
+2. If repository/log/doc exploration would load substantial disposable context, delegate it to the cheapest credible **read-only** subagent and request only a compact evidence map.
+3. Do not spawn a subagent for one or two obvious reads or a swarm for sequential work. Prefer at most two concurrent explorers unless branches are genuinely independent.
+4. Route implementation by semantic difficulty, verifiability, and blast radius — not by parent-request size. A small task with no tests can deserve a stronger model; a large but mechanical search can deserve the cheapest one.
 5. Cheap-first is appropriate when deterministic validation catches failure. Start stronger for high-blast-radius, weakly verifiable decisions.
-6. A user-specified maximum model/tier or reasoning effort is a **hard ceiling** for root work, subagents, retries, review, fallback, and summaries. Never silently exceed it.
-7. Escalate from concrete failure evidence and stop once acceptance criteria plus independent validation pass.
+6. Escalate from concrete failure evidence and stop once acceptance criteria plus available independent validation pass. The skill chooses the route dynamically; there is no user model/effort ceiling.
 
-Read [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md) when choosing a concrete route, subagent strategy, escalation, or ceiling.
+When a concrete model or subagent must be selected, read [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md), then load only the active provider file: [references/MODEL_ROUTING_CODEX.md](references/MODEL_ROUTING_CODEX.md) for Codex or [references/MODEL_ROUTING_CLAUDE.md](references/MODEL_ROUTING_CLAUDE.md) for Claude Code. Do not preload both.
 
 ## 4. Promote late when direct work grows
 
@@ -67,7 +66,6 @@ Non-negotiable invariants:
 - `manifest.json` is authoritative; `TODO.md` is the terse status index;
 - every executable TODO has a bounded definition and resumable subtasks;
 - every TODO declares `provider`, `model_tier`, and `reasoning_effort`; use the lowest credible leaf capability and escalate only from evidence;
-- apply current provider mappings and any user routing ceiling before execution;
 - quota/rate-limit exhaustion and host interruption are not technical failures;
 - another compatible provider can resume from persisted state without the previous chat transcript;
 - implementation changes, tests, product artifacts, and commits survive cleanup.
@@ -85,5 +83,7 @@ Non-negotiable invariants:
 - Execution context: [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md)
 - Plan schema: [references/PLAN_SPEC.md](references/PLAN_SPEC.md)
 - Execution: [references/WORKFLOW.md](references/WORKFLOW.md)
-- Model routing/ceilings: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)
+- Generic model routing: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)
+- Codex routing: [references/MODEL_ROUTING_CODEX.md](references/MODEL_ROUTING_CODEX.md)
+- Claude routing: [references/MODEL_ROUTING_CLAUDE.md](references/MODEL_ROUTING_CLAUDE.md)
 - Token economics: [references/TOKEN_EFFICIENCY.md](references/TOKEN_EFFICIENCY.md)

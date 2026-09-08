@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
-"""Configure current provider mappings and hard model/effort ceilings for a plan."""
+"""Apply the current provider model catalog to plan configuration.
+
+The skill chooses routes from task semantics and evidence. This module only keeps
+concrete provider model ids and compatibility effort caps current; it does not
+impose user budget ceilings or choose a route for the agent.
+"""
 from __future__ import annotations
 
-import argparse
 import copy
-import json
-from pathlib import Path
 from typing import Any
 
-import planctl
-
-TIER_ORDER = ["economy", "standard", "strong", "max"]
-EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"]
-MODEL_MAP_VERSION = "2026-09-08"
+MODEL_MAP_VERSION = "2026-09-08-v2"
 CURRENT_MODELS: dict[str, dict[str, str]] = {
     "claude": {
         "economy": "haiku",
@@ -23,8 +21,27 @@ CURRENT_MODELS: dict[str, dict[str, str]] = {
     "codex": {
         "economy": "gpt-5.6-luna",
         "standard": "gpt-5.6-terra",
-        "strong": "gpt-5.6-sol",
+        # Astra low/medium supersedes Sol-high as the default hard-work family.
+        # Keep effort separate from model tier so the agent can spend only the
+        # reasoning depth justified by verifiability, risk, and failure evidence.
+        "strong": "gpt-6-astra",
         "max": "gpt-6-astra",
+    },
+}
+
+# Provider/model compatibility guards, not user budget ceilings.
+CURRENT_EFFORT_CAPS: dict[str, dict[str, str]] = {
+    "claude": {
+        "economy": "medium",
+        "standard": "max",
+        "strong": "max",
+        "max": "max",
+    },
+    "codex": {
+        "economy": "max",
+        "standard": "max",
+        "strong": "max",
+        "max": "max",
     },
 }
 
@@ -33,163 +50,57 @@ class RoutingError(RuntimeError):
     pass
 
 
-def _index(values: list[str], value: str, field: str) -> int:
-    try:
-        return values.index(value)
-    except ValueError as exc:
-        raise RoutingError(f"Invalid {field}: {value!r}; expected one of {values}") from exc
-
-
-def _cap_effort(value: str, maximum: str) -> str:
-    current = _index(EFFORT_ORDER, value, "effort")
-    cap = _index(EFFORT_ORDER, maximum, "max effort")
-    return EFFORT_ORDER[min(current, cap)]
-
-
-def configure_config(
-    raw: dict[str, Any],
-    *,
-    max_tier: str | None = None,
-    max_effort: str | None = None,
-    claude_ceiling_model: str | None = None,
-    codex_ceiling_model: str | None = None,
-    update_current_models: bool = True,
-) -> dict[str, Any]:
+def configure_config(raw: dict[str, Any]) -> dict[str, Any]:
+    """Return config with the current adaptive model catalog applied."""
     if not isinstance(raw, dict):
         raise RoutingError("orchestrator.config.json must contain an object")
-    if max_tier is not None:
-        _index(TIER_ORDER, max_tier, "max tier")
-    if max_effort is not None:
-        _index(EFFORT_ORDER, max_effort, "max effort")
-    if (claude_ceiling_model or codex_ceiling_model) and max_tier is None:
-        raise RoutingError("Provider-specific ceiling models require --max-tier")
 
     config = copy.deepcopy(raw)
-    ceiling_overrides = {
-        "claude": claude_ceiling_model,
-        "codex": codex_ceiling_model,
-    }
-
-    for provider, current_map in CURRENT_MODELS.items():
+    for provider, model_map in CURRENT_MODELS.items():
         provider_cfg = config.setdefault(provider, {})
         if not isinstance(provider_cfg, dict):
             raise RoutingError(f"{provider} config must be an object")
         models = provider_cfg.setdefault("models", {})
         if not isinstance(models, dict):
             raise RoutingError(f"{provider}.models must be an object")
-
-        if update_current_models:
-            models.update(current_map)
-
-        if max_tier is not None:
-            ceiling_model = ceiling_overrides[provider] or str(models.get(max_tier, "")).strip()
-            if not ceiling_model:
-                raise RoutingError(f"No ceiling model configured for {provider}/{max_tier}")
-            ceiling_index = TIER_ORDER.index(max_tier)
-            models[max_tier] = ceiling_model
-            # The runner may escalate the logical tier after failures. Collapsing every
-            # higher tier to the ceiling model makes the ceiling hard without changing
-            # the runner's portable escalation state machine.
-            for tier in TIER_ORDER[ceiling_index + 1 :]:
-                models[tier] = ceiling_model
+        models.update(model_map)
 
         caps = provider_cfg.setdefault("max_effort_by_tier", {})
         if not isinstance(caps, dict):
             raise RoutingError(f"{provider}.max_effort_by_tier must be an object")
-        if max_effort is not None:
-            for tier in TIER_ORDER:
-                existing = str(caps.get(tier, "max")).strip() or "max"
-                caps[tier] = _cap_effort(existing, max_effort)
+        caps.update(CURRENT_EFFORT_CAPS[provider])
 
+    # Replaces legacy routing-policy state, including any retired ceiling data.
     config["routing_policy"] = {
         "model_map_version": MODEL_MAP_VERSION,
-        "max_tier": max_tier,
-        "max_effort": max_effort,
-        "provider_ceiling_models": {
-            key: value for key, value in ceiling_overrides.items() if value
-        },
-        "hard_ceiling": bool(max_tier or max_effort),
+        "selection": "adaptive",
     }
     return config
 
 
-def configure_plan(
-    plan_dir: Path,
-    **kwargs: Any,
-) -> dict[str, Any]:
-    config_path = plan_dir / planctl.CONFIG
-    if not config_path.is_file():
-        raise RoutingError(f"Plan config not found: {config_path}")
-    raw = planctl.read_json(config_path)
-    configured = configure_config(raw, **kwargs)
-    planctl.atomic_write_json(config_path, configured)
-    return configured
+def install_current_model_catalog(planctl_module: Any) -> Any:
+    """Install the catalog once on a planctl module used by concise entrypoints."""
+    if getattr(planctl_module, "_current_model_catalog_installed", False):
+        return planctl_module
+    original_default_config = planctl_module.default_config
+
+    def current_default_config() -> dict[str, Any]:
+        return configure_config(original_default_config())
+
+    planctl_module.default_config = current_default_config
+    planctl_module._current_model_catalog_installed = True
+    return planctl_module
 
 
-def _summary(config: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "routing_policy": config.get("routing_policy", {}),
-        "claude": {
-            "models": config.get("claude", {}).get("models", {}),
-            "max_effort_by_tier": config.get("claude", {}).get("max_effort_by_tier", {}),
-        },
-        "codex": {
-            "models": config.get("codex", {}).get("models", {}),
-            "max_effort_by_tier": config.get("codex", {}).get("max_effort_by_tier", {}),
-        },
-    }
+def install_runtime_model_catalog(run_module: Any) -> Any:
+    """Normalize persisted legacy plan config after the runner loads it."""
+    if getattr(run_module, "_current_model_catalog_installed", False):
+        return run_module
+    original_load_config = run_module.load_config
 
+    def current_load_config(plan_dir: Any) -> dict[str, Any]:
+        return configure_config(original_load_config(plan_dir))
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
-    sub = parser.add_subparsers(dest="command", required=True)
-
-    configure = sub.add_parser("configure", help="Apply current model map and optional hard ceiling")
-    configure.add_argument("--plan", required=True, type=Path)
-    configure.add_argument("--max-tier", choices=TIER_ORDER)
-    configure.add_argument("--max-effort", choices=EFFORT_ORDER)
-    configure.add_argument("--claude-ceiling-model")
-    configure.add_argument("--codex-ceiling-model")
-    configure.add_argument(
-        "--keep-model-map",
-        action="store_true",
-        help="Preserve provider model mappings and apply only the requested ceiling",
-    )
-    configure.add_argument("--json", action="store_true")
-
-    show = sub.add_parser("show", help="Show effective routing configuration")
-    show.add_argument("--plan", required=True, type=Path)
-    show.add_argument("--json", action="store_true")
-    return parser
-
-
-def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
-    try:
-        if args.command == "configure":
-            config = configure_plan(
-                args.plan,
-                max_tier=args.max_tier,
-                max_effort=args.max_effort,
-                claude_ceiling_model=args.claude_ceiling_model,
-                codex_ceiling_model=args.codex_ceiling_model,
-                update_current_models=not args.keep_model_map,
-            )
-        else:
-            config_path = args.plan / planctl.CONFIG
-            if not config_path.is_file():
-                raise RoutingError(f"Plan config not found: {config_path}")
-            config = planctl.read_json(config_path)
-        summary = _summary(config)
-        if getattr(args, "json", False):
-            print(json.dumps(summary, ensure_ascii=False, indent=2))
-        else:
-            print(json.dumps(summary, ensure_ascii=False, indent=2))
-        return 0
-    except (RoutingError, planctl.PlanError, OSError, ValueError) as exc:
-        print(f"routingctl: {exc}", file=__import__("sys").stderr)
-        return 2
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+    run_module.load_config = current_load_config
+    run_module._current_model_catalog_installed = True
+    return run_module
