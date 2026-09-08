@@ -5,7 +5,7 @@ description: Orchestrate long-horizon software changes that benefit from durable
 
 # Plan and Execute
 
-Treat context and model capability as budgets. Route both **execution shape** (DIRECT vs ORCHESTRATED) and **model spend**. Pay for planning and stronger models only when they materially improve verified quality.
+Treat context as a budget and model capability as another budget. Route both **execution shape** (DIRECT vs ORCHESTRATED) and **model spend**. Pay for planning and stronger models only when they materially improve verified quality.
 
 ## 1. Route lifecycle commands first
 
