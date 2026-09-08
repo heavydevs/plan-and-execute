@@ -1,81 +1,89 @@
 ---
 name: plan-and-execute
-description: Orchestrate long-horizon software changes that benefit from durable resumability, multiple independently verifiable workstreams, broad repository or external research, repo-wide migration or compatibility work, or isolated delegated execution. Also use when explicitly invoked or for plan lifecycle status, resume, cancel, or reset. Do not use for routine bug fixes, bounded features or refactors, ordinary test updates, or cohesive small/medium changes one agent can implement and validate in the current context, even across several related files. When uncertain, prefer direct execution and promote later only if scope, research needs, resumability value, independent workstreams, or context pressure materially grow.
+description: Orchestrate long-horizon software changes that benefit from durable resumability, independent workstreams, broad repository/external research, repo-wide migration/compatibility work, or isolated delegated execution. Also use when explicitly invoked or for lifecycle status/resume/cancel/reset. Do not use the full harness for routine bugs, bounded features/refactors/tests, or cohesive small/medium changes one agent can implement and validate in current context. When uncertain, prefer direct execution and promote later if scope, research, resumability, workstreams, or context pressure materially grow.
 ---
 
 # Plan and Execute
 
-Treat context as a budget. This entrypoint is a router: pay for the full planning harness only when isolation, persistence, research, or resumability can materially improve the implementation.
+Treat context and model capability as budgets. Route both **execution shape** (DIRECT vs ORCHESTRATED) and **model spend**. Pay for planning and stronger models only when they materially improve verified quality.
 
 ## 1. Route lifecycle commands first
 
-Exact `current`/`status`, `resume`/`continue`, `cancel`, and `reset` always use the lifecycle workflow. Read [references/LIFECYCLE.md](references/LIFECYCLE.md) only for those operations.
+Exact `current`/`status`, `resume`/`continue`, `cancel`, and `reset` use [references/LIFECYCLE.md](references/LIFECYCLE.md).
 
 ## 2. Decide DIRECT vs ORCHESTRATED before creating state
 
-An explicit user invocation of `plan-and-execute`, an existing requirements file passed for orchestration, or a lifecycle command selects **ORCHESTRATED**.
+Explicit `plan-and-execute`, an existing requirements file passed for orchestration, or a lifecycle command selects **ORCHESTRATED**.
 
 For implicit invocation, select **ORCHESTRATED** only when at least one strong signal is present:
 
 - two or more independently verifiable workstreams whose retained reasoning would not materially help each other;
-- broad repository study or substantial external research is needed before implementation choices are safe;
+- broad repository study or substantial external research is needed before implementation is safe;
 - repo-wide migration, compatibility, security, data-integrity, concurrency, or cross-module work needs durable coordination;
-- the work is likely to cross sessions, providers, quota windows, or context compaction and durable resume state has real value;
-- isolated delegated workers materially reduce unrelated context or allow independent validation.
+- likely work across sessions/providers/quota windows/context compaction makes durable resume valuable;
+- isolated workers materially reduce unrelated context or improve independent validation.
 
-File count alone is not a signal. A cohesive controller/service/entity/test change may stay direct even when it touches many related files.
+File count alone is not a signal. Cohesive related-file work may stay direct.
 
 ### DIRECT EXIT
 
-If none of the strong signals applies and the skill was selected implicitly:
+If no strong signal applies and the skill was selected implicitly:
 
-- create no `.ai-work` directory, study, requirements inventory, plan, TODO, task file, worker, or lifecycle state;
+- create no `.ai-work`, study, requirements inventory, plan, TODO, task file, worker, or lifecycle state;
 - do not read orchestration references;
-- stop applying this skill and implement/validate the request directly in the current agent context;
-- keep shared reasoning in the current conversation while it remains useful.
+- implement/validate directly in current useful context;
+- **continue applying the model-economy rules below**; DIRECT exits the harness, not economical routing.
 
-When uncertain, prefer DIRECT. A false negative can be promoted later; an unnecessary plan has already spent tokens and time.
+When uncertain, prefer DIRECT. An unnecessary plan has already spent tokens/time. Read [references/ROUTING.md](references/ROUTING.md) only for a genuinely ambiguous boundary.
 
-Read [references/ROUTING.md](references/ROUTING.md) only when the boundary is genuinely ambiguous or when changing routing behavior/evals.
+## 3. Always-on model economy — DIRECT and ORCHESTRATED
 
-## 3. Promote late when a direct task grows
+These rules apply even when no plan is created:
 
-A DIRECT request may become orchestration-worthy after implementation starts. Promote when substantial work remains and one or more of these becomes true:
+1. Use deterministic tools directly for one-off filename/symbol lookup, build/test/lint, or other mechanical operations.
+2. If repository/log/doc exploration would load substantial disposable context, delegate it to the cheapest credible **read-only** subagent and request only a compact evidence map. Prefer Claude Explore/Haiku or Codex Luna low; use medium only for bounded multi-hop tracing.
+3. Do not spawn a subagent for one or two obvious reads, or a swarm for sequential work. Prefer at most two concurrent explorers unless branches are genuinely independent.
+4. Normal bounded implementation starts standard; difficult/high-risk engineering starts strong. Frontier/max models are escalation specialists, not default managers.
+5. Cheap-first is appropriate when deterministic validation catches failure. Start stronger for high-blast-radius, weakly verifiable decisions.
+6. A user-specified maximum model/tier or reasoning effort is a **hard ceiling** for root work, subagents, retries, review, fallback, and summaries. Never silently exceed it.
+7. Escalate from concrete failure evidence and stop once acceptance criteria plus independent validation pass.
 
-- discovered scope splits into independent outcomes;
-- broad research or migration/compatibility analysis becomes necessary;
-- interruption/quota risk makes durable resume state valuable;
-- the host reports high context pressure and substantial non-cohesive work remains.
+Read [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md) when choosing a concrete route, subagent strategy, escalation, or ceiling.
 
-Context pressure is a secondary signal, never a universal fixed percentage. Do not wait for a hard 90% threshold when semantic scope already justifies promotion, and do not promote a nearly finished cohesive task merely because context is high.
+## 4. Promote late when direct work grows
 
-On promotion, read [references/PROMOTION.md](references/PROMOTION.md). Persist completed work, validated results, active decisions, relevant code, blockers/risks, and **remaining outcomes** with `promotectl.py`; then create TODOs only for remaining work. Never invent retroactive TODOs for work already completed.
+Promote a DIRECT request when substantial work remains and scope splits into independent outcomes, broad research/migration analysis becomes necessary, interruption/quota risk makes durable resume valuable, or high context pressure accompanies substantial non-cohesive work.
 
-## 4. Run the full harness only after ORCHESTRATED is selected
+Context pressure is secondary; do not promote a nearly finished cohesive task merely because context is high.
 
-Read [references/ORCHESTRATION.md](references/ORCHESTRATION.md). It owns adaptive study, traceable requirements, TODO decomposition, task-definition files, model/provider routing, resumable subtasks, validated cross-task learnings, deterministic validation, lifecycle recovery, final handoff, and guarded cleanup.
+On promotion, read [references/PROMOTION.md](references/PROMOTION.md). Persist completed work, validations, active decisions, relevant code, blockers/risks, and **remaining outcomes** with `promotectl.py`; create TODOs only for remaining work.
 
-These invariants remain non-negotiable in every orchestrated or promoted plan:
+## 5. Full harness after ORCHESTRATED is selected
 
-- `manifest.json` is authoritative; `TODO.md` remains the terse status index;
-- every executable TODO has its own bounded definition and resumable subtasks;
-- every TODO declares `provider`, `model_tier`, and `reasoning_effort`; choose the lowest credible capability for that leaf task and escalate only from evidence;
+Read [references/ORCHESTRATION.md](references/ORCHESTRATION.md). It owns adaptive study, traceable requirements, TODO decomposition, task files, model/provider routing, resumable subtasks, validated learnings, deterministic validation, lifecycle recovery, final handoff, and guarded cleanup.
+
+Non-negotiable invariants:
+
+- `manifest.json` is authoritative; `TODO.md` is the terse status index;
+- every executable TODO has a bounded definition and resumable subtasks;
+- every TODO declares `provider`, `model_tier`, and `reasoning_effort`; use the lowest credible leaf capability and escalate only from evidence;
+- apply current provider mappings and any user routing ceiling before execution;
 - quota/rate-limit exhaustion and host interruption are not technical failures;
-- another compatible AI/provider can resume from persisted state without the previous chat transcript;
-- implementation changes, tests, generated product artifacts, and commits survive plan cleanup.
+- another compatible provider can resume from persisted state without the previous chat;
+- implementation changes, tests, product artifacts, and commits survive cleanup.
 
 ## Reference map
 
-- Full long-horizon workflow: [references/ORCHESTRATION.md](references/ORCHESTRATION.md)
-- Precise derived artifact writing: [references/ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md)
-- Guided request intake: [references/INTAKE.md](references/INTAKE.md)
-- Direct/orchestrated routing: [references/ROUTING.md](references/ROUTING.md)
-- Late direct -> orchestrated handoff: [references/PROMOTION.md](references/PROMOTION.md)
-- Lifecycle/resume: [references/LIFECYCLE.md](references/LIFECYCLE.md)
+- Orchestration: [references/ORCHESTRATION.md](references/ORCHESTRATION.md)
+- Artifact writing: [references/ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md)
+- Intake: [references/INTAKE.md](references/INTAKE.md)
+- Direct routing: [references/ROUTING.md](references/ROUTING.md)
+- Promotion: [references/PROMOTION.md](references/PROMOTION.md)
+- Lifecycle: [references/LIFECYCLE.md](references/LIFECYCLE.md)
 - Adaptive study: [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md)
-- Planning/decomposition: [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md)
-- Execution context/learnings: [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md)
+- Planning: [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md)
+- Execution context: [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md)
 - Plan schema: [references/PLAN_SPEC.md](references/PLAN_SPEC.md)
 - Execution: [references/WORKFLOW.md](references/WORKFLOW.md)
-- Model/provider routing: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)
+- Model routing/ceilings: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)
 - Token economics: [references/TOKEN_EFFICIENCY.md](references/TOKEN_EFFICIENCY.md)
