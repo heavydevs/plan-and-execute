@@ -10,6 +10,7 @@ planctl = routingctl.install_current_model_catalog(install_plan_contract())
 
 import run_isolated  # noqa: E402
 
+routingctl.install_runtime_model_catalog(run_isolated)
 install_runner_contract(run_isolated)
 
 if __name__ == "__main__":
