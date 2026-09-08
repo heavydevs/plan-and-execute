@@ -88,7 +88,7 @@ Default to no `CONTEXT.md`. Create global/scoped context only for non-obvious fa
 
 Reuse cross-task learnings only when they are expensive, validated, directional, and predeclared.
 
-## 10. Preserve cacheable prefixes and defer unused tools
+## 10. Preserve stable provider prefixes and logical routing
 
 Keep stable execution/provider rules before dynamic task data when provider caching can benefit. Avoid duplicating rules across system prompt, task file, worker prompt, and report schema.
 
