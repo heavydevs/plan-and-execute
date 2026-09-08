@@ -1,7 +1,7 @@
 interface:
   display_name: Plan and Execute
   short_description: Orchestrate long work and route models economically
-  default_prompt: 'Use $plan-and-execute. Apply its DIRECT vs ORCHESTRATED gate before creating plan state. Prefer direct execution for cohesive small/medium work; use the resumable TODO harness only when independent workstreams, broad research, migration risk, durable resume value, or isolation justify it. In both modes apply the economical router: deterministic lookup first, cheap read-only exploration subagents for context-heavy discovery, standard models for normal implementation, stronger/frontier models only when risk or failure evidence justifies them, and never exceed a user model/effort ceiling. Preserve deterministic validation, lifecycle recovery, and implementation changes.'
+  default_prompt: 'Use $plan-and-execute. Apply its DIRECT vs ORCHESTRATED gate before creating plan state. Prefer direct execution for cohesive small/medium work; use the resumable TODO harness only when independent workstreams, broad research, migration risk, durable resume value, or isolation justify it. If direct work later grows, promote it and plan only remaining outcomes. In both modes apply the economical router: deterministic lookup first, cheap read-only exploration subagents for context-heavy discovery, standard models for normal implementation, stronger/frontier models only when risk or failure evidence justifies them, and never exceed a user model/effort ceiling. Preserve deterministic validation, lifecycle recovery, and implementation changes.'
   icon_small: assets/icon.svg
   icon_large: assets/icon.svg
 policy:
