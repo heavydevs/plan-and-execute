@@ -29,8 +29,7 @@ CURRENT_MODELS: dict[str, dict[str, str]] = {
     },
 }
 
-# These are provider/model compatibility guards, not economic ceilings. The
-# task still chooses any supported effort up to the model's available range.
+# Provider/model compatibility guards, not user budget ceilings.
 CURRENT_EFFORT_CAPS: dict[str, dict[str, str]] = {
     "claude": {
         "economy": "medium",
@@ -52,7 +51,7 @@ class RoutingError(RuntimeError):
 
 
 def configure_config(raw: dict[str, Any]) -> dict[str, Any]:
-    """Return config with the current model catalog applied."""
+    """Return config with the current adaptive model catalog applied."""
     if not isinstance(raw, dict):
         raise RoutingError("orchestrator.config.json must contain an object")
 
@@ -71,6 +70,7 @@ def configure_config(raw: dict[str, Any]) -> dict[str, Any]:
             raise RoutingError(f"{provider}.max_effort_by_tier must be an object")
         caps.update(CURRENT_EFFORT_CAPS[provider])
 
+    # Replaces legacy routing-policy state, including any retired ceiling data.
     config["routing_policy"] = {
         "model_map_version": MODEL_MAP_VERSION,
         "selection": "adaptive",
@@ -90,3 +90,17 @@ def install_current_model_catalog(planctl_module: Any) -> Any:
     planctl_module.default_config = current_default_config
     planctl_module._current_model_catalog_installed = True
     return planctl_module
+
+
+def install_runtime_model_catalog(run_module: Any) -> Any:
+    """Normalize persisted legacy plan config after the runner loads it."""
+    if getattr(run_module, "_current_model_catalog_installed", False):
+        return run_module
+    original_load_config = run_module.load_config
+
+    def current_load_config(plan_dir: Any) -> dict[str, Any]:
+        return configure_config(original_load_config(plan_dir))
+
+    run_module.load_config = current_load_config
+    run_module._current_model_catalog_installed = True
+    return run_module
