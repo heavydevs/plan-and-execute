@@ -31,6 +31,25 @@ def test_current_model_map() -> None:
     }
 
 
+def test_legacy_ceiling_state_is_replaced() -> None:
+    legacy = planctl.default_config()
+    legacy["codex"]["models"]["strong"] = "gpt-5.6-sol"
+    legacy["codex"]["models"]["max"] = "gpt-5.6-sol"
+    legacy["codex"]["max_effort_by_tier"]["max"] = "high"
+    legacy["routing_policy"] = {
+        "hard_ceiling": True,
+        "max_tier": "strong",
+        "max_effort": "high",
+    }
+    configured = routingctl.configure_config(legacy)
+    assert configured["codex"]["models"]["strong"] == "gpt-6-astra"
+    assert configured["codex"]["models"]["max"] == "gpt-6-astra"
+    assert configured["codex"]["max_effort_by_tier"]["max"] == "max"
+    assert "hard_ceiling" not in configured["routing_policy"]
+    assert "max_tier" not in configured["routing_policy"]
+    assert "max_effort" not in configured["routing_policy"]
+
+
 def test_catalog_installer_is_idempotent() -> None:
     module = routingctl.install_current_model_catalog(planctl)
     first = module.default_config()
@@ -72,6 +91,7 @@ def test_direct_mode_keeps_adaptive_routing() -> None:
 
 def main() -> int:
     test_current_model_map()
+    test_legacy_ceiling_state_is_replaced()
     test_catalog_installer_is_idempotent()
     test_no_user_routing_ceiling_contract()
     test_provider_guidance_is_split_and_lazy()
