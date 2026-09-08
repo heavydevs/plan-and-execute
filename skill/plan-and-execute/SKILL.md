@@ -1,6 +1,6 @@
 ---
 name: plan-and-execute
-description: Orchestrate long-horizon software changes that benefit from durable resumability, independent workstreams, broad repository/external research, repo-wide migration/compatibility work, or isolated delegated execution. Also use when explicitly invoked or for lifecycle status/resume/cancel/reset. Do not use the full harness for routine bugs, bounded features/refactors/tests, or cohesive small/medium changes one agent can implement and validate in current context. When uncertain, prefer direct execution and promote later if scope, research, resumability, workstreams, or context pressure materially grow.
+description: Orchestrate long-horizon software changes that benefit from durable resumability, independent workstreams, broad repository/external research, repo-wide migration/compatibility work, or isolated delegated execution. Also use when explicitly invoked or for lifecycle status/resume/cancel/reset. Do not use for routine bug fixes, bounded features/refactors/tests, or cohesive small/medium changes one agent can implement and validate in current context. When uncertain, prefer direct execution and promote later if scope, research, resumability, workstreams, or context pressure materially grow.
 ---
 
 # Plan and Execute
@@ -69,7 +69,7 @@ Non-negotiable invariants:
 - every TODO declares `provider`, `model_tier`, and `reasoning_effort`; use the lowest credible leaf capability and escalate only from evidence;
 - apply current provider mappings and any user routing ceiling before execution;
 - quota/rate-limit exhaustion and host interruption are not technical failures;
-- another compatible provider can resume from persisted state without the previous chat;
+- another compatible provider can resume from persisted state without the previous chat transcript;
 - implementation changes, tests, product artifacts, and commits survive cleanup.
 
 ## Reference map
