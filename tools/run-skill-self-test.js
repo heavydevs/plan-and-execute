@@ -15,7 +15,7 @@ const testScripts = [
   'task_memory_self_test.py',
   'provider_self_test.py',
   'token_efficiency_self_test.py',
-  'routing_ceiling_self_test.py',
+  'model_routing_self_test.py',
   'artifact_concision_self_test.py',
   'study_choice_interaction_self_test.py',
   'routing_self_test.py',
