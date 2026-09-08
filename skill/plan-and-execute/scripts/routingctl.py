@@ -52,12 +52,7 @@ class RoutingError(RuntimeError):
 
 
 def configure_config(raw: dict[str, Any]) -> dict[str, Any]:
-    """Return config with the current model catalog applied.
-
-    Provider-specific user overrides outside the managed tier maps are retained.
-    Route selection remains dynamic and is driven by task metadata plus the
-    provider-specific routing references.
-    """
+    """Return config with the current model catalog applied."""
     if not isinstance(raw, dict):
         raise RoutingError("orchestrator.config.json must contain an object")
 
@@ -81,3 +76,17 @@ def configure_config(raw: dict[str, Any]) -> dict[str, Any]:
         "selection": "adaptive",
     }
     return config
+
+
+def install_current_model_catalog(planctl_module: Any) -> Any:
+    """Install the catalog once on a planctl module used by concise entrypoints."""
+    if getattr(planctl_module, "_current_model_catalog_installed", False):
+        return planctl_module
+    original_default_config = planctl_module.default_config
+
+    def current_default_config() -> dict[str, Any]:
+        return configure_config(original_default_config())
+
+    planctl_module.default_config = current_default_config
+    planctl_module._current_model_catalog_installed = True
+    return planctl_module
