@@ -24,11 +24,12 @@ const lifecycleScript = path.join(
 );
 
 const EXECUTION_PROVIDERS = Object.freeze([
-  'claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae'
+  'claude', 'codex', 'gemini', 'qwen', 'muse', 'kimi', 'trae'
 ]);
 const OPTIONAL_PROVIDER_COMMANDS = Object.freeze({
   gemini: 'gemini',
   qwen: 'qwen',
+  muse: 'muse',
   kimi: 'kimi',
   trae: 'trae-cli'
 });
@@ -40,10 +41,10 @@ a skill orquestra somente trabalho long-horizon que justifica plano persistente.
 Use --activation explicit para impedir invocacao automatica da skill.
 
 Provedores de execucao suportados:
-  claude, codex, gemini, qwen, kimi, trae
+  claude, codex, gemini, qwen, muse, kimi, trae
 
 A instalacao padrao da skill e o tutorial rapido continuam restritos a Claude Code e Codex.
-Gemini, Qwen, Kimi e Trae sao backends opcionais de execucao.
+Gemini, Qwen, Muse, Kimi e Trae sao backends opcionais de execucao.
 
 Uso da implementacao:
   pae current [opcoes]              Mostrar a implementacao ativa
@@ -67,7 +68,7 @@ Opcoes gerais:
   -v, --version                     Mostrar versao
 
 Opcoes de execucao:
-  --provider <nome>                 claude|codex|gemini|qwen|kimi|trae
+  --provider <nome>                 claude|codex|gemini|qwen|muse|kimi|trae
   --once                            Executar no maximo um TODO pai
   --no-wait                         Nao aguardar automaticamente limites de uso
   --no-cleanup                      Manter o plano concluido para inspecao
@@ -88,6 +89,7 @@ Exemplos:
   pae resume
   pae resume --provider codex --once
   pae resume --provider gemini --once
+  pae resume --provider muse --once
   pae cancel
   pae reset --force
   npx @luizcgvrj/plan-and-execute install both --global
@@ -219,6 +221,7 @@ function printDoctor(report, json) {
   console.log(`Codex CLI: ${report.codex?.version ?? 'nao encontrado'}`);
   console.log(`Gemini CLI (opcional): ${report.gemini?.version ?? 'nao encontrado'}`);
   console.log(`Qwen Code (opcional): ${report.qwen?.version ?? 'nao encontrado'}`);
+  console.log(`Muse Code (opcional): ${report.muse?.version ?? 'nao encontrado'}`);
   console.log(`Kimi Code CLI (opcional): ${report.kimi?.version ?? 'nao encontrado'}`);
   console.log(`Trae Agent (opcional): ${report.trae?.version ?? 'nao encontrado'}`);
   console.log(`Ordem padrao: ${report.defaultProviderOrder.join(' -> ')}`);

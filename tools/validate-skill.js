@@ -82,6 +82,12 @@ for (const relative of [
   path.join('references', 'WORKFLOW.md'),
   path.join('references', 'LIFECYCLE.md'),
   path.join('references', 'MODEL_ROUTING.md'),
+  path.join('references', 'PORTABLE_MODEL_ROUTING.md'),
+  path.join('references', 'MODEL_ROUTING_CODEX.md'),
+  path.join('references', 'MODEL_ROUTING_CLAUDE.md'),
+  path.join('references', 'MODEL_ROUTING_GEMINI.md'),
+  path.join('references', 'MODEL_ROUTING_QWEN.md'),
+  path.join('references', 'MODEL_ROUTING_MUSE.md'),
   path.join('references', 'TOKEN_EFFICIENCY.md'),
   path.join('references', 'completion-report.schema.json'),
   path.join('references', 'plan-spec.example.json'),
@@ -91,6 +97,9 @@ for (const relative of [
   path.join('scripts', 'promotion_self_test.py'),
   path.join('scripts', 'artifact_contract.py'),
   path.join('scripts', 'runner_contract.py'),
+  path.join('scripts', 'routingctl.py'),
+  path.join('scripts', 'model_compatctl.py'),
+  path.join('scripts', 'model_compat_self_test.py'),
   path.join('scripts', 'planctl_concise.py'),
   path.join('scripts', 'studyctl_concise.py'),
   path.join('scripts', 'lifecyclectl_concise.py'),
@@ -98,6 +107,8 @@ for (const relative of [
   path.join('scripts', 'planctl.py'),
   path.join('scripts', 'studyctl.py'),
   path.join('scripts', 'run_isolated.py'),
+  path.join('scripts', 'provider_self_test.py'),
+  path.join('scripts', 'model_routing_self_test.py'),
   path.join('scripts', 'token_efficiency_self_test.py'),
   path.join('scripts', 'artifact_concision_self_test.py')
 ]) requireFile(relative);
@@ -108,12 +119,14 @@ requireText(metadata, [
   'DIRECT vs ORCHESTRATED',
   'cohesive small/medium work',
   'remaining outcomes',
-  'provider/model tier/effort',
+  'F1-F4',
+  'L1-L5',
+  'Codex/Claude/Gemini/Qwen/Muse',
   'deterministic validation',
   'implementation changes',
   'allow_implicit_invocation: true'
 ], 'agents/openai.yaml');
-requireMax(metadata, 1500, 'agents/openai.yaml');
+requireMax(metadata, 1700, 'agents/openai.yaml');
 
 const skill = read('SKILL.md');
 requireText(skill, [
@@ -126,12 +139,19 @@ requireText(skill, [
   'references/PROMOTION.md',
   'references/ORCHESTRATION.md',
   'remaining outcomes',
-  '`provider`, `model_tier`, and `reasoning_effort`',
+  '`model_family`',
+  '`model_level`',
+  'MODEL_COMPATIBILITY.json',
+  'MODEL_COMPATIBILITY.md',
+  '~/.plan-and-execute/cache/model-compatibility',
+  'local calendar day',
+  'Gemini',
+  'Qwen',
+  'Muse',
   'quota/rate-limit exhaustion',
-  'without the previous chat transcript',
   'implementation changes'
 ], 'SKILL.md');
-requireMax(skill, 7000, 'SKILL.md');
+requireMax(skill, 8000, 'SKILL.md');
 const frontmatter = skill.match(/^---\n([\s\S]*?)\n---/);
 if (!frontmatter) fail('SKILL.md frontmatter is missing.');
 if (frontmatter[1].length > 1700) fail('SKILL.md frontmatter is too broad for cheap routing.');
@@ -161,8 +181,9 @@ requireText(promotion, [
   'Never create retroactive TODOs',
   'promotectl.py validate',
   'promotectl.py render',
-  'model_tier',
-  'reasoning_effort'
+  'model_family',
+  'model_level',
+  'MODEL_COMPATIBILITY.md'
 ], 'PROMOTION.md');
 requireMax(promotion, 9000, 'PROMOTION.md');
 
@@ -170,9 +191,16 @@ const orchestration = read(path.join('references', 'ORCHESTRATION.md'));
 requireText(orchestration, [
   'TODO.md',
   'manifest.json',
-  'provider',
-  'model_tier',
-  'reasoning_effort',
+  'model_family',
+  'model_level',
+  'MODEL_COMPATIBILITY.json',
+  'cache-status',
+  'local calendar day',
+  'Codex',
+  'Claude',
+  'Gemini',
+  'Qwen',
+  'Muse',
   'quota',
   'fresh worker',
   'cleanup'
@@ -194,13 +222,52 @@ requireMax(tokenProtocol, 10000, 'TOKEN_EFFICIENCY.md');
 const writing = read(path.join('references', 'ARTIFACT_WRITING.md'));
 requireText(writing, ['one field, one job', 'Vague wording rejected', 'Derived-text budgets'], 'ARTIFACT_WRITING.md');
 const planning = read(path.join('references', 'PLANNING_PROTOCOL.md'));
-requireText(planning, ['context_boundary', 'learning_targets', 'contexts_minimal', 'context_boundaries_sound'], 'PLANNING_PROTOCOL.md');
+requireText(planning, [
+  'context_boundary',
+  'learning_targets',
+  'contexts_minimal',
+  'context_boundaries_sound',
+  'model_family',
+  'model_level',
+  'model_compatibility',
+  'cache-status',
+  'local calendar day'
+], 'PLANNING_PROTOCOL.md');
 const planSpec = read(path.join('references', 'PLAN_SPEC.md'));
-requireText(planSpec, ['schema v4', 'request_analysis', 'context_boundary', 'learning_targets', 'model_tier', 'reasoning_effort'], 'PLAN_SPEC.md');
+requireText(planSpec, [
+  'schema v4',
+  'request_analysis',
+  'context_boundary',
+  'learning_targets',
+  'model_family',
+  'model_level',
+  'model_compatibility',
+  '~/.plan-and-execute/cache/model-compatibility',
+  'current local calendar day'
+], 'PLAN_SPEC.md');
 const workflow = read(path.join('references', 'WORKFLOW.md'));
-requireText(workflow, ['Fresh workers', 'SUMMARY_INPUT.json'], 'WORKFLOW.md');
+requireText(workflow, [
+  'Fresh workers',
+  'SUMMARY_INPUT.json',
+  'MODEL_COMPATIBILITY.json',
+  'F/L',
+  '~/.plan-and-execute/cache/model-compatibility'
+], 'WORKFLOW.md');
 const contextProtocol = read(path.join('references', 'EXECUTION_CONTEXT.md'));
 requireText(contextProtocol, ['Omission is the default', 'CONTEXT.md', 'Validated execution learnings'], 'EXECUTION_CONTEXT.md');
+const portableRouting = read(path.join('references', 'PORTABLE_MODEL_ROUTING.md'));
+requireText(portableRouting, [
+  '`F1`', '`F2`', '`F3`', '`F4`',
+  '`L1`', '`L2`', '`L3`', '`L4`', '`L5`',
+  'MODEL_COMPATIBILITY.json',
+  'MODEL_COMPATIBILITY.md',
+  '~/.plan-and-execute/cache/model-compatibility',
+  'cache-status',
+  'cache-read',
+  'cache-write',
+  'local calendar day',
+  'codex', 'claude', 'gemini', 'qwen', 'muse'
+], 'PORTABLE_MODEL_ROUTING.md');
 
 const promotionController = read(path.join('scripts', 'promotectl.py'));
 requireText(promotionController, [
@@ -238,8 +305,34 @@ requireText(planctl, [
   'shutil.rmtree(plan_dir)'
 ], 'planctl.py');
 for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae']) {
-  if (!planctl.includes(`"${provider}"`)) fail(`planctl.py must support provider ${provider}.`);
+  if (!planctl.includes(`"${provider}"`)) fail(`planctl.py must preserve legacy provider ${provider}.`);
 }
+
+const routingctl = read(path.join('scripts', 'routingctl.py'));
+requireText(routingctl, [
+  'PORTABLE_ROUTING_VERSION = "fl-v1"',
+  'FAMILY_ORDER = ("F1", "F2", "F3", "F4")',
+  'LEVEL_ORDER = ("L1", "L2", "L3", "L4", "L5")',
+  'PORTABLE_PROVIDERS = ("codex", "claude", "gemini", "qwen", "muse")',
+  'MODEL_CACHE_DIR_ENV = "PAE_MODEL_CACHE_DIR"',
+  'MODEL_CACHE_RELATIVE',
+  'compatibility_cache_status',
+  'load_cached_compatibility',
+  'write_cached_compatibility',
+  'compatibility_provider_is_fresh',
+  'install_runtime_model_catalog',
+  'provider != "muse"',
+  '"--reasoning-effort"'
+], 'routingctl.py');
+
+const compatctl = read(path.join('scripts', 'model_compatctl.py'));
+requireText(compatctl, [
+  'cache-status',
+  'cache-read',
+  'cache-write',
+  'refresh',
+  'No fresh daily cache'
+], 'model_compatctl.py');
 
 const completionSchema = JSON.parse(read(path.join('references', 'completion-report.schema.json')));
 for (const field of ['context_files_read', 'learning_files_read', 'completed_subtask_ids', 'reusable_learnings']) {
@@ -253,8 +346,15 @@ const planExample = JSON.parse(read(path.join('references', 'plan-spec.example.j
 if (!planExample.tasks?.length || !planExample.tasks.every((task) => task.context_boundary && task.subtasks?.length)) {
   fail('plan-spec.example.json must contain context boundaries and resumable subtasks.');
 }
-if (!planExample.tasks.every((task) => task.provider && task.model_tier && task.reasoning_effort)) {
-  fail('plan-spec.example.json must preserve per-TODO provider/model tier/reasoning effort.');
+if (!planExample.tasks.every((task) => task.model_family && task.model_level)) {
+  fail('plan-spec.example.json must demonstrate portable per-TODO F/L routing.');
+}
+if (planExample.tasks.some((task) => task.provider || task.model_tier || task.reasoning_effort)) {
+  fail('plan-spec.example.json must not pin legacy provider/model tier/reasoning effort on new tasks.');
+}
+const compatProviders = Object.keys(planExample.model_compatibility?.providers ?? {});
+if (compatProviders.length !== 1 || compatProviders[0] !== 'codex') {
+  fail('plan-spec.example.json must demonstrate a provider-scoped daily compatibility snapshot, using only codex.');
 }
 
 const packageMetadata = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));

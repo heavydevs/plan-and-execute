@@ -12,6 +12,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 import planctl  # noqa: E402
+import routingctl  # noqa: E402
 import run_isolated  # noqa: E402
 
 
@@ -250,6 +251,49 @@ def test_kimi_prompt_contract_and_redaction() -> None:
         assert gemini_summary[gemini_summary.index("--approval-mode") + 1] == "plan"
 
 
+def test_muse_portable_adapter() -> None:
+    portable_planctl = routingctl.install_current_model_catalog(planctl)
+    routingctl.install_runtime_model_catalog(run_isolated)
+    config = routingctl.configure_config(portable_planctl.default_config())
+    route = {
+        "provider": "muse",
+        "tier": "strong",
+        "model": "muse-current",
+        "effort": "xhigh",
+        "family": "F3",
+        "level": "L4",
+    }
+    with tempfile.TemporaryDirectory() as temp:
+        result_path = Path(temp) / "result.json"
+        worker = run_isolated.build_worker_command(
+            "muse", route, config, "Implement only the assigned task.", result_path
+        )
+        assert worker[:3] == ["muse", "exec", "--json"]
+        assert worker[worker.index("--approval-mode") + 1] == "never"
+        assert worker[worker.index("--model") + 1] == "muse-current"
+        assert worker[worker.index("--reasoning-effort") + 1] == "xhigh"
+
+        summary = run_isolated.build_summary_command(
+            "muse", route, config, "Summarize without edits.", Path(temp) / "summary.md"
+        )
+        assert summary[:3] == ["muse", "exec", "--json"]
+        assert "--disable-write" in summary
+        assert summary[summary.index("--model") + 1] == "muse-current"
+
+        report = sample_report()
+        encoded = json.dumps(report)
+        muse_jsonl = "\n".join(
+            [
+                json.dumps({"type": "run.output.delta", "delta": "working"}),
+                json.dumps({"type": "run.terminal", "result": encoded}),
+            ]
+        )
+        assert run_isolated.parse_provider_report("muse", muse_jsonl, result_path) == report
+
+    assert "muse" in portable_planctl.VALID_PROVIDERS
+    assert "muse" in config["provider_order"]
+
+
 def main() -> int:
     test_default_provider_policy()
     test_worker_command_adapters()
@@ -257,6 +301,7 @@ def main() -> int:
     test_provider_report_envelopes()
     test_summary_envelopes_and_retry_codes()
     test_kimi_prompt_contract_and_redaction()
+    test_muse_portable_adapter()
     print("All provider-adapter self-tests passed.")
     return 0
 
