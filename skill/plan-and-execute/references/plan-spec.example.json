@@ -4,26 +4,16 @@
   "language": "English",
   "request_analysis": {
     "request_parts": [
-      {
-        "id": "P001",
-        "text": "Create an implementation marker"
-      },
-      {
-        "id": "P002",
-        "text": "Verify the marker contains the requested value"
-      }
+      {"id": "P001", "text": "Create an implementation marker"},
+      {"id": "P002", "text": "Verify the marker contains the requested value"}
     ],
     "repository_findings": [
       "The sample repository is intentionally minimal and has no existing implementation files."
     ],
-    "research_decision": "No external research is needed for a local marker-file test.",
+    "research_decision": "Before creating a real plan, replace the compatibility template below using live provider CLI/help and current authoritative documentation.",
     "research_findings": [],
-    "assumptions": [
-      "The test environment provides POSIX shell commands."
-    ],
-    "risks": [
-      "A broad file edit could accidentally touch unrelated files."
-    ],
+    "assumptions": ["The test environment provides POSIX shell commands."],
+    "risks": ["A broad file edit could accidentally touch unrelated files."],
     "open_questions": [],
     "decomposition_strategy": "Separate file creation from content verification so each outcome has one deterministic check."
   },
@@ -33,23 +23,17 @@
       "text": "Create implemented.txt without unrelated changes",
       "source": "user",
       "priority": "must",
-      "request_part_ids": [
-        "P001"
-      ]
+      "request_part_ids": ["P001"]
     },
     {
       "id": "R002",
       "text": "Ensure implemented.txt contains the word implemented",
       "source": "user",
       "priority": "must",
-      "request_part_ids": [
-        "P002"
-      ]
+      "request_part_ids": ["P002"]
     }
   ],
-  "global_constraints": [
-    "Do not edit unrelated files"
-  ],
+  "global_constraints": ["Do not edit unrelated files"],
   "execution_context": {
     "global": {
       "decision": "create",
@@ -60,10 +44,7 @@
           "kind": "constraint",
           "text": "Only implemented.txt may be created or changed by this sample plan.",
           "necessity": "Every TODO can modify the marker file, and each must avoid unrelated working-tree changes throughout execution.",
-          "source_refs": [
-            "request:P001",
-            "global_constraints[0]"
-          ]
+          "source_refs": ["request:P001", "global_constraints[0]"]
         }
       ]
     },
@@ -80,64 +61,96 @@
     "contexts_minimal": true,
     "context_boundaries_sound": true,
     "unresolved_findings": [],
-    "notes": [
-      "Every requirement maps to a task and both tasks have independent validation."
-    ]
+    "notes": ["Every requirement maps to a task and both tasks have independent validation."]
   },
+  "model_compatibility": {
+    "generated_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
+    "discovery": "TEMPLATE ONLY: replace every CURRENT_* value after querying live CLIs and current authoritative provider documentation before plan creation.",
+    "providers": {
+      "codex": {
+        "checked_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
+        "sources": ["TEMPLATE_REPLACE_WITH_LIVE_CODEX_SOURCE"],
+        "families": {
+          "F1": {"model": "CURRENT_CODEX_F1_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F2": {"model": "CURRENT_CODEX_F2_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F3": {"model": "CURRENT_CODEX_F3_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F4": {"model": "CURRENT_CODEX_F4_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}}
+        }
+      },
+      "claude": {
+        "checked_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
+        "sources": ["TEMPLATE_REPLACE_WITH_LIVE_CLAUDE_SOURCE"],
+        "families": {
+          "F1": {"model": "CURRENT_CLAUDE_F1_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F2": {"model": "CURRENT_CLAUDE_F2_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F3": {"model": "CURRENT_CLAUDE_F3_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F4": {"model": "CURRENT_CLAUDE_F4_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}}
+        }
+      },
+      "gemini": {
+        "checked_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
+        "sources": ["TEMPLATE_REPLACE_WITH_LIVE_GEMINI_SOURCE"],
+        "families": {
+          "F1": {"model": "CURRENT_GEMINI_F1_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F2": {"model": "CURRENT_GEMINI_F2_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F3": {"model": "CURRENT_GEMINI_F3_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F4": {"model": "CURRENT_GEMINI_F4_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}}
+        }
+      },
+      "qwen": {
+        "checked_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
+        "sources": ["TEMPLATE_REPLACE_WITH_LIVE_QWEN_SOURCE"],
+        "families": {
+          "F1": {"model": "CURRENT_QWEN_F1_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F2": {"model": "CURRENT_QWEN_F2_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F3": {"model": "CURRENT_QWEN_F3_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F4": {"model": "CURRENT_QWEN_F4_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}}
+        }
+      },
+      "muse": {
+        "checked_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
+        "sources": ["TEMPLATE_REPLACE_WITH_LIVE_MUSE_SOURCE"],
+        "families": {
+          "F1": {"model": "CURRENT_MUSE_F1_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F2": {"model": "CURRENT_MUSE_F2_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F3": {"model": "CURRENT_MUSE_F3_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
+          "F4": {"model": "CURRENT_MUSE_F4_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}}
+        }
+      }
+    }
+  },
+  "autostart": false,
+  "cleanup_on_success": true,
   "tasks": [
     {
       "id": 1,
       "title": "Create implementation marker",
       "objective": "Create implemented.txt in the repository root.",
-      "requirement_ids": [
-        "R001"
-      ],
+      "requirement_ids": ["R001"],
       "complexity": "low",
       "atomicity_rationale": "This task has one file-creation outcome and one direct existence check.",
       "context_boundary": {
-        "shared_context": [
-          "Creating implemented.txt and proving its existence share one marker-file contract."
-        ],
+        "shared_context": ["Creating implemented.txt and proving its existence share one marker-file contract."],
         "why_one_todo": "The file creation and its direct existence check are one cohesive outcome; splitting them would create an artificial handoff without reducing context.",
-        "separate_from": [
-          "Marker content verification belongs to TODO 002 and needs no creation transcript."
-        ]
+        "separate_from": ["Marker content verification belongs to TODO 002 and needs no creation transcript."]
       },
       "scope": {
-        "in": [
-          "Create the marker file"
-        ],
-        "out": [
-          "No unrelated refactoring"
-        ],
-        "expected_files": [
-          "implemented.txt"
-        ]
+        "in": ["Create the marker file"],
+        "out": ["No unrelated refactoring"],
+        "expected_files": ["implemented.txt"]
       },
-      "acceptance_criteria": [
-        "implemented.txt exists"
-      ],
-      "validation_commands": [
-        "test -f implemented.txt"
-      ],
+      "acceptance_criteria": ["implemented.txt exists"],
+      "validation_commands": ["test -f implemented.txt"],
       "subtasks": [
-        {
-          "id": "S001",
-          "title": "Create the bounded marker file",
-          "objective": "implemented.txt exists without unrelated repository changes."
-        }
+        {"id": "S001", "title": "Create the bounded marker file", "objective": "implemented.txt exists without unrelated repository changes."}
       ],
-      "provider": "auto",
-      "model_tier": "economy",
-      "reasoning_effort": "low",
+      "model_family": "F1",
+      "model_level": "L1",
       "learning_targets": [
         {
           "task_id": "002",
           "reason": "TODO 002 can reuse only the validated marker-file diagnosis from TODO 001 without inheriting its worker transcript.",
-          "topics": [
-            "marker creation order",
-            "missing-file diagnosis"
-          ]
+          "topics": ["marker creation order", "missing-file diagnosis"]
         }
       ]
     },
@@ -145,50 +158,27 @@
       "id": 2,
       "title": "Verify marker contents",
       "objective": "Ensure implemented.txt contains the expected word.",
-      "requirement_ids": [
-        "R002"
-      ],
+      "requirement_ids": ["R002"],
       "complexity": "low",
       "atomicity_rationale": "This task has one content outcome and one deterministic grep check.",
       "context_boundary": {
-        "shared_context": [
-          "Correcting marker contents and running grep share one deterministic content contract."
-        ],
+        "shared_context": ["Correcting marker contents and running grep share one deterministic content contract."],
         "why_one_todo": "The content correction and grep validation use the same file invariant, while the worker needs only repository state rather than TODO 001 conversation history.",
-        "separate_from": [
-          "Initial marker creation belongs to TODO 001 and is already represented on disk."
-        ]
+        "separate_from": ["Initial marker creation belongs to TODO 001 and is already represented on disk."]
       },
-      "dependencies": [
-        1
-      ],
+      "dependencies": [1],
       "scope": {
-        "in": [
-          "Check or update implemented.txt"
-        ],
-        "out": [
-          "No unrelated files"
-        ],
-        "expected_files": [
-          "implemented.txt"
-        ]
+        "in": ["Check or update implemented.txt"],
+        "out": ["No unrelated files"],
+        "expected_files": ["implemented.txt"]
       },
-      "acceptance_criteria": [
-        "The marker contains implemented"
-      ],
-      "validation_commands": [
-        "grep -q implemented implemented.txt"
-      ],
+      "acceptance_criteria": ["The marker contains implemented"],
+      "validation_commands": ["grep -q implemented implemented.txt"],
       "subtasks": [
-        {
-          "id": "S001",
-          "title": "Verify and correct marker contents",
-          "objective": "implemented.txt contains the expected word and the grep check passes."
-        }
+        {"id": "S001", "title": "Verify and correct marker contents", "objective": "implemented.txt contains the expected word and the grep check passes."}
       ],
-      "provider": "auto",
-      "model_tier": "economy",
-      "reasoning_effort": "low"
+      "model_family": "F1",
+      "model_level": "L1"
     }
   ]
 }
