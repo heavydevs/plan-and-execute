@@ -4,7 +4,7 @@ Use only when work already started directly and newly discovered evidence makes 
 
 ## Promotion principle
 
-Plan the **remaining implementation only**. Promote the remaining implementation, not the history of the conversation. Never restart completed work just to make the execution look preplanned. **Never create retroactive TODOs or requirements** merely to represent completed work. Completed work is evidence/current state. Only remaining outcomes become executable TODOs.
+Plan the **remaining implementation only**. Promote the remaining implementation, not the history of the conversation. Never restart completed work just to make execution look preplanned. **Never create retroactive TODOs or requirements** merely to represent completed work. Completed work is evidence/current state. Only remaining outcomes become executable TODOs.
 
 ## Promotion triggers
 
@@ -36,7 +36,7 @@ Write `/tmp/pae-promotion-spec.json` with schema v1:
   ],
   "blockers": [],
   "risks": ["Large exports may exceed synchronous request limits."],
-  "context_pressure": {"used_percentage": 82, "source": "claude-statusline"}
+  "context_pressure": {"used_percentage": 82, "source": "host telemetry"}
 }
 ```
 
@@ -61,24 +61,22 @@ python <skill-dir>/scripts/promotectl.py render \
 
 Treat `/tmp/pae-promotion-request.md` as the authoritative request file for the full orchestration workflow.
 
-1. Re-enter the adaptive study gate based on **remaining outcomes** and current repository state.
+1. Re-enter the adaptive study gate based on remaining outcomes and current repository state.
 2. Build requirements/TODOs only for remaining outcomes. Do not create retroactive requirements whose only purpose is to cover completed work.
 3. Preserve completed implementation unless a remaining outcome explicitly requires modifying it.
-4. Create the plan with `--request-file /tmp/pae-promotion-request.md` so the handoff becomes persisted `REQUEST.md` inside the plan.
-5. Attach/validate study state, audit the plan, activate lifecycle state, and continue with fresh workers normally.
-6. Every resulting TODO still declares `provider`, `model_tier`, and `reasoning_effort`, plus resumable subtasks and deterministic validation, so another compatible AI can resume the remaining work.
+4. Assign each new TODO portable `model_family` (`F1`-`F4`) and `model_level` (`L1`-`L5`), not provider/model ids.
+5. Dynamically build the current Codex/Claude/Gemini/Qwen/Muse compatibility table as required by `PORTABLE_MODEL_ROUTING.md`.
+6. Create the plan with `--request-file /tmp/pae-promotion-request.md` so the handoff becomes persisted `REQUEST.md` inside the plan.
+7. Attach/validate study state, audit the plan, activate lifecycle state, and continue with fresh workers normally.
 
-Once the plan is active, the temporary `/tmp` spec/request can be removed. The plan's `REQUEST.md` and manifest/task files are sufficient for resume.
+The resulting TODOs reference `MODEL_COMPATIBILITY.md`; changing provider later resolves the same F/L without rebuilding the remaining-work plan. Legacy promoted plans that already store `provider`/`model_tier`/`reasoning_effort` remain resumable.
+
+Once the plan is active, the temporary `/tmp` spec/request can be removed. The plan's `REQUEST.md`, compatibility artifacts, manifest, and task files are sufficient for resume.
 
 ## Context-pressure integrations
 
-Provider telemetry is optional:
-
-- Claude Code can expose `context_window.used_percentage` through status-line input and has compaction lifecycle hooks. Use this as an early-warning signal when available; do not install hooks automatically.
-- Codex and other hosts may compact context automatically or expose different telemetry. Never assume a portable numeric threshold.
-
-Semantic scope, remaining work, and resumability value outrank the percentage.
+Provider telemetry is optional. Hosts may expose context-window usage or compact automatically; never assume a portable numeric threshold. Semantic scope, remaining work, and resumability value outrank the percentage.
 
 ## What survives quota exhaustion
 
-After promotion and activation, normal lifecycle guarantees apply: manifest/subtask state is authoritative, interrupted work is recoverable, completed subtasks remain complete, usage/rate-limit events do not count as technical failures, and another configured provider can resume without the old chat transcript.
+After promotion and activation, normal lifecycle guarantees apply: manifest/subtask state is authoritative, interrupted work is recoverable, completed subtasks remain complete, usage/rate-limit events do not count as technical failures, and another configured provider can resume the same F/L requirement without the old chat transcript.
