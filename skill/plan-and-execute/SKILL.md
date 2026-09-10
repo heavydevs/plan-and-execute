@@ -47,7 +47,7 @@ These rules apply even when no plan is created:
 5. Cheap-first is appropriate when deterministic validation catches failure. Start stronger for high-blast-radius, weakly verifiable decisions.
 6. Escalate from concrete failure evidence and stop once acceptance criteria plus available independent validation pass. The skill chooses the route dynamically; there is no user model/effort ceiling.
 
-When a concrete model or subagent must be selected, read [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md), then load only the active provider file: [references/MODEL_ROUTING_CODEX.md](references/MODEL_ROUTING_CODEX.md) for Codex or [references/MODEL_ROUTING_CLAUDE.md](references/MODEL_ROUTING_CLAUDE.md) for Claude Code. Do not preload both.
+Read [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md) when a route must be chosen. For ORCHESTRATED plans, persist only the provider-neutral capability coordinates `F1`–`F4` and `L1`–`L5`. At planning time read [references/MODEL_MATRIX.md](references/MODEL_MATRIX.md), research the current provider/model landscape, and create the plan-local `MODEL_MATRIX.json`/`MODEL_MATRIX.md`. Concrete model names never become the durable TODO identity.
 
 ## 4. Promote late when direct work grows
 
@@ -59,16 +59,20 @@ On promotion, read [references/PROMOTION.md](references/PROMOTION.md). Persist c
 
 ## 5. Full harness after ORCHESTRATED is selected
 
-Read [references/ORCHESTRATION.md](references/ORCHESTRATION.md). It owns adaptive study, traceable requirements, TODO decomposition, task files, model/provider routing, resumable subtasks, validated learnings, deterministic validation, lifecycle recovery, final handoff, and guarded cleanup.
+Read [references/ORCHESTRATION.md](references/ORCHESTRATION.md). It owns adaptive study, traceable requirements, TODO decomposition, task files, portable model routing, resumable subtasks, validated learnings, deterministic validation, lifecycle recovery, final handoff, and guarded cleanup.
 
 Non-negotiable invariants:
 
 - `manifest.json` is authoritative; `TODO.md` is the terse status index;
 - every executable TODO has a bounded definition and resumable subtasks;
-- every TODO declares `provider`, `model_tier`, and `reasoning_effort`; use the lowest credible leaf capability and escalate only from evidence;
+- every new TODO keeps `provider: auto` and declares `model_tier: f1|f2|f3|f4` plus `reasoning_effort: l1|l2|l3|l4|l5`; use the lowest credible leaf capability and escalate only from evidence;
+- every ORCHESTRATED plan has a plan-local model matrix researched at planning time, with current mappings for the providers that may execute/resume it;
+- concrete provider/model/effort is selected only when a worker is dispatched and recorded separately from the portable TODO route;
 - quota/rate-limit exhaustion and host interruption are not technical failures;
-- another compatible provider can resume from persisted state without the previous chat transcript;
+- another compatible provider can resume from persisted state without the previous chat transcript or a plan rewrite;
 - implementation changes, tests, product artifacts, and commits survive cleanup.
+
+Legacy schema-v1–v4 plans that persisted `economy|standard|strong|max` and `low|medium|high|xhigh|max` remain valid. New plans use F/L coordinates.
 
 ## Reference map
 
@@ -83,7 +87,8 @@ Non-negotiable invariants:
 - Execution context: [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md)
 - Plan schema: [references/PLAN_SPEC.md](references/PLAN_SPEC.md)
 - Execution: [references/WORKFLOW.md](references/WORKFLOW.md)
-- Generic model routing: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)
-- Codex routing: [references/MODEL_ROUTING_CODEX.md](references/MODEL_ROUTING_CODEX.md)
-- Claude routing: [references/MODEL_ROUTING_CLAUDE.md](references/MODEL_ROUTING_CLAUDE.md)
+- Portable model routing: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)
+- Dynamic model matrix: [references/MODEL_MATRIX.md](references/MODEL_MATRIX.md)
+- Codex compatibility notes: [references/MODEL_ROUTING_CODEX.md](references/MODEL_ROUTING_CODEX.md)
+- Claude compatibility notes: [references/MODEL_ROUTING_CLAUDE.md](references/MODEL_ROUTING_CLAUDE.md)
 - Token economics: [references/TOKEN_EFFICIENCY.md](references/TOKEN_EFFICIENCY.md)
