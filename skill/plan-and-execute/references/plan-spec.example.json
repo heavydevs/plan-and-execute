@@ -128,8 +128,8 @@
         }
       ],
       "provider": "auto",
-      "model_tier": "economy",
-      "reasoning_effort": "low",
+      "model_tier": "F1",
+      "reasoning_effort": "L1",
       "learning_targets": [
         {
           "task_id": "002",
@@ -187,8 +187,8 @@
         }
       ],
       "provider": "auto",
-      "model_tier": "economy",
-      "reasoning_effort": "low"
+      "model_tier": "F1",
+      "reasoning_effort": "L1"
     }
   ]
 }
