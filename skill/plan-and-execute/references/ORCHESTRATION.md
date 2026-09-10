@@ -28,7 +28,7 @@ Validate study state with `studyctl_concise.py`. Do not manufacture evidence mer
 
 ## 3. Build requirements-traceable TODOs
 
-Read `PLANNING_PROTOCOL.md`, `EXECUTION_CONTEXT.md`, and `PLAN_SPEC.md` only when drafting the plan.
+Read `PLANNING_PROTOCOL.md`, `EXECUTION_CONTEXT.md`, `PLAN_SPEC.md`, and `MODEL_MATRIX.md` only when drafting the plan.
 
 Inventory stable request parts (`P...`) and requirements (`R...`) for every **remaining** independently testable outcome/constraint. Map each request part -> requirement -> executable TODO, and every TODO back to requirements.
 
@@ -40,7 +40,7 @@ Recursively split until every TODO has:
 - dependencies, acceptance criteria, and deterministic validation commands;
 - resumable subtasks/checkpoints;
 - `context_boundary` evidence and optional sparse `learning_targets`;
-- `provider`, `model_tier`, and `reasoning_effort`.
+- provider-neutral route coordinates: `provider: auto`, `model_tier: F1|F2|F3|F4`, and `reasoning_effort: L1|L2|L3|L4|L5`.
 
 Split unrelated domains even when they share a framework pattern. Do not split mechanically per file: tightly coupled controller/service/entity/migration/tests may remain together when they implement one invariant and benefit from one worker context.
 
@@ -57,37 +57,43 @@ Default to no shared `CONTEXT.md`.
 
 Review must approve `contexts_minimal` and `context_boundaries_sound`.
 
-## 5. Preserve adaptive task-level model routing
+## 5. Build the live provider/model matrix
 
-Read `MODEL_ROUTING.md` only when choosing or escalating routes. It defines provider-independent semantics. When a concrete provider/model must be chosen, read **only** that provider's reference: `MODEL_ROUTING_CODEX.md` for Codex or `MODEL_ROUTING_CLAUDE.md` for Claude Code. Do not load both; a fallback provider loads its file only if fallback occurs.
+Read `MODEL_ROUTING.md` and `MODEL_MATRIX.md` before finalizing routes.
 
-Each TODO stores logical capability instead of binding unnecessarily to one concrete model:
+The plan itself must remain independent of whichever AI is creating it. During planning:
 
-- `economy`: exploration, mechanical/narrow work, cheap summarization;
-- `standard`: normal bounded implementation/debugging/tests;
-- `strong`: subtle/high-risk/weakly verifiable or difficult evidence-heavy work;
-- `max`: frontier/long-horizon work when semantic need or concrete lower-route failure justifies it.
+1. discover the supported coding-agent CLIs that are actually available;
+2. consult current first-party model/effort/pricing/subscription information;
+3. when possible, consult a recent independent coding-agent benchmark relevant to repository/terminal work;
+4. assign each usable provider's current model families to `F1`..`F4` and native reasoning settings to `L1`..`L5`;
+5. record sources and research time in `/tmp/model-matrix.json`;
+6. never put concrete provider model ids in TODO route fields.
 
-Use the lowest credible capability for the leaf. Verifiability and blast radius matter more than overall request size. A newer frontier family at low/medium effort may be a cheaper strong route than an older model at high effort; provider references own that calibration.
+Claude Code, Codex, Gemini, Qwen Code, and Muse Code are first-class matrix targets. The runtime also retains Kimi/Trae adapters when configured.
 
-Keep `provider: auto` when equivalent providers may execute the task. Pin only when the task genuinely depends on a provider. Record the actual execution route separately so another compatible AI can resume.
+Use the lowest credible F/L for each leaf. Verifiability and blast radius matter more than overall request size. A frontier family at low/medium effort may be cheaper and stronger than an older family at very high effort; current benchmark/cost evidence decides the concrete mapping, not a static skill table.
 
-Escalate from technical evidence. Rate/quota exhaustion, temporary capacity, unavailable models, or host interruption are not technical failures and must not consume the functional failure budget.
+Quota/rate-limit exhaustion, temporary capacity, unavailable models, or host interruption are not technical failures and must not consume the functional failure budget. Another supported provider can resume the same F/L route without rewriting the plan.
 
 ## 6. Review and create the durable plan
 
-Use a fresh reviewer for complex plans when supported. Revise until coverage, atomicity, dependencies, validations, context minimality, and context boundaries pass with no unresolved material findings.
+Use a fresh reviewer for complex plans when supported. Revise until coverage, atomicity, dependencies, validations, context minimality, context boundaries, and portable routing pass with no unresolved material findings.
 
 Create/gate using concise controllers:
 
 ```bash
 python <skill-dir>/scripts/planctl_concise.py create --repo-root . --spec /tmp/plan-spec.json [--request-file <file>]
+python <skill-dir>/scripts/modelmapctl.py write --plan .ai-work/<plan-id> --spec /tmp/model-matrix.json
+python <skill-dir>/scripts/modelmapctl.py validate --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/studyctl_concise.py attach --spec /tmp/study-spec.json --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/studyctl_concise.py validate-plan --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl_concise.py validate --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl_concise.py audit --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/lifecyclectl_concise.py activate --plan .ai-work/<plan-id> --json
 ```
+
+`modelmapctl.py` creates the human-readable `MODEL_MATRIX.md`, the machine-readable `MODEL_MATRIX.json`, records the matrix in routing config, and adds a short reference to `PLAN.md`.
 
 Use the request-file semantics in `INTAKE.md`. For late promotion, copy the rendered `/tmp` request so the compact handoff becomes `.ai-work/<plan-id>/REQUEST.md`. Autostart after gates unless a genuine safety/authorization gate blocks execution.
 
@@ -97,7 +103,9 @@ Use the request-file semantics in `INTAKE.md`. For late promotion, copy the rend
 
 `manifest.json` is authoritative. Never hand-edit task/subtask status, retries, or routing state.
 
-Every task definition must be sufficient for a fresh compatible worker without the parent chat transcript. It includes objective, assigned execution context/learnings, resumable subtasks, scope, non-obvious guidance, acceptance, deterministic validation, and logical route recommendation.
+Every task definition must be sufficient for a fresh compatible worker without the parent chat transcript. It includes objective, assigned execution context/learnings, resumable subtasks, scope, non-obvious guidance, acceptance, deterministic validation, and the portable F/L route recommendation.
+
+Concrete provider/model/native effort is execution provenance. It is recorded when the worker is claimed/dispatched; it is not the durable semantic identity of the TODO.
 
 ## 8. Execute one isolated TODO at a time
 
@@ -106,21 +114,22 @@ Read `WORKFLOW.md` when execution begins. For every runnable TODO:
 1. reload authoritative state from disk;
 2. recover stale/interrupted `in_progress` state when needed;
 3. claim the next runnable TODO through `planctl_concise.py`;
-4. select/record the actual provider/model/effort route;
-5. start a fresh worker with exactly one task-definition path plus assigned context/learning files;
-6. never pass parent chat, whole plan, future task definitions, raw reports, or logs;
-7. checkpoint subtasks only through the controller;
-8. require the bounded completion report with exact context/learning read lists and completed subtask ids;
-9. rerun every deterministic validation command outside the worker;
-10. mark success only after validation passes;
-11. materialize only predeclared, validated, target-specific reusable learnings;
-12. continue until all tasks complete or one blocks at its configured limit.
+4. resolve its F/L coordinates through the current plan-local model matrix and the available provider;
+5. record the actual provider/model/native effort route;
+6. start a fresh worker with exactly one task-definition path plus assigned context/learning files;
+7. never pass parent chat, whole plan, future task definitions, raw reports, or logs;
+8. checkpoint subtasks only through the controller;
+9. require the bounded completion report with exact context/learning read lists and completed subtask ids;
+10. rerun every deterministic validation command outside the worker;
+11. mark success only after validation passes;
+12. materialize only predeclared, validated, target-specific reusable learnings;
+13. continue until all tasks complete or one blocks at its configured limit.
 
 Write-heavy tasks are sequential unless repository isolation/worktrees remove reconciliation risk.
 
 ## 9. Resume across quota/session/provider failure
 
-Lifecycle state exists so implementation survives lost credits, process termination, host restart, or provider switching.
+Lifecycle state exists so implementation survives lost credits, process termination, host restart, model deprecation, or provider switching.
 
 On resume:
 
@@ -129,6 +138,7 @@ On resume:
 - return only orphaned `in_progress` task/subtask state to runnable state;
 - preserve completed tasks/subtasks and partial repository changes;
 - do not count quota/rate/capacity interruption as technical failure;
+- refresh `MODEL_MATRIX.*` first when current model availability/pricing has materially changed;
 - dispatch a fresh compatible worker from persisted task/context state, not prior chat history.
 
 Strict external execution uses:
@@ -143,14 +153,14 @@ or `pae resume`.
 
 If execution reveals a material unknown, contradictory contract, new version/security/migration risk, invalid dependency, or wrong context boundary, stop downstream execution and re-enter the necessary study/planning gates.
 
-Do not replan merely because a worker used many tokens or a provider hit quota.
+Do not replan because a model name changed, a provider hit quota, or a better model was released. Refresh the model matrix and preserve the TODO's F/L route.
 
 ## 11. Finish and clean planning state
 
 After every TODO and final deterministic validation pass:
 
 1. build final-summary input from compact authoritative task state, validations, and bounded repository-change evidence — never concatenate raw worker reports;
-2. generate the user-facing handoff with an economy route when available;
+2. generate the user-facing handoff with an F1 route when available;
 3. mark summary generated;
 4. deactivate lifecycle state;
 5. run guarded plan cleanup.

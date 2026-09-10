@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Focused self-tests for optional isolated-provider adapters."""
+"""Focused self-tests for isolated-provider adapters, including Muse Code."""
 
 from __future__ import annotations
 
@@ -13,6 +13,11 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 import planctl  # noqa: E402
 import run_isolated  # noqa: E402
+import routingctl  # noqa: E402
+
+# The production concise entrypoints install these wrappers before dispatch.
+planctl = routingctl.install_current_model_catalog(planctl)
+routingctl.install_runtime_model_catalog(run_isolated)
 
 
 def sample_route(model: str = "default") -> dict[str, str]:
@@ -43,14 +48,15 @@ def sample_report() -> dict:
 
 def test_default_provider_policy() -> None:
     config = planctl.default_config()
-    assert config["provider_order"] == ["claude", "codex"]
-    assert set(config) >= {"claude", "codex", "gemini", "qwen", "kimi", "trae"}
+    assert config["provider_order"][:2] == ["claude", "codex"]
+    assert set(config) >= {"claude", "codex", "gemini", "qwen", "muse", "kimi", "trae"}
     assert planctl.VALID_PROVIDERS == {
         "auto",
         "claude",
         "codex",
         "gemini",
         "qwen",
+        "muse",
         "kimi",
         "trae",
     }
@@ -69,7 +75,7 @@ def test_worker_command_adapters() -> None:
                 "Implement only the assigned task.",
                 result_path,
             )
-            for provider in ("claude", "codex", "gemini", "qwen", "kimi", "trae")
+            for provider in ("claude", "codex", "gemini", "qwen", "muse", "kimi", "trae")
         }
 
     claude = commands["claude"]
@@ -97,6 +103,14 @@ def test_worker_command_adapters() -> None:
     assert "--prompt" in qwen
     assert "--model" not in qwen
 
+    muse = commands["muse"]
+    assert muse[:3] == ["muse", "exec", "--json"]
+    assert "--trust-workspace" in muse
+    assert "--disable-approval" in muse
+    assert "--reasoning-effort" in muse
+    assert muse[muse.index("--reasoning-effort") + 1] == "medium"
+    assert "--disable-write" not in muse
+
     kimi = commands["kimi"]
     assert kimi[0] == "kimi"
     assert kimi[kimi.index("--output-format") + 1] == "stream-json"
@@ -117,7 +131,7 @@ def test_configured_models_are_forwarded() -> None:
     config = planctl.default_config()
     with tempfile.TemporaryDirectory() as temp:
         result_path = Path(temp) / "result.json"
-        for provider in ("gemini", "qwen", "kimi", "trae"):
+        for provider in ("gemini", "qwen", "muse", "kimi", "trae"):
             command = run_isolated.build_worker_command(
                 provider,
                 {**sample_route("provider-model"), "provider": provider},
@@ -140,6 +154,12 @@ def test_provider_report_envelopes() -> None:
                 [
                     {"type": "system", "subtype": "session_start"},
                     {"type": "result", "subtype": "success", "result": encoded},
+                ]
+            ),
+            "muse": "\n".join(
+                [
+                    json.dumps({"type": "assistant", "content": "working"}),
+                    json.dumps({"type": "result", "result": encoded}),
                 ]
             ),
             "kimi": "\n".join(
@@ -195,6 +215,22 @@ def test_summary_envelopes_and_retry_codes() -> None:
         assert "list of integers" in str(exc)
     else:
         raise AssertionError("Expected invalid retry_exit_codes to be rejected")
+
+
+def test_muse_summary_is_read_only() -> None:
+    config = planctl.default_config()
+    with tempfile.TemporaryDirectory() as temp:
+        summary = run_isolated.build_summary_command(
+            "muse",
+            {**sample_route("muse-spark-test"), "provider": "muse"},
+            config,
+            "Summarize without edits.",
+            Path(temp) / "summary.md",
+        )
+    assert summary[:3] == ["muse", "exec", "--json"]
+    assert "--disable-write" in summary
+    assert "--disable-approval" not in summary
+    assert summary[summary.index("--model") + 1] == "muse-spark-test"
 
 
 def test_kimi_prompt_contract_and_redaction() -> None:
@@ -256,6 +292,7 @@ def main() -> int:
     test_configured_models_are_forwarded()
     test_provider_report_envelopes()
     test_summary_envelopes_and_retry_codes()
+    test_muse_summary_is_read_only()
     test_kimi_prompt_contract_and_redaction()
     print("All provider-adapter self-tests passed.")
     return 0

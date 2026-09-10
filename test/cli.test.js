@@ -25,7 +25,7 @@ function run(args, options = {}) {
 test('help advertises selective/explicit activation and every execution provider', () => {
   const result = run(['--help']);
   assert.equal(result.status, 0, result.stderr);
-  for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae']) {
+  for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'muse', 'kimi', 'trae']) {
     assert.match(result.stdout, new RegExp(`\\b${provider}\\b`));
   }
   assert.match(result.stdout, /install \[claude\|codex\|both\]/);
@@ -37,7 +37,7 @@ test('help advertises selective/explicit activation and every execution provider
 test('provider override accepts supported backends and rejects unknown names before execution', () => {
   const workspace = temporaryDirectory();
   try {
-    for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae']) {
+    for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'muse', 'kimi', 'trae']) {
       const result = run(['current', '--cwd', workspace, '--provider', provider, '--json']);
       assert.equal(result.status, 0, `${provider}: ${result.stderr}`);
       assert.equal(JSON.parse(result.stdout).status, 'idle');
@@ -109,12 +109,12 @@ test('doctor and version output are automation friendly', () => {
   const doctor = run(['doctor', '--json']);
   assert.equal(doctor.status, 0, doctor.stderr);
   const report = JSON.parse(doctor.stdout);
-  assert.deepEqual(report.executionProviders, ['claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae']);
+  assert.deepEqual(report.executionProviders, ['claude', 'codex', 'gemini', 'qwen', 'muse', 'kimi', 'trae']);
   assert.deepEqual(report.defaultProviderOrder, ['claude', 'codex']);
   assert.deepEqual(report.standardInstallTargets, ['claude', 'codex']);
   assert.deepEqual(report.activationModes, ['selective', 'explicit']);
   assert.equal(report.defaultActivation, 'selective');
-  for (const provider of ['gemini', 'qwen', 'kimi', 'trae']) {
+  for (const provider of ['gemini', 'qwen', 'muse', 'kimi', 'trae']) {
     assert.ok(Object.hasOwn(report, provider));
   }
 });

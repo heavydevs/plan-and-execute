@@ -12,7 +12,8 @@ Create:
 2. requirements `R...` — observable obligations/constraints with source, priority, and originating request-part ids;
 3. executable TODOs — context-cohesive implementation/validation boundaries;
 4. minimal global/scoped execution context;
-5. a fresh review result.
+5. provider-neutral model routes plus a live provider/model matrix;
+6. a fresh review result.
 
 Do not copy paragraphs from the request into each layer. Keep the request as source evidence and use stable ids to connect layers.
 
@@ -42,7 +43,8 @@ Start from coherent workstreams, then split until every leaf TODO has:
 - deterministic validation commands;
 - a small enough repository/context surface for one fresh worker;
 - stable resumable subtasks;
-- explicit dependencies.
+- explicit dependencies;
+- one provider-neutral `F#/L#` route.
 
 Split when any of these is true:
 
@@ -108,7 +110,32 @@ Read `EXECUTION_CONTEXT.md` after TODO boundaries stabilize.
 
 The review must approve `contexts_minimal` and `context_boundaries_sound`.
 
-## 8. Acceptance and validation
+## 8. Portable model routing and live matrix
+
+Read `MODEL_ROUTING.md` and `MODEL_MATRIX.md` after TODO boundaries stabilize.
+
+For every new TODO:
+
+- set `provider: auto` unless the work genuinely requires a provider-specific external capability;
+- use `model_tier: F1|F2|F3|F4`;
+- use `reasoning_effort: L1|L2|L3|L4|L5`;
+- never store concrete model ids or the planning agent's identity in the TODO.
+
+Choose the lowest credible F/L from semantic difficulty, blast radius, verifiability, and expected context/agent-loop length. Do not make every leaf expensive because the parent request is large.
+
+During the same planning pass, build `/tmp/model-matrix.json` from **current** evidence:
+
+1. inspect usable provider CLIs and their current model/effort capabilities;
+2. consult first-party provider model/pricing/subscription documentation;
+3. consult a recent independent coding-agent benchmark when available;
+4. map each usable provider's current models to F1..F4 and native reasoning settings to L1..L5;
+5. record `researched_at`, sources, benchmark notes, and material pricing/compatibility notes.
+
+At minimum cover every provider that may execute or resume the current plan. Claude Code, Codex, Gemini, Qwen Code, and Muse Code are first-class candidates when available. A provider may repeat a model or native effort across adjacent F/L coordinates when its catalog exposes fewer useful rungs.
+
+Do not use old concrete model names from static skill documentation as planning truth. The plan's `MODEL_MATRIX.json` is the execution-time mapping and may be refreshed later without rewriting any TODO.
+
+## 9. Acceptance and validation
 
 Acceptance states the externally observable or repository-verifiable condition. Validation states how the orchestrator proves it.
 
@@ -126,9 +153,9 @@ Avoid:
 
 Every TODO needs at least one deterministic validation command. The worker's own claim is never sufficient validation.
 
-## 9. Fresh plan review
+## 10. Fresh plan review
 
-Review from a fresh context using the complete request plus compact study/requirements/graph/context proposal. Challenge only material defects:
+Review from a fresh context using the complete request plus compact study/requirements/graph/context proposal and the portable route proposal. Challenge only material defects:
 
 - uncovered/distorted request parts;
 - requirements without TODO coverage;
@@ -139,19 +166,24 @@ Review from a fresh context using the complete request plus compact study/requir
 - broad learning edges;
 - dependency cycles/missing dependencies;
 - unverifiable acceptance;
+- concrete vendor/model names leaking into new TODO route fields;
+- F/L choices that overspend relative to verifiability/risk;
+- a model matrix that is stale, unsupported, unsourced, or omits a realistic fallback provider;
 - unsafe autostart;
 - remaining vague terms that change behavior.
 
 Approve only when all required checks are true and `unresolved_findings` is empty. Keep review notes to concrete findings; do not narrate the review process.
 
-## 10. Deterministic quality gates
+## 11. Deterministic quality gates
 
-Create with `planctl_concise.py`, then require:
+Create with `planctl_concise.py`, persist the researched matrix, then require:
 
 ```bash
+python <skill-dir>/scripts/modelmapctl.py write --plan <plan-path> --spec /tmp/model-matrix.json
+python <skill-dir>/scripts/modelmapctl.py validate --plan <plan-path>
 python <skill-dir>/scripts/studyctl_concise.py validate-plan --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py audit --plan <plan-path>
 ```
 
-The concise validator additionally rejects oversized derived fields and a small high-confidence set of vague requirement smells. A failed concision check is a specification defect, not a request to truncate text blindly: rewrite the derived field more precisely or split it into atomic items.
+A failed concision, matrix, or plan check is a specification defect. Rewrite the derived field or refresh the model evidence; do not silently truncate requirements or hardcode a provider to bypass validation.
