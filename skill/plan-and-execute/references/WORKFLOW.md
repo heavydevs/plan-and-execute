@@ -155,7 +155,7 @@ No transcript, generic advice, or plan history belongs in learning files.
 
 ## Final handoff
 
-After all TODOs complete, reload final state, construct the bounded summary input, generate the concise handoff, mark summary generated, clear lifecycle active state, and delete only the sentinel-protected plan workspace unless retention was explicitly requested.
+After all TODOs complete, reload final state, construct bounded `SUMMARY_INPUT.json` from authoritative completion/validation state, generate the concise handoff, mark summary generated, clear lifecycle active state, and delete only the sentinel-protected plan workspace unless retention was explicitly requested.
 
 Never concatenate raw worker reports or logs into the final summarizer prompt.
 
