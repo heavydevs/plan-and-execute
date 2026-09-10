@@ -81,6 +81,18 @@ Refresh the table without changing TODO F/L requirements when:
 - the active CLI rejects a recorded effort level;
 - current vendor documentation shows a materially changed model hierarchy.
 
+After live discovery, write the new compatibility object to a temporary JSON file and update only the binding with the guarded controller:
+
+```bash
+python <skill-dir>/scripts/model_compatctl.py validate --spec /tmp/model-compatibility.json
+python <skill-dir>/scripts/model_compatctl.py refresh \
+  --plan .ai-work/<plan-id> \
+  --spec /tmp/model-compatibility.json \
+  --json
+```
+
+`refresh` rewrites the canonical JSON/Markdown compatibility artifacts, records a refresh event, revalidates the plan, and leaves every TODO's `model_family`/`model_level` unchanged. Never hand-edit task definitions to switch provider.
+
 Provider availability/quota failure does not change F/L. Resolve the same F/L against another compatible provider. Increase F or L only for technical/capability evidence, following `MODEL_ROUTING.md`.
 
 ## Provider references
