@@ -83,8 +83,8 @@ CURRENT_MODELS: dict[str, dict[str, str]] = {
     },
 }
 
-# Compatibility guards, not user budget ceilings. Muse currently exposes an
-# xhigh route broadly; a live matrix may map L5 to a newer supported value.
+# Compatibility guards, not user budget ceilings. A live model matrix owns the
+# L1..L5 mapping and removes these conservative fallback caps for its providers.
 CURRENT_EFFORT_CAPS: dict[str, dict[str, str]] = {
     "claude": {
         "economy": "medium",
@@ -221,6 +221,11 @@ def apply_model_matrix(config: dict[str, Any], matrix: dict[str, Any]) -> dict[s
         for family, model in entry["families"].items():
             models[PORTABLE_FAMILY_TO_TIER[family]] = model
         provider_cfg["portable_levels"] = dict(entry["levels"])
+        # The live matrix is explicit about every L rung. Preserve L5 through
+        # the base runner, then translate it to the provider-native value.
+        provider_cfg["max_effort_by_tier"] = {
+            tier: "max" for tier in ("economy", "standard", "strong", "max")
+        }
     result["_portable_model_matrix"] = matrix
     policy = result.setdefault("routing_policy", {})
     policy["model_matrix_file"] = MODEL_MATRIX_JSON
