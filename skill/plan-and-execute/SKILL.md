@@ -72,7 +72,7 @@ Non-negotiable invariants:
 - another compatible provider can resume from persisted state without the previous chat transcript or a plan rewrite;
 - implementation changes, tests, product artifacts, and commits survive cleanup.
 
-For backward compatibility, legacy plans may still persist the fields `provider`, `model_tier`, and `reasoning_effort` with schema-v1–v4 values such as `economy|standard|strong|max` and `low|medium|high|xhigh|max`. New plans keep `provider: auto` and use only F/L coordinates for durable routing.
+Legacy schema-v1–v4 plans may still use `provider`, `model_tier`, and `reasoning_effort` with old tier/effort values. New plans keep `provider: auto` and persist only F/L routes.
 
 ## Reference map
 
