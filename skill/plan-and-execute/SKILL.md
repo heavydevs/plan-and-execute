@@ -47,7 +47,7 @@ These rules apply even when no plan is created:
 5. Cheap-first is appropriate when deterministic validation catches failure. Start stronger for high-blast-radius, weakly verifiable decisions.
 6. Escalate from concrete failure evidence and stop once acceptance criteria plus available independent validation pass. The skill chooses the route dynamically; there is no user model/effort ceiling.
 
-When a concrete model or subagent must be selected, read [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md), then load only the active provider file: [references/MODEL_ROUTING_CODEX.md](references/MODEL_ROUTING_CODEX.md) for Codex or [references/MODEL_ROUTING_CLAUDE.md](references/MODEL_ROUTING_CLAUDE.md) for Claude Code. Do not preload both.
+For generic capability choice read [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md). In ORCHESTRATED planning, also read [references/PORTABLE_MODEL_ROUTING.md](references/PORTABLE_MODEL_ROUTING.md) and build the current compatibility table. Provider files are loaded only when resolving that provider: Codex, Claude Code, Gemini CLI, Qwen Code, or Muse Code.
 
 ## 4. Promote late when direct work grows
 
@@ -59,16 +59,20 @@ On promotion, read [references/PROMOTION.md](references/PROMOTION.md). Persist c
 
 ## 5. Full harness after ORCHESTRATED is selected
 
-Read [references/ORCHESTRATION.md](references/ORCHESTRATION.md). It owns adaptive study, traceable requirements, TODO decomposition, task files, model/provider routing, resumable subtasks, validated learnings, deterministic validation, lifecycle recovery, final handoff, and guarded cleanup.
+Read [references/ORCHESTRATION.md](references/ORCHESTRATION.md). It owns adaptive study, traceable requirements, TODO decomposition, task files, portable F/L model routing, resumable subtasks, validated learnings, deterministic validation, lifecycle recovery, final handoff, and guarded cleanup.
 
 Non-negotiable invariants:
 
 - `manifest.json` is authoritative; `TODO.md` is the terse status index;
 - every executable TODO has a bounded definition and resumable subtasks;
-- every TODO declares `provider`, `model_tier`, and `reasoning_effort`; use the lowest credible leaf capability and escalate only from evidence;
-- quota/rate-limit exhaustion and host interruption are not technical failures;
-- another compatible provider can resume from persisted state without the previous chat transcript;
+- every new TODO declares only `model_family` (`F1`-`F4`) and `model_level` (`L1`-`L5`), never a concrete provider/model or vendor-specific effort name;
+- during planning, dynamically discover current Codex/Claude/Gemini/Qwen/Muse bindings and write `MODEL_COMPATIBILITY.json` plus rendered `MODEL_COMPATIBILITY.md`;
+- every portable TODO and `PLAN.md` explicitly reference the compatibility artifact; changing provider resolves the same F/L and does not require re-planning;
+- refresh compatibility when changing provider or when a recorded model/effort is unavailable or uncertain;
+- quota/rate-limit exhaustion and host interruption are not technical failures and do not raise F/L by themselves;
 - implementation changes, tests, product artifacts, and commits survive cleanup.
+
+Legacy plans that already contain `provider`/`model_tier`/`reasoning_effort` remain resumable for backwards compatibility, but new plans must use F/L.
 
 ## Reference map
 
@@ -83,7 +87,11 @@ Non-negotiable invariants:
 - Execution context: [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md)
 - Plan schema: [references/PLAN_SPEC.md](references/PLAN_SPEC.md)
 - Execution: [references/WORKFLOW.md](references/WORKFLOW.md)
+- Portable F/L routing: [references/PORTABLE_MODEL_ROUTING.md](references/PORTABLE_MODEL_ROUTING.md)
 - Generic model routing: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)
 - Codex routing: [references/MODEL_ROUTING_CODEX.md](references/MODEL_ROUTING_CODEX.md)
 - Claude routing: [references/MODEL_ROUTING_CLAUDE.md](references/MODEL_ROUTING_CLAUDE.md)
+- Gemini routing: [references/MODEL_ROUTING_GEMINI.md](references/MODEL_ROUTING_GEMINI.md)
+- Qwen routing: [references/MODEL_ROUTING_QWEN.md](references/MODEL_ROUTING_QWEN.md)
+- Muse routing: [references/MODEL_ROUTING_MUSE.md](references/MODEL_ROUTING_MUSE.md)
 - Token economics: [references/TOKEN_EFFICIENCY.md](references/TOKEN_EFFICIENCY.md)
