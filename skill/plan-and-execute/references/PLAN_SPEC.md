@@ -1,6 +1,8 @@
 # Plan spec contract — schema v4
 
-Use this file only when writing the JSON consumed by `planctl_concise.py create`. Read `ARTIFACT_WRITING.md` and `PLANNING_PROTOCOL.md` first. See `plan-spec.example.json` for a complete example; do not copy its prose unless it matches the current request.
+Use this file only when writing the JSON consumed by `planctl_concise.py create`. Read `ARTIFACT_WRITING.md`, `PLANNING_PROTOCOL.md`, and `MODEL_MATRIX.md` first. See `plan-spec.example.json` for a complete example; do not copy its prose unless it matches the current request.
+
+Schema v4 remains backward-compatible, but **new plans use portable F/L routing values** rather than provider/model-specific routes.
 
 ## Top level
 
@@ -136,10 +138,30 @@ A scoped file must serve at least two but fewer than all TODOs. Single-task fact
   ],
   "learning_targets": [],
   "provider": "auto",
-  "model_tier": "standard",
-  "reasoning_effort": "medium"
+  "model_tier": "F2",
+  "reasoning_effort": "L2"
 }
 ```
+
+### Portable route fields
+
+For **new plans**:
+
+- `provider` must normally be `auto`; do not bind a TODO to whichever agent created the plan;
+- `model_tier` uses `F1`, `F2`, `F3`, or `F4`;
+- `reasoning_effort` uses `L1`, `L2`, `L3`, `L4`, or `L5`;
+- values are case-insensitive and may be normalized to lowercase in generated artifacts;
+- concrete model ids are forbidden in these fields;
+- the plan-local `MODEL_MATRIX.json` resolves F/L to the current provider/model/native effort at execution time.
+
+Legacy plans may still contain `economy|standard|strong|max` and `low|medium|high|xhigh|max`. Do not emit those values in a newly authored plan.
+
+Typical starting points:
+
+- exploration/mechanical: `F1/L1` or `F1/L2`;
+- normal implementation: `F2/L2`;
+- difficult/risky engineering: `F3/L2` through `F3/L4`;
+- frontier/long-horizon escalation: `F4` with the lowest L justified by evidence.
 
 ### Task rules
 
@@ -196,10 +218,12 @@ Notes record concrete review evidence; do not narrate the review process.
 
 These are maximums, not targets. Prefer shorter text when it remains unambiguous.
 
-## Create and validate
+## Create, attach the live model matrix, and validate
 
 ```bash
 python <skill-dir>/scripts/planctl_concise.py create --repo-root . --spec /tmp/plan-spec.json
+python <skill-dir>/scripts/modelmapctl.py write --plan <plan-path> --spec /tmp/model-matrix.json
+python <skill-dir>/scripts/modelmapctl.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py audit --plan <plan-path>
 ```
