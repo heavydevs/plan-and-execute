@@ -82,6 +82,7 @@ for (const relative of [
   path.join('references', 'WORKFLOW.md'),
   path.join('references', 'LIFECYCLE.md'),
   path.join('references', 'MODEL_ROUTING.md'),
+  path.join('references', 'MODEL_MATRIX.md'),
   path.join('references', 'TOKEN_EFFICIENCY.md'),
   path.join('references', 'completion-report.schema.json'),
   path.join('references', 'plan-spec.example.json'),
@@ -91,6 +92,8 @@ for (const relative of [
   path.join('scripts', 'promotion_self_test.py'),
   path.join('scripts', 'artifact_contract.py'),
   path.join('scripts', 'runner_contract.py'),
+  path.join('scripts', 'routingctl.py'),
+  path.join('scripts', 'modelmapctl.py'),
   path.join('scripts', 'planctl_concise.py'),
   path.join('scripts', 'studyctl_concise.py'),
   path.join('scripts', 'lifecyclectl_concise.py'),
@@ -98,6 +101,8 @@ for (const relative of [
   path.join('scripts', 'planctl.py'),
   path.join('scripts', 'studyctl.py'),
   path.join('scripts', 'run_isolated.py'),
+  path.join('scripts', 'provider_self_test.py'),
+  path.join('scripts', 'model_routing_self_test.py'),
   path.join('scripts', 'token_efficiency_self_test.py'),
   path.join('scripts', 'artifact_concision_self_test.py')
 ]) requireFile(relative);
@@ -108,12 +113,14 @@ requireText(metadata, [
   'DIRECT vs ORCHESTRATED',
   'cohesive small/medium work',
   'remaining outcomes',
-  'provider/model tier/effort',
+  'F1-F4 model-family',
+  'L1-L5 reasoning',
+  'MODEL_MATRIX',
   'deterministic validation',
   'implementation changes',
   'allow_implicit_invocation: true'
 ], 'agents/openai.yaml');
-requireMax(metadata, 1500, 'agents/openai.yaml');
+requireMax(metadata, 1700, 'agents/openai.yaml');
 
 const skill = read('SKILL.md');
 requireText(skill, [
@@ -126,12 +133,14 @@ requireText(skill, [
   'references/PROMOTION.md',
   'references/ORCHESTRATION.md',
   'remaining outcomes',
-  '`provider`, `model_tier`, and `reasoning_effort`',
+  '`F1`–`F4`',
+  '`L1`–`L5`',
+  'MODEL_MATRIX.json',
   'quota/rate-limit exhaustion',
   'without the previous chat transcript',
   'implementation changes'
 ], 'SKILL.md');
-requireMax(skill, 7000, 'SKILL.md');
+requireMax(skill, 7600, 'SKILL.md');
 const frontmatter = skill.match(/^---\n([\s\S]*?)\n---/);
 if (!frontmatter) fail('SKILL.md frontmatter is missing.');
 if (frontmatter[1].length > 1700) fail('SKILL.md frontmatter is too broad for cheap routing.');
@@ -170,14 +179,16 @@ const orchestration = read(path.join('references', 'ORCHESTRATION.md'));
 requireText(orchestration, [
   'TODO.md',
   'manifest.json',
-  'provider',
-  'model_tier',
-  'reasoning_effort',
+  'provider: auto',
+  'model_tier: F1|F2|F3|F4',
+  'reasoning_effort: L1|L2|L3|L4|L5',
+  'modelmapctl.py',
+  'Muse Code',
   'quota',
   'fresh worker',
   'cleanup'
 ], 'ORCHESTRATION.md');
-requireMax(orchestration, 12000, 'ORCHESTRATION.md');
+requireMax(orchestration, 14000, 'ORCHESTRATION.md');
 
 const tokenProtocol = read(path.join('references', 'TOKEN_EFFICIENCY.md'));
 requireText(tokenProtocol, [
@@ -194,9 +205,44 @@ requireMax(tokenProtocol, 10000, 'TOKEN_EFFICIENCY.md');
 const writing = read(path.join('references', 'ARTIFACT_WRITING.md'));
 requireText(writing, ['one field, one job', 'Vague wording rejected', 'Derived-text budgets'], 'ARTIFACT_WRITING.md');
 const planning = read(path.join('references', 'PLANNING_PROTOCOL.md'));
-requireText(planning, ['context_boundary', 'learning_targets', 'contexts_minimal', 'context_boundaries_sound'], 'PLANNING_PROTOCOL.md');
+requireText(planning, [
+  'context_boundary',
+  'learning_targets',
+  'contexts_minimal',
+  'context_boundaries_sound',
+  'F1|F2|F3|F4',
+  'L1|L2|L3|L4|L5',
+  'modelmapctl.py'
+], 'PLANNING_PROTOCOL.md');
 const planSpec = read(path.join('references', 'PLAN_SPEC.md'));
-requireText(planSpec, ['schema v4', 'request_analysis', 'context_boundary', 'learning_targets', 'model_tier', 'reasoning_effort'], 'PLAN_SPEC.md');
+requireText(planSpec, [
+  'schema v4',
+  'request_analysis',
+  'context_boundary',
+  'learning_targets',
+  '"model_tier": "F2"',
+  '"reasoning_effort": "L2"',
+  'MODEL_MATRIX.json'
+], 'PLAN_SPEC.md');
+const modelRouting = read(path.join('references', 'MODEL_ROUTING.md'));
+requireText(modelRouting, [
+  'Portable coordinates',
+  '`F1`',
+  '`F4`',
+  '`L1`',
+  '`L5`',
+  'Provider switching must not rewrite the plan',
+  'Claude Code, Codex, Gemini, Qwen Code, and Muse Code'
+], 'MODEL_ROUTING.md');
+const modelMatrix = read(path.join('references', 'MODEL_MATRIX.md'));
+requireText(modelMatrix, [
+  'Live discovery is required',
+  'MODEL_MATRIX.json',
+  'MODEL_MATRIX.md',
+  'recent independent coding-agent benchmark',
+  '`F1`..`F4`',
+  '`L1`..`L5`'
+], 'MODEL_MATRIX.md');
 const workflow = read(path.join('references', 'WORKFLOW.md'));
 requireText(workflow, ['Fresh workers', 'SUMMARY_INPUT.json'], 'WORKFLOW.md');
 const contextProtocol = read(path.join('references', 'EXECUTION_CONTEXT.md'));
@@ -237,8 +283,25 @@ requireText(planctl, [
   'def cleanup_plan',
   'shutil.rmtree(plan_dir)'
 ], 'planctl.py');
-for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae']) {
-  if (!planctl.includes(`"${provider}"`)) fail(`planctl.py must support provider ${provider}.`);
+const routingController = read(path.join('scripts', 'routingctl.py'));
+requireText(routingController, [
+  'PORTABLE_FAMILY_TO_TIER',
+  'PORTABLE_LEVEL_TO_EFFORT',
+  'MODEL_MATRIX.json',
+  'install_runtime_model_catalog',
+  'muse'
+], 'routingctl.py');
+const modelMapController = read(path.join('scripts', 'modelmapctl.py'));
+requireText(modelMapController, [
+  'MODEL_MATRIX.json',
+  'MODEL_MATRIX.md',
+  'Portable model routing',
+  'validate_plan_matrix'
+], 'modelmapctl.py');
+for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'muse', 'kimi', 'trae']) {
+  if (!(planctl.includes(`"${provider}"`) || routingController.includes(`"${provider}"`))) {
+    fail(`planctl/routingctl must support provider ${provider}.`);
+  }
 }
 
 const completionSchema = JSON.parse(read(path.join('references', 'completion-report.schema.json')));
@@ -253,8 +316,10 @@ const planExample = JSON.parse(read(path.join('references', 'plan-spec.example.j
 if (!planExample.tasks?.length || !planExample.tasks.every((task) => task.context_boundary && task.subtasks?.length)) {
   fail('plan-spec.example.json must contain context boundaries and resumable subtasks.');
 }
-if (!planExample.tasks.every((task) => task.provider && task.model_tier && task.reasoning_effort)) {
-  fail('plan-spec.example.json must preserve per-TODO provider/model tier/reasoning effort.');
+if (!planExample.tasks.every((task) =>
+  task.provider === 'auto' && /^F[1-4]$/i.test(task.model_tier) && /^L[1-5]$/i.test(task.reasoning_effort)
+)) {
+  fail('plan-spec.example.json must use provider-neutral F1-F4/L1-L5 TODO routing.');
 }
 
 const packageMetadata = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
