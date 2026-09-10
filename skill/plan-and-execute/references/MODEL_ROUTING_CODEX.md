@@ -1,71 +1,28 @@
 # Codex model routing
 
-Read only when Codex will execute the current work. `MODEL_ROUTING.md` owns provider-independent policy.
+Read only when building/refreshing the Codex compatibility row or when Codex will execute the current task. `PORTABLE_MODEL_ROUTING.md` owns F/L semantics.
 
-## Current capability map
+## Dynamic discovery
 
-| Tier | Model | Typical starting effort |
-|---|---|---|
-| `economy` | `gpt-5.6-luna` | `low` |
-| `standard` | `gpt-5.6-terra` | `medium` |
-| `strong` | `gpt-6-astra` | `low` or `medium` |
-| `max` | `gpt-6-astra` | `xhigh` only when long-horizon evidence justifies it; `max` is exceptional |
+Do not keep a concrete Codex model table in this skill. Model generations, aliases, availability, and effort support change independently of the plan.
 
-Do **not** use GPT-5.6 Sol High as the default difficult-work route. Current OpenAI calibration places Astra Low/Medium as the successor to Sol High. Independent coding-agent measurements also show Astra's effort levels on the cost/quality frontier; because exact low-vs-Sol-high results vary by harness, use **Astra Medium as the safer difficult-work baseline when verification is weak**, while Astra Low is preferred when the task is bounded and objectively verifiable.
+At planning time:
 
-## DIRECT mode
+1. inspect the installed Codex CLI/version and current model configuration/help when available;
+2. identify the current economical, general-coding, strong, and frontier choices actually available to the executing account/environment;
+3. verify ambiguous model hierarchy and reasoning-effort support against current official OpenAI/Codex documentation;
+4. write those concrete ids only into the plan's `MODEL_COMPATIBILITY.json`.
 
-Small or medium-small work stays without a plan when it is cohesive. Model routing still applies:
+Map the current economical model to F1, the normal general-coding model to F2, the stronger reasoning/coding family to F3, and the strongest justified frontier family to F4. Reusing one model across adjacent F rows is valid when different reasoning levels are the real distinction.
 
-- one-off lookup/build/test/lint -> deterministic tool, no subagent;
-- broad read-only discovery -> Luna Low; Luna Medium only for bounded multi-hop tracing;
-- tiny mechanical edit with obvious local review or deterministic validation -> keep current useful context; delegate to Luna Medium only when isolation actually saves context;
-- normal bounded implementation with good validation -> Terra Medium;
-- normal implementation that exposes a reasoning gap -> Terra High or move directly to Astra Low when the failure is semantic rather than mechanical;
-- small but subtle change with weak/no tests -> Astra Low when silent semantic failure would be materially costly; otherwise Terra Medium plus focused review is cheaper;
-- difficult but strongly verifiable debugging/implementation -> Astra Low first, then Astra Medium from concrete failure evidence;
-- high-blast-radius or weakly verifiable architecture/security/concurrency/migration decisions -> Astra Medium or High directly.
+## L levels
 
-Do not create an ORCHESTRATED plan merely to obtain Astra. DIRECT can choose any justified route.
+Map L1-L5 to the increasing reasoning-effort values actually accepted by the selected current model. Do not assume a remembered Codex effort ladder is valid for every model. If a model supports fewer levels, repeat/clamp adjacent L entries in the compatibility table.
 
-## ORCHESTRATED tasks
+The isolated runner resolves F/L first, then passes the concrete model and resolved native reasoning effort to Codex. A rejected model/effort means refresh compatibility; it does not by itself change the TODO.
 
-Choose the logical tier per TODO, not per parent request. Recommended effort behavior:
+## Routing behavior
 
-- `economy`: Luna Low; Medium only when the exploration itself requires multi-hop reasoning;
-- `standard`: Terra Medium; High after an actual reasoning failure;
-- `strong`: Astra Low when deterministic validation is strong, otherwise Astra Medium; High for high-risk/weak-verification work or evidence that Medium under-reasoned;
-- `max`: Astra High/XHigh for genuinely demanding long-running work; Max only when lower efforts leave a plausible capability gap.
+For objectively verifiable work, prefer the lowest credible F/L and raise L before F when evidence shows insufficient reasoning depth within an otherwise suitable model family. Raise F when evidence suggests a capability/model-family gap. Skip lower routes for high-blast-radius or weakly verifiable decisions when failure would be expensive.
 
-A failed compiler command does not automatically justify Astra. A wrong architecture decision may justify Astra before any retry.
-
-## Exploration subagents
-
-Use Luna to protect expensive context from disposable discovery:
-
-- give the explorer a narrow question and the minimum starting paths/symbols;
-- prefer a fresh/no-history child when model override would otherwise inherit expensive root context;
-- request a compact evidence map, not narration or full files;
-- keep explorers read-only unless the task is explicitly mechanical and independently verifiable;
-- default to at most two simultaneous explorers.
-
-The parent verifies material findings before consequential edits.
-
-## Escalation ladder
-
-For objectively verifiable work:
-
-```text
-Luna/Tools exploration
-        -> Terra Medium implementation
-        -> Terra High when the gap is local reasoning
-        -> Astra Low when stronger model capability is useful
-        -> Astra Medium/High from concrete failure evidence
-        -> Astra XHigh/Max only for true long-horizon/frontier need
-```
-
-Skip irrelevant rungs. In particular, do not burn several high-effort Terra retries when one Astra Low attempt is more likely to solve a demonstrated capability gap.
-
-## Sol compatibility
-
-Sol is no longer a preferred default tier in this catalog. It may still be selected by an explicit local provider configuration when Astra is unavailable or a project-specific eval shows Sol wins for that workload. Availability/quota failure is not evidence to increase reasoning effort.
+Provider quota/availability failure keeps the same F/L and may fall back to Claude, Gemini, Qwen, or Muse through the compatibility table.
