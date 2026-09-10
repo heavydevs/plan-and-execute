@@ -1,10 +1,10 @@
 # Execution workflow
 
-Use this reference only after the plan is approved. Planning rules live in `PLANNING_PROTOCOL.md`; writing budgets live in `ARTIFACT_WRITING.md`; model escalation lives in `MODEL_ROUTING.md`.
+Use this reference only after the plan is approved. Planning rules live in `PLANNING_PROTOCOL.md`; portable model binding lives in `PORTABLE_MODEL_ROUTING.md`; model escalation lives in `MODEL_ROUTING.md`.
 
 ## Roles
 
-- **Orchestrator:** authoritative plan state, scheduling, validation, escalation, final handoff, cleanup.
+- **Orchestrator:** authoritative plan state, F/L resolution, scheduling, validation, escalation, final handoff, cleanup.
 - **Worker:** one TODO, assigned context/learnings, repository evidence needed for that TODO, structured report.
 - **Summarizer:** compact completed-task state only; never raw worker transcripts.
 
@@ -18,16 +18,22 @@ Fresh workers reduce context contamination. Disk state, not chat history, carrie
 python <skill-dir>/scripts/planctl_concise.py next --plan <plan-path> --json
 ```
 
-### 2. Claim
+For a portable plan, the selected TODO contains only `model_family` and `model_level`. Read the plan's `MODEL_COMPATIBILITY.json`/`.md` before choosing a concrete provider/model.
 
-Choose a route, then:
+### 2. Resolve F/L and claim
+
+Resolve the TODO's F/L against the current compatibility table and an available provider. If the requested provider changed, or the recorded model/effort is unavailable or uncertain, refresh the table from current CLI/provider information before claiming.
+
+The concrete route is execution history only:
 
 ```bash
 python <skill-dir>/scripts/planctl_concise.py claim \
   --plan <plan-path> \
   --task 001 \
-  --route '{"provider":"codex","tier":"standard","model":"...","effort":"medium"}'
+  --route '{"provider":"<resolved-provider>","tier":"<internal-family-alias>","model":"<current-model>","effort":"<native-level>"}'
 ```
+
+Do not copy that concrete route back into the TODO. Provider switching resolves the same F/L and does not require re-planning.
 
 ### 3. Dispatch one fresh worker
 
@@ -42,7 +48,7 @@ Prompt with only:
 
 Do not paste the original request, full plan, study, manifest, TODO list, prior reports, logs, or future tasks.
 
-The compact task file contains only execution-relevant information: objective, context/learnings, checkpoints, scope, non-obvious guidance, acceptance, validation, and narrow publishable learning topics.
+The compact task file contains execution-relevant information including objective, portable F/L requirement, a reference to `MODEL_COMPATIBILITY.md`, context/learnings, checkpoints, scope, guidance, acceptance, validation, and narrow publishable learning topics.
 
 ### 4. Checkpoint
 
@@ -58,12 +64,7 @@ Use `subtask-reset` only when that checkpoint must be deliberately redone. Never
 
 ### 5. Validate independently
 
-The worker report is evidence, not acceptance. The orchestrator must:
-
-1. verify exact context/learning read lists;
-2. verify completed required subtasks;
-3. run every task validation command from the repository root;
-4. keep full command output in logs and only bounded diagnostic tails in state.
+The worker report is evidence, not acceptance. The orchestrator must verify exact context/learning read lists, verify required subtasks, run every task validation command from the repository root, and keep full output in logs with only bounded diagnostic tails in state.
 
 ### 6. Complete or fail
 
@@ -93,9 +94,7 @@ python <skill-dir>/scripts/planctl_concise.py fail \
   --reason "Provider usage limit" --rate-limited
 ```
 
-A completion report is deliberately bounded: summary <= 360 chars; validation detail <= 600; risks/follow-ups <= 8 items of 240 chars; reusable learning guidance <= 320 chars. Empty risk/follow-up arrays are preferred to boilerplate.
-
-On completion, only the compact summary/risks/follow-ups needed for final handoff are promoted into manifest task state. Raw provider output remains in result/log files inside the ephemeral plan workspace.
+A completion report is deliberately bounded. On completion, only compact summary/risks/follow-ups needed for final handoff are promoted into manifest state. Raw provider output remains in ephemeral result/log files.
 
 ## Strict external runner
 
@@ -105,16 +104,22 @@ From a terminal/CI outside a nested provider invocation:
 python <skill-dir>/scripts/run_concise.py --plan <plan-path>
 ```
 
-Useful flags remain compatible with `run_isolated.py`:
+Useful flags:
 
 ```bash
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --dry-run
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --once --no-cleanup
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --provider codex
+python <skill-dir>/scripts/run_concise.py --plan <plan-path> --provider claude
+python <skill-dir>/scripts/run_concise.py --plan <plan-path> --provider gemini
+python <skill-dir>/scripts/run_concise.py --plan <plan-path> --provider qwen
+python <skill-dir>/scripts/run_concise.py --plan <plan-path> --provider muse
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --no-wait
 ```
 
-The runner validates state, starts a new non-persistent provider process per TODO, checks the report, reruns deterministic validation, materializes only validated predeclared learnings, escalates only on technical evidence, and cleans planning state after the final handoff.
+For portable tasks the runner translates F/L through `MODEL_COMPATIBILITY.json`, then starts a fresh provider process with the concrete current model/native effort. It validates state, checks the report, reruns deterministic validation, materializes only validated predeclared learnings, escalates only on technical evidence, and cleans planning state after the final handoff.
+
+Gemini and Qwen use their existing headless adapters. Muse uses `muse exec --json` and the generic JSON/JSONL completion-report parser.
 
 ## State commands
 
@@ -126,43 +131,31 @@ python <skill-dir>/scripts/planctl_concise.py status --plan <plan-path> --json
 python <skill-dir>/scripts/planctl_concise.py reset --plan <plan-path> --task 001
 ```
 
-`TODO.md` remains one line per task. `manifest.json` is the authoritative machine state.
+`TODO.md` remains one line per task. `manifest.json` is authoritative. `MODEL_COMPATIBILITY.json` is authoritative only for replaceable concrete provider/model bindings.
 
 ## Failure and escalation
 
-Classify before changing the route:
+Classify before changing capability:
 
-- **technical:** implementation/test/report/tool failure caused by the attempted solution;
-- **environmental actionable:** repository/toolchain issue that the worker can repair within scope;
-- **provider availability/usage:** retry/fallback without counting a technical failure;
-- **planning invalidation:** evidence disproves a material requirement, dependency, context boundary, or validation assumption — stop downstream work and replan.
+- **technical/capability:** implementation/test/report/tool failure caused by the attempted solution; may justify higher L or F;
+- **environmental actionable:** repository/toolchain issue the worker can repair within scope;
+- **provider availability/usage:** switch/retry provider while preserving F/L;
+- **mapping stale:** model or effort is rejected/unavailable; refresh compatibility while preserving F/L;
+- **planning invalidation:** evidence disproves a material requirement, dependency, context boundary, validation assumption, or capability requirement; stop downstream work and replan.
 
-Persist the smallest diagnostic excerpt that can guide the next attempt plus a log reference when available. Do not copy full logs into `last_error`.
+Persist the smallest diagnostic excerpt that guides the next attempt plus a log reference. Do not copy full logs into `last_error`.
 
-Escalate effort/tier/provider only when the failure evidence justifies it. Do not preemptively route every TODO to the strongest model.
+Raise L when evidence points to reasoning depth. Raise F when evidence points to model capability. Never raise either merely because a provider changed or hit quota.
 
 ## Validated learning
 
-After a source TODO passes deterministic validation, it may publish only learnings that:
-
-- target a predeclared untouched future TODO;
-- match predeclared topics;
-- state one concrete code/procedure/decision/pitfall/validation finding;
-- cite repository symbols/paths/commands;
-- save meaningful rediscovery cost.
+After a source TODO passes deterministic validation, it may publish only learnings that target a predeclared untouched future TODO, match predeclared topics, state one concrete validated finding, cite repository symbols/paths/commands, and save meaningful rediscovery cost.
 
 No transcript, generic advice, or plan history belongs in learning files.
 
 ## Final handoff
 
-After all TODOs complete:
-
-1. reload final manifest state;
-2. construct `SUMMARY_INPUT.json` from goal, per-task compact completion memory, validation status, changed files, and bounded git status/diff stat;
-3. generate a concise handoff from that input only;
-4. mark summary generated;
-5. clear lifecycle active state;
-6. delete only the sentinel-protected plan workspace unless retention was explicitly requested.
+After all TODOs complete, reload final state, construct the bounded summary input, generate the concise handoff, mark summary generated, clear lifecycle active state, and delete only the sentinel-protected plan workspace unless retention was explicitly requested.
 
 Never concatenate raw worker reports or logs into the final summarizer prompt.
 
