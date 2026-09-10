@@ -46,9 +46,10 @@ Non-negotiable invariants:
 - `manifest.json` is authoritative and `TODO.md` is the terse status index;
 - every TODO has one bounded outcome, resumable subtasks, acceptance criteria, and deterministic validation;
 - every new TODO declares only `model_family` (`F1`-`F4`) and `model_level` (`L1`-`L5`), never a concrete provider/model or vendor-specific effort;
-- during planning, dynamically discover current Codex/Claude/Gemini/Qwen/Muse bindings and write `MODEL_COMPATIBILITY.json` plus `MODEL_COMPATIBILITY.md`;
-- portable TODOs reference the compatibility artifact; switching provider resolves the same F/L without re-planning;
-- refresh compatibility when changing provider or when a recorded model/level is unavailable or uncertain;
+- model compatibility is cached independently per provider under `~/.plan-and-execute/cache/model-compatibility`; check that provider's cache before any CLI/documentation discovery;
+- a fresh provider cache is reused for the rest of the local calendar day; only a missing/stale/invalid cache triggers live discovery for that provider;
+- new plan snapshots write `MODEL_COMPATIBILITY.json` plus `MODEL_COMPATIBILITY.md` for the provider actually being used, not all providers preemptively;
+- portable TODOs reference the compatibility artifact; switching provider resolves the same F/L without re-planning and may refresh only that provider's cache/snapshot;
 - quota/rate-limit exhaustion and host interruption do not raise F/L by themselves;
 - implementation changes, tests, product artifacts, and commits survive cleanup.
 

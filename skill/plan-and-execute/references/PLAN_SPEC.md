@@ -1,6 +1,6 @@
 # Plan spec contract — schema v4 + portable F/L routing
 
-Use this file only when writing the JSON consumed by `planctl_concise.py create`. Read `ARTIFACT_WRITING.md`, `PLANNING_PROTOCOL.md`, and `PORTABLE_MODEL_ROUTING.md` first. See `plan-spec.example.json` for a **structural template**; its `TEMPLATE_*`/`CURRENT_*` compatibility values are deliberately non-executable and must be replaced through live discovery before plan creation.
+Use this file only when writing the JSON consumed by `planctl_concise.py create`. Read `ARTIFACT_WRITING.md`, `PLANNING_PROTOCOL.md`, and `PORTABLE_MODEL_ROUTING.md` first. See `plan-spec.example.json` for a structural template; its `TEMPLATE_*`/`CURRENT_*` values are deliberately non-executable and must be replaced with a fresh provider-specific daily binding before plan creation.
 
 The persisted base manifest remains schema v4 for backwards compatibility. New plans use the additive `fl-v1` portable-routing contract.
 
@@ -25,7 +25,7 @@ The persisted base manifest remains schema v4 for backwards compatibility. New p
 
 `title` and `summary` describe the implementation outcome, not the planning process. `cleanup_on_success` should remain true unless the user explicitly requests plan retention.
 
-`model_compatibility` is mandatory when tasks use portable F/L routing. It is produced dynamically during planning from current CLI/provider information and current authoritative documentation. The controller renders it as `MODEL_COMPATIBILITY.json` and `MODEL_COMPATIBILITY.md`; see `PORTABLE_MODEL_ROUTING.md` for the required shape.
+`model_compatibility` is mandatory when tasks use portable F/L routing. For new plans it normally contains only the provider currently being used. Before constructing it, check that provider's cache under `~/.plan-and-execute/cache/model-compatibility`; reuse a fresh entry for the rest of the local calendar day and perform live CLI/current-documentation discovery only when that provider's cache is missing, stale, or invalid. The controller renders the plan snapshot as `MODEL_COMPATIBILITY.json` and `MODEL_COMPATIBILITY.md`.
 
 ## `request_analysis`
 
@@ -156,30 +156,35 @@ A scoped file must serve at least two but fewer than all TODOs. Single-task fact
 - Subtasks are resumable checkpoints, not hidden independent deliverables.
 - `model_family` must be `F1`-`F4`; `model_level` must be `L1`-`L5`.
 - New F/L tasks must not also declare `provider`, `model_tier`, or `reasoning_effort`.
-- The same F/L requirement must remain valid if execution changes from Codex to Claude, Gemini, Qwen, or Muse.
+- The same F/L requirement must remain valid if execution changes among Codex, Claude, Gemini, Qwen, or Muse.
 
 Legacy plans/specs using `provider`/`model_tier`/`reasoning_effort` remain supported for resume compatibility. Do not mix legacy-routing tasks and F/L tasks in one new plan.
 
 ## `model_compatibility`
 
-The compatibility object must cover `codex`, `claude`, `gemini`, `qwen`, and `muse`. Every provider must map all F1-F4 families to a current concrete model, and every family must map all L1-L5 to effective native effort names. When a provider exposes fewer native levels, duplicate the nearest supported level rather than inventing one.
+For a new plan, the compatibility object normally contains exactly the active provider. It must map all F1-F4 families for that provider to current concrete models and every family must map all L1-L5 to effective native effort names. When the provider exposes fewer native levels, duplicate the nearest supported level rather than inventing one.
 
-Example fragment:
+The active provider's `checked_at` must be a timezone-aware ISO-8601 timestamp from the current local calendar day. Obtain the object from today's cache when available. Only when the provider cache is missing/stale/invalid should the planner inspect that provider's CLI/current official documentation and write a fresh cache entry.
+
+Example fragment for a Codex invocation:
 
 ```json
 {
   "model_compatibility": {
-    "generated_at": "2026-09-09T23:00:00-03:00",
-    "discovery": "Live CLI/help and current vendor docs checked during planning.",
+    "generated_at": "2026-09-10T09:30:00-03:00",
+    "discovery": "Fresh Codex daily compatibility loaded from cache or rebuilt from current Codex CLI/docs.",
     "providers": {
       "codex": {
-        "checked_at": "2026-09-09T23:00:00-03:00",
+        "checked_at": "2026-09-10T09:30:00-03:00",
         "sources": ["codex --help", "current official Codex model documentation"],
         "families": {
           "F1": {
-            "model": "<actual current model id from live discovery>",
+            "model": "<actual current model id>",
             "levels": {"L1": "<native>", "L2": "<native>", "L3": "<native>", "L4": "<native>", "L5": "<native>"}
-          }
+          },
+          "F2": {"model": "<actual current model id>", "levels": {"L1": "<native>", "L2": "<native>", "L3": "<native>", "L4": "<native>", "L5": "<native>"}},
+          "F3": {"model": "<actual current model id>", "levels": {"L1": "<native>", "L2": "<native>", "L3": "<native>", "L4": "<native>", "L5": "<native>"}},
+          "F4": {"model": "<actual current model id>", "levels": {"L1": "<native>", "L2": "<native>", "L3": "<native>", "L4": "<native>", "L5": "<native>"}}
         }
       }
     }
@@ -187,7 +192,9 @@ Example fragment:
 }
 ```
 
-The abbreviated fragment above is illustrative only; the actual input must contain real discovered values, F2-F4, and all remaining providers. Placeholder/template markers are rejected by the controller. Do not copy model names from an old plan merely to satisfy the schema.
+Use `claude`, `gemini`, `qwen`, or `muse` instead when that provider is active. Do not add unused provider objects merely for completeness. Older `fl-v1` plans containing several providers remain readable for backwards-compatible resume.
+
+The structural example file contains placeholders intentionally. They must be replaced before `cache-write` or plan creation; do not copy model names from an old plan simply to satisfy the schema.
 
 ## `learning_targets`
 
@@ -219,7 +226,7 @@ Declare only later TODOs. Keep topics narrow. A learning file is created only if
 }
 ```
 
-Notes record concrete review evidence; do not narrate the review process. The review must also confirm that F/L choices match task risk/verifiability and that the compatibility table was dynamically checked.
+Notes record concrete review evidence; do not narrate the review process. The review must also confirm that F/L choices match task risk/verifiability and that the active provider's compatibility snapshot is fresh for the current local calendar day. It must not require unrelated provider mappings.
 
 ## Derived-text budgets
 
@@ -242,4 +249,4 @@ python <skill-dir>/scripts/planctl_concise.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py audit --plan <plan-path>
 ```
 
-If a field fails for size or vague wording, rewrite it as a smaller precise semantic unit. Do not silently truncate requirements or replace live model discovery with remembered model names.
+If a field fails for size or vague wording, rewrite it as a smaller precise semantic unit. Do not silently truncate requirements or replace cache/live provider discovery with remembered model names.

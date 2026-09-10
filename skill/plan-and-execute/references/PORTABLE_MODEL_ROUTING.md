@@ -9,7 +9,7 @@ A durable plan must not depend on a concrete provider, model id, or provider-spe
 - `model_family`: `F1`, `F2`, `F3`, or `F4`;
 - `model_level`: `L1`, `L2`, `L3`, `L4`, or `L5`.
 
-The planner separately creates `MODEL_COMPATIBILITY.json` and the rendered `MODEL_COMPATIBILITY.md`. Concrete provider/model names belong only in those replaceable compatibility artifacts and in actual execution-route history.
+Concrete provider/model names live only in replaceable compatibility data and actual execution-route history.
 
 ## Portable scale
 
@@ -20,7 +20,7 @@ The planner separately creates `MODEL_COMPATIBILITY.json` and the rendered `MODE
 | `F3` | Strong model family: subtle debugging, architecture, security, concurrency, migrations, weak verification |
 | `F4` | Frontier model family: long-horizon/high-risk work or evidence-backed escalation beyond F3 |
 
-`L` is independent from `F`. It means the reasoning/power level **inside the selected concrete model**, not a second model family:
+`L` is independent from `F`. It means the reasoning/power level inside the selected concrete model.
 
 | Level | Meaning |
 |---|---|
@@ -32,29 +32,77 @@ The planner separately creates `MODEL_COMPATIBILITY.json` and the rendered `MODE
 
 If a provider exposes fewer than five native levels, map multiple adjacent L values to the same native level. Never invent an unsupported provider option.
 
-## Build the compatibility table dynamically
+## Provider-specific daily cache
 
-Do this during planning, before `planctl_concise.py create`:
+Compatibility discovery is lazy and provider-scoped. Do **not** query every provider during each plan.
 
-1. Inspect locally installed provider CLIs/configuration first when available (`--version`, model/help commands, provider model picker/config). Do not assume a model list remembered from this skill is current.
-2. Check current authoritative provider documentation when model availability, aliases, reasoning levels, or CLI flags are not fully established locally.
-3. Cover `codex`, `claude`, `gemini`, `qwen`, and `muse` even if only one provider will execute initially. This is what makes later provider switching cheap.
-4. For each provider, map every `F1`-`F4` to a current concrete model. Reusing the same model for adjacent F classes is allowed when a provider has fewer model families.
-5. For every provider/family row, map all `L1`-`L5` to actual native effort names. Clamp by repetition when the provider exposes fewer levels.
-6. Record `checked_at` and one or more source references for every provider. Prefer an installed-CLI probe and official vendor documentation; use secondary sources only when primary documentation does not expose the needed CLI detail.
-7. Put the result in top-level `model_compatibility` in the plan spec. The controller writes both compatibility artifacts into the plan workspace.
+The shared user cache is:
 
-Required shape:
+```text
+~/.plan-and-execute/cache/model-compatibility/
+├── codex.json
+├── claude.json
+├── gemini.json
+├── qwen.json
+└── muse.json
+```
+
+Only files that have actually been needed need to exist. On Windows, `~` is the user's home directory.
+
+A cache entry is valid for the provider's `checked_at` local calendar day. This means one live discovery per provider per day, not one discovery per plan and not one combined discovery covering every vendor.
+
+Example:
+
+- first Codex invocation today: `codex.json` missing/stale -> inspect Codex CLI + current OpenAI/Codex documentation, build the Codex-only mapping, cache it;
+- second Codex invocation today: `codex.json` is fresh -> reuse it; do not query CLI/docs again merely because a new plan is being created;
+- first Claude invocation today: `claude.json` missing/stale -> perform Claude-only discovery even if `codex.json` is already fresh;
+- Gemini/Qwen/Muse follow the same independent rule.
+
+Use the controller to check before doing external discovery:
+
+```bash
+python <skill-dir>/scripts/model_compatctl.py cache-status --provider codex --json
+```
+
+If status is `fresh`, read/reuse it:
+
+```bash
+python <skill-dir>/scripts/model_compatctl.py cache-read \
+  --provider codex \
+  --output /tmp/model-compatibility.json
+```
+
+If status is `missing`, `stale`, or `invalid`, inspect only that provider:
+
+1. inspect its locally installed CLI/configuration first when available (`--version`, help/model picker/config);
+2. check current authoritative provider documentation when model aliases, availability, reasoning levels, or CLI controls are not fully established locally;
+3. map F1-F4 to current concrete models for that provider;
+4. map L1-L5 to actual native effort controls, repeating/clamping when necessary;
+5. record a current timezone-aware `checked_at` plus sources;
+6. save a temporary provider-only compatibility JSON and write the cache:
+
+```bash
+python <skill-dir>/scripts/model_compatctl.py cache-write \
+  --provider codex \
+  --spec /tmp/model-compatibility.json \
+  --json
+```
+
+Do not refresh another provider just for completeness.
+
+## Provider-only compatibility shape
+
+New planning flows normally carry exactly one provider: the provider currently being used. Older `fl-v1` plans containing several providers remain readable for backwards compatibility.
 
 ```json
 {
   "model_compatibility": {
     "generated_at": "<ISO-8601 timestamp>",
-    "discovery": "Live provider CLI/help and current vendor documentation checked during planning.",
+    "discovery": "Fresh daily Codex compatibility loaded from cache, or rebuilt from current Codex CLI/docs.",
     "providers": {
       "codex": {
         "checked_at": "<ISO-8601 timestamp>",
-        "sources": ["<current source or local CLI probe>"],
+        "sources": ["<current Codex CLI probe>", "<current official source>"],
         "families": {
           "F1": {"model": "<current id>", "levels": {"L1": "<native>", "L2": "<native>", "L3": "<native>", "L4": "<native>", "L5": "<native>"}},
           "F2": {"model": "<current id>", "levels": {"L1": "<native>", "L2": "<native>", "L3": "<native>", "L4": "<native>", "L5": "<native>"}},
@@ -67,37 +115,35 @@ Required shape:
 }
 ```
 
-Repeat the provider object for Claude, Gemini, Qwen, and Muse.
+Substitute `claude`, `gemini`, `qwen`, or `muse` when that is the current provider. Do not add unused provider objects.
 
-## Refresh and provider switching
+## Plan artifacts
 
-`MODEL_COMPATIBILITY.json` is the machine-readable binding; `MODEL_COMPATIBILITY.md` is its human-readable table. TODO files explicitly reference the Markdown file.
+`MODEL_COMPATIBILITY.json` and `MODEL_COMPATIBILITY.md` are per-plan snapshots of the compatibility actually used to create/refresh that plan. A plan created under Codex therefore normally contains only the Codex mapping.
 
-Refresh the table without changing TODO F/L requirements when:
+The task graph remains provider-neutral. Switching provider does not require changing any TODO's F/L.
 
-- execution starts in a later session and current model availability is uncertain;
-- the user switches provider;
-- a recorded model is unavailable/retired;
-- the active CLI rejects a recorded effort level;
-- current vendor documentation shows a materially changed model hierarchy.
+To switch an existing plan:
 
-After live discovery, write the new compatibility object to a temporary JSON file and update only the binding with the guarded controller:
+1. check the new provider's daily cache;
+2. if fresh, reuse it;
+3. if absent/stale, perform live discovery only for that provider and cache it;
+4. replace the plan snapshot without changing TODOs:
 
 ```bash
-python <skill-dir>/scripts/model_compatctl.py validate --spec /tmp/model-compatibility.json
 python <skill-dir>/scripts/model_compatctl.py refresh \
   --plan .ai-work/<plan-id> \
-  --spec /tmp/model-compatibility.json \
+  --provider claude \
   --json
 ```
 
-`refresh` rewrites the canonical JSON/Markdown compatibility artifacts, records a refresh event, revalidates the plan, and leaves every TODO's `model_family`/`model_level` unchanged. Never hand-edit task definitions to switch provider.
+The runtime may also resolve a provider from its fresh user cache without embedding that provider into the TODO graph. A missing/stale cache must not silently fall back to yesterday's provider mapping.
 
-Provider availability/quota failure does not change F/L. Resolve the same F/L against another compatible provider. Increase F or L only for technical/capability evidence, following `MODEL_ROUTING.md`.
+Increase F or L only for technical/capability evidence. Provider quota/rate/capacity failure alone preserves F/L.
 
 ## Provider references
 
-For provider-specific discovery/CLI notes, load only what is needed:
+Load only the provider currently being checked:
 
 - Codex: `MODEL_ROUTING_CODEX.md`
 - Claude Code: `MODEL_ROUTING_CLAUDE.md`

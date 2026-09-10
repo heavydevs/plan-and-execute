@@ -65,11 +65,11 @@ Treat `/tmp/pae-promotion-request.md` as the authoritative request file for the 
 2. Build requirements/TODOs only for remaining outcomes. Do not create retroactive requirements whose only purpose is to cover completed work.
 3. Preserve completed implementation unless a remaining outcome explicitly requires modifying it.
 4. Assign each new TODO portable `model_family` (`F1`-`F4`) and `model_level` (`L1`-`L5`), not provider/model ids.
-5. Dynamically build the current Codex/Claude/Gemini/Qwen/Muse compatibility table as required by `PORTABLE_MODEL_ROUTING.md`.
+5. Check the active provider's daily compatibility cache as required by `PORTABLE_MODEL_ROUTING.md`; reuse it if fresh, otherwise discover/cache only that provider. Do not prebuild Codex/Claude/Gemini/Qwen/Muse together.
 6. Create the plan with `--request-file /tmp/pae-promotion-request.md` so the handoff becomes persisted `REQUEST.md` inside the plan.
 7. Attach/validate study state, audit the plan, activate lifecycle state, and continue with fresh workers normally.
 
-The resulting TODOs reference `MODEL_COMPATIBILITY.md`; changing provider later resolves the same F/L without rebuilding the remaining-work plan. Legacy promoted plans that already store `provider`/`model_tier`/`reasoning_effort` remain resumable.
+The resulting TODOs reference `MODEL_COMPATIBILITY.md`; changing provider later checks the new provider's independent daily cache and resolves the same F/L without rebuilding the remaining-work plan. Legacy promoted plans that already store `provider`/`model_tier`/`reasoning_effort` remain resumable.
 
 Once the plan is active, the temporary `/tmp` spec/request can be removed. The plan's `REQUEST.md`, compatibility artifacts, manifest, and task files are sufficient for resume.
 
@@ -79,4 +79,4 @@ Provider telemetry is optional. Hosts may expose context-window usage or compact
 
 ## What survives quota exhaustion
 
-After promotion and activation, normal lifecycle guarantees apply: manifest/subtask state is authoritative, interrupted work is recoverable, completed subtasks remain complete, usage/rate-limit events do not count as technical failures, and another configured provider can resume the same F/L requirement without the old chat transcript.
+After promotion and activation, normal lifecycle guarantees apply: manifest/subtask state is authoritative, interrupted work is recoverable, completed subtasks remain complete, usage/rate-limit events do not count as technical failures, and another configured provider can resume the same F/L requirement without the old chat transcript after its fresh daily compatibility is resolved.

@@ -18,13 +18,22 @@ Fresh workers reduce context contamination. Disk state, not chat history, carrie
 python <skill-dir>/scripts/planctl_concise.py next --plan <plan-path> --json
 ```
 
-For a portable plan, the selected TODO contains only `model_family` and `model_level`. Read the plan's `MODEL_COMPATIBILITY.json`/`.md` before choosing a concrete provider/model.
+For a portable plan, the selected TODO contains only `model_family` and `model_level`. The plan's `MODEL_COMPATIBILITY.json`/`.md` is a snapshot, while the user-home daily cache can provide another provider's current binding without changing task semantics.
 
 ### 2. Resolve F/L and claim
 
-Resolve the TODO's F/L against the current compatibility table and an available provider. If the requested provider changed, or the recorded model/effort is unavailable or uncertain, refresh the table from current CLI/provider information before claiming.
+Choose the provider to execute the TODO, then check that provider's daily compatibility. A plan snapshot checked today may satisfy this directly; otherwise use the fresh provider cache under `~/.plan-and-execute/cache/model-compatibility`.
 
-The concrete route is execution history only:
+If the chosen provider has no fresh binding, do not use yesterday's mapping. Run `model_compatctl.py cache-status`; if missing/stale/invalid, perform live CLI/current-documentation discovery only for that provider, write its cache, and refresh the plan snapshot when appropriate:
+
+```bash
+python <skill-dir>/scripts/model_compatctl.py refresh \
+  --plan <plan-path> \
+  --provider <provider> \
+  --json
+```
+
+Resolve the TODO's F/L against that fresh binding. The concrete route is execution history only:
 
 ```bash
 python <skill-dir>/scripts/planctl_concise.py claim \
@@ -33,7 +42,7 @@ python <skill-dir>/scripts/planctl_concise.py claim \
   --route '{"provider":"<resolved-provider>","tier":"<internal-family-alias>","model":"<current-model>","effort":"<native-level>"}'
 ```
 
-Do not copy that concrete route back into the TODO. Provider switching resolves the same F/L and does not require re-planning.
+Do not copy that concrete route back into the TODO. Provider switching preserves the same F/L and does not require re-planning.
 
 ### 3. Dispatch one fresh worker
 
@@ -117,7 +126,7 @@ python <skill-dir>/scripts/run_concise.py --plan <plan-path> --provider muse
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --no-wait
 ```
 
-For portable tasks the runner translates F/L through `MODEL_COMPATIBILITY.json`, then starts a fresh provider process with the concrete current model/native effort. It validates state, checks the report, reruns deterministic validation, materializes only validated predeclared learnings, escalates only on technical evidence, and cleans planning state after the final handoff.
+For portable tasks the runner translates F/L through the fresh bindings available from the plan snapshot and provider-specific user cache, then starts a fresh provider process with the concrete current model/native effort. A provider override requires a fresh binding for that provider; if none exists, invoke the skill so it can perform provider-specific cache/discovery handling instead of silently using stale data.
 
 Gemini and Qwen use their existing headless adapters. Muse uses `muse exec --json` and the generic JSON/JSONL completion-report parser.
 
@@ -131,7 +140,7 @@ python <skill-dir>/scripts/planctl_concise.py status --plan <plan-path> --json
 python <skill-dir>/scripts/planctl_concise.py reset --plan <plan-path> --task 001
 ```
 
-`TODO.md` remains one line per task. `manifest.json` is authoritative. `MODEL_COMPATIBILITY.json` is authoritative only for replaceable concrete provider/model bindings.
+`TODO.md` remains one line per task. `manifest.json` is authoritative. `MODEL_COMPATIBILITY.json` is the plan snapshot for replaceable concrete provider/model bindings; daily provider cache is outside the plan workspace and survives plan cleanup.
 
 ## Failure and escalation
 
@@ -139,8 +148,8 @@ Classify before changing capability:
 
 - **technical/capability:** implementation/test/report/tool failure caused by the attempted solution; may justify higher L or F;
 - **environmental actionable:** repository/toolchain issue the worker can repair within scope;
-- **provider availability/usage:** switch/retry provider while preserving F/L;
-- **mapping stale:** model or effort is rejected/unavailable; refresh compatibility while preserving F/L;
+- **provider availability/usage:** switch/retry provider while preserving F/L and checking the target provider's daily cache;
+- **mapping stale:** model or effort is rejected/unavailable; refresh that provider's cache/binding while preserving F/L;
 - **planning invalidation:** evidence disproves a material requirement, dependency, context boundary, validation assumption, or capability requirement; stop downstream work and replan.
 
 Persist the smallest diagnostic excerpt that guides the next attempt plus a log reference. Do not copy full logs into `last_error`.

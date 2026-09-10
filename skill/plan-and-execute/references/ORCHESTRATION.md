@@ -53,25 +53,36 @@ Default to no shared `CONTEXT.md`.
 
 Review must approve `contexts_minimal` and `context_boundaries_sound`.
 
-## 5. Build the live provider compatibility table
+## 5. Resolve today's compatibility for the active provider
 
-The plan graph uses only F/L, but execution needs a current concrete binding. During planning, before plan creation:
+The plan graph uses only F/L. Concrete compatibility is discovered lazily and cached independently per provider under `~/.plan-and-execute/cache/model-compatibility`.
 
-1. use `PORTABLE_MODEL_ROUTING.md` to inspect current local CLI/model information and current authoritative provider documentation;
-2. cover Codex, Claude Code, Gemini CLI, Qwen Code, and Muse Code/Muse Spark;
-3. map every provider's current concrete models to F1-F4 and every family to L1-L5 native effort values;
-4. repeat/clamp adjacent L values when a provider exposes fewer native levels; never invent unsupported controls;
-5. record current `checked_at` and sources in top-level `model_compatibility` in the plan spec.
+Before any provider CLI/documentation lookup:
 
-The controller writes the canonical `MODEL_COMPATIBILITY.json` plus human-readable `MODEL_COMPATIBILITY.md`. Concrete model names belong there, not in TODOs.
+```bash
+python <skill-dir>/scripts/model_compatctl.py cache-status --provider <active-provider> --json
+```
+
+Then:
+
+1. if that provider's cache is `fresh`, reuse it and do not query that provider again merely because another plan is being created;
+2. if it is `missing`, `stale`, or `invalid`, inspect only that provider's current local CLI/model information plus current authoritative provider documentation;
+3. map F1-F4 to current concrete models and L1-L5 to effective native effort values for that provider only;
+4. repeat/clamp adjacent L values when fewer native levels exist; never invent unsupported controls;
+5. record timezone-aware `checked_at` and sources, then cache the provider-only binding with `model_compatctl.py cache-write`;
+6. use that provider-only compatibility object in top-level `model_compatibility` for plan creation.
+
+Do not proactively research Codex, Claude, Gemini, Qwen, and Muse together. Each provider gets its own daily cache the first time it is actually needed that local calendar day.
+
+The controller writes the plan snapshot as `MODEL_COMPATIBILITY.json` plus human-readable `MODEL_COMPATIBILITY.md`. A plan created under Codex therefore normally contains only Codex/OpenAI model bindings. Concrete model names belong in these replaceable bindings, not in TODOs.
 
 Use the lowest credible F/L for each leaf. Verifiability and blast radius matter more than overall request size. Raise L when evidence shows insufficient reasoning depth within a suitable family; raise F when evidence shows a model-capability gap.
 
-Provider quota/rate/capacity failure does not raise F/L. Resolve the same F/L on another provider. Refresh the compatibility table when changing provider or when a recorded model/effort is unavailable, rejected, retired, or uncertain.
+Provider quota/rate/capacity failure does not raise F/L. Switching provider preserves the same F/L and checks that new provider's independent daily cache. If its cache is absent/stale, perform discovery only for that new provider.
 
 ## 6. Review and create the durable plan
 
-Use a fresh reviewer for complex plans when supported. Revise until coverage, atomicity, dependencies, validations, context minimality, context boundaries, F/L choices, and compatibility-table evidence pass with no unresolved material findings.
+Use a fresh reviewer for complex plans when supported. Revise until coverage, atomicity, dependencies, validations, context minimality, context boundaries, F/L choices, and compatibility evidence pass with no unresolved material findings.
 
 Create/gate using concise controllers:
 
@@ -84,7 +95,7 @@ python <skill-dir>/scripts/planctl_concise.py audit --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/lifecyclectl_concise.py activate --plan .ai-work/<plan-id> --json
 ```
 
-New portable plan creation fails if `model_compatibility` is missing/incomplete. The generated `PLAN.md` and every task definition reference `MODEL_COMPATIBILITY.md`.
+New portable plan creation fails if `model_compatibility` is missing or not checked today. The generated `PLAN.md` and every task definition reference `MODEL_COMPATIBILITY.md`.
 
 Use request-file semantics in `INTAKE.md`. For late promotion, copy the rendered `/tmp` request so the compact handoff becomes `.ai-work/<plan-id>/REQUEST.md`. Autostart after gates unless a genuine safety/authorization gate blocks execution.
 
@@ -102,7 +113,7 @@ Read `WORKFLOW.md` when execution begins. For every runnable TODO:
 
 1. reload authoritative state from disk;
 2. recover stale/interrupted `in_progress` state when needed;
-3. read/refresh `MODEL_COMPATIBILITY.json` when the provider/model mapping is uncertain or changing;
+3. ensure the chosen provider has a fresh daily compatibility binding; reuse today's provider cache when present, otherwise stop for provider-specific discovery/refresh;
 4. resolve the TODO's F/L to the concrete route for the chosen available provider;
 5. claim the TODO through `planctl_concise.py`, recording the resolved provider/model/effort as execution history only;
 6. start a fresh worker with exactly one task-definition path plus assigned context/learning files;
@@ -120,7 +131,7 @@ Write-heavy tasks are sequential unless repository isolation/worktrees remove re
 
 Lifecycle state exists so implementation survives lost credits, process termination, host restart, or provider switching.
 
-On resume, preserve completed tasks/subtasks and partial repository changes, recover orphaned `in_progress` state, and dispatch a fresh compatible worker from persisted task/context state. When the provider changes, refresh/resolve the compatibility table and keep the same F/L. Do not reconstruct the TODO solely because the provider/model changed.
+On resume, preserve completed tasks/subtasks and partial repository changes, recover orphaned `in_progress` state, and dispatch a fresh compatible worker from persisted task/context state. For the provider actually being used, check its daily cache first. Reuse a fresh entry; if it is missing/stale, discover and cache only that provider, then refresh the plan snapshot if needed. Keep the same F/L and do not reconstruct the TODO solely because the provider/model changed.
 
 Strict external execution uses:
 

@@ -12,7 +12,7 @@ Create:
 2. requirements `R...` — observable obligations/constraints with source, priority, and originating request-part ids;
 3. executable TODOs — context-cohesive implementation/validation boundaries;
 4. minimal global/scoped execution context;
-5. portable F/L capability requirements plus a live provider compatibility table;
+5. portable F/L capability requirements plus today's compatibility snapshot for the active provider;
 6. a fresh review result.
 
 Do not copy paragraphs from the request into each layer. Keep the request as source evidence and use stable ids to connect layers.
@@ -60,18 +60,23 @@ Choose F from semantic capability/risk and L from required reasoning depth. Stro
 
 Do not add `provider`, `model_tier`, `reasoning_effort`, or model ids to a new F/L TODO.
 
-## 6. Build provider compatibility dynamically
+## 6. Resolve provider compatibility from the daily cache
 
-Read `PORTABLE_MODEL_ROUTING.md`. During planning, query the current local CLI/configuration and current authoritative documentation rather than using model names remembered from this skill or a previous plan.
+Read `PORTABLE_MODEL_ROUTING.md`. Compatibility discovery is provider-scoped and cached independently under `~/.plan-and-execute/cache/model-compatibility`.
 
-Build top-level `model_compatibility` covering Codex, Claude, Gemini, Qwen, and Muse. For each provider:
+Before querying any CLI or documentation, identify the provider currently executing/planning and run:
 
-- map every F1-F4 to a current concrete model;
-- map every family's L1-L5 to actual native effort levels;
-- repeat/clamp adjacent L values when the provider supports fewer levels;
-- record `checked_at` and sources.
+```bash
+python <skill-dir>/scripts/model_compatctl.py cache-status --provider <provider> --json
+```
 
-This table is intentionally separate from task semantics. Switching provider later refreshes/resolves this binding and preserves the TODO's F/L.
+If the status is `fresh`, reuse that provider's cached compatibility. Do not repeat CLI/documentation discovery for that provider during the same local calendar day.
+
+If the status is `missing`, `stale`, or `invalid`, inspect only that provider's current local CLI/configuration and current authoritative documentation. Map F1-F4 to current concrete models, map L1-L5 to actual native effort levels, repeat/clamp adjacent L values when needed, record timezone-aware `checked_at` plus sources, and save it with `model_compatctl.py cache-write`.
+
+Build top-level `model_compatibility` from the active provider's fresh cache. A new Codex plan therefore normally contains only a Codex/OpenAI compatibility object; it must not research Claude, Gemini, Qwen, and Muse merely to fill a matrix. Each of those providers receives its own cache only when actually used.
+
+Switching provider later preserves TODO F/L. Check the new provider's cache first; perform live discovery only when that provider's cache is not fresh.
 
 ## 7. Resumable subtasks
 
@@ -109,6 +114,8 @@ Avoid vague criteria such as `works correctly`, `implementation is robust`, or u
 
 Review from a fresh context using the complete request plus compact study/requirements/graph/context/F-L/compatibility proposal. Challenge material defects including uncovered request parts, multi-outcome TODOs, artificial coupling, hidden top-level work, weak context, dependency errors, unverifiable acceptance, unsafe autostart, inappropriate F/L, and stale/unsubstantiated provider mappings.
 
+For compatibility, verify that the snapshot belongs to the provider currently being used, its `checked_at` is today in local time, and it came from either a fresh daily cache or provider-specific live discovery followed by cache-write. Do not require unrelated providers to be present.
+
 Approve only when all required checks are true and `unresolved_findings` is empty. Keep review notes concrete.
 
 ## 12. Deterministic quality gates
@@ -121,4 +128,4 @@ python <skill-dir>/scripts/planctl_concise.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py audit --plan <plan-path>
 ```
 
-For a portable plan, creation/validation also require canonical `MODEL_COMPATIBILITY.json` and matching `MODEL_COMPATIBILITY.md`. A failed check is a specification defect; fix the derived field/table rather than weakening the validator.
+For a portable plan, creation/validation require canonical `MODEL_COMPATIBILITY.json` and matching `MODEL_COMPATIBILITY.md`. New plan creation also rejects provider compatibility not checked on the current local calendar day. A failed check is a specification defect; fix the derived field/binding rather than weakening the validator.

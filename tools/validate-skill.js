@@ -98,6 +98,8 @@ for (const relative of [
   path.join('scripts', 'artifact_contract.py'),
   path.join('scripts', 'runner_contract.py'),
   path.join('scripts', 'routingctl.py'),
+  path.join('scripts', 'model_compatctl.py'),
+  path.join('scripts', 'model_compat_self_test.py'),
   path.join('scripts', 'planctl_concise.py'),
   path.join('scripts', 'studyctl_concise.py'),
   path.join('scripts', 'lifecyclectl_concise.py'),
@@ -141,6 +143,8 @@ requireText(skill, [
   '`model_level`',
   'MODEL_COMPATIBILITY.json',
   'MODEL_COMPATIBILITY.md',
+  '~/.plan-and-execute/cache/model-compatibility',
+  'local calendar day',
   'Gemini',
   'Qwen',
   'Muse',
@@ -190,6 +194,8 @@ requireText(orchestration, [
   'model_family',
   'model_level',
   'MODEL_COMPATIBILITY.json',
+  'cache-status',
+  'local calendar day',
   'Codex',
   'Claude',
   'Gemini',
@@ -223,7 +229,9 @@ requireText(planning, [
   'context_boundaries_sound',
   'model_family',
   'model_level',
-  'model_compatibility'
+  'model_compatibility',
+  'cache-status',
+  'local calendar day'
 ], 'PLANNING_PROTOCOL.md');
 const planSpec = read(path.join('references', 'PLAN_SPEC.md'));
 requireText(planSpec, [
@@ -233,10 +241,18 @@ requireText(planSpec, [
   'learning_targets',
   'model_family',
   'model_level',
-  'model_compatibility'
+  'model_compatibility',
+  '~/.plan-and-execute/cache/model-compatibility',
+  'current local calendar day'
 ], 'PLAN_SPEC.md');
 const workflow = read(path.join('references', 'WORKFLOW.md'));
-requireText(workflow, ['Fresh workers', 'SUMMARY_INPUT.json', 'MODEL_COMPATIBILITY.json', 'F/L'], 'WORKFLOW.md');
+requireText(workflow, [
+  'Fresh workers',
+  'SUMMARY_INPUT.json',
+  'MODEL_COMPATIBILITY.json',
+  'F/L',
+  '~/.plan-and-execute/cache/model-compatibility'
+], 'WORKFLOW.md');
 const contextProtocol = read(path.join('references', 'EXECUTION_CONTEXT.md'));
 requireText(contextProtocol, ['Omission is the default', 'CONTEXT.md', 'Validated execution learnings'], 'EXECUTION_CONTEXT.md');
 const portableRouting = read(path.join('references', 'PORTABLE_MODEL_ROUTING.md'));
@@ -245,8 +261,12 @@ requireText(portableRouting, [
   '`L1`', '`L2`', '`L3`', '`L4`', '`L5`',
   'MODEL_COMPATIBILITY.json',
   'MODEL_COMPATIBILITY.md',
-  'codex', 'claude', 'gemini', 'qwen', 'muse',
-  'Build the compatibility table dynamically'
+  '~/.plan-and-execute/cache/model-compatibility',
+  'cache-status',
+  'cache-read',
+  'cache-write',
+  'local calendar day',
+  'codex', 'claude', 'gemini', 'qwen', 'muse'
 ], 'PORTABLE_MODEL_ROUTING.md');
 
 const promotionController = read(path.join('scripts', 'promotectl.py'));
@@ -287,18 +307,32 @@ requireText(planctl, [
 for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae']) {
   if (!planctl.includes(`"${provider}"`)) fail(`planctl.py must preserve legacy provider ${provider}.`);
 }
+
 const routingctl = read(path.join('scripts', 'routingctl.py'));
 requireText(routingctl, [
   'PORTABLE_ROUTING_VERSION = "fl-v1"',
   'FAMILY_ORDER = ("F1", "F2", "F3", "F4")',
   'LEVEL_ORDER = ("L1", "L2", "L3", "L4", "L5")',
   'PORTABLE_PROVIDERS = ("codex", "claude", "gemini", "qwen", "muse")',
-  'MODEL_COMPATIBILITY_JSON',
-  'normalize_compatibility',
+  'MODEL_CACHE_DIR_ENV = "PAE_MODEL_CACHE_DIR"',
+  'MODEL_CACHE_RELATIVE',
+  'compatibility_cache_status',
+  'load_cached_compatibility',
+  'write_cached_compatibility',
+  'compatibility_provider_is_fresh',
   'install_runtime_model_catalog',
   'provider != "muse"',
   '"--reasoning-effort"'
 ], 'routingctl.py');
+
+const compatctl = read(path.join('scripts', 'model_compatctl.py'));
+requireText(compatctl, [
+  'cache-status',
+  'cache-read',
+  'cache-write',
+  'refresh',
+  'No fresh daily cache'
+], 'model_compatctl.py');
 
 const completionSchema = JSON.parse(read(path.join('references', 'completion-report.schema.json')));
 for (const field of ['context_files_read', 'learning_files_read', 'completed_subtask_ids', 'reusable_learnings']) {
@@ -319,10 +353,8 @@ if (planExample.tasks.some((task) => task.provider || task.model_tier || task.re
   fail('plan-spec.example.json must not pin legacy provider/model tier/reasoning effort on new tasks.');
 }
 const compatProviders = Object.keys(planExample.model_compatibility?.providers ?? {});
-for (const provider of ['codex', 'claude', 'gemini', 'qwen', 'muse']) {
-  if (!compatProviders.includes(provider)) {
-    fail(`plan-spec.example.json model_compatibility must include ${provider}.`);
-  }
+if (compatProviders.length !== 1 || compatProviders[0] !== 'codex') {
+  fail('plan-spec.example.json must demonstrate a provider-scoped daily compatibility snapshot, using only codex.');
 }
 
 const packageMetadata = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));

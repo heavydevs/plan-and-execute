@@ -10,7 +10,7 @@
     "repository_findings": [
       "The sample repository is intentionally minimal and has no existing implementation files."
     ],
-    "research_decision": "Before creating a real plan, replace the compatibility template below using live provider CLI/help and current authoritative documentation.",
+    "research_decision": "Check the active Codex provider cache first; only if it is missing, stale, or invalid should a real planner query the current Codex CLI and authoritative documentation.",
     "research_findings": [],
     "assumptions": ["The test environment provides POSIX shell commands."],
     "risks": ["A broad file edit could accidentally touch unrelated files."],
@@ -64,57 +64,17 @@
     "notes": ["Every requirement maps to a task and both tasks have independent validation."]
   },
   "model_compatibility": {
-    "generated_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
-    "discovery": "TEMPLATE ONLY: replace every CURRENT_* value after querying live CLIs and current authoritative provider documentation before plan creation.",
+    "generated_at": "TEMPLATE_REPLACE_WITH_TODAYS_CHECK_TIME",
+    "discovery": "TEMPLATE ONLY: use today's Codex cache when fresh; otherwise replace every CURRENT_* value after querying only the current Codex CLI and authoritative documentation, then cache it.",
     "providers": {
       "codex": {
-        "checked_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
-        "sources": ["TEMPLATE_REPLACE_WITH_LIVE_CODEX_SOURCE"],
+        "checked_at": "TEMPLATE_REPLACE_WITH_TODAYS_CHECK_TIME",
+        "sources": ["TEMPLATE_REPLACE_WITH_CURRENT_CODEX_CACHE_OR_LIVE_SOURCE"],
         "families": {
           "F1": {"model": "CURRENT_CODEX_F1_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
           "F2": {"model": "CURRENT_CODEX_F2_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
           "F3": {"model": "CURRENT_CODEX_F3_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
           "F4": {"model": "CURRENT_CODEX_F4_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}}
-        }
-      },
-      "claude": {
-        "checked_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
-        "sources": ["TEMPLATE_REPLACE_WITH_LIVE_CLAUDE_SOURCE"],
-        "families": {
-          "F1": {"model": "CURRENT_CLAUDE_F1_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F2": {"model": "CURRENT_CLAUDE_F2_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F3": {"model": "CURRENT_CLAUDE_F3_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F4": {"model": "CURRENT_CLAUDE_F4_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}}
-        }
-      },
-      "gemini": {
-        "checked_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
-        "sources": ["TEMPLATE_REPLACE_WITH_LIVE_GEMINI_SOURCE"],
-        "families": {
-          "F1": {"model": "CURRENT_GEMINI_F1_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F2": {"model": "CURRENT_GEMINI_F2_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F3": {"model": "CURRENT_GEMINI_F3_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F4": {"model": "CURRENT_GEMINI_F4_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}}
-        }
-      },
-      "qwen": {
-        "checked_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
-        "sources": ["TEMPLATE_REPLACE_WITH_LIVE_QWEN_SOURCE"],
-        "families": {
-          "F1": {"model": "CURRENT_QWEN_F1_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F2": {"model": "CURRENT_QWEN_F2_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F3": {"model": "CURRENT_QWEN_F3_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F4": {"model": "CURRENT_QWEN_F4_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}}
-        }
-      },
-      "muse": {
-        "checked_at": "TEMPLATE_REPLACE_WITH_LIVE_CHECK_TIME",
-        "sources": ["TEMPLATE_REPLACE_WITH_LIVE_MUSE_SOURCE"],
-        "families": {
-          "F1": {"model": "CURRENT_MUSE_F1_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F2": {"model": "CURRENT_MUSE_F2_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F3": {"model": "CURRENT_MUSE_F3_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}},
-          "F4": {"model": "CURRENT_MUSE_F4_MODEL", "levels": {"L1": "CURRENT_L1_NATIVE_LEVEL", "L2": "CURRENT_L2_NATIVE_LEVEL", "L3": "CURRENT_L3_NATIVE_LEVEL", "L4": "CURRENT_L4_NATIVE_LEVEL", "L5": "CURRENT_L5_NATIVE_LEVEL"}}
         }
       }
     }

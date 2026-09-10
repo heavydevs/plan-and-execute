@@ -2,7 +2,7 @@
 
 Load this reference only when assigning or escalating portable model capability. `PORTABLE_MODEL_ROUTING.md` defines how F/L is bound dynamically to current concrete models.
 
-Provider-specific references exist for Codex, Claude Code, Gemini CLI, Qwen Code, and Muse Code. Do not preload them during execution: read only the provider actually being resolved. During planning, consult the providers needed to build the compact compatibility table, then persist only the resulting table/sources.
+Provider-specific references exist for Codex, Claude Code, Gemini CLI, Qwen Code, and Muse Code. Load only the provider actually being resolved. Before any live provider discovery, check its independent daily compatibility cache.
 
 ## Objective
 
@@ -33,7 +33,7 @@ F and L are independent. L is the requested reasoning/power level inside the con
 | `L4` | Extra-high reasoning for demanding work |
 | `L5` | Highest supported level; exceptional |
 
-Providers with fewer native levels map adjacent L values to the same effective level in `MODEL_COMPATIBILITY.json`. Never invent unsupported effort names.
+Providers with fewer native levels map adjacent L values to the same effective level in compatibility data. Never invent unsupported effort names.
 
 ## 3. Classify before choosing F/L
 
@@ -62,22 +62,25 @@ When objective verification is weak and silent failure is costly, start stronger
 
 Do not persist a concrete provider, model id, vendor tier name, or vendor effort name in a new TODO. Use only `model_family` and `model_level`.
 
-Concrete current bindings are generated separately during planning in:
+Concrete current bindings are separate:
 
-- `MODEL_COMPATIBILITY.json` — authoritative machine-readable mapping;
-- `MODEL_COMPATIBILITY.md` — rendered human-readable table referenced by the plan/TODOs.
+- `~/.plan-and-execute/cache/model-compatibility/<provider>.json` — shared provider-specific daily cache;
+- `MODEL_COMPATIBILITY.json` — per-plan machine-readable snapshot of the provider binding used for that plan;
+- `MODEL_COMPATIBILITY.md` — per-plan human-readable rendering referenced by the plan/TODOs.
 
-Switching provider resolves the same F/L through that table. It does not require re-planning unless task semantics changed.
+A new plan normally snapshots only the provider currently being used. Switching provider resolves the same F/L through that provider's independent cache and does not require re-planning unless task semantics changed.
 
-## 6. Dynamic compatibility discovery
+## 6. Dynamic compatibility discovery is cache-first
 
-Read `PORTABLE_MODEL_ROUTING.md` while planning. The planning agent must check current local CLI/model information and current authoritative provider documentation instead of copying remembered model ids from this repository. The skill intentionally contains no durable concrete model catalog.
+Read `PORTABLE_MODEL_ROUTING.md` while planning. For the active provider, check `model_compatctl.py cache-status` before querying its CLI or current authoritative documentation.
 
-Refresh compatibility when switching provider, when a recorded model/effort is rejected or unavailable, or when current model hierarchy is uncertain. Refresh the binding, not the TODO.
+A fresh cache entry is reused for the remainder of that local calendar day. Live discovery is required only when that provider's entry is missing, stale, or invalid. Do not query other providers to complete a matrix.
+
+When switching provider, check the new provider's cache independently. If fresh, use it immediately; otherwise discover/cache only that provider. A recorded model/effort rejection also invalidates the practical mapping and requires that provider's binding to be refreshed while F/L remains unchanged.
 
 ## 7. Provider fallback is not technical escalation
 
-Quota/rate-limit exhaustion, temporary capacity, unavailable models, or host interruption do not prove the task needs more intelligence. Preserve F/L and resolve it on another compatible provider. Functional/correctness evidence may raise L or F; provider availability alone may not.
+Quota/rate-limit exhaustion, temporary capacity, unavailable models, or host interruption do not prove the task needs more intelligence. Preserve F/L and resolve it on another compatible provider after checking that provider's daily cache. Functional/correctness evidence may raise L or F; provider availability alone may not.
 
 ## 8. DIRECT mode
 

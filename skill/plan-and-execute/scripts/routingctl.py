@@ -5,20 +5,25 @@ Plans persist provider-neutral model requirements:
 - F1..F4 describe the required model-family capability.
 - L1..L5 describe the required reasoning level inside that family.
 
-Concrete provider/model/effort bindings live in MODEL_COMPATIBILITY.json/.md,
-which the planning agent must build from current provider/CLI documentation.
+Concrete provider/model/effort bindings live in MODEL_COMPATIBILITY.json/.md.
+Provider discovery is cached once per local calendar day in the user's shared
+plan-and-execute home so one provider never forces discovery of every provider.
 Legacy tier/effort plans remain readable for backwards compatibility.
 """
 from __future__ import annotations
 
 import copy
+from datetime import datetime
 import json
+import os
 from pathlib import Path
 from typing import Any
 
 PORTABLE_ROUTING_VERSION = "fl-v1"
 MODEL_COMPATIBILITY_JSON = "MODEL_COMPATIBILITY.json"
 MODEL_COMPATIBILITY_MD = "MODEL_COMPATIBILITY.md"
+MODEL_CACHE_DIR_ENV = "PAE_MODEL_CACHE_DIR"
+MODEL_CACHE_RELATIVE = Path(".plan-and-execute") / "cache" / "model-compatibility"
 
 FAMILY_ORDER = ("F1", "F2", "F3", "F4")
 LEVEL_ORDER = ("L1", "L2", "L3", "L4", "L5")
@@ -45,6 +50,15 @@ class RoutingError(RuntimeError):
     pass
 
 
+def normalize_provider(value: Any) -> str:
+    provider = str(value or "").strip().lower()
+    if provider not in PORTABLE_PROVIDERS:
+        raise RoutingError(
+            f"provider must be one of {list(PORTABLE_PROVIDERS)}, got {value!r}"
+        )
+    return provider
+
+
 def _require_code(value: Any, allowed: tuple[str, ...], field: str) -> str:
     code = str(value or "").strip().upper()
     if code not in allowed:
@@ -64,8 +78,40 @@ def _str_list(value: Any, field: str) -> list[str]:
     return result
 
 
+def _parse_checked_at(value: Any) -> datetime:
+    text = str(value or "").strip()
+    if not text:
+        raise RoutingError("checked_at must be a non-empty ISO-8601 timestamp")
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise RoutingError(f"Invalid ISO-8601 checked_at timestamp: {text!r}") from exc
+    local_zone = datetime.now().astimezone().tzinfo
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=local_zone)
+    return parsed
+
+
+def compatibility_cache_dir(cache_dir: str | Path | None = None) -> Path:
+    if cache_dir is not None:
+        return Path(cache_dir).expanduser()
+    configured = os.environ.get(MODEL_CACHE_DIR_ENV, "").strip()
+    if configured:
+        return Path(configured).expanduser()
+    return Path.home() / MODEL_CACHE_RELATIVE
+
+
+def provider_cache_path(provider: Any, cache_dir: str | Path | None = None) -> Path:
+    return compatibility_cache_dir(cache_dir) / f"{normalize_provider(provider)}.json"
+
+
 def normalize_compatibility(raw: Any) -> dict[str, Any]:
-    """Validate/canonicalize a planner-produced live compatibility matrix."""
+    """Validate/canonicalize one or more provider compatibility bindings.
+
+    New planning flows normally contain exactly the provider currently in use.
+    Multiple providers remain readable so plans created by older fl-v1 builds stay
+    resumable.
+    """
     if not isinstance(raw, dict):
         raise RoutingError(
             "model_compatibility is required for portable F/L plans and must be an object"
@@ -76,20 +122,22 @@ def normalize_compatibility(raw: Any) -> dict[str, Any]:
     discovery = str(raw.get("discovery", "")).strip()
     if not discovery:
         raise RoutingError(
-            "model_compatibility.discovery must summarize the live CLI/vendor-doc lookup"
+            "model_compatibility.discovery must summarize the live CLI/vendor-doc lookup or daily-cache reuse"
         )
     providers_raw = raw.get("providers")
-    if not isinstance(providers_raw, dict):
-        raise RoutingError("model_compatibility.providers must be an object")
+    if not isinstance(providers_raw, dict) or not providers_raw:
+        raise RoutingError("model_compatibility.providers must contain at least one provider")
 
-    missing = [provider for provider in PORTABLE_PROVIDERS if provider not in providers_raw]
-    if missing:
+    unknown = sorted(set(providers_raw) - set(PORTABLE_PROVIDERS))
+    if unknown:
         raise RoutingError(
-            "model_compatibility must cover all portable providers: " + ", ".join(missing)
+            "model_compatibility contains unsupported providers: " + ", ".join(unknown)
         )
 
     providers: dict[str, Any] = {}
     for provider in PORTABLE_PROVIDERS:
+        if provider not in providers_raw:
+            continue
         value = providers_raw[provider]
         if not isinstance(value, dict):
             raise RoutingError(f"model_compatibility.providers.{provider} must be an object")
@@ -98,6 +146,7 @@ def normalize_compatibility(raw: Any) -> dict[str, Any]:
             raise RoutingError(
                 f"model_compatibility.providers.{provider}.checked_at is required"
             )
+        _parse_checked_at(checked_at)
         sources = _str_list(
             value.get("sources"),
             f"model_compatibility.providers.{provider}.sources",
@@ -162,6 +211,143 @@ def normalize_compatibility(raw: Any) -> dict[str, Any]:
     }
 
 
+def compatibility_provider_is_fresh(
+    compatibility: dict[str, Any],
+    provider: Any,
+    now: datetime | None = None,
+) -> bool:
+    provider_name = normalize_provider(provider)
+    data = compatibility.get("providers", {}).get(provider_name)
+    if not isinstance(data, dict):
+        return False
+    try:
+        checked = _parse_checked_at(data.get("checked_at"))
+    except RoutingError:
+        return False
+    current = now or datetime.now().astimezone()
+    if current.tzinfo is None:
+        current = current.astimezone()
+    return checked.astimezone(current.tzinfo).date() == current.date()
+
+
+def compatibility_cache_status(
+    provider: Any,
+    now: datetime | None = None,
+    cache_dir: str | Path | None = None,
+) -> dict[str, Any]:
+    provider_name = normalize_provider(provider)
+    path = provider_cache_path(provider_name, cache_dir)
+    base = {
+        "provider": provider_name,
+        "path": str(path),
+        "fresh": False,
+        "status": "missing",
+        "checked_at": None,
+    }
+    if not path.is_file():
+        return base
+    try:
+        compatibility = normalize_compatibility(
+            json.loads(path.read_text(encoding="utf-8"))
+        )
+        if set(compatibility["providers"]) != {provider_name}:
+            raise RoutingError(
+                f"daily cache {path} must contain only provider {provider_name!r}"
+            )
+        checked_at = compatibility["providers"][provider_name]["checked_at"]
+        fresh = compatibility_provider_is_fresh(compatibility, provider_name, now)
+        return {
+            **base,
+            "fresh": fresh,
+            "status": "fresh" if fresh else "stale",
+            "checked_at": checked_at,
+        }
+    except (OSError, json.JSONDecodeError, RoutingError) as exc:
+        return {**base, "status": "invalid", "error": str(exc)}
+
+
+def load_cached_compatibility(
+    provider: Any,
+    *,
+    require_fresh: bool = True,
+    now: datetime | None = None,
+    cache_dir: str | Path | None = None,
+) -> dict[str, Any] | None:
+    provider_name = normalize_provider(provider)
+    status = compatibility_cache_status(provider_name, now=now, cache_dir=cache_dir)
+    if status["status"] == "missing":
+        return None
+    if status["status"] == "invalid":
+        raise RoutingError(status.get("error") or f"Invalid cache for {provider_name}")
+    if require_fresh and not status["fresh"]:
+        return None
+    path = provider_cache_path(provider_name, cache_dir)
+    return normalize_compatibility(json.loads(path.read_text(encoding="utf-8")))
+
+
+def write_cached_compatibility(
+    provider: Any,
+    raw: Any,
+    *,
+    now: datetime | None = None,
+    cache_dir: str | Path | None = None,
+) -> Path:
+    provider_name = normalize_provider(provider)
+    compatibility = normalize_compatibility(raw)
+    if set(compatibility["providers"]) != {provider_name}:
+        raise RoutingError(
+            f"daily cache for {provider_name} must contain exactly that provider"
+        )
+    if not compatibility_provider_is_fresh(compatibility, provider_name, now):
+        raise RoutingError(
+            f"refusing to cache stale {provider_name} compatibility; checked_at must be today in local time"
+        )
+    path = provider_cache_path(provider_name, cache_dir)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_suffix(path.suffix + ".tmp")
+    temp.write_text(
+        json.dumps(compatibility, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    temp.replace(path)
+    return path
+
+
+def _fresh_compatibility_subset(
+    compatibility: dict[str, Any], now: datetime | None = None
+) -> dict[str, Any] | None:
+    providers = {
+        provider: data
+        for provider, data in compatibility.get("providers", {}).items()
+        if compatibility_provider_is_fresh(compatibility, provider, now)
+    }
+    if not providers:
+        return None
+    return {
+        **compatibility,
+        "providers": providers,
+    }
+
+
+def merge_compatibilities(*items: dict[str, Any] | None) -> dict[str, Any] | None:
+    valid = [item for item in items if isinstance(item, dict)]
+    if not valid:
+        return None
+    providers: dict[str, Any] = {}
+    for item in valid:
+        providers.update(item.get("providers", {}))
+    if not providers:
+        return None
+    newest = valid[-1]
+    return {
+        "schema_version": 1,
+        "routing": PORTABLE_ROUTING_VERSION,
+        "generated_at": newest.get("generated_at", ""),
+        "discovery": "Fresh per-provider daily compatibility bindings resolved from plan snapshot and user cache.",
+        "providers": providers,
+    }
+
+
 def render_compatibility_markdown(compatibility: dict[str, Any]) -> str:
     lines = [
         "# Model compatibility",
@@ -176,9 +362,9 @@ def render_compatibility_markdown(compatibility: dict[str, Any]) -> str:
         f"- Generated/checked: `{compatibility['generated_at']}`",
         f"- Discovery: {compatibility['discovery']}",
         (
-            "- Refresh rule: re-check the active provider/CLI and authoritative current "
-            "provider documentation when planning, when changing provider, or when a "
-            "recorded model/level is unavailable."
+            "- Daily cache rule: discover only the provider currently being used. Reuse "
+            "its user-home cache for the rest of the local calendar day; a different "
+            "provider gets its own independent cache."
         ),
         "",
         "## Portable scale",
@@ -200,8 +386,7 @@ def render_compatibility_markdown(compatibility: dict[str, Any]) -> str:
         "| Provider | Family | Current model | L1 | L2 | L3 | L4 | L5 | Checked |",
         "|---|---|---|---|---|---|---|---|---|",
     ]
-    for provider in PORTABLE_PROVIDERS:
-        data = compatibility["providers"][provider]
+    for provider, data in compatibility["providers"].items():
         name = data.get("display_name", provider)
         for family in FAMILY_ORDER:
             entry = data["families"][family]
@@ -212,8 +397,7 @@ def render_compatibility_markdown(compatibility: dict[str, Any]) -> str:
                 f"`{lv['L4']}` | `{lv['L5']}` | `{data['checked_at']}` |"
             )
     lines.extend(["", "## Sources", ""])
-    for provider in PORTABLE_PROVIDERS:
-        data = compatibility["providers"][provider]
+    for provider, data in compatibility["providers"].items():
         lines.append(f"### {data.get('display_name', provider)}")
         lines.append("")
         lines.extend(f"- {source}" for source in data["sources"])
@@ -291,8 +475,6 @@ def _render_task_with_portable_route(
         f'model_level: "{level}"\n'
         f'model_compatibility_file: "{MODEL_COMPATIBILITY_MD}"\n'
     )
-    # The concise renderer intentionally omits routing metadata. Insert the
-    # portable contract after status. The legacy renderer is also supported.
     legacy = (
         'provider: "auto"\n'
         f'model_tier: "{FAMILY_TO_TIER[family]}"\n'
@@ -308,8 +490,8 @@ def _render_task_with_portable_route(
     portable_rule = (
         f"Portable model requirement: **{family}/{level}**. Concrete provider/model "
         f"bindings are external to this TODO and live in `{reference}`. The orchestrator "
-        "must resolve or refresh that table before dispatch; do not pin a provider or "
-        "concrete model in this task.\n\n"
+        "must resolve the provider's fresh daily cache before dispatch; do not pin a "
+        "provider or concrete model in this task.\n\n"
     )
     return text.replace(marker, marker + portable_rule, 1)
 
@@ -327,10 +509,10 @@ def _render_plan_with_portable_route(original_render: Any, manifest: dict[str, A
         "\n## Portable model-routing contract\n\n"
         "- TODOs declare only portable `F1`-`F4` model families and `L1`-`L5` "
         "reasoning levels.\n"
-        f"- Concrete current mappings live in `{reference}` and may be refreshed "
-        "without changing the TODO graph.\n"
-        "- Changing Codex/Claude/Gemini/Qwen/Muse is a route resolution operation, "
-        "not a replan, unless execution evidence changes the task itself.\n"
+        f"- The active provider snapshot lives in `{reference}`; its source binding is "
+        "reused from the provider-specific daily cache when fresh.\n"
+        "- Changing Codex/Claude/Gemini/Qwen/Muse resolves the same F/L through that "
+        "provider's independent cache and does not change the TODO graph.\n"
     )
     return text.rstrip() + "\n" + section
 
@@ -435,6 +617,9 @@ def install_current_model_catalog(planctl_module: Any) -> Any:
             errors.append(
                 f"manifest model_compatibility_file must be {MODEL_COMPATIBILITY_MD!r}"
             )
+        recorded = manifest.get("model_compatibility_providers")
+        if recorded is not None and recorded != list(compatibility["providers"]):
+            errors.append("manifest model_compatibility_providers does not match binding")
         for task in manifest.get("tasks", []):
             task_id = task.get("id", "?")
             try:
@@ -472,12 +657,18 @@ def install_current_model_catalog(planctl_module: Any) -> Any:
             )
         try:
             compatibility = normalize_compatibility(spec.get("model_compatibility"))
+            stale = [
+                provider for provider in compatibility["providers"]
+                if not compatibility_provider_is_fresh(compatibility, provider)
+            ]
+            if stale:
+                raise RoutingError(
+                    "portable plan creation requires today's provider compatibility; stale: "
+                    + ", ".join(stale)
+                )
         except RoutingError as exc:
             raise planctl_module.PlanError(str(exc)) from exc
 
-        # The legacy creator performs an internal validation before this wrapper
-        # can write the compatibility artifact. Use the original validator only
-        # for that creation transaction, then enforce the portable validator.
         installed_validate = planctl_module.validate_plan
         planctl_module.validate_plan = original_validate_plan
         try:
@@ -492,6 +683,7 @@ def install_current_model_catalog(planctl_module: Any) -> Any:
         manifest["model_compatibility_file"] = MODEL_COMPATIBILITY_MD
         manifest["model_compatibility_data_file"] = MODEL_COMPATIBILITY_JSON
         manifest["model_compatibility_generated_at"] = compatibility["generated_at"]
+        manifest["model_compatibility_providers"] = list(compatibility["providers"])
         planctl_module.atomic_write_json(
             plan_dir / MODEL_COMPATIBILITY_JSON, compatibility
         )
@@ -532,7 +724,7 @@ def _load_plan_compatibility(plan_dir: Any) -> dict[str, Any] | None:
 
 
 def install_runtime_model_catalog(run_module: Any) -> Any:
-    """Resolve portable F/L tasks against the plan's current compatibility file."""
+    """Resolve portable F/L tasks against today's per-provider compatibility cache."""
     if getattr(run_module, "_portable_fl_routing_installed", False):
         return run_module
 
@@ -543,7 +735,19 @@ def install_runtime_model_catalog(run_module: Any) -> Any:
 
     def current_load_config(plan_dir: Any) -> dict[str, Any]:
         config = configure_config(original_load_config(plan_dir))
-        compatibility = _load_plan_compatibility(plan_dir)
+        plan_compatibility = _load_plan_compatibility(plan_dir)
+        compatibility = (
+            _fresh_compatibility_subset(plan_compatibility)
+            if plan_compatibility is not None
+            else None
+        )
+        for provider in PORTABLE_PROVIDERS:
+            try:
+                cached = load_cached_compatibility(provider, require_fresh=True)
+            except RoutingError:
+                cached = None
+            if cached is not None:
+                compatibility = merge_compatibilities(compatibility, cached)
         if compatibility is None:
             return config
         config["_portable_model_compatibility"] = compatibility
@@ -562,10 +766,11 @@ def install_runtime_model_catalog(run_module: Any) -> Any:
         if "model_family" not in task:
             return original_choose_route(task, config, override)
         compatibility = config.get("_portable_model_compatibility")
-        if not isinstance(compatibility, dict):
+        if not isinstance(compatibility, dict) or not compatibility.get("providers"):
             raise run_module.RunnerError(
-                f"Portable task requires {MODEL_COMPATIBILITY_JSON}; "
-                "refresh the current provider/model table before execution"
+                "Portable task has no fresh daily provider compatibility. Invoke the skill "
+                "for the provider being used; reuse today's cache when present, otherwise "
+                "refresh that provider from its CLI and current documentation."
             )
         try:
             family = _require_code(task.get("model_family"), FAMILY_ORDER, "model_family")
@@ -577,7 +782,19 @@ def install_runtime_model_catalog(run_module: Any) -> Any:
         synthetic["provider"] = "auto"
         synthetic["model_tier"] = FAMILY_TO_TIER[family]
         synthetic["reasoning_effort"] = LEVEL_TO_EFFORT[level]
-        route = original_choose_route(synthetic, config, override)
+        route_config = copy.deepcopy(config)
+        mapped_providers = set(compatibility["providers"])
+        route_config["provider_order"] = [
+            provider for provider in route_config.get("provider_order", [])
+            if provider in mapped_providers
+        ]
+        if override is not None and normalize_provider(override) not in mapped_providers:
+            raise run_module.RunnerError(
+                f"No fresh daily F/L cache for provider {override!r}. Invoke the skill with "
+                "that provider so it can check the provider-specific cache and perform live "
+                "CLI/documentation discovery only if today's cache is missing or stale."
+            )
+        route = original_choose_route(synthetic, route_config, override)
 
         resolved_family = TIER_TO_FAMILY.get(route["tier"], family)
         resolved_level = EFFORT_TO_LEVEL.get(route["effort"], level)
@@ -589,7 +806,7 @@ def install_runtime_model_catalog(run_module: Any) -> Any:
         except (KeyError, TypeError) as exc:
             raise run_module.RunnerError(
                 f"No current F/L binding for {provider} {resolved_family}/{resolved_level}; "
-                f"refresh {MODEL_COMPATIBILITY_JSON} before retrying"
+                "refresh that provider's daily compatibility cache before retrying"
             ) from exc
         return {
             "provider": provider,
