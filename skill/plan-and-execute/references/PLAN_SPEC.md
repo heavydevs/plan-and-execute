@@ -1,6 +1,8 @@
-# Plan spec contract — schema v4
+# Plan spec contract — schema v4 + portable F/L routing
 
-Use this file only when writing the JSON consumed by `planctl_concise.py create`. Read `ARTIFACT_WRITING.md` and `PLANNING_PROTOCOL.md` first. See `plan-spec.example.json` for a complete example; do not copy its prose unless it matches the current request.
+Use this file only when writing the JSON consumed by `planctl_concise.py create`. Read `ARTIFACT_WRITING.md`, `PLANNING_PROTOCOL.md`, and `PORTABLE_MODEL_ROUTING.md` first. See `plan-spec.example.json` for a complete example; do not copy its prose unless it matches the current request.
+
+The persisted base manifest remains schema v4 for backwards compatibility. New plans use the additive `fl-v1` portable-routing contract.
 
 ## Top level
 
@@ -14,6 +16,7 @@ Use this file only when writing the JSON consumed by `planctl_concise.py create`
   "global_constraints": [],
   "execution_context": {},
   "plan_review": {},
+  "model_compatibility": {},
   "autostart": true,
   "cleanup_on_success": true,
   "tasks": []
@@ -21,6 +24,8 @@ Use this file only when writing the JSON consumed by `planctl_concise.py create`
 ```
 
 `title` and `summary` describe the implementation outcome, not the planning process. `cleanup_on_success` should remain true unless the user explicitly requests plan retention.
+
+`model_compatibility` is mandatory when tasks use portable F/L routing. It is produced dynamically during planning from current CLI/provider information and current authoritative documentation. The controller renders it as `MODEL_COMPATIBILITY.json` and `MODEL_COMPATIBILITY.md`; see `PORTABLE_MODEL_ROUTING.md` for the required shape.
 
 ## `request_analysis`
 
@@ -135,9 +140,8 @@ A scoped file must serve at least two but fewer than all TODOs. Single-task fact
     }
   ],
   "learning_targets": [],
-  "provider": "auto",
-  "model_tier": "standard",
-  "reasoning_effort": "medium"
+  "model_family": "F2",
+  "model_level": "L2"
 }
 ```
 
@@ -145,13 +149,47 @@ A scoped file must serve at least two but fewer than all TODOs. Single-task fact
 
 - Allowed complexity: `low`, `medium`, `high`; `extreme` is rejected and must be split.
 - One TODO = one context-cohesive outcome + one independent validation boundary.
-- `atomicity_rationale` and `context_boundary` are planning/review evidence. Keep them short and concrete; they are not repeated in the compact worker projection.
+- `atomicity_rationale` and `context_boundary` are planning/review evidence. Keep them short and concrete.
 - `scope.in/out` states boundaries, not the implementation narrative.
 - `implementation_guidance` contains only non-obvious, task-specific guidance.
 - Acceptance is observable; validation is executable.
 - Subtasks are resumable checkpoints, not hidden independent deliverables.
+- `model_family` must be `F1`-`F4`; `model_level` must be `L1`-`L5`.
+- New F/L tasks must not also declare `provider`, `model_tier`, or `reasoning_effort`.
+- The same F/L requirement must remain valid if execution changes from Codex to Claude, Gemini, Qwen, or Muse.
 
-### `learning_targets`
+Legacy plans/specs using `provider`/`model_tier`/`reasoning_effort` remain supported for resume compatibility. Do not mix legacy-routing tasks and F/L tasks in one new plan.
+
+## `model_compatibility`
+
+The compatibility object must cover `codex`, `claude`, `gemini`, `qwen`, and `muse`. Every provider must map all F1-F4 families to a current concrete model, and every family must map all L1-L5 to effective native effort names. When a provider exposes fewer native levels, duplicate the nearest supported level rather than inventing one.
+
+Example fragment:
+
+```json
+{
+  "model_compatibility": {
+    "generated_at": "2026-09-09T23:00:00-03:00",
+    "discovery": "Live CLI/help and current vendor docs checked during planning.",
+    "providers": {
+      "codex": {
+        "checked_at": "2026-09-09T23:00:00-03:00",
+        "sources": ["codex --help", "current official Codex model documentation"],
+        "families": {
+          "F1": {
+            "model": "<current model id>",
+            "levels": {"L1": "<native>", "L2": "<native>", "L3": "<native>", "L4": "<native>", "L5": "<native>"}
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+The abbreviated fragment above is not valid by itself; repeat F2-F4 and all remaining providers. Do not copy model names from an old plan merely to satisfy the schema.
+
+## `learning_targets`
 
 ```json
 {
@@ -181,7 +219,7 @@ Declare only later TODOs. Keep topics narrow. A learning file is created only if
 }
 ```
 
-Notes record concrete review evidence; do not narrate the review process.
+Notes record concrete review evidence; do not narrate the review process. The review must also confirm that F/L choices match task risk/verifiability and that the compatibility table was dynamically checked.
 
 ## Derived-text budgets
 
@@ -204,4 +242,4 @@ python <skill-dir>/scripts/planctl_concise.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py audit --plan <plan-path>
 ```
 
-If a field fails for size or vague wording, rewrite it as a smaller precise semantic unit. Do not silently truncate requirements.
+If a field fails for size or vague wording, rewrite it as a smaller precise semantic unit. Do not silently truncate requirements or replace live model discovery with remembered model names.
