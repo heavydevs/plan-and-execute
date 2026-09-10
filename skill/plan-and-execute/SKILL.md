@@ -72,7 +72,7 @@ Non-negotiable invariants:
 - quota/rate-limit exhaustion and host interruption are not technical failures and do not raise F/L by themselves;
 - implementation changes, tests, product artifacts, and commits survive cleanup.
 
-Legacy plans that already contain `provider`/`model_tier`/`reasoning_effort` remain resumable for backwards compatibility, but new plans must use F/L.
+Legacy plans may preserve `provider`, `model_tier`, and `reasoning_effort` for backwards-compatible resume, but new plans must use F/L.
 
 ## Reference map
 
