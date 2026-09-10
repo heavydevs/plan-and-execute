@@ -1,6 +1,6 @@
 # Plan spec contract — schema v4 + portable F/L routing
 
-Use this file only when writing the JSON consumed by `planctl_concise.py create`. Read `ARTIFACT_WRITING.md`, `PLANNING_PROTOCOL.md`, and `PORTABLE_MODEL_ROUTING.md` first. See `plan-spec.example.json` for a complete example; do not copy its prose unless it matches the current request.
+Use this file only when writing the JSON consumed by `planctl_concise.py create`. Read `ARTIFACT_WRITING.md`, `PLANNING_PROTOCOL.md`, and `PORTABLE_MODEL_ROUTING.md` first. See `plan-spec.example.json` for a **structural template**; its `TEMPLATE_*`/`CURRENT_*` compatibility values are deliberately non-executable and must be replaced through live discovery before plan creation.
 
 The persisted base manifest remains schema v4 for backwards compatibility. New plans use the additive `fl-v1` portable-routing contract.
 
@@ -177,7 +177,7 @@ Example fragment:
         "sources": ["codex --help", "current official Codex model documentation"],
         "families": {
           "F1": {
-            "model": "<current model id>",
+            "model": "<actual current model id from live discovery>",
             "levels": {"L1": "<native>", "L2": "<native>", "L3": "<native>", "L4": "<native>", "L5": "<native>"}
           }
         }
@@ -187,7 +187,7 @@ Example fragment:
 }
 ```
 
-The abbreviated fragment above is not valid by itself; repeat F2-F4 and all remaining providers. Do not copy model names from an old plan merely to satisfy the schema.
+The abbreviated fragment above is illustrative only; the actual input must contain real discovered values, F2-F4, and all remaining providers. Placeholder/template markers are rejected by the controller. Do not copy model names from an old plan merely to satisfy the schema.
 
 ## `learning_targets`
 
