@@ -1,36 +1,53 @@
-# Full orchestration workflow
+# Full orchestration workflow — final plan
 
-Read only after the entrypoint has selected ORCHESTRATED, including a late promotion. This reference preserves the durable plan-and-execute contract while keeping routine direct work outside the harness.
+Read only after the entrypoint has selected **FINAL_PLAN**, including late promotion or a completed PRIMARY_PLAN handoff. This reference owns the ordinary implementation plan. It does **not** own oversized-source preprocessing; `PRIMARY_PLANNING.md` does.
 
-## 1. Resolve the request
+## 1. Resolve the final-planning input
 
 Treat input in this order:
 
 1. Exact lifecycle commands were already routed before this reference.
 2. No arguments: inspect lifecycle state. Resume the unique unfinished implementation first; create guided intake only when idle. See `INTAKE.md` and `LIFECYCLE.md`.
-3. One existing regular file: validate/extract it with `requestctl.py` and use it as authoritative request evidence.
-4. Otherwise use the complete inline request.
+3. A prepared request package from PRIMARY_PLAN: read `PLANNING_INPUT_CONTRACT.md`, start from `FINAL_PLAN_INPUT.md`, and retrieve source fragments only when a planning decision needs primary evidence.
+4. One existing ordinary request file: validate/extract it with `requestctl.py` and use it as authoritative request evidence.
+5. Otherwise use the complete manageable inline request.
 
-For a promoted request, the `promotectl.py render` output is the authoritative request file. Completed work in that handoff is current-state evidence; only `remaining_outcomes` becomes executable work.
+For promoted DIRECT work, the `promotectl.py render` output is authoritative. Completed work is current-state evidence; only `remaining_outcomes` becomes executable work.
 
-Preserve the user's original request/request file. Before producing derived study, requirement, plan, TODO, context, learning, or handoff text, read `ARTIFACT_WRITING.md`; its one-field/one-job, bounded, concrete, observable writing contract remains mandatory. Compress only derived artifacts.
+Preserve user-authored evidence. Before producing derived study, requirement, plan, TODO, context, pattern, learning, or handoff text, read `ARTIFACT_WRITING.md`; compress only derived artifacts.
 
-## 2. Pass adaptive study before planning
+Do **not** read `PRIMARY_PLANNING.md` on this path. A prepared package already exposes the small final-planning interface needed here.
 
-Read `ADAPTIVE_STUDY.md`. Classify study depth based on uncertainty that can change architecture, compatibility, task boundaries, risk, or validation.
+## 2. Route planning capability deliberately
 
-- skip broad study when direct evidence already makes the remaining work fully scoped;
+Planning does not blindly inherit the root chat's model/effort. Read `PLANNING_ROUTING.md` when assigning planning-stage work.
+
+- deterministic lookup/filtering/splitting/indexing stays in tools;
+- bounded evidence extraction can use economy workers;
+- ordinary requirement synthesis uses standard capability;
+- architecture, high-impact decomposition, security/migration/data-integrity decisions, or weakly verifiable planning use strong capability;
+- fresh plan review normally uses the capability required to challenge the hardest material planning decision;
+- max/frontier planning is evidence-driven, not a reward for a large parent request.
+
+Planning routes and implementation routes are independent.
+
+## 3. Pass adaptive study before planning
+
+Read `ADAPTIVE_STUDY.md`. Classify study depth from uncertainty that can change architecture, compatibility, task boundaries, risk, patterns, or validation.
+
+- skip broad study when direct evidence already scopes the remaining work;
 - search/filter before opening repository files broadly;
 - use focused external research only when authoritative current facts materially affect the plan;
-- use broad project/external study for genuinely complex architecture, migration, security, compatibility, or user-requested research.
+- use broad project/external study for genuinely complex architecture, migration, security, compatibility, or user-requested research;
+- for prepared packages, start from compact digests/indexes and retrieve immutable fragments only for material verification instead of reconstructing the whole original document in context.
 
-Validate study state with `studyctl_concise.py`. Do not manufacture evidence merely to satisfy a planning template. A late promotion studies only remaining work and current repository state.
+Validate study state with `studyctl_concise.py`. Do not manufacture evidence to satisfy a template. A late promotion studies only remaining work and current repository state.
 
-## 3. Build requirements-traceable TODOs
+## 4. Build requirements-traceable TODOs
 
-Read `PLANNING_PROTOCOL.md`, `EXECUTION_CONTEXT.md`, and `PLAN_SPEC.md` only when drafting the plan.
+Read `PLANNING_PROTOCOL.md`, `EXECUTION_CONTEXT.md`, and `PLAN_SPEC.md` only while drafting the plan.
 
-Inventory stable request parts (`P...`) and requirements (`R...`) for every **remaining** independently testable outcome/constraint. Map each request part -> requirement -> executable TODO, and every TODO back to requirements.
+Inventory stable request parts (`P...`) and requirements (`R...`) for every remaining independently testable outcome/constraint. Map each request part -> requirement -> executable TODO, and every TODO back to requirements.
 
 Recursively split until every TODO has:
 
@@ -40,43 +57,49 @@ Recursively split until every TODO has:
 - dependencies, acceptance criteria, and deterministic validation commands;
 - resumable subtasks/checkpoints;
 - `context_boundary` evidence and optional sparse `learning_targets`;
-- `provider`, `model_tier`, and `reasoning_effort`.
+- `provider`, `model_tier`, and `reasoning_effort` selected for that implementation leaf.
 
 Split unrelated domains even when they share a framework pattern. Do not split mechanically per file: tightly coupled controller/service/entity/migration/tests may remain together when they implement one invariant and benefit from one worker context.
 
 Reject executable `extreme` TODOs; split further. Justify retained `high` leaves. For promoted work, never create retroactive TODOs for completed implementation; only remaining outcomes are planned.
 
-## 4. Keep execution context minimal
+## 5. Separate immutable context from evolving shared patterns
 
 Default to no shared `CONTEXT.md`.
 
 - global context only for non-obvious facts required by every TODO;
 - scoped `contexts/<topic>.md` only when the same fact is needed by at least two but fewer than all TODOs;
 - single-task information stays in that task definition;
-- runtime discoveries cross task boundaries only through predeclared, validated learning targets.
+- runtime discoveries cross task boundaries only through predeclared validated learning targets.
 
-Review must approve `contexts_minimal` and `context_boundaries_sound`.
+Then ask a distinct question: **does any normative contract need to be shared by multiple TODOs and possibly evolve during implementation?**
 
-## 5. Preserve adaptive task-level model routing
+If no, do not read `SHARED_PATTERNS.md` and create no pattern registry.
 
-Read `MODEL_ROUTING.md` only when choosing or escalating routes. It defines provider-independent semantics. When a concrete provider/model must be chosen, read **only** that provider's reference: `MODEL_ROUTING_CODEX.md` for Codex or `MODEL_ROUTING_CLAUDE.md` for Claude Code. Do not load both; a fallback provider loads its file only if fallback occurs.
+If yes, read `SHARED_PATTERNS.md` and create a compact `/tmp/pattern-spec.json` after TODO ids stabilize. Promote only real cross-cutting contracts such as a REST Resource facade, shared Admin CRUD behavior, SCSS/token conventions, error envelopes, or persistence invariants. Do not duplicate these contracts in every TODO.
 
-Each TODO stores logical capability instead of binding unnecessarily to one concrete model:
+For prepared packages, `PATTERN_SEEDS.json` is evidence only. The final planner decides which seeds become live patterns and which TODOs sign them.
+
+Review must approve minimal execution context and sound pattern signatories.
+
+## 6. Preserve adaptive task-level model routing
+
+Read `MODEL_ROUTING.md` only when choosing or escalating implementation routes. It defines provider-independent semantics. When a concrete provider/model must be chosen, read **only** that provider's reference.
+
+Each TODO stores logical capability:
 
 - `economy`: exploration, mechanical/narrow work, cheap summarization;
 - `standard`: normal bounded implementation/debugging/tests;
 - `strong`: subtle/high-risk/weakly verifiable or difficult evidence-heavy work;
 - `max`: frontier/long-horizon work when semantic need or concrete lower-route failure justifies it.
 
-Use the lowest credible capability for the leaf. Verifiability and blast radius matter more than overall request size. A newer frontier family at low/medium effort may be a cheaper strong route than an older model at high effort; provider references own that calibration.
+Use the lowest credible capability for the leaf. Verifiability and blast radius matter more than overall request size. Keep `provider: auto` when equivalent providers may execute the task; pin only when the task genuinely depends on a provider. Record the actual execution route separately so another compatible AI can resume.
 
-Keep `provider: auto` when equivalent providers may execute the task. Pin only when the task genuinely depends on a provider. Record the actual execution route separately so another compatible AI can resume.
+Never copy routes from a PRIMARY_PLAN task into implementation merely because both refer to the same source area.
 
-Escalate from technical evidence. Rate/quota exhaustion, temporary capacity, unavailable models, or host interruption are not technical failures and must not consume the functional failure budget.
+## 7. Review and create the durable final plan
 
-## 6. Review and create the durable plan
-
-Use a fresh reviewer for complex plans when supported. Revise until coverage, atomicity, dependencies, validations, context minimality, and context boundaries pass with no unresolved material findings.
+Use a fresh reviewer for complex plans when supported. Revise until coverage, atomicity, dependencies, validations, context minimality, context boundaries, pattern assignments, and routing plausibility pass with no unresolved material findings.
 
 Create/gate using concise controllers:
 
@@ -86,78 +109,109 @@ python <skill-dir>/scripts/studyctl_concise.py attach --spec /tmp/study-spec.jso
 python <skill-dir>/scripts/studyctl_concise.py validate-plan --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl_concise.py validate --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl_concise.py audit --plan .ai-work/<plan-id>
-python <skill-dir>/scripts/lifecyclectl_concise.py activate --plan .ai-work/<plan-id> --json
 ```
 
-Use the request-file semantics in `INTAKE.md`. For late promotion, copy the rendered `/tmp` request so the compact handoff becomes `.ai-work/<plan-id>/REQUEST.md`. Autostart after gates unless a genuine safety/authorization gate blocks execution.
+If patterns were approved, initialize them **after** plan creation so signatories reference final stable TODO ids:
 
-## 7. Persist checklist and task definitions
+```bash
+python <skill-dir>/scripts/patternctl.py init \
+  --plan .ai-work/<plan-id> --spec /tmp/pattern-spec.json
+python <skill-dir>/scripts/patternctl.py validate --plan .ai-work/<plan-id>
+```
 
-`TODO.md` is terse: exactly one line per parent task, plus short in-progress/blocked suffix when applicable. Detailed metadata belongs in `manifest.json` and one definition file per TODO.
+Then activate lifecycle state. Use request-file semantics from `INTAKE.md`. For a prepared package, preserve the compact final-planning handoff plus source/package references; do not copy every raw fragment into the final plan directory.
 
-`manifest.json` is authoritative. Never hand-edit task/subtask status, retries, or routing state.
+Autostart after gates unless a genuine safety/authorization gate or unresolved material question blocks execution.
 
-Every task definition must be sufficient for a fresh compatible worker without the parent chat transcript. It includes objective, assigned execution context/learnings, resumable subtasks, scope, non-obvious guidance, acceptance, deterministic validation, and logical route recommendation.
+## 8. Persist checklist, task definitions, and pattern assignments
 
-## 8. Execute one isolated TODO at a time
+`TODO.md` is terse: exactly one line per parent task, plus short in-progress/blocked suffix when applicable. Detailed task metadata belongs in `manifest.json` and one definition file per TODO.
+
+Every task definition must be sufficient for a fresh compatible worker without parent chat. It includes objective, assigned execution context/learnings, resumable subtasks, scope, non-obvious guidance, acceptance, deterministic validation, and logical route recommendation.
+
+When patterns exist, `patterns/registry.json` is authoritative for their revisions/signatories. `patternctl.py` projects one assignment file per TODO. Pattern assignment is separate from immutable execution context because pattern revisions can invalidate completed consumers.
+
+Never hand-edit task/subtask status, retries, routing state, pattern revisions, signatory adoption, or assignment projections.
+
+## 9. Execute one isolated TODO at a time
 
 Read `WORKFLOW.md` when execution begins. For every runnable TODO:
 
-1. reload authoritative state from disk;
-2. recover stale/interrupted `in_progress` state when needed;
-3. claim the next runnable TODO through `planctl_concise.py`;
-4. select/record the actual provider/model/effort route;
-5. start a fresh worker with exactly one task-definition path plus assigned context/learning files;
+1. reload authoritative plan state from disk;
+2. recover stale/interrupted state when needed;
+3. if patterns exist, validate the registry and obtain the exact pattern assignment for the TODO;
+4. claim the next runnable TODO through `planctl_concise.py` with the actual provider/model/effort route;
+5. start a fresh worker with exactly one task definition plus assigned context, learning, and pattern files;
 6. never pass parent chat, whole plan, future task definitions, raw reports, or logs;
 7. checkpoint subtasks only through the controller;
-8. require the bounded completion report with exact context/learning read lists and completed subtask ids;
-9. rerun every deterministic validation command outside the worker;
-10. mark success only after validation passes;
-11. materialize only predeclared, validated, target-specific reusable learnings;
-12. continue until all tasks complete or one blocks at its configured limit.
+8. if evidence requires a shared-pattern change, use the guarded pattern-revision workflow rather than silently diverging;
+9. require the bounded completion report with exact files/revisions read and completed subtask ids;
+10. rerun every deterministic validation command outside the worker;
+11. mark success only after validation passes;
+12. after completion, record adoption of current assigned pattern revisions;
+13. materialize only predeclared validated target-specific learnings;
+14. continue until all tasks complete or one blocks at its configured limit.
 
 Write-heavy tasks are sequential unless repository isolation/worktrees remove reconciliation risk.
 
-## 9. Resume across quota/session/provider failure
+## 10. Pattern revision and backward invalidation
 
-Lifecycle state exists so implementation survives lost credits, process termination, host restart, or provider switching.
+A validated learning only flows earlier -> later. A shared pattern is different: it may evolve and affect already-completed signatories.
+
+When concrete implementation evidence requires a pattern change:
+
+```bash
+python <skill-dir>/scripts/patternctl.py update \
+  --plan .ai-work/<plan-id> \
+  --pattern PAT001 \
+  --contract-file /tmp/pattern-v2.json \
+  --reason "Concrete evidence" \
+  --changed-by-task 006
+```
+
+`patternctl` increments the revision, preserves history, and resets only completed signatories that adopted an older revision. Pending signatories will consume the newest revision later. A revision is rejected while another affected signatory is actively executing stale instructions.
+
+This is a dependency invalidation event, not a reason to replan the whole project. Re-enter full planning only if the new evidence changes requirement interpretation, TODO boundaries, dependencies, or architecture outside the pattern contract.
+
+After a completed TODO passes external validation:
+
+```bash
+python <skill-dir>/scripts/patternctl.py adopt \
+  --plan .ai-work/<plan-id> --task 006
+```
+
+Final completion requires `patternctl validate` to pass; no completed signatory may remain on a stale revision.
+
+## 11. Resume across quota/session/provider failure
+
+Lifecycle state exists so work survives lost credits, process termination, host restart, or provider switching.
 
 On resume:
 
 - discover the unique active/actionable plan;
 - acquire/recover the runner lease;
 - return only orphaned `in_progress` task/subtask state to runnable state;
-- preserve completed tasks/subtasks and partial repository changes;
+- preserve completed tasks/subtasks, pattern revisions/signatures, prepared-package references, and partial repository changes;
 - do not count quota/rate/capacity interruption as technical failure;
-- dispatch a fresh compatible worker from persisted task/context state, not prior chat history.
+- dispatch a fresh compatible worker from persisted task/context/pattern state, not prior chat history.
 
-Strict external execution uses:
+Strict external execution uses `run_concise.py` / `pae resume` for ordinary task state. Hosts integrating patterns must perform the pattern assignment/validation hooks described above before dispatch and adoption after completion.
 
-```bash
-python <skill-dir>/scripts/run_concise.py --plan .ai-work/<plan-id>
-```
+## 12. Replan only when evidence invalidates the plan
 
-or `pae resume`.
+If execution reveals a material unknown, contradictory contract, new version/security/migration risk, invalid dependency, wrong context boundary, or pattern change that alters task boundaries, stop downstream execution and re-enter necessary study/planning gates.
 
-## 10. Replan only when evidence invalidates the plan
+Do not replan merely because a worker used many tokens, a provider hit quota, or a pattern revision affects only its declared signatories.
 
-If execution reveals a material unknown, contradictory contract, new version/security/migration risk, invalid dependency, or wrong context boundary, stop downstream execution and re-enter the necessary study/planning gates.
+## 13. Finish and clean planning state
 
-Do not replan merely because a worker used many tokens or a provider hit quota.
+Before final handoff:
 
-## 11. Finish and clean planning state
+1. require every TODO and deterministic final validation to pass;
+2. if patterns exist, require `patternctl validate` so all completed signatories adopted current revisions;
+3. build final-summary input from compact authoritative task state, validations, pattern revision summary, and bounded repository-change evidence — never concatenate raw worker reports;
+4. generate the user-facing handoff with an economy route when available;
+5. mark summary generated and deactivate lifecycle state;
+6. run guarded plan cleanup.
 
-After every TODO and final deterministic validation pass:
-
-1. build final-summary input from compact authoritative task state, validations, and bounded repository-change evidence — never concatenate raw worker reports;
-2. generate the user-facing handoff with an economy route when available;
-3. mark summary generated;
-4. deactivate lifecycle state;
-5. run guarded plan cleanup.
-
-```bash
-python <skill-dir>/scripts/lifecyclectl_concise.py deactivate --plan .ai-work/<plan-id> --json
-python <skill-dir>/scripts/planctl_concise.py cleanup --plan .ai-work/<plan-id>
-```
-
-Delete only the verified planning/control workspace. Preserve implementation changes, tests, generated product artifacts, commits, and unrelated repository content. Retain plan state when completion, validation, or summary generation fails so diagnosis/resume remains possible.
+Preserve implementation changes, tests, generated product artifacts, commits, and unrelated repository content. Retain plan state when completion, validation, pattern adoption, or summary generation fails so diagnosis/resume remains possible.
