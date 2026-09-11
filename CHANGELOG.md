@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## 0.9.1 - 2026-09-11
+
+- Fixes Codex worker dispatch failing before the worker starts: the OpenAI structured-output validator rejects `uniqueItems` (`invalid_json_schema ... 'uniqueItems' is not permitted`), so every `codex exec --output-schema` attempt exited with HTTP 400 and the TODO was marked as a provider failure. The runner now derives a Codex-compatible copy of `completion-report.schema.json` per attempt (unsupported keywords stripped, every object strict-compliant with all properties in `required`) into `results/codex-output-schema.json`, while Claude, Antigravity and Qwen keep receiving the canonical schema. Verified against the live API with `gpt-5.6-luna`.
+- Deduplicates the report lists the canonical schema marks `uniqueItems` (`context_files_read`, `pattern_files_read`, `learning_files_read`, `completed_subtask_ids`, and `references`/`target_task_ids` inside `reusable_learnings`) on ingestion, preserving order, so a provider that cannot enforce uniqueness in its schema dialect no longer trips planctl's duplicate check or the context-acknowledgement comparison.
+
 ## 0.9.0 - 2026-09-11
 
 - Adds an end-to-end self-test that reproduces Claude Code's published turn/spend-limit result envelope (`"subtype": "error_max_turns"`) against a real subprocess, confirming the `budget` failure class and resumable `pending` state without requiring an authenticated `claude` install; documents that the Codex rollout-budget abort message is unpublished, so an unmatched phrasing there safely falls back to `unknown` (+1 rung) instead of `budget`.

@@ -297,6 +297,75 @@ def test_kimi_prompt_contract_and_redaction() -> None:
         assert gemini_summary[gemini_summary.index("--approval-mode") + 1] == "plan"
 
 
+def test_codex_output_schema_is_api_compatible() -> None:
+    canonical = planctl.read_json(run_isolated.completion_schema_path())
+    assert "uniqueItems" in json.dumps(canonical), "canonical schema keeps the full dialect"
+
+    derived = run_isolated.codex_output_schema(canonical)
+    derived_text = json.dumps(derived)
+    for keyword in run_isolated.CODEX_UNSUPPORTED_SCHEMA_KEYWORDS:
+        assert keyword not in derived_text, f"codex schema must not carry {keyword}"
+    assert "uniqueItems" in json.dumps(canonical), "derivation must not mutate the canonical schema"
+
+    def assert_strict(node: object) -> None:
+        if isinstance(node, dict):
+            if node.get("type") == "object" and isinstance(node.get("properties"), dict):
+                assert node.get("required") == list(node["properties"].keys()), (
+                    "strict mode needs every property in required"
+                )
+                assert node.get("additionalProperties") is False
+            for value in node.values():
+                assert_strict(value)
+        elif isinstance(node, list):
+            for item in node:
+                assert_strict(item)
+
+    assert_strict(derived)
+    assert set(derived["required"]) >= set(canonical["required"])
+    assert "failure_class" in derived["required"] and "pattern_files_read" in derived["required"]
+
+    config = planctl.default_config()
+    with tempfile.TemporaryDirectory() as temp:
+        result_path = Path(temp) / "results" / "001.json"
+        result_path.parent.mkdir(parents=True)
+        codex = run_isolated.build_worker_command(
+            "codex", {**sample_route(), "provider": "codex"}, config, "x", result_path
+        )
+        schema_arg = Path(codex[codex.index("--output-schema") + 1])
+        assert schema_arg.parent == result_path.parent
+        assert schema_arg.name == run_isolated.CODEX_OUTPUT_SCHEMA_NAME
+        assert planctl.read_json(schema_arg) == derived
+        claude = run_isolated.build_worker_command(
+            "claude", {**sample_route(), "provider": "claude"}, config, "x", result_path
+        )
+        assert "uniqueItems" in claude[claude.index("--json-schema") + 1], (
+            "other providers keep the canonical schema"
+        )
+
+    duplicated = {
+        **sample_report(),
+        "context_files_read": ["CONTEXT.md", "CONTEXT.md", "scoped.md"],
+        "completed_subtask_ids": ["S001", "S002", "S001"],
+        "reusable_learnings": [
+            {
+                "kind": "procedure",
+                "guidance": "Run the schema self-test after touching completion-report.schema.json.",
+                "references": ["scripts/run_isolated.py", "scripts/run_isolated.py"],
+                "target_task_ids": ["002", "002", "003"],
+            }
+        ],
+    }
+    parsed = run_isolated.parse_provider_report("codex", json.dumps(duplicated), Path("missing.json"))
+    assert parsed is not None
+    assert parsed["context_files_read"] == ["CONTEXT.md", "scoped.md"]
+    assert parsed["completed_subtask_ids"] == ["S001", "S002"]
+    assert parsed["reusable_learnings"][0]["references"] == ["scripts/run_isolated.py"]
+    assert parsed["reusable_learnings"][0]["target_task_ids"] == ["002", "003"]
+    assert parsed["changed_files"] == ["sample.txt"], "lists without a uniqueness contract are untouched"
+    mixed = run_isolated.normalize_report({"completed_subtask_ids": ["S001", 1, "S001"]})
+    assert mixed["completed_subtask_ids"] == ["S001", 1, "S001"], "non-string lists are left to planctl"
+
+
 def main() -> int:
     test_default_provider_policy()
     test_worker_command_adapters()
@@ -304,6 +373,7 @@ def main() -> int:
     test_provider_report_envelopes()
     test_summary_envelopes_and_retry_codes()
     test_kimi_prompt_contract_and_redaction()
+    test_codex_output_schema_is_api_compatible()
     print("All provider-adapter self-tests passed.")
     return 0
 

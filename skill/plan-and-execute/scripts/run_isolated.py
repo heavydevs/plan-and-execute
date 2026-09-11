@@ -233,6 +233,83 @@ def completion_schema_path() -> Path:
     return path
 
 
+# Keywords the OpenAI structured-output validator rejects (`codex exec
+# --output-schema` fails with `invalid_json_schema` before the worker starts).
+CODEX_UNSUPPORTED_SCHEMA_KEYWORDS = frozenset({"uniqueItems", "$schema"})
+CODEX_OUTPUT_SCHEMA_NAME = "codex-output-schema.json"
+
+# Report lists the canonical schema declares `uniqueItems` on; providers whose
+# schema dialect cannot enforce that get the same guarantee on ingestion.
+REPORT_UNIQUE_LIST_FIELDS = (
+    "context_files_read",
+    "pattern_files_read",
+    "learning_files_read",
+    "completed_subtask_ids",
+)
+LEARNING_UNIQUE_LIST_FIELDS = ("references", "target_task_ids")
+
+
+def codex_output_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """Return a copy of the completion schema accepted by Codex `--output-schema`.
+
+    Strips keywords the API rejects and makes every object strict-compliant
+    (all properties listed in `required`, `additionalProperties: false`), which
+    is what OpenAI structured outputs demand; the canonical file stays untouched
+    for providers that honor the full dialect.
+    """
+
+    def convert(node: Any, property_map: bool = False) -> Any:
+        if isinstance(node, dict):
+            if property_map:
+                return {key: convert(value) for key, value in node.items()}
+            out: dict[str, Any] = {}
+            for key, value in node.items():
+                if key in CODEX_UNSUPPORTED_SCHEMA_KEYWORDS:
+                    continue
+                out[key] = convert(value, property_map=(key == "properties"))
+            if out.get("type") == "object" and isinstance(out.get("properties"), dict):
+                out["required"] = list(out["properties"].keys())
+                out["additionalProperties"] = False
+            return out
+        if isinstance(node, list):
+            return [convert(item) for item in node]
+        return node
+
+    return convert(schema)
+
+
+def write_codex_output_schema(schema: dict[str, Any], result_path: Path) -> Path:
+    path = result_path.parent / CODEX_OUTPUT_SCHEMA_NAME
+    path.parent.mkdir(parents=True, exist_ok=True)
+    planctl.atomic_write_json(path, codex_output_schema(schema))
+    return path
+
+
+def unique_strings(items: Any) -> Any:
+    if not isinstance(items, list) or not all(isinstance(item, str) for item in items):
+        return items
+    return list(dict.fromkeys(items))
+
+
+def normalize_report(report: dict[str, Any]) -> dict[str, Any]:
+    """Drop repeated entries from report lists that must be unique.
+
+    Order is preserved so the first mention wins; non-string lists are left for
+    planctl's own validation to reject.
+    """
+    for field in REPORT_UNIQUE_LIST_FIELDS:
+        if field in report:
+            report[field] = unique_strings(report[field])
+    learnings = report.get("reusable_learnings")
+    if isinstance(learnings, list):
+        for entry in learnings:
+            if isinstance(entry, dict):
+                for field in LEARNING_UNIQUE_LIST_FIELDS:
+                    if field in entry:
+                        entry[field] = unique_strings(entry[field])
+    return report
+
+
 def worker_prompt(plan_dir: Path, manifest: dict[str, Any], task: dict[str, Any], route: dict[str, str]) -> str:
     repo_root = Path(manifest["repo_root"])
     task_file = (plan_dir / task["file"]).resolve()
@@ -395,8 +472,7 @@ def build_worker_command(
 ) -> list[str]:
     provider_cfg = config[provider]
     prefix = command_prefix(provider_cfg.get("command", provider))
-    schema_path = completion_schema_path()
-    schema = planctl.read_json(schema_path)
+    schema = planctl.read_json(completion_schema_path())
     schema_text = json.dumps(schema, ensure_ascii=False, separators=(",", ":"))
     extra_args = provider_cfg.get("extra_args", [])
     if not isinstance(extra_args, list) or not all(isinstance(item, str) for item in extra_args):
@@ -433,7 +509,7 @@ def build_worker_command(
         command.extend(
             [
                 "--output-schema",
-                str(schema_path),
+                str(write_codex_output_schema(schema, result_path)),
                 "--output-last-message",
                 str(result_path),
             ]
@@ -718,7 +794,7 @@ def parse_provider_report(provider: str, stdout: str, result_path: Path) -> dict
     for candidate in candidates:
         report = extract_report(candidate)
         if report:
-            return report
+            return normalize_report(report)
     return None
 
 

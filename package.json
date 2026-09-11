@@ -1,6 +1,6 @@
 {
   "name": "@luizcgvrj/plan-and-execute",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Install selective long-horizon planning with direct-mode escape, late promotion, resumable context-isolated TODOs, model-tier routing, and fresh Claude Code, Codex, Gemini, Qwen, Kimi, or Trae workers.",
   "type": "module",
   "bin": {

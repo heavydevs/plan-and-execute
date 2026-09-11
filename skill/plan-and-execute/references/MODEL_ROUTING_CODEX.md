@@ -83,3 +83,5 @@ Sol is no longer a preferred default tier in this catalog. It may still be selec
 ## Runner flags
 
 Workers run as `codex exec --ephemeral --sandbox <mode> --model <id> -c model_reasoning_effort="<effort>" --output-schema ... --output-last-message ...`; the summary uses `--sandbox read-only`.
+
+`--output-schema` receives a derived copy of `completion-report.schema.json` written per attempt to `<plan>/results/codex-output-schema.json`: OpenAI structured outputs reject `uniqueItems` and require strict objects (every property in `required`, `additionalProperties: false`), so the runner strips the unsupported keywords, marks optional fields required (workers return `null`/`[]`), and deduplicates the unique-list fields on ingestion instead. The canonical schema is unchanged for the other providers.
