@@ -1,139 +1,104 @@
 ---
 name: plan-and-execute
-description: Orchestrate long-horizon software changes with selective planning, staged preprocessing for oversized specifications, resumable isolated TODOs, adaptive model routing, and versioned shared-pattern contracts. Prefer direct execution for cohesive bounded work; create a final plan only when orchestration is useful; create a primary preprocessing plan first when request volume would make one-shot final planning economically unsafe.
+description: Orchestrate long-horizon software changes with selective planning, staged preprocessing for oversized specifications, resumable isolated TODOs, adaptive model routing, and versioned shared-pattern contracts. Do not use for routine bug fixes, bounded cohesive features/refactors/tests, or small/medium work one agent can implement and validate safely in current context. Prefer direct execution and promote only when scope, research, resumability, isolation, or request-input pressure materially justify it.
 ---
 
 # Plan and Execute
 
-Treat **context**, **model capability**, and **resumability before quota exhaustion** as separate budgets. Route to exactly one of three execution shapes and load only the references required by the selected path.
+Treat context as a budget, model capability as another budget, and durable progress before quota exhaustion as a third. Apply the **DIRECT vs ORCHESTRATED** gate first; only orchestrated work then chooses FINAL_PLAN vs PRIMARY_PLAN. Load only the selected path's references.
 
-## 1. Route lifecycle commands first
+## 1. Lifecycle first
 
 Exact `current`/`status`, `resume`/`continue`, `cancel`, and `reset` use [references/LIFECYCLE.md](references/LIFECYCLE.md).
 
-## 2. Gate 1 — DIRECT vs planned work
+## 2. Decide DIRECT vs ORCHESTRATED
 
-Prefer **DIRECT** when the remaining request is cohesive and can be implemented/validated safely in the current useful context. Strong signals for planned work are:
+Prefer **DIRECT** unless durable orchestration clearly pays for itself. Strong ORCHESTRATED signals include independent workstreams, broad repository/external study, migration/security/data-integrity/cross-module coordination, meaningful interruption/quota risk, or valuable worker-context isolation.
 
-- two or more independently verifiable workstreams whose retained reasoning would not materially help each other;
-- broad repository/external study before implementation is safe;
-- repo-wide migration, compatibility, security, data-integrity, concurrency, or cross-module coordination;
-- likely work across sessions/providers/quota windows/context compaction where durable resume has material value;
-- isolated workers would materially reduce unrelated context or improve independent validation;
-- the user explicitly requires a durable plan/checklist rather than merely selecting the skill.
-
-File count alone is not a signal. Cohesive related-file work may stay direct.
+File count alone is weak evidence. Cohesive related-file work may stay direct.
 
 ### DIRECT EXIT
 
-When DIRECT wins:
+If orchestration is not justified:
 
-- create no `.ai-work`, study, requirement inventory, plan, TODO, task file, primary plan, pattern registry, worker, or lifecycle state;
-- do not read orchestration, primary-planning, or plan-schema references;
-- implement and validate directly in current useful context;
-- continue applying model economy from section 4.
+- create no `.ai-work`, study, requirements inventory, plan, TODO, task, primary-plan, pattern, worker, or lifecycle state;
+- do not read orchestration/primary-plan/schema references;
+- implement and validate directly;
+- keep economical model routing.
 
-When uncertain, prefer DIRECT. Read [references/ROUTING.md](references/ROUTING.md) only for a genuinely ambiguous boundary.
+When uncertain, prefer DIRECT. Read [references/ROUTING.md](references/ROUTING.md) only for an ambiguous boundary.
 
-## 3. Gate 2 — FINAL_PLAN vs PRIMARY_PLAN
+## 3. For ORCHESTRATED work, route FINAL_PLAN vs PRIMARY_PLAN
 
-Run this gate **only after planned/orchestrated work has been selected**.
+Measure request-input pressure **before** loading a large request into an expensive planning model.
 
-The goal is to make a durable checkpoint before an oversized request can consume expensive-model credits merely to understand itself.
+For a local/request file:
 
-### Lightweight assessment first
+```bash
+python <skill-dir>/scripts/preplanctl.py assess --file <request-file>
+```
 
-- If the authoritative request is a local/request file, run `scripts/preplanctl.py assess --file <path>` before loading the whole file into an expensive planning context.
-- For a Drive/Docs/Office/PDF or other external document, use the host's authenticated file/connector tools to obtain readable text or a local source representation first; prefer deterministic extraction. Do not paste the complete document through chat merely to measure it.
-- If a large inline request is already model-visible, persist it to a request file when practical so later phases can resume from disk. Small inline requests need no extra measurement round-trip.
-- The assessment uses economic working-set guardrails, not a model's advertised maximum context window.
+For Drive/Docs/Office/PDF or another external document, use authenticated host/file tools to obtain readable/local source first; prefer deterministic extraction rather than pasting the entire document through chat.
 
-Route:
+### FINAL_PLAN — manageable request
 
-1. **FINAL_PLAN** — planned work whose request is small/manageable enough for ordinary adaptive study + final-plan construction.
-2. **PRIMARY_PLAN** — request volume/breadth would make direct final planning credit-heavy, attention-fragile, or non-resumable before a durable plan exists.
+Use the ordinary workflow in [references/ORCHESTRATION.md](references/ORCHESTRATION.md). **Do not read `PRIMARY_PLANNING.md`.**
 
-Default `preplanctl` guardrails: direct final planning below roughly 12k estimated source tokens without a breadth trigger; primary planning at 24k+ estimated tokens; between them, structural breadth (default 30+ detected headings at 8k+ tokens) can trigger primary planning. These are tunable economics defaults, not universal model limits.
+If FINAL_PLAN receives a prepared package created earlier, read only the small [references/PLANNING_INPUT_CONTRACT.md](references/PLANNING_INPUT_CONTRACT.md) boundary first.
 
-### FINAL_PLAN path
+### PRIMARY_PLAN — oversized/credit-expensive request
 
-Read [references/ORCHESTRATION.md](references/ORCHESTRATION.md). **Do not read `PRIMARY_PLANNING.md`.**
-
-If the input is a prepared package produced by an earlier primary plan, read [references/PLANNING_INPUT_CONTRACT.md](references/PLANNING_INPUT_CONTRACT.md); otherwise ordinary final planning does not need that file either.
-
-### PRIMARY_PLAN path
-
-Read [references/PRIMARY_PLANNING.md](references/PRIMARY_PLANNING.md). It owns deterministic fragmentation, the resumable preprocessing checklist, package coverage, and the compact handoff. **Do not preload the ordinary full orchestration protocol while creating the primary plan.**
-
-Use:
+Use [references/PRIMARY_PLANNING.md](references/PRIMARY_PLANNING.md). **Do not preload full ordinary orchestration while creating the primary plan.**
 
 ```bash
 python <skill-dir>/scripts/preplanctl.py prepare --repo-root . --file <request-file>
 ```
 
-The generated primary plan uses the existing durable `planctl` engine, but its only deliverable is a prepared request package. After `validate-package` succeeds, enter the normal **FINAL_PLAN** path using `FINAL_PLAN_INPUT.md`. Final planning recalculates implementation TODO boundaries and model routes from scratch.
+Defaults are economic guardrails, not context-window claims: direct final planning below roughly 12k estimated source tokens without a breadth trigger; PRIMARY_PLAN at 24k+; between them, default structural breadth (30+ detected headings at 8k+ tokens) can trigger PRIMARY_PLAN. Provider/project economics may tune these thresholds.
+
+PRIMARY_PLAN deterministically creates immutable indexed fragments, then a resumable checklist for bounded source digests, cross-fragment synthesis, fresh coverage review, and a compact `FINAL_PLAN_INPUT.md`. Its product then enters normal FINAL_PLAN. Final planning recalculates implementation TODOs/routes from scratch.
 
 ## 4. Always-on model economy
 
-These rules apply in DIRECT, PRIMARY_PLAN, FINAL_PLAN, and implementation:
+1. Use deterministic tools for mechanical search, hashing, splitting, indexing, transforms, builds/tests/lint.
+2. Delegate broad disposable exploration to the cheapest credible read-only worker and persist only a compact evidence map.
+3. Avoid workers for one/two obvious reads and avoid swarms for sequential work.
+4. Route by leaf semantic difficulty, verifiability, and blast radius — not parent size or root-chat model.
+5. Cheap-first when deterministic validation catches failure; start stronger when silent failure is costly/weakly verifiable.
+6. Escalate from concrete failure evidence; stop when acceptance plus independent validation pass.
 
-1. Use deterministic tools for mechanical search, hashing, splitting, indexing, builds/tests/lint, and exact transforms.
-2. If exploration would load substantial disposable context, delegate it to the cheapest credible read-only worker and request/persist a compact evidence map.
-3. Do not spawn a worker for one or two obvious reads or a swarm for sequential work. Prefer at most two concurrent explorers unless branches are genuinely independent.
-4. Route by **leaf semantic difficulty, verifiability, and blast radius**, not by parent-request size or the model selected in the root chat.
-5. Cheap-first is appropriate when deterministic validation catches failure. Start stronger for high-blast-radius, weakly verifiable decisions.
-6. Escalate from concrete failure evidence and stop once acceptance criteria plus available independent validation pass.
+Planning has its own adaptive routing. Read [references/PLANNING_ROUTING.md](references/PLANNING_ROUTING.md) only when assigning planning-stage routes. Implementation uses [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus only the active provider map.
 
-Planning itself has adaptive routing. Read [references/PLANNING_ROUTING.md](references/PLANNING_ROUTING.md) only when assigning planning-stage workers/routes. Final implementation TODOs continue to use [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus exactly one active provider mapping.
+`primary route != final-planning route != implementation route`
 
-A route used in primary preparation never becomes an implementation route by inheritance:
+## 5. Promote late
 
-`primary route != final-planning route != implementation route`.
-
-## 5. Promote late when DIRECT grows
-
-Promote a DIRECT request when substantial work remains and scope splits into independent outcomes, broad research/migration analysis becomes necessary, interruption/quota risk makes durable resume valuable, or high context pressure accompanies substantial non-cohesive work.
-
-Context pressure is secondary; do not promote a nearly finished cohesive task merely because context is high.
-
-On promotion, read [references/PROMOTION.md](references/PROMOTION.md). Persist completed work, validations, active decisions, relevant code, blockers/risks, and **remaining outcomes** with `promotectl.py`; plan only remaining work. After promotion, run Gate 2 on any remaining authoritative request material that has not already been compacted.
+When substantial DIRECT work grows into independent remaining outcomes, broad research/migration work, or meaningful interruption/context-isolation risk, read [references/PROMOTION.md](references/PROMOTION.md). Persist completed work and plan only **remaining outcomes**. Then run the FINAL_PLAN vs PRIMARY_PLAN input gate for remaining authoritative request material.
 
 ## 6. Final-plan invariants
 
-The ordinary final-plan harness owns adaptive study, traceable requirements, TODO decomposition, execution context, shared patterns, model/provider routing, resumable subtasks, validated learnings, deterministic validation, lifecycle recovery, final handoff, and guarded cleanup.
+- `manifest.json` is authoritative; `TODO.md` is the terse task index.
+- Every TODO has bounded scope, resumable subtasks, deterministic validation, `provider`, `model_tier`, and `reasoning_effort`.
+- Planning stages choose capability deliberately rather than inheriting the root model.
+- Quota/rate-limit exhaustion and host interruption are not technical failures.
+- Another compatible provider can resume without the previous chat transcript.
+- Implementation changes, tests, product artifacts, and commits survive cleanup.
 
-Non-negotiable invariants:
-
-- `manifest.json` is authoritative for normal plan/task state; `TODO.md` is the terse status index;
-- every executable TODO has a bounded definition and resumable subtasks;
-- every TODO declares `provider`, `model_tier`, and `reasoning_effort`; use the lowest credible leaf capability and escalate only from evidence;
-- planning stages also choose capability deliberately rather than blindly inheriting the root model;
-- cross-cutting normative contracts may live in versioned `patterns/` artifacts with explicit signatory TODOs;
-- a pattern revision invalidates only completed signatories that adopted an older revision; those TODOs must be reopened/revalidated before final completion;
-- quota/rate-limit exhaustion and host interruption are not technical failures;
-- another compatible provider can resume from persisted state without the previous chat transcript;
-- implementation changes, tests, product artifacts, and commits survive cleanup.
-
-Use [references/SHARED_PATTERNS.md](references/SHARED_PATTERNS.md) only when final planning identifies a genuine evolving cross-TODO contract. Do not preload it for plans with no shared patterns.
+When two or more TODOs share a **normative contract that may evolve**, use [references/SHARED_PATTERNS.md](references/SHARED_PATTERNS.md): create a versioned pattern with explicit signatories. A pattern revision reopens only completed signatories that adopted an older revision; unrelated tasks remain complete. Do not load this reference for plans with no such contract.
 
 ## Reference map — load on demand
 
-- Orchestration/final plan: [references/ORCHESTRATION.md](references/ORCHESTRATION.md)
-- Oversized primary plan: [references/PRIMARY_PLANNING.md](references/PRIMARY_PLANNING.md)
+- FINAL_PLAN: [references/ORCHESTRATION.md](references/ORCHESTRATION.md)
+- PRIMARY_PLAN: [references/PRIMARY_PLANNING.md](references/PRIMARY_PLANNING.md)
 - Prepared-package boundary: [references/PLANNING_INPUT_CONTRACT.md](references/PLANNING_INPUT_CONTRACT.md)
-- Planning-stage routing: [references/PLANNING_ROUTING.md](references/PLANNING_ROUTING.md)
+- Planning routing: [references/PLANNING_ROUTING.md](references/PLANNING_ROUTING.md)
 - Shared evolving patterns: [references/SHARED_PATTERNS.md](references/SHARED_PATTERNS.md)
-- Artifact writing: [references/ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md)
-- Intake: [references/INTAKE.md](references/INTAKE.md)
 - Direct routing: [references/ROUTING.md](references/ROUTING.md)
 - Promotion: [references/PROMOTION.md](references/PROMOTION.md)
-- Lifecycle: [references/LIFECYCLE.md](references/LIFECYCLE.md)
+- Artifact writing: [references/ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md)
 - Adaptive study: [references/ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md)
-- Final planning protocol: [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md)
+- Final planning: [references/PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md)
 - Execution context: [references/EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md)
 - Final plan schema: [references/PLAN_SPEC.md](references/PLAN_SPEC.md)
 - Execution: [references/WORKFLOW.md](references/WORKFLOW.md)
-- Generic model routing: [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md)
-- Codex routing: [references/MODEL_ROUTING_CODEX.md](references/MODEL_ROUTING_CODEX.md)
-- Claude routing: [references/MODEL_ROUTING_CLAUDE.md](references/MODEL_ROUTING_CLAUDE.md)
 - Token economics: [references/TOKEN_EFFICIENCY.md](references/TOKEN_EFFICIENCY.md)
