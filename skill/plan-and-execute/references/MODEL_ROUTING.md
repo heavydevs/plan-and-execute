@@ -98,6 +98,8 @@ Every failed attempt records a `failure_class` (worker report field or `planctl 
 
 Diagnostic for choosing the class: *did the worker not know enough (semantic -> bigger model) or not try hard enough (skipped files, did not run tests -> mechanical/more effort)?* A deterministic validation failure after a claimed completion is `semantic` unless the worker declared a narrower class.
 
+`budget` classification is pattern-matched against provider output (`routingctl`/`run_isolated` budget patterns). Claude Code's turn/spend-limit result envelope (`"subtype": "error_max_turns" | "error_max_budget_usd"`) is published and confirmed by an end-to-end self-test; Codex's rollout-budget abort message is not published, so an unmatched phrasing there falls back to `unknown` (safe: +1 rung) rather than `budget`. Recalibrate the patterns from real provider output if a project observes a mismatch.
+
 Provider fallback (quota, rate limit, capacity, CLI interruption) is availability, not evidence: state is preserved and the equivalent logical rung runs on the fallback provider. When the evidence asks for a rung above the ladder's top on the last available provider (for example a `semantic` failure at the `max` tier), the runner blocks the TODO (`ladder_exhausted`) for replanning instead of spending the remaining attempts at the strongest route. Stop as soon as acceptance and independent validation pass.
 
 ## 7. Two-phase leaves (optional)

@@ -36,14 +36,22 @@ DESIGN_NOTE_MAX_CHARS = 6000
 BUDGET_PATTERNS = [
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
+        # Claude Code result envelope: {"type":"result","subtype":"error_max_turns"|
+        # "error_max_budget_usd","is_error":true,...} — confirmed literal subtypes.
+        r"error_max_turns",
+        r"error_max_budget",
         r"max[ _-]?turns",
         r"maximum number of turns",
         r"turn limit",
+        r"budget limit",
+        # Codex rollout-budget enforcement (openai/codex#28707) aborts the turn
+        # through an internal TurnAborted result; the exact surfaced wording is
+        # not publicly documented, so match broadly and accept that an unmatched
+        # phrasing falls back to "unknown" (safe: +1 rung) rather than "budget".
         r"rollout[ _-]?budget",
+        r"turn[ _-]?abort",
         r"token budget (?:exceeded|exhausted|reached)",
         r"budget (?:exceeded|exhausted|reached)",
-        r"budget limit",
-        r"error_max_budget",
     )
 ]
 RATE_LIMIT_PATTERNS = [

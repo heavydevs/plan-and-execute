@@ -6,15 +6,23 @@
 
 [English version](README.md)
 
-## O que mudou na 0.8
+## O que mudou na 0.9
 
-A regra central agora é:
+A regra central da 0.8 continua a mesma:
 
 ```text
 DIRECT por padrão -> ORCHESTRATE por evidência -> PROMOTE quando necessário
 ```
 
-Isso evita pagar estudo, planejamento rastreável, arquivos de TODO e fresh workers em toda implementação apenas porque a skill parece semanticamente relacionada.
+A 0.9 torna o roteamento de modelo baseado em evidência de ponta a ponta, em vez de baseado em tamanho ou contagem:
+
+- **Escalada por evidência classificada, não por contagem de tentativas.** Uma falha registra `failure_class` (`mechanical`, `semantic`, `environmental`, `budget`, `plan_defect`, `unknown`); `mechanical`/`budget` repetem o degrau uma vez e depois sobem, `semantic` pula direto para o próximo tier mais forte, `environmental` mantém a rota, e `plan_defect` bloqueia o TODO para replanejamento em vez de queimar tentativas. Quando a evidência pede um degrau acima do mais forte no último provider disponível, o TODO é bloqueado (`ladder_exhausted`) em vez de repetido no tier máximo até `max_attempts`.
+- **Um modelo raiz pequeno é um delegador, não um teto.** A skill nunca troca o modelo/effort da sessão raiz — isso invalida o cache de prompt do provider — então uma folha cujo piso excede o tier raiz é delegada a um worker fresco. `routingctl.py route --signals ...` e uma tabela de sinais no `SKILL.md` dão a um modelo raiz barato os mesmos pisos que um modelo raiz frontier usaria, protegidos por um corpus de regressão (`tier-evals.json`).
+- **Folha em duas fases** (`design_route`): um TODO `high` pode ter um worker mais forte escrevendo uma nota de design bounded primeiro, e depois implementar na sua própria rota mais barata com essa nota.
+- **Planejamento "decisões primeiro"** (`request_analysis.hard_decisions`): quando só algumas decisões do plano são difíceis, resolvê-las com workers fortes antes de um planner padrão escrever o plano mecânico.
+- **Um único catálogo de modelos** (`routingctl.py`) alimenta todos os entrypoints; o effort é omitido para modelos que o rejeitam (Claude Haiku); orçamentos opcionais por worker (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) transformam workers descontrolados em falhas `budget` retomáveis em vez de técnicas.
+- **Um adapter para a Antigravity CLI do Google (`agy`)** se junta ao Claude Code e ao Codex como backend de execução; o adapter da Gemini CLI agora é marcado como legado (a própria CLI foi descontinuada).
+- Documenta a mecânica concreta de elevação por host (`model`/`effort` de subagente, `isolation: worktree`, `opusplan`, papéis `spawn_agent` do Codex, fatos de cache de prompt) e corrige diversos bugs de despacho específicos do Windows (resolução de shims `.cmd`, o alias Python da Store, liveness do lease do runner).
 
 Quando a orquestração realmente é necessária, **todo o comportamento robusto anterior continua existindo**:
 
@@ -23,7 +31,7 @@ Quando a orquestração realmente é necessária, **todo o comportamento robusto
 - `manifest.json` como estado autoritativo;
 - subtarefas/checkpoints retomáveis;
 - rastreabilidade request-part -> requirement -> TODO;
-- `provider`, `model_tier` e `reasoning_effort` recomendados individualmente por TODO;
+- `provider`, `model_tier` e `reasoning_effort` recomendados individualmente por TODO, escalada por evidência e `design_route` opcional;
 - validação determinística fora do auto-relato do worker;
 - escalonamento/fallback entre provedores e modelos;
 - estouro de créditos/quota preservando estado e sem contar como falha técnica;

@@ -2,8 +2,10 @@
 
 All notable changes to this project are documented here.
 
-## Unreleased
+## 0.9.0 - 2026-09-11
 
+- Adds an end-to-end self-test that reproduces Claude Code's published turn/spend-limit result envelope (`"subtype": "error_max_turns"`) against a real subprocess, confirming the `budget` failure class and resumable `pending` state without requiring an authenticated `claude` install; documents that the Codex rollout-budget abort message is unpublished, so an unmatched phrasing there safely falls back to `unknown` (+1 rung) instead of `budget`.
+- Adds `hard_decisions` and `design_route` coverage to the plan/task test suites and the `plan-spec.example.json` reference, and adds `claude.max_budget_usd` (`--max-budget-usd`, confirmed CLI flag) alongside `claude.max_turns` as a per-worker budget guard.
 - Fixes `pae resume` / `lifecyclectl resume` launching the raw `run_isolated.py` instead of `run_concise.py`, which silently skipped the concise worker prompt and the shared-pattern validate/assignment/adopt hooks; the CLI now drives `lifecyclectl_concise.py`.
 - Fixes Windows worker dispatch: npm-installed CLIs (`claude.cmd`, `codex.cmd`, `agy.cmd`) and the VS Code `code.cmd` editor shim are resolved through PATH/PATHEXT before `Popen`, which cannot launch `.cmd` files by bare name. `pae doctor` probes such shims through a shell, and the Windows Store `python` alias (exit 9009) no longer masks a real `python3`/`py` when the CLI looks for an interpreter.
 - Hardens the runner-lease liveness check on Windows with a `ctypes` process query instead of `os.kill(pid, 0)`, whose Windows semantics vary by interpreter version.

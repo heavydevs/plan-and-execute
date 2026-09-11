@@ -250,6 +250,37 @@ else:
     path.chmod(path.stat().st_mode | stat.S_IXUSR)
 
 
+def write_fake_claude_turn_limit(path: Path) -> None:
+    """Reproduce the documented Claude Code result envelope for a worker that
+    hits --max-turns/--max-budget-usd, so the runner's budget classification is
+    verified against the real (published) shape rather than only a synthetic
+    string. See the Agent SDK result-message reference:
+    {"type": "result", "subtype": "error_max_turns" | "error_max_budget_usd",
+     "is_error": true, "num_turns": int, "session_id": str, "total_cost_usd": float}.
+    Claude Code exits with an error in this case, so the fake exits non-zero and
+    never writes the schema-checked result file.
+    """
+    script = r'''#!/usr/bin/env python3
+import json
+import sys
+
+envelope = {
+    "type": "result",
+    "subtype": "error_max_turns",
+    "is_error": True,
+    "num_turns": 3,
+    "session_id": "fake-session",
+    "total_cost_usd": 0.02,
+    "duration_ms": 1200,
+    "duration_api_ms": 900,
+}
+print(json.dumps(envelope))
+sys.exit(1)
+'''
+    path.write_text(script, encoding="utf-8")
+    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+
+
 def test_plan_state() -> None:
     with tempfile.TemporaryDirectory() as temp:
         repo = Path(temp) / "repo"
@@ -946,6 +977,47 @@ def test_end_to_end_design_phase() -> None:
         assert any("design-attempt" in name for name in logs), logs
 
 
+def test_end_to_end_turn_limit_is_a_resumable_budget_failure() -> None:
+    """Exercises the documented (but not locally authenticated) Claude Code
+    max-turns/max-budget envelope end to end: a real subprocess, a non-zero
+    exit, and no schema-valid report. This is as close as this environment can
+    get to validating the live CLI without an authenticated `claude` install —
+    see references/TOKEN_EFFICIENCY.md and MODEL_ROUTING.md for the residual
+    caveat that exact provider wording is unverified against the live tool.
+    """
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        plan_dir = planctl.create_plan(repo, sample_spec(), ".ai-work", "turn-limit-test")
+        fake = Path(temp) / "fake-claude-turn-limit"
+        write_fake_claude_turn_limit(fake)
+        config = planctl.read_json(plan_dir / planctl.CONFIG)
+        config["provider_order"] = ["claude"]
+        config["allow_provider_fallback"] = False
+        config["stream_provider_output"] = False
+        config["rate_limit"]["auto_wait"] = False
+        config["claude"]["command"] = [sys.executable, str(fake)]
+        config["claude"]["models"] = {tier: f"fake-{tier}" for tier in run_isolated.TIER_ORDER}
+        planctl.atomic_write_json(plan_dir / planctl.CONFIG, config)
+
+        args = argparse.Namespace(
+            plan=str(plan_dir), provider=None, once=True, dry_run=False, no_wait=True, no_cleanup=True,
+        )
+        result = run_isolated.run_plan(args)
+        assert result == 0, result
+        _, manifest = planctl.load_plan(plan_dir)
+        first = manifest["tasks"][0]
+        assert first["status"] == "pending", "budget exhaustion must stay resumable, not blocked"
+        assert first["failure_classes"] == ["budget"], first["failure_classes"]
+        assert "error_max_turns" in (first["last_error"] or "")
+        assert first["history"][-1]["failure_class"] == "budget"
+        # A second identical failure repeats the same rung once more before
+        # climbing (mechanical/budget semantics), never jumping tiers outright.
+        same_route = run_isolated.choose_route(first, config, None)
+        assert same_route["tier"] == "economy" and same_route["model"] == "fake-economy"
+
+
 def main() -> int:
     test_plan_state()
     test_cycle_rejected()
@@ -969,6 +1041,7 @@ def main() -> int:
     test_request_copy_move_and_concise_todo()
     test_end_to_end_runner()
     test_end_to_end_design_phase()
+    test_end_to_end_turn_limit_is_a_resumable_budget_failure()
     print("All plan-and-execute self-tests passed.")
     return 0
 

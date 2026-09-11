@@ -26,7 +26,7 @@ The skill never changes the thread's model (`/model` is the user's); it obtains 
 | Reusable roles | `.codex/agents/<name>.toml` with `model`, `model_reasoning_effort`, `sandbox_mode`, `developer_instructions`; a custom agent named like a built-in overrides it. |
 | Session-wide subagent defaults | `agents.default_subagent_model` and `agents.default_subagent_reasoning_effort` in `config.toml`; explicit spawn values win. Concurrency: `agents.max_concurrent_threads_per_session`. |
 | Strong plan, cheap execution | `plan_mode_reasoning_effort` gives `/plan` its own effort; the skill's planning-stage routing achieves the same split by delegating planning leaves. |
-| Budget guard | `features.rollout_budget.enabled` + `features.rollout_budget.limit_tokens` (the runner sets them from `codex.rollout_token_budget`); exhaustion returns as a resumable `budget` failure. |
+| Budget guard | `features.rollout_budget.enabled` + `features.rollout_budget.limit_tokens` (the runner sets them from `codex.rollout_token_budget`). Enforcement (aborting the turn via `CodexErr::TurnAborted`) shipped 2026-06-19; the exact surfaced wording is not published, so the runner's pattern match is best-effort and an unmatched phrasing is classified `unknown` (safe: +1 rung) rather than `budget`. |
 
 Subagent workflows consume more tokens than one agent doing the same work; spawn only when isolation, parallelism, or a different tier pays for itself.
 

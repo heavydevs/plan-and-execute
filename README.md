@@ -6,24 +6,32 @@
 
 [Leia em Português](README.pt-BR.md)
 
-## What changed in 0.8
+## What changed in 0.9
 
-The skill now follows:
+The routing foundation from 0.8 is unchanged:
 
 ```text
 DIRECT by default -> ORCHESTRATE by evidence -> PROMOTE when necessary
 ```
 
-This solves a real cost problem with agent skills: a broad skill description can cause ordinary implementation prompts to pay for study, planning, traceability, task files, and fresh workers even when one conversation would have been faster and cheaper.
+0.9 makes model routing evidence-based end to end instead of size- or count-based:
 
-The full harness is still intact when orchestration is justified. An orchestrated or promoted implementation still has:
+- **Escalation follows classified evidence, not a retry count.** A failed attempt records `failure_class` (`mechanical`, `semantic`, `environmental`, `budget`, `plan_defect`, `unknown`); `mechanical`/`budget` repeat the rung once then climb, `semantic` jumps straight to the next stronger tier, `environmental` leaves the route alone, and `plan_defect` blocks the TODO for replanning instead of burning attempts. When evidence asks for a rung above the strongest one on the last available provider, the TODO is blocked (`ladder_exhausted`) rather than retried at the top route until `max_attempts`.
+- **A small root model is a delegator, not a ceiling.** The skill never switches the root session's model/effort — that invalidates the provider's prompt cache — so a leaf whose floor exceeds the root tier is delegated to a fresh worker instead. `routingctl.py route --signals ...` and a leaf-signal table in `SKILL.md` give a cheap root model the same floors a frontier root would use, protected by a `tier-evals.json` regression corpus.
+- **Two-phase leaves** (`design_route`): a `high` TODO can have a stronger worker write a bounded design note first, then implement at its own cheaper route with that note.
+- **Decision-first planning** (`request_analysis.hard_decisions`): when only a few planning decisions are hard, resolve them with strong workers before a standard planner writes the mechanical plan.
+- **One model catalog** (`routingctl.py`) backs every entrypoint; effort is omitted for models that reject it (Claude Haiku); optional per-worker budgets (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway workers into resumable `budget` failures instead of technical ones.
+- **A Google Antigravity CLI (`agy`) adapter** joins Claude Code and Codex as an execution backend; the Gemini CLI adapter is now marked legacy (the CLI itself was sunset).
+- Documents the concrete elevation mechanics per host (subagent `model`/`effort`, `isolation: worktree`, `opusplan`, Codex `spawn_agent` roles, prompt-cache facts) and fixes several Windows-specific dispatch bugs (`.cmd` shim resolution, the Store Python alias, runner-lease liveness).
+
+The full harness described below is still intact when orchestration is justified. An orchestrated or promoted implementation still has:
 
 - a terse persistent `TODO.md` checklist;
 - one bounded definition file per TODO;
 - `manifest.json` as authoritative lifecycle state;
 - resumable subtasks/checkpoints;
 - request-part -> requirement -> TODO traceability;
-- per-TODO `provider`, `model_tier`, and `reasoning_effort` recommendations;
+- per-TODO `provider`, `model_tier`, and `reasoning_effort` recommendations, evidence-based escalation, and optional `design_route`;
 - deterministic validation outside worker self-reports;
 - provider/model escalation and fallback;
 - quota/rate-limit events that preserve state instead of counting as technical failure;
