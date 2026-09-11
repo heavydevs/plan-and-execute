@@ -657,6 +657,23 @@ def test_command_prefix_keeps_windows_paths() -> None:
     quoted = run_isolated.command_prefix(f'"{sys.executable}" --flag')
     assert quoted == [sys.executable, "--flag"], quoted
     assert run_isolated.command_prefix(["a", "b"]) == ["a", "b"]
+    if os.name != "nt":
+        return
+    # npm shims are .cmd files; CreateProcess cannot launch them by bare name.
+    with tempfile.TemporaryDirectory() as temp:
+        shim = Path(temp) / "pae-fake-cli.cmd"
+        shim.write_text("@echo off\r\necho fake ok %*\r\n", encoding="utf-8")
+        original = os.environ.get("PATH", "")
+        os.environ["PATH"] = temp + os.pathsep + original
+        try:
+            resolved = run_isolated.command_prefix("pae-fake-cli --flag")
+            assert resolved[0].lower().endswith("pae-fake-cli.cmd"), resolved
+            assert resolved[1:] == ["--flag"]
+            completed = subprocess.run(resolved, capture_output=True, text=True)
+            assert completed.returncode == 0 and "fake ok --flag" in completed.stdout
+            assert run_isolated.command_prefix(["pae-fake-cli"])[0].lower().endswith(".cmd")
+        finally:
+            os.environ["PATH"] = original
 
 
 def test_symlink_work_root_rejected() -> None:

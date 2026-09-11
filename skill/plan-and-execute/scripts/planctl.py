@@ -1036,8 +1036,9 @@ def default_config() -> dict[str, Any]:
             "summary_skip_permissions": True,
             "sandbox": False,
             "summary_sandbox": True,
-            # agy kills a print-mode run after 5 minutes by default; workers need longer.
-            "print_timeout": "60m",
+            # agy kills a print-mode run after 5 minutes by default. "auto" follows
+            # task_timeout_seconds (or 12h when the runner has no limit).
+            "print_timeout": "auto",
             "retry_exit_codes": [],
             "max_effort_by_tier": {
                 "economy": "high",

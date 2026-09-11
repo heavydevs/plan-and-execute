@@ -8,6 +8,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -270,6 +271,23 @@ def test_reset_removes_all_recognized_plans_only() -> None:
         assert unrelated.is_dir(), "Reset must ignore directories without a valid plan sentinel"
 
 
+def test_pid_liveness_is_a_query_not_a_signal() -> None:
+    child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
+    try:
+        time.sleep(0.3)
+        assert lifecyclectl.pid_is_alive(child.pid)
+        # Checking liveness twice must never terminate the process.
+        assert lifecyclectl.pid_is_alive(child.pid)
+        assert child.poll() is None, "liveness check killed the runner"
+    finally:
+        child.kill()
+        child.wait(timeout=10)
+    time.sleep(0.2)
+    assert not lifecyclectl.pid_is_alive(child.pid)
+    assert not lifecyclectl.pid_is_alive(0)
+    assert not lifecyclectl.pid_is_alive("nope")
+
+
 def test_live_runner_is_stopped_by_cancel() -> None:
     if os.name == "nt":
         return
@@ -305,6 +323,7 @@ def main() -> int:
     test_completed_plan_does_not_block_new_request()
     test_cancel_removes_plan_state_but_preserves_implementation()
     test_reset_removes_all_recognized_plans_only()
+    test_pid_liveness_is_a_query_not_a_signal()
     test_live_runner_is_stopped_by_cancel()
     print("All resumable lifecycle self-tests passed.")
     return 0

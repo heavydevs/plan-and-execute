@@ -266,6 +266,28 @@ def activate_plan(plan_arg: str | Path, *, force: bool = False) -> tuple[Path, d
     return plan_dir, manifest
 
 
+def _windows_pid_is_alive(numeric: int) -> bool:
+    """Query the process without signalling it (os.kill semantics on Windows are
+    version-dependent and can terminate the target)."""
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)  # type: ignore[attr-defined]
+    process_query_limited_information = 0x1000
+    still_active = 259
+    handle = kernel32.OpenProcess(process_query_limited_information, False, numeric)
+    if not handle:
+        error = ctypes.get_last_error()
+        return error == 5  # ERROR_ACCESS_DENIED: exists but belongs to another user
+    try:
+        exit_code = wintypes.DWORD()
+        if not kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
+            return False
+        return exit_code.value == still_active
+    finally:
+        kernel32.CloseHandle(handle)
+
+
 def pid_is_alive(pid: Any) -> bool:
     try:
         numeric = int(pid)
@@ -273,6 +295,8 @@ def pid_is_alive(pid: Any) -> bool:
         return False
     if numeric <= 0:
         return False
+    if os.name == "nt":
+        return _windows_pid_is_alive(numeric)
     try:
         os.kill(numeric, 0)
     except ProcessLookupError:
@@ -560,7 +584,9 @@ def resume_workspace(args: argparse.Namespace) -> int:
         print(json.dumps(payload, ensure_ascii=False, indent=2) if args.json else payload["message"])
         return 3
     plan_dir, _ = active
-    command = [sys.executable, str(SCRIPT_DIR / "run_isolated.py"), "--plan", str(plan_dir)]
+    # The concise runner owns the adaptive routing, concise prompt, and
+    # shared-pattern hooks; the raw run_isolated.py is only its base module.
+    command = [sys.executable, str(SCRIPT_DIR / "run_concise.py"), "--plan", str(plan_dir)]
     if args.provider:
         command.extend(["--provider", args.provider])
     if args.once:

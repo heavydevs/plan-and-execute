@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 
 ## Unreleased
 
+- Fixes `pae resume` / `lifecyclectl resume` launching the raw `run_isolated.py` instead of `run_concise.py`, which silently skipped the concise worker prompt and the shared-pattern validate/assignment/adopt hooks; the CLI now drives `lifecyclectl_concise.py`.
+- Fixes Windows worker dispatch: npm-installed CLIs (`claude.cmd`, `codex.cmd`, `agy.cmd`) and the VS Code `code.cmd` editor shim are resolved through PATH/PATHEXT before `Popen`, which cannot launch `.cmd` files by bare name. `pae doctor` probes such shims through a shell, and the Windows Store `python` alias (exit 9009) no longer masks a real `python3`/`py` when the CLI looks for an interpreter.
+- Hardens the runner-lease liveness check on Windows with a `ctypes` process query instead of `os.kill(pid, 0)`, whose Windows semantics vary by interpreter version.
+- Ties the Antigravity `--print-timeout` to `task_timeout_seconds` (`print_timeout: "auto"`, 12h when the runner has no limit) so agy cannot kill a worker the runner would still wait for.
+- CI now runs the suite on `windows-latest` and on Python 3.10 (the lowest supported interpreter) in addition to Ubuntu/Python 3.13.
+- Documents that validation commands run through the platform shell and should prefer toolchain commands over POSIX builtins when a plan may resume on another OS.
 - Escalates worker routes from **classified failure evidence** instead of a retry count: the completion report and `planctl fail --failure-class` record `mechanical`, `semantic`, `environmental`, `budget`, `plan_defect`, or `unknown`; `semantic` jumps a tier, `mechanical`/`budget` repeat the rung once, `environmental` keeps it, `plan_defect` blocks the TODO for replanning. Provider ladders live in `routingctl.py` (Codex: Terra → Astra Low, never Terra High; Claude: Haiku → Sonnet Medium); when evidence asks for a rung above the top on the last provider, the TODO is blocked (`ladder_exhausted`) for replanning instead of burning `max_attempts` at the strongest route.
 - Makes `routingctl.py` the single model catalog: `planctl.default_config` now overlays it, so raw `planctl.py`/`run_isolated.py` entrypoints no longer generate plans with stale model ids.
 - Omits `--effort` for models that accept none (Claude Haiku) instead of passing it blindly; adds optional per-worker budget guards `claude.max_turns` and `codex.rollout_token_budget`, with exhaustion recorded as a resumable `budget` failure.

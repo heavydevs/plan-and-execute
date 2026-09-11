@@ -80,7 +80,22 @@ def test_worker_command_adapters() -> None:
     assert agy[agy.index("--output-format") + 1] == "json"
     assert "--json-schema" in agy
     assert agy[agy.index("--effort") + 1] == "medium"
-    assert agy[agy.index("--print-timeout") + 1] == "60m"
+    assert agy[agy.index("--print-timeout") + 1] == "12h", "no runner limit -> long agy window"
+    bounded = dict(config)
+    bounded["task_timeout_seconds"] = 1800
+    with tempfile.TemporaryDirectory() as temp:
+        result_path = Path(temp) / "r.json"
+        result_path.parent.mkdir(parents=True, exist_ok=True)
+        timed = run_isolated.build_worker_command(
+            "antigravity", {**sample_route(), "provider": "antigravity"}, bounded, "x", result_path
+        )
+        assert timed[timed.index("--print-timeout") + 1] == "1800s"
+        explicit = dict(bounded)
+        explicit["antigravity"] = {**config["antigravity"], "print_timeout": "45m"}
+        fixed = run_isolated.build_worker_command(
+            "antigravity", {**sample_route(), "provider": "antigravity"}, explicit, "x", result_path
+        )
+        assert fixed[fixed.index("--print-timeout") + 1] == "45m"
     assert agy[-2:] == ["-p", "Implement only the assigned task."]
     assert "--model" not in agy
 

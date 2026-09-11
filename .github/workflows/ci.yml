@@ -15,6 +15,11 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [18, 20, 22, 24]
+        python-version: ['3.13']
+        include:
+          # Lowest supported interpreter (README: Python 3.10+).
+          - node-version: 22
+            python-version: '3.10'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -23,7 +28,7 @@ jobs:
           package-manager-cache: false
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.13'
+          python-version: ${{ matrix.python-version }}
       - run: npm ci
       - run: npm run check
       - run: npm pack --dry-run
@@ -52,3 +57,20 @@ jobs:
           name: plan-and-execute-skill
           path: skill.zip
           if-no-files-found: error
+
+  # The runner, lifecycle lease, installer, and CLI have Windows-specific paths
+  # (CreateProcess cannot launch .cmd shims, shlex strips backslashes, the Store
+  # python alias exits 9009). Keep them covered on a real Windows runner.
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: npm ci
+      - run: npm run check

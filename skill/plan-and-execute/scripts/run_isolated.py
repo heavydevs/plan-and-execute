@@ -87,9 +87,23 @@ def load_config(plan_dir: Path) -> dict[str, Any]:
     return deep_merge(planctl.default_config(), raw)
 
 
+def resolve_windows_shim(parts: list[str]) -> list[str]:
+    """CreateProcess cannot launch npm-style `.cmd`/`.bat` shims (claude, codex, agy)
+    by bare name; resolve them through PATH/PATHEXT so Popen gets the real file."""
+    if os.name != "nt" or not parts:
+        return parts
+    first = parts[0]
+    if os.path.sep in first or (os.path.altsep and os.path.altsep in first):
+        return parts
+    resolved = shutil.which(first)
+    if resolved:
+        return [resolved, *parts[1:]]
+    return parts
+
+
 def command_prefix(value: Any) -> list[str]:
     if isinstance(value, list) and all(isinstance(item, str) for item in value):
-        return list(value)
+        return resolve_windows_shim(list(value))
     if isinstance(value, str) and value.strip():
         text = value.strip()
         if os.name != "nt":
@@ -102,8 +116,22 @@ def command_prefix(value: Any) -> list[str]:
             if len(part) >= 2 and part[0] == part[-1] and part[0] in ("'", '"'):
                 part = part[1:-1]
             cleaned.append(part)
-        return cleaned
+        return resolve_windows_shim(cleaned)
     raise RunnerError(f"Invalid provider command: {value!r}")
+
+
+def antigravity_print_timeout(provider_cfg: dict[str, Any], config: dict[str, Any]) -> str:
+    """agy kills a print-mode run after `--print-timeout` (default 5m).
+
+    An explicit `antigravity.print_timeout` wins; otherwise follow the runner's
+    `task_timeout_seconds` so the two limits never disagree, and fall back to a
+    long window when the runner imposes no limit.
+    """
+    configured = str(provider_cfg.get("print_timeout", "") or "").strip()
+    if configured and configured.lower() != "auto":
+        return configured
+    task_timeout = int(config.get("task_timeout_seconds", 0) or 0)
+    return f"{task_timeout}s" if task_timeout > 0 else "12h"
 
 
 def executable_available(prefix: list[str]) -> bool:
@@ -409,9 +437,7 @@ def build_worker_command(
         command.extend(["--output-format", "json", "--json-schema", schema_text])
         command.extend(configured_model_args("--model", route["model"]))
         command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="claude"))
-        print_timeout = str(provider_cfg.get("print_timeout", "60m")).strip()
-        if print_timeout:
-            command.extend(["--print-timeout", print_timeout])
+        command.extend(["--print-timeout", antigravity_print_timeout(provider_cfg, config)])
         command.extend(extra_args)
         command.extend(["-p", prompt])
         return command
@@ -1193,9 +1219,7 @@ def build_summary_command(
         command.extend(["--output-format", "json"])
         command.extend(configured_model_args("--model", route["model"]))
         command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="claude"))
-        print_timeout = str(provider_cfg.get("print_timeout", "60m")).strip()
-        if print_timeout:
-            command.extend(["--print-timeout", print_timeout])
+        command.extend(["--print-timeout", antigravity_print_timeout(provider_cfg, config)])
         command.extend(extra_args)
         command.extend(["-p", prompt])
         return command

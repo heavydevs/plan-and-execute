@@ -240,11 +240,18 @@ def launch_editor(command: Sequence[str] | None) -> tuple[bool, str | None]:
             "stderr": subprocess.DEVNULL,
             "close_fds": os.name != "nt",
         }
+        launch = list(command)
         if os.name == "nt":
             kwargs["creationflags"] = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+            # `code`/`code-insiders` are .cmd shims on Windows; CreateProcess
+            # needs the resolved file, not the bare name.
+            if launch and not os.path.isabs(launch[0]) and os.sep not in launch[0]:
+                resolved = shutil.which(launch[0])
+                if resolved:
+                    launch[0] = resolved
         else:
             kwargs["start_new_session"] = True
-        subprocess.Popen(list(command), **kwargs)
+        subprocess.Popen(launch, **kwargs)
         return True, None
     except OSError as exc:
         return False, str(exc)

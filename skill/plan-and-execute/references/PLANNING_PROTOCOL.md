@@ -139,6 +139,8 @@ Avoid `works correctly`, `implementation is robust`, `tests pass` without the re
 
 Every TODO needs at least one deterministic validation command. The worker's own claim is never sufficient validation.
 
+Validation commands run through the platform shell from the repository root (`cmd.exe` on Windows, `/bin/sh` elsewhere). Prefer the project's toolchain (`npm test -- <filter>`, `pytest <path>`, `./gradlew test --tests ...`) over POSIX builtins such as `test -f` or `grep -q` when a plan may be resumed on another operating system.
+
 If a TODO signs shared patterns, acceptance implicitly includes implementing the current assigned pattern revisions; pattern adoption is recorded only after deterministic validation succeeds.
 
 ## 12. Fresh plan review

@@ -9,6 +9,8 @@ import {
   getPackageVersion,
   getStatus,
   installSkill,
+  isMissingCommand,
+  probeCommand,
   resolveTargets,
   runDoctor,
   uninstallSkill
@@ -20,7 +22,7 @@ const lifecycleScript = path.join(
   'skill',
   'plan-and-execute',
   'scripts',
-  'lifecyclectl.py'
+  'lifecyclectl_concise.py'
 );
 
 const EXECUTION_PROVIDERS = Object.freeze([
@@ -187,18 +189,6 @@ function printResults(results, json) {
   }
 }
 
-function probeCommand(command, args = ['--version']) {
-  const result = spawnSync(command, args, { encoding: 'utf8', timeout: 5000, windowsHide: true });
-  if (result.error?.code === 'ENOENT') return null;
-  const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`.trim();
-  return {
-    command,
-    available: result.status === 0,
-    version: output.split(/\r?\n/).find(Boolean) ?? null,
-    exitCode: result.status
-  };
-}
-
 function executionDoctorReport() {
   const report = runDoctor();
   for (const [provider, command] of Object.entries(OPTIONAL_PROVIDER_COMMANDS)) {
@@ -245,7 +235,7 @@ function runLifecycle(scriptArgs, options, { stream = false } = {}) {
       windowsHide: true,
       env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' }
     });
-    if (result.error?.code === 'ENOENT') continue;
+    if (isMissingCommand(result)) continue;
     if (!stream) {
       if (result.stdout) process.stdout.write(result.stdout);
       if (result.stderr) process.stderr.write(result.stderr);
