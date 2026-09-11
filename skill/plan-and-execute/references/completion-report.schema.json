@@ -46,6 +46,12 @@
       "items": {"type": "string", "maxLength": 300},
       "uniqueItems": true
     },
+    "pattern_files_read": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {"type": "string", "maxLength": 300},
+      "uniqueItems": true
+    },
     "related_task_reads": {
       "type": "array",
       "maxItems": 8,
