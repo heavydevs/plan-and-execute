@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Strict isolated runner with concise prompts and current adaptive routes."""
+"""Strict isolated runner with concise prompts, adaptive routes, and shared patterns."""
 from __future__ import annotations
 
 from artifact_contract import install_plan_contract
+from pattern_runner_contract import install_pattern_runner_contract
 from runner_contract import install_runner_contract
 import routingctl
 
@@ -12,6 +13,7 @@ import run_isolated  # noqa: E402
 
 routingctl.install_runtime_model_catalog(run_isolated)
 install_runner_contract(run_isolated)
+install_pattern_runner_contract(run_isolated)
 
 if __name__ == "__main__":
     raise SystemExit(run_isolated.main())
