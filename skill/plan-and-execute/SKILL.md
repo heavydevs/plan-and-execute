@@ -1,6 +1,6 @@
 ---
 name: plan-and-execute
-description: Orchestrate long-horizon software changes with selective planning, staged preprocessing for oversized specifications, resumable isolated TODOs, adaptive model routing, and versioned shared-pattern contracts. Do not use for routine bug fixes, bounded cohesive features/refactors/tests, or small/medium work one agent can implement and validate safely in current context. Prefer direct execution and promote only when scope, research, resumability, isolation, or request-input pressure materially justify it.
+description: Orchestrate long-horizon software changes only when durable resumability, independently verifiable workstreams, broad study, or isolation justify it. Do not use for routine bug fixes or cohesive small/medium changes one agent can implement safely; prefer direct execution and promote later when scope grows. For planned work, stage oversized specs before final planning, with adaptive model routing and versioned shared-pattern contracts.
 ---
 
 # Plan and Execute
