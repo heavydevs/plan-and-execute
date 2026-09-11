@@ -33,6 +33,7 @@ Use this file only when writing the JSON consumed by `planctl_concise.py create`
   "assumptions": [],
   "risks": [],
   "open_questions": [],
+  "hard_decisions": [],
   "decomposition_strategy": "..."
 }
 ```
@@ -44,6 +45,20 @@ Rules:
 - keep one finding/assumption/risk/question per item;
 - `autostart: true` requires no unresolved material open questions;
 - preserve the original request separately when using `--request-file`.
+
+`hard_decisions` (optional, max 12) records decision-first planning (`PLANNING_ROUTING.md` §3): decisions a stronger route resolved before the mechanical plan was written.
+
+```json
+{
+  "id": "HD001",
+  "decision": "Keep export identifiers as UUID strings on API v2.",
+  "rationale": "Three clients parse the id as opaque text; numeric ids would break them.",
+  "route_used": "strong/medium",
+  "source_refs": ["R004", "I002"]
+}
+```
+
+`decision` <= 240 chars, `rationale` <= 240 chars, `route_used` is `<tier>/<effort>` or empty.
 
 ## `requirements`
 
@@ -137,13 +152,15 @@ A scoped file must serve at least two but fewer than all TODOs. Single-task fact
   "learning_targets": [],
   "provider": "auto",
   "model_tier": "standard",
-  "reasoning_effort": "medium"
+  "reasoning_effort": "medium",
+  "design_route": {"model_tier": "strong", "reasoning_effort": "medium"}
 }
 ```
 
 ### Task rules
 
 - Allowed complexity: `low`, `medium`, `high`; `extreme` is rejected and must be split.
+- `design_route` is optional and allowed only on `high` TODOs (effort may not be `low`): the runner dispatches a design worker at that route first, persists `tasks/<id>.design.md`, then runs the implementation worker at `model_tier`/`reasoning_effort` with the note. The design attempt does not consume an implementation attempt; a reset discards the note.
 - One TODO = one context-cohesive outcome + one independent validation boundary.
 - `atomicity_rationale` and `context_boundary` are planning/review evidence. Keep them short and concrete; they are not repeated in the compact worker projection.
 - `scope.in/out` states boundaries, not the implementation narrative.

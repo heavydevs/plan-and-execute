@@ -184,7 +184,49 @@ import sys
 
 args = sys.argv[1:]
 root = pathlib.Path.cwd()
-if "--json-schema" in args:
+prompt = args[-1] if args else ""
+if "Design note path:" in prompt:
+    note = prompt.split("Design note path:", 1)[1].splitlines()[0].strip()
+    pathlib.Path(note).parent.mkdir(parents=True, exist_ok=True)
+    pathlib.Path(note).write_text("# Design\n\nApproach: create the file directly.\n", encoding="utf-8")
+    report = {
+        "status": "completed",
+        "summary": "Design note written.",
+        "changed_files": [],
+        "validations": [],
+        "risks": [],
+        "follow_ups": [],
+        "context_files_read": ["CONTEXT.md"],
+        "learning_files_read": [],
+        "completed_subtask_ids": [],
+        "reusable_learnings": [],
+        "related_task_reads": [],
+        "blocked_reason": None
+    }
+    print(json.dumps({"type": "result", "structured_output": report}))
+elif "--json-schema" in args:
+    flag = root / "design-required.flag"
+    required = flag.read_text(encoding="utf-8").strip() if flag.exists() else ""
+    if required and "Design note:" not in prompt and (
+        f"Task: `{required}`" in prompt or f"Task id: {required}" in prompt
+    ):
+        report = {
+            "status": "blocked",
+            "summary": "Missing design note.",
+            "changed_files": [],
+            "validations": [],
+            "risks": [],
+            "follow_ups": [],
+            "context_files_read": ["CONTEXT.md"],
+            "learning_files_read": [],
+            "completed_subtask_ids": [],
+            "reusable_learnings": [],
+            "related_task_reads": [],
+            "blocked_reason": "Design note was not provided",
+            "failure_class": "plan_defect"
+        }
+        print(json.dumps({"type": "result", "structured_output": report}))
+        raise SystemExit(0)
     (root / "implemented.txt").write_text("implemented\n", encoding="utf-8")
     report = {
         "status": "completed",
@@ -376,6 +418,7 @@ def test_autostart_rejects_open_questions() -> None:
 
 
 def test_route_escalation() -> None:
+    """Legacy manifests (no failure classes) still climb one rung per failure."""
     config = planctl.default_config()
     config["claude"]["command"] = sys.executable
     config["codex"]["command"] = sys.executable
@@ -387,20 +430,233 @@ def test_route_escalation() -> None:
         "functional_failures": 0,
     }
     routes = []
-    for failures in range(5):
+    for failures in range(8):
         task["functional_failures"] = failures
         routes.append(run_isolated.choose_route(task, config, None))
     assert routes[0]["tier"] == "economy" and routes[0]["effort"] == "low"
-    assert routes[1]["tier"] == "economy" and routes[1]["effort"] == "medium"
+    # Haiku accepts no effort flag, so the first Claude rung above economy is Sonnet.
+    assert routes[1]["tier"] == "standard" and routes[1]["effort"] == "medium"
     assert routes[2]["tier"] == "standard" and routes[2]["effort"] == "high"
-    assert routes[3]["tier"] in {"strong", "max"}
-    assert routes[4] == routes[3], "A single locked provider must stay at its highest route"
+    assert routes[3]["tier"] == "strong" and routes[3]["effort"] == "medium"
+    assert routes[4]["tier"] == "strong" and routes[4]["effort"] == "high"
+    assert routes[5]["tier"] == "max"
+    assert routes[7] == routes[6], "A single locked provider must stay at its highest route"
 
     task["provider"] = "auto"
     task["allow_provider_fallback"] = True
     task["functional_failures"] = 4
     switched = run_isolated.choose_route(task, config, None)
     assert switched["provider"] == "codex"
+
+
+def test_evidence_based_escalation() -> None:
+    """Failure classes, not counts, decide the next rung."""
+    config = planctl.default_config()
+    config["claude"]["command"] = sys.executable
+    config["codex"]["command"] = sys.executable
+    base = {
+        "provider": "codex",
+        "allow_provider_fallback": False,
+        "model_tier": "standard",
+        "reasoning_effort": "medium",
+    }
+
+    def route(classes: list[str]) -> dict[str, str]:
+        task = {**base, "functional_failures": len(classes), "failure_classes": classes}
+        return run_isolated.choose_route(task, config, None)
+
+    assert (route([])["tier"], route([])["effort"]) == ("standard", "medium")
+    # one mechanical slip repeats the rung; the second moves one rung up
+    assert (route(["mechanical"])["tier"], route(["mechanical"])["effort"]) == ("standard", "medium")
+    two_mech = route(["mechanical", "mechanical"])
+    assert (two_mech["tier"], two_mech["effort"]) == ("strong", "low"), two_mech
+    # a semantic failure on Codex skips Terra High and jumps straight to Astra Low
+    semantic = route(["semantic"])
+    assert (semantic["tier"], semantic["effort"], semantic["model"]) == ("strong", "low", "gpt-6-astra")
+    # environmental failures never change the route
+    assert route(["environmental", "environmental"]) == route([])
+    # a second semantic failure jumps to the next tier boundary again
+    twice = route(["semantic", "semantic"])
+    assert twice["tier"] == "max"
+    # budget exhaustion behaves like mechanical: repeat, then climb
+    assert route(["budget"]) == route([])
+    assert route(["budget", "budget"])["tier"] == "strong"
+
+    claude = {**base, "provider": "claude", "functional_failures": 1, "failure_classes": ["semantic"]}
+    claude_route = run_isolated.choose_route(claude, config, None)
+    assert (claude_route["tier"], claude_route["model"]) == ("strong", "opus")
+
+
+def test_ladder_exhaustion_blocks_instead_of_burning_attempts() -> None:
+    config = planctl.default_config()
+    config["claude"]["command"] = sys.executable
+    config["codex"]["command"] = sys.executable
+    base = {
+        "provider": "claude",
+        "allow_provider_fallback": False,
+        "model_tier": "strong",
+        "reasoning_effort": "high",
+    }
+    # strong/high on Claude leaves two rungs above (Fable High, Fable XHigh).
+    one = {**base, "functional_failures": 1, "failure_classes": ["semantic"]}
+    assert not run_isolated.ladder_exhausted(one, config, None)
+    assert run_isolated.choose_route(one, config, None)["tier"] == "max"
+    # mechanical slips at the top tier still climb effort before giving up
+    mech = {**base, "functional_failures": 3, "failure_classes": ["semantic", "mechanical", "mechanical"]}
+    assert not run_isolated.ladder_exhausted(mech, config, None)
+    assert run_isolated.choose_route(mech, config, None)["effort"] == "xhigh"
+    # a semantic failure at the strongest tier has no stronger tier to jump to: replan
+    two = {**base, "functional_failures": 2, "failure_classes": ["semantic", "semantic"]}
+    assert run_isolated.ladder_exhausted(two, config, None)
+    # with a fallback provider still available, the ladder is not exhausted yet
+    fallback = {**two, "provider": "auto", "allow_provider_fallback": True}
+    assert not run_isolated.ladder_exhausted(fallback, config, None)
+    assert run_isolated.ladder_exhausted({**fallback, "functional_failures": 4}, config, None)
+
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        plan_dir = planctl.create_plan(repo, sample_spec(), ".ai-work", "ladder-block")
+        _, manifest = planctl.load_plan(plan_dir)
+        task = planctl.block_task(plan_dir, manifest, manifest["tasks"][0]["id"], "ladder exhausted", event="ladder_exhausted")
+        assert task["status"] == "blocked" and task["attempts"] == 0
+        assert task["history"][-1]["event"] == "ladder_exhausted"
+
+
+def test_failure_class_state_and_plan_defect_block() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        plan_dir = planctl.create_plan(repo, sample_spec(), ".ai-work", "failure-class-test")
+        _, manifest = planctl.load_plan(plan_dir)
+        task_id = manifest["tasks"][0]["id"]
+        planctl.claim_task(plan_dir, manifest, task_id, {"provider": "claude", "tier": "standard", "model": "x", "effort": "medium"})
+        task = planctl.fail_task(plan_dir, manifest, task_id, "wrong approach", failure_class="semantic")
+        assert task["failure_classes"] == ["semantic"]
+        assert task["status"] == "pending"
+        assert task["history"][-1]["failure_class"] == "semantic"
+        planctl.claim_task(plan_dir, manifest, task_id, None)
+        rate = planctl.fail_task(plan_dir, manifest, task_id, "429 too many requests", rate_limited=True)
+        assert rate["failure_classes"] == ["semantic"], "availability is never failure evidence"
+        planctl.claim_task(plan_dir, manifest, task_id, None)
+        blocked = planctl.fail_task(plan_dir, manifest, task_id, "task boundary wrong", failure_class="plan_defect")
+        assert blocked["status"] == "blocked", "plan_defect must stop the task for replanning"
+        try:
+            planctl.normalize_failure_class("bogus")
+        except planctl.PlanError:
+            pass
+        else:
+            raise AssertionError("unknown failure classes must be rejected")
+
+
+def test_design_route_contract() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        # design_route requires high complexity
+        bad = sample_spec()
+        bad["tasks"][0]["design_route"] = {"model_tier": "strong", "reasoning_effort": "medium"}
+        bad["tasks"][0]["complexity"] = "medium"
+        try:
+            planctl.create_plan(repo, bad, ".ai-work", "design-bad")
+        except planctl.PlanError as exc:
+            assert "design_route" in str(exc)
+        else:
+            raise AssertionError("design_route on a medium TODO must be rejected")
+
+        good = sample_spec()
+        good["tasks"][0]["complexity"] = "high"
+        good["tasks"][0]["atomicity_rationale"] = (
+            "Design and implementation share one invariant and one validation boundary; splitting would duplicate context."
+        )
+        good["tasks"][0]["design_route"] = {"model_tier": "strong", "reasoning_effort": "medium"}
+        plan_dir = planctl.create_plan(repo, good, ".ai-work", "design-good")
+        _, manifest = planctl.load_plan(plan_dir)
+        task = manifest["tasks"][0]
+        assert task["design_route"] == {"model_tier": "strong", "reasoning_effort": "medium"}
+        assert task["design_phase"]["status"] == "pending"
+        assert run_isolated.needs_design_phase(task)
+        design_view = run_isolated.design_route_task(task)
+        assert design_view["model_tier"] == "strong"
+        note = plan_dir / run_isolated.design_note_relative(task)
+        note.parent.mkdir(parents=True, exist_ok=True)
+        note.write_text("# Design\n\nApproach: reuse parser.\n", encoding="utf-8")
+        planctl.complete_design_phase(plan_dir, manifest, task["id"], run_isolated.design_note_relative(task), {"provider": "claude"})
+        _, manifest = planctl.load_plan(plan_dir)
+        task = manifest["tasks"][0]
+        assert not run_isolated.needs_design_phase(task)
+        prompt = run_isolated.append_design_note("BASE", plan_dir, task)
+        assert "Design note:" in prompt and str(note.resolve()) in prompt
+        # reset drops the stale note so a rerun designs again
+        planctl.reset_task(plan_dir, manifest, task["id"])
+        _, manifest = planctl.load_plan(plan_dir)
+        assert manifest["tasks"][0]["design_phase"]["status"] == "pending"
+        assert not note.exists()
+
+
+def test_effort_flag_omitted_for_effortless_models() -> None:
+    config = planctl.default_config()
+    with tempfile.TemporaryDirectory() as temp:
+        result_path = Path(temp) / "results" / "001.json"
+        result_path.parent.mkdir(parents=True)
+        haiku = run_isolated.build_worker_command(
+            "claude",
+            {"provider": "claude", "tier": "economy", "model": "haiku", "effort": "low"},
+            config,
+            "prompt",
+            result_path,
+        )
+        assert "--effort" not in haiku, haiku
+        sonnet = run_isolated.build_worker_command(
+            "claude",
+            {"provider": "claude", "tier": "standard", "model": "sonnet", "effort": "medium"},
+            config,
+            "prompt",
+            result_path,
+        )
+        assert "--effort" in sonnet and "--max-turns" not in sonnet
+        config["claude"]["max_turns"] = 40
+        bounded = run_isolated.build_worker_command(
+            "claude",
+            {"provider": "claude", "tier": "standard", "model": "sonnet", "effort": "medium"},
+            config,
+            "prompt",
+            result_path,
+        )
+        assert bounded[bounded.index("--max-turns") + 1] == "40"
+        config["codex"]["rollout_token_budget"] = 250000
+        codex = run_isolated.build_worker_command(
+            "codex",
+            {"provider": "codex", "tier": "economy", "model": "gpt-5.6-luna", "effort": "low"},
+            config,
+            "prompt",
+            result_path,
+        )
+        assert "features.rollout_budget.limit_tokens=250000" in codex
+        assert 'model_reasoning_effort="low"' in codex
+        summary = run_isolated.build_summary_command(
+            "claude",
+            {"provider": "claude", "tier": "economy", "model": "haiku", "effort": "low"},
+            config,
+            "prompt",
+            result_path,
+        )
+        assert "--effort" not in summary
+    assert run_isolated.classify_report_failure({"failure_class": "semantic"}, "") == "semantic"
+    assert run_isolated.classify_report_failure(None, "stopped: max turns reached") == "budget"
+    assert run_isolated.classify_report_failure({"failure_class": "nonsense"}, "boom") == "unknown"
+
+
+def test_command_prefix_keeps_windows_paths() -> None:
+    prefix = run_isolated.command_prefix(sys.executable)
+    assert prefix == [sys.executable], prefix
+    assert run_isolated.executable_available(prefix)
+    quoted = run_isolated.command_prefix(f'"{sys.executable}" --flag')
+    assert quoted == [sys.executable, "--flag"], quoted
+    assert run_isolated.command_prefix(["a", "b"]) == ["a", "b"]
 
 
 def test_symlink_work_root_rejected() -> None:
@@ -541,7 +797,7 @@ def test_end_to_end_runner() -> None:
         config["allow_provider_fallback"] = False
         config["stream_provider_output"] = False
         config["rate_limit"]["auto_wait"] = False
-        config["claude"]["command"] = str(fake)
+        config["claude"]["command"] = [sys.executable, str(fake)]
         config["claude"]["models"] = {tier: "fake-model" for tier in run_isolated.TIER_ORDER}
         config["summary"]["provider"] = "claude"
         planctl.atomic_write_json(plan_dir / planctl.CONFIG, config)
@@ -560,6 +816,57 @@ def test_end_to_end_runner() -> None:
         assert (repo / "implemented.txt").read_text(encoding="utf-8") == "implemented\n"
 
 
+def test_end_to_end_design_phase() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        # The fake worker refuses to implement without a design note, proving the
+        # runner dispatches the design phase first and hands the note over.
+        (repo / "design-required.flag").write_text("001\n", encoding="utf-8")
+        spec = sample_spec()
+        spec["tasks"][0]["complexity"] = "high"
+        spec["tasks"][0]["atomicity_rationale"] = (
+            "Design and implementation share one invariant and one validation boundary; splitting would duplicate context."
+        )
+        spec["tasks"][0]["design_route"] = {"model_tier": "strong", "reasoning_effort": "medium"}
+        plan_dir = planctl.create_plan(repo, spec, ".ai-work", "design-runner-test")
+        fake = Path(temp) / "fake-claude"
+        write_fake_claude(fake)
+        config = planctl.read_json(plan_dir / planctl.CONFIG)
+        config["provider_order"] = ["claude"]
+        config["allow_provider_fallback"] = False
+        config["stream_provider_output"] = False
+        config["rate_limit"]["auto_wait"] = False
+        config["claude"]["command"] = [sys.executable, str(fake)]
+        config["claude"]["models"] = {tier: f"fake-{tier}" for tier in run_isolated.TIER_ORDER}
+        config["summary"]["provider"] = "claude"
+        planctl.atomic_write_json(plan_dir / planctl.CONFIG, config)
+
+        args = argparse.Namespace(
+            plan=str(plan_dir),
+            provider=None,
+            once=False,
+            dry_run=False,
+            no_wait=True,
+            no_cleanup=True,
+        )
+        result = run_isolated.run_plan(args)
+        assert result == 0, result
+        _, manifest = planctl.load_plan(plan_dir)
+        first = manifest["tasks"][0]
+        assert first["status"] == "completed"
+        assert first["design_phase"]["status"] == "completed"
+        assert first["design_phase"]["route"]["model"] == "fake-strong"
+        assert first["attempts"] == 1, "the design attempt must not consume an implementation attempt"
+        assert first["current_route"]["model"] == "fake-economy", "implementation keeps the task's own cheaper route"
+        note = plan_dir / first["design_phase"]["note_file"]
+        assert note.is_file() and "Approach" in note.read_text(encoding="utf-8")
+        assert (repo / "implemented.txt").read_text(encoding="utf-8") == "implemented\n"
+        logs = sorted(path.name for path in (plan_dir / "logs").iterdir())
+        assert any("design-attempt" in name for name in logs), logs
+
+
 def main() -> int:
     test_plan_state()
     test_cycle_rejected()
@@ -571,10 +878,17 @@ def main() -> int:
     test_analysis_and_review_are_mandatory()
     test_autostart_rejects_open_questions()
     test_route_escalation()
+    test_evidence_based_escalation()
+    test_ladder_exhaustion_blocks_instead_of_burning_attempts()
+    test_failure_class_state_and_plan_defect_block()
+    test_design_route_contract()
+    test_effort_flag_omitted_for_effortless_models()
+    test_command_prefix_keeps_windows_paths()
     test_symlink_work_root_rejected()
     test_request_intake_and_vscode_editor()
     test_request_copy_move_and_concise_todo()
     test_end_to_end_runner()
+    test_end_to_end_design_phase()
     print("All plan-and-execute self-tests passed.")
     return 0
 

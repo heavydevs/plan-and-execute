@@ -232,6 +232,21 @@ def _validate_plan_text(planctl: Any, manifest: dict[str, Any]) -> list[str]:
         PLAN_BUDGETS["strategy"],
         planctl.PlanError,
     )
+    for index, decision in enumerate(analysis.get("hard_decisions", []) or []):
+        check(
+            concise_line,
+            decision.get("decision"),
+            f"request_analysis.hard_decisions[{index}].decision",
+            PLAN_BUDGETS["decision"],
+            planctl.PlanError,
+        )
+        check(
+            concise_line,
+            decision.get("rationale"),
+            f"request_analysis.hard_decisions[{index}].rationale",
+            PLAN_BUDGETS["risk"],
+            planctl.PlanError,
+        )
     review = manifest.get("plan_review", {})
     check(
         concise_line,

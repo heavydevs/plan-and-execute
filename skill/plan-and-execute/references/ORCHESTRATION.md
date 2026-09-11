@@ -16,7 +16,7 @@ For promoted DIRECT work, completed implementation is current-state evidence and
 
 ## 2. Route planning capability separately
 
-Planning does not inherit the root chat model. Read `PLANNING_ROUTING.md` only when assigning planning-stage routes.
+Planning does not inherit the root chat model, and the root model is never switched: a stage whose floor exceeds the root tier is delegated to a fresh worker at that tier (`MODEL_ROUTING.md` §3). Read `PLANNING_ROUTING.md` only when assigning planning-stage routes; when only a few decisions are hard, use its decision-first staging (`hard_decisions`).
 
 - deterministic lookup/filtering/splitting/indexing stays in tools;
 - bounded extraction can use economy capability;
@@ -46,7 +46,7 @@ Recursively split until each TODO has:
 - explicit scope in/out and expected files;
 - dependencies, acceptance criteria, deterministic validation commands, and resumable subtasks;
 - `context_boundary` plus sparse `learning_targets` when needed;
-- `provider`, `model_tier`, and `reasoning_effort` selected for the implementation leaf.
+- `provider`, `model_tier`, and `reasoning_effort` selected for the implementation leaf (from its signals: `routingctl.py route`), plus `design_route` only for a `high` leaf whose implementation volume justifies a separate strong design pass.
 
 Split unrelated domains even if they share a framework pattern. Do not split mechanically per file when controller/service/entity/migration/tests implement one invariant. Reject executable `extreme` TODOs; justify retained `high` leaves. Never create retroactive TODOs for implementation already completed before promotion.
 
@@ -110,12 +110,12 @@ For each runnable TODO:
 
 1. reload authoritative state and recover interrupted state when necessary;
 2. validate shared-pattern registry when present;
-3. choose the actual provider/model/effort route and claim the TODO;
+3. choose the actual provider/model/effort route from the TODO's declared route and its recorded `failure_classes` (evidence ladder), run the design phase first when `design_route` is set, and claim the TODO;
 4. start a **fresh worker** with exactly one task definition plus assigned context, learnings, and pattern files;
 5. never pass parent chat, the whole plan, future task definitions, raw reports, or logs;
 6. checkpoint subtasks only through controllers;
 7. if implementation evidence requires a pattern revision, stop that task safely and revise through `patternctl` rather than diverging silently;
-8. require the bounded completion report, including exact assigned artifacts read;
+8. require the bounded completion report, including exact assigned artifacts read and, when blocked, a `failure_class`;
 9. rerun deterministic validations outside the worker;
 10. mark success only after validation passes; the runner records current pattern adoption automatically;
 11. materialize only predeclared validated target-specific learnings.

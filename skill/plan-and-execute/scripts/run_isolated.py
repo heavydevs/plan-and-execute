@@ -28,9 +28,22 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 import planctl  # noqa: E402
 import lifecyclectl  # noqa: E402
+import routingctl  # noqa: E402
 
-TIER_ORDER = ["economy", "standard", "strong", "max"]
-EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"]
+TIER_ORDER = routingctl.TIER_ORDER
+EFFORT_ORDER = routingctl.EFFORT_ORDER
+DESIGN_NOTE_MAX_CHARS = 6000
+BUDGET_PATTERNS = [
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"max[ _-]?turns",
+        r"maximum number of turns",
+        r"turn limit",
+        r"rollout[ _-]?budget",
+        r"token budget (?:exceeded|exhausted|reached)",
+        r"budget (?:exceeded|exhausted|reached)",
+    )
+]
 RATE_LIMIT_PATTERNS = [
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
@@ -78,7 +91,18 @@ def command_prefix(value: Any) -> list[str]:
     if isinstance(value, list) and all(isinstance(item, str) for item in value):
         return list(value)
     if isinstance(value, str) and value.strip():
-        return shlex.split(value)
+        text = value.strip()
+        if os.name != "nt":
+            return shlex.split(text)
+        # POSIX shlex strips backslashes from Windows paths; keep them and only
+        # unwrap surrounding quotes.
+        parts = shlex.split(text, posix=False)
+        cleaned: list[str] = []
+        for part in parts:
+            if len(part) >= 2 and part[0] == part[-1] and part[0] in ("'", '"'):
+                part = part[1:-1]
+            cleaned.append(part)
+        return cleaned
     raise RunnerError(f"Invalid provider command: {value!r}")
 
 
@@ -140,29 +164,22 @@ def choose_route(task: dict[str, Any], config: dict[str, Any], override: str | N
     provider_slot = failures // failures_per_provider
     provider_index = min(provider_slot, len(providers) - 1)
     provider = providers[provider_index]
-    if provider_slot >= len(providers):
-        step = failures_per_provider - 1
-    else:
-        step = failures % failures_per_provider
 
-    base_tier_index = clamp_index(TIER_ORDER, str(task.get("model_tier", "standard")))
-    base_effort_index = clamp_index(EFFORT_ORDER, str(task.get("reasoning_effort", "medium")))
-    if step == 0:
-        tier_index = base_tier_index
-        effort_index = base_effort_index
-    elif step == 1:
-        tier_index = base_tier_index
-        effort_index = base_effort_index + 1
-    elif step == 2:
-        tier_index = base_tier_index + 1
-        effort_index = max(base_effort_index + 1, clamp_index(EFFORT_ORDER, "high"))
-    else:
-        tier_index = base_tier_index + 2
-        effort_index = max(base_effort_index + 2, clamp_index(EFFORT_ORDER, "xhigh"))
-
-    tier = TIER_ORDER[min(tier_index, len(TIER_ORDER) - 1)]
-    effort = EFFORT_ORDER[min(effort_index, len(EFFORT_ORDER) - 1)]
     provider_cfg = config[provider]
+    rungs = routingctl.route_rungs(
+        provider_cfg,
+        str(task.get("model_tier", "standard")),
+        str(task.get("reasoning_effort", "medium")),
+    )
+    # Failure evidence decides the rung (see routingctl.escalation_step). The
+    # classes accumulate across providers, so a provider switch is a second
+    # opinion at the equivalent logical rung, not a reset to the cheapest one.
+    # Legacy manifests without recorded classes count one rung per failure.
+    classes = task.get("failure_classes")
+    if not isinstance(classes, list):
+        classes = ["unknown"] * failures
+    ladder_step = routingctl.escalation_step(classes, rungs)
+    tier, effort = rungs[min(ladder_step, len(rungs) - 1)]
     effort = clamp_effort(provider_cfg, tier, effort)
     models = provider_cfg.get("models", {})
     model = str(models.get(tier, "")).strip()
@@ -185,38 +202,128 @@ def worker_prompt(plan_dir: Path, manifest: dict[str, Any], task: dict[str, Any]
         relative_task = task_file.relative_to(repo_root.resolve()).as_posix()
     except ValueError:
         relative_task = str(task_file)
+    # Static rules come first and stay byte-identical across tasks so provider
+    # prompt caches can share the prefix; task-specific values are appended last.
     return f"""You are a fresh, isolated implementation worker for one bounded task.
-
-Repository root: {repo_root}
-Assigned task definition: {relative_task}
-Task id: {task['id']}
-Attempt: {task['attempts'] + 1}
-Route: {route['provider']} / {route['model']} / effort {route['effort']}
-Subtask controller: {SCRIPT_DIR / 'planctl.py'}
-Plan workspace: {plan_dir}
 
 Mandatory isolation rules:
 1. Read the assigned task definition first. It is the only task definition assigned to you.
 2. Then read every file listed under `Assigned execution context`, followed by every file under `Assigned validated learnings`. Read no other context or learning file.
-3. Do not open PLAN.md, TODO.md, manifest.json, orchestrator.config.json, result files, logs, or any unassigned task definition under {plan_dir}.
+3. Do not open PLAN.md, TODO.md, manifest.json, orchestrator.config.json, result files, logs, or any unassigned task definition under the plan workspace.
 4. You may read and edit repository source, tests, build files, and runtime output needed for this task.
 5. Existing changes in the working tree may belong to earlier completed tasks. Preserve them and do not broadly revert or reformat unrelated code.
 6. Open another task definition only when the assigned definition explicitly permits its id and a dependency, ambiguity, or validation conflict makes it necessary. Report the id and reason.
 7. Implement only this task, run its required validation commands, and avoid speculative work outside scope.
 8. Do not edit any planning, context, or learning artifact. The orchestrator owns plan state. The only allowed planning-state write is invoking the dedicated subtask controller for this task.
-9. Do not ask for conversational context. When blocked, stop safely and report the concrete blocker.
-10. Checkpoint resumable work with these exact controller commands, never by editing the checklist:
-    - start: `python {SCRIPT_DIR / 'planctl.py'} subtask-start --plan {plan_dir} --task {task['id']} --subtask <id>`
-    - complete: `python {SCRIPT_DIR / 'planctl.py'} subtask-complete --plan {plan_dir} --task {task['id']} --subtask <id>`
+9. Do not ask for conversational context. When blocked, stop safely and report the concrete blocker, and set `failure_class` (mechanical, semantic, environmental, budget, plan_defect) so the orchestrator can choose the next route from evidence.
+10. Checkpoint resumable work with the subtask controller (`subtask-start` / `subtask-complete --plan <workspace> --task <id> --subtask <id>`), never by editing the checklist.
 11. Report `context_files_read` and `learning_files_read` using the exact plan-relative names from task frontmatter; use empty lists when none are assigned.
 12. Report every completed checklist id in `completed_subtask_ids`. Report reusable learnings only for predeclared downstream targets and only with concrete references.
 
 Return only the completion report requested by the configured JSON schema. Use status "completed" only when the task is implemented and its required checks pass; otherwise use "blocked".
+
+Subtask controller: {SCRIPT_DIR / 'planctl.py'}
+Repository root: {repo_root}
+Plan workspace: {plan_dir}
+Assigned task definition: {relative_task}
+Task id: {task['id']}
+Attempt: {task['attempts'] + 1}
+Route: {route['provider']} / {route['model']} / effort {route['effort']}
 """
+
+
+def design_note_relative(task: dict[str, Any]) -> str:
+    return f"tasks/{task['id']}.design.md"
+
+
+def design_prompt(plan_dir: Path, manifest: dict[str, Any], task: dict[str, Any], route: dict[str, str]) -> str:
+    """Two-phase leaf, phase 1: a stronger route designs; a cheaper route implements."""
+    task_file = (plan_dir / task["file"]).resolve()
+    note_path = (plan_dir / design_note_relative(task)).resolve()
+    return f"""You are a fresh, isolated design worker for one bounded task. Design only; do not implement.
+
+Rules:
+1. Read the task definition first, then exactly the context and learning files it lists (and the shared-pattern files if the runner appends them). Read no other plan artifact.
+2. Inspect repository code needed to design this task. Do not edit repository files.
+3. Write one design note, at most {DESIGN_NOTE_MAX_CHARS} characters, to the note path below. The note must contain: approach; key decisions with one-line rationale; interfaces/data contracts to keep; ordered implementation steps mapped to the task's checkpoint ids; risks and the validation strategy. Reference paths/symbols instead of pasting code.
+4. The note path is the only file you may write. Do not run the subtask controller.
+5. Return the JSON completion report: status "completed" with a one-sentence summary when the note exists; otherwise "blocked" with the blocker and `failure_class`. Report `context_files_read` and `learning_files_read` exactly as listed in the task frontmatter and use `completed_subtask_ids: []`.
+
+Repository root: {manifest['repo_root']}
+Task definition: {task_file}
+Design note path: {note_path}
+Task id: {task['id']}
+Route: {route['provider']} / {route['model']} / {route['effort']}
+"""
+
+
+def append_design_note(prompt: str, plan_dir: Path, task: dict[str, Any]) -> str:
+    phase = task.get("design_phase") or {}
+    note_file = phase.get("note_file") if phase.get("status") == "completed" else None
+    if not note_file:
+        return prompt
+    note_path = (plan_dir / note_file).resolve()
+    return prompt + (
+        f"\nDesign note: `{note_path}` — read it right after the task definition; it fixes the approach, "
+        "contracts, and step order for this task. Report it under `context_files_read` is NOT required.\n"
+    )
+
+
+def design_route_task(task: dict[str, Any]) -> dict[str, Any]:
+    """A task-shaped view whose declared route is the design route."""
+    design = task.get("design_route") or {}
+    return {
+        **task,
+        "model_tier": design.get("model_tier", "strong"),
+        "reasoning_effort": design.get("reasoning_effort", "medium"),
+    }
 
 
 def configured_model_args(flag: str, model: str) -> list[str]:
     return [] if not model or model == "default" else [flag, model]
+
+
+def effort_args(provider_cfg: dict[str, Any], model: str, effort: str, *, style: str) -> list[str]:
+    """Effort flag for one provider, omitted for models that accept none (e.g. Haiku)."""
+    if not routingctl.model_supports_effort(provider_cfg, model):
+        return []
+    if style == "claude":
+        return ["--effort", effort]
+    if style == "codex":
+        return ["-c", f'model_reasoning_effort="{effort}"']
+    return []
+
+
+def budget_args(provider: str, provider_cfg: dict[str, Any]) -> list[str]:
+    """Optional per-worker budget guards (0/unset disables them)."""
+    if provider == "claude":
+        turns = int(provider_cfg.get("max_turns", 0) or 0)
+        return ["--max-turns", str(turns)] if turns > 0 else []
+    if provider == "codex":
+        tokens = int(provider_cfg.get("rollout_token_budget", 0) or 0)
+        if tokens > 0:
+            return [
+                "-c",
+                "features.rollout_budget.enabled=true",
+                "-c",
+                f"features.rollout_budget.limit_tokens={tokens}",
+            ]
+    return []
+
+
+def is_budget_exhausted(text: str) -> bool:
+    return any(pattern.search(text) for pattern in BUDGET_PATTERNS)
+
+
+def classify_report_failure(report: dict[str, Any] | None, text: str) -> str:
+    """Map worker/report evidence to a routing failure class."""
+    if isinstance(report, dict):
+        declared = str(report.get("failure_class") or "").strip().lower()
+        if declared in routingctl.FAILURE_CLASSES:
+            return declared
+    if is_budget_exhausted(text):
+        return "budget"
+    return "unknown"
 
 
 def redact_command(command: list[str]) -> list[str]:
@@ -262,7 +369,9 @@ def build_worker_command(
             str(provider_cfg.get("permission_mode", "auto")),
         ]
         command.extend(configured_model_args("--model", route["model"]))
-        command.extend(["--effort", route["effort"], "--json-schema", schema_text])
+        command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="claude"))
+        command.extend(budget_args(provider, provider_cfg))
+        command.extend(["--json-schema", schema_text])
         command.extend(extra_args)
         command.append(prompt)
         return command
@@ -275,10 +384,10 @@ def build_worker_command(
             str(provider_cfg.get("sandbox", "workspace-write")),
         ]
         command.extend(configured_model_args("--model", route["model"]))
+        command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="codex"))
+        command.extend(budget_args(provider, provider_cfg))
         command.extend(
             [
-                "-c",
-                f'model_reasoning_effort="{route["effort"]}"',
                 "--output-schema",
                 str(schema_path),
                 "--output-last-message",
@@ -711,9 +820,33 @@ def execute_one_task(
     repo_root = Path(manifest["repo_root"])
     rate_cycle = 0
     while True:
+        if not dry_run and ladder_exhausted(task, config, provider_override):
+            planctl.block_task(
+                plan_dir,
+                manifest,
+                task["id"],
+                "Escalation ladder exhausted on the last available provider; "
+                "replan the TODO or repair the evidence before retrying.",
+                event="ladder_exhausted",
+            )
+            print(f"[task {task['id']}] blocked: escalation ladder exhausted; replan", file=sys.stderr)
+            return False
+        if needs_design_phase(task):
+            outcome = run_design_phase(
+                plan_dir, manifest, config, task, provider_override=provider_override, dry_run=dry_run
+            )
+            if outcome == "rate_limited":
+                task = planctl.find_task(manifest, task["id"])
+                if wait_after_rate_limit(config, rate_cycle, no_wait):
+                    rate_cycle += 1
+                    continue
+                raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
+            if outcome != "completed":
+                return False
+            task = planctl.find_task(manifest, task["id"])
         route = choose_route(task, config, provider_override)
         result_path = normalized_result_file(plan_dir, task, route)
-        prompt = worker_prompt(plan_dir, manifest, task, route)
+        prompt = append_design_note(worker_prompt(plan_dir, manifest, task, route), plan_dir, task)
         command = build_worker_command(route["provider"], route, config, prompt, result_path)
         if dry_run:
             print(json.dumps({"task": task["id"], "route": route, "command": redact_command(command)}, indent=2))
@@ -758,13 +891,15 @@ def execute_one_task(
         report = parse_provider_report(route["provider"], stdout, result_path)
         if return_code != 0:
             reason = f"Provider exited with {return_code}: {output_tail(combined)}"
-            planctl.fail_task(plan_dir, manifest, task["id"], reason)
-            print(f"[task {task['id']}] provider failure; route will escalate on retry", file=sys.stderr)
+            cls = classify_report_failure(report, combined)
+            planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
+            print(f"[task {task['id']}] provider failure ({cls}); next route follows the evidence ladder", file=sys.stderr)
             return False
         if not report:
             reason = f"Provider returned no valid completion report. Output: {output_tail(combined)}"
-            planctl.fail_task(plan_dir, manifest, task["id"], reason)
-            print(f"[task {task['id']}] invalid report; route will escalate on retry", file=sys.stderr)
+            cls = classify_report_failure(None, combined)
+            planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
+            print(f"[task {task['id']}] invalid report ({cls}); next route follows the evidence ladder", file=sys.stderr)
             return False
         expected_context_files = list(task.get("context_files", []))
         reported_context_files = report.get("context_files_read")
@@ -795,10 +930,11 @@ def execute_one_task(
                     rate_cycle += 1
                     continue
                 raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
-            planctl.fail_task(plan_dir, manifest, task["id"], reason)
+            cls = classify_report_failure(report, reason)
+            planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
             atomic = {**report, "orchestrator_status": "failed"}
             planctl.atomic_write_json(result_path, atomic)
-            print(f"[task {task['id']}] blocked: {reason}", file=sys.stderr)
+            print(f"[task {task['id']}] blocked ({cls}): {reason}", file=sys.stderr)
             return False
 
         validation_log = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-validation.log"
@@ -815,8 +951,15 @@ def execute_one_task(
         if not passed:
             report["orchestrator_status"] = "validation_failed"
             planctl.atomic_write_json(result_path, report)
-            planctl.fail_task(plan_dir, manifest, task["id"], validation_reason or "Validation failed")
-            print(f"[task {task['id']}] deterministic validation failed; route will escalate", file=sys.stderr)
+            # A worker that claimed completion but failed deterministic validation
+            # misjudged the work: a reasoning gap (semantic) unless it declares a
+            # narrower class itself.
+            declared = str(report.get("failure_class") or "").strip().lower()
+            cls = declared if declared in routingctl.FAILURE_CLASSES else "semantic"
+            planctl.fail_task(
+                plan_dir, manifest, task["id"], validation_reason or "Validation failed", failure_class=cls
+            )
+            print(f"[task {task['id']}] deterministic validation failed ({cls}); next route follows the evidence ladder", file=sys.stderr)
             return False
 
         report["orchestrator_status"] = "completed"
@@ -825,6 +968,98 @@ def execute_one_task(
         planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result)
         print(f"[task {task['id']}] completed and validated", flush=True)
         return True
+
+
+def ladder_exhausted(task: dict[str, Any], config: dict[str, Any], override: str | None) -> bool:
+    """True when failure evidence already climbed past the top rung on the last provider."""
+    classes = task.get("failure_classes")
+    if not isinstance(classes, list) or not classes:
+        return False
+    providers = candidate_providers(task, config, override)
+    failures_per_provider = max(1, int(config.get("functional_failures_per_provider", 4)))
+    provider_slot = int(task.get("functional_failures", 0)) // failures_per_provider
+    if provider_slot < len(providers) - 1:
+        return False
+    provider_cfg = config[providers[min(provider_slot, len(providers) - 1)]]
+    rungs = routingctl.route_rungs(
+        provider_cfg,
+        str(task.get("model_tier", "standard")),
+        str(task.get("reasoning_effort", "medium")),
+    )
+    return routingctl.escalation_exhausted(classes, rungs)
+
+
+def needs_design_phase(task: dict[str, Any]) -> bool:
+    if not task.get("design_route"):
+        return False
+    phase = task.get("design_phase") or {}
+    return phase.get("status") != "completed"
+
+
+def run_design_phase(
+    plan_dir: Path,
+    manifest: dict[str, Any],
+    config: dict[str, Any],
+    task: dict[str, Any],
+    *,
+    provider_override: str | None,
+    dry_run: bool,
+) -> str:
+    """Phase 1 of a two-phase leaf. Returns completed | failed | rate_limited."""
+    repo_root = Path(manifest["repo_root"])
+    route = choose_route(design_route_task(task), config, provider_override)
+    note_relative = design_note_relative(task)
+    note_path = plan_dir / note_relative
+    result_path = plan_dir / "results" / f"{task['id']}-design-attempt-{task['attempts'] + 1}-{route['provider']}.json"
+    prompt = design_prompt(plan_dir, manifest, task, route)
+    command = build_worker_command(route["provider"], route, config, prompt, result_path)
+    if dry_run:
+        print(json.dumps({"task": task["id"], "phase": "design", "route": route, "command": redact_command(command)}, indent=2))
+        return "dry_run"
+    print(f"[task {task['id']}] design phase — {route['provider']} / {route['model']} / {route['effort']}", flush=True)
+    planctl.claim_task(plan_dir, manifest, task["id"], {**route, "phase": "design"})
+    attempt_number = planctl.find_task(manifest, task["id"])["attempts"]
+    log_path = plan_dir / "logs" / f"{task['id']}-design-attempt-{attempt_number}-{route['provider']}.log"
+    try:
+        return_code, stdout, stderr = run_process(
+            command,
+            repo_root,
+            log_path,
+            timeout_seconds=max(0, int(config.get("task_timeout_seconds", 0))),
+            stream_output=bool(config.get("stream_provider_output", True)),
+        )
+    except KeyboardInterrupt:
+        release_interrupted_task(plan_dir, manifest, task["id"])
+        raise
+    combined = f"{stdout}\n{stderr}"
+    if return_code != 0 and is_provider_availability_failure(route["provider"], return_code, combined, config):
+        planctl.fail_task(
+            plan_dir,
+            manifest,
+            task["id"],
+            f"Provider rate/usage limit during design (exit {return_code}): {output_tail(combined)}",
+            rate_limited=True,
+        )
+        return "rate_limited"
+    report = parse_provider_report(route["provider"], stdout, result_path)
+    note_text = note_path.read_text(encoding="utf-8").strip() if note_path.is_file() else ""
+    if return_code != 0 or not report or report.get("status") != "completed" or not note_text:
+        reason = (
+            str((report or {}).get("blocked_reason") or "")
+            or f"Design phase produced no usable note (exit {return_code}): {output_tail(combined)}"
+        )
+        cls = classify_report_failure(report, combined)
+        planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
+        print(f"[task {task['id']}] design phase failed ({cls})", file=sys.stderr)
+        return "failed"
+    if len(note_text) > DESIGN_NOTE_MAX_CHARS:
+        note_path.write_text(note_text[:DESIGN_NOTE_MAX_CHARS].rstrip() + "\n", encoding="utf-8")
+    # The design attempt must not consume the implementation attempt: release
+    # the claim so the implementation worker claims the task itself.
+    planctl.release_design_claim(plan_dir, manifest, task["id"])
+    planctl.complete_design_phase(plan_dir, manifest, task["id"], note_relative, route)
+    print(f"[task {task['id']}] design note accepted: {note_relative}", flush=True)
+    return "completed"
 
 
 def result_excerpt(path: Path, max_chars: int = 12000) -> str:
@@ -909,7 +1144,7 @@ def build_summary_command(
             "plan",
         ]
         command.extend(configured_model_args("--model", route["model"]))
-        command.extend(["--effort", route["effort"]])
+        command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="claude"))
         command.extend(extra_args)
         command.append(prompt)
         return command
@@ -921,10 +1156,9 @@ def build_summary_command(
             "read-only",
         ]
         command.extend(configured_model_args("--model", route["model"]))
+        command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="codex"))
         command.extend(
             [
-                "-c",
-                f'model_reasoning_effort="{route["effort"]}"',
                 "--output-last-message",
                 str(output_path),
             ]

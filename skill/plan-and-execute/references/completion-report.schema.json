@@ -69,6 +69,10 @@
       "type": ["string", "null"],
       "maxLength": 800
     },
+    "failure_class": {
+      "type": ["string", "null"],
+      "enum": ["mechanical", "semantic", "environmental", "budget", "plan_defect", null]
+    },
     "learning_files_read": {
       "type": "array",
       "maxItems": 16,

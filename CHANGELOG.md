@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+- Escalates worker routes from **classified failure evidence** instead of a retry count: the completion report and `planctl fail --failure-class` record `mechanical`, `semantic`, `environmental`, `budget`, `plan_defect`, or `unknown`; `semantic` jumps a tier, `mechanical`/`budget` repeat the rung once, `environmental` keeps it, `plan_defect` blocks the TODO for replanning. Provider ladders live in `routingctl.py` (Codex: Terra → Astra Low, never Terra High; Claude: Haiku → Sonnet Medium); when evidence asks for a rung above the top on the last provider, the TODO is blocked (`ladder_exhausted`) for replanning instead of burning `max_attempts` at the strongest route.
+- Makes `routingctl.py` the single model catalog: `planctl.default_config` now overlays it, so raw `planctl.py`/`run_isolated.py` entrypoints no longer generate plans with stale model ids.
+- Omits `--effort` for models that accept none (Claude Haiku) instead of passing it blindly; adds optional per-worker budget guards `claude.max_turns` and `codex.rollout_token_budget`, with exhaustion recorded as a resumable `budget` failure.
+- Adds two-phase leaves: a `high` TODO may declare `design_route`; the runner dispatches a stronger design worker that writes `tasks/<id>.design.md`, then the implementation worker runs at the TODO's own route with the note (the design attempt does not consume an implementation attempt; reset discards the note).
+- Adds decision-first planning evidence: optional `request_analysis.hard_decisions` (id, decision, rationale, `route_used`, source refs) rendered in `ANALYSIS.md`.
+- Adds `routingctl.py route --signals ...` and `references/tier-evals.json`: a deterministic leaf-signal → minimum tier/effort floor mirrored in `SKILL.md`, so a small root model routes small-but-risky leaves strong and large-but-mechanical leaves cheap; a regression corpus protects both directions.
+- Documents the elevation mechanics per host (Claude `Agent` `model`/`effort`, `isolation: worktree`, `CLAUDE_CODE_SUBAGENT_MODEL`, `opusplan`, `subagentPromptCacheTtl`, dynamic workflows; Codex `spawn_agent` roles, `.codex/agents/*.toml`, `plan_mode_reasoning_effort`, `agents.default_subagent_*`) and the rule that the skill never switches the root session's model/effort (prompt-cache economics): it delegates the leaf instead.
+- Corrects the Claude guidance: the built-in `Explore` agent inherits the session model and is only cheap with an explicit `model: "haiku"`; current Claude 5 effort defaults are adaptive and effort controls thoroughness, so implementation workers never run at `low`.
+- Reorders worker prompts so static rules form a byte-stable, cache-shareable prefix and per-task values come last; documents concrete prompt-cache facts for Claude Code and Codex.
+- Fixes `command_prefix` on Windows (POSIX `shlex` stripped backslashes from configured executable paths), which also makes the end-to-end runner self-test pass on Windows.
+- Moves research citations out of runtime references into `docs/RESEARCH_BASIS.md`; adds an optional host-native fan-out dispatch note for PRIMARY_PLAN digests; marks the Gemini CLI adapter as legacy (CLI sunset 2026-06-18, successor Antigravity CLI); points `INTAKE.md` at `planctl_concise.py`.
+
 ## 0.8.0 - 2026-09-03
 
 - Changes automatic routing to **DIRECT by default, ORCHESTRATED by evidence, with late PROMOTION when direct work grows**.

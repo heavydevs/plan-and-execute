@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "purpose": "Leaf-level routing corpus. Each case names the observable signals a small root model can identify and the minimum credible tier/effort the skill must assign. routingctl.minimum_route is the deterministic reference; the corpus protects it against regressions in both directions: paying frontier tokens for cheap leaves and under-routing risky small leaves.",
+  "signals": {
+    "primary": ["deterministic_lookup", "exploration", "mechanical_edit", "bounded_implementation", "subtle_debugging", "architecture_decision", "cross_cutting_risk", "silent_failure_costly", "frontier_long_horizon", "repeated_strong_failure"],
+    "modifiers": ["weak_validation", "strong_validation", "implementation"]
+  },
+  "cases": [
+    {"id":"T001","near_miss":false,"leaf":"Find every call site of PaymentFormatter.format.","signals":["deterministic_lookup"],"expected":{"tier":"tool","effort":"none"}},
+    {"id":"T002","near_miss":false,"leaf":"Run the existing unit suite and report failures.","signals":["deterministic_lookup"],"expected":{"tier":"tool","effort":"none"}},
+    {"id":"T003","near_miss":false,"leaf":"Map which modules read the session cookie and where their tests live.","signals":["exploration"],"expected":{"tier":"economy","effort":"low"}},
+    {"id":"T004","near_miss":true,"leaf":"Read forty candidate files across the monorepo to locate the retry policy; the parent request is a large migration.","signals":["exploration"],"expected":{"tier":"economy","effort":"low"}},
+    {"id":"T005","near_miss":false,"leaf":"Rename a helper across 18 call sites; the suite covers every call site.","signals":["mechanical_edit","strong_validation","implementation"],"expected":{"tier":"economy","effort":"low"}},
+    {"id":"T006","near_miss":true,"leaf":"Rename a helper across 18 call sites with no tests covering the callers.","signals":["mechanical_edit","weak_validation","implementation"],"expected":{"tier":"standard","effort":"high"}},
+    {"id":"T007","near_miss":false,"leaf":"Add one field to a DTO, mapper, and endpoint with focused tests.","signals":["bounded_implementation","strong_validation","implementation"],"expected":{"tier":"standard","effort":"medium"}},
+    {"id":"T008","near_miss":false,"leaf":"Implement pagination for one endpoint; integration tests assert page boundaries.","signals":["bounded_implementation","strong_validation","implementation"],"expected":{"tier":"standard","effort":"medium"}},
+    {"id":"T009","near_miss":true,"leaf":"Change one date-parsing branch in a billing job that has no tests; a wrong result silently under-bills customers.","signals":["bounded_implementation","weak_validation","silent_failure_costly","implementation"],"expected":{"tier":"strong","effort":"high"}},
+    {"id":"T010","near_miss":true,"leaf":"Tiny edit to the permission check in an auth middleware; no regression tests exist.","signals":["bounded_implementation","weak_validation","cross_cutting_risk","implementation"],"expected":{"tier":"strong","effort":"high"}},
+    {"id":"T011","near_miss":false,"leaf":"Diagnose an intermittent test failure caused by ordering of async callbacks; the test reproduces it deterministically.","signals":["subtle_debugging","strong_validation","implementation"],"expected":{"tier":"strong","effort":"medium"}},
+    {"id":"T012","near_miss":false,"leaf":"Diagnose a production-only timeout with no reproducible test.","signals":["subtle_debugging","weak_validation","implementation"],"expected":{"tier":"strong","effort":"high"}},
+    {"id":"T013","near_miss":false,"leaf":"Decide the module boundaries and dependency graph for splitting a monolith package.","signals":["architecture_decision"],"expected":{"tier":"strong","effort":"high"}},
+    {"id":"T014","near_miss":false,"leaf":"Write a reversible schema migration with a backfill; integration tests run against a disposable database.","signals":["cross_cutting_risk","strong_validation","implementation"],"expected":{"tier":"strong","effort":"medium"}},
+    {"id":"T015","near_miss":false,"leaf":"Change lock ordering in a concurrent cache used by three services.","signals":["cross_cutting_risk","weak_validation","implementation"],"expected":{"tier":"strong","effort":"high"}},
+    {"id":"T016","near_miss":true,"leaf":"Large parent request (50 files) but this leaf only formats generated code; the formatter check validates it.","signals":["mechanical_edit","strong_validation","implementation"],"expected":{"tier":"economy","effort":"low"}},
+    {"id":"T017","near_miss":false,"leaf":"Multi-day autonomous port of a compiler backend with weak intermediate checks.","signals":["frontier_long_horizon","weak_validation","implementation"],"expected":{"tier":"max","effort":"high"}},
+    {"id":"T018","near_miss":false,"leaf":"Opus High already failed twice with useful evidence on the same architecture leaf.","signals":["repeated_strong_failure"],"expected":{"tier":"max","effort":"xhigh"}},
+    {"id":"T019","near_miss":true,"leaf":"Summarize completed task state into the final handoff.","signals":["mechanical_edit","strong_validation"],"expected":{"tier":"economy","effort":"low"}},
+    {"id":"T020","near_miss":true,"leaf":"Extract atomic obligations from one 4k-token spec fragment into a digest; validate-digest checks the schema.","signals":["exploration","strong_validation"],"expected":{"tier":"economy","effort":"low"}},
+    {"id":"T021","near_miss":true,"leaf":"Resolve a contradiction between two spec fragments about idempotency semantics.","signals":["architecture_decision","cross_cutting_risk"],"expected":{"tier":"strong","effort":"high"}},
+    {"id":"T022","near_miss":false,"leaf":"Implement a bounded feature whose only check is a manual smoke test.","signals":["bounded_implementation","weak_validation","implementation"],"expected":{"tier":"strong","effort":"high"}},
+    {"id":"T023","near_miss":true,"leaf":"Mechanical edit with deterministic checks, but a worker still has to run them.","signals":["mechanical_edit","implementation"],"expected":{"tier":"economy","effort":"medium"}},
+    {"id":"T024","near_miss":false,"leaf":"Fresh review of a plan whose hardest decision was an architecture split.","signals":["architecture_decision","strong_validation"],"expected":{"tier":"strong","effort":"medium"}}
+  ]
+}

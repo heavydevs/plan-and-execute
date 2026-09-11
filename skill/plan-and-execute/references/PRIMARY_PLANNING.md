@@ -173,16 +173,16 @@ The primary plan uses the same durable checklist/subtask state as implementation
 
 This is the main safety property the staged route adds: credits may run out, but the system should already have a durable checkpoint before that happens.
 
-## 10. Research basis
+## 10. Host-native fan-out (optional dispatch path)
 
-This protocol combines several established ideas:
+Digest tasks are independent, uniform, and schema-checked, which is exactly what host fan-out primitives are built for. When the host offers them, the orchestrator may dispatch primary-plan stages through them instead of one fresh CLI process per TODO; the durable checklist, `validate-digest`, coverage review, and `validate-package` remain the authority, so a fan-out only replaces the *dispatch*, never the state:
 
-- Anthropic, **Effective context engineering for AI agents** (2025): context is finite; seek the smallest high-signal token set and use progressive disclosure/just-in-time retrieval.
-- Anthropic, **How we built our multi-agent research system** (2025): subagents can persist artifacts directly and return lightweight references, reducing token overhead and multi-stage information loss.
-- Anthropic, **Effective harnesses for long-running agents** (2025): initializer/worker phases and structured persistent artifacts make progress resumable across fresh contexts; compaction alone is insufficient.
-- OpenAI, **The builder's guide to GPT-5.6** (2026): reuse prior work, decompose appropriately, and move deterministic filtering/aggregation into code so model tokens are reserved for judgment.
-- Liu et al., **Lost in the Middle**, TACL 2024: long-context utilization can degrade with the position/amount of relevant information even when the model supports long inputs.
-- Bairi et al., **CodePlan**, FSE 2024: repository-scale interdependent changes benefit from explicit planning, dependency/change-impact analysis, and localized LLM calls.
-- Zhang et al., **RepoCoder**, EMNLP 2023: iterative retrieval-generation can outperform unselective repository context for code tasks.
+- **Claude Code dynamic workflows**: `pipeline(fragmentBatches, batch => agent(digestPrompt(batch), {model: 'haiku', schema: DIGEST_SCHEMA}))`, then one `agent(..., {model: 'sonnet'})` synthesis and one fresh `agent(..., {model: 'opus'})` coverage review. Same-prefix siblings share the prompt cache (uniform model/effort/tools/schema/cwd); `schema` output is validated with retries; intermediate results stay outside the conversation; runs are resumable within the session. Draft the script with the `/workflow-authoring` skill; keep it under `.claude/workflows/` only if the project will reuse it.
+- **Codex subagents**: `spawn_agent` per batch with the `explorer` role, `model: gpt-5.6-luna`, `model_reasoning_effort: low`, bounded by `agents.max_concurrent_threads_per_session`; synthesis on Terra; review on Astra Low/Medium.
+- **Antigravity**: `invoke_subagent` with `model: flash` per batch and `model: pro` for review.
 
-The exact token thresholds in this skill are tunable operational defaults. Recalibrate them from provider credit economics and representative project evals rather than treating them as universal model limits.
+Each worker must still write its digest to the package and pass `preplanctl validate-digest`; the orchestrator marks TODOs complete only from those files. Do not use a fan-out when the host lacks it or when fewer than three batches exist — the portable runner is cheaper than the orchestration overhead.
+
+Codex note: Codex charges no cache writes and no long-context multiplier, so the 12k/24k thresholds there are about attention and resumability, not price; recalibrate from measured digest quality rather than token cost alone.
+
+The research behind this protocol is summarized for maintainers in `docs/RESEARCH_BASIS.md`; do not load it during ordinary execution. The exact token thresholds are tunable operational defaults, not universal model limits.

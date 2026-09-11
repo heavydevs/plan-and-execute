@@ -20,9 +20,11 @@ For prepared packages, keep fragment/digest ids in source refs when they materia
 
 ## 2. Route planning work explicitly
 
-Read `PLANNING_ROUTING.md` when assigning a model to planning work. The planner's current/root model is not automatically the planning route.
+Read `PLANNING_ROUTING.md` when assigning a model to planning work. The planner's current/root model is not automatically the planning route, and it is never switched: a stage whose floor exceeds the root tier is delegated to a fresh worker at that tier.
 
 Use deterministic tools for mechanical operations; economy for bounded extraction; standard for ordinary synthesis; strong for architecture/decomposition with high blast radius, weak verification, security/migration/data-integrity risk, or subtle cross-domain constraints. Fresh review should be capable enough to challenge the hardest material planning decision.
+
+When only a few decisions are hard, resolve them first (`PLANNING_ROUTING.md` §3): inventory `hard_decisions`, resolve each with a strong fresh worker into a decision + rationale + constraints, then compose the mechanical plan at standard capability. Record them in `request_analysis.hard_decisions` with `route_used`.
 
 Final implementation TODO routing is decided separately later in this protocol.
 
@@ -73,7 +75,9 @@ This is reviewer evidence stored in `manifest.json`; do not repeat it verbosely 
 
 Subtasks are checkpoints inside one TODO, not hidden top-level work. Good checkpoints include introducing a data contract, implementing bounded behavior, adding focused tests, or completing a migration step that cannot be blindly repeated.
 
-If a subtask has an independent outcome, different context domain, independent acceptance boundary, or needs its own model route, promote it to its own TODO.
+If a subtask has an independent outcome, different context domain, or independent acceptance boundary, promote it to its own TODO.
+
+A `high` TODO whose implementation volume is large may instead declare `design_route`: the runner first dispatches a stronger design worker that writes a bounded design note (approach, decisions, contracts, ordered steps mapped to checkpoint ids, validation strategy), then the implementation worker runs at the TODO's own route with that note. Do not use it for a small hard edit — one strong worker is cheaper than two workers plus a handoff.
 
 ## 7. Detect cross-cutting pattern contracts
 
@@ -120,7 +124,7 @@ For every TODO, choose `provider`, `model_tier`, and `reasoning_effort` from the
 - the final-planning architecture/reviewer route;
 - a neighboring TODO's route.
 
-Use `MODEL_ROUTING.md` and only the active provider reference when concrete dispatch is needed. Prefer the lowest credible leaf capability; verifiability and blast radius matter more than parent size.
+Use `MODEL_ROUTING.md` and only the active provider reference when concrete dispatch is needed. Prefer the lowest credible leaf capability from the leaf's signals (`routingctl.py route`); verifiability and blast radius matter more than parent size. An implementation worker never runs at `low` effort unless the edit is mechanical and deterministically checked.
 
 ## 11. Acceptance and validation
 
@@ -150,7 +154,7 @@ Review from a fresh context using the complete compact request evidence plus stu
 - broad learning edges;
 - dependency cycles/missing dependencies;
 - unverifiable acceptance;
-- implausible model-tier choices for weakly verifiable/high-blast-radius leaves;
+- implausible model-tier choices for weakly verifiable/high-blast-radius leaves, or a `design_route`/`hard_decisions` pass missing where the leaf signals justify it;
 - unsafe autostart or remaining material vague terms.
 
 For prepared packages, retrieve raw fragments selectively to challenge material claims; do not preload every fragment by default.

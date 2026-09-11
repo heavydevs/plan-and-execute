@@ -2,7 +2,7 @@
 
 [English version](INSTALLATION.md)
 
-A instalação padrão continua limitada ao Claude Code e ao Codex. Gemini CLI, Qwen Code, Kimi Code CLI e Trae Agent permanecem backends opcionais de execução; não são novos destinos de `--agent`.
+A instalação padrão continua limitada ao Claude Code e ao Codex. Qwen Code, Kimi Code CLI e Trae Agent permanecem backends opcionais de execução; não são novos destinos de `--agent`. O adapter `gemini` aponta para a Gemini CLI, descontinuada pelo Google em 18/06/2026 em favor da Antigravity CLI; mantenha-o apenas para instalações existentes até um adapter Antigravity ser verificado.
 
 ## Modo de ativação
 

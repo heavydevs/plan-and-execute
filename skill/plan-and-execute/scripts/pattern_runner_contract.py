@@ -136,6 +136,27 @@ Shared pattern rules:
                 )
         return original_generate_summary(*args, **kwargs)
 
+    original_design_prompt = getattr(run_isolated, "design_prompt", None)
+    if original_design_prompt is not None:
+
+        def design_prompt(
+            plan_dir: Path,
+            manifest: dict[str, Any],
+            task: dict[str, Any],
+            route: dict[str, str],
+        ) -> str:
+            base = original_design_prompt(plan_dir, manifest, task, route)
+            pattern_files = assigned_pattern_files(plan_dir, task["id"])
+            if not pattern_files:
+                return base
+            rendered = "\n".join(f"- `{item}`" for item in pattern_files)
+            return base + f"""
+Shared patterns (read-only design constraints at their current revisions):
+{rendered}
+"""
+
+        run_isolated.design_prompt = design_prompt
+
     run_isolated.worker_prompt = worker_prompt
     run_isolated.execute_one_task = execute_one_task
     run_isolated.compose_summary_input = compose_summary_input

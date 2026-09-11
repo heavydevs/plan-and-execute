@@ -77,7 +77,7 @@ python <skill-dir>/scripts/requestctl.py extract \
 After deep analysis, review, and plan-spec generation, create the plan with move semantics:
 
 ```bash
-python <skill-dir>/scripts/planctl.py create \
+python <skill-dir>/scripts/planctl_concise.py create \
   --repo-root . \
   --spec /tmp/plan-spec.json \
   --request-file ".ai-work/intake/request-YYYYMMDD-HHMMSS.md" \
@@ -98,7 +98,7 @@ python <skill-dir>/scripts/requestctl.py extract --file "docs/change-request.md"
 Create the plan without `--move-request`:
 
 ```bash
-python <skill-dir>/scripts/planctl.py create \
+python <skill-dir>/scripts/planctl_concise.py create \
   --repo-root . \
   --spec /tmp/plan-spec.json \
   --request-file "docs/change-request.md"

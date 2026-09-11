@@ -29,7 +29,7 @@ The assignment command returns only the exact pattern files/revisions for that T
 
 ### 2. Claim
 
-Choose the actual route from the TODO's logical recommendation, then:
+Choose the actual route from the TODO's logical recommendation and its recorded `failure_classes` (the runner does this with `routingctl.route_rungs` + `escalation_step`), then:
 
 ```bash
 python <skill-dir>/scripts/planctl_concise.py claim \
@@ -37,6 +37,10 @@ python <skill-dir>/scripts/planctl_concise.py claim \
   --task 001 \
   --route '{"provider":"codex","tier":"standard","model":"...","effort":"medium"}'
 ```
+
+### 2b. Design phase (only when the TODO declares `design_route`)
+
+Before the implementation worker, dispatch a design worker at `design_route` with the task definition, its assigned context/learnings/patterns, and permission to write exactly `<plan>/tasks/<id>.design.md` (<= 6000 chars: approach, decisions, contracts, ordered steps mapped to checkpoint ids, validation strategy). The runner accepts the note only with a `completed` report and a non-empty file, records `design_phase.completed`, releases the claim so the design attempt does not consume an implementation attempt, and appends `Design note: <path>` to the implementation prompt. A reset discards the note.
 
 ### 3. Dispatch one fresh worker
 
@@ -119,13 +123,25 @@ python <skill-dir>/scripts/patternctl.py validate --plan <plan-path>
 
 If adoption fails, reset the TODO rather than leaving a completed task with unknown pattern compliance.
 
-Functional failure:
+Functional failure — always classify the evidence so the next route is chosen from it, not from a retry count:
 
 ```bash
 python <skill-dir>/scripts/planctl_concise.py fail \
   --plan <plan-path> --task 001 \
-  --reason "Focused failure evidence or log reference"
+  --reason "Focused failure evidence or log reference" \
+  --failure-class semantic
 ```
+
+| `--failure-class` | When | Next route |
+|---|---|---|
+| `mechanical` | detail/tool/test slip the same understanding would fix | repeat once, then +1 rung |
+| `semantic` | wrong approach or reasoning gap (also: claimed completion but deterministic validation failed) | next stronger tier |
+| `environmental` | toolchain/repository issue outside the task | unchanged; repair the environment |
+| `budget` | turn/token budget exhausted | repeat once from checkpoints, then +1 |
+| `plan_defect` | task boundary/requirement/dependency is wrong | task blocked; replan |
+| `unknown` (default) | no report/invalid report | +1 rung |
+
+The strict runner derives the class from the worker report's `failure_class`, the validation outcome, and budget patterns automatically.
 
 Usage/rate limit:
 
@@ -167,13 +183,14 @@ python <skill-dir>/scripts/patternctl.py validate --plan <plan-path>
 
 Classify before changing route:
 
-- **technical:** implementation/test/report/tool failure caused by attempted solution;
-- **environmental actionable:** repository/toolchain issue repairable within scope;
-- **provider availability/usage:** retry/fallback without counting a technical failure;
+- **technical:** implementation/test/report/tool failure caused by the attempted solution — record it as `mechanical` (same understanding would fix it) or `semantic` (the approach was wrong);
+- **environmental actionable:** repository/toolchain issue repairable within scope — `environmental`, route unchanged;
+- **budget:** the worker ran out of turns/tokens — `budget`, resume from checkpoints;
+- **provider availability/usage:** retry/fallback without counting a technical failure (`--rate-limited`);
 - **pattern evolution:** current shared contract must legitimately change; revise and invalidate affected signatories only;
-- **planning invalidation:** evidence disproves a material requirement, dependency, context boundary, architecture assumption, or validation strategy — stop downstream work and replan.
+- **planning invalidation:** evidence disproves a material requirement, dependency, context boundary, architecture assumption, or validation strategy — `plan_defect`: stop downstream work and replan.
 
-Persist the smallest diagnostic excerpt that can guide the next attempt plus a log reference. Escalate effort/tier/provider only when failure evidence justifies it.
+Persist the smallest diagnostic excerpt that can guide the next attempt plus a log reference. The ladder (`MODEL_ROUTING.md` §6, provider rungs in the active provider file) climbs only from these classes; once evidence asks for a rung above the top on the last provider, the runner blocks the TODO (`ladder_exhausted`) so it is replanned rather than retried at the strongest route until `max_attempts`. Optional per-worker guards: `claude.max_turns` and `codex.rollout_token_budget` in `orchestrator.config.json`.
 
 ## Validated learning
 

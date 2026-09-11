@@ -36,7 +36,7 @@ Quando a orquestração realmente é necessária, **todo o comportamento robusto
 |---|---:|---:|---:|
 | Claude Code | Sim | Sim | 1º |
 | OpenAI Codex | Sim | Sim | 2º |
-| Gemini CLI | Sim | Não | Opt-in |
+| Gemini CLI | Legado | Não | Opt-in (descontinuada em 18/06/2026; sucessora: Antigravity CLI) |
 | Qwen Code | Sim | Não | Opt-in |
 | Kimi Code CLI | Sim | Não | Opt-in |
 | Trae Agent | Sim | Não | Opt-in |
@@ -232,7 +232,28 @@ Cada definição mantém algo como:
 }
 ```
 
-Os IDs concretos dos modelos ficam em `orchestrator.config.json`. Assim, se os créditos de um provider acabarem, outro provider/modelo compatível pode resolver o mesmo nível lógico sem perder o contrato da tarefa. Escalonamento ocorre por evidência de falha, não por medo.
+Os IDs concretos dos modelos ficam em `orchestrator.config.json`, vindos de um único catálogo (`scripts/routingctl.py`): Claude `haiku`/`sonnet`/`opus`/`claude-fable-5-1`, Codex `gpt-5.6-luna`/`gpt-5.6-terra`/`gpt-6-astra`. Assim, se os créditos de um provider acabarem, outro provider/modelo compatível pode resolver o mesmo nível lógico sem perder o contrato da tarefa.
+
+### Rota por sinais da folha, elevação por delegação
+
+Cada folha — etapa de planejamento ou TODO — é roteada pelos sinais observáveis, nunca pelo tamanho do pedido ou pelo modelo do chat raiz:
+
+```bash
+python skill/plan-and-execute/scripts/routingctl.py route --signals bounded_implementation,weak_validation,implementation
+# {"tier": "strong", "effort": "high"}
+```
+
+A skill **nunca troca o modelo/effort da sessão raiz** (isso invalida o cache de prompt do provider). Quando o modelo raiz está abaixo do piso de uma folha — inclusive quando a skill começa em Haiku ou Luna — ela delega essa folha a um worker fresco no tier do piso, com prompt mínimo, e consome só o resultado compacto. Um modelo raiz pequeno é um delegador, não um teto; também não existe teto escolhido pelo usuário.
+
+### Escalada por evidência classificada
+
+Cada tentativa falha registra um `failure_class` (campo do report do worker ou `planctl fail --failure-class`): `mechanical` repete o degrau uma vez e depois sobe um; `semantic` pula para o próximo tier mais forte (no Codex, Terra → Astra Low, nunca Terra High); `environmental` mantém a rota; `budget` retoma dos checkpoints; `plan_defect` bloqueia o TODO para replanejamento. Rate limit e quota nunca são evidência. As escadas por provider ficam no catálogo; o Haiku, que não aceita parâmetro de effort, é despachado sem `--effort`.
+
+### Folha em duas fases e planejamento "decisões primeiro"
+
+Um TODO `high` pode declarar `design_route`: um worker mais forte escreve primeiro uma nota de design bounded; depois o worker de implementação roda na rota mais barata do TODO com essa nota. Quando só algumas decisões do plano são difíceis, `request_analysis.hard_decisions` registra a passagem "decisões primeiro": workers fortes resolvem as decisões e um planner padrão escreve o plano mecânico.
+
+Orçamentos opcionais por worker (`claude.max_turns`, `codex.rollout_token_budget`) transformam workers descontrolados em falhas `budget` retomáveis. O corpus `references/tier-evals.json` protege esse roteamento por regressão.
 
 ## Aprendizado seletivo entre TODOs
 

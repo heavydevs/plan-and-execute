@@ -199,17 +199,4 @@ Before approving a derived artifact, ask:
 
 ## Research basis
 
-This contract combines converging guidance rather than relying on one style rule:
-
-- **NASA Systems Engineering Handbook, Appendix C — How to Write a Good Requirement**: active voice, consistent terminology, concise/simple statements, one thought/subject/predicate, testability, traceability, and rejection of ambiguous/unverifiable terms. https://www.nasa.gov/reference/appendix-c-how-to-write-a-good-requirement/
-- **INCOSE Guide for Writing Requirements, v4 (2023)**: characteristics, rules, patterns, and requirement-quality checks for clear, verifiable requirements. https://www.incose.org/publications/products/requirements-guide
-- **Mavin et al., EARS, IEEE RE 2009**: a small controlled-natural-language rule set addressing ambiguity, vagueness, complexity, duplication, wordiness, implementation leakage, and untestability. DOI: 10.1109/RE.2009.9
-- **Veizaga, Shin & Briand, IEEE TSE 2024, Automated Smell Detection and Recommendation in Natural Language Requirements**: industrial evaluation of automated requirement-smell detection and controlled-language recommendations. DOI: 10.1109/TSE.2024.3361033
-- **Wiegers & Beatty, Software Requirements, 3rd ed.**: practical requirement quality, traceability, prioritization, validation, and specification discipline.
-- **Robertson & Robertson, Mastering the Requirements Process**: atomic requirements and structured requirement shells.
-- **OpenAI model guidance**: lean prompts, state each instruction once, keep only relevant tools/examples; internal coding-agent evals reported directional quality and token/cost gains from leaner system prompts. https://developers.openai.com/api/docs/guides/latest-model
-- **Anthropic, Effective context engineering for AI agents (2025)**: seek the smallest set of high-signal tokens; use progressive disclosure and just-in-time retrieval. https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
-- **Liu et al., Lost in the Middle (TACL 2024)**: long-context utilization can degrade depending on position and amount of context. arXiv:2307.03172
-- **RepoCoder (EMNLP 2023), Repoformer (ICML 2024), CodePlan (2023), Agentless (FSE 2025)**: repository-level coding benefits from selective localization/retrieval, explicit planning, and deterministic validation instead of blindly supplying the whole repository or preserving long agent histories.
-
-Treat vendor token/cost figures as directional. Validate this skill with its own regression tests and representative real requests.
+Requirement-writing and context-engineering sources for this contract are listed for maintainers in `docs/RESEARCH_BASIS.md`; do not load them during ordinary execution. Treat vendor token/cost figures as directional and validate the skill with its own regression tests and representative real requests.

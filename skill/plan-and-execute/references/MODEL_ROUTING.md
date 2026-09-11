@@ -11,15 +11,26 @@ Do not preload both provider files. A fallback provider loads its own reference 
 
 Maximize **verified quality per credit/token and per completed task**, not raw benchmark score or price per token. Use the cheapest route credible for the current semantic leaf; spend more when weak verification, high blast radius, or concrete failure evidence makes stronger reasoning economically safer.
 
-## 1. Classify the work before choosing a model
+## 1. Classify the leaf, then look up the floor
 
-1. **Deterministic lookup** — filename/symbol/text search, a known build/test/lint command, formatting, or other non-judgmental operation: use tools directly.
-2. **Exploration** — broad repository/log/doc discovery, call-site/test inventory, dependency tracing, or initial study: use a cheap read-only worker when delegation avoids loading substantial disposable context into the main agent.
-3. **Bounded implementation** — ordinary features, focused refactors, routine debugging, tests, and well-scoped edits: use a standard route.
-4. **Reasoning-sensitive work** — subtle debugging, architecture, security, concurrency, transactions, data integrity, compatible migrations, distributed behavior, or weakly verifiable decisions: use a strong route.
-5. **Frontier/long-horizon work** — repeated hard failure with useful evidence, unusually broad reasoning, or long agent loops whose success rate benefits from frontier effort: use max/frontier routing.
+Name the leaf's observable signals and let `python <skill-dir>/scripts/routingctl.py route --signals <a,b,c>` (or the table in `SKILL.md` §4) return the minimum credible route. Signals:
 
-A large parent request does not make every leaf strong/max.
+| Primary signal | Floor |
+|---|---|
+| `deterministic_lookup` — filename/symbol/text search, a known build/test/lint command, formatting | tool, no model |
+| `exploration` — broad discovery, call-site/test inventory, dependency tracing, bounded extraction | `economy` low |
+| `mechanical_edit` — rename/move/format/regenerate with an obvious local check | `economy` low |
+| `bounded_implementation` — ordinary feature, focused refactor, routine debugging, tests | `standard` medium |
+| `subtle_debugging` — ordering, state, flaky or non-local causes | `strong` medium |
+| `architecture_decision` — boundaries, dependency graph, compatibility strategy | `strong` high |
+| `cross_cutting_risk` — migration, security, concurrency, transactions, data integrity, distributed behaviour | `strong` high |
+| `silent_failure_costly` — a wrong result would not be caught and would cost materially | `strong` high |
+| `frontier_long_horizon` — unusually broad reasoning or very long autonomous loops | `max` high |
+| `repeated_strong_failure` — the strong route failed with useful evidence | `max` xhigh |
+
+Modifiers: `weak_validation` raises the tier one step and the effort floor to `high`; `strong_validation` lets `standard`/`strong` start at `medium`; `implementation` forbids `low` unless the edit is mechanical **and** deterministically checked, because a worker at `low` effort tends to skip reading and validation.
+
+A large parent request does not make every leaf strong/max. Size and semantic difficulty are separate axes: localize a big file with cheap tools, then send only the hard decision to the strong model.
 
 ## 2. Verifiability changes the cheapest safe route
 
@@ -28,44 +39,28 @@ When deterministic validation is strong and failure is cheap to detect, prefer:
 ```text
 cheapest credible route -> deterministic validation
 PASS -> stop
-FAIL -> retain compact evidence -> increase effort/model capability -> validate again
+FAIL -> classify the failure -> next rung from evidence -> validate again
 ```
 
 Examples of strong verification: compile, unit/integration tests, lint, type checks, schema checks, exact queries, snapshots, golden outputs, or reproducible benchmark commands.
 
 When objective verification is weak, start one step stronger. Examples: architecture boundaries, security policy, destructive migrations, distributed consistency, ambiguous production diagnosis, or a small code change with no meaningful tests where silent semantic failure would be costly.
 
-Do not interpret “no tests” as “always use the strongest model.” First assess change size, reversibility, local inspectability, and blast radius.
+Do not interpret "no tests" as "always use the strongest model." First assess change size, reversibility, local inspectability, and blast radius.
 
-## 3. DIRECT mode keeps economical routing
+## 3. Elevate by delegation. Never switch the root session
 
-DIRECT means **no planning harness**, not “one expensive model does everything.” For cohesive small and medium-small requests:
+The root session's model is the user's choice and its context is the cheapest cache the task has: every provider caches the prompt prefix **per model and, on most models, per effort level**, so switching the root model or effort mid-task re-reads the whole conversation uncached (Anthropic reports that an Opus->Haiku switch mid-session is *more* expensive than staying). Therefore:
 
-- keep the current conversation when its context is already useful;
-- use deterministic search before model-based exploration;
-- delegate only discovery that would fan out or pollute main context;
-- return a compact evidence map from explorers instead of full files/search narration;
-- implement in the current context when the edit is cohesive;
-- if validation is weak or absent, raise the implementation route based on semantic risk rather than creating a plan just to obtain a stronger model;
-- promote to ORCHESTRATED only when scope, independence, research, resumability, or context isolation begins to justify the harness.
+- **Never switch the root session's model/effort to obtain a stronger or cheaper route.**
+- **Delegate the leaf instead:** start a fresh worker at the required tier with a minimal prompt (task, paths/symbols, acceptance, validation command) and consume only its compact result.
+- **A small root model is not a ceiling.** If the root tier is below the floor for a stage (triage says `strong`, root is Haiku/Luna), that stage is delegated at the floor tier — never attempted in the root. Planning stages follow `PLANNING_ROUTING.md` the same way.
+- **Explorers protect expensive context:** discovery that fans out runs in the provider's cheapest read-only worker and returns an evidence map (paths/symbols, relevance, tests/contracts, unresolved questions, minimal excerpts); the implementer verifies material findings. Never spawn a worker for one grep or two obvious reads; default to at most two concurrent explorers.
+- The concrete mechanism (subagent `model`/`effort` parameters, spawn roles, cache TTLs) is in the active provider reference.
 
-For a tiny mechanical edit, a subagent can cost more than it saves. For a small but subtle edit with no tests, spending more on the implementer/reviewer can be cheaper than a failed cheap-first loop.
+DIRECT means **no planning harness**, not "one expensive model does everything": keep the current conversation when its context is useful, delegate only fan-out discovery or a leaf whose floor exceeds the root tier, and never create a plan solely to obtain a stronger model.
 
-## 4. Exploration is a separate economic problem
-
-Repository discovery is often high-volume and low-risk. Optimize it independently from implementation:
-
-- search/rank first;
-- open focused ranges second;
-- widen only from evidence;
-- if exploration fans out, use the provider's cheapest credible read-only worker;
-- request only paths/symbols, relevance, tests/contracts found, unresolved questions, and minimal excerpts;
-- parent/implementer verifies material findings before consequential changes;
-- prefer at most two concurrent explorers unless branches are truly independent.
-
-Never spend a frontier model reading dozens of candidate files that a cheaper worker can filter. Never spawn a worker for one grep or two obvious reads.
-
-## 5. Logical tiers remain portable
+## 4. Logical tiers remain portable
 
 | Tier | Meaning |
 |---|---|
@@ -74,33 +69,45 @@ Never spend a frontier model reading dozens of candidate files that a cheaper wo
 | `strong` | difficult, subtle, high-risk, or weakly verifiable engineering |
 | `max` | frontier/long-horizon escalation after semantic need or failure evidence |
 
-Concrete models are provider-specific. Do not assume that a newer frontier model must run at high effort: model generation and reasoning effort are independent axes, and a newer model at low/medium effort can dominate an older model at high effort.
+Concrete models are provider-specific. Model generation and reasoning effort are independent axes: a newer model at low/medium effort can dominate an older model at high effort (Codex: Astra Low >= Sol High; Claude: Opus Medium is a valid first strong rung under strong validation).
 
-## 6. Effort is adaptive, not tied blindly to tier names
+## 5. Effort: thoroughness, not only thinking time
 
-Use the provider-specific reference for exact defaults. General rules:
+Effort controls how much work the model does per request — files read, tools used, verification steps before it returns — not just how long it thinks. Current provider defaults are adaptive/`high`; the skill pins effort only where it changes cost or quality:
 
-- `low`: exploration, mechanical work, or a newer strong model on a bounded/verifiable task when its low-effort capability is already sufficient;
-- `medium`: default cost/quality balance for normal implementation and many difficult but verifiable tasks;
+- `low`: read-only extraction, summaries, mechanical edits with deterministic checks; **never an implementation worker that must run validation**;
+- `medium`: cost-sensitive verified implementation; `strong` tier under strong validation;
 - `high`: weak verification, high blast radius, difficult debugging, or evidence that medium under-reasoned;
-- `xhigh`: demanding long-running coding/agent loops or repeated hard failures;
-- `max`: only when the task justifies unconstrained reasoning spend and lower efforts have a plausible capability gap.
+- `xhigh`: demanding long-running loops or repeated hard failures;
+- `max`: exceptional; test before adopting, it is prone to overthinking.
 
-Escalate because of evidence, not because the overall request is large. Skip cheap rungs when failure would be expensive or hard to detect.
+Some models accept no effort parameter (Claude Haiku); the runner omits the flag for them.
 
-## 7. Provider fallback is not a technical escalation signal
+## 6. Escalate from classified evidence
 
-Quota/rate-limit exhaustion, temporary capacity, CLI interruption, or unavailable models do not prove the task needs more intelligence. Preserve current task state and select the equivalent logical route on the fallback provider. Load that provider's routing reference at that point.
+Every failed attempt records a `failure_class` (worker report field or `planctl fail --failure-class`). The runner climbs the provider's ladder from that evidence, never from a retry count:
+
+| Class | Meaning | Next route |
+|---|---|---|
+| `mechanical` | detail/tool/test slip the same understanding would fix | repeat the rung once, then +1 |
+| `semantic` | wrong approach or reasoning gap | jump to the next stronger **tier** (skip same-tier effort rungs) |
+| `environmental` | toolchain/repository problem outside the task | same route; repair the environment |
+| `budget` | turn/token budget exhausted | repeat once (resume from checkpoints), then +1 |
+| `plan_defect` | task boundary, requirement, or dependency is wrong | block the task; replan |
+| `unknown` | no report/invalid report/non-zero exit | +1 rung |
+
+Diagnostic for choosing the class: *did the worker not know enough (semantic -> bigger model) or not try hard enough (skipped files, did not run tests -> mechanical/more effort)?* A deterministic validation failure after a claimed completion is `semantic` unless the worker declared a narrower class.
+
+Provider fallback (quota, rate limit, capacity, CLI interruption) is availability, not evidence: state is preserved and the equivalent logical rung runs on the fallback provider. When the evidence asks for a rung above the ladder's top on the last available provider (for example a `semantic` failure at the `max` tier), the runner blocks the TODO (`ladder_exhausted`) for replanning instead of spending the remaining attempts at the strongest route. Stop as soon as acceptance and independent validation pass.
+
+## 7. Two-phase leaves (optional)
+
+A `high` TODO may declare `design_route` (`PLAN_SPEC.md`): a stronger worker writes a bounded design note (approach, decisions, contracts, ordered steps mapped to checkpoints, validation strategy), then the implementation worker runs at the task's own route with the note. Use it only when the leaf is hard **and** its implementation volume is large; a single strong worker is cheaper for a small hard edit.
 
 ## 8. Context economics are part of model economics
 
-- Keep stable instructions before dynamic task data when caching can reuse prefixes.
-- Defer or disable unused tool/MCP definitions when supported.
-- Prefer batched deterministic queries over many model/tool round trips when safe.
-- Keep full logs on disk; pass bounded failure excerpts plus paths to retries.
-- Do not repeatedly summarize the same evidence.
+- Keep stable instructions before dynamic task data; keep worker prompts byte-identical except for trailing task values so provider caches share the prefix.
+- Defer or disable unused tool/MCP definitions when supported; prefer batched deterministic queries over model round trips.
+- Keep full logs on disk; pass bounded failure excerpts plus paths to retries. Do not repeatedly summarize the same evidence.
 - Final/status prose uses an economy route when no difficult synthesis is required.
-
-## 9. Stop when verified quality is reached
-
-A stronger model is not a reward for surviving more retries. Stop as soon as acceptance criteria and available independent validation pass. If repeated failure reveals a planning/decomposition defect, replan instead of blindly increasing model effort.
+- Optional per-worker budget guards (`claude.max_turns`, `codex.rollout_token_budget`) turn runaway loops into resumable `budget` failures.

@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 import requestctl
+import routingctl
 
 SCHEMA_VERSION = 4
 SUPPORTED_SCHEMA_VERSIONS = {1, 2, 3, 4}
@@ -38,6 +39,8 @@ VALID_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
 VALID_STATUSES = {"pending", "in_progress", "completed", "blocked"}
 VALID_SUBTASK_STATUSES = {"pending", "in_progress", "completed"}
 VALID_COMPLEXITIES = {"low", "medium", "high", "extreme"}
+VALID_FAILURE_CLASSES = set(routingctl.FAILURE_CLASSES)
+MAX_HARD_DECISIONS = 12
 VALID_REQUIREMENT_SOURCES = {"user", "repository", "research", "inferred"}
 VALID_PRIORITIES = {"must", "should", "could"}
 REQUIRED_REVIEW_CHECKS = (
@@ -269,6 +272,45 @@ def normalize_requirements(
     return normalized
 
 
+def normalize_hard_decisions(raw: Any) -> list[dict[str, Any]]:
+    """Optional decision-first planning evidence: hard decisions resolved by a
+    stronger route before the mechanical plan was written."""
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        raise PlanError("request_analysis.hard_decisions must be a list")
+    if len(raw) > MAX_HARD_DECISIONS:
+        raise PlanError(f"request_analysis.hard_decisions may hold at most {MAX_HARD_DECISIONS} items")
+    decisions: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, item in enumerate(raw):
+        if not isinstance(item, dict):
+            raise PlanError(f"request_analysis.hard_decisions[{index}] must be an object")
+        decision_id = str(item.get("id", "")).strip().upper() or f"HD{index + 1:03d}"
+        if not re.fullmatch(r"HD\d{3}", decision_id):
+            raise PlanError(f"request_analysis.hard_decisions[{index}].id must look like HD001")
+        if decision_id in seen:
+            raise PlanError(f"request_analysis.hard_decisions duplicates id {decision_id}")
+        seen.add(decision_id)
+        route_used = str(item.get("route_used", "")).strip().lower()
+        if route_used:
+            parts = route_used.split("/")
+            if len(parts) != 2 or parts[0] not in VALID_TIERS or parts[1] not in VALID_EFFORTS:
+                raise PlanError(
+                    f"request_analysis.hard_decisions[{index}].route_used must be '<tier>/<effort>'"
+                )
+        decisions.append(
+            {
+                "id": decision_id,
+                "decision": ensure_text(item.get("decision"), f"hard_decisions[{index}].decision"),
+                "rationale": ensure_text(item.get("rationale"), f"hard_decisions[{index}].rationale"),
+                "route_used": route_used,
+                "source_refs": ensure_str_list(item.get("source_refs"), f"hard_decisions[{index}].source_refs"),
+            }
+        )
+    return decisions
+
+
 def normalize_request_analysis(raw: Any) -> dict[str, Any]:
     if not isinstance(raw, dict):
         raise PlanError("request_analysis must be an object created after studying the request and repository")
@@ -297,6 +339,7 @@ def normalize_request_analysis(raw: Any) -> dict[str, Any]:
         "decomposition_strategy": ensure_text(
             raw.get("decomposition_strategy"), "request_analysis.decomposition_strategy"
         ),
+        "hard_decisions": normalize_hard_decisions(raw.get("hard_decisions")),
     }
 
 def normalize_plan_review(raw: Any, schema_version: int = SCHEMA_VERSION) -> dict[str, Any]:
@@ -936,7 +979,13 @@ def remove_git_exclude_entry(info: Any) -> None:
 
 
 def default_config() -> dict[str, Any]:
-    return {
+    """Default orchestrator config.
+
+    Concrete Claude/Codex model ids, effort caps, effort-less models, and
+    escalation ladders come from `routingctl` (single catalog source); the
+    values below are structural defaults that the catalog overlays.
+    """
+    return routingctl.configure_config({
         "version": 1,
         "provider_order": ["claude", "codex"],
         "allow_provider_fallback": True,
@@ -953,37 +1002,23 @@ def default_config() -> dict[str, Any]:
         },
         "claude": {
             "command": "claude",
-            "models": {
-                "economy": "haiku",
-                "standard": "sonnet",
-                "strong": "opus",
-                "max": "opus",
-            },
+            "models": {},
             "permission_mode": "auto",
-            "max_effort_by_tier": {
-                "economy": "medium",
-                "standard": "high",
-                "strong": "max",
-                "max": "max",
-            },
+            "max_effort_by_tier": {},
+            # 0 disables the flag. When set, `--max-turns` bounds one worker run;
+            # exhaustion is recorded as a resumable `budget` failure, not a defect.
+            "max_turns": 0,
             "extra_args": [],
         },
         "codex": {
             "command": "codex",
-            "models": {
-                "economy": "gpt-5.6-luna",
-                "standard": "gpt-5.6-terra",
-                "strong": "gpt-5.6",
-                "max": "gpt-5.6",
-            },
+            "models": {},
             "sandbox": "workspace-write",
             "ignore_user_config": False,
-            "max_effort_by_tier": {
-                "economy": "medium",
-                "standard": "high",
-                "strong": "xhigh",
-                "max": "xhigh",
-            },
+            "max_effort_by_tier": {},
+            # 0 disables the override. When set, enables Codex rollout budget
+            # tracking for one worker run (features.rollout_budget.*).
+            "rollout_token_budget": 0,
             "extra_args": [],
         },
         "gemini": {
@@ -1065,7 +1100,7 @@ def default_config() -> dict[str, Any]:
             "model_tier": "economy",
             "reasoning_effort": "low",
         },
-    }
+    })
 
 
 def normalize_scope(raw: Any, field: str) -> dict[str, list[str]]:
@@ -1081,6 +1116,33 @@ def normalize_scope(raw: Any, field: str) -> dict[str, list[str]]:
             for item in ensure_str_list(raw.get("expected_files"), f"{field}.expected_files")
         ],
     }
+
+
+def normalize_design_route(raw: Any, task_id: str, complexity: str) -> dict[str, str] | None:
+    """Optional two-phase leaf: a stronger design pass before implementation.
+
+    Allowed only for `high` complexity TODOs. The design worker reads the task
+    definition plus assigned context and writes a bounded design note; the
+    implementation worker then runs at the task's own (usually cheaper) route.
+    """
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise PlanError(f"Task {task_id}: design_route must be an object with model_tier and reasoning_effort")
+    if complexity != "high":
+        raise PlanError(
+            f"Task {task_id}: design_route is only allowed on high-complexity TODOs; "
+            "route lower-complexity leaves directly"
+        )
+    tier = str(raw.get("model_tier", "strong")).strip().lower()
+    effort = str(raw.get("reasoning_effort", "medium")).strip().lower()
+    if tier not in VALID_TIERS:
+        raise PlanError(f"Task {task_id}: design_route.model_tier {tier!r} is invalid")
+    if effort not in VALID_EFFORTS:
+        raise PlanError(f"Task {task_id}: design_route.reasoning_effort {effort!r} is invalid")
+    if effort == "low":
+        raise PlanError(f"Task {task_id}: design_route.reasoning_effort may not be low; design is reasoning work")
+    return {"model_tier": tier, "reasoning_effort": effort}
 
 
 def normalize_context_boundary(raw: Any, task_id: str) -> dict[str, Any]:
@@ -1294,6 +1356,7 @@ def normalize_task(
     context_boundary = normalize_context_boundary(raw.get("context_boundary"), task_id)
     subtasks = normalize_subtasks(raw.get("subtasks"), task_id)
     learning_targets = normalize_learning_targets(raw.get("learning_targets"), task_id)
+    design_route = normalize_design_route(raw.get("design_route"), task_id, complexity)
 
     return {
         "id": task_id,
@@ -1314,6 +1377,12 @@ def normalize_task(
         "provider": provider,
         "model_tier": tier,
         "reasoning_effort": effort,
+        "design_route": design_route,
+        "design_phase": (
+            {"status": "pending", "note_file": None, "route": None, "completed_at": None}
+            if design_route
+            else None
+        ),
         "allow_provider_fallback": bool(raw.get("allow_provider_fallback", True)),
         "related_task_reads": related,
         "subtasks": subtasks,
@@ -1324,6 +1393,7 @@ def normalize_task(
         "status": "pending",
         "attempts": 0,
         "functional_failures": 0,
+        "failure_classes": [],
         "rate_limit_events": 0,
         "current_route": None,
         "started_at": None,
@@ -1500,10 +1570,25 @@ def render_analysis(manifest: dict[str, Any]) -> str:
 
 {markdown_list(analysis['open_questions'])}
 
+## Hard decisions
+
+{render_hard_decisions(analysis.get('hard_decisions', []))}
+
 ## Decomposition strategy
 
 {analysis['decomposition_strategy']}
 """
+
+
+def render_hard_decisions(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return "- None (no decision-first pass was needed)"
+    lines = []
+    for item in items:
+        route = f" [{item['route_used']}]" if item.get("route_used") else ""
+        refs = f" (refs: {', '.join(item['source_refs'])})" if item.get("source_refs") else ""
+        lines.append(f"- **{item['id']}**{route} {item['decision']} — {item['rationale']}{refs}")
+    return "\n".join(lines)
 
 
 def render_plan_review(manifest: dict[str, Any]) -> str:
@@ -3008,6 +3093,15 @@ def complete_task(
     return task
 
 
+def normalize_failure_class(value: Any) -> str:
+    cls = str(value or "unknown").strip().lower()
+    if cls not in VALID_FAILURE_CLASSES:
+        raise PlanError(
+            f"failure_class must be one of {sorted(VALID_FAILURE_CLASSES)}; received {cls!r}"
+        )
+    return cls
+
+
 def fail_task(
     plan_dir: Path,
     manifest: dict[str, Any],
@@ -3015,19 +3109,32 @@ def fail_task(
     reason: str,
     *,
     rate_limited: bool = False,
+    failure_class: str | None = None,
 ) -> dict[str, Any]:
+    """Record a failed attempt.
+
+    `failure_class` is evidence for the next route (see routingctl.escalation_step):
+    mechanical/budget repeat the rung once, semantic jumps a tier, environmental
+    keeps the route, plan_defect blocks the task for replanning, unknown climbs one rung.
+    Rate-limit/availability events are never failure evidence.
+    """
     task = find_task(manifest, task_id)
     if task["status"] != "in_progress":
         raise PlanError(f"Task {task['id']} is not in progress")
     recovered_subtasks = recover_in_progress_subtasks(task, reason)
+    cls = None
     if rate_limited:
         task["rate_limit_events"] += 1
         event = "rate_limited"
     else:
+        cls = normalize_failure_class(failure_class)
         task["functional_failures"] += 1
+        task.setdefault("failure_classes", []).append(cls)
         event = "failed"
     task["last_error"] = reason.strip()[:4000]
-    if not rate_limited and task["functional_failures"] >= task["max_attempts"]:
+    if not rate_limited and (
+        task["functional_failures"] >= task["max_attempts"] or cls == "plan_defect"
+    ):
         task["status"] = "blocked"
     else:
         task["status"] = "pending"
@@ -3035,6 +3142,7 @@ def fail_task(
         {
             "at": now_utc(),
             "event": event,
+            "failure_class": cls,
             "reason": task["last_error"],
             "recovered_subtasks": recovered_subtasks,
         }
@@ -3043,9 +3151,63 @@ def fail_task(
         manifest,
         f"task_{event}",
         task_id=task["id"],
+        failure_class=cls,
         reason=task["last_error"],
         recovered_subtasks=recovered_subtasks,
     )
+    save_manifest(plan_dir, manifest)
+    return task
+
+
+def block_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, reason: str, *, event: str = "blocked") -> dict[str, Any]:
+    """Block a pending task without counting a new attempt (e.g. ladder exhausted)."""
+    task = find_task(manifest, task_id)
+    if task["status"] not in ("pending", "in_progress"):
+        raise PlanError(f"Task {task['id']} cannot be blocked from status {task['status']}")
+    if task["status"] == "in_progress":
+        recover_in_progress_subtasks(task, reason)
+    task["status"] = "blocked"
+    task["last_error"] = reason.strip()[:4000]
+    task["history"].append({"at": now_utc(), "event": event, "reason": task["last_error"]})
+    append_event(manifest, f"task_{event}", task_id=task["id"], reason=task["last_error"])
+    save_manifest(plan_dir, manifest)
+    return task
+
+
+def release_design_claim(plan_dir: Path, manifest: dict[str, Any], task_id: str) -> dict[str, Any]:
+    """Return a task claimed for its design phase to pending without spending an attempt."""
+    task = find_task(manifest, task_id)
+    if task["status"] != "in_progress":
+        raise PlanError(f"Task {task['id']} is not in progress")
+    task["status"] = "pending"
+    task["attempts"] = max(0, int(task.get("attempts", 1)) - 1)
+    task["current_route"] = None
+    task["last_error"] = None
+    save_manifest(plan_dir, manifest)
+    return task
+
+
+def complete_design_phase(
+    plan_dir: Path,
+    manifest: dict[str, Any],
+    task_id: str,
+    note_file: str,
+    route: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Persist that a two-phase leaf's design note exists and was accepted."""
+    task = find_task(manifest, task_id)
+    if not task.get("design_route"):
+        raise PlanError(f"Task {task['id']} has no design_route")
+    task["design_phase"] = {
+        "status": "completed",
+        "note_file": note_file,
+        "route": route,
+        "completed_at": now_utc(),
+    }
+    task["history"].append(
+        {"at": now_utc(), "event": "design_completed", "note_file": note_file, "route": route}
+    )
+    append_event(manifest, "task_design_completed", task_id=task["id"], note_file=note_file, route=route)
     save_manifest(plan_dir, manifest)
     return task
 
@@ -3079,6 +3241,13 @@ def reset_task(plan_dir: Path, manifest: dict[str, Any], task_id: str) -> dict[s
     task["result_file"] = None
     task["changed_files"] = []
     task["validation_results"] = []
+    if task.get("design_route"):
+        previous_note = (task.get("design_phase") or {}).get("note_file")
+        if previous_note:
+            note_path = plan_dir / previous_note
+            if note_path.is_file():
+                note_path.unlink()
+        task["design_phase"] = {"status": "pending", "note_file": None, "route": None, "completed_at": None}
     task["history"].append(
         {
             "at": now_utc(),
@@ -3283,7 +3452,14 @@ def command_complete(args: argparse.Namespace) -> None:
 
 def command_fail(args: argparse.Namespace) -> None:
     plan_dir, manifest = load_plan(args.plan)
-    task = fail_task(plan_dir, manifest, args.task, args.reason, rate_limited=args.rate_limited)
+    task = fail_task(
+        plan_dir,
+        manifest,
+        args.task,
+        args.reason,
+        rate_limited=args.rate_limited,
+        failure_class=getattr(args, "failure_class", None),
+    )
     print(json.dumps(task, ensure_ascii=False, indent=2))
 
 
@@ -3393,6 +3569,12 @@ def build_parser() -> argparse.ArgumentParser:
     fail.add_argument("--task", required=True)
     fail.add_argument("--reason", required=True)
     fail.add_argument("--rate-limited", action="store_true")
+    fail.add_argument(
+        "--failure-class",
+        choices=sorted(VALID_FAILURE_CLASSES),
+        default=None,
+        help="Evidence for the next route: mechanical, semantic, environmental, budget, plan_defect, unknown",
+    )
     fail.set_defaults(func=command_fail)
 
     reset = sub.add_parser("reset", help="Reset a task to pending")

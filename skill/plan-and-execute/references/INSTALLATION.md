@@ -2,7 +2,7 @@
 
 [Versão em português](INSTALLATION.pt-BR.md)
 
-The standard installation intentionally targets only Claude Code and Codex. Gemini CLI, Qwen Code, Kimi Code CLI, and Trae Agent remain optional execution backends after they are installed, authenticated, and added to plan routing; they are not `--agent` installation destinations.
+The standard installation intentionally targets only Claude Code and Codex. Qwen Code, Kimi Code CLI, and Trae Agent remain optional execution backends after they are installed, authenticated, and added to plan routing; they are not `--agent` installation destinations. The `gemini` adapter targets the Gemini CLI, which Google sunset on 2026-06-18 in favour of the Antigravity CLI; keep it only for existing installs until an Antigravity adapter is verified.
 
 ## Activation mode
 

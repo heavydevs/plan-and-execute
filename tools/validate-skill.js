@@ -22,7 +22,8 @@ function requireFile(relativePath) {
   return absolute;
 }
 function read(relativePath) {
-  return fs.readFileSync(requireFile(relativePath), 'utf8');
+  // Git checkouts with core.autocrlf=true carry CRLF; the contract is defined on LF text.
+  return fs.readFileSync(requireFile(relativePath), 'utf8').replace(/\r\n/g, '\n');
 }
 function requireText(text, needles, label) {
   for (const needle of needles) {

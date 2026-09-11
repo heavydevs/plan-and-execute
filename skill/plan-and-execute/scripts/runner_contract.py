@@ -49,19 +49,25 @@ def install_runner_contract(run_isolated: Any) -> Any:
     ) -> str:
         task_path = (plan_dir / task["file"]).resolve()
         schema_path = run_isolated.completion_schema_path().resolve()
+        # Byte-stable rules first (shared prompt-cache prefix across TODOs and
+        # sibling workers), stable paths next, per-task values last.
         return f"""Implement one isolated TODO. Keep context narrow and return only the required JSON report.
 
 Rules:
-1. Read `{task_path}` first, then exactly the context and learning files listed there. Do not read other plan files, task definitions, logs, results, or unassigned `.ai-work` artifacts. Assigned shared-pattern files are allowed only when the runner explicitly appends them below.
+1. Read the task definition (path below) first, then exactly the context and learning files listed there. Do not read other plan files, task definitions, logs, results, or unassigned `.ai-work` artifacts. Assigned shared-pattern files are allowed only when the runner explicitly appends them below.
 2. Read/edit only repository source, tests, build files, and runtime output needed for this TODO. Preserve unrelated working-tree changes.
 3. Stay inside task scope/acceptance. Do not edit planning, context, learning, or shared-pattern artifacts.
-4. Checkpoint subtasks only with `{controller}` using `subtask-start`, `subtask-complete`, or `subtask-reset` for parent `{task['id']}`.
-5. Run task validation before reporting completion.
+4. Checkpoint subtasks only with the subtask controller (path below) using `subtask-start`, `subtask-complete`, or `subtask-reset` for this task id.
+5. Run task validation before reporting completion; at low effort do not skip it.
 6. Report exact context/learning read lists and all completed subtask ids. Read another task definition only when explicitly allowlisted, and report the reason.
 7. Publish learning only to predeclared future targets/topics with concrete repository or command references; prefer no learning to generic advice.
-8. Output one JSON object matching `{schema_path}`. Keep summary, validation details, risks, and follow-ups concise.
+8. Output one JSON object matching the report schema (path below). Keep summary, validation details, risks, and follow-ups concise.
+9. When blocked, set `failure_class`: `mechanical` (a detail/tool slip you would fix with the same understanding), `semantic` (the approach or understanding was wrong), `environmental` (toolchain/repository problem outside this task), `budget` (turn/token budget ran out), or `plan_defect` (the task boundary, requirement, or dependency is wrong). The orchestrator picks the next route from this evidence.
 
+Subtask controller: `{controller}`
+Report schema: `{schema_path}`
 Repository: `{manifest['repo_root']}`
+Task definition: `{task_path}`
 Task: `{task['id']}`
 Route: {route['provider']} / {route['model']} / {route['effort']}
 """

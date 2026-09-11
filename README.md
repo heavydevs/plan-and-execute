@@ -36,7 +36,7 @@ The full harness is still intact when orchestration is justified. An orchestrate
 |---|---:|---:|---:|---|
 | Claude Code | Yes | Yes | First | Standard quick-start target |
 | OpenAI Codex | Yes | Yes | Second | Standard quick-start target |
-| Google Gemini CLI | Yes | No | Opt-in | Fresh headless CLI process |
+| Google Gemini CLI | Legacy | No | Opt-in | Gemini CLI was sunset on 2026-06-18 in favour of the Antigravity CLI; the adapter stays for existing installs until an Antigravity adapter is verified |
 | Qwen Code | Yes | No | Opt-in | Fresh headless CLI process |
 | Kimi Code CLI | Yes | No | Opt-in | Fresh prompt-mode CLI process |
 | Trae Agent | Yes | No | Opt-in | Fresh `trae-cli run` process |
@@ -238,9 +238,30 @@ Each TODO keeps:
 }
 ```
 
-Concrete provider model ids are resolved through `orchestrator.config.json`. This keeps the task portable when one provider runs out of quota or a different compatible model is available. Effort/tier/provider escalation follows actual failure evidence, not fear or overall request size.
+Concrete provider model ids are resolved through `orchestrator.config.json` from one catalog (`scripts/routingctl.py`): Claude `haiku`/`sonnet`/`opus`/`claude-fable-5-1`, Codex `gpt-5.6-luna`/`gpt-5.6-terra`/`gpt-6-astra`. This keeps the task portable when one provider runs out of quota or a different compatible model is available.
 
-See [MODEL_ROUTING.md](skill/plan-and-execute/references/MODEL_ROUTING.md).
+### Routing from leaf signals, elevation by delegation
+
+Every leaf — a planning stage or an implementation TODO — is routed from observable signals, not from the parent request's size or the root chat's model:
+
+```bash
+python skill/plan-and-execute/scripts/routingctl.py route --signals bounded_implementation,weak_validation,implementation
+# {"tier": "strong", "effort": "high"}
+```
+
+The skill **never switches the root session's model or effort** (that invalidates the provider prompt cache). When the root model is below a leaf's floor — including when the skill is started from Haiku or Luna — it delegates that leaf to a fresh worker at the floor tier with a minimal prompt and consumes the compact result. A small root model is a delegator, not a ceiling; there is no user-selected model ceiling either.
+
+### Escalation from classified evidence
+
+A failed attempt records a `failure_class` (worker report field or `planctl fail --failure-class`): `mechanical` repeats the rung once and then climbs one step; `semantic` jumps to the next stronger tier (on Codex, Terra → Astra Low, never Terra High); `environmental` keeps the route; `budget` resumes from checkpoints; `plan_defect` blocks the TODO for replanning. Rate limits and quota are never evidence. Provider ladders live in the catalog; Haiku, which accepts no effort parameter, is dispatched without `--effort`.
+
+### Two-phase leaves and decision-first planning
+
+A `high` TODO may declare `design_route`: a stronger worker writes a bounded design note first, then the implementation worker runs at the TODO's cheaper route with it. When only a few planning decisions are hard, `request_analysis.hard_decisions` records a decision-first pass: strong workers resolve the decisions, a standard planner writes the mechanical plan.
+
+Optional per-worker budgets (`claude.max_turns`, `codex.rollout_token_budget`) turn runaway workers into resumable `budget` failures.
+
+See [MODEL_ROUTING.md](skill/plan-and-execute/references/MODEL_ROUTING.md), the provider maps, and `references/tier-evals.json` (the leaf-routing regression corpus).
 
 ## Selective validated learning
 
@@ -307,10 +328,13 @@ The package source is not mutated. Marker schema v2 records both source and inst
 - high context percentage promoting a task when only one tiny cohesive fix remains;
 - large multi-workstream/migration/research requests failing to enter orchestration.
 
+`references/tier-evals.json` protects leaf routing the same way: small-but-risky leaves must be routed strong even from a small root model, and large-but-mechanical leaves must stay cheap.
+
 Run:
 
 ```bash
 python skill/plan-and-execute/scripts/routing_self_test.py
+python skill/plan-and-execute/scripts/model_routing_self_test.py
 python skill/plan-and-execute/scripts/promotion_self_test.py
 ```
 
