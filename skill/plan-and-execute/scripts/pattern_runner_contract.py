@@ -37,7 +37,10 @@ def install_pattern_runner_contract(run_isolated: Any) -> Any:
         task: dict[str, Any],
         route: dict[str, str],
     ) -> str:
-        base = original_prompt(plan_dir, manifest, task, route)
+        base = original_prompt(plan_dir, manifest, task, route).replace(
+            "Do not read other plan files, task definitions, logs, results, or `.ai-work` artifacts.",
+            "Do not read other plan files, task definitions, logs, results, or unassigned `.ai-work` artifacts.",
+        )
         pattern_files = assigned_pattern_files(plan_dir, task["id"])
         if not pattern_files:
             return base + "\nShared patterns: none. Report `pattern_files_read: []`.\n"
@@ -48,7 +51,7 @@ def install_pattern_runner_contract(run_isolated: Any) -> Any:
 Shared pattern rules:
 - Read `{assignment}` and then exactly these assigned normative pattern files:
 {rendered}
-- Treat their current revisions as acceptance inputs. Do not edit pattern files/registry directly.
+- Treat their current revisions as acceptance inputs. Do not read unassigned patterns or edit pattern files/registry.
 - If implementation evidence shows a shared contract must change, stop safely and report the concrete conflict in risks/follow-ups; the orchestrator owns pattern revision.
 - Report `pattern_files_read` as exactly this ordered list: {json.dumps(pattern_files)}.
 """
