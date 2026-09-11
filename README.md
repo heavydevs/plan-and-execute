@@ -36,7 +36,8 @@ The full harness is still intact when orchestration is justified. An orchestrate
 |---|---:|---:|---:|---|
 | Claude Code | Yes | Yes | First | Standard quick-start target |
 | OpenAI Codex | Yes | Yes | Second | Standard quick-start target |
-| Google Gemini CLI | Legacy | No | Opt-in | Gemini CLI was sunset on 2026-06-18 in favour of the Antigravity CLI; the adapter stays for existing installs until an Antigravity adapter is verified |
+| Google Antigravity CLI (`agy`) | Yes | No | Opt-in | Fresh headless `agy -p` process with JSON schema output; configure model slugs from `agy models --output-format json` |
+| Google Gemini CLI | Legacy | No | Opt-in | Sunset on 2026-06-18; use the Antigravity adapter for new plans |
 | Qwen Code | Yes | No | Opt-in | Fresh headless CLI process |
 | Kimi Code CLI | Yes | No | Opt-in | Fresh prompt-mode CLI process |
 | Trae Agent | Yes | No | Opt-in | Fresh `trae-cli run` process |
@@ -285,7 +286,7 @@ Use the lifecycle wrapper:
 ```bash
 pae resume
 pae resume --provider codex --once
-pae resume --provider gemini --once
+pae resume --provider antigravity --once
 ```
 
 or:

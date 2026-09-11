@@ -2,7 +2,9 @@
 
 [Versão em português](INSTALLATION.pt-BR.md)
 
-The standard installation intentionally targets only Claude Code and Codex. Qwen Code, Kimi Code CLI, and Trae Agent remain optional execution backends after they are installed, authenticated, and added to plan routing; they are not `--agent` installation destinations. The `gemini` adapter targets the Gemini CLI, which Google sunset on 2026-06-18 in favour of the Antigravity CLI; keep it only for existing installs until an Antigravity adapter is verified.
+The standard installation intentionally targets only Claude Code and Codex. Antigravity CLI (`agy`), Qwen Code, Kimi Code CLI, and Trae Agent remain optional execution backends after they are installed, authenticated, and added to plan routing; they are not `--agent` installation destinations. The `gemini` adapter targets the Gemini CLI, which Google sunset on 2026-06-18; use `antigravity` for new plans.
+
+Antigravity notes: the adapter runs `agy --dangerously-skip-permissions --output-format json --json-schema <schema> [--model <slug>] --effort <low|medium|high> --print-timeout 60m -p <prompt>`. Model slugs are `default` until you set `antigravity.models` in `orchestrator.config.json` from `agy models --output-format json`; `--effort` is capped at `high`; the summary runs with `--sandbox`. Confirm with `pae doctor` and a `--dry-run` before relying on it; early `agy` 1.0.0 builds dropped stdout under non-TTY (`antigravity-cli#76`), so upgrade if a worker returns an empty report.
 
 ## Activation mode
 
@@ -145,7 +147,7 @@ Useful options:
 
 ```bash
 pae resume --provider codex --once
-pae resume --provider gemini --once
+pae resume --provider antigravity --once
 python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id> --dry-run
 python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id> --no-cleanup
 ```

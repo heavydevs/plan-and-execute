@@ -24,6 +24,7 @@ Maintainer reference for the routing, staging, and artifact-writing policies in 
 - **/boost** — user-triggered pipeline: orchestrator strategy → parallel specialised subagents in isolated scopes → synthesis with multi-round verification. — https://antigravity.google/docs/boost/
 - **Managed agent API** — `max_total_tokens` budget returning `status: incomplete` that resumes by `interaction_id`/`environment_id`; compaction at ~135k tokens; 50–70% of input typically cached. — https://ai.google.dev/gemini-api/docs/antigravity-agent
 - The Gemini CLI was sunset on 2026-06-18 and replaced by the Antigravity CLI. — https://www.analyticsvidhya.com/blog/2026/05/google-antigravity-2-0/
+- **Antigravity CLI headless contract** (`agy`): `-p`/`--print`/`--prompt <prompt>`, `--output-format text|json|stream-json` (JSON envelope: `response`, `conversation_id`, `status`, `usage`, `structured_output` with `--json-schema <schema|file>`), `--model <slug>`, `--effort low|medium|high`, `--dangerously-skip-permissions`, `--sandbox`, `--print-timeout` (default `5m`), `--continue`/`--conversation` for resume. — https://antigravity.google/docs/cli/headless/ ; known early bug: stdout dropped under non-TTY in 1.0.0 — https://github.com/google-antigravity/antigravity-cli/issues/76
 
 ## Routing and cascades
 

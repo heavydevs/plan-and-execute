@@ -33,7 +33,7 @@ REQUEST_FILE = "REQUEST.md"
 GLOBAL_CONTEXT_FILE = "CONTEXT.md"
 CONTEXT_DIRECTORY = "contexts"
 LEARNING_DIRECTORY = "learnings"
-VALID_PROVIDERS = {"auto", "claude", "codex", "gemini", "qwen", "kimi", "trae"}
+VALID_PROVIDERS = {"auto", "claude", "codex", "antigravity", "gemini", "qwen", "kimi", "trae"}
 VALID_TIERS = {"economy", "standard", "strong", "max"}
 VALID_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
 VALID_STATUSES = {"pending", "in_progress", "completed", "blocked"}
@@ -1019,6 +1019,32 @@ def default_config() -> dict[str, Any]:
             # 0 disables the override. When set, enables Codex rollout budget
             # tracking for one worker run (features.rollout_budget.*).
             "rollout_token_budget": 0,
+            "extra_args": [],
+        },
+        "antigravity": {
+            # Google Antigravity CLI (`agy`), successor of the Gemini CLI. Headless
+            # contract: -p <prompt> --output-format json --json-schema <schema>
+            # --model <slug> --effort low|medium|high --print-timeout <duration>.
+            "command": "agy",
+            "models": {
+                "economy": "default",
+                "standard": "default",
+                "strong": "default",
+                "max": "default",
+            },
+            "skip_permissions": True,
+            "summary_skip_permissions": True,
+            "sandbox": False,
+            "summary_sandbox": True,
+            # agy kills a print-mode run after 5 minutes by default; workers need longer.
+            "print_timeout": "60m",
+            "retry_exit_codes": [],
+            "max_effort_by_tier": {
+                "economy": "high",
+                "standard": "high",
+                "strong": "high",
+                "max": "high",
+            },
             "extra_args": [],
         },
         "gemini": {

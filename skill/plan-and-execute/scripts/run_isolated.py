@@ -400,6 +400,22 @@ def build_worker_command(
         command.append(prompt)
         return command
 
+    if provider == "antigravity":
+        command = list(prefix)
+        if provider_cfg.get("skip_permissions", True):
+            command.append("--dangerously-skip-permissions")
+        if provider_cfg.get("sandbox", False):
+            command.append("--sandbox")
+        command.extend(["--output-format", "json", "--json-schema", schema_text])
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="claude"))
+        print_timeout = str(provider_cfg.get("print_timeout", "60m")).strip()
+        if print_timeout:
+            command.extend(["--print-timeout", print_timeout])
+        command.extend(extra_args)
+        command.extend(["-p", prompt])
+        return command
+
     if provider == "gemini":
         command = prefix + [
             "--approval-mode",
@@ -1167,6 +1183,21 @@ def build_summary_command(
             command.append("--ignore-user-config")
         command.extend(extra_args)
         command.append(prompt)
+        return command
+    if provider == "antigravity":
+        command = list(prefix)
+        if provider_cfg.get("summary_skip_permissions", True):
+            command.append("--dangerously-skip-permissions")
+        if provider_cfg.get("summary_sandbox", True):
+            command.append("--sandbox")
+        command.extend(["--output-format", "json"])
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="claude"))
+        print_timeout = str(provider_cfg.get("print_timeout", "60m")).strip()
+        if print_timeout:
+            command.extend(["--print-timeout", print_timeout])
+        command.extend(extra_args)
+        command.extend(["-p", prompt])
         return command
     if provider == "gemini":
         command = prefix + [

@@ -164,6 +164,7 @@ python <skill-dir>/scripts/run_concise.py --plan <plan-path>
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --dry-run
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --once --no-cleanup
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --provider codex
+python <skill-dir>/scripts/run_concise.py --plan <plan-path> --provider antigravity
 ```
 
 ## State commands

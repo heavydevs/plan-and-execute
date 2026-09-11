@@ -14,7 +14,9 @@ All notable changes to this project are documented here.
 - Corrects the Claude guidance: the built-in `Explore` agent inherits the session model and is only cheap with an explicit `model: "haiku"`; current Claude 5 effort defaults are adaptive and effort controls thoroughness, so implementation workers never run at `low`.
 - Reorders worker prompts so static rules form a byte-stable, cache-shareable prefix and per-task values come last; documents concrete prompt-cache facts for Claude Code and Codex.
 - Fixes `command_prefix` on Windows (POSIX `shlex` stripped backslashes from configured executable paths), which also makes the end-to-end runner self-test pass on Windows.
-- Moves research citations out of runtime references into `docs/RESEARCH_BASIS.md`; adds an optional host-native fan-out dispatch note for PRIMARY_PLAN digests; marks the Gemini CLI adapter as legacy (CLI sunset 2026-06-18, successor Antigravity CLI); points `INTAKE.md` at `planctl_concise.py`.
+- Adds an `antigravity` execution adapter for the Google Antigravity CLI (`agy -p` headless mode with `--output-format json`, `--json-schema`, `--model`, `--effort`, `--print-timeout`), wired through `pae --provider antigravity`, `pae doctor`, and the provider self-tests; marks the Gemini CLI adapter as legacy (CLI sunset 2026-06-18).
+- Splits the complex-study two-question protocol into `references/STUDY_CHOICES.md`, loaded only when a `complex` study still needs a depth choice, so `simple`/`medium` studies no longer pay for it; the interaction contract and its regression test are unchanged.
+- Moves research citations out of runtime references into `docs/RESEARCH_BASIS.md`; adds an optional host-native fan-out dispatch note for PRIMARY_PLAN digests; points `INTAKE.md` at `planctl_concise.py`.
 
 ## 0.8.0 - 2026-09-03
 

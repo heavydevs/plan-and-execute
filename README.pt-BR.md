@@ -36,7 +36,8 @@ Quando a orquestração realmente é necessária, **todo o comportamento robusto
 |---|---:|---:|---:|
 | Claude Code | Sim | Sim | 1º |
 | OpenAI Codex | Sim | Sim | 2º |
-| Gemini CLI | Legado | Não | Opt-in (descontinuada em 18/06/2026; sucessora: Antigravity CLI) |
+| Antigravity CLI (`agy`) | Sim | Não | Opt-in |
+| Gemini CLI | Legado | Não | Opt-in (descontinuada em 18/06/2026; use o adapter Antigravity) |
 | Qwen Code | Sim | Não | Opt-in |
 | Kimi Code CLI | Sim | Não | Opt-in |
 | Trae Agent | Sim | Não | Opt-in |
@@ -275,7 +276,7 @@ A regra continua omission-first:
 ```bash
 pae resume
 pae resume --provider codex --once
-pae resume --provider gemini --once
+pae resume --provider antigravity --once
 ```
 
 Ou:

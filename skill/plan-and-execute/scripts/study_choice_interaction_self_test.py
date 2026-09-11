@@ -8,7 +8,8 @@ from pathlib import Path
 SKILL_DIR = Path(__file__).resolve().parent.parent
 SKILL = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
 ORCHESTRATION = (SKILL_DIR / "references" / "ORCHESTRATION.md").read_text(encoding="utf-8")
-STUDY = (SKILL_DIR / "references" / "ADAPTIVE_STUDY.md").read_text(encoding="utf-8")
+STUDY_PROTOCOL = (SKILL_DIR / "references" / "ADAPTIVE_STUDY.md").read_text(encoding="utf-8")
+STUDY = (SKILL_DIR / "references" / "STUDY_CHOICES.md").read_text(encoding="utf-8")
 
 
 def require(text: str, needle: str, label: str) -> None:
@@ -21,6 +22,13 @@ def main() -> None:
     # to ADAPTIVE_STUDY instead of duplicating the interaction contract in SKILL.md.
     require(SKILL, "references/ORCHESTRATION.md", "SKILL.md")
     require(ORCHESTRATION, "ADAPTIVE_STUDY.md", "ORCHESTRATION.md")
+    # The two-question protocol loads only for complex studies; simple/medium
+    # studies must not pay for it.
+    require(STUDY_PROTOCOL, "STUDY_CHOICES.md", "ADAPTIVE_STUDY.md")
+    require(STUDY_PROTOCOL, "Do not read it for `simple`/`medium` studies", "ADAPTIVE_STUDY.md")
+    for needle in ("vscode/askQuestions", "Choice 1 — internal study", "(recomendado)"):
+        if needle in STUDY_PROTOCOL:
+            raise AssertionError(f"ADAPTIVE_STUDY.md must not duplicate the choice protocol: {needle!r}")
 
     for needle in (
         "Ask only one choice per chat turn",
@@ -51,7 +59,7 @@ def main() -> None:
         "Pesquisa focalizada",
         "Pesquisa ampla",
     ):
-        require(STUDY, needle, "ADAPTIVE_STUDY.md")
+        require(STUDY, needle, "STUDY_CHOICES.md")
 
     internal_pos = STUDY.index("Choice 1 — internal study")
     external_pos = STUDY.index("Choice 2 — external study")

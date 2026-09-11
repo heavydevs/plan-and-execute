@@ -76,6 +76,7 @@ for (const relative of [
   path.join('references', 'ORCHESTRATION.md'),
   path.join('references', 'routing-evals.json'),
   path.join('references', 'ADAPTIVE_STUDY.md'),
+  path.join('references', 'STUDY_CHOICES.md'),
   path.join('references', 'ARTIFACT_WRITING.md'),
   path.join('references', 'EXECUTION_CONTEXT.md'),
   path.join('references', 'PLANNING_PROTOCOL.md'),
@@ -238,7 +239,7 @@ requireText(planctl, [
   'def cleanup_plan',
   'shutil.rmtree(plan_dir)'
 ], 'planctl.py');
-for (const provider of ['claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae']) {
+for (const provider of ['claude', 'codex', 'antigravity', 'gemini', 'qwen', 'kimi', 'trae']) {
   if (!planctl.includes(`"${provider}"`)) fail(`planctl.py must support provider ${provider}.`);
 }
 

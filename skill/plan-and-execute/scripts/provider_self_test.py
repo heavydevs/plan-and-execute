@@ -44,11 +44,12 @@ def sample_report() -> dict:
 def test_default_provider_policy() -> None:
     config = planctl.default_config()
     assert config["provider_order"] == ["claude", "codex"]
-    assert set(config) >= {"claude", "codex", "gemini", "qwen", "kimi", "trae"}
+    assert set(config) >= {"claude", "codex", "antigravity", "gemini", "qwen", "kimi", "trae"}
     assert planctl.VALID_PROVIDERS == {
         "auto",
         "claude",
         "codex",
+        "antigravity",
         "gemini",
         "qwen",
         "kimi",
@@ -69,8 +70,19 @@ def test_worker_command_adapters() -> None:
                 "Implement only the assigned task.",
                 result_path,
             )
-            for provider in ("claude", "codex", "gemini", "qwen", "kimi", "trae")
+            for provider in ("claude", "codex", "antigravity", "gemini", "qwen", "kimi", "trae")
         }
+
+    agy = commands["antigravity"]
+    assert agy[0] == "agy"
+    assert "--dangerously-skip-permissions" in agy
+    assert "--sandbox" not in agy, "workers must be able to run validation commands"
+    assert agy[agy.index("--output-format") + 1] == "json"
+    assert "--json-schema" in agy
+    assert agy[agy.index("--effort") + 1] == "medium"
+    assert agy[agy.index("--print-timeout") + 1] == "60m"
+    assert agy[-2:] == ["-p", "Implement only the assigned task."]
+    assert "--model" not in agy
 
     claude = commands["claude"]
     assert claude[0] == "claude"
@@ -117,7 +129,7 @@ def test_configured_models_are_forwarded() -> None:
     config = planctl.default_config()
     with tempfile.TemporaryDirectory() as temp:
         result_path = Path(temp) / "result.json"
-        for provider in ("gemini", "qwen", "kimi", "trae"):
+        for provider in ("antigravity", "gemini", "qwen", "kimi", "trae"):
             command = run_isolated.build_worker_command(
                 provider,
                 {**sample_route("provider-model"), "provider": provider},
@@ -135,6 +147,15 @@ def test_provider_report_envelopes() -> None:
         result_path = Path(temp) / "result.json"
         envelopes = {
             "claude": json.dumps({"type": "result", "structured_output": report}),
+            "antigravity": json.dumps(
+                {
+                    "conversation_id": "abc",
+                    "status": "SUCCESS",
+                    "response": "done",
+                    "structured_output": report,
+                    "usage": {"input_tokens": 1, "output_tokens": 1},
+                }
+            ),
             "gemini": json.dumps({"response": encoded}),
             "qwen": json.dumps(
                 [
@@ -181,9 +202,20 @@ def test_summary_envelopes_and_retry_codes() -> None:
             },
         }
     )
+    agy_stdout = json.dumps({"conversation_id": "abc", "status": "SUCCESS", "response": summary})
     with tempfile.TemporaryDirectory() as temp:
         output_path = Path(temp) / "summary.md"
         assert run_isolated.summary_stdout_text("kimi", kimi_stdout, output_path) == summary
+        assert run_isolated.summary_stdout_text("antigravity", agy_stdout, output_path) == summary
+        agy_summary = run_isolated.build_summary_command(
+            "antigravity",
+            {**sample_route(), "provider": "antigravity", "effort": "xhigh"},
+            planctl.default_config(),
+            "Summarize.",
+            output_path,
+        )
+        assert "--sandbox" in agy_summary and "--dangerously-skip-permissions" in agy_summary
+        assert agy_summary[agy_summary.index("--effort") + 1] == "xhigh", "clamping happens in choose_route, not the adapter"
 
     config = planctl.default_config()
     assert run_isolated.is_provider_availability_failure("kimi", 75, "transient", config)

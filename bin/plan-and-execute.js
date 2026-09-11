@@ -24,9 +24,10 @@ const lifecycleScript = path.join(
 );
 
 const EXECUTION_PROVIDERS = Object.freeze([
-  'claude', 'codex', 'gemini', 'qwen', 'kimi', 'trae'
+  'claude', 'codex', 'antigravity', 'gemini', 'qwen', 'kimi', 'trae'
 ]);
 const OPTIONAL_PROVIDER_COMMANDS = Object.freeze({
+  antigravity: 'agy',
   gemini: 'gemini',
   qwen: 'qwen',
   kimi: 'kimi',
@@ -40,10 +41,11 @@ a skill orquestra somente trabalho long-horizon que justifica plano persistente.
 Use --activation explicit para impedir invocacao automatica da skill.
 
 Provedores de execucao suportados:
-  claude, codex, gemini, qwen, kimi, trae
+  claude, codex, antigravity, gemini, qwen, kimi, trae
 
 A instalacao padrao da skill e o tutorial rapido continuam restritos a Claude Code e Codex.
-Gemini, Qwen, Kimi e Trae sao backends opcionais de execucao.
+Antigravity (agy), Qwen, Kimi e Trae sao backends opcionais de execucao; gemini e legado
+(Gemini CLI descontinuada em 2026-06-18).
 
 Uso da implementacao:
   pae current [opcoes]              Mostrar a implementacao ativa
@@ -67,7 +69,7 @@ Opcoes gerais:
   -v, --version                     Mostrar versao
 
 Opcoes de execucao:
-  --provider <nome>                 claude|codex|gemini|qwen|kimi|trae
+  --provider <nome>                 claude|codex|antigravity|gemini|qwen|kimi|trae
   --once                            Executar no maximo um TODO pai
   --no-wait                         Nao aguardar automaticamente limites de uso
   --no-cleanup                      Manter o plano concluido para inspecao
@@ -87,7 +89,7 @@ Exemplos:
   pae current
   pae resume
   pae resume --provider codex --once
-  pae resume --provider gemini --once
+  pae resume --provider antigravity --once
   pae cancel
   pae reset --force
   npx @luizcgvrj/plan-and-execute install both --global
@@ -217,7 +219,8 @@ function printDoctor(report, json) {
   console.log(`Python: ${report.python?.version ?? 'nao encontrado (necessario para executar a skill)'}`);
   console.log(`Claude CLI: ${report.claude?.version ?? 'nao encontrado'}`);
   console.log(`Codex CLI: ${report.codex?.version ?? 'nao encontrado'}`);
-  console.log(`Gemini CLI (opcional): ${report.gemini?.version ?? 'nao encontrado'}`);
+  console.log(`Antigravity CLI agy (opcional): ${report.antigravity?.version ?? 'nao encontrado'}`);
+  console.log(`Gemini CLI (legado): ${report.gemini?.version ?? 'nao encontrado'}`);
   console.log(`Qwen Code (opcional): ${report.qwen?.version ?? 'nao encontrado'}`);
   console.log(`Kimi Code CLI (opcional): ${report.kimi?.version ?? 'nao encontrado'}`);
   console.log(`Trae Agent (opcional): ${report.trae?.version ?? 'nao encontrado'}`);

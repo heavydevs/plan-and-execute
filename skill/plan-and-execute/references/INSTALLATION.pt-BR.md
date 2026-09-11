@@ -2,7 +2,9 @@
 
 [English version](INSTALLATION.md)
 
-A instalação padrão continua limitada ao Claude Code e ao Codex. Qwen Code, Kimi Code CLI e Trae Agent permanecem backends opcionais de execução; não são novos destinos de `--agent`. O adapter `gemini` aponta para a Gemini CLI, descontinuada pelo Google em 18/06/2026 em favor da Antigravity CLI; mantenha-o apenas para instalações existentes até um adapter Antigravity ser verificado.
+A instalação padrão continua limitada ao Claude Code e ao Codex. Antigravity CLI (`agy`), Qwen Code, Kimi Code CLI e Trae Agent permanecem backends opcionais de execução; não são novos destinos de `--agent`. O adapter `gemini` aponta para a Gemini CLI, descontinuada pelo Google em 18/06/2026; use `antigravity` em planos novos.
+
+Notas do Antigravity: o adapter executa `agy --dangerously-skip-permissions --output-format json --json-schema <schema> [--model <slug>] --effort <low|medium|high> --print-timeout 60m -p <prompt>`. Os slugs de modelo ficam em `default` até você preencher `antigravity.models` no `orchestrator.config.json` a partir de `agy models --output-format json`; `--effort` é limitado a `high`; o sumário roda com `--sandbox`. Confirme com `pae doctor` e um `--dry-run` antes de depender dele; builds antigos (`agy` 1.0.0) descartavam stdout fora de TTY (`antigravity-cli#76`) — atualize se um worker devolver report vazio.
 
 ## Modo de ativação
 
@@ -138,7 +140,7 @@ Cada TODO preserva `provider`, `model_tier` e `reasoning_effort` lógicos, além
 A ordem padrão continua `claude`, depois `codex`. Para optar por outro backend:
 
 ```bash
-pae resume --provider gemini
+pae resume --provider antigravity
 pae resume --provider qwen
 pae resume --provider kimi
 pae resume --provider trae
