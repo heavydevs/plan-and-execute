@@ -21,7 +21,8 @@ const testScripts = [
   'routing_self_test.py',
   'promotion_self_test.py',
   'preplan_self_test.py',
-  'pattern_self_test.py'
+  'pattern_self_test.py',
+  'pattern_runner_self_test.py'
 ].map((name) => path.join(scriptDirectory, name));
 const candidates = process.platform === 'win32'
   ? [['py', ['-3']], ['python', []], ['python3', []]]
