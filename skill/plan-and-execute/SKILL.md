@@ -82,7 +82,7 @@ When substantial DIRECT work grows into independent remaining outcomes, broad re
 - Planning stages choose capability deliberately rather than inheriting the root model.
 - quota/rate-limit exhaustion and host interruption are not technical failures.
 - Another compatible provider can resume without the previous chat transcript.
-- Implementation changes, tests, product artifacts, and commits survive cleanup.
+- implementation changes, tests, product artifacts, and commits survive cleanup.
 
 When two or more TODOs share a **normative contract that may evolve**, use [references/SHARED_PATTERNS.md](references/SHARED_PATTERNS.md): create a versioned pattern with explicit signatories. A pattern revision reopens only completed signatories that adopted an older revision; unrelated tasks remain complete. Do not load this reference for plans with no such contract.
 
