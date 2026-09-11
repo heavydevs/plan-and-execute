@@ -10,6 +10,8 @@
 
 Workers de retry recebem o último diagnóstico de falha, limitado em tamanho, e preservam checkpoints concluídos. As instruções fixas precedem os dados da tarefa para favorecer o cache de prefixo quando o provedor oferece esse recurso. O runner usa o arquivo válido de resposta final antes de processar transcripts extensos; arquivos inválidos mantêm o fallback para stdout. Não há percentual prometido de economia de tokens: custo e qualidade reais dependem de retries, dificuldade e suporte a cache. A validação independente das tarefas continua obrigatória.
 
+O runner recarrega os checkpoints gravados pelo worker antes de registrar o resultado, preservando trabalho concluído após falha ou interrupção. Os limites do diagnóstico mantêm o comando e a causa final ao longo do retry. Arquivos de resposta ilegíveis permitem fallback para stdout, e timeouts de validação preservam a saída parcial como falha registrada.
+
 ## O que mudou na 0.8
 
 A regra central agora é:

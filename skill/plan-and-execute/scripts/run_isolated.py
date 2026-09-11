@@ -465,9 +465,8 @@ def decode_json_candidates(text: str, *, maximum: int = 200) -> list[Any]:
             values.append(value)
 
     try:
-        add(json.loads(stripped))
         # A complete JSON document already contains every nested candidate.
-        return values
+        return [json.loads(stripped)]
     except json.JSONDecodeError:
         pass
 
@@ -503,7 +502,7 @@ def decode_json_candidates(text: str, *, maximum: int = 200) -> list[Any]:
 
 def extract_report(value: Any) -> dict[str, Any] | None:
     if isinstance(value, dict):
-        if value.get("status") in {"completed", "blocked"} and isinstance(value.get("summary"), str):
+        if value.get("status") in ("completed", "blocked") and isinstance(value.get("summary"), str):
             return value
         preferred_keys = (
             "structured_output",
@@ -546,7 +545,11 @@ def extract_report(value: Any) -> dict[str, Any] | None:
 
 def parse_provider_report(provider: str, stdout: str, result_path: Path) -> dict[str, Any] | None:
     if result_path.is_file():
-        result_text = result_path.read_text(encoding="utf-8")
+        try:
+            result_text = result_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            # An unreadable/truncated result must not mask a valid stdout report.
+            result_text = ""
         report = extract_report(result_text)
         if report:
             return report
@@ -608,7 +611,10 @@ def run_validation_commands(
                 output = completed.stdout or ""
                 exit_code = completed.returncode
             except subprocess.TimeoutExpired as exc:
-                output = (exc.stdout or "") + f"\nTimed out after {timeout_seconds} seconds"
+                output = exc.stdout or ""
+                if isinstance(output, bytes):
+                    output = output.decode("utf-8", errors="replace")
+                output += f"\nTimed out after {timeout_seconds} seconds"
                 exit_code = 124
             log.write(output)
             if output and not output.endswith("\n"):
@@ -655,9 +661,18 @@ def git_changed_files(repo_root: Path) -> list[str]:
     return sorted(files)
 
 
+def refresh_task_state(plan_dir: Path, manifest: dict[str, Any], task_id: str) -> dict[str, Any]:
+    """Load checkpoints saved by the now-stopped worker into the caller's state."""
+    _, refreshed = planctl.load_plan(plan_dir)
+    manifest.clear()
+    manifest.update(refreshed)
+    return planctl.find_task(manifest, task_id)
+
+
 def release_interrupted_task(plan_dir: Path, manifest: dict[str, Any], task_id: str) -> None:
-    task = planctl.find_task(manifest, task_id)
-    if task.get("status") == "in_progress":
+    attempt = planctl.find_task(manifest, task_id).get("attempts")
+    task = refresh_task_state(plan_dir, manifest, task_id)
+    if task.get("status") == "in_progress" and task.get("attempts") == attempt:
         recovered_subtasks = planctl.recover_in_progress_subtasks(
             task, "Execution interrupted; safe to resume."
         )
@@ -738,6 +753,10 @@ def execute_one_task(
             release_interrupted_task(plan_dir, manifest, task["id"])
             raise
 
+        task = refresh_task_state(plan_dir, manifest, task["id"])
+        if task.get("status") != "in_progress" or task.get("attempts") != attempt_number:
+            raise RunnerError(f"Task {task['id']} changed during dispatch; refusing to overwrite its state")
+
         combined = f"{stdout}\n{stderr}"
         if return_code != 0 and is_provider_availability_failure(
             route["provider"], return_code, combined, config
@@ -755,12 +774,12 @@ def execute_one_task(
                 continue
             raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
 
-        report = parse_provider_report(route["provider"], stdout, result_path)
         if return_code != 0:
             reason = f"Provider exited with {return_code}: {output_tail(combined)}"
             planctl.fail_task(plan_dir, manifest, task["id"], reason)
             print(f"[task {task['id']}] provider failure; route will escalate on retry", file=sys.stderr)
             return False
+        report = parse_provider_report(route["provider"], stdout, result_path)
         if not report:
             reason = f"Provider returned no valid completion report. Output: {output_tail(combined)}"
             planctl.fail_task(plan_dir, manifest, task["id"], reason)

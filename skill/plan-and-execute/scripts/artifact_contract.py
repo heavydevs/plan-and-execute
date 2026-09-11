@@ -11,6 +11,20 @@ from __future__ import annotations
 import re
 from typing import Any, Iterable
 
+
+def bounded_diagnostic(value: str, limit: int) -> str:
+    """Keep a failure's category/command and final cause through each size cap."""
+    text = value.strip()
+    if len(text) <= limit:
+        return text
+    marker = "\n...\n"
+    if limit <= len(marker):
+        return text[:max(0, limit)]
+    head = (limit - len(marker)) // 2
+    tail = limit - len(marker) - head
+    return text[:head] + marker + text[-tail:]
+
+
 VAGUE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("as appropriate", re.compile(r"\bas appropriate\b", re.I)),
     ("as needed", re.compile(r"\bas needed\b", re.I)),
@@ -751,9 +765,7 @@ def install_plan_contract() -> Any:
         *,
         rate_limited: bool = False,
     ) -> dict[str, Any]:
-        clipped = str(reason).strip()
-        if len(clipped) > 1400:
-            clipped = clipped[:1397].rstrip() + "..."
+        clipped = bounded_diagnostic(str(reason), 1400)
         return original_fail_task(
             plan_dir,
             manifest,

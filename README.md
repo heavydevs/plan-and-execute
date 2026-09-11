@@ -10,6 +10,8 @@
 
 Retry workers receive the latest bounded failure diagnostic and preserve completed checkpoints. Stable instructions precede task-specific data to support provider prefix caching where available. The runner reads a valid final-result file before parsing verbose transcripts; malformed files still fall back to stdout. No provider-token savings percentage is claimed: actual cost and quality depend on retries, task difficulty, and cache support. Independent task validation remains required.
 
+The runner reloads worker checkpoints before recording an outcome, so a failed or interrupted attempt retains completed work. Diagnostic limits preserve the command and final cause throughout the retry path. Unreadable result files can fall back to stdout, and validation timeouts retain partial output as a recorded failure.
+
 ## What changed in 0.8
 
 The skill now follows:

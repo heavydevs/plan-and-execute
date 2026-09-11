@@ -130,6 +130,8 @@ Do not copy full stack traces/build output into retries when an error excerpt + 
 
 The concise runner supplies the latest task diagnostic only on retry (at most 1200 characters before JSON escaping), labeled as untrusted evidence. Keep completed checkpoints; diagnose the current source instead of blindly repeating the attempt. Successful first attempts pay no retry-context cost. Fixed worker rules precede task-specific paths and diagnostics to support provider prefix caching where available; this does not guarantee a cache hit.
 
+Retain both the diagnostic head (command/category) and tail (final cause) at every intermediate limit; clipping only the beginning before building the retry prompt loses the evidence. Reload durable worker checkpoints after dispatch and before recording the outcome so stale runner state cannot erase completed work.
+
 Report parsing stops at a valid final-result file before inspecting stdout. Complete JSON envelopes are decoded once; malformed/missing result files still fall back to transcript parsing. These save local parsing work, not provider tokens already generated.
 
 ## 14. Final summary uses compact authoritative state

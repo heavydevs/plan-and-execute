@@ -226,6 +226,21 @@ def test_complete_json_is_decoded_once_and_nested_reports_survive() -> None:
         assert decode.call_count == 1
 
 
+def test_unreadable_results_and_malformed_envelopes_fall_back() -> None:
+    report = sample_report()
+    encoded = json.dumps(report)
+    with tempfile.TemporaryDirectory() as temp:
+        result_path = Path(temp) / "result.json"
+        result_path.write_bytes(b"\xff\xfe")
+        assert run_isolated.parse_provider_report("codex", encoded, result_path) == report
+        with patch.object(Path, "read_text", side_effect=OSError("result file unavailable")):
+            assert run_isolated.parse_provider_report("codex", encoded, result_path) == report
+        for status in ([], {}, None, 123):
+            envelope = {"status": status, "summary": "progress", "output": report}
+            result_path.write_text(json.dumps(envelope), encoding="utf-8")
+            assert run_isolated.parse_provider_report("codex", "", result_path) == report
+
+
 def test_kimi_prompt_contract_and_redaction() -> None:
     config = planctl.default_config()
     with tempfile.TemporaryDirectory() as temp:
@@ -286,6 +301,7 @@ def main() -> int:
     test_provider_report_envelopes()
     test_report_file_short_circuits_transcript_and_invalid_file_falls_back()
     test_complete_json_is_decoded_once_and_nested_reports_survive()
+    test_unreadable_results_and_malformed_envelopes_fall_back()
     test_summary_envelopes_and_retry_codes()
     test_kimi_prompt_contract_and_redaction()
     print("All provider-adapter self-tests passed.")

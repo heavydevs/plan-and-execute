@@ -14,6 +14,7 @@ const testScripts = [
   'context_self_test.py',
   'task_memory_self_test.py',
   'provider_self_test.py',
+  'runner_recovery_self_test.py',
   'token_efficiency_self_test.py',
   'model_routing_self_test.py',
   'artifact_concision_self_test.py',

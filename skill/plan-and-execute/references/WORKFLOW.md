@@ -91,6 +91,8 @@ A pattern revision is not automatically a full replan. Replan only if evidence c
 
 ### 6. Validate independently
 
+After the worker stops, reload its persisted task state before recording failure, interruption, or completion. If the task's status or attempt number changed outside that dispatch, stop instead of overwriting the newer state. This preserves checkpoints written through separate controller processes.
+
 The worker report is evidence, not acceptance. The orchestrator must:
 
 1. verify exact context/learning/pattern read lists;

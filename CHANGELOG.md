@@ -4,6 +4,11 @@ All notable changes to this project are documented here.
 
 ## Unreleased
 
+- Reloads worker-written checkpoints before recording dispatch outcomes, preserving completed work after failure, quota exhaustion, or interruption; stops an old dispatch when its task was reset or reclaimed.
+- Preserves both the command/category and final diagnostic through validation, durable failure state, and retry-prompt limits instead of discarding the root cause in intermediate truncation.
+- Handles invalid UTF-8/unreadable result files and non-scalar envelope status fields without aborting report fallback; records validation timeouts with partial byte output as exit 124.
+- Skips report parsing for unsuccessful provider exits and removes needless JSON reserialization on the complete-document path.
+- Adds runner recovery regressions using separate worker/runner state, including changed-attempt guards and timeout output.
 - Supplies bounded prior-failure evidence to concise retry workers while preserving completed checkpoints and keeping successful first-attempt prompts free of retry history.
 - Moves task-specific paths after stable worker rules to support provider prefix caching without assuming cache availability.
 - Short-circuits valid result-file parsing, avoids re-decoding complete JSON envelopes and duplicate recursive traversal, and preserves transcript fallback for malformed results.
