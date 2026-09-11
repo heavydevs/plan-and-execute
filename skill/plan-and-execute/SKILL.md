@@ -25,7 +25,7 @@ If orchestration is not justified:
 - do not read orchestration/primary-plan/schema references;
 - implement/validate directly and keep economical model routing.
 
-**DIRECT exits the harness, not adaptive model routing.**
+**DIRECT exits the harness, not adaptive model routing.** A small task with no tests can deserve a stronger model when silent failure is costly.
 
 When uncertain, prefer DIRECT. Read [references/ROUTING.md](references/ROUTING.md) only for an ambiguous boundary.
 
@@ -66,7 +66,7 @@ PRIMARY_PLAN deterministically creates immutable indexed fragments, then a resum
 5. Cheap-first when validation catches failure; start stronger when silent failure is costly/weakly verifiable.
 6. Escalate from evidence; stop when acceptance plus independent validation pass.
 
-Planning has independent routing. Read [references/PLANNING_ROUTING.md](references/PLANNING_ROUTING.md) only when assigning planning-stage routes. Implementation uses [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus only the active provider map.
+Planning has independent routing. Read [references/PLANNING_ROUTING.md](references/PLANNING_ROUTING.md) only when assigning planning-stage routes. Implementation uses [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus only the active provider map. Do not preload both provider guides; read exactly one active provider mapping.
 
 `primary route != final-planning route != implementation route`
 
