@@ -6,6 +6,10 @@
 
 [English version](README.md)
 
+## Melhorias de execução ainda não publicadas
+
+Workers de retry recebem o último diagnóstico de falha, limitado em tamanho, e preservam checkpoints concluídos. As instruções fixas precedem os dados da tarefa para favorecer o cache de prefixo quando o provedor oferece esse recurso. O runner usa o arquivo válido de resposta final antes de processar transcripts extensos; arquivos inválidos mantêm o fallback para stdout. Não há percentual prometido de economia de tokens: custo e qualidade reais dependem de retries, dificuldade e suporte a cache. A validação independente das tarefas continua obrigatória.
+
 ## O que mudou na 0.8
 
 A regra central agora é:

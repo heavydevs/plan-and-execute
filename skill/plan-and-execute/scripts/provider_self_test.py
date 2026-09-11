@@ -7,6 +7,7 @@ import json
 import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
@@ -197,6 +198,34 @@ def test_summary_envelopes_and_retry_codes() -> None:
         raise AssertionError("Expected invalid retry_exit_codes to be rejected")
 
 
+def test_report_file_short_circuits_transcript_and_invalid_file_falls_back() -> None:
+    report = sample_report()
+    encoded = json.dumps(report)
+    transcript = json.dumps({"type": "progress", "text": "large tool output"}) * 1000
+    with tempfile.TemporaryDirectory() as temp:
+        result_path = Path(temp) / "result.json"
+        result_path.write_text(encoded, encoding="utf-8")
+        with patch.object(run_isolated, "decode_json_candidates", wraps=run_isolated.decode_json_candidates) as decode:
+            assert run_isolated.parse_provider_report("codex", transcript, result_path) == report
+            assert decode.call_count == 1
+            assert decode.call_args.args == (encoded,)
+        for invalid in ("", "truncated {", '{"type":"progress"}'):
+            result_path.write_text(invalid, encoding="utf-8")
+            assert run_isolated.parse_provider_report("codex", encoded, result_path) == report
+
+
+def test_complete_json_is_decoded_once_and_nested_reports_survive() -> None:
+    report = sample_report()
+    envelope = {"output": [{"content": json.dumps(report)}]}
+    candidates = run_isolated.decode_json_candidates(json.dumps(envelope, indent=2))
+    assert candidates == [envelope]
+    assert run_isolated.extract_report(candidates[0]) == report
+    assert run_isolated.extract_report({"custom_envelope": report}) == report
+    with patch.object(run_isolated, "decode_json_candidates", wraps=run_isolated.decode_json_candidates) as decode:
+        assert run_isolated.extract_report({"output": {"message": "no report"}}) is None
+        assert decode.call_count == 1
+
+
 def test_kimi_prompt_contract_and_redaction() -> None:
     config = planctl.default_config()
     with tempfile.TemporaryDirectory() as temp:
@@ -255,6 +284,8 @@ def main() -> int:
     test_worker_command_adapters()
     test_configured_models_are_forwarded()
     test_provider_report_envelopes()
+    test_report_file_short_circuits_transcript_and_invalid_file_falls_back()
+    test_complete_json_is_decoded_once_and_nested_reports_survive()
     test_summary_envelopes_and_retry_codes()
     test_kimi_prompt_contract_and_redaction()
     print("All provider-adapter self-tests passed.")

@@ -128,6 +128,10 @@ Full output belongs in logs. Model/state context gets only decision-relevant exc
 
 Do not copy full stack traces/build output into retries when an error excerpt + log path is sufficient.
 
+The concise runner supplies the latest task diagnostic only on retry (at most 1200 characters before JSON escaping), labeled as untrusted evidence. Keep completed checkpoints; diagnose the current source instead of blindly repeating the attempt. Successful first attempts pay no retry-context cost. Fixed worker rules precede task-specific paths and diagnostics to support provider prefix caching where available; this does not guarantee a cache hit.
+
+Report parsing stops at a valid final-result file before inspecting stdout. Complete JSON envelopes are decoded once; malformed/missing result files still fall back to transcript parsing. These save local parsing work, not provider tokens already generated.
+
 ## 14. Final summary uses compact authoritative state
 
 Never concatenate raw worker reports into final-summary input. Use goal, task completion summaries, changed files, deterministic validation status, remaining risks/follow-ups, and bounded repository change evidence.

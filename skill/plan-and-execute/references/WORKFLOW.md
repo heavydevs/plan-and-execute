@@ -49,6 +49,7 @@ Prompt with only:
 - checkpoint controller path;
 - permission to inspect/edit relevant repository files;
 - completion-report schema path.
+- on retry, the latest bounded diagnostic from task state; preserve completed checkpoints and inspect current source before redoing work.
 
 Do not paste the original request, full plan, study, manifest, TODO list, primary-plan package, prior reports, logs, future tasks, or unassigned patterns.
 
@@ -139,7 +140,7 @@ Quota/rate/capacity interruption is not a semantic escalation signal.
 
 ## Strict external runner
 
-`run_concise.py` remains the deterministic task-state runner. Integrations that use shared patterns must wrap dispatch/completion with the `patternctl assignment`, `adopt`, and `validate` hooks above until those hooks are folded into a future runner schema.
+`run_concise.py` installs shared-pattern assignment, adoption, and validation hooks automatically. Native integrations that dispatch workers without this runner must perform the equivalent hooks above.
 
 Useful ordinary commands:
 

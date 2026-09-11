@@ -6,6 +6,10 @@
 
 [Leia em Português](README.pt-BR.md)
 
+## Unreleased execution improvements
+
+Retry workers receive the latest bounded failure diagnostic and preserve completed checkpoints. Stable instructions precede task-specific data to support provider prefix caching where available. The runner reads a valid final-result file before parsing verbose transcripts; malformed files still fall back to stdout. No provider-token savings percentage is claimed: actual cost and quality depend on retries, task difficulty, and cache support. Independent task validation remains required.
+
 ## What changed in 0.8
 
 The skill now follows:

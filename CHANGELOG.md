@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+- Supplies bounded prior-failure evidence to concise retry workers while preserving completed checkpoints and keeping successful first-attempt prompts free of retry history.
+- Moves task-specific paths after stable worker rules to support provider prefix caching without assuming cache availability.
+- Short-circuits valid result-file parsing, avoids re-decoding complete JSON envelopes and duplicate recursive traversal, and preserves transcript fallback for malformed results.
+- Corrects execution documentation: the concise runner already installs shared-pattern hooks automatically.
+- Adds regressions for retry evidence, checkpoint preservation, parser short-circuiting, nested envelopes, and malformed-result fallback.
+
 ## 0.8.0 - 2026-09-03
 
 - Changes automatic routing to **DIRECT by default, ORCHESTRATED by evidence, with late PROMOTION when direct work grows**.

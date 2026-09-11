@@ -466,6 +466,8 @@ def decode_json_candidates(text: str, *, maximum: int = 200) -> list[Any]:
 
     try:
         add(json.loads(stripped))
+        # A complete JSON document already contains every nested candidate.
+        return values
     except json.JSONDecodeError:
         pass
 
@@ -503,7 +505,7 @@ def extract_report(value: Any) -> dict[str, Any] | None:
     if isinstance(value, dict):
         if value.get("status") in {"completed", "blocked"} and isinstance(value.get("summary"), str):
             return value
-        for key in (
+        preferred_keys = (
             "structured_output",
             "output",
             "result",
@@ -514,12 +516,15 @@ def extract_report(value: Any) -> dict[str, Any] | None:
             "final_message",
             "final_output",
             "data",
-        ):
+        )
+        for key in preferred_keys:
             if key in value:
                 found = extract_report(value[key])
                 if found:
                     return found
-        for nested in value.values():
+        for key, nested in value.items():
+            if key in preferred_keys:
+                continue
             found = extract_report(nested)
             if found:
                 return found
@@ -540,18 +545,13 @@ def extract_report(value: Any) -> dict[str, Any] | None:
 
 
 def parse_provider_report(provider: str, stdout: str, result_path: Path) -> dict[str, Any] | None:
-    candidates: list[Any] = []
     if result_path.is_file():
         result_text = result_path.read_text(encoding="utf-8")
-        candidates.extend(decode_json_candidates(result_text))
-        candidates.append(result_text)
-    if stdout.strip():
-        candidates.extend(decode_json_candidates(stdout))
-        candidates.append(stdout)
-    for candidate in candidates:
-        report = extract_report(candidate)
+        report = extract_report(result_text)
         if report:
             return report
+    if stdout.strip():
+        return extract_report(stdout)
     return None
 
 
