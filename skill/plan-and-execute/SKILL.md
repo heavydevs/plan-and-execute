@@ -80,7 +80,7 @@ When substantial DIRECT work grows into independent remaining outcomes, broad re
 - `manifest.json` is authoritative; `TODO.md` is the terse task index.
 - Every TODO has bounded scope, resumable subtasks, deterministic validation, `provider`, `model_tier`, and `reasoning_effort`.
 - Planning stages choose capability deliberately rather than inheriting the root model.
-- Quota/rate-limit exhaustion and host interruption are not technical failures.
+- **Quota/rate-limit exhaustion** and host interruption are not technical failures.
 - Another compatible provider can resume without the previous chat transcript.
 - Implementation changes, tests, product artifacts, and commits survive cleanup.
 
