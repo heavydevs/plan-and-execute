@@ -1,10 +1,10 @@
-# Planning protocol
+# Final planning protocol
 
-Use this file only while converting an approved study into the executable TODO graph. Read `ARTIFACT_WRITING.md` first.
+Use this file only while converting approved final-planning evidence into the executable implementation TODO graph. Read `ARTIFACT_WRITING.md` first. If the request arrived through PRIMARY_PLAN, consume the prepared package according to `PLANNING_INPUT_CONTRACT.md`; do not read `PRIMARY_PLANNING.md` here.
 
 ## 1. Preserve meaning, compress representation
 
-The original request remains verbatim evidence. Derived planning text must be shorter because it is **structured**, not because requirements are discarded.
+The original request or prepared immutable fragments remain source evidence. Derived planning text is shorter because it is structured, not because requirements are discarded.
 
 Create:
 
@@ -12,13 +12,23 @@ Create:
 2. requirements `R...` — observable obligations/constraints with source, priority, and originating request-part ids;
 3. executable TODOs — context-cohesive implementation/validation boundaries;
 4. minimal global/scoped execution context;
-5. a fresh review result.
+5. optional versioned shared-pattern spec for evolving cross-TODO contracts;
+6. per-TODO logical model/effort routing;
+7. a fresh review result.
 
-Do not copy paragraphs from the request into each layer. Keep the request as source evidence and use stable ids to connect layers.
+For prepared packages, keep fragment/digest ids in source refs when they materially support a requirement or decision. Never flatten the entire package into one prompt merely to create the plan.
 
-## 2. Requirements
+## 2. Route planning work explicitly
 
-Each request part must map to at least one requirement. Each requirement must map to at least one executable TODO.
+Read `PLANNING_ROUTING.md` when assigning a model to planning work. The planner's current/root model is not automatically the planning route.
+
+Use deterministic tools for mechanical operations; economy for bounded extraction; standard for ordinary synthesis; strong for architecture/decomposition with high blast radius, weak verification, security/migration/data-integrity risk, or subtle cross-domain constraints. Fresh review should be capable enough to challenge the hardest material planning decision.
+
+Final implementation TODO routing is decided separately later in this protocol.
+
+## 3. Requirements
+
+Each request part maps to at least one requirement. Each requirement maps to at least one executable TODO.
 
 Prefer one observable obligation per requirement. Use an EARS-like structure when useful:
 
@@ -27,9 +37,9 @@ Prefer one observable obligation per requirement. Use an EARS-like structure whe
 - `While <state>, <component> shall <observable response>`;
 - `If <failure>, <component> shall <safe observable response>`.
 
-Resolve vague user wording before autostart. If `fast`, `robust`, `easy`, `as needed`, `adequate`, or similar language materially affects correctness, derive a concrete condition/threshold or keep an explicit open question.
+Resolve vague user wording before autostart. If `fast`, `robust`, `easy`, `as needed`, or similar wording changes correctness, derive an observable condition/threshold or keep an explicit open question.
 
-## 3. Recursive TODO decomposition
+## 4. Recursive TODO decomposition
 
 Start from coherent workstreams, then split until every leaf TODO has:
 
@@ -42,73 +52,77 @@ Start from coherent workstreams, then split until every leaf TODO has:
 - deterministic validation commands;
 - a small enough repository/context surface for one fresh worker;
 - stable resumable subtasks;
-- explicit dependencies.
+- explicit dependencies;
+- an independently chosen logical model tier/effort.
 
-Split when any of these is true:
-
-- two outcomes can fail independently;
-- unrelated domains/subsystems share one TODO only because their framework shape is similar;
-- migration, implementation, rollout, or validation phases have independent failure/recovery boundaries;
-- retained context for one concern would not materially help the other;
-- the leaf would be `extreme` complexity.
+Split when two outcomes can fail independently, unrelated domains share one TODO only because their framework shape is similar, migration/implementation/rollout/validation phases have independent recovery boundaries, retained context for one concern would not help the other, or the leaf would be `extreme`.
 
 Do not split into arbitrary file-by-file microtasks. Keep tightly coupled controller/service/entity/test changes together when they implement one invariant and share diagnosis/validation.
 
-## 4. Context boundary per TODO
+## 5. Context boundary per TODO
 
 Every schema-v4 task has `context_boundary`:
 
-- `shared_context`: short statements describing knowledge genuinely shared by all subtasks;
+- `shared_context`: short statements genuinely shared by all subtasks;
 - `why_one_todo`: the concrete reason one worker context improves this leaf;
 - `separate_from`: concerns intentionally isolated elsewhere.
 
-This is reviewer evidence stored in `manifest.json`; it does not need to be repeated verbosely in the worker task file.
+This is reviewer evidence stored in `manifest.json`; do not repeat it verbosely in the worker task file. `high` complexity requires a concrete atomicity rationale. No executable TODO may be `extreme`.
 
-`high` complexity requires a concrete atomicity rationale. No executable TODO may be `extreme`.
+## 6. Resumable subtasks
 
-## 5. Resumable subtasks
+Subtasks are checkpoints inside one TODO, not hidden top-level work. Good checkpoints include introducing a data contract, implementing bounded behavior, adding focused tests, or completing a migration step that cannot be blindly repeated.
 
-Subtasks are checkpoints inside one TODO, not hidden top-level work.
+If a subtask has an independent outcome, different context domain, independent acceptance boundary, or needs its own model route, promote it to its own TODO.
 
-A subtask should describe a stable milestone worth preserving across interruption, for example:
+## 7. Detect cross-cutting pattern contracts
 
-- introduce the data contract;
-- implement the bounded behavior;
-- add/adjust focused tests;
-- complete a migration step that cannot be safely repeated blindly.
+After TODO boundaries stabilize, identify repeated normative rules that multiple TODOs must obey. Examples: a frontend REST Resource facade, Admin list/modal rules, SCSS/token composition, API error shape, or idempotency/persistence conventions.
 
-If a subtask has an independent outcome, different context domain, or independent acceptance boundary, promote it to its own TODO.
+Do **not** duplicate a real shared contract into every TODO. Instead, when the contract may evolve and an update could require already-completed consumers to change, read `SHARED_PATTERNS.md` and create a separate `/tmp/pattern-spec.json` with:
 
-Keep titles/objectives short. State the milestone, not the process narrative.
+- stable pattern id/title;
+- concise normative contract;
+- source/requirement/fragment refs;
+- rationale for sharing;
+- explicit signatory TODO ids.
 
-## 6. Directional validated learning
+Create no pattern when ordinary immutable execution context is sufficient. Pattern signatories must be neither missing nor over-broad.
+
+For prepared packages, `PATTERN_SEEDS.json` contains candidates, not decisions. Promote only seeds justified by final TODO boundaries.
+
+## 8. Directional validated learning
 
 Use `learning_targets` only when an earlier TODO may discover expensive information that a later similar TODO would otherwise need to rediscover.
 
-A relationship must be:
+A learning edge is earlier -> later, narrow, target-specific, predeclared, materialized only after deterministic validation, and omitted when the target can cheaply rediscover the fact.
 
-- predeclared before source execution;
-- earlier -> later only;
-- narrow and target-specific;
-- topic-bounded;
-- materialized only after source deterministic validation;
-- omitted when the target can cheaply rediscover the fact itself.
+Do not use learning files for evolving shared contracts. Patterns own backward invalidation; learnings remain immutable directional evidence.
 
-Do not use learning files as summaries, chat memory, or generic framework advice.
-
-## 7. Progressive execution context
+## 9. Progressive execution context
 
 Read `EXECUTION_CONTEXT.md` after TODO boundaries stabilize.
 
 - Omit global context by default.
-- Create `CONTEXT.md` only for non-obvious facts/constraints required by **every** TODO.
+- Create `CONTEXT.md` only for non-obvious facts/constraints required by every TODO.
 - Create `contexts/<topic>.md` only for a strict subset of at least two TODOs.
 - Keep single-TODO information in that task definition.
 - Ground every shared item with source references.
 
 The review must approve `contexts_minimal` and `context_boundaries_sound`.
 
-## 8. Acceptance and validation
+## 10. Implementation model routing
+
+For every TODO, choose `provider`, `model_tier`, and `reasoning_effort` from the implementation leaf itself. Do not inherit:
+
+- the root chat's model;
+- a PRIMARY_PLAN digest route;
+- the final-planning architecture/reviewer route;
+- a neighboring TODO's route.
+
+Use `MODEL_ROUTING.md` and only the active provider reference when concrete dispatch is needed. Prefer the lowest credible leaf capability; verifiability and blast radius matter more than parent size.
+
+## 11. Acceptance and validation
 
 Acceptance states the externally observable or repository-verifiable condition. Validation states how the orchestrator proves it.
 
@@ -117,34 +131,33 @@ Good pair:
 - acceptance: `Expired refresh tokens return HTTP 401 and no new access token.`
 - validation: `./gradlew test --tests RefreshTokenTest.expiredTokenIsRejected`
 
-Avoid:
-
-- `works correctly`;
-- `implementation is robust`;
-- `tests pass` without naming the relevant command/suite when known;
-- criteria that merely restate the implementation steps.
+Avoid `works correctly`, `implementation is robust`, `tests pass` without the relevant command/suite when known, or criteria that merely restate implementation steps.
 
 Every TODO needs at least one deterministic validation command. The worker's own claim is never sufficient validation.
 
-## 9. Fresh plan review
+If a TODO signs shared patterns, acceptance implicitly includes implementing the current assigned pattern revisions; pattern adoption is recorded only after deterministic validation succeeds.
 
-Review from a fresh context using the complete request plus compact study/requirements/graph/context proposal. Challenge only material defects:
+## 12. Fresh plan review
+
+Review from a fresh context using the complete compact request evidence plus study/requirements/graph/context/pattern proposal. Challenge only material defects:
 
 - uncovered/distorted request parts;
 - requirements without TODO coverage;
 - TODOs with multiple independent outcomes;
-- artificial coupling between domains;
-- hidden top-level work in subtasks;
-- weak/duplicated context;
+- artificial coupling or hidden top-level work in subtasks;
+- weak/duplicated execution context;
+- missing/over-broad pattern signatories or duplicated cross-cutting contracts;
 - broad learning edges;
 - dependency cycles/missing dependencies;
 - unverifiable acceptance;
-- unsafe autostart;
-- remaining vague terms that change behavior.
+- implausible model-tier choices for weakly verifiable/high-blast-radius leaves;
+- unsafe autostart or remaining material vague terms.
 
-Approve only when all required checks are true and `unresolved_findings` is empty. Keep review notes to concrete findings; do not narrate the review process.
+For prepared packages, retrieve raw fragments selectively to challenge material claims; do not preload every fragment by default.
 
-## 10. Deterministic quality gates
+Approve only when all required checks are true and `unresolved_findings` is empty.
+
+## 13. Deterministic quality gates
 
 Create with `planctl_concise.py`, then require:
 
@@ -154,4 +167,11 @@ python <skill-dir>/scripts/planctl_concise.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py audit --plan <plan-path>
 ```
 
-The concise validator additionally rejects oversized derived fields and a small high-confidence set of vague requirement smells. A failed concision check is a specification defect, not a request to truncate text blindly: rewrite the derived field more precisely or split it into atomic items.
+When patterns exist, immediately follow final plan creation with:
+
+```bash
+python <skill-dir>/scripts/patternctl.py init --plan <plan-path> --spec /tmp/pattern-spec.json
+python <skill-dir>/scripts/patternctl.py validate --plan <plan-path>
+```
+
+A failed concision/coverage/pattern check is a specification defect. Rewrite the derived field more precisely, split an atomic item, or fix signatory assignment; never silently truncate source meaning.
