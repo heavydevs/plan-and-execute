@@ -25,6 +25,8 @@ If orchestration is not justified:
 - do not read orchestration/primary-plan/schema references;
 - implement/validate directly and keep economical model routing.
 
+**DIRECT exits the harness, not adaptive model routing.**
+
 When uncertain, prefer DIRECT. Read [references/ROUTING.md](references/ROUTING.md) only for an ambiguous boundary.
 
 ## 3. ORCHESTRATED input gate — FINAL_PLAN vs PRIMARY_PLAN
