@@ -1008,6 +1008,9 @@ def default_config() -> dict[str, Any]:
             # 0 disables the flag. When set, `--max-turns` bounds one worker run;
             # exhaustion is recorded as a resumable `budget` failure, not a defect.
             "max_turns": 0,
+            # 0 disables. When set, `--max-budget-usd` caps one worker run's API
+            # spend (subagent spend counts); exhaustion is a resumable `budget` failure.
+            "max_budget_usd": 0,
             "extra_args": [],
         },
         "codex": {

@@ -73,6 +73,10 @@ def fake_runner(expected_pattern_files: list[str]) -> SimpleNamespace:
         del plan_dir, manifest, task, route
         return "BASE PROMPT\n"
 
+    def design_prompt(plan_dir, manifest, task, route):
+        del plan_dir, manifest, task, route
+        return "DESIGN PROMPT\n"
+
     def execute_one_task(plan_dir, manifest, config, task, **kwargs):
         del config, kwargs
         completed = mark_completed(plan_dir, manifest, task["id"])
@@ -94,6 +98,7 @@ def fake_runner(expected_pattern_files: list[str]) -> SimpleNamespace:
         return "ok", "FINAL_SUMMARY.md"
 
     runner.worker_prompt = worker_prompt
+    runner.design_prompt = design_prompt
     runner.execute_one_task = execute_one_task
     runner.compose_summary_input = compose_summary_input
     runner.generate_final_summary = generate_final_summary
@@ -113,6 +118,14 @@ def test_runner_injects_patterns_and_adopts_after_validated_completion() -> None
         assert "Shared pattern rules" in prompt
         assert expected[0] in prompt
         assert "patterns/assignments/001.md" in prompt
+        # A two-phase leaf's design worker sees the same assigned patterns as
+        # read-only constraints (both signatories here), never the registry.
+        for signatory in ("001", "002"):
+            design = runner.design_prompt(
+                plan_dir, manifest, planctl.find_task(manifest, signatory), {"provider": "fake", "model": "fake", "effort": "medium"}
+            )
+            assert design.startswith("DESIGN PROMPT") and "read-only design constraints" in design
+            assert expected[0] in design and "registry.json" not in design
 
         assert runner.execute_one_task(plan_dir, manifest, {}, task, dry_run=False, no_wait=True)
         registry = patternctl.load_registry(plan_dir)

@@ -551,6 +551,56 @@ def test_failure_class_state_and_plan_defect_block() -> None:
             raise AssertionError("unknown failure classes must be rejected")
 
 
+def test_hard_decisions_contract() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        spec = sample_spec()
+        spec["request_analysis"]["hard_decisions"] = [
+            {
+                "id": "HD001",
+                "decision": "Keep the marker file at the repository root.",
+                "rationale": "Both validation commands resolve the path from the repository root.",
+                "route_used": "strong/medium",
+                "source_refs": ["P001"],
+            },
+            {
+                "decision": "Write the marker in UTF-8 without a BOM.",
+                "rationale": "grep -q must match the literal word.",
+            },
+        ]
+        plan_dir = planctl.create_plan(repo, spec, ".ai-work", "hard-decisions")
+        _, manifest = planctl.load_plan(plan_dir)
+        decisions = manifest["request_analysis"]["hard_decisions"]
+        assert [item["id"] for item in decisions] == ["HD001", "HD002"], decisions
+        assert decisions[0]["route_used"] == "strong/medium"
+        assert decisions[1]["route_used"] == "" and decisions[1]["source_refs"] == []
+        analysis = (plan_dir / "ANALYSIS.md").read_text(encoding="utf-8")
+        assert "## Hard decisions" in analysis and "HD001" in analysis and "[strong/medium]" in analysis
+        assert not planctl.validate_plan(plan_dir, manifest)
+
+        legacy = sample_spec()  # no hard_decisions key at all
+        plan_dir = planctl.create_plan(repo, legacy, ".ai-work", "hard-decisions-absent")
+        _, manifest = planctl.load_plan(plan_dir)
+        assert manifest["request_analysis"]["hard_decisions"] == []
+        assert "None (no decision-first pass was needed)" in (plan_dir / "ANALYSIS.md").read_text(encoding="utf-8")
+
+        for bad, message in (
+            ({"id": "X1", "decision": "d", "rationale": "r"}, "must look like HD001"),
+            ({"decision": "d", "rationale": "r", "route_used": "turbo/high"}, "route_used"),
+            ({"decision": "", "rationale": "r"}, "decision"),
+        ):
+            broken = sample_spec()
+            broken["request_analysis"]["hard_decisions"] = [bad]
+            try:
+                planctl.create_plan(repo, broken, ".ai-work", "hard-decisions-bad")
+            except planctl.PlanError as exc:
+                assert message in str(exc), (message, str(exc))
+            else:
+                raise AssertionError(f"expected rejection for {bad}")
+
+
 def test_design_route_contract() -> None:
     with tempfile.TemporaryDirectory() as temp:
         repo = Path(temp) / "repo"
@@ -627,6 +677,18 @@ def test_effort_flag_omitted_for_effortless_models() -> None:
             result_path,
         )
         assert bounded[bounded.index("--max-turns") + 1] == "40"
+        assert "--max-budget-usd" not in bounded
+        config["claude"]["max_budget_usd"] = 2.5
+        capped = run_isolated.build_worker_command(
+            "claude",
+            {"provider": "claude", "tier": "standard", "model": "sonnet", "effort": "medium"},
+            config,
+            "prompt",
+            result_path,
+        )
+        assert capped[capped.index("--max-budget-usd") + 1] == "2.50"
+        assert run_isolated.classify_report_failure(None, "Budget limit reached") == "budget"
+        assert run_isolated.classify_report_failure(None, '{"subtype":"error_max_turns"}') == "budget"
         config["codex"]["rollout_token_budget"] = 250000
         codex = run_isolated.build_worker_command(
             "codex",
@@ -898,6 +960,7 @@ def main() -> int:
     test_evidence_based_escalation()
     test_ladder_exhaustion_blocks_instead_of_burning_attempts()
     test_failure_class_state_and_plan_defect_block()
+    test_hard_decisions_contract()
     test_design_route_contract()
     test_effort_flag_omitted_for_effortless_models()
     test_command_prefix_keeps_windows_paths()

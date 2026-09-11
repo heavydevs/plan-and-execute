@@ -42,6 +42,8 @@ BUDGET_PATTERNS = [
         r"rollout[ _-]?budget",
         r"token budget (?:exceeded|exhausted|reached)",
         r"budget (?:exceeded|exhausted|reached)",
+        r"budget limit",
+        r"error_max_budget",
     )
 ]
 RATE_LIMIT_PATTERNS = [
@@ -325,8 +327,14 @@ def effort_args(provider_cfg: dict[str, Any], model: str, effort: str, *, style:
 def budget_args(provider: str, provider_cfg: dict[str, Any]) -> list[str]:
     """Optional per-worker budget guards (0/unset disables them)."""
     if provider == "claude":
+        args: list[str] = []
         turns = int(provider_cfg.get("max_turns", 0) or 0)
-        return ["--max-turns", str(turns)] if turns > 0 else []
+        if turns > 0:
+            args.extend(["--max-turns", str(turns)])
+        budget = float(provider_cfg.get("max_budget_usd", 0) or 0)
+        if budget > 0:
+            args.extend(["--max-budget-usd", f"{budget:.2f}"])
+        return args
     if provider == "codex":
         tokens = int(provider_cfg.get("rollout_token_budget", 0) or 0)
         if tokens > 0:

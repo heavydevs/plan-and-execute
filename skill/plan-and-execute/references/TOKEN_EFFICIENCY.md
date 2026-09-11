@@ -72,7 +72,7 @@ Route each semantic leaf to the cheapest model/effort credibly able to solve it.
 
 ## 13. Bound tool/report output
 
-Full output belongs in logs. Model/state context gets only decision-relevant excerpts: bounded completion summaries, validation details, failure reasons plus class, risk/follow-up counts, learning guidance, and final repository-change summaries. Do not copy full stack traces/build output into retries when an error excerpt + log path is sufficient. Optional per-worker budgets (`claude.max_turns`, `codex.rollout_token_budget`) turn runaway workers into resumable `budget` failures.
+Full output belongs in logs. Model/state context gets only decision-relevant excerpts: bounded completion summaries, validation details, failure reasons plus class, risk/follow-up counts, learning guidance, and final repository-change summaries. Do not copy full stack traces/build output into retries when an error excerpt + log path is sufficient. Optional per-worker budgets (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway workers into resumable `budget` failures.
 
 ## 14. Final summary uses compact authoritative state
 

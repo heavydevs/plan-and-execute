@@ -191,7 +191,7 @@ Classify before changing route:
 - **pattern evolution:** current shared contract must legitimately change; revise and invalidate affected signatories only;
 - **planning invalidation:** evidence disproves a material requirement, dependency, context boundary, architecture assumption, or validation strategy — `plan_defect`: stop downstream work and replan.
 
-Persist the smallest diagnostic excerpt that can guide the next attempt plus a log reference. The ladder (`MODEL_ROUTING.md` §6, provider rungs in the active provider file) climbs only from these classes; once evidence asks for a rung above the top on the last provider, the runner blocks the TODO (`ladder_exhausted`) so it is replanned rather than retried at the strongest route until `max_attempts`. Optional per-worker guards: `claude.max_turns` and `codex.rollout_token_budget` in `orchestrator.config.json`.
+Persist the smallest diagnostic excerpt that can guide the next attempt plus a log reference. The ladder (`MODEL_ROUTING.md` §6, provider rungs in the active provider file) climbs only from these classes; once evidence asks for a rung above the top on the last provider, the runner blocks the TODO (`ladder_exhausted`) so it is replanned rather than retried at the strongest route until `max_attempts`. Optional per-worker guards: `claude.max_turns`, `claude.max_budget_usd`, and `codex.rollout_token_budget` in `orchestrator.config.json`.
 
 ## Validated learning
 

@@ -25,6 +25,7 @@
       "A broad file edit could accidentally touch unrelated files."
     ],
     "open_questions": [],
+    "hard_decisions": [],
     "decomposition_strategy": "Separate file creation from content verification so each outcome has one deterministic check."
   },
   "requirements": [

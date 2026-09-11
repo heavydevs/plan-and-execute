@@ -110,4 +110,4 @@ A `high` TODO may declare `design_route` (`PLAN_SPEC.md`): a stronger worker wri
 - Defer or disable unused tool/MCP definitions when supported; prefer batched deterministic queries over model round trips.
 - Keep full logs on disk; pass bounded failure excerpts plus paths to retries. Do not repeatedly summarize the same evidence.
 - Final/status prose uses an economy route when no difficult synthesis is required.
-- Optional per-worker budget guards (`claude.max_turns`, `codex.rollout_token_budget`) turn runaway loops into resumable `budget` failures.
+- Optional per-worker budget guards (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway loops into resumable `budget` failures.

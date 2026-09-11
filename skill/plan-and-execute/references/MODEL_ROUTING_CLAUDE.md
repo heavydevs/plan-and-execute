@@ -79,4 +79,4 @@ Skip lower rungs for weakly verifiable, high-impact decisions. Conversely, do no
 
 ## Runner flags
 
-Workers run as `claude --bare --print --no-session-persistence --json-schema ...` with `--model` and, for models that accept it, `--effort`. Optional `claude.max_turns` in `orchestrator.config.json` adds `--max-turns` so a runaway worker returns as a resumable `budget` failure.
+Workers run as `claude --bare --print --no-session-persistence --json-schema ...` with `--model` and, for models that accept it, `--effort`. Optional `claude.max_turns` (`--max-turns`) and `claude.max_budget_usd` (`--max-budget-usd`, subagent spend included) in `orchestrator.config.json` bound one worker run; exhaustion returns as a resumable `budget` failure instead of a defect.
