@@ -1,12 +1,12 @@
 # Execution workflow
 
-Use this reference only after the plan is approved. Planning rules live in `PLANNING_PROTOCOL.md`; writing budgets live in `ARTIFACT_WRITING.md`; model escalation lives in `MODEL_ROUTING.md`.
+Use this reference only after the **final implementation plan** is approved. Primary-plan execution follows `PRIMARY_PLANNING.md`; final planning rules live in `PLANNING_PROTOCOL.md`; model escalation lives in `MODEL_ROUTING.md`; evolving cross-TODO contracts live in `SHARED_PATTERNS.md` when present.
 
 ## Roles
 
-- **Orchestrator:** authoritative plan state, scheduling, validation, escalation, final handoff, cleanup.
-- **Worker:** one TODO, assigned context/learnings, repository evidence needed for that TODO, structured report.
-- **Summarizer:** compact completed-task state only; never raw worker transcripts.
+- **Orchestrator:** authoritative plan state, scheduling, pattern assignment, validation, escalation, final handoff, cleanup.
+- **Worker:** one TODO, assigned context/learnings/patterns, repository evidence needed for that TODO, structured report.
+- **Summarizer:** compact completed-task and current-pattern state only; never raw worker transcripts.
 
 Fresh workers reduce context contamination. Disk state, not chat history, carries progress.
 
@@ -18,9 +18,18 @@ Fresh workers reduce context contamination. Disk state, not chat history, carrie
 python <skill-dir>/scripts/planctl_concise.py next --plan <plan-path> --json
 ```
 
+If `<plan>/patterns/registry.json` exists, validate patterns before dispatch:
+
+```bash
+python <skill-dir>/scripts/patternctl.py validate --plan <plan-path>
+python <skill-dir>/scripts/patternctl.py assignment --plan <plan-path> --task 001
+```
+
+The assignment command returns only the exact pattern files/revisions for that TODO.
+
 ### 2. Claim
 
-Choose a route, then:
+Choose the actual route from the TODO's logical recommendation, then:
 
 ```bash
 python <skill-dir>/scripts/planctl_concise.py claim \
@@ -36,13 +45,14 @@ Prompt with only:
 - repository root;
 - task id and task-definition path;
 - instruction to read exactly the context/learning files listed there;
+- when patterns exist, the task's assignment file and exactly the pattern files returned by `patternctl assignment`;
 - checkpoint controller path;
 - permission to inspect/edit relevant repository files;
 - completion-report schema path.
 
-Do not paste the original request, full plan, study, manifest, TODO list, prior reports, logs, or future tasks.
+Do not paste the original request, full plan, study, manifest, TODO list, primary-plan package, prior reports, logs, future tasks, or unassigned patterns.
 
-The compact task file contains only execution-relevant information: objective, context/learnings, checkpoints, scope, non-obvious guidance, acceptance, validation, and narrow publishable learning topics.
+The worker must report exact pattern ids/revisions read. Pattern files are normative current contracts, not broad background context.
 
 ### 4. Checkpoint
 
@@ -54,18 +64,41 @@ python <skill-dir>/scripts/planctl_concise.py subtask-complete \
   --plan <plan-path> --task 001 --subtask S001
 ```
 
-Use `subtask-reset` only when that checkpoint must be deliberately redone. Never edit task Markdown for state.
+Use `subtask-reset` only when that checkpoint must deliberately be redone. Never edit task Markdown for state.
 
-### 5. Validate independently
+### 5. Handle shared-pattern evidence
+
+If implementation reveals that an assigned shared contract is unsafe, impossible, incompatible, or materially wrong:
+
+- do not silently diverge;
+- capture concrete evidence;
+- decide whether the change is local (no pattern revision), a genuine shared-contract revision, or full planning invalidation;
+- for a genuine shared revision, update through `patternctl.py`, not by editing pattern Markdown.
+
+```bash
+python <skill-dir>/scripts/patternctl.py update \
+  --plan <plan-path> \
+  --pattern PAT001 \
+  --contract-file /tmp/PAT001-v2.json \
+  --reason "Concrete implementation evidence" \
+  --changed-by-task 001
+```
+
+The controller increments the revision and resets only completed signatories that adopted an older revision. Pending signatories will consume the latest revision later. It refuses to revise while another affected signatory is actively executing stale instructions.
+
+A pattern revision is not automatically a full replan. Replan only if evidence changes requirements, task boundaries, dependencies, architecture, or validation strategy beyond the contract itself.
+
+### 6. Validate independently
 
 The worker report is evidence, not acceptance. The orchestrator must:
 
-1. verify exact context/learning read lists;
+1. verify exact context/learning/pattern read lists;
 2. verify completed required subtasks;
-3. run every task validation command from the repository root;
-4. keep full command output in logs and only bounded diagnostic tails in state.
+3. verify the worker implemented the current assigned pattern revisions;
+4. run every task validation command from repository root;
+5. keep full command output in logs and only bounded diagnostic tails in state.
 
-### 6. Complete or fail
+### 7. Complete, then record pattern adoption
 
 Success:
 
@@ -76,6 +109,15 @@ python <skill-dir>/scripts/planctl_concise.py complete \
   --report <plan-path>/results/001.json \
   --result-file results/001.json
 ```
+
+If patterns exist:
+
+```bash
+python <skill-dir>/scripts/patternctl.py adopt --plan <plan-path> --task 001
+python <skill-dir>/scripts/patternctl.py validate --plan <plan-path>
+```
+
+If adoption fails, reset the TODO rather than leaving a completed task with unknown pattern compliance.
 
 Functional failure:
 
@@ -93,28 +135,20 @@ python <skill-dir>/scripts/planctl_concise.py fail \
   --reason "Provider usage limit" --rate-limited
 ```
 
-A completion report is deliberately bounded: summary <= 360 chars; validation detail <= 600; risks/follow-ups <= 8 items of 240 chars; reusable learning guidance <= 320 chars. Empty risk/follow-up arrays are preferred to boilerplate.
-
-On completion, only the compact summary/risks/follow-ups needed for final handoff are promoted into manifest task state. Raw provider output remains in result/log files inside the ephemeral plan workspace.
+Quota/rate/capacity interruption is not a semantic escalation signal.
 
 ## Strict external runner
 
-From a terminal/CI outside a nested provider invocation:
+`run_concise.py` remains the deterministic task-state runner. Integrations that use shared patterns must wrap dispatch/completion with the `patternctl assignment`, `adopt`, and `validate` hooks above until those hooks are folded into a future runner schema.
+
+Useful ordinary commands:
 
 ```bash
 python <skill-dir>/scripts/run_concise.py --plan <plan-path>
-```
-
-Useful flags remain compatible with `run_isolated.py`:
-
-```bash
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --dry-run
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --once --no-cleanup
 python <skill-dir>/scripts/run_concise.py --plan <plan-path> --provider codex
-python <skill-dir>/scripts/run_concise.py --plan <plan-path> --no-wait
 ```
-
-The runner validates state, starts a new non-persistent provider process per TODO, checks the report, reruns deterministic validation, materializes only validated predeclared learnings, escalates only on technical evidence, and cleans planning state after the final handoff.
 
 ## State commands
 
@@ -122,24 +156,24 @@ The runner validates state, starts a new non-persistent provider process per TOD
 python <skill-dir>/scripts/planctl_concise.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py audit --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py status --plan <plan-path>
-python <skill-dir>/scripts/planctl_concise.py status --plan <plan-path> --json
 python <skill-dir>/scripts/planctl_concise.py reset --plan <plan-path> --task 001
+python <skill-dir>/scripts/patternctl.py status --plan <plan-path>
+python <skill-dir>/scripts/patternctl.py validate --plan <plan-path>
 ```
 
-`TODO.md` remains one line per task. `manifest.json` is the authoritative machine state.
+`TODO.md` remains one line per task. `manifest.json` is authoritative for ordinary task state; `patterns/registry.json` is authoritative for pattern revisions/signatures.
 
 ## Failure and escalation
 
-Classify before changing the route:
+Classify before changing route:
 
-- **technical:** implementation/test/report/tool failure caused by the attempted solution;
-- **environmental actionable:** repository/toolchain issue that the worker can repair within scope;
+- **technical:** implementation/test/report/tool failure caused by attempted solution;
+- **environmental actionable:** repository/toolchain issue repairable within scope;
 - **provider availability/usage:** retry/fallback without counting a technical failure;
-- **planning invalidation:** evidence disproves a material requirement, dependency, context boundary, or validation assumption — stop downstream work and replan.
+- **pattern evolution:** current shared contract must legitimately change; revise and invalidate affected signatories only;
+- **planning invalidation:** evidence disproves a material requirement, dependency, context boundary, architecture assumption, or validation strategy — stop downstream work and replan.
 
-Persist the smallest diagnostic excerpt that can guide the next attempt plus a log reference when available. Do not copy full logs into `last_error`.
-
-Escalate effort/tier/provider only when the failure evidence justifies it. Do not preemptively route every TODO to the strongest model.
+Persist the smallest diagnostic excerpt that can guide the next attempt plus a log reference. Escalate effort/tier/provider only when failure evidence justifies it.
 
 ## Validated learning
 
@@ -151,25 +185,24 @@ After a source TODO passes deterministic validation, it may publish only learnin
 - cite repository symbols/paths/commands;
 - save meaningful rediscovery cost.
 
-No transcript, generic advice, or plan history belongs in learning files.
+Do not use a learning file for a shared normative rule that must update already-completed consumers. That belongs in the pattern registry.
 
 ## Final handoff
 
 After all TODOs complete:
 
 1. reload final manifest state;
-2. construct `SUMMARY_INPUT.json` from goal, per-task compact completion memory, validation status, changed files, and bounded git status/diff stat;
-3. generate a concise handoff from that input only;
-4. mark summary generated;
-5. clear lifecycle active state;
-6. delete only the sentinel-protected plan workspace unless retention was explicitly requested.
+2. if a pattern registry exists, require `patternctl validate` and include current pattern ids/revisions in compact summary input;
+3. construct `SUMMARY_INPUT.json` from goal, per-task compact completion memory, validation status, changed files, pattern summary, and bounded git status/diff stat;
+4. generate a concise handoff from that input only;
+5. mark summary generated, clear lifecycle active state, and perform guarded cleanup.
 
-Never concatenate raw worker reports or logs into the final summarizer prompt.
+Never concatenate raw worker reports, logs, source fragments, or primary-plan digests into the final summarizer prompt.
 
 ## Safety
 
 - Preserve unrelated working-tree changes.
 - Never use cleanup to revert implementation output.
-- Keep plan artifacts under the configured plan work root.
+- Keep plan artifacts under configured plan work root.
 - Reject symlink/path escapes through existing lifecycle/plan guards.
-- Retain plan state when execution, final validation, or summary generation fails so resume remains possible.
+- Retain plan state when execution, pattern adoption/validation, final validation, or summary generation fails so resume remains possible.
