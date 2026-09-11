@@ -52,9 +52,9 @@ def install_runner_contract(run_isolated: Any) -> Any:
         return f"""Implement one isolated TODO. Keep context narrow and return only the required JSON report.
 
 Rules:
-1. Read `{task_path}` first, then exactly the context and learning files listed there. Do not read other plan files, task definitions, logs, results, or `.ai-work` artifacts.
+1. Read `{task_path}` first, then exactly the context and learning files listed there. Do not read other plan files, task definitions, logs, results, or unassigned `.ai-work` artifacts. Assigned shared-pattern files are allowed only when the runner explicitly appends them below.
 2. Read/edit only repository source, tests, build files, and runtime output needed for this TODO. Preserve unrelated working-tree changes.
-3. Stay inside task scope/acceptance. Do not edit planning, context, or learning artifacts.
+3. Stay inside task scope/acceptance. Do not edit planning, context, learning, or shared-pattern artifacts.
 4. Checkpoint subtasks only with `{controller}` using `subtask-start`, `subtask-complete`, or `subtask-reset` for parent `{task['id']}`.
 5. Run task validation before reporting completion.
 6. Report exact context/learning read lists and all completed subtask ids. Read another task definition only when explicitly allowlisted, and report the reason.
