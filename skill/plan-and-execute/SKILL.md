@@ -38,6 +38,8 @@ For Drive/Docs/Office/PDF sources, obtain readable/local text with host tools fi
 
 Economic defaults: FINAL_PLAN below ~12k estimated source tokens without breadth trigger; PRIMARY_PLAN at 24k+; between them, 30+ headings at 8k+ tokens trigger PRIMARY_PLAN.
 
+Before creating any ORCHESTRATED plan, reconcile its automated validations with the persistent project test-resource map. Follow [references/TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md): run the cheap freshness check, inspect only changed discovery inputs, ensure every validation command maps to its required services and health probes, and audit the finished plan. The project map lives at `.ai-work/SERVICE_MAP.md`, outside disposable plan directories, so normal plan cleanup preserves it. DIRECT work still creates no `.ai-work` state.
+
 ## 4. Always-on model economy
 
 1. Deterministic tools for search, hashing, splitting, indexing, transforms, builds/tests/lint.
@@ -74,9 +76,10 @@ When substantial DIRECT work grows into independent remaining outcomes, broad re
 - Planning stages choose capability deliberately instead of inheriting the root model; hard decisions may be resolved first by strong workers (`hard_decisions`).
 - quota/rate-limit exhaustion and host interruption are not technical failures; another compatible provider can resume without the previous chat transcript;
 - implementation changes, tests, product artifacts, and commits survive cleanup.
+- Every automated validation in an ORCHESTRATED plan references a validation entry in the fresh service map and is run through its resource watcher; the plan audit rejects unmapped commands.
 
 For a normative contract shared by 2+ TODOs that may evolve, use [references/SHARED_PATTERNS.md](references/SHARED_PATTERNS.md): a versioned pattern with signatories; a revision reopens only completed signatories on an older revision.
 
 ## Reference map — on demand
 
-Files not linked above: artifacts [ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md), study [ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md), final planning [PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md), execution context [EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md), plan schema [PLAN_SPEC.md](references/PLAN_SPEC.md), execution [WORKFLOW.md](references/WORKFLOW.md).
+Files not linked above: artifacts [ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md), study [ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md), final planning [PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md), execution context [EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md), plan schema [PLAN_SPEC.md](references/PLAN_SPEC.md), execution [WORKFLOW.md](references/WORKFLOW.md), test dependencies and monitoring [TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md).

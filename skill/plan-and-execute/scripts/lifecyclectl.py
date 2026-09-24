@@ -508,13 +508,16 @@ def remove_plan_workspace(plan_arg: str | Path) -> dict[str, Any]:
     root = Path(manifest["repo_root"]).resolve()
     work_root = str(manifest.get("work_root", DEFAULT_WORK_ROOT))
     clear_active(plan_dir)
-    planctl.remove_git_exclude_entry(manifest.get("git_exclude"))
     shutil.rmtree(plan_dir)
     directory = work_directory(root, work_root)
+    parent_removed = False
     try:
         directory.rmdir()
+        parent_removed = True
     except OSError:
         pass
+    if parent_removed:
+        planctl.remove_git_exclude_entry(manifest.get("git_exclude"))
     return {"plan_id": plan_id, "plan": str(plan_dir)}
 
 

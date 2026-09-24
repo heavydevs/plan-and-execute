@@ -95,6 +95,8 @@ Cleanup must refuse unsafe paths/symlinks, incomplete plans, or missing summary 
 
 The product of the plan remains: source changes, tests, generated product files, commits, and unrelated repository state are outside the plan directory and must not be removed.
 
+The project-wide `.ai-work/SERVICE_MAP.md`, its fingerprint index, and resource-monitor reports also live outside individual plan directories. Successful cleanup and reset preserve them; only a deliberate project-map maintenance action should replace the reusable inventory.
+
 ## What belongs in lifecycle context
 
 Only include facts needed to choose one lifecycle action:

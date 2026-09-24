@@ -40,6 +40,8 @@ Use models for ambiguity resolution, architecture, decomposition, implementation
 
 The entrypoint is a small control plane. Load only the phase-specific reference: routing ambiguity -> `ROUTING.md`; late promotion -> `PROMOTION.md`; full orchestration -> `ORCHESTRATION.md`; model selection -> `MODEL_ROUTING.md` plus **only** the active provider file; study/planning/execution -> their phase references. If provider fallback happens later, load the fallback provider file then. Maintainer material (research basis, publishing) lives under `docs/` and is never loaded at runtime.
 
+For ORCHESTRATED plans, check the persistent service map by fingerprint and use compact changed-path output. Reuse its validation/resource IDs when fresh; after a change, inspect only changed test/build/CI/container/service inputs. Do not reread the map or rediscover stable services when the check reports no changes.
+
 ## 8. Preserve request evidence; compress derived state
 
 Never shorten authoritative user/request-file evidence merely to save tokens. Derived artifacts replace repeated prose with stable ids, paths, symbols, commands, mappings, compact validation state, and bounded completion memory. Do not copy request paragraphs into study, requirements, plan, every task, and final summary.

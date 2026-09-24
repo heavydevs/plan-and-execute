@@ -37,6 +37,8 @@ Prepared packages start from digests/indexes and retrieve source fragments only 
 
 While drafting, read `PLANNING_PROTOCOL.md`, `EXECUTION_CONTEXT.md`, and `PLAN_SPEC.md`.
 
+Before finalizing any validation command, read `TEST_RESOURCE_MONITORING.md`. Run `service_map.py check --repo-root .`; if the project has no map, initialize the draft and inventory test/build/CI/container/service inputs. If stale, reconcile only the changed paths shown by the checker. Each automated validation gets a stable map ID, an explicit resource list (possibly empty), and resource health checks. Store its task validation command as a `resource_watch.py run --validation <ID>` wrapper so long tests receive periodic probes.
+
 Inventory request parts (`P...`) and observable requirements (`R...`). Map every request part -> requirement -> executable TODO and every TODO back to requirements.
 
 Recursively split until each TODO has:
@@ -83,7 +85,10 @@ python <skill-dir>/scripts/studyctl_concise.py attach --spec /tmp/study-spec.jso
 python <skill-dir>/scripts/studyctl_concise.py validate-plan --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl_concise.py validate --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/planctl_concise.py audit --plan .ai-work/<plan-id>
+python <skill-dir>/scripts/service_map.py audit-plan --repo-root . --map .ai-work/SERVICE_MAP.md --plan .ai-work/<plan-id>
 ```
+
+The service-map audit must pass before activation. It rejects raw or unknown validation commands; each command needs exactly one validation ID from the fresh project map. When a task changes test/service discovery inputs, its worker reconciles and stamps the project map before returning, or the resource wrapper refuses to run stale mappings.
 
 If patterns were approved, initialize after plan creation so signatories reference final TODO ids:
 

@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+- Adds a persistent project test-resource map with compact source fingerprints, validation-to-service coverage audit, and a periodic read-only health watcher; resource failures now route as environmental evidence. Records reusable Tomcat, MySQL, Selenium, Compose, and Testcontainers monitoring guidance in Markdown.
+
 ## 0.9.1 - 2026-09-11
 
 - Fixes Codex worker dispatch failing before the worker starts: the OpenAI structured-output validator rejects `uniqueItems` (`invalid_json_schema ... 'uniqueItems' is not permitted`), so every `codex exec --output-schema` attempt exited with HTTP 400 and the TODO was marked as a provider failure. The runner now derives a Codex-compatible copy of `completion-report.schema.json` per attempt (unsupported keywords stripped, every object strict-compliant with all properties in `required`) into `results/codex-output-schema.json`, while Claude, Antigravity and Qwen keep receiving the canonical schema. Verified against the live API with `gpt-5.6-luna`.

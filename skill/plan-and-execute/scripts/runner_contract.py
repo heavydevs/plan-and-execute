@@ -54,9 +54,9 @@ def install_runner_contract(run_isolated: Any) -> Any:
         return f"""Implement one isolated TODO. Keep context narrow and return only the required JSON report.
 
 Rules:
-1. Read the task definition (path below) first, then exactly the context and learning files listed there. Do not read other plan files, task definitions, logs, results, or unassigned `.ai-work` artifacts. Assigned shared-pattern files are allowed only when the runner explicitly appends them below.
+1. Read the task definition (path below) first, then exactly the context and learning files listed there. Do not read other plan files, task definitions, logs, results, or unassigned `.ai-work` artifacts. Assigned shared-pattern files are allowed only when the runner explicitly appends them below. If a task validation uses `resource_watch.py`, the exact `--map` path in that command is the project-level service map you may consult for validation resources.
 2. Read/edit only repository source, tests, build files, and runtime output needed for this TODO. Preserve unrelated working-tree changes.
-3. Stay inside task scope/acceptance. Do not edit planning, context, learning, or shared-pattern artifacts.
+3. Stay inside task scope/acceptance. Do not edit plan, context, learning, or shared-pattern artifacts. If this TODO changes a test, test/build configuration, CI/container definition, or service dependency and its validation uses `resource_watch.py`, reconcile that command's `--map` file before reporting completion: preserve its validation ID, update resources/checks only when needed, then run the helper at the path below with `stamp --confirm-reconciled`. Do not edit the map's hash index by hand. If a new validation command is required outside this TODO's scope, report `plan_defect`.
 4. Checkpoint subtasks only with the subtask controller (path below) using `subtask-start`, `subtask-complete`, or `subtask-reset` for this task id.
 5. Run task validation before reporting completion; at low effort do not skip it.
 6. Report exact context/learning read lists and all completed subtask ids. Read another task definition only when explicitly allowlisted, and report the reason.
@@ -70,6 +70,7 @@ Repository: `{manifest['repo_root']}`
 Task definition: `{task_path}`
 Task: `{task['id']}`
 Route: {route['provider']} / {route['model']} / {route['effort']}
+Service map helper: {script_dir / 'service_map.py'}
 """
 
     original_validation = run_isolated.run_validation_commands

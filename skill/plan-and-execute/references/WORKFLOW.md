@@ -99,8 +99,10 @@ The worker report is evidence, not acceptance. The orchestrator must:
 1. verify exact context/learning/pattern read lists;
 2. verify completed required subtasks;
 3. verify the worker implemented the current assigned pattern revisions;
-4. run every task validation command from repository root;
+4. run every task validation command from repository root; each command uses its map validation ID and the resource watcher samples its declared health checks at startup and at the configured interval (default 60 seconds);
 5. keep full command output in logs and only bounded diagnostic tails in state.
+
+The worker may consult `.ai-work/SERVICE_MAP.md` and reconcile it when its scoped test/config changes stale the snapshot. Before the wrapper runs, stale or unmapped entries fail as environmental evidence rather than running an unmonitored test. A sampled dependency failure is also classified as `environmental`, not a semantic model failure. The monitor records bounded JSONL samples outside individual plan directories, so cleanup preserves them along with the reusable service map.
 
 ### 7. Complete, then record pattern adoption
 

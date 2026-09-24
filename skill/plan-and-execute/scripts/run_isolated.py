@@ -29,6 +29,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 import planctl  # noqa: E402
 import lifecyclectl  # noqa: E402
 import routingctl  # noqa: E402
+import process_tree  # noqa: E402
 
 TIER_ORDER = routingctl.TIER_ORDER
 EFFORT_ORDER = routingctl.EFFORT_ORDER
@@ -834,17 +835,25 @@ def decode_validation_output(output: str | bytes | None) -> str:
 
 
 def terminate_validation_tree(process: subprocess.Popen, grace_seconds: float = 2) -> None:
-    """Allow graceful exit, then kill the group even if its shell has exited."""
+    """Allow graceful exit, then kill the entire validation session."""
     if os.name == "nt":
         try:
             process.send_signal(signal.CTRL_BREAK_EVENT)
         except (AttributeError, OSError):
             pass
     else:
-        try:
-            os.killpg(process.pid, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
+        session_pids = process_tree.posix_session_processes(process.pid)
+        if session_pids is None:
+            try:
+                os.killpg(process.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        else:
+            for pid in session_pids:
+                try:
+                    os.kill(pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
     time.sleep(grace_seconds)
     if os.name == "nt":
         try:
@@ -859,10 +868,18 @@ def terminate_validation_tree(process: subprocess.Popen, grace_seconds: float = 
         if process.poll() is None:
             process.kill()
     else:
-        try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+        session_pids = process_tree.posix_session_processes(process.pid)
+        if session_pids is None:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        else:
+            for pid in session_pids:
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
     process.wait()
 
 
@@ -917,6 +934,11 @@ def run_validation_commands(
                     "passed": passed,
                     "exit_code": exit_code,
                     "output_tail": output_tail(output, 2000),
+                    "failure_class": (
+                        "environmental"
+                        if "[resource-watch] environment_failure=" in output
+                        else None
+                    ),
                 }
             )
             if not passed:
@@ -1142,7 +1164,11 @@ def execute_one_task(
             # misjudged the work: a reasoning gap (semantic) unless it declares a
             # narrower class itself.
             declared = str(report.get("failure_class") or "").strip().lower()
-            cls = declared if declared in routingctl.FAILURE_CLASSES else "semantic"
+            monitor_class = next(
+                (item.get("failure_class") for item in validation_results if item.get("failure_class") == "environmental"),
+                None,
+            )
+            cls = monitor_class or (declared if declared in routingctl.FAILURE_CLASSES else "semantic")
             planctl.fail_task(
                 plan_dir, manifest, task["id"], validation_reason or "Validation failed", failure_class=cls
             )
