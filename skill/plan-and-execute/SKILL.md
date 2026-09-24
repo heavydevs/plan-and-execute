@@ -38,7 +38,7 @@ For Drive/Docs/Office/PDF sources, obtain readable/local text with host tools fi
 
 Economic defaults: FINAL_PLAN below ~12k estimated source tokens without breadth trigger; PRIMARY_PLAN at 24k+; between them, 30+ headings at 8k+ tokens trigger PRIMARY_PLAN.
 
-Before creating any ORCHESTRATED plan, reconcile its automated validations with the persistent project test-resource map. Follow [references/TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md): run the cheap freshness check, inspect only changed discovery inputs, ensure every validation command maps to its required services and health probes, and audit the finished plan. The project map lives at `.ai-work/SERVICE_MAP.md`, outside disposable plan directories, so normal plan cleanup preserves it. DIRECT work still creates no `.ai-work` state.
+Before creating any ORCHESTRATED plan, reconcile its automated validations with the persistent project test-resource map. Follow [references/TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md): run the cheap freshness check, inspect only changed discovery inputs, map toolchain preflights and required services for every validation, and audit the finished plan. Long-running tests also get process/output progress monitoring; external resources are sampled while the test runs. The project map lives at `.ai-work/SERVICE_MAP.md`, outside disposable plan directories, so normal plan cleanup preserves it. DIRECT work still creates no `.ai-work` state.
 
 ## 4. Always-on model economy
 
@@ -82,4 +82,4 @@ For a normative contract shared by 2+ TODOs that may evolve, use [references/SHA
 
 ## Reference map — on demand
 
-Files not linked above: artifacts [ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md), study [ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md), final planning [PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md), execution context [EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md), plan schema [PLAN_SPEC.md](references/PLAN_SPEC.md), execution [WORKFLOW.md](references/WORKFLOW.md), test dependencies and monitoring [TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md).
+Files not linked above: artifacts [ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md), study [ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md), final planning [PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md), execution context [EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md), plan schema [PLAN_SPEC.md](references/PLAN_SPEC.md), execution [WORKFLOW.md](references/WORKFLOW.md), test dependencies and monitoring [TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md), skill maintenance [SKILL_MAINTENANCE_REVIEW.md](references/SKILL_MAINTENANCE_REVIEW.md). Research basis lives in repository `docs/` and is not loaded during normal task execution.

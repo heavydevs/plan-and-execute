@@ -32,10 +32,17 @@ SECRET_NAMES = {".env", ".env.local", ".env.production", "secrets.yml", "secrets
 KNOWN_FILES = {
     "makefile", "dockerfile", "jenkinsfile", "procfile", "pom.xml", "build.gradle",
     "build.gradle.kts", "settings.gradle", "settings.gradle.kts", "gradlew", "mvnw",
-    "package.json", "pyproject.toml", "pytest.ini", "tox.ini", "setup.cfg", "noxfile.py",
+    "package.json", "npm-shrinkwrap.json", "pnpm-workspace.yaml", "bun.lock", "bun.lockb",
+    ".nvmrc", ".node-version", ".python-version", ".tool-versions", ".mise.toml",
+    ".npmrc", ".yarnrc", ".yarnrc.yml", ".pnpmfile.cjs", "bunfig.toml",
+    "pyproject.toml", "pytest.ini", "conftest.py",
+    "tox.ini", "setup.cfg", "setup.py", "noxfile.py", "uv.toml", "requirements.in",
     "requirements.txt", "pipfile", "cargo.toml", "go.mod", "gemfile", "composer.json",
-    "testng.xml", "playwright.config.ts", "playwright.config.js", "cypress.config.ts",
-    "cypress.config.js", "vitest.config.ts", "jest.config.js", "jest.config.ts",
+    "testng.xml", "junit-platform.properties", "playwright.config.ts", "playwright.config.js",
+    "playwright.config.mjs", "playwright.config.cjs", "playwright.config.mts", "playwright.config.cts",
+    "cypress.config.ts", "cypress.config.js", "vitest.config.ts", "vitest.config.js", "vitest.config.mjs",
+    "vitest.config.cjs", "jest.config.js", "jest.config.ts", "jest.config.mjs", "jest.config.cjs",
+    "jest.config.mts", "jest.config.cts",
     "azure-pipelines.yml", ".gitlab-ci.yml", ".env.example", ".env.sample",
     ".env.template", "package-lock.json", "pnpm-lock.yaml", "yarn.lock", "poetry.lock",
     "uv.lock", "pipfile.lock", "gradle.lockfile", "cargo.lock", "gemfile.lock",
@@ -45,7 +52,7 @@ KNOWN_FILES = {
 }
 TEST_PARTS = {"test", "tests", "src/test", "integration", "integration-test", "integration-tests", "e2e", "spec", "specs", "features"}
 INFRA_PARTS = {".github", ".circleci", "ci", "k8s", "kubernetes", "helm", "terraform", "ansible", "deploy", "deployment", "config", "conf"}
-TEST_SUFFIXES = {".py", ".java", ".kt", ".groovy", ".js", ".jsx", ".ts", ".tsx", ".go", ".rb", ".cs", ".php", ".sh", ".feature", ".rs", ".sql", ".c", ".cpp", ".h", ".hpp", ".swift", ".scala", ".dart", ".ex", ".exs"}
+TEST_SUFFIXES = {".py", ".java", ".kt", ".groovy", ".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", ".mts", ".cts", ".go", ".rb", ".cs", ".php", ".sh", ".feature", ".rs", ".sql", ".c", ".cpp", ".h", ".hpp", ".swift", ".scala", ".dart", ".ex", ".exs"}
 CONFIG_SUFFIXES = {".yaml", ".yml", ".properties", ".xml", ".toml", ".ini", ".conf", ".cnf"}
 
 
@@ -86,7 +93,7 @@ def is_candidate(rel: str) -> bool:
         return False
     if name.startswith(".env.") and not name.endswith((".example", ".sample", ".template")):
         return False
-    if name in KNOWN_FILES or name.startswith(("dockerfile.", "docker-compose", "compose.")):
+    if name in KNOWN_FILES or name.startswith(("dockerfile.", "docker-compose", "compose.", "playwright.config.", "vitest.config.", "jest.config.")):
         return True
     if any(part in TEST_PARTS or part.startswith(("test", "integrationtest", "e2e", "spec")) for part in parts):
         return path.suffix.lower() in TEST_SUFFIXES | CONFIG_SUFFIXES or name in {"makefile", "dockerfile"}
@@ -94,7 +101,7 @@ def is_candidate(rel: str) -> bool:
         return path.suffix.lower() in CONFIG_SUFFIXES | {".json", ".sh", ".ps1", ".bat", ".cmd", ".tf"} or name == "jenkinsfile"
     if name.startswith(("application.", "bootstrap.", "log4j", "logback", "test-", "test_")):
         return path.suffix.lower() in CONFIG_SUFFIXES | TEST_SUFFIXES
-    if name.startswith("requirements") and path.suffix.lower() == ".txt":
+    if name.startswith("requirements") and path.suffix.lower() in {".txt", ".in"}:
         return True
     stem = path.stem.lower()
     if path.suffix.lower() in TEST_SUFFIXES and (
@@ -213,6 +220,37 @@ def validate_data(data: dict[str, Any]) -> list[str]:
     resources = data.get("resources")
     if not isinstance(validations, list) or not isinstance(resources, list):
         return errors + ["validations and resources must be arrays"]
+    toolchains = data.get("toolchains", [])
+    if not isinstance(toolchains, list):
+        errors.append("toolchains must be an array when present")
+        toolchains = []
+    toolchain_ids: set[str] = set()
+    for toolchain in toolchains:
+        if not isinstance(toolchain, dict):
+            errors.append("each toolchain must be an object")
+            continue
+        toolchain_id = toolchain.get("id")
+        if not isinstance(toolchain_id, str) or not toolchain_id.strip() or toolchain_id in toolchain_ids:
+            errors.append(f"toolchain id is empty or duplicated: {toolchain_id!r}")
+            continue
+        toolchain_ids.add(toolchain_id)
+        command = toolchain.get("command")
+        if not isinstance(command, list) or not command or any(
+            not isinstance(arg, str) or not arg or "\0" in arg for arg in command
+        ):
+            errors.append(f"toolchain {toolchain_id}: command must be a nonempty argv array")
+        timeout_value = toolchain.get("timeout_seconds", 10)
+        if isinstance(timeout_value, bool) or not isinstance(timeout_value, int) or not 1 <= timeout_value <= 60:
+            errors.append(f"toolchain {toolchain_id}: timeout_seconds must be 1..60")
+        version_regex = toolchain.get("version_regex")
+        if version_regex is not None:
+            if not isinstance(version_regex, str):
+                errors.append(f"toolchain {toolchain_id}: version_regex must be a string")
+            else:
+                try:
+                    re.compile(version_regex, re.IGNORECASE)
+                except re.error as exc:
+                    errors.append(f"toolchain {toolchain_id}: invalid version_regex: {exc}")
     resource_ids: set[str] = set()
     validation_ids: set[str] = set()
     for resource in resources:
@@ -252,6 +290,9 @@ def validate_data(data: dict[str, Any]) -> list[str]:
             grace_value = check.get("startup_grace_seconds", 60)
             if isinstance(grace_value, bool) or not isinstance(grace_value, int) or not 0 <= grace_value <= 600:
                 errors.append(f"resource {rid}/{cid}: startup_grace_seconds must be 0..600")
+            failure_class = check.get("failure_class", "environmental")
+            if failure_class not in {"environmental", "semantic"}:
+                errors.append(f"resource {rid}/{cid}: failure_class must be environmental or semantic")
             if "record_excerpt" in check and not isinstance(check["record_excerpt"], bool):
                 errors.append(f"resource {rid}/{cid}: record_excerpt must be boolean")
             platforms = check.get("platforms")
@@ -300,6 +341,18 @@ def validate_data(data: dict[str, Any]) -> list[str]:
         for rid in resource_list:
             if rid not in resource_ids:
                 errors.append(f"validation {vid}: unknown resource {rid!r}")
+        toolchain_list = validation.get("toolchains", [])
+        if not isinstance(toolchain_list, list) or any(not isinstance(item, str) for item in toolchain_list):
+            errors.append(f"validation {vid}: toolchains must be an array of toolchain ids")
+        else:
+            if len(toolchain_list) != len(set(toolchain_list)):
+                errors.append(f"validation {vid}: duplicate toolchain ids")
+            for toolchain_id in toolchain_list:
+                if toolchain_id not in toolchain_ids:
+                    errors.append(f"validation {vid}: unknown toolchain {toolchain_id!r}")
+        idle_value = validation.get("no_progress_timeout_seconds", 300)
+        if isinstance(idle_value, bool) or not isinstance(idle_value, int) or not 0 <= idle_value <= 7200:
+            errors.append(f"validation {vid}: no_progress_timeout_seconds must be 0..7200")
     return errors
 
 
@@ -344,7 +397,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     if fresh and not truncated and not index_path(map_path, root).exists():
         write_index(index_path(map_path, root), root, signatures, truncated)
     if fresh and not validation_errors:
-        print(f"service-map=fresh sources={len(signatures)} resources={len(data['resources'])} validations={len(data['validations'])}")
+        print(f"service-map=fresh sources={len(signatures)} toolchains={len(data.get('toolchains', []))} resources={len(data['resources'])} validations={len(data['validations'])}")
         return 0
     reasons = []
     if not fresh:
@@ -378,6 +431,7 @@ def cmd_init(args: argparse.Namespace) -> int:
         "schema_version": SCHEMA_VERSION,
         "inventory_reviewed": False,
         "snapshot": {"algorithm": ALGORITHM, "digest": aggregate(signatures), "source_count": len(signatures)},
+        "toolchains": [],
         "validations": [],
         "resources": [],
     }
@@ -407,7 +461,7 @@ def cmd_stamp(args: argparse.Namespace) -> int:
     data["snapshot"] = {"algorithm": ALGORITHM, "digest": aggregate(signatures), "source_count": len(signatures)}
     map_path.write_text(replace_map_data(text, data), encoding="utf-8")
     write_index(index_path(map_path, root), root, signatures, truncated)
-    print(f"service-map=stamped sources={len(signatures)} resources={len(data['resources'])} validations={len(data['validations'])}")
+    print(f"service-map=stamped sources={len(signatures)} toolchains={len(data.get('toolchains', []))} resources={len(data['resources'])} validations={len(data['validations'])}")
     return 0
 
 
@@ -528,7 +582,11 @@ def cmd_list(args: argparse.Namespace) -> int:
         return 2
     for item in data["validations"]:
         resources = ",".join(item["resources"]) or "none"
-        print(f"{item['id']} | {item.get('name', 'unnamed')} | resources={resources}")
+        toolchains = ",".join(item.get("toolchains", [])) or "none"
+        idle = item.get("no_progress_timeout_seconds", 300)
+        print(f"{item['id']} | {item.get('name', 'unnamed')} | tools={toolchains} resources={resources} no-progress={idle}s")
+    for item in data.get("toolchains", []):
+        print(f"toolchain {item['id']} | {item.get('name', 'unnamed')}")
     for resource in data["resources"]:
         checks = ",".join(f"{check['id']}@{check.get('every_seconds', 60)}s" for check in resource["checks"])
         print(f"resource {resource['id']} | {resource.get('name', resource.get('type', 'service'))} | checks={checks}")

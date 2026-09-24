@@ -102,6 +102,12 @@ Diagnostic for choosing the class: *did the worker not know enough (semantic -> 
 
 Provider fallback (quota, rate limit, capacity, CLI interruption) is availability, not evidence: state is preserved and the equivalent logical rung runs on the fallback provider. When the evidence asks for a rung above the ladder's top on the last available provider (for example a `semantic` failure at the `max` tier), the runner blocks the TODO (`ladder_exhausted`) for replanning instead of spending the remaining attempts at the strongest route. Stop as soon as acceptance and independent validation pass.
 
+### Validation stagnation: promote after five minutes without progress
+
+For a mapped validation, `resource_watch.py` defaults `no_progress_timeout_seconds` to 300. On POSIX it samples the test process group every 20 seconds. A changed normalized output line or higher aggregate CPU time is progress; if neither advances for five minutes while dependencies are healthy, the watcher records a bounded process snapshot, terminates the test process group, and records a semantic validation failure. Set a longer per-validation window for a legitimate long silent phase; set `0` only when the project has another reliable deadlock timeout/diagnostic. Service probes continue on their own interval while the test runs.
+
+That evidence raises the next fresh worker's route floor to `strong` (at least medium effort), or to `max` if the failed attempt already used `strong`/`max`. Repeated identical validation fingerprints use the same floor once their recorded age reaches five minutes, including time spent between attempts. This is a floor within the provider's configured ladder, not a forced root-session model switch. The next worker gets a compact latest-attempt excerpt and signature; it does not reread older logs. If the watcher identifies an unhealthy external dependency, retain the `environmental` class and repair/restore the service instead of buying a stronger model. On Windows, where this watcher currently cannot compare process-group CPU, use cross-attempt signature aging and the test/framework's own timeouts.
+
 ## 7. Two-phase leaves (optional)
 
 A `high` TODO may declare `design_route` (`PLAN_SPEC.md`): a stronger worker writes a bounded design note (approach, decisions, contracts, ordered steps mapped to checkpoints, validation strategy), then the implementation worker runs at the task's own route with the note. Use it only when the leaf is hard **and** its implementation volume is large; a single strong worker is cheaper for a small hard edit.
@@ -110,6 +116,6 @@ A `high` TODO may declare `design_route` (`PLAN_SPEC.md`): a stronger worker wri
 
 - Keep stable instructions before dynamic task data; keep worker prompts byte-identical except for trailing task values so provider caches share the prefix.
 - Defer or disable unused tool/MCP definitions when supported; prefer batched deterministic queries over model round trips.
-- Keep full logs on disk; pass bounded failure excerpts plus paths to retries. Do not repeatedly summarize the same evidence.
+- Keep full logs on disk; pass a bounded latest-attempt excerpt, stable repeated-failure signature, and path to that attempt. Keep repeated history as signature/counter/age instead of duplicating the same long reason. A worker may open only the immediately preceding validation log when the excerpt is insufficient; do not reread superseded logs. Do not repeatedly summarize the same evidence.
 - Final/status prose uses an economy route when no difficult synthesis is required.
 - Optional per-worker budget guards (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway loops into resumable `budget` failures.

@@ -9,6 +9,7 @@ validation, escalation, summarization, and cleanup are handled by this script.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -34,6 +35,7 @@ import process_tree  # noqa: E402
 TIER_ORDER = routingctl.TIER_ORDER
 EFFORT_ORDER = routingctl.EFFORT_ORDER
 DESIGN_NOTE_MAX_CHARS = 6000
+VALIDATION_FAILURE_CONTEXT_CHARS = 900
 BUDGET_PATTERNS = [
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
@@ -218,6 +220,21 @@ def choose_route(task: dict[str, Any], config: dict[str, Any], override: str | N
     if not isinstance(classes, list):
         classes = ["unknown"] * failures
     ladder_step = routingctl.escalation_step(classes, rungs)
+    stagnation = task.get("validation_stagnation")
+    if isinstance(stagnation, dict) and stagnation.get("triggered") is True:
+        current = task.get("current_route") if isinstance(task.get("current_route"), dict) else {}
+        current_tier = str(current.get("tier") or task.get("model_tier", "standard"))
+        floor_tier = "max" if current_tier in {"strong", "max"} else "strong"
+        floor_rank = TIER_ORDER.index(floor_tier)
+        floor_step = next(
+            (
+                index for index, (candidate_tier, candidate_effort) in enumerate(rungs)
+                if TIER_ORDER.index(candidate_tier) >= floor_rank
+                and EFFORT_ORDER.index(candidate_effort) >= EFFORT_ORDER.index("medium")
+            ),
+            len(rungs) - 1,
+        )
+        ladder_step = max(ladder_step, floor_step)
     tier, effort = rungs[min(ladder_step, len(rungs) - 1)]
     effort = clamp_effort(provider_cfg, tier, effort)
     models = provider_cfg.get("models", {})
@@ -320,12 +337,12 @@ def worker_prompt(plan_dir: Path, manifest: dict[str, Any], task: dict[str, Any]
         relative_task = str(task_file)
     # Static rules come first and stay byte-identical across tasks so provider
     # prompt caches can share the prefix; task-specific values are appended last.
-    return f"""You are a fresh, isolated implementation worker for one bounded task.
+    prompt = f"""You are a fresh, isolated implementation worker for one bounded task.
 
 Mandatory isolation rules:
 1. Read the assigned task definition first. It is the only task definition assigned to you.
 2. Then read every file listed under `Assigned execution context`, followed by every file under `Assigned validated learnings`. Read no other context or learning file.
-3. Do not open PLAN.md, TODO.md, manifest.json, orchestrator.config.json, result files, logs, or any unassigned task definition under the plan workspace.
+3. Do not open PLAN.md, TODO.md, manifest.json, orchestrator.config.json, result files, historical logs, or any unassigned task definition under the plan workspace. If the runner appends a latest-failure capsule, open only that immediately preceding validation log when the bounded excerpt is insufficient.
 4. You may read and edit repository source, tests, build files, and runtime output needed for this task.
 5. Existing changes in the working tree may belong to earlier completed tasks. Preserve them and do not broadly revert or reformat unrelated code.
 6. Open another task definition only when the assigned definition explicitly permits its id and a dependency, ambiguity, or validation conflict makes it necessary. Report the id and reason.
@@ -346,6 +363,67 @@ Task id: {task['id']}
 Attempt: {task['attempts'] + 1}
 Route: {route['provider']} / {route['model']} / effort {route['effort']}
 """
+    return prompt + failure_context(task)
+
+
+def failure_context(task: dict[str, Any]) -> str:
+    """Expose only the newest compact failure evidence; keep superseded logs on disk."""
+    error = str(task.get("last_error") or "").strip()
+    stagnation = task.get("validation_stagnation")
+    if not error and not isinstance(stagnation, dict):
+        return ""
+    if len(error) > VALIDATION_FAILURE_CONTEXT_CHARS:
+        error = error[-VALIDATION_FAILURE_CONTEXT_CHARS:]
+    lines = ["\nLatest attempt evidence (older attempt logs are preserved but do not read them):"]
+    if error:
+        lines.append(f"- Latest failure: {error}")
+    if isinstance(stagnation, dict):
+        lines.append(
+            f"- Repeated validation signature: {stagnation.get('signature', '')[:12]}; "
+            f"repeats={stagnation.get('repeats', 1)}; "
+            f"age={stagnation.get('elapsed_seconds', 0)}s; "
+            f"latest-idle={stagnation.get('idle_seconds', 0)}s."
+        )
+        if stagnation.get("triggered") is True:
+            lines.append("- Validation stagnation crossed five minutes; this worker was deliberately routed to a stronger model.")
+    latest_log = task.get("latest_validation_log")
+    if isinstance(latest_log, str) and latest_log:
+        lines.append(
+            f"- Full log for the most recent failed validation, only if this excerpt is insufficient: "
+            f"`{latest_log}`. Do not open older logs."
+        )
+    return "\n" + "\n".join(lines) + "\n"
+
+
+ANSI_ESCAPE_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
+VOLATILE_FAILURE_PATTERNS = (
+    re.compile(r"\b\d{4}-\d\d-\d\d[T ][0-9:.+-]+Z?\b"),
+    re.compile(r"\b(?:pid|process)[=: ]+\d+\b", re.IGNORECASE),
+    re.compile(r"\b\d+(?:\.\d+)?\s*(?:ms|msec|seconds?|secs?)\b", re.IGNORECASE),
+    re.compile(r"\b[0-9a-f]{8}-[0-9a-f-]{27,}\b", re.IGNORECASE),
+)
+
+
+def validation_failure_fingerprint(results: list[dict[str, Any]]) -> str | None:
+    """Hash stable failure evidence so the runner can detect a stuck validation across attempts."""
+    failed = next((item for item in results if item.get("passed") is False), None)
+    if not isinstance(failed, dict) or failed.get("failure_class") == "environmental":
+        return None
+    output = str(failed.get("output_tail") or "")
+    stable_lines: list[str] = []
+    stalled_marker = "validation_stalled=" in output
+    for line in output.splitlines():
+        if line.startswith("[resource-watch]"):
+            continue
+        cleaned = ANSI_ESCAPE_RE.sub("", line).strip()
+        for pattern in VOLATILE_FAILURE_PATTERNS:
+            cleaned = pattern.sub("<volatile>", cleaned)
+        if cleaned:
+            stable_lines.append(cleaned[:500])
+    if stalled_marker:
+        stable_lines.append("validation_stalled")
+    payload = "\n".join((str(failed.get("command", "")), str(failed.get("exit_code", "")), *stable_lines[-16:]))
+    return hashlib.sha256(payload.encode("utf-8", "replace")).hexdigest()
 
 
 def design_note_relative(task: dict[str, Any]) -> str:
@@ -825,13 +903,21 @@ def output_tail(text: str, length: int = 3000) -> str:
     return stripped[-length:] if stripped else ""
 
 
+def read_log_tail_since(path: Path, start_offset: int, limit_bytes: int = 12000) -> str:
+    """Read only the bounded tail of one validation from its raw attempt log."""
+    try:
+        with path.open("rb") as source:
+            end = source.seek(0, os.SEEK_END)
+            start = max(start_offset, end - limit_bytes)
+            source.seek(start)
+            return source.read().decode("utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
 def validation_timeout_seconds(task: dict[str, Any], config: dict[str, Any]) -> int:
     configured = task.get("validation_timeout_seconds", config.get("validation_timeout_seconds", 1800))
     return max(0, int(configured))
-
-
-def decode_validation_output(output: str | bytes | None) -> str:
-    return output.decode("utf-8", errors="replace") if isinstance(output, bytes) else output or ""
 
 
 def terminate_validation_tree(process: subprocess.Popen, grace_seconds: float = 2) -> None:
@@ -891,10 +977,12 @@ def run_validation_commands(
 ) -> tuple[bool, list[dict[str, Any]], str | None]:
     results: list[dict[str, Any]] = []
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    with log_path.open("w", encoding="utf-8", newline="\n") as log:
+    with log_path.open("wb") as log:
         for command in commands:
             print(f"[validate] {command}", flush=True)
-            log.write(f"$ {command}\n")
+            log.write(f"$ {command}\n".encode("utf-8", errors="replace"))
+            log.flush()
+            output_start = log.tell()
             group_options = (
                 {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
                 if os.name == "nt" else {"start_new_session": True}
@@ -903,30 +991,24 @@ def run_validation_commands(
                 command,
                 cwd=repo_root,
                 shell=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                stdout=subprocess.PIPE,
+                stdout=log,
                 stderr=subprocess.STDOUT,
                 **group_options,
             ) as process:
                 try:
-                    output, _ = process.communicate(timeout=timeout_seconds or None)
-                    output = decode_validation_output(output)
+                    process.wait(timeout=timeout_seconds or None)
                     exit_code = process.returncode
-                except subprocess.TimeoutExpired as exc:
+                except subprocess.TimeoutExpired:
                     terminate_validation_tree(process)
-                    try:
-                        remaining, _ = process.communicate(timeout=2)
-                    except subprocess.TimeoutExpired as cleanup_exc:
-                        remaining = cleanup_exc.stdout
-                    output = decode_validation_output(remaining if remaining is not None else exc.stdout)
-                    output += f"\nTimed out after {timeout_seconds} seconds"
+                    log.flush()
+                    log.seek(0, os.SEEK_END)
+                    log.write(f"\nTimed out after {timeout_seconds} seconds\n".encode("utf-8"))
                     exit_code = 124
-            log.write(output)
-            if output and not output.endswith("\n"):
-                log.write("\n")
-            log.write(f"[exit {exit_code}]\n\n")
+            log.flush()
+            log.seek(0, os.SEEK_END)
+            log.write(f"[exit {exit_code}]\n\n".encode("utf-8"))
+            log.flush()
+            output = read_log_tail_since(log_path, output_start)
             passed = exit_code == 0
             results.append(
                 {
@@ -937,7 +1019,15 @@ def run_validation_commands(
                     "failure_class": (
                         "environmental"
                         if "[resource-watch] environment_failure=" in output
+                        else "semantic"
+                        if "[resource-watch] validation_stalled=" in output
+                        or "[resource-watch] semantic_failure=" in output
                         else None
+                    ),
+                    "validation_stalled": "[resource-watch] validation_stalled=" in output,
+                    "validation_idle_seconds": max(
+                        (int(value) for value in re.findall(r"validation_stalled=confirmed[^\n]*idle_seconds=(\d+)", output)),
+                        default=0,
                     ),
                 }
             )
@@ -1168,9 +1258,31 @@ def execute_one_task(
                 (item.get("failure_class") for item in validation_results if item.get("failure_class") == "environmental"),
                 None,
             )
-            cls = monitor_class or (declared if declared in routingctl.FAILURE_CLASSES else "semantic")
+            stalled = any(item.get("validation_stalled") is True for item in validation_results)
+            stalled_after_five = any(
+                isinstance(item.get("validation_idle_seconds"), int)
+                and item["validation_idle_seconds"] >= 300
+                for item in validation_results
+            )
+            semantic_monitor = next(
+                (item.get("failure_class") for item in validation_results if item.get("failure_class") == "semantic"),
+                None,
+            )
+            cls = monitor_class or semantic_monitor or ("semantic" if stalled else (declared if declared in routingctl.FAILURE_CLASSES else "semantic"))
+            signature = validation_failure_fingerprint(validation_results)
             planctl.fail_task(
-                plan_dir, manifest, task["id"], validation_reason or "Validation failed", failure_class=cls
+                plan_dir,
+                manifest,
+                task["id"],
+                validation_reason or "Validation failed",
+                failure_class=cls,
+                validation_signature=signature,
+                validation_stalled=stalled_after_five,
+                validation_idle_seconds=max(
+                    (int(item.get("validation_idle_seconds", 0)) for item in validation_results),
+                    default=0,
+                ),
+                validation_log=validation_log.relative_to(plan_dir).as_posix(),
             )
             print(f"[task {task['id']}] deterministic validation failed ({cls}); next route follows the evidence ladder", file=sys.stderr)
             return False

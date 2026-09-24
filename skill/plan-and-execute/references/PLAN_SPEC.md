@@ -166,7 +166,7 @@ A scoped file must serve at least two but fewer than all TODOs. Single-task fact
 - `scope.in/out` states boundaries, not the implementation narrative.
 - `implementation_guidance` contains only non-obvious, task-specific guidance.
 - Acceptance is observable; validation is executable.
-- Every automated validation command in an ORCHESTRATED plan must use one `resource_watch.py run` wrapper and one validation ID present in the fresh `.ai-work/SERVICE_MAP.md`. That map stores the actual argv command and every required service/check; an empty resource list explicitly records a validation that needs no external service. Run `service_map.py audit-plan` before activation.
+- Every automated validation command in an ORCHESTRATED plan must use one `resource_watch.py run` wrapper and one validation ID present in the fresh `.ai-work/SERVICE_MAP.md`. That map stores the actual argv command, required toolchains, and every required service/check; an empty resource list explicitly records a validation that needs no external service. Its default no-progress timeout is 300 seconds and may be tuned per validation. Run `service_map.py audit-plan` before activation.
 - Optional task `validation_timeout_seconds` is a nonnegative integer (booleans are invalid), applied to each validation command. Omission inherits the global configuration (default `1800` seconds); explicit `0` disables the timeout. Timed-out validation commands exit with `124`, preserve partial output using UTF-8 replacement decoding, and terminate their process tree after a short cleanup grace period.
 - Subtasks are resumable checkpoints, not hidden independent deliverables.
 

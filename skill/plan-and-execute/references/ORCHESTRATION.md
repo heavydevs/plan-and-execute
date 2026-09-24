@@ -37,7 +37,7 @@ Prepared packages start from digests/indexes and retrieve source fragments only 
 
 While drafting, read `PLANNING_PROTOCOL.md`, `EXECUTION_CONTEXT.md`, and `PLAN_SPEC.md`.
 
-Before finalizing any validation command, read `TEST_RESOURCE_MONITORING.md`. Run `service_map.py check --repo-root .`; if the project has no map, initialize the draft and inventory test/build/CI/container/service inputs. If stale, reconcile only the changed paths shown by the checker. Each automated validation gets a stable map ID, an explicit resource list (possibly empty), and resource health checks. Store its task validation command as a `resource_watch.py run --validation <ID>` wrapper so long tests receive periodic probes.
+Before finalizing any validation command, read `TEST_RESOURCE_MONITORING.md`. Run `service_map.py check --repo-root .`; if the project has no map, initialize the draft and inventory test/build/CI/container/service/runtime inputs. If stale, reconcile only the changed paths shown by the checker. Each automated validation gets a stable map ID, explicit toolchain IDs, an explicit resource list (possibly empty), a suitable no-progress timeout, and resource health checks. Store its task validation command as a `resource_watch.py run --validation <ID>` wrapper so long tests receive periodic probes and process-progress checks.
 
 Inventory request parts (`P...`) and observable requirements (`R...`). Map every request part -> requirement -> executable TODO and every TODO back to requirements.
 
@@ -99,6 +99,8 @@ python <skill-dir>/scripts/patternctl.py validate --plan .ai-work/<plan-id>
 
 Activate lifecycle state, then autostart unless a genuine authorization/safety gate or unresolved material question blocks execution. For prepared packages retain only the compact handoff plus package/source references, not copies of every raw fragment.
 
+When the requested target is this skill, include one final TODO that reviews the whole skill after the implementation TODOs. Follow [`SKILL_MAINTENANCE_REVIEW.md`](SKILL_MAINTENANCE_REVIEW.md) to catch broken routing, stale references, missing tool affordances, duplicated instructions, token-heavy paths, and gaps between scripts and documented behavior. Keep this special final TODO out of ordinary client-project plans.
+
 ## 8. Persist minimal resumable state
 
 `manifest.json` is authoritative. `TODO.md` stays terse: one line per parent TODO. One definition file per TODO carries objective, assigned context/learnings, resumable subtasks, scope, non-obvious guidance, acceptance, validation, and logical route.
@@ -115,9 +117,9 @@ For each runnable TODO:
 
 1. reload authoritative state and recover interrupted state when necessary;
 2. validate shared-pattern registry when present;
-3. choose the actual provider/model/effort route from the TODO's declared route and its recorded `failure_classes` (evidence ladder), run the design phase first when `design_route` is set, and claim the TODO;
+3. choose the actual provider/model/effort route from the TODO's declared route and its recorded `failure_classes`/validation-stagnation floor (evidence ladder in `MODEL_ROUTING.md`), run the design phase first when `design_route` is set, and claim the TODO;
 4. start a **fresh worker** with exactly one task definition plus assigned context, learnings, and pattern files;
-5. never pass parent chat, the whole plan, future task definitions, raw reports, or logs;
+5. never pass parent chat, the whole plan, future task definitions, raw reports, or historical logs; pass only the compact latest-failure capsule and open at most its immediately preceding log when the excerpt is insufficient;
 6. checkpoint subtasks only through controllers;
 7. if implementation evidence requires a pattern revision, stop that task safely and revise through `patternctl` rather than diverging silently;
 8. require the bounded completion report, including exact assigned artifacts read and, when blocked, a `failure_class`;

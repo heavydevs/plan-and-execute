@@ -72,15 +72,21 @@ Runner consequences: worker prompts keep static rules first and per-task values 
 
 Route each semantic leaf to the cheapest model/effort credibly able to solve it. Newer models at lower effort can dominate older models at higher effort, while stronger models can finish hard work in fewer retries. Use cheap-first when failure is objectively detectable and cheap; start stronger for high-blast-radius decisions with weak validation. Escalate only from recorded `failure_class` evidence (`MODEL_ROUTING.md` §6); do not maintain a user-selected model ceiling.
 
-## 13. Bound tool/report output
+## 13. Compact superseded validation evidence
+
+Validation output streams directly to the per-attempt raw log, so a verbose 10-minute run does not need to stay in runner memory. Only a bounded tail is read back; the latest excerpt is kept as `last_error`. A deterministic normalized fingerprint identifies repeated failures without comparing or resummarizing old logs. After the first matching event, manifest history stores the signature, repeat count, and age instead of duplicating the full excerpt; the live `last_error` still holds only the newest bounded evidence. The next worker sees that capsule at the end of its prompt and may open only the immediately preceding validation log if needed. Never delete a log while its task is pending/blocked or while it is the current evidence for a failure. Normal plan cleanup removes per-plan logs after completion; the shared service map and monitor reports stay outside that directory.
+
+Resource probes should write compact JSONL with timestamps, check ID, status, and only explicitly safe bounded excerpts. Use `log_watch.py`'s persistent byte cursor for growing service logs so each interval and retry filters only new lines; it stores no log text and never modifies the source. Delete one cursor deliberately only when replaying its recent tail. Do not copy full service logs, MySQL process lists, browser traces, or Node diagnostic reports into prompts. Preserve those artifacts and pass their paths only when they are relevant to the newest failure.
+
+## 14. Bound tool/report output
 
 Full output belongs in logs. Model/state context gets only decision-relevant excerpts: bounded completion summaries, validation details, failure reasons plus class, risk/follow-up counts, learning guidance, and final repository-change summaries. Do not copy full stack traces/build output into retries when an error excerpt + log path is sufficient. Optional per-worker budgets (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway workers into resumable `budget` failures.
 
-## 14. Final summary uses compact authoritative state
+## 15. Final summary uses compact authoritative state
 
 Never concatenate raw worker reports into final-summary input. Use goal, task completion summaries, changed files, deterministic validation status, remaining risks/follow-ups, and bounded repository change evidence. Final/status prose uses an economy route when no difficult synthesis is required.
 
-## 15. Never optimize away quality anchors
+## 16. Never optimize away quality anchors
 
 Token reduction must not remove complete request evidence, requirement coverage for orchestrated remaining work, task scope/invariants, acceptance criteria, deterministic validation, material failure evidence, resume checkpoints, per-TODO model/effort routing, safety/path guards, or cleanup preservation.
 

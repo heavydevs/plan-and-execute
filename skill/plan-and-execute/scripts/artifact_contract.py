@@ -765,16 +765,24 @@ def install_plan_contract() -> Any:
         reason: str,
         *,
         rate_limited: bool = False,
+        failure_class: str | None = None,
+        validation_signature: str | None = None,
+        validation_stalled: bool = False,
+        validation_idle_seconds: int = 0,
+        validation_log: str | None = None,
     ) -> dict[str, Any]:
-        clipped = str(reason).strip()
-        if len(clipped) > 1400:
-            clipped = clipped[:1397].rstrip() + "..."
+        clipped = planctl.bounded_failure_reason(str(reason), 1400)
         return original_fail_task(
             plan_dir,
             manifest,
             task_id,
             clipped,
             rate_limited=rate_limited,
+            failure_class=failure_class,
+            validation_signature=validation_signature,
+            validation_stalled=validation_stalled,
+            validation_idle_seconds=validation_idle_seconds,
+            validation_log=validation_log,
         )
 
     def deterministic_summary(manifest: dict[str, Any]) -> str:

@@ -1,6 +1,6 @@
 # Project test resource map
 
-This project-local router maps every automated validation to the runtime services it needs and the checks that establish service health. Keep credentials outside this file. Health commands must be bounded and read-only.
+This project-local router maps every automated validation to its toolchain prerequisites, runtime services, and health checks. Keep credentials outside this file. Preflight commands and health probes must be bounded and read-only.
 
 <!-- pae-service-map:begin -->
 ```json
@@ -12,6 +12,7 @@ This project-local router maps every automated validation to the runtime service
     "digest": null,
     "source_count": 0
   },
+  "toolchains": [],
   "validations": [],
   "resources": []
 }

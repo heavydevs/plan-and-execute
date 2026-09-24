@@ -193,7 +193,11 @@ Classify before changing route:
 - **pattern evolution:** current shared contract must legitimately change; revise and invalidate affected signatories only;
 - **planning invalidation:** evidence disproves a material requirement, dependency, context boundary, architecture assumption, or validation strategy — `plan_defect`: stop downstream work and replan.
 
-Persist the smallest diagnostic excerpt that can guide the next attempt plus a log reference. The ladder (`MODEL_ROUTING.md` §6, provider rungs in the active provider file) climbs only from these classes; once evidence asks for a rung above the top on the last provider, the runner blocks the TODO (`ladder_exhausted`) so it is replanned rather than retried at the strongest route until `max_attempts`. Optional per-worker guards: `claude.max_turns`, `claude.max_budget_usd`, and `codex.rollout_token_budget` in `orchestrator.config.json`.
+Persist the smallest diagnostic excerpt that can guide the next attempt plus the newest validation-log path. Do not reread superseded logs: the runner fingerprints normalized validation failures, stores repeated occurrences as signature/count/age, and gives the next worker the latest bounded excerpt. If the latest excerpt is insufficient, that worker may open only the immediately preceding attempt's full log.
+
+The mapped validation watcher samples external resources during the run and, by default, watches for five minutes without changed output or increased process-group CPU while dependencies remain healthy. It then saves a bounded process snapshot, stops the stalled test process group, and marks the result semantic. The next fresh worker is raised to at least `strong`; if the previous route was already `strong`/`max`, use `max`. A repeated identical validation signature also activates that floor after five elapsed minutes across attempts. Environmental health failures keep the route stable. See `MODEL_ROUTING.md` §6 for the routing rule and `TEST_RESOURCE_MONITORING.md` for per-validation tuning/platform behavior.
+
+The ladder climbs only from these classes and stagnation evidence; once evidence asks for a rung above the top on the last provider, the runner blocks the TODO (`ladder_exhausted`) so it is replanned rather than retried at the strongest route until `max_attempts`. Optional per-worker guards: `claude.max_turns`, `claude.max_budget_usd`, and `codex.rollout_token_budget` in `orchestrator.config.json`.
 
 ## Validated learning
 

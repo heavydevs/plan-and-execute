@@ -3109,6 +3109,8 @@ def complete_task(
     task["status"] = "completed"
     task["completed_at"] = now_utc()
     task["last_error"] = None
+    task.pop("validation_stagnation", None)
+    task.pop("latest_validation_log", None)
     task["changed_files"] = clean_files
     task["validation_results"] = report.get("validation_results", []) if isinstance(report, dict) else []
     task["result_file"] = result_file
@@ -3139,6 +3141,15 @@ def normalize_failure_class(value: Any) -> str:
     return cls
 
 
+def bounded_failure_reason(value: str, limit: int = 1800) -> str:
+    text = value.strip()
+    if len(text) <= limit:
+        return text
+    head_size = min(420, limit // 3)
+    tail_size = max(0, limit - head_size - 24)
+    return text[:head_size].rstrip() + "\n[… middle omitted …]\n" + text[-tail_size:].lstrip()
+
+
 def fail_task(
     plan_dir: Path,
     manifest: dict[str, Any],
@@ -3147,6 +3158,10 @@ def fail_task(
     *,
     rate_limited: bool = False,
     failure_class: str | None = None,
+    validation_signature: str | None = None,
+    validation_stalled: bool = False,
+    validation_idle_seconds: int = 0,
+    validation_log: str | None = None,
 ) -> dict[str, Any]:
     """Record a failed attempt.
 
@@ -3168,7 +3183,40 @@ def fail_task(
         task["functional_failures"] += 1
         task.setdefault("failure_classes", []).append(cls)
         event = "failed"
-    task["last_error"] = reason.strip()[:4000]
+    now = now_utc()
+    task["last_error"] = bounded_failure_reason(reason)
+    recorded_reason = task["last_error"]
+    if not rate_limited:
+        if validation_signature:
+            if validation_log:
+                task["latest_validation_log"] = validation_log
+            previous = task.get("validation_stagnation")
+            same_signature = isinstance(previous, dict) and previous.get("signature") == validation_signature
+            first_at = previous.get("first_at") if same_signature else now
+            repeats = int(previous.get("repeats", 0)) + 1 if same_signature else 1
+            try:
+                first_time = dt.datetime.fromisoformat(str(first_at))
+                elapsed = max(0, int((dt.datetime.fromisoformat(now) - first_time).total_seconds()))
+            except (TypeError, ValueError):
+                first_at, elapsed = now, 0
+            triggered = bool(validation_stalled or elapsed >= 300 or (same_signature and previous.get("triggered") is True))
+            task["validation_stagnation"] = {
+                "signature": validation_signature,
+                "first_at": first_at,
+                "last_at": now,
+                "repeats": repeats,
+                "elapsed_seconds": elapsed,
+                "idle_seconds": max(0, int(validation_idle_seconds)),
+                "triggered": triggered,
+            }
+            if repeats > 1:
+                recorded_reason = (
+                    f"Repeated validation signature {validation_signature[:12]} "
+                    f"(repeat {repeats}; persisted {elapsed}s); latest excerpt is in last_error."
+                )
+        else:
+            task.pop("validation_stagnation", None)
+            task.pop("latest_validation_log", None)
     if not rate_limited and (
         task["functional_failures"] >= task["max_attempts"] or cls == "plan_defect"
     ):
@@ -3180,7 +3228,7 @@ def fail_task(
             "at": now_utc(),
             "event": event,
             "failure_class": cls,
-            "reason": task["last_error"],
+            "reason": recorded_reason,
             "recovered_subtasks": recovered_subtasks,
         }
     )
@@ -3189,7 +3237,7 @@ def fail_task(
         f"task_{event}",
         task_id=task["id"],
         failure_class=cls,
-        reason=task["last_error"],
+        reason=recorded_reason,
         recovered_subtasks=recovered_subtasks,
     )
     save_manifest(plan_dir, manifest)
