@@ -6,11 +6,13 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shlex
 import stat
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
@@ -279,6 +281,100 @@ sys.exit(1)
 '''
     path.write_text(script, encoding="utf-8")
     path.chmod(path.stat().st_mode | stat.S_IXUSR)
+
+
+def test_validation_timeout_selection() -> None:
+    raw = sample_spec()["tasks"][0]
+    task = planctl.normalize_task(raw, 0, {"R001", "R002"})
+    assert "validation_timeout_seconds" not in task
+    assert run_isolated.validation_timeout_seconds(task, {}) == 1800
+    assert run_isolated.validation_timeout_seconds(task, {"validation_timeout_seconds": 7}) == 7
+    for value in (0, 3):
+        task = planctl.normalize_task({**raw, "validation_timeout_seconds": value}, 0, {"R001"})
+        assert task["validation_timeout_seconds"] == value
+        assert run_isolated.validation_timeout_seconds(task, {"validation_timeout_seconds": 7}) == value
+    for value in (True, False, -1, 1.5, "3", None):
+        try:
+            planctl.normalize_task({**raw, "validation_timeout_seconds": value}, 0, {"R001"})
+        except planctl.PlanError as exc:
+            assert "validation_timeout_seconds" in str(exc)
+        else:
+            raise AssertionError(f"Accepted invalid timeout: {value!r}")
+
+
+def test_validation_timeout_byte_output() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp)
+        process = MagicMock()
+        process.communicate.side_effect = [
+            subprocess.TimeoutExpired("command", 1, output=b"partial \xff"),
+            (None, None),
+        ]
+        process.__enter__.return_value = process
+        with patch.object(run_isolated.subprocess, "Popen", return_value=process), patch.object(
+            run_isolated, "terminate_validation_tree"
+        ) as cleanup:
+            passed, results, reason = run_isolated.run_validation_commands(repo, ["command"], repo / "log", 1)
+        cleanup.assert_called_once_with(process)
+        assert not passed and results[0]["exit_code"] == 124
+        assert "partial \ufffd" in results[0]["output_tail"]
+        assert "Timed out after 1 seconds" in reason
+        assert "[exit 124]" in (repo / "log").read_text()
+
+
+def test_validation_timeout_windows_fallback() -> None:
+    for failure in (None, FileNotFoundError("taskkill"), subprocess.TimeoutExpired("taskkill", 10)):
+        process = MagicMock(pid=456)
+        process.poll.return_value = None
+        process.send_signal.side_effect = OSError("no console")
+        with patch.object(run_isolated.os, "name", "nt"), patch.object(
+            run_isolated.signal, "CTRL_BREAK_EVENT", 1, create=True
+        ), patch.object(run_isolated.time, "sleep"), patch.object(
+            run_isolated.subprocess, "run", side_effect=failure
+        ) as taskkill:
+            run_isolated.terminate_validation_tree(process)
+        assert taskkill.call_args.args[0] == ["taskkill", "/PID", "456", "/T", "/F"]
+        process.kill.assert_called_once()
+        process.wait.assert_called_once()
+
+
+def test_validation_timeout_descendant_cleanup() -> None:
+    if os.name == "nt":
+        return  # Windows fallback is tested with mocks above.
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp)
+        child = repo / "child.py"
+        child.write_text(
+            "import os, pathlib, signal, time\n"
+            "signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+            "pathlib.Path('child.pid').write_text(str(os.getpid()))\n"
+            "time.sleep(60)\n"
+        )
+        parent = repo / "parent.py"
+        parent.write_text(
+            "import subprocess, sys, time\n"
+            "subprocess.Popen([sys.executable, 'child.py'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n"
+            "sys.stdout.buffer.write(b'partial \\xff\\n'); sys.stdout.flush()\n"
+            "time.sleep(60)\n"
+        )
+        pid = None
+        try:
+            passed, results, _ = run_isolated.run_validation_commands(
+                repo, [f"{shlex.quote(sys.executable)} {shlex.quote(str(parent))}"], repo / "log", 1
+            )
+            pid = int((repo / "child.pid").read_text())
+            assert not passed and results[0]["exit_code"] == 124
+            assert "partial \ufffd" in results[0]["output_tail"]
+            status = subprocess.run(["ps", "-o", "stat=", "-p", str(pid)], text=True, capture_output=True)
+            assert not status.stdout.strip() or status.stdout.strip().startswith("Z"), status.stdout
+        finally:
+            if pid is None and (repo / "child.pid").exists():
+                pid = int((repo / "child.pid").read_text())
+            if pid is not None:
+                try:
+                    os.kill(pid, 9)
+                except ProcessLookupError:
+                    pass
 
 
 def test_plan_state() -> None:
@@ -926,6 +1022,101 @@ def test_end_to_end_runner() -> None:
         assert (repo / "implemented.txt").read_text(encoding="utf-8") == "implemented\n"
 
 
+def test_completion_metadata_recovery() -> None:
+    for scenario in ("vague_risks", "undeclared_learning", "required_subtasks"):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp) / "repo"
+            repo.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            plan_dir = planctl.create_plan(repo, sample_spec(), ".ai-work", scenario)
+            fake = Path(temp) / "fake-claude"
+            write_fake_claude(fake)
+            config = planctl.read_json(plan_dir / planctl.CONFIG)
+            config["provider_order"] = ["claude"]
+            config["allow_provider_fallback"] = False
+            config["stream_provider_output"] = False
+            config["claude"]["command"] = [sys.executable, str(fake)]
+            config["claude"]["models"] = {tier: "fake-model" for tier in run_isolated.TIER_ORDER}
+            config["summary"]["provider"] = "claude"
+            planctl.atomic_write_json(plan_dir / planctl.CONFIG, config)
+            original_parse = run_isolated.parse_provider_report
+            original_complete = planctl.complete_task
+            reports = []
+            calls = []
+            rejections = []
+
+            def parse_report(provider, stdout, result_path):
+                report = original_parse(provider, stdout, result_path)
+                if not reports:
+                    report["risks"] = ["TBD"]
+                    report["follow_ups"] = ["Maybe later"]
+                    if scenario == "vague_risks":
+                        report["summary"] = ""
+                    else:
+                        report["reusable_learnings"] = [{
+                            "kind": "code",
+                            "guidance": "The implementation marker must contain the implemented value.",
+                            "references": ["implemented.txt"],
+                            "target_task_ids": ["002"],
+                        }]
+                    if scenario == "required_subtasks":
+                        report["completed_subtask_ids"] = ["S999"]
+                reports.append(report.copy())
+                return report
+
+            def complete_with_persistence_check(directory, manifest, task_id, report, result_file):
+                # Both original and sanitized reports must exist before completion.
+                assert planctl.read_json(directory / result_file) == report
+                assert report["validation_results"] and all(
+                    item["passed"] for item in report["validation_results"]
+                )
+                calls.append((task_id, report.copy()))
+                if scenario == "vague_risks" and report["risks"]:
+                    # planctl currently ignores risks; simulate a completion text
+                    # contract rejecting vague metadata without weakening it.
+                    raise planctl.PlanError("Completion risks contain vague text: TBD")
+                try:
+                    return original_complete(directory, manifest, task_id, report, result_file)
+                except planctl.PlanError as exc:
+                    rejections.append(str(exc))
+                    raise
+
+            args = argparse.Namespace(
+                plan=str(plan_dir), provider=None, once=False, dry_run=False,
+                no_wait=True, no_cleanup=True,
+            )
+            with patch.object(run_isolated, "parse_provider_report", side_effect=parse_report), patch.object(
+                planctl, "complete_task", side_effect=complete_with_persistence_check
+            ):
+                assert run_isolated.run_plan(args) == 0
+
+            _, manifest = planctl.load_plan(plan_dir)
+            assert all(task["status"] == "completed" for task in manifest["tasks"])
+            first = manifest["tasks"][0]
+            original, sanitized = calls[0][1], calls[1][1]
+            assert calls[0][0] == calls[1][0] == "001"
+            for field in ("risks", "follow_ups", "reusable_learnings"):
+                assert sanitized[field] == []
+            for field in ("changed_files", "completed_subtask_ids", "validation_results"):
+                assert sanitized[field] == original[field]
+            assert sanitized["summary"] == (original["summary"] or "Task 001 completed and validated.")
+            saved = planctl.read_json(plan_dir / "results" / "001-attempt-1-claude.json")
+            if scenario == "required_subtasks":
+                assert first["attempts"] == 2
+                assert first["functional_failures"] == 1
+                failures = [event for event in first["history"] if event["event"] == "failed"]
+                assert len(failures) == 1 and "unknown completed subtasks" in failures[0]["reason"]
+                assert saved["orchestrator_status"] == "completion_failed"
+                assert len(calls) == 4, "one recovery retry, then a new attempt and the next task"
+            else:
+                assert first["attempts"] == 1 and first["functional_failures"] == 0
+                assert saved == sanitized
+                assert len(calls) == 3, "one recovery retry followed by the next task"
+            assert not manifest.get("learning_artifacts"), "undeclared learning must never be published"
+            if scenario == "undeclared_learning":
+                assert len(rejections) == 1 and "undeclared target(s): 002" in rejections[0]
+
+
 def test_end_to_end_design_phase() -> None:
     with tempfile.TemporaryDirectory() as temp:
         repo = Path(temp) / "repo"
@@ -1019,6 +1210,10 @@ def test_end_to_end_turn_limit_is_a_resumable_budget_failure() -> None:
 
 
 def main() -> int:
+    test_validation_timeout_selection()
+    test_validation_timeout_byte_output()
+    test_validation_timeout_windows_fallback()
+    test_validation_timeout_descendant_cleanup()
     test_plan_state()
     test_cycle_rejected()
     test_requirement_coverage_required()
@@ -1040,6 +1235,7 @@ def main() -> int:
     test_request_intake_and_vscode_editor()
     test_request_copy_move_and_concise_todo()
     test_end_to_end_runner()
+    test_completion_metadata_recovery()
     test_end_to_end_design_phase()
     test_end_to_end_turn_limit_is_a_resumable_budget_failure()
     print("All plan-and-execute self-tests passed.")

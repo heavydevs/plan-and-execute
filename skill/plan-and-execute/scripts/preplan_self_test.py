@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import io
 import subprocess
+import sys
 import tempfile
 from argparse import Namespace
 from contextlib import redirect_stdout
@@ -87,6 +88,60 @@ def test_primary_plan_spec_is_valid_schema_v4_and_routes_stages_independently() 
         assert all(not Path(path).is_absolute() for task in manifest["tasks"] for path in task["scope"]["expected_files"])
 
 
+def test_deep_primary_plan_uses_relative_package_guidance_and_validates_by_cli() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        root = Path(temp)
+        repository = root.joinpath(*(["deep_repository_path"] * 12))
+        repository.mkdir(parents=True)
+        subprocess.run(["git", "init", "-q"], cwd=repository, check=True)
+        source = root / "large.md"
+        large_source(source)
+        package_id = "long-primary-package-identifier-for-guidance-validation-" * 2
+        args = Namespace(
+            repo_root=str(repository),
+            work_root=planctl.WORK_ROOT_DEFAULT,
+            file=str(source),
+            force=True,
+            soft_tokens=preplanctl.SOFT_TOKENS,
+            hard_tokens=preplanctl.HARD_TOKENS,
+            breadth_token_floor=preplanctl.BREADTH_TOKEN_FLOOR,
+            breadth_headings=preplanctl.BREADTH_HEADINGS,
+            package_id=package_id,
+            target_fragment_tokens=preplanctl.TARGET_FRAGMENT_TOKENS,
+            max_fragment_tokens=preplanctl.MAX_FRAGMENT_TOKENS,
+        )
+        with redirect_stdout(io.StringIO()):
+            preplanctl.command_prepare(args)
+        package = repository / preplanctl.PREPARED_ROOT / package_id
+        plan_dir = Path(preplanctl.read_json(package / "package.json")["primary_plan"])
+        assert plan_dir.is_dir()
+        assert plan_dir.name != f"primary-{package_id}"
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).with_name("planctl_concise.py")),
+                "validate",
+                "--plan",
+                str(plan_dir),
+            ],
+            cwd=repository,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        assert "VALID" in result.stdout
+        manifest = preplanctl.read_json(plan_dir / "manifest.json")
+        package_locator = f"PACKAGE_ROOT=.ai-work/prepared/{package_id}"
+        assert manifest["execution_context"]["global"]["items"][0]["text"] == package_locator
+        context_file = plan_dir / manifest["execution_context"]["global"]["file"]
+        assert package_locator in context_file.read_text(encoding="utf-8")
+        for task in manifest["tasks"]:
+            guidance = "\n".join(task["implementation_guidance"])
+            assert str(repository) not in guidance
+            assert str(repository / ".ai-work" / "prepared" / package_id) not in guidance
+            assert "$PACKAGE_ROOT" in guidance
+
+
 def test_prepare_primary_plan_is_immediately_discoverable_by_lifecycle_resume() -> None:
     with tempfile.TemporaryDirectory() as temp:
         root = Path(temp)
@@ -122,6 +177,7 @@ def main() -> int:
     test_small_request_routes_directly_to_final_plan()
     test_large_structured_request_routes_to_primary_plan_and_preserves_source()
     test_primary_plan_spec_is_valid_schema_v4_and_routes_stages_independently()
+    test_deep_primary_plan_uses_relative_package_guidance_and_validates_by_cli()
     test_prepare_primary_plan_is_immediately_discoverable_by_lifecycle_resume()
     print("All staged primary-planning self-tests passed.")
     return 0

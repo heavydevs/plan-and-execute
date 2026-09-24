@@ -10,6 +10,7 @@ import json
 import math
 import re
 import shlex
+import subprocess
 import sys
 import zipfile
 from pathlib import Path
@@ -377,26 +378,21 @@ def boundary(why: str, separated: str) -> dict[str, Any]:
     }
 
 
-def repo_rel(path: Path, repo_root: Path) -> str:
-    try:
-        return path.resolve().relative_to(repo_root.resolve()).as_posix()
-    except ValueError as exc:
-        raise PreplanError(f"Prepared artifact must live under repository root: {path}") from exc
-
-
 def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) -> dict[str, Any]:
     index = read_json(package / "SOURCE_INDEX.json")["fragments"]
     batches = batch_fragments(index)
     python = shlex.quote(sys.executable)
     script = shlex.quote(str(Path(__file__).resolve()))
-    pkg_arg = shlex.quote(str(package))
+    package_root = PREPARED_ROOT / metadata["package_id"]
+    pkg_arg = shlex.quote(package_root.as_posix())
+    package_locator = "Use $PACKAGE_ROOT from the assigned shared execution context."
     tasks: list[dict[str, Any]] = []
 
     for batch_no, batch in enumerate(batches, 1):
         digest_id = f"D{batch_no:03d}"
         fragment_ids = [item["id"] for item in batch]
-        fragment_paths = [str(package / item["path"]) for item in batch]
-        output = package / "digests" / f"{digest_id}.json"
+        fragment_names = [Path(item["path"]).name for item in batch]
+        output = package_root / "digests" / f"{digest_id}.json"
         tasks.append(
             {
                 "id": batch_no,
@@ -412,12 +408,14 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
                 "scope": {
                     "in": ["Extract obligations, constraints, interfaces, dependencies, validation implications, pattern candidates, and material questions."],
                     "out": ["Do not implement software, invent architecture, or silently reconcile contradictions."],
-                    "expected_files": [repo_rel(output, repo_root)],
+                    "expected_files": [output.as_posix()],
                 },
                 "dependencies": [],
                 "implementation_guidance": [
-                    "Read only these immutable fragments: " + ", ".join(fragment_paths),
-                    f"Write {output} with digest_id, fragment_ids, obligations, constraints, interfaces, dependencies, validation_implications, pattern_candidates, material_questions.",
+                    package_locator,
+                    f"Read only immutable fragments in $PACKAGE_ROOT/fragments: {', '.join(fragment_names)}.",
+                    f"Write $PACKAGE_ROOT/digests/{digest_id}.json.",
+                    "Include digest_id, fragment_ids, obligations, constraints, interfaces, dependencies, validation_implications, pattern_candidates, and material_questions.",
                     "Each semantic item is an object with non-empty text and source_refs using only assigned fragment ids.",
                 ],
                 "acceptance_criteria": [f"{digest_id} covers exactly {', '.join(fragment_ids)} with primary-source references on every extracted semantic item."],
@@ -435,8 +433,8 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
 
     digest_ids = list(range(1, len(batches) + 1))
     synth_id = len(tasks) + 1
-    pattern_file = package / "PATTERN_SEEDS.json"
-    workstream_file = package / "WORKSTREAM_INDEX.json"
+    pattern_file = package_root / "PATTERN_SEEDS.json"
+    workstream_file = package_root / "WORKSTREAM_INDEX.json"
     tasks.append(
         {
             "id": synth_id,
@@ -452,13 +450,14 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
             "scope": {
                 "in": ["Merge repeated normative contracts, index workstreams/dependencies, and preserve contradictions with source refs."],
                 "out": ["Do not create final implementation TODOs or assign their model tiers."],
-                "expected_files": [repo_rel(pattern_file, repo_root), repo_rel(workstream_file, repo_root)],
+                "expected_files": [pattern_file.as_posix(), workstream_file.as_posix()],
             },
             "dependencies": digest_ids,
             "implementation_guidance": [
-                f"Read validated digests under {package / 'digests'} first; retrieve raw fragments only when verification changes the synthesis.",
-                f"Write {pattern_file} as {{patterns:[...]}}; each pattern has id, title, contract[], source_refs[], rationale, affected_domains[].",
-                f"Write {workstream_file} as {{workstreams:[...], dependencies:[...], contradictions:[...]}} with provenance.",
+                package_locator,
+                "Read validated digests under $PACKAGE_ROOT/digests first; retrieve raw fragments only when verification changes the synthesis.",
+                "Write $PACKAGE_ROOT/PATTERN_SEEDS.json as {patterns:[...]}; each pattern has id, title, contract[], source_refs[], rationale, affected_domains[].",
+                "Write $PACKAGE_ROOT/WORKSTREAM_INDEX.json as {workstreams:[...], dependencies:[...], contradictions:[...]} with provenance.",
             ],
             "acceptance_criteria": ["Cross-cutting contracts and workstreams are compact, source-referenced, and contradictions remain explicit."],
             "validation_commands": [f"{python} {script} validate-synthesis --package {pkg_arg}"],
@@ -474,7 +473,7 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
     )
 
     review_id = synth_id + 1
-    review_file = package / "COVERAGE_REVIEW.json"
+    review_file = package_root / "COVERAGE_REVIEW.json"
     tasks.append(
         {
             "id": review_id,
@@ -490,11 +489,12 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
             "scope": {
                 "in": ["Verify fragment coverage, provenance, contradiction inventory, and handoff safety."],
                 "out": ["Do not implement software or hide unresolved material findings."],
-                "expected_files": [repo_rel(review_file, repo_root)],
+                "expected_files": [review_file.as_posix()],
             },
             "dependencies": [synth_id],
             "implementation_guidance": [
-                f"Write {review_file} with status=approved|blocked, covered_fragment_ids, unresolved_material_findings, notes.",
+                package_locator,
+                "Write $PACKAGE_ROOT/COVERAGE_REVIEW.json with status=approved|blocked, covered_fragment_ids, unresolved_material_findings, notes.",
                 "Use a fresh context and retrieve raw fragments selectively for material claims instead of rereading the source wholesale.",
             ],
             "acceptance_criteria": ["Every SOURCE_INDEX fragment is covered by validated digests and unresolved material findings are explicit."],
@@ -511,7 +511,7 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
     )
 
     handoff_id = review_id + 1
-    handoff = package / "FINAL_PLAN_INPUT.md"
+    handoff = package_root / "FINAL_PLAN_INPUT.md"
     tasks.append(
         {
             "id": handoff_id,
@@ -527,11 +527,12 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
             "scope": {
                 "in": ["Summarize package identity, workstreams, pattern seeds, contradictions, and retrieval pointers."],
                 "out": ["Do not paste every fragment or preassign implementation routes."],
-                "expected_files": [repo_rel(handoff, repo_root)],
+                "expected_files": [handoff.as_posix()],
             },
             "dependencies": [review_id],
             "implementation_guidance": [
-                f"Write {handoff} from compact package artifacts only, preserving stable fragment/digest ids and paths.",
+                package_locator,
+                "Write $PACKAGE_ROOT/FINAL_PLAN_INPUT.md from compact package artifacts only, preserving stable fragment/digest ids and paths.",
                 "The final planner must be able to retrieve exact primary evidence on demand without receiving the whole source in context.",
             ],
             "acceptance_criteria": ["The prepared package validates and FINAL_PLAN_INPUT points to the immutable evidence graph."],
@@ -548,7 +549,7 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
     )
 
     return {
-        "title": f"Prepare oversized request {metadata['package_id']}",
+        "title": "Prepare oversized request",
         "summary": "Create a source-traceable prepared request package for ordinary final planning; no product implementation occurs in this plan.",
         "language": "auto",
         "request_analysis": {
@@ -570,9 +571,17 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
         "global_constraints": ["Primary-plan work must not implement product code or bind final implementation model routes."],
         "execution_context": {
             "global": {
-                "decision": "omit",
-                "rationale": "Every primary TODO receives explicit prepared-package paths and a complete bounded output contract in its own definition.",
-                "items": [],
+                "decision": "create",
+                "rationale": "Every primary TODO needs the exact prepared-package locator while keeping its own guidance concise.",
+                "items": [
+                    {
+                        "id": "PACKAGE_ROOT",
+                        "kind": "fact",
+                        "text": f"PACKAGE_ROOT={package_root.as_posix()}",
+                        "necessity": "Every primary-plan task needs the exact repository-relative package location to resolve its assigned inputs and outputs.",
+                        "source_refs": ["Prepared package metadata"],
+                    }
+                ],
             },
             "scoped": [],
         },
@@ -712,7 +721,35 @@ def command_prepare(args: argparse.Namespace) -> None:
     package, metadata = create_package(repo, source, assessment, args.package_id, args.target_fragment_tokens, args.max_fragment_tokens)
     spec = make_primary_spec(repo, package, metadata)
     write_json(package / "PRIMARY_PLAN_SPEC.json", spec)
-    plan_dir = planctl.create_plan(repo, spec, args.work_root, f"primary-{metadata['package_id']}")
+    plan_id = f"primary-{metadata['package_id']}"
+    concise = Path(__file__).with_name("planctl_concise.py")
+    try:
+        created = subprocess.run(
+            [
+                sys.executable,
+                str(concise),
+                "create",
+                "--repo-root",
+                str(repo),
+                "--spec",
+                str(package / "PRIMARY_PLAN_SPEC.json"),
+                "--work-root",
+                args.work_root,
+                "--plan-id",
+                plan_id,
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise PreplanError(exc.stderr.strip() or "Unable to create primary plan") from exc
+    created_path = created.stdout.strip()
+    if not created_path:
+        raise PreplanError("Primary-plan creation did not return its plan path")
+    plan_dir = Path(created_path)
+    if not plan_dir.is_absolute():
+        plan_dir = (repo / plan_dir).resolve()
     metadata = read_json(package / "package.json")
     metadata.update({"state": "primary_plan_created", "primary_plan": str(plan_dir)})
     write_json(package / "package.json", metadata)

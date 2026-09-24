@@ -824,6 +824,48 @@ def output_tail(text: str, length: int = 3000) -> str:
     return stripped[-length:] if stripped else ""
 
 
+def validation_timeout_seconds(task: dict[str, Any], config: dict[str, Any]) -> int:
+    configured = task.get("validation_timeout_seconds", config.get("validation_timeout_seconds", 1800))
+    return max(0, int(configured))
+
+
+def decode_validation_output(output: str | bytes | None) -> str:
+    return output.decode("utf-8", errors="replace") if isinstance(output, bytes) else output or ""
+
+
+def terminate_validation_tree(process: subprocess.Popen, grace_seconds: float = 2) -> None:
+    """Allow graceful exit, then kill the group even if its shell has exited."""
+    if os.name == "nt":
+        try:
+            process.send_signal(signal.CTRL_BREAK_EVENT)
+        except (AttributeError, OSError):
+            pass
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    time.sleep(grace_seconds)
+    if os.name == "nt":
+        try:
+            subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+        # Covers unavailable taskkill and a shell that survived tree cleanup.
+        if process.poll() is None:
+            process.kill()
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    process.wait()
+
+
 def run_validation_commands(
     repo_root: Path,
     commands: list[str],
@@ -836,23 +878,34 @@ def run_validation_commands(
         for command in commands:
             print(f"[validate] {command}", flush=True)
             log.write(f"$ {command}\n")
-            try:
-                completed = subprocess.run(
-                    command,
-                    cwd=repo_root,
-                    shell=True,
-                    text=True,
-                    encoding="utf-8",
-                    errors="replace",
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    timeout=timeout_seconds or None,
-                )
-                output = completed.stdout or ""
-                exit_code = completed.returncode
-            except subprocess.TimeoutExpired as exc:
-                output = (exc.stdout or "") + f"\nTimed out after {timeout_seconds} seconds"
-                exit_code = 124
+            group_options = (
+                {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
+                if os.name == "nt" else {"start_new_session": True}
+            )
+            with subprocess.Popen(
+                command,
+                cwd=repo_root,
+                shell=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                **group_options,
+            ) as process:
+                try:
+                    output, _ = process.communicate(timeout=timeout_seconds or None)
+                    output = decode_validation_output(output)
+                    exit_code = process.returncode
+                except subprocess.TimeoutExpired as exc:
+                    terminate_validation_tree(process)
+                    try:
+                        remaining, _ = process.communicate(timeout=2)
+                    except subprocess.TimeoutExpired as cleanup_exc:
+                        remaining = cleanup_exc.stdout
+                    output = decode_validation_output(remaining if remaining is not None else exc.stdout)
+                    output += f"\nTimed out after {timeout_seconds} seconds"
+                    exit_code = 124
             log.write(output)
             if output and not output.endswith("\n"):
                 log.write("\n")
@@ -1076,7 +1129,7 @@ def execute_one_task(
             repo_root,
             list(task["validation_commands"]),
             validation_log,
-            max(0, int(config.get("validation_timeout_seconds", 1800))),
+            validation_timeout_seconds(task, config),
         )
         report["validation_results"] = validation_results
         reported_files = report.get("changed_files")
@@ -1099,7 +1152,29 @@ def execute_one_task(
         report["orchestrator_status"] = "completed"
         planctl.atomic_write_json(result_path, report)
         relative_result = result_path.relative_to(plan_dir).as_posix()
-        planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result)
+        try:
+            planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result)
+        except planctl.PlanError as exc:
+            # Optional worker metadata must not strand validated work in progress.
+            # Keep required completion evidence so a retry cannot bypass its checks.
+            print(f"[task {task['id']}] completion report rejected: {exc}; retrying without optional metadata", file=sys.stderr)
+            report = {
+                **report,
+                "summary": report.get("summary") or f"Task {task['id']} completed and validated.",
+                "risks": [],
+                "follow_ups": [],
+                "reusable_learnings": [],
+            }
+            planctl.atomic_write_json(result_path, report)
+            try:
+                planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result)
+            except planctl.PlanError as retry_exc:
+                reason = f"Completion report rejected after metadata recovery: {retry_exc} (initial error: {exc})"
+                report["orchestrator_status"] = "completion_failed"
+                planctl.atomic_write_json(result_path, report)
+                planctl.fail_task(plan_dir, manifest, task["id"], reason)
+                print(f"[task {task['id']}] {reason}", file=sys.stderr)
+                return False
         print(f"[task {task['id']}] completed and validated", flush=True)
         return True
 

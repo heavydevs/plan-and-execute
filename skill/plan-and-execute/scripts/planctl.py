@@ -1378,6 +1378,12 @@ def normalize_task(
 
     acceptance = ensure_str_list(raw.get("acceptance_criteria"), f"Task {task_id} acceptance_criteria")
     validations = ensure_str_list(raw.get("validation_commands"), f"Task {task_id} validation_commands")
+    timeout_override = {}
+    if "validation_timeout_seconds" in raw:
+        timeout = raw["validation_timeout_seconds"]
+        if type(timeout) is not int or timeout < 0:
+            raise PlanError(f"Task {task_id}: validation_timeout_seconds must be a nonnegative integer")
+        timeout_override["validation_timeout_seconds"] = timeout
     if not acceptance:
         raise PlanError(f"Task {task_id} requires at least one acceptance criterion")
     if not validations:
@@ -1404,6 +1410,7 @@ def normalize_task(
         ),
         "acceptance_criteria": acceptance,
         "validation_commands": validations,
+        **timeout_override,
         "provider": provider,
         "model_tier": tier,
         "reasoning_effort": effort,

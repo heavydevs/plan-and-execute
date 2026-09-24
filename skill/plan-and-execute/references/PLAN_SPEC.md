@@ -166,6 +166,7 @@ A scoped file must serve at least two but fewer than all TODOs. Single-task fact
 - `scope.in/out` states boundaries, not the implementation narrative.
 - `implementation_guidance` contains only non-obvious, task-specific guidance.
 - Acceptance is observable; validation is executable.
+- Optional task `validation_timeout_seconds` is a nonnegative integer (booleans are invalid), applied to each validation command. Omission inherits the global configuration (default `1800` seconds); explicit `0` disables the timeout. Timed-out validation commands exit with `124`, preserve partial output using UTF-8 replacement decoding, and terminate their process tree after a short cleanup grace period.
 - Subtasks are resumable checkpoints, not hidden independent deliverables.
 
 ### `learning_targets`
