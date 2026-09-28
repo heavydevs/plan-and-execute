@@ -6,6 +6,28 @@
 
 [Leia em Português](README.pt-BR.md)
 
+## Configurable routing and advisory diagnosis (unreleased)
+
+This branch adds user-global/per-plan provider chains for each logical tier, bounded availability fallback, and an optional diagnostic assistant. The existing DIRECT escape, semantic escalation, resumable TODOs and deterministic acceptance gates remain intact.
+
+From a checkout containing these changes:
+
+```bash
+node bin/plan-and-execute.js configure
+node bin/plan-and-execute.js configure --show --json
+node bin/plan-and-execute.js configure --plan .ai-work/<plan-id>
+```
+
+After installing this version, the same command is `pae configure`. It asks one numbered question at a time, checks documented non-generative authentication status where available, and saves only after confirmation. `--dry-run` does not save. This is not yet an npm release.
+
+Defaults merge with your global configuration and then explicit plan overrides; dictionaries merge and lists replace. New version-2 overlays inherit global settings, while legacy full snapshots keep their previous behavior. For each tier, choose a primary and ordered fallbacks independently of the assistant. Quota/authentication/capacity failures keep the logical tier and functional failure count; exhausted chains pause with exit 75 and persisted cooldowns rather than looping.
+
+**The assistant is off by default.** It can explain ambiguous repeated failures, repeated unhealthy checks or confirmed stalls after deterministic validation fails. One attempt per task, bounded/redacted evidence and strict JSON keep coordination limited. Advice never edits files, executes suggested commands or approves a task. Actual token/cost savings have not been measured.
+
+**Native advisory limitation:** only Claude Code bare/tool-less mode is implemented, with an explicitly supplied `ANTHROPIC_API_KEY` (API billing, not subscription OAuth). Antigravity is selectable as the preferred assistant but safely skips because its workspace-write sandbox is not a verified read-only boundary. Other advisory profiles also skip until verified; the seven coding adapters are unaffected. Check billing and confidentiality before opting in.
+
+See [routing configuration](skill/plan-and-execute/references/ROUTING_CONFIG.md), [advisory safety and limits](skill/plan-and-execute/references/ASSISTANTS.md), and [research/evaluation protocol](docs/research/AUXILIARY_ROUTING.md). The implementation plan is retained in `.ai-work/20260928-auxiliary-routing` at the user's request; ordinary guarded cleanup remains available.
+
 ## What changed in 0.9
 
 The routing foundation from 0.8 is unchanged:
@@ -17,7 +39,7 @@ DIRECT by default -> ORCHESTRATE by evidence -> PROMOTE when necessary
 0.9 makes model routing evidence-based end to end instead of size- or count-based:
 
 - **Escalation follows classified evidence, not a retry count.** A failed attempt records `failure_class` (`mechanical`, `semantic`, `environmental`, `budget`, `plan_defect`, `unknown`); `mechanical`/`budget` repeat the rung once then climb, `semantic` jumps straight to the next stronger tier, `environmental` leaves the route alone, and `plan_defect` blocks the TODO for replanning instead of burning attempts. When evidence asks for a rung above the strongest one on the last available provider, the TODO is blocked (`ladder_exhausted`) rather than retried at the top route until `max_attempts`.
-- **A small root model is a delegator, not a ceiling.** The skill never switches the root session's model/effort — that invalidates the provider's prompt cache — so a leaf whose floor exceeds the root tier is delegated to a fresh worker instead. `routingctl.py route --signals ...` and a leaf-signal table in `SKILL.md` give a cheap root model the same floors a frontier root would use, protected by a `tier-evals.json` regression corpus.
+- **A small root model is a delegator, not a ceiling.** The skill never switches the root session's model/effort — this keeps the root route stable; exact cache keys depend on the provider — so a leaf whose floor exceeds the root tier is delegated to a fresh worker instead. `routingctl.py route --signals ...` and a leaf-signal table in `SKILL.md` give a cheap root model the same floors a frontier root would use, protected by a `tier-evals.json` regression corpus.
 - **Two-phase leaves** (`design_route`): a `high` TODO can have a stronger worker write a bounded design note first, then implement at its own cheaper route with that note.
 - **Decision-first planning** (`request_analysis.hard_decisions`): when only a few planning decisions are hard, resolve them with strong workers before a standard planner writes the mechanical plan.
 - **One model catalog** (`routingctl.py`) backs every entrypoint; effort is omitted for models that reject it (Claude Haiku); optional per-worker budgets (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway workers into resumable `budget` failures instead of technical ones.

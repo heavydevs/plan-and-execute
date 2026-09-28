@@ -6,6 +6,28 @@
 
 [English version](README.md)
 
+## Roteamento configurável e diagnóstico auxiliar (ainda não publicado no npm)
+
+Esta versão acrescenta cadeias de provedores por nível, configuração global e por plano, troca limitada por indisponibilidade e diagnóstico auxiliar opcional. Continuam intactos o modo DIRECT, a escalada por falhas reais, os TODOs retomáveis e a validação determinística.
+
+Em um checkout que contenha estas mudanças:
+
+```bash
+node bin/plan-and-execute.js configure
+node bin/plan-and-execute.js configure --show --json
+node bin/plan-and-execute.js configure --plan .ai-work/<plan-id>
+```
+
+Depois de instalar esta versão, use `pae configure`. O assistente apresenta uma pergunta numerada de cada vez, consulta autenticação sem gerar texto quando há comando documentado e grava somente após confirmação. `--dry-run` permite simular sem salvar. Estas mudanças ainda não foram publicadas no npm.
+
+A precedência é padrões da skill < configuração global < ajustes explícitos do plano. Objetos são mesclados; listas são substituídas. Planos novos usam pequenos overlays de versão 2; snapshots completos antigos preservam seu comportamento. Escolha principal e alternativas ordenadas de cada nível separadamente do assistente. Falta de crédito, autenticação ou capacidade não aumenta a dificuldade: esgotadas as alternativas, o runner pausa com código 75 e preserva os intervalos de espera e os checkpoints.
+
+**O diagnóstico auxiliar vem desligado.** Ele recebe evidência limitada e com remoção de segredos por melhores esforços, somente depois de falhas elegíveis na validação. O padrão permite uma tentativa por tarefa. A sugestão não altera arquivos, executa comandos nem aprova tarefas. A economia real de tokens ainda não foi medida.
+
+**Limitação importante:** a execução auxiliar nativa foi implementada somente para Claude Code em modo bare, sem ferramentas, com `ANTHROPIC_API_KEY` explícita. Isso cobra na API, não na assinatura OAuth. Antigravity pode ser selecionado, mas é ignorado com aviso: seu sandbox permite escrita e não satisfaz a fronteira somente leitura exigida. Outros perfis auxiliares também aguardam verificação; os sete adaptadores de desenvolvimento continuam funcionando. Confira a conta de cobranção e a confidencialidade antes de habilitar.
+
+Consulte [configuração](skill/plan-and-execute/references/ROUTING_CONFIG.md), [segurança e limites](skill/plan-and-execute/references/ASSISTANTS.md) e [pesquisa e protocolo de avaliação](docs/research/AUXILIARY_ROUTING.md). O plano desta implementação foi preservado em `.ai-work/20260928-auxiliary-routing`, conforme solicitado; a limpeza protegida normal continua disponível.
+
 ## O que mudou na 0.9
 
 A regra central da 0.8 continua a mesma:
@@ -17,7 +39,7 @@ DIRECT por padrão -> ORCHESTRATE por evidência -> PROMOTE quando necessário
 A 0.9 torna o roteamento de modelo baseado em evidência de ponta a ponta, em vez de baseado em tamanho ou contagem:
 
 - **Escalada por evidência classificada, não por contagem de tentativas.** Uma falha registra `failure_class` (`mechanical`, `semantic`, `environmental`, `budget`, `plan_defect`, `unknown`); `mechanical`/`budget` repetem o degrau uma vez e depois sobem, `semantic` pula direto para o próximo tier mais forte, `environmental` mantém a rota, e `plan_defect` bloqueia o TODO para replanejamento em vez de queimar tentativas. Quando a evidência pede um degrau acima do mais forte no último provider disponível, o TODO é bloqueado (`ladder_exhausted`) em vez de repetido no tier máximo até `max_attempts`.
-- **Um modelo raiz pequeno é um delegador, não um teto.** A skill nunca troca o modelo/effort da sessão raiz — isso invalida o cache de prompt do provider — então uma folha cujo piso excede o tier raiz é delegada a um worker fresco. `routingctl.py route --signals ...` e uma tabela de sinais no `SKILL.md` dão a um modelo raiz barato os mesmos pisos que um modelo raiz frontier usaria, protegidos por um corpus de regressão (`tier-evals.json`).
+- **Um modelo raiz pequeno é um delegador, não um teto.** A skill nunca troca o modelo/effort da sessão raiz — isso preserva uma rota estável; as chaves exatas de cache dependem do provedor — então uma folha cujo piso excede o tier raiz é delegada a um worker fresco. `routingctl.py route --signals ...` e uma tabela de sinais no `SKILL.md` dão a um modelo raiz barato os mesmos pisos que um modelo raiz frontier usaria, protegidos por um corpus de regressão (`tier-evals.json`).
 - **Folha em duas fases** (`design_route`): um TODO `high` pode ter um worker mais forte escrevendo uma nota de design bounded primeiro, e depois implementar na sua própria rota mais barata com essa nota.
 - **Planejamento "decisões primeiro"** (`request_analysis.hard_decisions`): quando só algumas decisões do plano são difíceis, resolvê-las com workers fortes antes de um planner padrão escrever o plano mecânico.
 - **Um único catálogo de modelos** (`routingctl.py`) alimenta todos os entrypoints; o effort é omitido para modelos que o rejeitam (Claude Haiku); orçamentos opcionais por worker (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) transformam workers descontrolados em falhas `budget` retomáveis em vez de técnicas.
@@ -252,7 +274,7 @@ python skill/plan-and-execute/scripts/routingctl.py route --signals bounded_impl
 # {"tier": "strong", "effort": "high"}
 ```
 
-A skill **nunca troca o modelo/effort da sessão raiz** (isso invalida o cache de prompt do provider). Quando o modelo raiz está abaixo do piso de uma folha — inclusive quando a skill começa em Haiku ou Luna — ela delega essa folha a um worker fresco no tier do piso, com prompt mínimo, e consome só o resultado compacto. Um modelo raiz pequeno é um delegador, não um teto; também não existe teto escolhido pelo usuário.
+A skill **nunca troca o modelo/effort da sessão raiz** (isso preserva uma rota estável; as chaves exatas de cache dependem do provedor). Quando o modelo raiz está abaixo do piso de uma folha — inclusive quando a skill começa em Haiku ou Luna — ela delega essa folha a um worker fresco no tier do piso, com prompt mínimo, e consome só o resultado compacto. Um modelo raiz pequeno é um delegador, não um teto; também não existe teto escolhido pelo usuário.
 
 ### Escalada por evidência classificada
 

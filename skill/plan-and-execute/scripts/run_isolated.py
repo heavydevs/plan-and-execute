@@ -30,6 +30,9 @@ sys.path.insert(0, str(SCRIPT_DIR))
 import planctl  # noqa: E402
 import lifecyclectl  # noqa: E402
 import routingctl  # noqa: E402
+import routing_config  # noqa: E402
+import availability  # noqa: E402
+import assistant_triage  # noqa: E402
 import process_tree  # noqa: E402
 
 TIER_ORDER = routingctl.TIER_ORDER
@@ -94,10 +97,10 @@ def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]
 
 
 def load_config(plan_dir: Path) -> dict[str, Any]:
-    raw = planctl.read_json(plan_dir / planctl.CONFIG)
-    if not isinstance(raw, dict):
-        raise RunnerError(f"{planctl.CONFIG} must contain a JSON object")
-    return deep_merge(planctl.default_config(), raw)
+    try:
+        return routing_config.load(planctl.default_config(), plan_dir / planctl.CONFIG)
+    except routing_config.ConfigError as exc:
+        raise RunnerError(str(exc)) from exc
 
 
 def resolve_windows_shim(parts: list[str]) -> list[str]:
@@ -115,7 +118,7 @@ def resolve_windows_shim(parts: list[str]) -> list[str]:
 
 
 def command_prefix(value: Any) -> list[str]:
-    if isinstance(value, list) and all(isinstance(item, str) for item in value):
+    if isinstance(value, list) and value and all(isinstance(item, str) and item.strip() for item in value):
         return resolve_windows_shim(list(value))
     if isinstance(value, str) and value.strip():
         text = value.strip()
@@ -171,21 +174,10 @@ def clamp_effort(provider_cfg: dict[str, Any], tier: str, effort: str) -> str:
 
 def candidate_providers(task: dict[str, Any], config: dict[str, Any], override: str | None) -> list[str]:
     requested = override or task.get("provider", "auto")
-    order = [str(item) for item in config.get("provider_order", ["claude", "codex"])]
-    supported = planctl.VALID_PROVIDERS - {"auto"}
-    order = [item for item in order if item in supported]
-    if not order:
-        order = ["claude", "codex"]
-
-    if requested in supported:
-        providers = [requested]
-        allow_fallback = bool(task.get("allow_provider_fallback", True)) and bool(
-            config.get("allow_provider_fallback", True)
-        )
-        if allow_fallback:
-            providers.extend(item for item in order if item != requested)
-    else:
-        providers = order
+    try:
+        providers = routing_config.provider_chain(task, config, override)
+    except routing_config.ConfigError as exc:
+        raise RunnerError(str(exc)) from exc
 
     available: list[str] = []
     for provider in providers:
@@ -198,8 +190,9 @@ def candidate_providers(task: dict[str, Any], config: dict[str, Any], override: 
     return available
 
 
-def choose_route(task: dict[str, Any], config: dict[str, Any], override: str | None) -> dict[str, str]:
-    providers = candidate_providers(task, config, override)
+def choose_route(task: dict[str, Any], config: dict[str, Any], override: str | None, *, check_availability: bool = True) -> dict[str, str]:
+    providers = (candidate_providers(task, config, override) if check_availability
+                 else routing_config.provider_chain(task, config, override))
     failures_per_provider = max(1, int(config.get("functional_failures_per_provider", 4)))
     failures = int(task.get("functional_failures", 0))
     provider_slot = failures // failures_per_provider
@@ -236,12 +229,13 @@ def choose_route(task: dict[str, Any], config: dict[str, Any], override: str | N
         )
         ladder_step = max(ladder_step, floor_step)
     tier, effort = rungs[min(ladder_step, len(rungs) - 1)]
+    requested_effort = effort
     effort = clamp_effort(provider_cfg, tier, effort)
     models = provider_cfg.get("models", {})
     model = str(models.get(tier, "")).strip()
     if not model:
         raise RunnerError(f"No model configured for {provider}/{tier}")
-    return {"provider": provider, "tier": tier, "model": model, "effort": effort}
+    return {"provider": provider, "tier": tier, "model": model, "effort": effort, "requested_effort": requested_effort}
 
 
 def completion_schema_path() -> Path:
@@ -728,6 +722,8 @@ def run_process(
                 errors="replace",
                 bufsize=1,
             )
+        except FileNotFoundError:
+            return 127, "", "Provider executable disappeared after preflight"
         except OSError as exc:
             raise RunnerError(f"Failed to start provider process: {exc}") from exc
         assert process.stdout is not None
@@ -895,7 +891,7 @@ def is_provider_availability_failure(
     text: str,
     config: dict[str, Any],
 ) -> bool:
-    return return_code in configured_retry_exit_codes(provider, config) or is_rate_limited(text)
+    return availability.classify(return_code, text, configured_retry_exit_codes(provider, config)) in {*availability.CATEGORIES, "configured_exit"}
 
 
 def output_tail(text: str, length: int = 3000) -> str:
@@ -1010,12 +1006,18 @@ def run_validation_commands(
             log.flush()
             output = read_log_tail_since(log_path, output_start)
             passed = exit_code == 0
+            # Keep only a bounded first-failure window; raw logs stay on disk.
+            with log_path.open("rb") as evidence_log:
+                evidence_log.seek(output_start)
+                first_window = evidence_log.read(1200).decode("utf-8", errors="replace")
             results.append(
                 {
                     "command": command,
                     "passed": passed,
                     "exit_code": exit_code,
                     "output_tail": output_tail(output, 2000),
+                    "output_head": first_window if not passed else "",
+                    **assistant_triage.observations(output),
                     "failure_class": (
                         "environmental"
                         if "[resource-watch] environment_failure=" in output
@@ -1117,9 +1119,13 @@ def execute_one_task(
     no_wait: bool,
 ) -> bool:
     repo_root = Path(manifest["repo_root"])
-    rate_cycle = 0
+    dispatches = 0
+    visited = {"design": set(), "implementation": set()}
+    maximum = config.get("availability", {}).get("max_attempts_per_run", 7)
     while True:
-        if not dry_run and ladder_exhausted(task, config, provider_override):
+        if dispatches >= maximum:
+            raise availability.AvailabilityPaused(f"Task {task['id']} pending: availability dispatch budget reached; resume later")
+        if not dry_run and ladder_exhausted(task, config, provider_override, check_availability=False):
             planctl.block_task(
                 plan_dir,
                 manifest,
@@ -1130,22 +1136,30 @@ def execute_one_task(
             )
             print(f"[task {task['id']}] blocked: escalation ladder exhausted; replan", file=sys.stderr)
             return False
-        if needs_design_phase(task):
+        phase = "design" if needs_design_phase(task) else "implementation"
+        routing_task = design_route_task(task) if phase == "design" else task
+        intent = choose_route(routing_task, config, provider_override, check_availability=False)
+        route = availability.select(
+            plan_dir, routing_task, config, intent, provider_override, phase, visited[phase],
+            lambda provider: executable_available(command_prefix(config[provider].get("command", provider))),
+            clamp_effort, persist=not dry_run,
+        )
+        visited[phase].add(route["provider"])
+        dispatches += 1
+        if phase == "design":
             outcome = run_design_phase(
-                plan_dir, manifest, config, task, provider_override=provider_override, dry_run=dry_run
+                plan_dir, manifest, config, task, provider_override=provider_override, dry_run=dry_run, route_override=route
             )
             if outcome == "rate_limited":
                 task = planctl.find_task(manifest, task["id"])
-                if wait_after_rate_limit(config, rate_cycle, no_wait):
-                    rate_cycle += 1
-                    continue
-                raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
+                continue
             if outcome != "completed":
                 return False
             task = planctl.find_task(manifest, task["id"])
-        route = choose_route(task, config, provider_override)
+            continue
         result_path = normalized_result_file(plan_dir, task, route)
         prompt = append_design_note(worker_prompt(plan_dir, manifest, task, route), plan_dir, task)
+        prompt += assistant_triage.hint(plan_dir, task, config)
         command = build_worker_command(route["provider"], route, config, prompt, result_path)
         if dry_run:
             print(json.dumps({"task": task["id"], "route": route, "command": redact_command(command)}, indent=2))
@@ -1171,21 +1185,18 @@ def execute_one_task(
             raise
 
         combined = f"{stdout}\n{stderr}"
-        if return_code != 0 and is_provider_availability_failure(
-            route["provider"], return_code, combined, config
-        ):
-            planctl.fail_task(
-                plan_dir,
-                manifest,
-                task["id"],
-                f"Provider rate/usage limit (exit {return_code}): {output_tail(combined)}",
-                rate_limited=True,
-            )
+        if return_code in (130, 143, -2, -15):
+            release_interrupted_task(plan_dir, manifest, task["id"])
+            raise KeyboardInterrupt
+        category = availability.classify(return_code, combined, configured_retry_exit_codes(route["provider"], config))
+        if category == "configuration":
+            planctl.fail_task(plan_dir, manifest, task["id"], "Provider rejected its arguments/model; repair configuration", failure_class="plan_defect")
+            return False
+        if category:
+            availability.unavailable(plan_dir, task["id"], "implementation", route, category, config)
+            planctl.fail_task(plan_dir, manifest, task["id"], f"Provider unavailable: {route['provider']}/{category}", rate_limited=True)
             task = planctl.find_task(manifest, task["id"])
-            if wait_after_rate_limit(config, rate_cycle, no_wait):
-                rate_cycle += 1
-                continue
-            raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
+            continue
 
         report = parse_provider_report(route["provider"], stdout, result_path)
         if return_code != 0:
@@ -1223,12 +1234,10 @@ def execute_one_task(
         if report.get("status") != "completed":
             reason = str(report.get("blocked_reason") or report.get("summary") or "Worker reported blocked")
             if is_rate_limited(reason):
-                planctl.fail_task(plan_dir, manifest, task["id"], reason, rate_limited=True)
+                availability.unavailable(plan_dir, task["id"], "implementation", route, "quota", config)
+                planctl.fail_task(plan_dir, manifest, task["id"], "Worker reported provider quota exhaustion", rate_limited=True)
                 task = planctl.find_task(manifest, task["id"])
-                if wait_after_rate_limit(config, rate_cycle, no_wait):
-                    rate_cycle += 1
-                    continue
-                raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
+                continue
             cls = classify_report_failure(report, reason)
             planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
             atomic = {**report, "orchestrator_status": "failed"}
@@ -1284,6 +1293,12 @@ def execute_one_task(
                 ),
                 validation_log=validation_log.relative_to(plan_dir).as_posix(),
             )
+            advice_result = assistant_triage.triage(plan_dir, task, validation_results, config)
+            if advice_result.get("reason") != "not_eligible":
+                report["assistant_triage"] = advice_result
+                planctl.atomic_write_json(result_path, report)
+                print(f"[task {task['id']}] advisory triage: {advice_result['status']}; "
+                      f"{advice_result.get('reason', 'unverified advice saved')}", file=sys.stderr)
             print(f"[task {task['id']}] deterministic validation failed ({cls}); next route follows the evidence ladder", file=sys.stderr)
             return False
 
@@ -1317,12 +1332,13 @@ def execute_one_task(
         return True
 
 
-def ladder_exhausted(task: dict[str, Any], config: dict[str, Any], override: str | None) -> bool:
+def ladder_exhausted(task: dict[str, Any], config: dict[str, Any], override: str | None, *, check_availability: bool = True) -> bool:
     """True when failure evidence already climbed past the top rung on the last provider."""
     classes = task.get("failure_classes")
     if not isinstance(classes, list) or not classes:
         return False
-    providers = candidate_providers(task, config, override)
+    providers = (candidate_providers(task, config, override) if check_availability
+                 else routing_config.provider_chain(task, config, override))
     failures_per_provider = max(1, int(config.get("functional_failures_per_provider", 4)))
     provider_slot = int(task.get("functional_failures", 0)) // failures_per_provider
     if provider_slot < len(providers) - 1:
@@ -1351,10 +1367,11 @@ def run_design_phase(
     *,
     provider_override: str | None,
     dry_run: bool,
+    route_override: dict[str, str] | None = None,
 ) -> str:
     """Phase 1 of a two-phase leaf. Returns completed | failed | rate_limited."""
     repo_root = Path(manifest["repo_root"])
-    route = choose_route(design_route_task(task), config, provider_override)
+    route = route_override or choose_route(design_route_task(task), config, provider_override)
     note_relative = design_note_relative(task)
     note_path = plan_dir / note_relative
     result_path = plan_dir / "results" / f"{task['id']}-design-attempt-{task['attempts'] + 1}-{route['provider']}.json"
@@ -1379,16 +1396,22 @@ def run_design_phase(
         release_interrupted_task(plan_dir, manifest, task["id"])
         raise
     combined = f"{stdout}\n{stderr}"
-    if return_code != 0 and is_provider_availability_failure(route["provider"], return_code, combined, config):
-        planctl.fail_task(
-            plan_dir,
-            manifest,
-            task["id"],
-            f"Provider rate/usage limit during design (exit {return_code}): {output_tail(combined)}",
-            rate_limited=True,
-        )
+    if return_code in (130, 143, -2, -15):
+        release_interrupted_task(plan_dir, manifest, task["id"])
+        raise KeyboardInterrupt
+    category = availability.classify(return_code, combined, configured_retry_exit_codes(route["provider"], config))
+    if category == "configuration":
+        planctl.fail_task(plan_dir, manifest, task["id"], "Design provider rejected its arguments/model; repair configuration", failure_class="plan_defect")
+        return "failed"
+    if category:
+        availability.unavailable(plan_dir, task["id"], "design", route, category, config)
+        planctl.fail_task(plan_dir, manifest, task["id"], f"Design provider unavailable: {route['provider']}/{category}", rate_limited=True)
         return "rate_limited"
     report = parse_provider_report(route["provider"], stdout, result_path)
+    if report and report.get("status") != "completed" and is_rate_limited(str(report.get("blocked_reason", ""))):
+        availability.unavailable(plan_dir, task["id"], "design", route, "quota", config)
+        planctl.fail_task(plan_dir, manifest, task["id"], "Design worker reported quota exhaustion", rate_limited=True)
+        return "rate_limited"
     note_text = note_path.read_text(encoding="utf-8").strip() if note_path.is_file() else ""
     if return_code != 0 or not report or report.get("status") != "completed" or not note_text:
         reason = (
@@ -1843,7 +1866,10 @@ def main() -> int:
     args = build_parser().parse_args()
     try:
         return run_plan(args)
-    except (planctl.PlanError, RunnerError) as exc:
+    except availability.AvailabilityPaused as exc:
+        print(f"PAUSED: {exc}", file=sys.stderr)
+        return 75
+    except (planctl.PlanError, RunnerError, availability.AvailabilityError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 

@@ -332,15 +332,12 @@ def install_current_model_catalog(planctl_module: Any) -> Any:
 
 
 def install_runtime_model_catalog(run_module: Any) -> Any:
-    """Normalize persisted legacy plan config after the runner loads it."""
-    if getattr(run_module, "_current_model_catalog_installed", False):
-        return run_module
-    original_load_config = run_module.load_config
+    """Apply the current catalog to defaults, never to explicit loaded settings.
 
-    def current_load_config(plan_dir: Any) -> dict[str, Any]:
-        return configure_config(original_load_config(plan_dir))
-
-    run_module.load_config = current_load_config
+    The old post-load wrapper silently replaced user model names, effort caps
+    and models_without_effort. Layering owns persisted configuration now.
+    """
+    install_current_model_catalog(run_module.planctl)
     run_module._current_model_catalog_installed = True
     return run_module
 

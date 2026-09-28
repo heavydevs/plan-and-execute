@@ -1,0 +1,24 @@
+{
+  "task_id": "002",
+  "status": "completed",
+  "summary": "Validated global/per-plan overlays, tier chains, legacy snapshots and embedded-effort model handling; 10 focused tests plus provider/catalog regressions passed.",
+  "changed_files": [
+    "skill/plan-and-execute/scripts/routing_config.py",
+    "skill/plan-and-execute/scripts/routing_config_self_test.py",
+    "skill/plan-and-execute/scripts/run_isolated.py",
+    "skill/plan-and-execute/scripts/planctl.py"
+  ],
+  "completed_subtask_ids": [
+    "S001"
+  ],
+  "validation_results": [
+    {
+      "validation": "ROUTING_CONFIG",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "Host-managed execution; no independent model worker or authenticated provider invocation.",
+    "Full suite has a pre-existing timeout mock failure, reproduced unchanged in baseline checkout; addressed in task 006."
+  ]
+}

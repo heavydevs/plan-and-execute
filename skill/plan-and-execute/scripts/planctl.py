@@ -2094,7 +2094,8 @@ def create_plan(
             plan_dir / task["file"],
             render_task(task, normalized_plan_id, Path(work_root).as_posix()),
         )
-    atomic_write_json(plan_dir / CONFIG, default_config())
+    from routing_config import plan_overlay
+    atomic_write_json(plan_dir / CONFIG, plan_overlay())
     save_manifest(plan_dir, manifest)
     errors = validate_plan(plan_dir, manifest)
     if errors:

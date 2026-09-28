@@ -55,6 +55,12 @@ Uso da implementacao:
   pae cancel [opcoes]               Cancelar e apagar o plano ativo
   pae reset [opcoes]                Apagar todos os planos reconhecidos no workspace
 
+Configuracao de roteamento (sem chamadas de geracao):
+  pae configure                     Perguntas separadas; salva no perfil do usuario
+  pae configure --plan <diretorio>   Substituicoes para um plano existente
+  pae configure --config <arquivo>   Destino explicito
+  pae configure --show [--json]      Mostrar configuracao sem gravar
+
 Uso da instalacao:
   pae install [claude|codex|both] [opcoes]
   pae status [claude|codex|both] [opcoes]
@@ -117,7 +123,7 @@ export function parseArguments(argv) {
   const options = {
     agent: 'both', scope: 'workspace', workspaceDir: process.cwd(), activation: 'selective',
     force: false, dryRun: false, json: false, provider: null, once: false, noWait: false,
-    noCleanup: false, allPlans: false
+    noCleanup: false, allPlans: false, configPath: null, planPath: null, showConfig: false
   };
   let showHelp = false;
   let showVersion = false;
@@ -147,6 +153,9 @@ export function parseArguments(argv) {
       case '--codex': options.agent = 'codex'; break;
       case '--both': options.agent = 'both'; break;
       case '--provider': options.provider = requireValue(args, index, arg).toLowerCase(); index += 1; break;
+      case '--config': options.configPath = requireValue(args, index, arg); index += 1; break;
+      case '--plan': options.planPath = requireValue(args, index, arg); index += 1; break;
+      case '--show': options.showConfig = true; break;
       case '--once': options.once = true; break;
       case '--no-wait': options.noWait = true; break;
       case '--no-cleanup': options.noCleanup = true; break;
@@ -217,17 +226,17 @@ function printDoctor(report, json) {
   console.log(`Ordem padrao: ${report.defaultProviderOrder.join(' -> ')}`);
 }
 
-function pythonCandidates(scriptArgs) {
+function pythonCandidates(scriptArgs, script = lifecycleScript) {
   if (process.platform === 'win32') return [
-    ['py', ['-3', lifecycleScript, ...scriptArgs]],
-    ['python', [lifecycleScript, ...scriptArgs]],
-    ['python3', [lifecycleScript, ...scriptArgs]]
+    ['py', ['-3', script, ...scriptArgs]],
+    ['python', [script, ...scriptArgs]],
+    ['python3', [script, ...scriptArgs]]
   ];
-  return [['python3', [lifecycleScript, ...scriptArgs]], ['python', [lifecycleScript, ...scriptArgs]]];
+  return [['python3', [script, ...scriptArgs]], ['python', [script, ...scriptArgs]]];
 }
 
-function runLifecycle(scriptArgs, options, { stream = false } = {}) {
-  for (const [command, args] of pythonCandidates(scriptArgs)) {
+function runLifecycle(scriptArgs, options, { stream = false, script = lifecycleScript } = {}) {
+  for (const [command, args] of pythonCandidates(scriptArgs, script)) {
     const result = spawnSync(command, args, {
       cwd: path.resolve(options.workspaceDir),
       encoding: stream ? undefined : 'utf8',
@@ -278,6 +287,19 @@ async function main() {
       case 'paths': printResults(resolveTargets(options).map((target) => ({ ...target, action: 'target' })), options.json); break;
       case 'uninstall': printResults(uninstallSkill(options), options.json); break;
       case 'doctor': printDoctor(executionDoctorReport(), options.json); break;
+      case 'configure': {
+        const args = [];
+        if (options.configPath) args.push('--config', path.resolve(options.workspaceDir, options.configPath));
+        if (options.planPath) args.push('--plan', path.resolve(options.workspaceDir, options.planPath));
+        if (options.showConfig) args.push('--show');
+        if (options.json) args.push('--json');
+        if (options.dryRun) args.push('--dry-run');
+        process.exitCode = runLifecycle(args, options, {
+          stream: !options.showConfig,
+          script: path.join(packageRoot, 'skill', 'plan-and-execute', 'scripts', 'configure.py')
+        });
+        break;
+      }
       case 'current': process.exitCode = runLifecycle(lifecycleArguments('current', options), options); break;
       case 'resume': process.exitCode = runLifecycle(lifecycleArguments('resume', options), options, { stream: true }); break;
       case 'cancel': process.exitCode = runLifecycle(lifecycleArguments('cancel', options), options); break;

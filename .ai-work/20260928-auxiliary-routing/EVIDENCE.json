@@ -1,0 +1,28 @@
+{
+  "base": "da785e567f5f3c6640f1ba3e0caf39900e4b0310",
+  "validation": "npm run check",
+  "linux_exit_code": 0,
+  "node_tests_passed": 27,
+  "new_python_tests": {
+    "routing_config": 10,
+    "availability": 15,
+    "configure": 12,
+    "assistant_triage": 17
+  },
+  "instruction_characters": {
+    "SKILL.md": {
+      "before_chars": 7727,
+      "after_chars": 6826
+    },
+    "references/ORCHESTRATION.md": {
+      "before_chars": 12877,
+      "after_chars": 11963
+    },
+    "references/TOKEN_EFFICIENCY.md": {
+      "before_chars": 10480,
+      "after_chars": 9909
+    }
+  },
+  "native_generation_tested": false,
+  "billed_token_savings_measured": false
+}
