@@ -79,6 +79,19 @@ class RunnerError(RuntimeError):
     """Raised for runner-specific failures."""
 
 
+def claude_bare_flags() -> list[str]:
+    """Return `--bare` only when API-key credentials exist; bare mode rejects subscription OAuth logins."""
+    return ["--bare"] if os.environ.get("ANTHROPIC_API_KEY") else []
+
+
+def _plan_relative_files(files: Any, plan_dir: Path) -> Any:
+    """Normalize assigned-file names so repository-relative and plan-relative spellings compare equal."""
+    if not isinstance(files, list):
+        return files
+    marker = plan_dir.name + "/"
+    return [item.split(marker, 1)[1] if isinstance(item, str) and marker in item else item for item in files]
+
+
 def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
     merged: dict[str, Any] = {}
     for key, value in base.items():
@@ -552,8 +565,7 @@ def build_worker_command(
         raise RunnerError(f"{provider}.extra_args must be a list of strings")
 
     if provider == "claude":
-        command = prefix + [
-            "--bare",
+        command = prefix + claude_bare_flags() + [
             "--print",
             "--no-session-persistence",
             "--output-format",
@@ -1213,7 +1225,7 @@ def execute_one_task(
             return False
         expected_context_files = list(task.get("context_files", []))
         reported_context_files = report.get("context_files_read")
-        if reported_context_files != expected_context_files:
+        if _plan_relative_files(reported_context_files, plan_dir) != _plan_relative_files(expected_context_files, plan_dir):
             reason = (
                 "Worker context report mismatch: expected "
                 f"{expected_context_files!r}, received {reported_context_files!r}"
@@ -1223,7 +1235,7 @@ def execute_one_task(
             return False
         expected_learning_files = list(task.get("learning_files", []))
         reported_learning_files = report.get("learning_files_read")
-        if reported_learning_files != expected_learning_files:
+        if _plan_relative_files(reported_learning_files, plan_dir) != _plan_relative_files(expected_learning_files, plan_dir):
             reason = (
                 "Worker learning report mismatch: expected "
                 f"{expected_learning_files!r}, received {reported_learning_files!r}"
@@ -1504,8 +1516,7 @@ def build_summary_command(
     prefix = command_prefix(provider_cfg.get("command", provider))
     extra_args = provider_cfg.get("extra_args", [])
     if provider == "claude":
-        command = prefix + [
-            "--bare",
+        command = prefix + claude_bare_flags() + [
             "--print",
             "--no-session-persistence",
             "--output-format",
