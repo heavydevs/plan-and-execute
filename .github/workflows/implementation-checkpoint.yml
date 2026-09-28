@@ -1,0 +1,26 @@
+name: Implementation checkpoint
+
+on:
+  push:
+    branches: [feature/auxiliary-assistants-tier-routing-20260928]
+
+permissions:
+  contents: read
+
+jobs:
+  checkpoint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Preserve an exact resumable Git snapshot
+        run: git bundle create repository.bundle --all
+      - uses: actions/upload-artifact@v4
+        with:
+          name: implementation-checkpoint
+          path: repository.bundle
+          retention-days: 7
+          if-no-files-found: error
