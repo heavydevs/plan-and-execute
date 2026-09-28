@@ -15,7 +15,7 @@ if not (root / '.git').exists() or plan != root / '.ai-work' / '20260928-auxilia
 if (plan / '.runner-lease.json').exists():
     raise SystemExit('Resolve the runner lease through lifecyclectl before rebinding.')
 sys.path.insert(0, str(root / 'skill/plan-and-execute/scripts'))
-import planctl
+from planctl_concise import planctl
 manifest = json.loads((plan / 'manifest.json').read_text(encoding='utf-8'))
 sentinel = json.loads((plan / '.orchestrator-plan').read_text(encoding='utf-8'))
 if manifest['plan_id'] != plan.name or sentinel['plan_id'] != plan.name:

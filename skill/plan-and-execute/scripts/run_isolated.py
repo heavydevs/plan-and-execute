@@ -30,6 +30,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 import planctl  # noqa: E402
 import lifecyclectl  # noqa: E402
 import routingctl  # noqa: E402
+import routing_config  # noqa: E402
 import process_tree  # noqa: E402
 
 TIER_ORDER = routingctl.TIER_ORDER
@@ -94,10 +95,10 @@ def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]
 
 
 def load_config(plan_dir: Path) -> dict[str, Any]:
-    raw = planctl.read_json(plan_dir / planctl.CONFIG)
-    if not isinstance(raw, dict):
-        raise RunnerError(f"{planctl.CONFIG} must contain a JSON object")
-    return deep_merge(planctl.default_config(), raw)
+    try:
+        return routing_config.load(planctl.default_config(), plan_dir / planctl.CONFIG)
+    except routing_config.ConfigError as exc:
+        raise RunnerError(str(exc)) from exc
 
 
 def resolve_windows_shim(parts: list[str]) -> list[str]:
@@ -115,7 +116,7 @@ def resolve_windows_shim(parts: list[str]) -> list[str]:
 
 
 def command_prefix(value: Any) -> list[str]:
-    if isinstance(value, list) and all(isinstance(item, str) for item in value):
+    if isinstance(value, list) and value and all(isinstance(item, str) and item.strip() for item in value):
         return resolve_windows_shim(list(value))
     if isinstance(value, str) and value.strip():
         text = value.strip()
@@ -171,21 +172,10 @@ def clamp_effort(provider_cfg: dict[str, Any], tier: str, effort: str) -> str:
 
 def candidate_providers(task: dict[str, Any], config: dict[str, Any], override: str | None) -> list[str]:
     requested = override or task.get("provider", "auto")
-    order = [str(item) for item in config.get("provider_order", ["claude", "codex"])]
-    supported = planctl.VALID_PROVIDERS - {"auto"}
-    order = [item for item in order if item in supported]
-    if not order:
-        order = ["claude", "codex"]
-
-    if requested in supported:
-        providers = [requested]
-        allow_fallback = bool(task.get("allow_provider_fallback", True)) and bool(
-            config.get("allow_provider_fallback", True)
-        )
-        if allow_fallback:
-            providers.extend(item for item in order if item != requested)
-    else:
-        providers = order
+    try:
+        providers = routing_config.provider_chain(task, config, override)
+    except routing_config.ConfigError as exc:
+        raise RunnerError(str(exc)) from exc
 
     available: list[str] = []
     for provider in providers:

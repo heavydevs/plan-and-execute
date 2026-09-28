@@ -210,7 +210,7 @@
   "language": "English",
   "summary_status": "pending",
   "created_at": "2026-09-28T14:46:26+00:00",
-  "updated_at": "2026-09-28T15:06:53+00:00",
+  "updated_at": "2026-09-28T15:14:24+00:00",
   "tasks": [
     {
       "id": "001",
@@ -414,29 +414,91 @@
           "title": "Implement and verify the bounded contract",
           "objective": "Load validated global and plan overlays without freezing defaults or changing legacy snapshots.",
           "required": true,
-          "status": "pending",
-          "started_at": null,
-          "completed_at": null,
-          "history": []
+          "status": "completed",
+          "started_at": "2026-09-28T15:02:05+00:00",
+          "completed_at": "2026-09-28T15:06:58+00:00",
+          "history": [
+            {
+              "at": "2026-09-28T15:02:05+00:00",
+              "event": "started",
+              "previous_status": "pending"
+            },
+            {
+              "at": "2026-09-28T15:06:58+00:00",
+              "event": "completed",
+              "previous_status": "in_progress"
+            }
+          ]
         }
       ],
       "learning_targets": [],
       "learning_files": [],
       "published_learning_files": [],
       "max_attempts": 8,
-      "status": "pending",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "functional_failures": 0,
       "failure_classes": [],
       "rate_limit_events": 0,
-      "current_route": null,
-      "started_at": null,
-      "completed_at": null,
+      "current_route": {
+        "provider": "host-managed",
+        "tier": "strong",
+        "model": "current-chat-model",
+        "effort": "high",
+        "isolation": "unavailable"
+      },
+      "started_at": "2026-09-28T15:02:04+00:00",
+      "completed_at": "2026-09-28T15:06:59+00:00",
       "last_error": null,
-      "history": [],
-      "changed_files": [],
-      "validation_results": [],
-      "result_file": null,
+      "history": [
+        {
+          "at": "2026-09-28T15:02:04+00:00",
+          "event": "claimed",
+          "route": {
+            "provider": "host-managed",
+            "tier": "strong",
+            "model": "current-chat-model",
+            "effort": "high",
+            "isolation": "unavailable"
+          }
+        },
+        {
+          "at": "2026-09-28T15:02:05+00:00",
+          "event": "subtask_started",
+          "subtask_id": "S001"
+        },
+        {
+          "at": "2026-09-28T15:06:58+00:00",
+          "event": "subtask_completed",
+          "subtask_id": "S001"
+        },
+        {
+          "at": "2026-09-28T15:06:59+00:00",
+          "event": "completed",
+          "result_file": "reports/002.json",
+          "published_learning_files": []
+        }
+      ],
+      "changed_files": [
+        ".ai-work/20260928-auxiliary-routing/TODO.md",
+        ".ai-work/20260928-auxiliary-routing/manifest.json",
+        ".ai-work/20260928-auxiliary-routing/tasks/001-refine-collaboration-requirements-and-acceptance.md",
+        ".ai-work/20260928-auxiliary-routing/tasks/002-implement-layered-tier-routing-configuration.md",
+        ".ai-work/20260928-auxiliary-routing/tasks/003-implement-resumable-availability-failover.md",
+        ".ai-work/20260928-auxiliary-routing/tasks/004-implement-sequential-routing-configuration-wizard.md",
+        ".ai-work/20260928-auxiliary-routing/tasks/005-implement-safe-budgeted-validation-assistance.md",
+        ".ai-work/20260928-auxiliary-routing/tasks/006-review-complete-skill-and-validate-integrations.md",
+        ".ai-work/SERVICE_MAP.md",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py"
+      ],
+      "validation_results": [
+        {
+          "validation": "ROUTING_CONFIG",
+          "exit_code": 0
+        }
+      ],
+      "result_file": "reports/002.json",
       "context_files": [],
       "file": "tasks/002-implement-layered-tier-routing-configuration.md",
       "related_task_files": []
@@ -847,6 +909,36 @@
       "at": "2026-09-28T14:49:49+00:00",
       "type": "task_completed",
       "task_id": "001",
+      "published_learning_files": []
+    },
+    {
+      "at": "2026-09-28T15:02:04+00:00",
+      "type": "task_claimed",
+      "task_id": "002",
+      "route": {
+        "provider": "host-managed",
+        "tier": "strong",
+        "model": "current-chat-model",
+        "effort": "high",
+        "isolation": "unavailable"
+      }
+    },
+    {
+      "at": "2026-09-28T15:02:05+00:00",
+      "type": "subtask_started",
+      "task_id": "002",
+      "subtask_id": "S001"
+    },
+    {
+      "at": "2026-09-28T15:06:58+00:00",
+      "type": "subtask_completed",
+      "task_id": "002",
+      "subtask_id": "S001"
+    },
+    {
+      "at": "2026-09-28T15:06:59+00:00",
+      "type": "task_completed",
+      "task_id": "002",
       "published_learning_files": []
     }
   ],
