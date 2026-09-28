@@ -1238,6 +1238,11 @@ def main() -> int:
     test_completion_metadata_recovery()
     test_end_to_end_design_phase()
     test_end_to_end_turn_limit_is_a_resumable_budget_failure()
+    subprocess.run(
+        [sys.executable, str(SCRIPT_DIR / "provider_policy_self_test.py")],
+        check=True,
+        timeout=90,
+    )
     print("All plan-and-execute self-tests passed.")
     return 0
 

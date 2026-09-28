@@ -1,5 +1,7 @@
 # Selective activation routing
 
+DIRECT skips orchestration state, not an explicit executor restriction. Follow [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md): delegate bounded technical work only to authorized providers, or pause when unavailable; never create a large plan solely to enforce this.
+
 Use this reference only when DIRECT vs ORCHESTRATED is ambiguous, when evaluating routing quality, or when maintaining the skill metadata. The normal gate lives in `SKILL.md` so a false-positive invocation can exit without loading this file.
 
 ## Objective

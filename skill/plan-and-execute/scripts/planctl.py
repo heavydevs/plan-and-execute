@@ -22,9 +22,10 @@ from typing import Any, Iterable
 
 import requestctl
 import routingctl
+import provider_policy
 
 SCHEMA_VERSION = 4
-SUPPORTED_SCHEMA_VERSIONS = {1, 2, 3, 4}
+SUPPORTED_SCHEMA_VERSIONS = {1, 2, 3, 4, 5}
 SENTINEL = ".orchestrator-plan"
 MANIFEST = "manifest.json"
 CONFIG = "orchestrator.config.json"
@@ -1172,7 +1173,13 @@ def normalize_design_route(raw: Any, task_id: str, complexity: str) -> dict[str,
         raise PlanError(f"Task {task_id}: design_route.reasoning_effort {effort!r} is invalid")
     if effort == "low":
         raise PlanError(f"Task {task_id}: design_route.reasoning_effort may not be low; design is reasoning work")
-    return {"model_tier": tier, "reasoning_effort": effort}
+    result = {"model_tier": tier, "reasoning_effort": effort}
+    if "provider" in raw:
+        provider = str(raw["provider"]).strip().lower()
+        if provider not in VALID_PROVIDERS:
+            raise PlanError(f"Task {task_id}: invalid design_route.provider {provider!r}")
+        result["provider"] = provider
+    return result
 
 
 def normalize_context_boundary(raw: Any, task_id: str) -> dict[str, Any]:
@@ -1713,6 +1720,7 @@ def render_plan(manifest: dict[str, Any]) -> str:
 
 ## Execution policy
 
+{provider_policy.plan_notice(manifest)}
 - Start automatically after validation: **{'yes' if manifest['autostart'] else 'no'}**
 - Delete planning artifacts after successful summary: **{'yes' if manifest['cleanup_on_success'] else 'no'}**
 - Default execution: sequential for write tasks; parallel only for read-only tasks or isolated worktrees.
@@ -1915,10 +1923,12 @@ def load_plan(plan_arg: str | Path) -> tuple[Path, dict[str, Any]]:
         raise PlanError(f"Plan path mismatch: expected {expected_lexical}, got {candidate}")
     if expected_lexical.resolve() != candidate.resolve():
         raise PlanError("Plan path resolves outside its expected repository location")
+    provider_policy.verify_snapshot(candidate, manifest)
     return candidate, manifest
 
 
 def save_manifest(plan_dir: Path, manifest: dict[str, Any]) -> None:
+    provider_policy.verify_snapshot(plan_dir, manifest)
     manifest["updated_at"] = now_utc()
     statuses = {task["status"] for task in manifest["tasks"]}
     if statuses == {"completed"}:
@@ -1955,7 +1965,12 @@ def create_plan(
     plan_id: str | None,
     request_file: str | Path | None = None,
     move_request: bool = False,
+    execution_policy: dict[str, Any] | None = None,
 ) -> Path:
+    spec = provider_policy.attach(spec, execution_policy)
+    policy = provider_policy.from_document(spec)
+    provider_policy.validate_routes(spec)
+    schema_version = provider_policy.PLAN_SCHEMA_VERSION if policy is not None else SCHEMA_VERSION
     repo_root = repo_root.expanduser().resolve()
     if not repo_root.is_dir():
         raise PlanError(f"Repository root is not a directory: {repo_root}")
@@ -1993,7 +2008,7 @@ def create_plan(
     requirement_coverage(requirements, tasks)
     execution_context = normalize_execution_context(spec.get("execution_context"), tasks)
     assign_context_files(tasks, execution_context)
-    plan_review = normalize_plan_review(spec.get("plan_review"), SCHEMA_VERSION)
+    plan_review = normalize_plan_review(spec.get("plan_review"), schema_version)
 
     request_source_path: Path | None = None
     request_source: dict[str, Any] | None = None
@@ -2047,7 +2062,7 @@ def create_plan(
         ]
 
     manifest: dict[str, Any] = {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": schema_version,
         "plan_id": normalized_plan_id,
         "title": title,
         "summary": summary,
@@ -2069,6 +2084,10 @@ def create_plan(
         "learning_artifacts": [],
         "events": [{"at": created, "type": "plan_created"}],
     }
+    if policy is not None:
+        manifest[provider_policy.FIELD] = policy
+        if "planning_provenance" in spec:
+            manifest["planning_provenance"] = spec["planning_provenance"]
     if request_source is not None:
         manifest["request_source"] = request_source
         manifest["events"].append(
@@ -2081,10 +2100,9 @@ def create_plan(
         )
         shutil.copy2(request_source_path, plan_dir / REQUEST_FILE)
 
-    atomic_write_json(
-        plan_dir / SENTINEL,
-        {"schema_version": SCHEMA_VERSION, "plan_id": normalized_plan_id, "repo_root": str(repo_root)},
-    )
+    sentinel = {"schema_version": schema_version, "plan_id": normalized_plan_id, "repo_root": str(repo_root)}
+    provider_policy.seal(plan_dir, manifest, sentinel)
+    atomic_write_json(plan_dir / SENTINEL, sentinel)
     atomic_write_text(plan_dir / "ANALYSIS.md", render_analysis(manifest))
     atomic_write_text(plan_dir / "PLAN.md", render_plan(manifest))
     atomic_write_text(plan_dir / "PLAN_REVIEW.md", render_plan_review(manifest))
@@ -2127,6 +2145,10 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
     if manifest is None:
         plan_dir, manifest = load_plan(plan_dir)
     errors: list[str] = []
+    try:
+        provider_policy.verify_snapshot(plan_dir, manifest)
+    except provider_policy.PolicyError as exc:
+        errors.append(str(exc))
     schema_version = manifest.get("schema_version")
     if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
         errors.append(f"Unsupported schema_version: {schema_version}")
@@ -2139,7 +2161,7 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
     except PlanError as exc:
         errors.append(str(exc))
 
-    if schema_version in {2, 3, 4}:
+    if schema_version in {2, 3, 4, 5}:
         analysis: dict[str, Any] | None = None
         normalized_requirements: list[dict[str, Any]] = []
         try:
@@ -2205,10 +2227,10 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
             if not (plan_dir / required_file).is_file():
                 errors.append(f"Missing {required_file}")
 
-    if schema_version in {3, 4}:
+    if schema_version in {3, 4, 5}:
         errors.extend(validate_context_artifacts(plan_dir, manifest, tasks))
 
-    if schema_version == 4:
+    if schema_version in {4, 5}:
         errors.extend(validate_learning_artifacts(plan_dir, manifest, tasks))
 
     for task in tasks:
@@ -2227,7 +2249,7 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
         task_path = plan_dir / rel
         if not task_path.is_file():
             errors.append(f"Task {task_id}: definition file missing: {rel}")
-        elif schema_version == 4:
+        elif schema_version in {4, 5}:
             expected_task = render_task(
                 task,
                 str(manifest.get("plan_id", "")),
@@ -3052,6 +3074,8 @@ def remove_learning_artifacts_from_source(
 
 
 def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: dict[str, Any] | None) -> dict[str, Any]:
+    provider_policy.verify_snapshot(plan_dir, manifest)
+    provider_policy.require_provider(provider_policy.from_document(manifest), (route or {}).get("provider"))
     task = find_task(manifest, task_id)
     if task["status"] != "pending":
         raise PlanError(f"Task {task['id']} is not pending; current status: {task['status']}")
@@ -3086,6 +3110,9 @@ def complete_task(
     report: dict[str, Any],
     result_file: str | None,
 ) -> dict[str, Any]:
+    provider_policy.verify_snapshot(plan_dir, manifest)
+    current = find_task(manifest, task_id).get("current_route") or {}
+    provider_policy.require_provider(provider_policy.from_document(manifest), current.get("provider"))
     task = find_task(manifest, task_id)
     if task["status"] != "in_progress":
         raise PlanError(f"Task {task['id']} is not in progress")
@@ -3280,6 +3307,8 @@ def complete_design_phase(
     route: dict[str, Any] | None,
 ) -> dict[str, Any]:
     """Persist that a two-phase leaf's design note exists and was accepted."""
+    provider_policy.verify_snapshot(plan_dir, manifest)
+    provider_policy.require_provider(provider_policy.from_document(manifest), (route or {}).get("provider"))
     task = find_task(manifest, task_id)
     if not task.get("design_route"):
         raise PlanError(f"Task {task['id']} has no design_route")
@@ -3440,6 +3469,10 @@ def command_create(args: argparse.Namespace) -> None:
         args.plan_id,
         request_file=args.request_file,
         move_request=args.move_request,
+        execution_policy=provider_policy.reconcile(
+            provider_policy.read_policy(args.policy) if getattr(args, "policy", None) else None,
+            provider_policy.from_csv(args.allowed_providers) if getattr(args, "allowed_providers", None) is not None else None,
+        ),
     )
     print(plan_dir)
 
@@ -3580,6 +3613,8 @@ def build_parser() -> argparse.ArgumentParser:
     create.add_argument("--spec", required=True)
     create.add_argument("--work-root", default=WORK_ROOT_DEFAULT)
     create.add_argument("--plan-id")
+    create.add_argument("--policy", help="User-authorized executor policy captured before planning")
+    create.add_argument("--allowed-providers", help="Comma-separated executor IDs; never limits the manager model")
     create.add_argument(
         "--request-file",
         help="Preserve a validated user-authored request as REQUEST.md in the plan workspace",
@@ -3691,6 +3726,9 @@ def main() -> int:
     try:
         args.func(args)
         return 0
+    except provider_policy.PolicyError as exc:
+        print(f"POLICY_PAUSED: {exc}", file=sys.stderr)
+        return provider_policy.EXIT_POLICY
     except PlanError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

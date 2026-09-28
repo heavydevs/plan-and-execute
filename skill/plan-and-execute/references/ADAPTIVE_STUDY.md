@@ -1,5 +1,7 @@
 # Adaptive study protocol
 
+Restricted executors also cover semantic research, relevance decisions and study synthesis. Deterministic lookup/extraction may remain in the controller; use authorized workers for interpretation under [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md). Cheap exploration is not an exception.
+
 Use this file only before planning. Read `ARTIFACT_WRITING.md` first. The goal is enough evidence to choose correct architecture, TODO boundaries, risks, and validation — not a research transcript.
 
 ## 1. Classify before broad repository inspection

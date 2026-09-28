@@ -1,5 +1,7 @@
 # Versioned shared-pattern contracts
 
+With executor restrictions, pattern authoring, revision and compatibility review are technical work for authorized workers. The manager may invoke deterministic signatory/reopen tooling only; preserve [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md).
+
 Use this reference during final planning and execution when multiple TODOs must obey a shared contract whose later evolution can invalidate already-completed work.
 
 Shared patterns are **not** ordinary execution context and are **not** validated learnings:

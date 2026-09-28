@@ -1,5 +1,7 @@
 # Token-efficiency contract
 
+Under an explicit executor policy, economize only inside the authorized set. Host-managed technical fallback is then forbidden; use compact receipts and deterministic handoff, and pause if no executor is usable. See [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md).
+
 Use this reference when reviewing prompt/context cost or changing the harness. `ARTIFACT_WRITING.md` owns prose precision/budgets; `MODEL_ROUTING.md` owns route selection, exploration economics, and escalation; this file owns **where tokens are spent**.
 
 ## Objective

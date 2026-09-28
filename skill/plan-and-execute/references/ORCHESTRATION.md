@@ -1,5 +1,7 @@
 # Full orchestration workflow — final plan
 
+When executors are restricted, apply [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md) before study/planning. Dispatch all semantic artifacts to authorized workers; carry the same policy through plan creation, design, validation and repairs. The manager only drives deterministic state and reports evidence.
+
 Read only after the entrypoint selected **FINAL_PLAN**, including a completed PRIMARY_PLAN handoff or late promotion. Oversized-source preprocessing belongs to `PRIMARY_PLANNING.md`; do not load it here.
 
 ## 1. Resolve final-planning input

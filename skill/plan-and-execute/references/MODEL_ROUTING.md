@@ -1,5 +1,7 @@
 # Model and provider routing
 
+An explicit `execution_policy` is a hard eligibility filter before tier/model/cost routing, in DIRECT and ORCHESTRATED work. Root execution, exploration, fallback and provider switching below are conditional on [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md). A manager-only root never substitutes for an unavailable executor.
+
 Load this reference only when choosing or escalating a model route. It defines provider-independent policy. Then read **exactly one** concrete provider reference for the provider that will actually execute the work:
 
 - Codex -> `MODEL_ROUTING_CODEX.md`
@@ -50,7 +52,7 @@ Do not interpret "no tests" as "always use the strongest model." First assess ch
 
 ## 3. Elevate by delegation. Never switch the root session
 
-The root session's model is the user's choice and its context is the cheapest cache the task has: every provider caches the prompt prefix **per model and, on most models, per effort level**, so switching the root model or effort mid-task re-reads the whole conversation uncached (Anthropic reports that an Opus->Haiku switch mid-session is *more* expensive than staying). Therefore:
+The root session's model is the user's choice. Keep stable prefixes where caching is supported; cache scope and invalidation depend on the provider, model, tools, schema and configuration. Do not assume that every provider caches identically or that a fresh process is always a cold cache. Therefore:
 
 - **Never switch the root session's model/effort to obtain a stronger or cheaper route.**
 - **Delegate the leaf instead:** start a fresh worker at the required tier with a minimal prompt (task, paths/symbols, acceptance, validation command) and consume only its compact result.

@@ -1,4 +1,4 @@
-# Plan spec contract — schema v4
+# Plan spec contract - schema v4/v5
 
 Use this file only when writing the JSON consumed by `planctl_concise.py create`. Read `ARTIFACT_WRITING.md` and `PLANNING_PROTOCOL.md` first. See `plan-spec.example.json` for a complete example; do not copy its prose unless it matches the current request.
 
@@ -21,6 +21,23 @@ Use this file only when writing the JSON consumed by `planctl_concise.py create`
 ```
 
 `title` and `summary` describe the implementation outcome, not the planning process. `cleanup_on_success` should remain true unless the user explicitly requests plan retention.
+
+## Optional `execution_policy` (schema 5)
+
+Capture user authorization before semantic planning, as specified in
+[EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md). An optional top-level
+`execution_policy` uses `execution-policy.example.json`. Equivalent CLI inputs are
+`--policy <file>` and `--allowed-providers codex,claude`; conflicting sources fail.
+Presence selects schema 5, snapshots the policy and pins its digest in the sentinel.
+Omission preserves schema 4 creation and legacy compatibility; null is not omission.
+All task/design/provenance routes must be authorized. `provider: auto` resolves
+inside the list. The manager's provider is intentionally absent from this schema.
+
+`planning_provenance` is optional controller-observed stage metadata, populated by
+`delegate_stage.py` for planning output: `provider`, `model`, `effort`, `attempt_id`,
+`input_sha256`, `policy_sha256`. Never invent it to imply a worker ran. It is not
+remote-model attestation or an authenticated signature. Actual independent review,
+request coverage and validation audits remain required.
 
 ## `request_analysis`
 
@@ -153,13 +170,14 @@ A scoped file must serve at least two but fewer than all TODOs. Single-task fact
   "provider": "auto",
   "model_tier": "standard",
   "reasoning_effort": "medium",
-  "design_route": {"model_tier": "strong", "reasoning_effort": "medium"}
+  "design_route": {"provider": "claude", "model_tier": "strong", "reasoning_effort": "medium"}
 }
 ```
 
 ### Task rules
 
 - Allowed complexity: `low`, `medium`, `high`; `extreme` is rejected and must be split.
+- Optional `design_route.provider` selects an authorized design executor, inheriting the task provider when omitted.
 - `design_route` is optional and allowed only on `high` TODOs (effort may not be `low`): the runner dispatches a design worker at that route first, persists `tasks/<id>.design.md`, then runs the implementation worker at `model_tier`/`reasoning_effort` with the note. The design attempt does not consume an implementation attempt; a reset discards the note.
 - One TODO = one context-cohesive outcome + one independent validation boundary.
 - `atomicity_rationale` and `context_boundary` are planning/review evidence. Keep them short and concrete; they are not repeated in the compact worker projection.

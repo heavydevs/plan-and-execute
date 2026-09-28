@@ -1,5 +1,7 @@
 # Lifecycle protocol
 
+For governed schema-5 plans, preserve the pinned executor policy on every resume/reset. Read [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md) for authorization failures (exit 6): pause, do not downgrade the schema, widen providers or fall back to the manager. Any model can still manage lifecycle/status.
+
 Use this file only for active-plan discovery, resume, cancellation, reset, and cleanup. Lifecycle state is deterministic; do not spend model tokens narrating it.
 
 Use `lifecyclectl_concise.py` so any recovery rewrite keeps compact task projections.

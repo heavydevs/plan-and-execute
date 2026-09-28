@@ -18,6 +18,7 @@ from typing import Any
 from xml.etree import ElementTree as ET
 
 import planctl
+import provider_policy
 
 SOFT_TOKENS = 12_000
 HARD_TOKENS = 24_000
@@ -718,8 +719,26 @@ def command_prepare(args: argparse.Namespace) -> None:
     if assessment["route"] != "primary_plan" and not args.force:
         print(json.dumps({"route": "final_plan", "assessment": assessment}, ensure_ascii=False, indent=2))
         raise SystemExit(3)
+    requested_policy = provider_policy.reconcile(
+        provider_policy.read_policy(args.policy) if getattr(args, "policy", None) else None,
+        provider_policy.from_csv(args.allowed_providers) if getattr(args, "allowed_providers", None) is not None else None,
+    )
     package, metadata = create_package(repo, source, assessment, args.package_id, args.target_fragment_tokens, args.max_fragment_tokens)
-    spec = make_primary_spec(repo, package, metadata)
+    policy = provider_policy.reconcile(provider_policy.from_document(metadata), requested_policy)
+    if policy is not None:
+        metadata[provider_policy.FIELD] = policy
+        write_json(package / "package.json", metadata)
+        write_json(package / provider_policy.SNAPSHOT, policy)
+    spec = provider_policy.attach(make_primary_spec(repo, package, metadata), policy)
+    if policy is not None:
+        spec["global_constraints"].append(
+            "Technical preparation and final planning require authorized executors. "
+            "Preserve EXECUTION_POLICY.json; the manager only dispatches."
+        )
+        spec["tasks"][-1]["implementation_guidance"].append(
+            "In FINAL_PLAN_INPUT.md require final planning and plan creation to use "
+            "--policy $PACKAGE_ROOT/EXECUTION_POLICY.json."
+        )
     write_json(package / "PRIMARY_PLAN_SPEC.json", spec)
     plan_id = f"primary-{metadata['package_id']}"
     concise = Path(__file__).with_name("planctl_concise.py")
@@ -807,6 +826,8 @@ def build_parser() -> argparse.ArgumentParser:
     prepare.add_argument("--work-root", default=planctl.WORK_ROOT_DEFAULT)
     prepare.add_argument("--file", required=True)
     prepare.add_argument("--force", action="store_true")
+    prepare.add_argument("--policy", help="Executor policy propagated through primary and final planning")
+    prepare.add_argument("--allowed-providers", help="Comma-separated executor IDs")
     add_thresholds(prepare)
     add_split_options(prepare)
     prepare.set_defaults(func=command_prepare)
@@ -831,6 +852,9 @@ def main() -> int:
     try:
         args.func(args)
         return 0
+    except provider_policy.PolicyError as exc:
+        print(f"POLICY_PAUSED: {exc}", file=sys.stderr)
+        return provider_policy.EXIT_POLICY
     except (PreplanError, planctl.PlanError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

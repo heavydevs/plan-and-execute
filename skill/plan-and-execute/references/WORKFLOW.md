@@ -1,5 +1,7 @@
 # Execution workflow
 
+Executor-restricted work follows [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md): authorize design, implementation, technical validation and every repair before dispatch. Tests may run deterministically in the controller, but a manager cannot diagnose or fix findings, waive acceptance, or replace an unavailable worker.
+
 Use this reference only after the **final implementation plan** is approved. Primary-plan execution follows `PRIMARY_PLANNING.md`; final planning rules live in `PLANNING_PROTOCOL.md`; model escalation lives in `MODEL_ROUTING.md`; evolving cross-TODO contracts live in `SHARED_PATTERNS.md` when present.
 
 ## Roles

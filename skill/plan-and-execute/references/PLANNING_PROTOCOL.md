@@ -1,5 +1,7 @@
 # Final planning protocol
 
+When `execution_policy` is present, only authorized fresh workers may interpret requirements, author or repair the spec, assign semantic routes and perform the independent review. The manager invokes tooling and relays artifacts; [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md) overrides root-execution shortcuts.
+
 Use this file only while converting approved final-planning evidence into the executable implementation TODO graph. Read `ARTIFACT_WRITING.md` first. If the request arrived through PRIMARY_PLAN, consume the prepared package according to `PLANNING_INPUT_CONTRACT.md`; do not read `PRIMARY_PLANNING.md` here.
 
 ## 1. Preserve meaning, compress representation

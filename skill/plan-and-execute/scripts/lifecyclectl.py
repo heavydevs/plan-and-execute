@@ -27,6 +27,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 import planctl  # noqa: E402
+import provider_policy  # noqa: E402
 
 ACTIVE_FILE = ".active-plan.json"
 LEASE_FILE = ".runner-lease.json"
@@ -712,6 +713,9 @@ def main() -> int:
             emit(payload, args.json)
             return 0
         raise LifecycleError(f"Unknown command: {args.command}")
+    except provider_policy.PolicyError as exc:
+        print(f"POLICY_PAUSED: {exc}", file=sys.stderr)
+        return provider_policy.EXIT_POLICY
     except (LifecycleError, planctl.PlanError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

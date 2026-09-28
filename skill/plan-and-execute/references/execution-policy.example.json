@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "manager_mode": "delegate_only",
+  "scope": "all_technical_work",
+  "allowed_providers": [
+    "claude",
+    "codex"
+  ],
+  "on_unavailable": "pause"
+}

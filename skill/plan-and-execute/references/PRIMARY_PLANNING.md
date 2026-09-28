@@ -1,5 +1,7 @@
 # Primary planning for oversized requests
 
+For restricted executors, pass the captured policy to `preplanctl.py prepare --policy <file>` and follow [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md). Deterministic fragmenting/scaffolding may run in the controller; semantic digests, synthesis, review and final planning require authorized workers. Every final-stage handoff retains this policy.
+
 **Load this file only after the entry gate has selected `PRIMARY_PLAN`.** Normal final planning must not read it.
 
 The primary plan is a resumable preprocessing plan whose only product is a compact, traceable input package for the ordinary final-planning workflow. It never implements product code and never decides final implementation routes.
@@ -57,7 +59,7 @@ Immutable fragments are the anti-loss layer. All later summaries must point back
 
 ## 4. Create the primary plan
 
-`preplanctl prepare` creates the prepared-package skeleton and a schema-v4 primary plan through the existing deterministic `planctl` state engine.
+`preplanctl prepare` creates the prepared-package skeleton and a schema-v4 primary plan (schema 5 with an executor policy) through the existing deterministic `planctl` state engine.
 
 A primary plan is intentionally composed from bounded semantic stages rather than one giant planning prompt:
 

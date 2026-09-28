@@ -1,5 +1,7 @@
 # Late promotion: DIRECT -> ORCHESTRATED
 
+Carry any explicit executor restriction into the remaining-work plan, using [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md). Promotion does not authorize new providers or let the manager perform technical planning.
+
 Use only when work already started directly and newly discovered evidence makes durable orchestration worthwhile.
 
 ## Promotion principle

@@ -5,6 +5,10 @@ description: Orchestrate long-horizon software changes only when durable resumab
 
 # Plan and Execute
 
+## 0. Honor executor authorization
+
+When the user restricts technical providers, capture `execution_policy` before semantic study/planning; read [EXECUTION_PROVIDERS.md](references/EXECUTION_PROVIDERS.md). Any model may manage; only authorized fresh workers may study, plan, review, design, code, test, validate or repair. Enforce the list through the dispatcher, including DIRECT and fallback. No authorized executor: pause, never substitute the manager. Without a restriction, preserve existing routing.
+
 Treat context as a budget, model capability as a second, and durable progress before quota exhaustion as a third. Apply **DIRECT vs ORCHESTRATED** first; only orchestrated work then chooses FINAL_PLAN vs PRIMARY_PLAN. Load only the selected path's references.
 
 ## 1. Lifecycle first
@@ -17,7 +21,7 @@ Prefer **DIRECT** unless durable orchestration pays for itself. Strong ORCHESTRA
 
 ### DIRECT EXIT
 
-If orchestration is not justified: create no `.ai-work`, study, requirements inventory, plan, TODO, task, primary-plan, pattern, worker, or lifecycle state; do not read orchestration/primary-plan/schema references; implement/validate directly with economical model routing.
+If orchestration is not justified: create no `.ai-work`, study, requirements inventory, plan, TODO, task, primary-plan, pattern, or lifecycle state; do not read orchestration/primary-plan/schema references. Execute without the harness; an executor restriction still requires delegation.
 
 **DIRECT exits the harness, not adaptive model routing.** A small task with no tests can deserve a stronger model when silent failure is costly.
 
@@ -74,7 +78,7 @@ When substantial DIRECT work grows into independent remaining outcomes, broad re
 - `manifest.json` is authoritative; `TODO.md` is the terse task index.
 - Every TODO has bounded scope, resumable subtasks, deterministic validation, `provider`, `model_tier`, and `reasoning_effort`; a `high` TODO may add `design_route` for a strong design pass before cheaper implementation.
 - Planning stages choose capability deliberately instead of inheriting the root model; hard decisions may be resolved first by strong workers (`hard_decisions`).
-- quota/rate-limit exhaustion and host interruption are not technical failures; another compatible provider can resume without the previous chat transcript;
+- quota/rate-limit exhaustion and host interruption are not technical failures; another authorized, compatible provider can resume without the previous chat transcript;
 - implementation changes, tests, product artifacts, and commits survive cleanup.
 - Every automated validation in an ORCHESTRATED plan references a validation entry in the fresh service map and is run through its resource watcher; the plan audit rejects unmapped commands.
 

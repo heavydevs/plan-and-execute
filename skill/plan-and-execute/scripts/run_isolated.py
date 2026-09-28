@@ -30,6 +30,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 import planctl  # noqa: E402
 import lifecyclectl  # noqa: E402
 import routingctl  # noqa: E402
+import provider_policy  # noqa: E402
 import process_tree  # noqa: E402
 
 TIER_ORDER = routingctl.TIER_ORDER
@@ -97,7 +98,9 @@ def load_config(plan_dir: Path) -> dict[str, Any]:
     raw = planctl.read_json(plan_dir / planctl.CONFIG)
     if not isinstance(raw, dict):
         raise RunnerError(f"{planctl.CONFIG} must contain a JSON object")
-    return deep_merge(planctl.default_config(), raw)
+    merged = deep_merge(planctl.default_config(), raw)
+    _, manifest = planctl.load_plan(plan_dir)
+    return provider_policy.bind_config(merged, manifest)
 
 
 def resolve_windows_shim(parts: list[str]) -> list[str]:
@@ -187,6 +190,10 @@ def candidate_providers(task: dict[str, Any], config: dict[str, Any], override: 
     else:
         providers = order
 
+    policy = provider_policy.from_document(config)
+    if policy is not None:
+        allow_fallback = bool(task.get("allow_provider_fallback", True)) and bool(config.get("allow_provider_fallback", True))
+        providers = provider_policy.candidates(policy, requested, order, allow_fallback)
     available: list[str] = []
     for provider in providers:
         prefix = command_prefix(config[provider].get("command", provider))
@@ -194,6 +201,11 @@ def candidate_providers(task: dict[str, Any], config: dict[str, Any], override: 
             available.append(provider)
     if not available:
         requested_text = requested if requested != "auto" else ", ".join(providers)
+        if policy is not None:
+            raise provider_policy.PolicyError(
+                f"No authorized executor CLI is available ({requested_text}); keep state and pause. "
+                "Do not fall back to the manager or another provider."
+            )
         raise RunnerError(f"No usable provider CLI found for: {requested_text}")
     return available
 
@@ -468,6 +480,7 @@ def design_route_task(task: dict[str, Any]) -> dict[str, Any]:
     design = task.get("design_route") or {}
     return {
         **task,
+        "provider": design.get("provider", task.get("provider", "auto")),
         "model_tier": design.get("model_tier", "strong"),
         "reasoning_effort": design.get("reasoning_effort", "medium"),
     }
@@ -549,8 +562,14 @@ def build_worker_command(
     prompt: str,
     result_path: Path,
 ) -> list[str]:
+    policy = provider_policy.from_document(config)
+    provider_policy.require_provider(policy, provider)
+    if policy is not None and route.get("provider") != provider:
+        raise RunnerError("Route/provider mismatch")
     provider_cfg = config[provider]
     prefix = command_prefix(provider_cfg.get("command", provider))
+    provider_policy.validate_adapter(policy, provider, prefix)
+    prompt = provider_policy.capsule(policy) + prompt
     schema = planctl.read_json(completion_schema_path())
     schema_text = json.dumps(schema, ensure_ascii=False, separators=(",", ":"))
     extra_args = provider_cfg.get("extra_args", [])
@@ -1088,6 +1107,8 @@ def release_interrupted_task(plan_dir: Path, manifest: dict[str, Any], task_id: 
 
 
 def wait_after_rate_limit(config: dict[str, Any], cycle: int, no_wait: bool) -> bool:
+    if provider_policy.from_document(config) is not None:
+        return False
     rate_cfg = config.get("rate_limit", {})
     if no_wait or not rate_cfg.get("auto_wait", True):
         return False
@@ -1116,6 +1137,8 @@ def execute_one_task(
     dry_run: bool,
     no_wait: bool,
 ) -> bool:
+    provider_policy.verify_snapshot(plan_dir, manifest)
+    config = provider_policy.bind_config(config, manifest)
     repo_root = Path(manifest["repo_root"])
     rate_cycle = 0
     while True:
@@ -1139,7 +1162,8 @@ def execute_one_task(
                 if wait_after_rate_limit(config, rate_cycle, no_wait):
                     rate_cycle += 1
                     continue
-                raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
+                raise (provider_policy.PolicyError if provider_policy.from_document(config) else RunnerError)(
+                    f"Rate/usage limit stopped task {task['id']}; resume with an authorized executor")
             if outcome != "completed":
                 return False
             task = planctl.find_task(manifest, task["id"])
@@ -1185,7 +1209,8 @@ def execute_one_task(
             if wait_after_rate_limit(config, rate_cycle, no_wait):
                 rate_cycle += 1
                 continue
-            raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
+            raise (provider_policy.PolicyError if provider_policy.from_document(config) else RunnerError)(
+                    f"Rate/usage limit stopped task {task['id']}; resume with an authorized executor")
 
         report = parse_provider_report(route["provider"], stdout, result_path)
         if return_code != 0:
@@ -1228,7 +1253,8 @@ def execute_one_task(
                 if wait_after_rate_limit(config, rate_cycle, no_wait):
                     rate_cycle += 1
                     continue
-                raise RunnerError(f"Rate/usage limit stopped task {task['id']}; rerun the command to resume")
+                raise (provider_policy.PolicyError if provider_policy.from_document(config) else RunnerError)(
+                    f"Rate/usage limit stopped task {task['id']}; resume with an authorized executor")
             cls = classify_report_failure(report, reason)
             planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
             atomic = {**report, "orchestrator_status": "failed"}
@@ -1353,6 +1379,8 @@ def run_design_phase(
     dry_run: bool,
 ) -> str:
     """Phase 1 of a two-phase leaf. Returns completed | failed | rate_limited."""
+    provider_policy.verify_snapshot(plan_dir, manifest)
+    config = provider_policy.bind_config(config, manifest)
     repo_root = Path(manifest["repo_root"])
     route = choose_route(design_route_task(task), config, provider_override)
     note_relative = design_note_relative(task)
@@ -1674,6 +1702,24 @@ def generate_final_summary(
     *,
     no_wait: bool,
 ) -> tuple[str, str]:
+    if provider_policy.from_document(manifest) is not None:
+        provider_policy.verify_snapshot(plan_dir, manifest)
+        output_path = plan_dir / "FINAL_SUMMARY.md"
+        summary = planctl.deterministic_summary(manifest)
+        evidence = planctl.read_json(compose_summary_input(plan_dir, manifest))
+        notes = []
+        for task in evidence["tasks"]:
+            for check in task["validation"]:
+                outcome = "passed" if check["passed"] is True else "not passed/unknown"
+                notes.append(f"- {task['id']} validation: {outcome}; `{check['command']}`")
+            for field in ("risks", "follow_ups", "report_warnings"):
+                for note in task[field]:
+                    text = json.dumps(note, ensure_ascii=False) if isinstance(note, dict) else str(note)
+                    notes.append(f"- {task['id']} {field}: {text}")
+        if notes:
+            summary += "\n## Recorded evidence and caveats\n\n" + "\n".join(notes) + "\n"
+        planctl.atomic_write_text(output_path, summary)
+        return summary, output_path.relative_to(plan_dir).as_posix()
     input_path = compose_summary_input(plan_dir, manifest)
     output_path = plan_dir / "FINAL_SUMMARY.md"
     prompt = summary_prompt(plan_dir, manifest, input_path)
@@ -1795,7 +1841,10 @@ def _run_plan(args: argparse.Namespace) -> int:
 
 def run_plan(args: argparse.Namespace) -> int:
     """Run or resume a plan under an atomic lease."""
-    plan_dir, _ = planctl.load_plan(args.plan)
+    plan_dir, manifest = planctl.load_plan(args.plan)
+    policy = provider_policy.from_document(manifest)
+    if policy is not None:
+        provider_policy.require_provider(policy, args.provider or "auto", allow_auto=True)
     lifecyclectl.activate_plan(plan_dir)
     with lifecyclectl.runner_lease(plan_dir):
         recovered = lifecyclectl.recover_interrupted_tasks(
@@ -1843,6 +1892,9 @@ def main() -> int:
     args = build_parser().parse_args()
     try:
         return run_plan(args)
+    except provider_policy.PolicyError as exc:
+        print(f"POLICY_PAUSED: {exc}", file=sys.stderr)
+        return provider_policy.EXIT_POLICY
     except (planctl.PlanError, RunnerError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

@@ -520,6 +520,9 @@ def _compact_plan_renderers(planctl: Any) -> None:
             "",
             "\n".join(requirements),
         ]
+        notice = planctl.provider_policy.plan_notice(manifest)
+        if notice:
+            lines.extend(["", "## Executor authorization", "", notice.strip()])
         if manifest.get("global_constraints"):
             lines.extend(
                 ["", "## Constraints", "", _md(manifest["global_constraints"])]

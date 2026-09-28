@@ -1,5 +1,7 @@
 # Planning-stage model routing
 
+With `execution_policy`, authorization precedes every capability choice: the root manages only; semantic study, composition, hard decisions and review all use authorized fresh workers. Apply [EXECUTION_PROVIDERS.md](EXECUTION_PROVIDERS.md); the root-execution options below apply only without that restriction.
+
 Use this reference when selecting capability for **planning work itself**. It complements `MODEL_ROUTING.md`, which owns provider-independent model economics for execution.
 
 Planning is not automatically performed at the root agent's current model/effort. Route each planning leaf by semantic difficulty, verification strength, and cost of a silent planning error — and obtain that route by **delegation** (`MODEL_ROUTING.md` §3), never by switching the root session's model.
@@ -21,9 +23,9 @@ A huge source document is **not** a reason to feed the whole document to a front
 
 The root session may be Haiku/Luna or any model the user chose. That is not a ceiling:
 
-1. triage (root, cheap in tokens): name each planning stage's signals with the `SKILL.md` §4 table or `routingctl.py route`;
+1. triage (root, cheap in tokens): name each planning stage's signals with the `SKILL.md` capability table or `routingctl.py route`;
 2. if the root tier is below a stage's floor, dispatch that stage to a fresh worker at the floor tier with a minimal prompt (evidence ids/paths, the question, the output schema) and consume only its compact output;
-3. stages at or below the root tier run in the root, reusing its cache;
+3. without an executor restriction, stages at or below the root tier may run in the root; under a restriction, all technical stages remain delegated;
 4. record the route actually used (`hard_decisions[].route_used`, primary-plan task routes) so a resumed session does not redo the work at the wrong tier.
 
 Never load a stronger reference or a bigger context "to compensate" for a weak root; delegate instead.
