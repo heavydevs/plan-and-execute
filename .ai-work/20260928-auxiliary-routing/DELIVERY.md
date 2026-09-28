@@ -12,14 +12,18 @@ All six task source checkpoints were independently validated before push:
 005 085eda2ffc24931fbdc468a5ef1a2a1e34ea9ecd
 006 6bb047db061403d5e591a6b241f37899f720e87b
 
-The final independent Linux checkpoint ran the service-mapped `npm run check`
-with exit 0 and healthy resources in Actions run 36449745861. Native Windows and
-version-matrix results are recorded by the PR's standard CI, not inferred from
-Linux tests. Consult those checks and the PR's final validation comment.
+The final independent Linux checkpoint ran service-mapped npm run check with exit
+0 and healthy resources in Actions run 36449745861.
 
-The two branch-only transfer workflows have been removed after completing their
-purpose. The complete plan, progress, reports, research, requirements and recovery
-instructions remain in Git. No merge, npm release or planning cleanup was performed.
+Native Windows follow-up 96596e3f5bfd155a74441b7babdc1543f571b43c passed the full
+npm run check suite on Windows, Node 22 and Python 3.11 in run 36451170577. It fixes
+baseline canonical-path and long-cwd test fixtures and respects PATH-selected
+Python. See WINDOWS_REVIEW.md. Platform-specific skips remain explicit.
+
+All temporary transfer/review workflows and their triggers have been removed after
+validation. The complete plan, progress, reports, research, requirements and
+recovery instructions remain in Git. No merge, npm release or planning cleanup was
+performed. Consult the PR checks for the final standard version matrix.
 
 Native-provider generation, independent-model review and billed cost/quality gains
 remain unverified as explained in MAINTENANCE_REVIEW.md and SUMMARY.md.
