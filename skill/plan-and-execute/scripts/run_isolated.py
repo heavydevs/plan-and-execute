@@ -84,12 +84,17 @@ def claude_bare_flags() -> list[str]:
     return ["--bare"] if os.environ.get("ANTHROPIC_API_KEY") else []
 
 
-def _plan_relative_files(files: Any, plan_dir: Path) -> Any:
-    """Normalize assigned-file names so repository-relative and plan-relative spellings compare equal."""
+def _plan_relative_files(files: Any, plan_dir: Path, task_file: Any = None) -> Any:
+    """Normalize assigned-file names so repository-relative and plan-relative spellings compare equal.
+
+    The task's own definition file is always read first, so it is never counted as an extra assignment.
+    """
     if not isinstance(files, list):
         return files
     marker = plan_dir.name + "/"
-    return [item.split(marker, 1)[1] if isinstance(item, str) and marker in item else item for item in files]
+    names = [item.split(marker, 1)[1] if isinstance(item, str) and marker in item else item for item in files]
+    own = Path(str(task_file)).name if task_file else None
+    return [item for item in names if not (own and isinstance(item, str) and Path(item).name == own)]
 
 
 def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
@@ -1225,7 +1230,7 @@ def execute_one_task(
             return False
         expected_context_files = list(task.get("context_files", []))
         reported_context_files = report.get("context_files_read")
-        if _plan_relative_files(reported_context_files, plan_dir) != _plan_relative_files(expected_context_files, plan_dir):
+        if _plan_relative_files(reported_context_files, plan_dir, task.get("file")) != _plan_relative_files(expected_context_files, plan_dir):
             reason = (
                 "Worker context report mismatch: expected "
                 f"{expected_context_files!r}, received {reported_context_files!r}"
@@ -1235,7 +1240,7 @@ def execute_one_task(
             return False
         expected_learning_files = list(task.get("learning_files", []))
         reported_learning_files = report.get("learning_files_read")
-        if _plan_relative_files(reported_learning_files, plan_dir) != _plan_relative_files(expected_learning_files, plan_dir):
+        if _plan_relative_files(reported_learning_files, plan_dir, task.get("file")) != _plan_relative_files(expected_learning_files, plan_dir):
             reason = (
                 "Worker learning report mismatch: expected "
                 f"{expected_learning_files!r}, received {reported_learning_files!r}"
