@@ -27,11 +27,17 @@ jobs:
           import subprocess
           from pathlib import Path
           parent = subprocess.check_output(['git', 'rev-parse', 'HEAD^'], text=True).strip()
-          if parent != '61a9fd707fca36fbfcd0fbbe0d06044dfd59dd44':
+          if parent != '3c8224c24f60e09595b441d283274837445985d4':
               raise SystemExit('Review parent changed; reconcile before applying.')
           changes = [
               ('skill/plan-and-execute/scripts/self_test.py', 'assert draft.parent == repo / ".ai-work" / "intake"', 'assert draft.parent == (repo / ".ai-work" / "intake").resolve()'),
               ('tools/run-skill-self-test.js', "? [['py', ['-3']], ['python', []], ['python3', []]]", "? [['python', []], ['python3', []], ['py', ['-3']]]"),
+              ('skill/plan-and-execute/scripts/preplan_self_test.py',
+               '        repository = root.joinpath(*(["deep_repository_path"] * 12))\n        repository.mkdir(parents=True)\n',
+               '        repository = root.joinpath(*(["deep_repository_path"] * 12))\n        # Windows CreateProcess rejects cwd > MAX_PATH even with long paths on.\n        # Keep only the process cwd short; package/plan paths still exceed 260.\n        if sys.platform == "win32":\n            while len(str(repository)) > 230 and repository != root:\n                repository = repository.parent\n        repository.mkdir(parents=True)\n'),
+              ('skill/plan-and-execute/scripts/preplan_self_test.py',
+               '        package = repository / preplanctl.PREPARED_ROOT / package_id\n        plan_dir = ',
+               '        package = repository / preplanctl.PREPARED_ROOT / package_id\n        assert len(str(package / "package.json")) > 260\n        plan_dir = '),
           ]
           for name, old, new in changes:
               p = Path(name)
@@ -54,29 +60,34 @@ jobs:
           p = Path('.ai-work/20260928-auxiliary-routing/WINDOWS_REVIEW.md')
           p.write_text('''# Task 006 native Windows follow-up
 
-          The final PR matrix exposed an existing request-intake test comparing a
-          canonical path against an unresolved Windows temporary path. The assertion
-          now compares resolved paths without weakening its expected destination.
+          The PR matrix exposed an existing request-intake test comparing a canonical
+          path against an unresolved Windows temporary path. It now compares resolved
+          paths without weakening the expected destination.
 
-          The self-test launcher preferred py -3 and selected Python 3.14 even though
-          CI configured 3.11. It now respects Python on PATH before launcher fallback.
-          This preserves the declared CI environment and activated virtual environments.
+          The launcher preferred py -3 and selected Python 3.14 despite CI configuring
+          3.11. It now respects Python on PATH before launcher fallback, preserving the
+          declared interpreter and activated virtual environments.
 
-          The complete npm run check suite passed on native Windows, Node 22 and the
-          configured Python 3.11 before this follow-up commit was pushed. Linux full
-          validation already passed at source checkpoint 6bb047db. Final PR CI checks
-          all supported matrix entries again. Platform-specific skips remain explicit.
+          The deep-path fixture now keeps only Windows subprocess cwd below 230 chars.
+          CreateProcess cannot use cwd beyond MAX_PATH even with long paths enabled.
+          Generated package paths still exceed 260 chars, explicitly asserted; the CLI
+          validation and relative-guidance assertions remain intact. Linux depth is
+          unchanged. Reference: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setcurrentdirectory
 
-          This is additional validation within completed task 006, not a new product
-          requirement. All original plan artifacts and completion evidence are retained.
-          No native model generation or comparative cost/quality experiment was run.
+          Complete npm run check passed on native Windows, Node 22 and configured
+          Python 3.11 before this follow-up commit. Linux full validation passed at
+          source checkpoint 6bb047db. Final PR CI checks all matrix entries again.
+          Platform-specific skips remain explicit.
+
+          This is additional validation within completed task 006. All plan artifacts
+          remain. Native model generation and cost/quality experiments were not run.
           ''', encoding='utf-8')
           PY
-          git add skill/plan-and-execute/scripts/self_test.py tools/run-skill-self-test.js
+          git add skill/plan-and-execute/scripts/self_test.py skill/plan-and-execute/scripts/preplan_self_test.py tools/run-skill-self-test.js
           git add -f .ai-work/20260928-auxiliary-routing/WINDOWS_REVIEW.md
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'fix(test): validate canonical Windows intake and respect selected Python'
+          git commit -m 'fix(test): preserve deep-path coverage and selected Python on Windows'
           git push origin HEAD:feature/auxiliary-assistants-tier-routing-20260928
       - name: Preserve recovery checkpoint
         if: always()
