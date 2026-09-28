@@ -1,17 +1,13 @@
 name: Apply implementation checkpoint
-
 on:
   push:
     branches: [feature/auxiliary-assistants-tier-routing-20260928]
     paths: ['.ai-work/submission/**']
-
 permissions:
   contents: write
-
 concurrency:
   group: auxiliary-routing-checkpoint
   cancel-in-progress: false
-
 jobs:
   apply:
     if: github.ref == 'refs/heads/feature/auxiliary-assistants-tier-routing-20260928'
@@ -28,7 +24,7 @@ jobs:
         with:
           node-version: 22
           package-manager-cache: false
-      - name: Verify and apply the exact checkpoint
+      - name: Verify and apply exact checkpoint
         shell: bash
         run: |
           python - <<'PY'
@@ -38,26 +34,23 @@ jobs:
           parent = subprocess.check_output(['git', 'rev-parse', 'HEAD^'], text=True).strip()
           if parent != request['base']:
               raise SystemExit('Checkpoint parent changed; reconcile rather than overwrite.')
-          chunks = sorted(Path('.ai-work/submission').glob('part*.b64'))
-          encoded = ''.join(p.read_text().strip() for p in chunks)
-          decoder = lzma.LZMADecompressor(memlimit=64 * 1024 * 1024)
+          encoded = ''.join(p.read_text().strip() for p in sorted(Path('.ai-work/submission').glob('part*.b64')))
+          decoder = lzma.LZMADecompressor(memlimit=128 * 1024 * 1024)
           patch = decoder.decompress(base64.b64decode(encoded, validate=True), max_length=4 * 1024 * 1024)
-          if not decoder.eof or decoder.unused_data:
-              raise SystemExit('Oversized or trailing checkpoint data.')
-          if hashlib.sha256(patch).hexdigest() != request['sha256']:
-              raise SystemExit('Checkpoint checksum mismatch.')
+          if not decoder.eof or decoder.unused_data or hashlib.sha256(patch).hexdigest() != request['sha256']:
+              raise SystemExit('Checkpoint size/checksum mismatch.')
           subprocess.run(['git', 'apply', '--check', '--index', '-'], input=patch, check=True)
           subprocess.run(['git', 'apply', '--index', '-'], input=patch, check=True)
           Path('/tmp/checkpoint-message').write_text(request['message'])
           validation = {'001':'REQUIREMENTS', '002':'ROUTING_CONFIG', '003':'AVAILABILITY', '004':'CONFIGURE', '005':'ASSISTANT', '006':'ALL'}[request['task']]
           Path('/tmp/checkpoint-validation').write_text(validation)
           PY
-      - name: Validate the checkpoint independently
+      - name: Validate checkpoint independently
         shell: bash
         run: |
           set -o pipefail
           python .ai-work/20260928-auxiliary-routing/rebind.py --repo-root .
-          python skill/plan-and-execute/scripts/service_map.py stamp --repo-root . --map .ai-work/SERVICE_MAP.md
+          python skill/plan-and-execute/scripts/service_map.py stamp --repo-root . --map .ai-work/SERVICE_MAP.md --confirm-reconciled
           python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation "$(cat /tmp/checkpoint-validation)" 2>&1 | tee /tmp/checkpoint-validation.log
       - name: Publish source and retained plan without force
         shell: bash
