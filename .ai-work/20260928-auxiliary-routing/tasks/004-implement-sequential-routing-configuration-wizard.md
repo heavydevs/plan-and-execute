@@ -1,6 +1,6 @@
 ---
 task_id: "004"
-status: "pending"
+status: "completed"
 requirements: "R005,R006,R009"
 dependencies: "002"
 allowed_related_task_reads: "none"
@@ -20,7 +20,7 @@ Objective: Configure primary, ordered fallbacks, models and assistant using sepa
 
 ## Checkpoints
 
-- [ ] **S001** Implement and verify the bounded contract — Configure primary, ordered fallbacks, models and assistant using separate numbered questions.
+- [x] **S001** Implement and verify the bounded contract — Configure primary, ordered fallbacks, models and assistant using separate numbered questions.
 
 ## Scope
 
