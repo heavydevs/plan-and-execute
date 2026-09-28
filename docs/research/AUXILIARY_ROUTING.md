@@ -118,3 +118,31 @@ Advice: default off; deterministic lint skipped; gated repetition/stall/unhealth
 ## Baseline and execution provenance
 
 `npm run check` fails on the unmodified base because SKILL.md exceeds its existing 7,000-character budget (7,727 characters). Fix concision rather than increasing budgets. No Codex/Claude CLI or independent model worker is installed here; plan-and-execute runs in its documented host-managed mode. Native provider and Windows behavior cannot be inferred from mocks.
+
+## Native-profile verification and deliberate scope refinement
+
+### E012 - Claude bare/headless execution
+
+Source: https://code.claude.com/docs/en/headless (reviewed 2026-09-28).
+
+Bare mode removes automatic project configuration, hooks/plugins/skills and credential-file discovery; built-in tools must still be disabled separately. It requires an explicitly supplied API key and is not subscription OAuth. Structured output is returned in the `structured_output` envelope.
+
+Implementation: separate trusted-native Claude adapter; private working directory and environment; `--bare`, no built-ins, strict empty MCP, disabled slash commands, one turn, no persisted session. The wizard/documentation warn about API billing. No real key was used in implementation tests.
+
+### E013 - Antigravity headless execution
+
+Source: https://antigravity.google/docs/cli/headless/ (reviewed 2026-09-28).
+
+Headless execution still grants workspace writes; a sandbox/fresh folder does not make it tool-less. The inspected interface did not establish an equivalent per-run bare/no-tool boundary.
+
+Implementation: retain selectable provider preference and coding support, but skip native advisory calls for this and other unverified profiles. Do not silently reuse coding flags or pretend read-only isolation exists. This is a documented limitation, not verified multi-provider advisory execution.
+
+## Comparative quality/cost protocol (not yet executed)
+
+Use a fixed, versioned corpus of representative repository tasks and failure fixtures: straightforward syntax errors, ambiguous repeated failures, genuine service outages, confirmed stalls, quota interruption and failures where a wrong diagnosis would silently corrupt the result. Keep task inputs, acceptance tests, model IDs, effort, provider versions, retry limits and context constant across matched conditions. Separate provider-availability recovery from diagnostic value.
+
+Compare: (A) deterministic baseline with assistance disabled; (B) identical workflow with gated one-call assistance; optionally (C) a predeclared different supported assistant. Randomize matched run order and repeat enough independent tasks/runs to report uncertainty rather than cherry-pick successful cases. Native providers must first pass security/capability and credential/billing checks.
+
+The primary quality gate is externally validated completion, including regressions and independently checked high-impact invariants. Record false diagnoses, unnecessary changes, safety violations and resumability. Measure total input/output/billed tokens, billed cost per validated completion, wall time, failed calls and repeated validator runs. Include the assistant's bill and any retry/coordination overhead. Character counts in the implementation are resource limits, not substitutes for these measurements.
+
+Keep assistance off unless the measured tradeoff meets a predeclared quality non-inferiority margin and a useful cost/recovery objective. Report sample sizes, confidence intervals and unsuccessful runs. No numerical quality or economy improvement is asserted by this patch; offline tests validate mechanisms, not real-model performance.

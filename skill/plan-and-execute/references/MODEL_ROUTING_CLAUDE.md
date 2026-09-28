@@ -15,7 +15,7 @@ Provider defaults for Opus 5 / Sonnet 5 / Fable 5.1 are adaptive (`high`-equival
 
 ## Elevation mechanics (how a route is actually obtained)
 
-The skill never changes the session model: `/model`, `/effort`, and `opusplan` are user choices, and switching them mid-task invalidates the whole prompt cache. It obtains a different tier by **delegation**:
+The skill never changes the session model: `/model`, `/effort`, and `opusplan` are user choices, and cache behavior depends on the selected model and provider settings. It obtains a different tier by **delegation**:
 
 | Need | Mechanism |
 |---|---|

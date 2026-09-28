@@ -120,7 +120,7 @@ def wizard(config: dict, installed: dict, ask: Callable[[Question], str]) -> dic
     result['assistant'] = {'enabled': enabled}
     if enabled:
         preferred = sorted(ready, key=lambda p: (p != config['assistant']['provider'], ready.index(p)))
-        provider = _ask(ask, 'assistant.provider', 'Provedor do assistente (independente dos executores)?', preferred)
+        provider = _ask(ask, 'assistant.provider', 'Provedor do assistente? Somente Claude bare/tool-less e suportado; exige ANTHROPIC_API_KEY e cobra na API, nao na assinatura. Outros perfis resultam em skip.', preferred)
         result['assistant']['provider'] = provider
         selected.add((provider, config['assistant']['model_tier']))
     for provider, tier in sorted(selected, key=lambda x: (rc.PROVIDERS.index(x[0]), rc.TIER_ORDER.index(x[1]))):

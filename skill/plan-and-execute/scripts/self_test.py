@@ -306,12 +306,16 @@ def test_validation_timeout_byte_output() -> None:
     with tempfile.TemporaryDirectory() as temp:
         repo = Path(temp)
         process = MagicMock()
-        process.communicate.side_effect = [
-            subprocess.TimeoutExpired("command", 1, output=b"partial \xff"),
-            (None, None),
-        ]
+        # Validation now streams stdout to the raw log and waits separately.
+        # Model the current Popen contract rather than the removed communicate().
+        process.wait.side_effect = [subprocess.TimeoutExpired("command", 1), None]
+        process.poll.return_value = 1
         process.__enter__.return_value = process
-        with patch.object(run_isolated.subprocess, "Popen", return_value=process), patch.object(
+        def spawn(*args, **kwargs):
+            kwargs["stdout"].flush()
+            os.write(kwargs["stdout"].fileno(), b"partial \xff")
+            return process
+        with patch.object(run_isolated.subprocess, "Popen", side_effect=spawn), patch.object(
             run_isolated, "terminate_validation_tree"
         ) as cleanup:
             passed, results, reason = run_isolated.run_validation_commands(repo, ["command"], repo / "log", 1)
@@ -319,7 +323,7 @@ def test_validation_timeout_byte_output() -> None:
         assert not passed and results[0]["exit_code"] == 124
         assert "partial \ufffd" in results[0]["output_tail"]
         assert "Timed out after 1 seconds" in reason
-        assert "[exit 124]" in (repo / "log").read_text()
+        assert "[exit 124]" in (repo / "log").read_text(encoding="utf-8", errors="replace")
 
 
 def test_validation_timeout_windows_fallback() -> None:
@@ -353,14 +357,14 @@ def test_validation_timeout_descendant_cleanup() -> None:
         parent = repo / "parent.py"
         parent.write_text(
             "import subprocess, sys, time\n"
-            "subprocess.Popen([sys.executable, 'child.py'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n"
+            "subprocess.Popen([sys.executable, '-S', 'child.py'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n"
             "sys.stdout.buffer.write(b'partial \\xff\\n'); sys.stdout.flush()\n"
             "time.sleep(60)\n"
         )
         pid = None
         try:
             passed, results, _ = run_isolated.run_validation_commands(
-                repo, [f"{shlex.quote(sys.executable)} {shlex.quote(str(parent))}"], repo / "log", 1
+                repo, [f"{shlex.quote(sys.executable)} -S {shlex.quote(str(parent))}"], repo / "log", 1
             )
             pid = int((repo / "child.pid").read_text())
             assert not passed and results[0]["exit_code"] == 124

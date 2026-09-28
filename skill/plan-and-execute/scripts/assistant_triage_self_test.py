@@ -249,8 +249,9 @@ class AssistantTests(unittest.TestCase):
     def test_integration_validation_reads_bounded_first_and_last_evidence(self):
         program = 'print("first error"); print("x"*20000); print("last error")'
         import shlex
-        command = shlex.join([sys.executable, '-c', program])
-        command += ' && ' + shlex.join([sys.executable, '-c', 'raise SystemExit(1)'])
+        quote = subprocess.list2cmdline if os.name == 'nt' else shlex.join
+        command = quote([sys.executable, '-c', program])
+        command += ' && ' + quote([sys.executable, '-c', 'raise SystemExit(1)'])
         passed, results, _ = run_isolated.run_validation_commands(self.plan, [command], self.plan/'validation.log', 5)
         self.assertFalse(passed)
         self.assertIn('first error', results[0]['output_head'])

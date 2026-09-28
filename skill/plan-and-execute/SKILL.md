@@ -5,46 +5,46 @@ description: Orchestrate long-horizon software changes only when durable resumab
 
 # Plan and Execute
 
-Treat context as a budget, model capability as a second, and durable progress before quota exhaustion as a third. Apply **DIRECT vs ORCHESTRATED** first; only orchestrated work then chooses FINAL_PLAN vs PRIMARY_PLAN. Load only the selected path's references.
+Treat context as a budget; preserve capability and durable progress. Choose **DIRECT vs ORCHESTRATED**, then FINAL_PLAN vs PRIMARY_PLAN for orchestrated work. Load only selected references.
 
-## 1. Lifecycle first
+## 1. Lifecycle and configuration
 
-Exact `current`/`status`, `resume`/`continue`, `cancel`, and `reset` use [references/LIFECYCLE.md](references/LIFECYCLE.md).
+`current`/`status`, `resume`/`continue`, `cancel`, and `reset`: [LIFECYCLE.md](references/LIFECYCLE.md). Exact `configure`: run `scripts/configure.py` or `pae configure`; see [ROUTING_CONFIG.md](references/ROUTING_CONFIG.md). Configuration does not create a plan. Ask one numbered question at a time; never assume installation proves authentication. Do not run configuration for ordinary implementation requests.
 
 ## 2. Decide DIRECT vs ORCHESTRATED
 
-Prefer **DIRECT** unless durable orchestration pays for itself. Strong ORCHESTRATED signals: independent workstreams, broad repository/external study, migration/security/data-integrity/cross-module coordination, meaningful interruption/quota risk, or valuable worker-context isolation. File count alone is weak evidence.
+Prefer DIRECT unless durable orchestration pays for itself. Strong signals: independent workstreams, broad repository/external study, migration/security/data-integrity coordination, interruption/quota risk, or valuable worker-context isolation. File count alone is weak evidence.
 
 ### DIRECT EXIT
 
-If orchestration is not justified: create no `.ai-work`, study, requirements inventory, plan, TODO, task, primary-plan, pattern, worker, or lifecycle state; do not read orchestration/primary-plan/schema references; implement/validate directly with economical model routing.
+Without those benefits, create no `.ai-work`, study, requirements inventory, plan, TODO, worker, or lifecycle state. Do not load orchestration/schema references; implement and validate directly.
 
 **DIRECT exits the harness, not adaptive model routing.** A small task with no tests can deserve a stronger model when silent failure is costly.
 
-When uncertain, prefer DIRECT. Read [references/ROUTING.md](references/ROUTING.md) only for an ambiguous boundary.
+When uncertain, prefer DIRECT. Read [ROUTING.md](references/ROUTING.md) only for an ambiguous boundary.
 
-## 3. ORCHESTRATED input gate — FINAL_PLAN vs PRIMARY_PLAN
+## 3. ORCHESTRATED input gate
 
-Measure request-input pressure **before** loading a large request into an expensive planning model:
+Measure request pressure before loading a large source into an expensive model:
 
 ```bash
 python <skill-dir>/scripts/preplanctl.py assess --file <request-file>
 ```
 
-For Drive/Docs/Office/PDF sources, obtain readable/local text with host tools first; never paste the document through chat.
+Extract readable text from Drive/Office/PDF with host tools first, without pasting whole documents through chat.
 
-- **FINAL_PLAN** (manageable): [references/ORCHESTRATION.md](references/ORCHESTRATION.md). Do not read `PRIMARY_PLANNING.md`. For a prepared package, read the small [references/PLANNING_INPUT_CONTRACT.md](references/PLANNING_INPUT_CONTRACT.md).
-- **PRIMARY_PLAN** (oversized/credit-expensive): [references/PRIMARY_PLANNING.md](references/PRIMARY_PLANNING.md); `preplanctl.py prepare --repo-root . --file <request-file>` creates immutable fragments and a resumable checklist whose product (`FINAL_PLAN_INPUT.md`) enters normal FINAL_PLAN.
+- FINAL_PLAN: [ORCHESTRATION.md](references/ORCHESTRATION.md). Do not load PRIMARY_PLANNING. Prepared packages also use [PLANNING_INPUT_CONTRACT.md](references/PLANNING_INPUT_CONTRACT.md).
+- PRIMARY_PLAN: [PRIMARY_PLANNING.md](references/PRIMARY_PLANNING.md). `preplanctl.py prepare --repo-root . --file <request-file>` creates immutable fragments and a resumable checklist; its `FINAL_PLAN_INPUT.md` enters FINAL_PLAN.
 
-Economic defaults: FINAL_PLAN below ~12k estimated source tokens without breadth trigger; PRIMARY_PLAN at 24k+; between them, 30+ headings at 8k+ tokens trigger PRIMARY_PLAN.
+Defaults: FINAL_PLAN below ~12k estimated source tokens without breadth; PRIMARY_PLAN at 24k+, or 30+ headings at 8k+ tokens between the thresholds.
 
-Before creating any ORCHESTRATED plan, reconcile its automated validations with the persistent project test-resource map. Follow [references/TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md): run the cheap freshness check, inspect only changed discovery inputs, map toolchain preflights and required services for every validation, and audit the finished plan. Long-running tests also get process/output progress monitoring; external resources are sampled while the test runs. The project map lives at `.ai-work/SERVICE_MAP.md`, outside disposable plan directories, so normal plan cleanup preserves it. DIRECT work still creates no `.ai-work` state.
+Before planning, reconcile `.ai-work/SERVICE_MAP.md`: freshness, changed inputs, preflights, validation resources and plan audit. Validators use its resource watcher; long tests also monitor progress. Follow [TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md). Cleanup preserves the shared map; DIRECT creates none.
 
 ## 4. Always-on model economy
 
-1. Deterministic tools for search, hashing, splitting, indexing, transforms, builds/tests/lint.
-2. Cheapest credible read-only worker for broad disposable exploration; persist only compact evidence. No worker for one grep or two obvious reads; at most two explorers.
-3. Route each leaf by its signals, not by parent size or root-chat model. Floor per leaf (`python <skill-dir>/scripts/routingctl.py route --signals a,b`):
+Use tools for lookup, transforms, builds/tests/lint. Disposable exploration uses at most two credible cheap read-only workers and persists compact evidence. One grep needs no agent.
+
+Route each leaf by its own signals, not parent size or root model. Compute its floor with `python <skill-dir>/scripts/routingctl.py route --signals a,b`:
 
 | Leaf signal | Floor |
 |---|---|
@@ -55,31 +55,28 @@ Before creating any ORCHESTRATED plan, reconcile its automated validations with 
 | `architecture_decision`, `cross_cutting_risk`, `silent_failure_costly` | strong high |
 | `frontier_long_horizon` / `repeated_strong_failure` | max high / xhigh |
 
-`weak_validation`: +1 tier, effort high. `strong_validation`: strong may start medium. `implementation`: never `low` unless mechanical and deterministically checked.
+`weak_validation`: +1 tier, high effort. With `strong_validation`, strong may start medium. Implementation never uses low effort unless mechanical and deterministically checked.
 
-4. **Never switch the root session's model or effort** (it invalidates the prompt cache). Elevate by delegation: if the root tier is below a leaf's floor, delegate that leaf — including planning stages — to a fresh worker at the floor with a minimal prompt, and consume its compact result. A small root model is a delegator, not a ceiling.
-5. Cheap-first when validation catches failure; start stronger when silent failure is costly or weakly verifiable.
-6. Escalate only from classified failure evidence (`failure_class`); stop when acceptance plus independent validation pass.
+Keep the root route stable; delegate leaves above its capability, including planning, to fresh qualified workers and consume compact results. Cache effects depend on provider/model settings, not a universal effort rule. Start stronger when silent failure is costly; otherwise use cheap-first with strong validation. Escalate only from classified failure evidence; stop after acceptance plus independent validation pass.
 
-Planning has independent routing: [references/PLANNING_ROUTING.md](references/PLANNING_ROUTING.md) only when assigning planning-stage routes. Implementation uses [references/MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus exactly one active provider map. Do not preload both provider guides.
+Planning routes: [PLANNING_ROUTING.md](references/PLANNING_ROUTING.md). Implementation: [MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus only the active provider guide. Do not preload both provider guides.
 
-`primary route != final-planning route != implementation route`
+Tier priority/fallback: [ROUTING_CONFIG.md](references/ROUTING_CONFIG.md). Optional bounded advice: [ASSISTANTS.md](references/ASSISTANTS.md), loaded only for setup, eligible failure or maintenance. Unsupported read-only profiles skip.
 
 ## 5. Promote late
 
-When substantial DIRECT work grows into independent remaining outcomes, broad research/migration work, or meaningful interruption/isolation risk, read [references/PROMOTION.md](references/PROMOTION.md). Persist completed work and plan only **remaining outcomes**; then run the input gate on remaining authoritative material.
+When DIRECT work grows into independent remaining outcomes, broad study or meaningful interruption risk, use [PROMOTION.md](references/PROMOTION.md). Preserve completed work and plan only **remaining outcomes**; assess the remaining authoritative material.
 
 ## 6. Final-plan invariants
 
-- `manifest.json` is authoritative; `TODO.md` is the terse task index.
-- Every TODO has bounded scope, resumable subtasks, deterministic validation, `provider`, `model_tier`, and `reasoning_effort`; a `high` TODO may add `design_route` for a strong design pass before cheaper implementation.
-- Planning stages choose capability deliberately instead of inheriting the root model; hard decisions may be resolved first by strong workers (`hard_decisions`).
-- quota/rate-limit exhaustion and host interruption are not technical failures; another compatible provider can resume without the previous chat transcript;
-- implementation changes, tests, product artifacts, and commits survive cleanup.
-- Every automated validation in an ORCHESTRATED plan references a validation entry in the fresh service map and is run through its resource watcher; the plan audit rejects unmapped commands.
+- `manifest.json` is authoritative; `TODO.md` is the terse index. Each TODO has bounded scope, resumable subtasks, validation, `provider`, `model_tier`, and `reasoning_effort`; a high leaf may add `design_route`.
+- Planning selects capability independently; strong workers may resolve `hard_decisions` first.
+- quota/rate-limit exhaustion and host interruption are not technical failures. Another compatible provider resumes without the previous chat transcript. Exhausted availability chains pause without changing the semantic ladder.
+- implementation changes, tests, artifacts and commits survive cleanup. Retain the plan when explicitly requested or whenever completion/validation fails.
+- Every automated validation references the fresh service map and runs through its watcher. An assistant cannot classify authoritatively, edit, validate or complete a task.
 
-For a normative contract shared by 2+ TODOs that may evolve, use [references/SHARED_PATTERNS.md](references/SHARED_PATTERNS.md): a versioned pattern with signatories; a revision reopens only completed signatories on an older revision.
+Shared normative contracts used by 2+ TODOs: [SHARED_PATTERNS.md](references/SHARED_PATTERNS.md). Revisions reopen only completed signatories on an older version.
 
-## Reference map — on demand
+## On-demand references
 
-Files not linked above: artifacts [ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md), study [ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md), final planning [PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md), execution context [EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md), plan schema [PLAN_SPEC.md](references/PLAN_SPEC.md), execution [WORKFLOW.md](references/WORKFLOW.md), test dependencies and monitoring [TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md), skill maintenance [SKILL_MAINTENANCE_REVIEW.md](references/SKILL_MAINTENANCE_REVIEW.md). Research basis lives in repository `docs/` and is not loaded during normal task execution.
+Artifacts: [ARTIFACT_WRITING.md](references/ARTIFACT_WRITING.md). Study: [ADAPTIVE_STUDY.md](references/ADAPTIVE_STUDY.md). Planning: [PLANNING_PROTOCOL.md](references/PLANNING_PROTOCOL.md). Context: [EXECUTION_CONTEXT.md](references/EXECUTION_CONTEXT.md). Schema: [PLAN_SPEC.md](references/PLAN_SPEC.md). Execution: [WORKFLOW.md](references/WORKFLOW.md). Self-maintenance final review: [SKILL_MAINTENANCE_REVIEW.md](references/SKILL_MAINTENANCE_REVIEW.md). Research stays in repository `docs/`, never routine worker context.

@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 
 ## Unreleased
 
+- Adds strict user-global/version-2 per-plan configuration, primary/fallback chains per logical tier, and backward compatibility with legacy full snapshots.
+- Adds bounded same-rung availability failover for design and implementation, durable cooldowns, and resumable exit-75 pauses without changing functional-failure counters.
+- Adds `pae configure`: sequential numbered questions, non-generative authentication probes, independent assistant selection, custom model/capability configuration, cancellation, previews and private atomic/concurrency-safe writes.
+- Adds default-off advisory validation triage with bounded redacted evidence, strict JSON, durable attempt reservations/deduplication and no authority over code, tests, failure classes or plan state. Native support is Claude bare/tool-less with explicit API-key billing; unverified native profiles, including Antigravity, skip safely.
+- Adds four deterministic regression suites; restores existing instruction-size budgets and fixes stale timeout/child-startup fixtures without weakening process-tree termination checks.
+- Refines the demand with primary-source research, an unexecuted real-provider quality/cost experiment protocol, bilingual usage instructions and a retained six-task implementation plan.
+
 - Adds a persistent project test-resource map with compact source fingerprints, validation-to-service coverage audit, and a periodic read-only health watcher; resource failures now route as environmental evidence. Records reusable Tomcat, MySQL, Selenium, Compose, and Testcontainers monitoring guidance in Markdown.
 
 ## 0.9.1 - 2026-09-11

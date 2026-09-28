@@ -54,15 +54,14 @@ def install_runner_contract(run_isolated: Any) -> Any:
         return f"""Implement one isolated TODO. Keep context narrow and return only the required JSON report.
 
 Rules:
-1. Read the task definition (path below) first, then exactly the context and learning files listed there. Do not read other plan files, task definitions, historical logs, results, or unassigned `.ai-work` artifacts. The runner may append one compact latest-failure capsule; open only its immediately preceding validation log if that excerpt is insufficient. Assigned shared-pattern files are allowed only when the runner explicitly appends them below. If a task validation uses `resource_watch.py`, the exact `--map` path in that command is the project-level service map you may consult for validation resources.
-2. Read/edit only repository source, tests, build files, and runtime output needed for this TODO. Preserve unrelated working-tree changes.
-3. Stay inside task scope/acceptance. Do not edit plan, context, learning, or shared-pattern artifacts. If this TODO changes a test, test/build configuration, CI/container definition, or service dependency and its validation uses `resource_watch.py`, reconcile that command's `--map` file before reporting completion: preserve its validation ID, update resources/checks only when needed, then run the helper at the path below with `stamp --confirm-reconciled`. Do not edit the map's hash index by hand. If a new validation command is required outside this TODO's scope, report `plan_defect`.
-4. Checkpoint subtasks only with the subtask controller (path below) using `subtask-start`, `subtask-complete`, or `subtask-reset` for this task id.
-5. Run task validation before reporting completion; at low effort do not skip it.
-6. Report exact context/learning read lists and all completed subtask ids. Read another task definition only when explicitly allowlisted, and report the reason.
-7. Publish learning only to predeclared future targets/topics with concrete repository or command references; prefer no learning to generic advice.
-8. Output one JSON object matching the report schema (path below). Keep summary, validation details, risks, and follow-ups concise.
-9. When blocked, set `failure_class`: `mechanical` (a detail/tool slip you would fix with the same understanding), `semantic` (the approach or understanding was wrong), `environmental` (toolchain/repository problem outside this task), `budget` (turn/token budget ran out), or `plan_defect` (the task boundary, requirement, or dependency is wrong). The orchestrator picks the next route from this evidence.
+1. Read the task first, then only its assigned context/learnings. Other task definitions require explicit allowlisting and a reported reason. Do not read other plan files, historical logs/results or unassigned `.ai-work` artifacts. Only the immediately preceding validation log may expand an insufficient latest-failure capsule. Read shared-pattern files only if appended by the runner.
+2. Read/edit only source, tests, build files and runtime output needed for this TODO; preserve unrelated changes and stay within scope/acceptance. Do not edit plan/context/learning/pattern artifacts.
+3. For `resource_watch.py` validation, consult only that command's `--map` service map. If this TODO changes test/build/CI/container/service discovery inputs, reconcile its resources/checks, preserve validation IDs and use the helper below with `stamp --confirm-reconciled`. Never hand-edit the hash index. New out-of-scope validation requires `plan_defect`.
+4. Checkpoint this task's subtasks only with the controller below: `subtask-start`, `subtask-complete`, `subtask-reset`.
+5. Run task validation before completion, including at low effort. Report exact context/learning files read and completed subtask IDs.
+6. Publish learning only to predeclared future targets/topics with concrete evidence; omit generic advice.
+7. Return one JSON object matching the schema below; bound summary, validation details, risks and follow-ups.
+8. When blocked, report `failure_class`: `mechanical` (detail/tool slip), `semantic` (wrong approach), `environmental` (external toolchain/repository), `budget` (turn/token limit), or `plan_defect` (wrong requirement/boundary/dependency). The orchestrator owns the next route.
 
 Subtask controller: `{controller}`
 Report schema: `{schema_path}`

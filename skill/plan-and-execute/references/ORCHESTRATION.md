@@ -18,14 +18,7 @@ For promoted DIRECT work, completed implementation is current-state evidence and
 
 Planning does not inherit the root chat model, and the root model is never switched: a stage whose floor exceeds the root tier is delegated to a fresh worker at that tier (`MODEL_ROUTING.md` §3). Read `PLANNING_ROUTING.md` only when assigning planning-stage routes; when only a few decisions are hard, use its decision-first staging (`hard_decisions`).
 
-- deterministic lookup/filtering/splitting/indexing stays in tools;
-- bounded extraction can use economy capability;
-- ordinary synthesis normally uses standard;
-- architecture, security, migration, data-integrity, high-impact decomposition, or weakly verifiable decisions can require strong;
-- fresh review should be strong enough to challenge the hardest material decision;
-- max/frontier is evidence-driven.
-
-Planning routes and implementation routes are independent.
+Use tools for deterministic lookup; economy for bounded extraction; standard for ordinary synthesis; stronger workers for architecture/security and weakly verifiable high-impact decisions. Review must challenge the hardest decision. Planning and implementation routes remain independent; use `ROUTING_CONFIG.md` for global/per-plan provider chains.
 
 ## 3. Study only what can change the plan
 
@@ -37,7 +30,7 @@ Prepared packages start from digests/indexes and retrieve source fragments only 
 
 While drafting, read `PLANNING_PROTOCOL.md`, `EXECUTION_CONTEXT.md`, and `PLAN_SPEC.md`.
 
-Before finalizing any validation command, read `TEST_RESOURCE_MONITORING.md`. Run `service_map.py check --repo-root .`; if the project has no map, initialize the draft and inventory test/build/CI/container/service/runtime inputs. If stale, reconcile only the changed paths shown by the checker. Each automated validation gets a stable map ID, explicit toolchain IDs, an explicit resource list (possibly empty), a suitable no-progress timeout, and resource health checks. Store its task validation command as a `resource_watch.py run --validation <ID>` wrapper so long tests receive periodic probes and process-progress checks.
+Before finalizing validation commands, follow `TEST_RESOURCE_MONITORING.md`: check `.ai-work/SERVICE_MAP.md`, initialize when absent, reconcile changed discovery inputs only. Give each validation a stable ID, explicit toolchain/resources, no-progress timeout and health checks; store the `resource_watch.py run --validation <ID>` wrapper in the task.
 
 Inventory request parts (`P...`) and observable requirements (`R...`). Map every request part -> requirement -> executable TODO and every TODO back to requirements.
 
@@ -63,7 +56,7 @@ Execution context is omission-first:
 
 Separately ask whether multiple TODOs share a **normative contract that may evolve**. If no, do not load `SHARED_PATTERNS.md` and create no registry. If yes, read it and create `/tmp/pattern-spec.json` only after TODO ids stabilize.
 
-Good patterns include REST Resource facades, Admin CRUD conventions, SCSS/design tokens, error envelopes, or persistence invariants. `PATTERN_SEEDS.json` from PRIMARY_PLAN is evidence, not authority: the final planner chooses live patterns and signatories.
+`PATTERN_SEEDS.json` is evidence, not authority: the final planner selects live contracts and signatories.
 
 ## 6. Preserve adaptive implementation routing
 
@@ -88,7 +81,7 @@ python <skill-dir>/scripts/planctl_concise.py audit --plan .ai-work/<plan-id>
 python <skill-dir>/scripts/service_map.py audit-plan --repo-root . --map .ai-work/SERVICE_MAP.md --plan .ai-work/<plan-id>
 ```
 
-The service-map audit must pass before activation. It rejects raw or unknown validation commands; each command needs exactly one validation ID from the fresh project map. When a task changes test/service discovery inputs, its worker reconciles and stamps the project map before returning, or the resource wrapper refuses to run stale mappings.
+Before activation, service-map audit must pass: each command references exactly one known validation ID. Workers reconcile and stamp changed discovery inputs; resource wrappers reject stale maps.
 
 If patterns were approved, initialize after plan creation so signatories reference final TODO ids:
 
@@ -97,9 +90,9 @@ python <skill-dir>/scripts/patternctl.py init --plan .ai-work/<plan-id> --spec /
 python <skill-dir>/scripts/patternctl.py validate --plan .ai-work/<plan-id>
 ```
 
-Activate lifecycle state, then autostart unless a genuine authorization/safety gate or unresolved material question blocks execution. For prepared packages retain only the compact handoff plus package/source references, not copies of every raw fragment.
+Activate and autostart unless authorization, safety, or material uncertainty blocks execution. Retain compact handoffs and source references, not raw-fragment copies.
 
-When the requested target is this skill, include one final TODO that reviews the whole skill after the implementation TODOs. Follow [`SKILL_MAINTENANCE_REVIEW.md`](SKILL_MAINTENANCE_REVIEW.md) to catch broken routing, stale references, missing tool affordances, duplicated instructions, token-heavy paths, and gaps between scripts and documented behavior. Keep this special final TODO out of ordinary client-project plans.
+For changes to this skill itself, add a final whole-skill TODO using [`SKILL_MAINTENANCE_REVIEW.md`](SKILL_MAINTENANCE_REVIEW.md). Do not add that maintenance-only step to ordinary client projects.
 
 ## 8. Persist minimal resumable state
 
@@ -175,6 +168,6 @@ Before handoff:
 2. `patternctl validate` must pass when patterns exist;
 3. build summary input from compact authoritative task state, validations, pattern revision summary, and bounded repository-change evidence — never concatenate raw worker reports;
 4. generate the user-facing handoff with an economy route when available;
-5. mark summary generated, deactivate lifecycle state, and run guarded cleanup.
+5. mark summary generated, deactivate lifecycle state, and run guarded cleanup unless the user explicitly requested retention (`--no-cleanup` / `cleanup_on_success: false`).
 
 Cleanup removes planning/control state only. Preserve implementation changes, tests, generated product artifacts, commits, and unrelated repository content. Retain plan state whenever completion, validation, pattern adoption, or summary generation fails.

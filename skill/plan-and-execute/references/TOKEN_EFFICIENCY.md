@@ -24,7 +24,7 @@ Use a fresh worker when context boundaries diverge, disposable exploration would
 
 ## 4. Elevation is delegation, not a root switch
 
-Prompt caches are keyed by model and (on most models) by effort level. Switching the root session's model or effort re-reads the entire conversation uncached; Anthropic measured an Opus->Haiku mid-session switch as *more* expensive than staying. The cheap way to obtain a different tier is a fresh worker with a minimal prompt whose result returns as a few hundred tokens. This is also what lets a small root model run the skill: it delegates every stage above its tier instead of attempting it.
+Keep the root route stable and delegate a harder leaf with minimal context. Changing model, tools or the cached prefix can discard cache reuse; effort behavior depends on the provider/model. A fresh worker can reuse matching provider prefixes, but fresh context alone does not guarantee a cheaper call. Measure total validated-outcome cost, not nominal input price.
 
 ## 5. Promote instead of restarting
 
@@ -56,17 +56,9 @@ Default to no `CONTEXT.md`. Create global/scoped context only for non-obvious fa
 
 ## 11. Preserve stable provider prefixes and logical routing
 
-Claude Code (API/subscription):
+Keep shared rules before task-specific evidence. Reuse a stable model/tool/schema configuration when it meets the task's floor; do not switch the root route solely to chase a cheaper nominal token price. Provider cache keys, TTLs and effort exceptions change: verify the active provider documentation before tuning them. Do not claim every fresh worker starts cold or that all effort changes invalidate all caches.
 
-- the cached prefix is system prompt + project context + conversation; a change anywhere earlier recomputes everything after it;
-- **invalidates**: model switch, effort change (except Fable 5.1 on API/subscription), MCP servers loaded into the prefix, plugin MCP changes, `/compact`, fast-mode toggle, denying a whole tool;
-- **keeps**: skill/command invocation, plan mode, output style, permission mode, editing repository files, editing CLAUDE.md mid-session, spawning subagents (they warm their own cache);
-- subagents, workflows, and forks get a 5-minute TTL by default; `subagentPromptCacheTtl: 1h` for long orchestrations;
-- workflow fan-outs share a sibling's prefix when model/effort/tools/schema/cwd match, so digest-style batches should use one uniform route.
-
-Codex: cached reads ~10% of input; Codex charges no cache writes and no long-context multiplier; `tool_output_token_limit` bounds retained tool output; `model_auto_compact_token_limit` controls compaction.
-
-Runner consequences: worker prompts keep static rules first and per-task values last; every fresh `claude -p`/`codex exec` worker starts cold, so keep its prompt minimal and let the task file carry the detail; never toggle route configuration between attempts of the same worker.
+Availability fallback preserves the declared logical tier and requested effort, subject only to provider capability caps. It is independent of semantic escalation (`ROUTING_CONFIG.md`). Optional diagnostics load only the latest bounded evidence (`ASSISTANTS.md`); disabled assistants and routine deterministic diagnostics make zero advisory calls. Character limits bound supplied text, not billed tokens or internal provider context.
 
 ## 12. Route by verified task cost, not price per token
 

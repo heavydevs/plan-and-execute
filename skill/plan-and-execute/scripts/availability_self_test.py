@@ -3,6 +3,7 @@
 from __future__ import annotations
 import copy
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -24,7 +25,12 @@ class AvailabilityTests(unittest.TestCase):
         self.root = Path(self.tmp.name) / 'repo'
         self.root.mkdir()
         subprocess.run(['git', 'init', '-q'], cwd=self.root, check=True)
-        self.plan = planctl.create_plan(self.root, sample_spec(), '.ai-work', 'availability')
+        spec = sample_spec()
+        if os.name == 'nt':
+            validation = subprocess.list2cmdline([sys.executable, '-c', "from pathlib import Path; assert Path('implemented.txt').read_text() == 'implemented\\n'"])
+            for task in spec['tasks']:
+                task['validation_commands'] = [validation]
+        self.plan = planctl.create_plan(self.root, spec, '.ai-work', 'availability')
         _, self.manifest = planctl.load_plan(self.plan)
         self.task = self.manifest['tasks'][0]
         self.config = cfg.merge(planctl.default_config(), cfg.EXTRA_DEFAULTS)

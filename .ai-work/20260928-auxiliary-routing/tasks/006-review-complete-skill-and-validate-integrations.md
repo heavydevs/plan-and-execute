@@ -1,6 +1,6 @@
 ---
 task_id: "006"
-status: "pending"
+status: "completed"
 requirements: "R010,R009"
 dependencies: "001,002,003,004,005"
 allowed_related_task_reads: "none"
@@ -20,13 +20,13 @@ Objective: Pass full regressions and skill budgets; document native-platform lim
 
 ## Checkpoints
 
-- [ ] **S001** Implement and verify the bounded contract — Pass full regressions and skill budgets; document native-platform limits and package the updated skill.
+- [x] **S001** Implement and verify the bounded contract — Pass full regressions and skill budgets; document native-platform limits and package the updated skill.
 
 ## Scope
 
 In: Pass full regressions and skill budgets; document native-platform limits and package the updated skill.
 Out: No unrelated framework refactoring or changes to model pricing/catalog.
-Files: `skill/plan-and-execute/SKILL.md`, `skill/plan-and-execute/references`, `tools`, `test`, `README.md`, `README.pt-BR.md`
+Files: `skill/plan-and-execute/SKILL.md`, `skill/plan-and-execute/references`, `tools`, `test`, `README.md`, `README.pt-BR.md`, `skill/plan-and-execute/scripts/self_test.py`, `skill/plan-and-execute/scripts/assistant_triage.py`, `skill/plan-and-execute/scripts/assistant_triage_self_test.py`, `skill/plan-and-execute/scripts/configure.py`, `docs/research`, `CHANGELOG.md`, `.github/workflows`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/availability_self_test.py`
 
 ## Guidance
 

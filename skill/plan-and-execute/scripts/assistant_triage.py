@@ -223,7 +223,10 @@ def native_profile(config: dict, work: Path, refs: set[str]) -> tuple[list[str],
         raise Skip('explicit_anthropic_api_key_required')
     provider = config['claude']
     raw = provider.get('command', 'claude')
-    command = shlex.split(raw) if isinstance(raw, str) else raw
+    if isinstance(raw, str):
+        command = [raw] if shutil.which(raw) else [x.strip(chr(34)) for x in shlex.split(raw, posix=os.name != 'nt')]
+    else:
+        command = raw
     if len(command) != 1 or Path(command[0]).name.lower() not in ('claude', 'claude.exe'):
         raise Skip('unsupported_command_wrapper')
     executable = shutil.which(command[0])
