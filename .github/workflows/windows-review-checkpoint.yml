@@ -1,0 +1,96 @@
+name: Windows review checkpoint
+on:
+  push:
+    branches: [feature/auxiliary-assistants-tier-routing-20260928]
+    paths: ['.ai-work/windows-review-trigger']
+permissions:
+  contents: write
+jobs:
+  review:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Apply reviewed native-platform corrections
+        shell: bash
+        run: |
+          python - <<'PY'
+          import subprocess
+          from pathlib import Path
+          parent = subprocess.check_output(['git', 'rev-parse', 'HEAD^'], text=True).strip()
+          if parent != '61a9fd707fca36fbfcd0fbbe0d06044dfd59dd44':
+              raise SystemExit('Review parent changed; reconcile before applying.')
+          changes = [
+              ('skill/plan-and-execute/scripts/self_test.py', 'assert draft.parent == repo / ".ai-work" / "intake"', 'assert draft.parent == (repo / ".ai-work" / "intake").resolve()'),
+              ('tools/run-skill-self-test.js', "? [['py', ['-3']], ['python', []], ['python3', []]]", "? [['python', []], ['python3', []], ['py', ['-3']]]"),
+          ]
+          for name, old, new in changes:
+              p = Path(name)
+              text = p.read_text(encoding='utf-8')
+              if text.count(old) != 1:
+                  raise SystemExit('Expected unique preimage: ' + name)
+              p.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+      - name: Run complete native Windows suite
+        shell: bash
+        run: |
+          set -o pipefail
+          npm ci
+          npm run check 2>&1 | tee windows-review-validation.log
+      - name: Preserve task 006 follow-up and push validated corrections
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('.ai-work/20260928-auxiliary-routing/WINDOWS_REVIEW.md')
+          p.write_text('''# Task 006 native Windows follow-up
+
+          The final PR matrix exposed an existing request-intake test comparing a
+          canonical path against an unresolved Windows temporary path. The assertion
+          now compares resolved paths without weakening its expected destination.
+
+          The self-test launcher preferred py -3 and selected Python 3.14 even though
+          CI configured 3.11. It now respects Python on PATH before launcher fallback.
+          This preserves the declared CI environment and activated virtual environments.
+
+          The complete npm run check suite passed on native Windows, Node 22 and the
+          configured Python 3.11 before this follow-up commit was pushed. Linux full
+          validation already passed at source checkpoint 6bb047db. Final PR CI checks
+          all supported matrix entries again. Platform-specific skips remain explicit.
+
+          This is additional validation within completed task 006, not a new product
+          requirement. All original plan artifacts and completion evidence are retained.
+          No native model generation or comparative cost/quality experiment was run.
+          ''', encoding='utf-8')
+          PY
+          git add skill/plan-and-execute/scripts/self_test.py tools/run-skill-self-test.js
+          git add -f .ai-work/20260928-auxiliary-routing/WINDOWS_REVIEW.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(test): validate canonical Windows intake and respect selected Python'
+          git push origin HEAD:feature/auxiliary-assistants-tier-routing-20260928
+      - name: Preserve recovery checkpoint
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p checkpoint-artifact
+          git bundle create checkpoint-artifact/repository.bundle --all
+          git diff --binary HEAD > checkpoint-artifact/uncommitted.patch
+          git rev-parse HEAD > checkpoint-artifact/HEAD.txt
+          cp windows-review-validation.log checkpoint-artifact/validation.log 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-review-checkpoint
+          path: checkpoint-artifact
+          retention-days: 7
+          if-no-files-found: error
