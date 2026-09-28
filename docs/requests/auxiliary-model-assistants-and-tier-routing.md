@@ -1,148 +1,153 @@
-# Request: auxiliary model assistants + configurable tier→provider routing
+# Request v2: safe auxiliary assistants and configurable tier routing
 
-Status: draft request, not yet planned. Intended as a **direct** final-planning input
-(`references/PLANNING_INPUT_CONTRACT.md`) — small enough that it should not need primary-plan
-staging. A future `plan-and-execute` session on this repo can consume it as-is.
+Status: approved for implementation, 2026-09-28. Original draft is preserved in git
+and the retained plan's REQUEST.md. This is a FINAL_PLAN input, not primary staging.
+Research and tradeoffs: [AUXILIARY_ROUTING.md](../research/AUXILIARY_ROUTING.md).
+Implementation plan: `.ai-work/20260928-auxiliary-routing/manifest.json`.
 
-## Summary
+## Purpose and evidence
 
-Two related capabilities, both about who does the work on a TODO, not what the work is:
+The current runner records quota events without rotating its provider selection,
+so repeated invocations can select the same exhausted CLI. Fix this independently
+of reasoning-quality escalation. Add a secondary diagnostic model only when its
+bounded advice can help an ambiguous validation failure. More agents are not
+intrinsically cheaper or more accurate; deterministic tools stay the first choice.
 
-1. **Auxiliary assistant models**: let a secondary model help the model that owns a TODO —
-   starting with validation-failure triage — instead of every provider call being either "the
-   worker" or nothing. Default assistant provider: **Antigravity**.
-2. **Configurable, working tier→provider routing**: let a person globally configure which
-   provider is primary for each logical tier (`economy`/`standard`/`strong`/`max`) and what its
-   fallback chain is, through an **interactive multiple-choice flow** — one question per setting,
-   never one bundled question. This also has to actually implement provider fallback on
-   availability failure, which today is documented but not wired up (evidence below).
+Keep one authoritative owner per TODO. Assistants cannot edit the product,
+complete tasks, select authoritative failure classes, launch other assistants or
+replace deterministic tests. No debate/voting or always-on second model.
 
-## Evidence this request is grounded in
+## R001 - Evidence-based design
 
-Found while operating the skill on a real plan (`talepace`, plan
-`20260924-004347-pend-ncias-adaptive-learning-v2-livro-progressivo-offline-proteg`), not
-speculative:
+Use primary research and current provider documentation. Record the observed base
+behavior, selected design, measurable acceptance and unverified platform claims.
+Do not promise billed-token savings from character counts or mock benchmarks.
 
-- **README.md §"Per-TODO model routing" and `references/MODEL_ROUTING.md` §6** document that
-  "Provider fallback (quota, rate limit, capacity, CLI interruption) is availability, not
-  evidence: state is preserved and the equivalent logical rung runs on the fallback provider."
-  This is not what the code does.
-- `scripts/run_isolated.py::fail_task` path for `rate_limited=True` only increments
-  `task["rate_limit_events"]`; it never touches `functional_failures`/`failure_classes`
-  (`planctl.py` ~3178-3185).
-- `scripts/run_isolated.py::choose_route` picks the provider slot from
-  `functional_failures // functional_failures_per_provider` only (~204-207). Since a rate-limit
-  event never increments `functional_failures`, a provider that is rate-limited is **never**
-  rotated away from within one `run_concise.py` invocation.
-- `scripts/run_isolated.py::wait_after_rate_limit` (~1092-1103) only sleeps and retries the exact
-  same command; `scripts/run_isolated.py::execute_one_task` (~1176-1190) either loops back to that
-  same wait, or raises `RunnerError` (`auto_wait: false`), ending the run. Neither path calls
-  `choose_route` with a different candidate set.
-- Net effect, observed live: when the primary provider (Codex) hit its usage limit mid-plan
-  (`ERROR: You've hit your usage limit...`), the runner stopped with `Rate/usage limit stopped
-  task NNN; rerun the command to resume` every time, requiring a human to relaunch with an
-  explicit `--provider` override to make progress. This happened repeatedly across one plan's
-  history (7+ manual resumes in its logs).
-- Antigravity is already a first-class provider (`README.md` §"Supported AI workers",
-  `orchestrator.config.json`'s `antigravity` block, `run_isolated.py`'s antigravity command
-  branch), but its config ships with `"models": {"economy": "default", ...}` placeholders, and
-  some real Antigravity model ids bake the effort level into the id itself (`agy models`:
-  `claude-opus-4-6-thinking`, `gemini-3.8-flash-low`, etc.). Passing `--effort` alongside such a
-  model id is rejected by `agy` (`error: invalid model selection (...): --effort is not supported
-  for model "claude-opus-4-6-thinking"`) unless the id is listed in that provider's
-  `models_without_effort` (`routingctl.py::model_supports_effort`). Any auto-configuration flow
-  that lets someone pick concrete Antigravity models must account for this per-model quirk, not
-  just per-provider.
+## R002 - Layered tier configuration
 
-## Requirement 1 — Auxiliary assistant role
+Support a user-global `orchestrator.config.json` and per-plan overrides. Resolve
+in this order: built-in defaults < global < explicit per-plan values < explicit
+CLI provider selection. Global location follows `PAE_CONFIG_PATH`, then the
+platform configuration directory. Never put credentials in these files.
 
-- Add a provider role distinct from "the worker for this TODO": an **assistant** that reads
-  bounded evidence for a task and returns an advisory finding, never a codebase edit and never the
-  authoritative `failure_class`.
-- First concrete use: **validation-failure triage**, inserted in `WORKFLOW.md` step 6 ("Validate
-  independently"), after a mapped validation fails and before the orchestrator calls
-  `planctl_concise.py fail --failure-class ...`. Inputs stay inside the skill's existing bounded-
-  evidence discipline: the validation id/command from the service map, the existing output tail,
-  a window around the first failure match, non-healthy resource-watch samples, `log_watch`
-  excerpts, and the repeated-failure signature/age — never the full plan, other tasks, or raw full
-  logs.
-- Output is a small structured report (suggested `failure_class`, confidence, a short hypothesis,
-  and evidence locators/quotes) that gets attached to the orchestrator's decision and to the next
-  worker's failure capsule, labeled as advisory/unverified. The orchestrator (or the strict
-  runner's deterministic classifier) keeps the final say.
-- Must be **opt-in and gated**, not run on every validation: skip trivial/deterministic
-  validations (lint, typecheck, formatting-diff checks) where the tool output already is the
-  diagnosis; fire only above a configurable repetition/unhealthy-sample/stall threshold, so it
-  does not add latency/cost to the common case.
-- Default provider for this role: **Antigravity**. Must be overridable per the routing
-  configuration in Requirement 2. The invocation profile for this role must default to
-  **no write access** (`skip_permissions: false` / a real sandboxed, read-only mode), which is
-  different from Antigravity's existing coding-worker profile
-  (`skip_permissions: true`, `sandbox: false`) — an assistant that only reads bounded evidence
-  handed to it in the prompt needs no repo write access.
-- Out of scope for the first version: replacing deterministic test execution
-  (`resource_watch.py`) with a model, and letting the assistant's output silently become the
-  final `failure_class` without the orchestrator/runner retaining override.
+For each `economy`, `standard`, `strong`, `max` tier, configure one `primary` and
+an ordered `fallbacks` list. Lists replace, objects merge; an empty fallback list
+means no fallback. Legacy `provider_order` and complete v1 plan snapshots remain
+valid explicit configuration. Newly generated plans inherit through small overlays.
 
-## Requirement 2 — Global, working tier→provider routing
+Reject invalid object types, booleans-as-integers, unknown provider/tier names,
+duplicate chain members, invalid model/effort combinations and unbounded new retry
+settings before any model call. Keep explicit task provider and
+`allow_provider_fallback` behavior, including a pinned unavailable provider.
 
-- Let a person configure, once, for the whole skill installation (with a per-plan
-  `orchestrator.config.json` override, same as today's per-plan config already allows), which
-  provider is **primary** for each of the four logical tiers (`economy`, `standard`, `strong`,
-  `max`), and an **ordered fallback chain** per tier for when the primary is unavailable.
-- "Unavailable" must include what MODEL_ROUTING.md §6 already promises and the code does not yet
-  do: a rate-limit/quota/capacity/CLI-interruption event on the current provider must be able to
-  move the *next* attempt to the next configured fallback provider **at the equivalent logical
-  rung**, without waiting out the quota window and without counting as `failure_class` evidence
-  (`rate_limit_events` stays the bookkeeping field; this must not touch
-  `functional_failures`/`failure_classes`). This closes the gap in the Evidence section above.
-- Must keep the existing, working `functional_failures`-based rotation for actual failure
-  evidence — this is an additional path, not a replacement.
-- Must remain compatible with per-task `"provider": "auto"` and explicit per-task
-  `"provider": "<name>"` + `allow_provider_fallback` — a task-level explicit provider should still
-  be able to opt out of the global chain the same way it does today.
-- Should validate that a chosen concrete model for a tier is compatible with that provider's
-  `models_without_effort` list (see Evidence) and warn/reject an obviously-invalid combination at
-  configuration time rather than failing at dispatch time.
+## R003 - Availability is not reasoning failure
 
-## Requirement 3 — Interactive multiple-choice configuration flow
+Quota, rate limit, capacity and classified CLI availability interruption advance
+to the next allowed provider at the **same logical tier and requested effort**.
+Actual provider effort caps are recorded separately. This works for both design
+and implementation dispatch; it does not reset accumulated technical evidence.
 
-- Add a configuration entry point (a `pae configure` command, or an in-skill flow invoked from
-  chat — final planning decides the concrete mechanism) that walks a person through setting up
-  Requirement 2 (and, if enabled, Requirement 1's assistant provider).
-- **One multiple-choice question per setting, never a bundled question.** At minimum, per tier:
-  one question for "which provider is primary for this tier" (single choice among configured/
-  detected providers), and one separate question for "which providers can be its fallback, in
-  order" (multiple choice, ordered). Plus one separate question for "enable the auxiliary
-  assistant role, and with which provider" (default: Antigravity).
-- The concrete question-asking mechanism is host-dependent (e.g. Claude Code's structured
-  multiple-choice tool) and must degrade gracefully to plain numbered-list prompts on hosts/
-  providers that cannot render structured multiple-choice UI, since this skill is
-  provider-agnostic (`README.md` §"Supported AI workers" — Codex, Gemini, Qwen, Kimi, Trae).
-- Detect which provider CLIs are actually installed/authenticated (the skill already has
-  `executable_available()` in `run_isolated.py`) and only offer those as answer options, rather
-  than listing every provider the skill knows about unconditionally.
-- Persist the result into `orchestrator.config.json` (`provider_order`,
-  `allow_provider_fallback`, per-provider `models`, and the new assistant-role config), and print
-  a summary of what was written before exiting.
+Record availability events separately. They must not increase
+`functional_failures`, append `failure_classes`, consume the technical-attempt
+budget or trigger stronger-model escalation. Preserve the existing evidence-based
+rotation for genuine technical failures. User cancellation is not provider failure.
+Malformed arguments/configuration are not evidence that another model is needed.
 
-## Non-goals
+## R004 - Bounded resumability
 
-- Not a general multi-agent debate/voting system between providers for the same TODO.
-- Not a change to the evidence-based escalation ladder (`mechanical`/`semantic`/`environmental`/
-  `budget`/`plan_defect`) — that stays as documented; this request only fixes provider
-  *availability* fallback and adds the assistant role alongside it.
-- Not a requirement to build the assistant role for anything beyond validation-failure triage in
-  the first version; a generic "assistant" hook is enough if it is reused later.
+Persist provider cooldowns and the logical route associated with availability
+failure. Do not retry an exhausted provider immediately or wait out a quota window
+before trying an allowed alternative. If the entire chain is unavailable, pause
+with durable pending state and a bounded diagnostic; a later resume rechecks it.
+Never busy-loop, retry indefinitely, widen a forbidden chain or discard edits.
 
-## Suggested starting points for planning
+## R005 - Sequential interactive setup
 
-- `skill/plan-and-execute/scripts/run_isolated.py` (`candidate_providers`, `choose_route`,
-  `execute_one_task`, `wait_after_rate_limit`, `effort_args`, `is_provider_availability_failure`)
-- `skill/plan-and-execute/scripts/routingctl.py` (`model_supports_effort`, the model catalog)
-- `skill/plan-and-execute/scripts/planctl.py` (`fail_task`)
-- `skill/plan-and-execute/references/MODEL_ROUTING.md`, `WORKFLOW.md`,
-  `TEST_RESOURCE_MONITORING.md`
-- `README.md` §"Supported AI workers", §"Per-TODO model routing"
-- `orchestrator.config.json` schema (per-provider blocks, `provider_order`,
-  `allow_provider_fallback`, `rate_limit`)
+Expose `pae configure` and a Python controller usable by a skill host. Ask exactly
+one setting per multiple-choice question. Per tier: primary provider, then ordered
+fallback providers. Ask enabling assistance separately from selecting its provider.
+Offer model choices separately when a concrete mapping needs confirmation.
+
+Use numbered choices in plain terminals. Keep question/answer logic separable so a
+host can render structured choices. Cancellation/EOF must leave configuration
+unchanged. Validate everything before an atomic write and print a summary/path.
+
+Only offer installed, authenticated providers. Executable presence is not proof
+of authentication: use bounded non-generative status probes where documented.
+For a provider without a reliable status probe, report unknown and require explicit
+user authentication confirmation separately; never read or print credential data.
+Probe timeout/auth failure cannot trigger a billed generation call.
+
+## R006 - Concrete models and effort
+
+Preserve user-defined model names and `models_without_effort`. Some Antigravity
+IDs embed effort and reject a separate `--effort`; recognize or explicitly confirm
+that capability when choosing a model. Reject contradictory known capability
+settings before dispatch. Do not silently replace configured models with the
+catalog default. Logical tier names describe routing, not measured equivalence
+between different vendors' models.
+
+## R007 - Opt-in advisory validation triage
+
+Default off, preferred provider Antigravity, independently overridable. Default
+one advisory attempt per task, with bounded evidence/output and wall-clock limits.
+Reserve the attempt before dispatch; timeout, invalid output and interruption
+still consume it. Deduplicate identical evidence across resumes.
+
+Trigger only after a configurable repeated-failure, unhealthy-sample or stall
+threshold. Skip deterministic lint/type/format checks whose output already gives
+the diagnosis. A successful validation must never dispatch an assistant.
+
+Inputs are allowlisted, redacted, bounded evidence: validation ID/command,
+first-failure window, output tail, unhealthy resource samples/log excerpts and
+signature/age. Never send other tasks, full plan, raw full logs or chat history.
+Explicit opt-in authorizes this limited data transfer; redaction is best effort.
+
+Return strict JSON: suggested class, finite confidence, short hypothesis and
+bounded evidence references. Label it advisory/unverified. Reject unknown fields,
+oversized output, invalid classes/confidence and references outside the supplied
+evidence. The deterministic classifier remains authoritative even on disagreement.
+Advice may enter a small next-worker capsule; it must not inflate normal prompts.
+Assistant errors never replace the original failure, count as worker defects or
+block the core workflow. Report missing safety/auth/capabilities as a skip.
+
+## R008 - Genuine read-only boundary
+
+The assistant profile must be independent of the coding-worker profile. A fresh
+working directory, `skip_permissions: false`, or `sandbox: true` alone does not
+prove read-only access. In particular Antigravity's sandbox allows workspace writes.
+
+Use an enforced no-write/tool-less provider profile or a verified operating-system
+isolation boundary; never inherit unrestricted worker flags, hooks, extensions or
+MCP tools. Pass evidence in the prompt, not repository write permissions. If this
+cannot be guaranteed on a provider/OS/version, fail closed and continue without
+advice. Document supported and unsupported native profiles honestly.
+
+## R009 - Checkpoints and delivery
+
+Use plan-and-execute's manifest, task definitions, subtask controls, service-map
+validation and final review. Preserve the plan (`cleanup_on_success: false`) because
+the user requested resumability. Commit and push each validated task, including
+its checkpoint and test evidence. Host-managed execution is allowed when worker
+CLIs are unavailable, but must not be presented as isolated multi-model execution.
+
+## R010 - Whole-skill compatibility
+
+Add negative, recovery and integration tests. Preserve direct-mode escape,
+planning/study/lifecycle contracts, explicit provider overrides and deterministic
+validation. Update focused references and both READMEs. Fix existing prompt-budget
+violations through concision, not increased limits. Package the complete skill.
+
+## Acceptance matrix
+
+- Config: global inheritance; nested plan override; legacy snapshot; unknown or
+  malformed values; duplicate chains; pinned providers; effort-embedded model.
+- Availability: quota then fallback success; design fallback; unequal vendor
+  ladders; chain exhaustion; cooldown/resume; cancellation; real-failure escalation.
+- Setup: each setting is a separate question; ordered fallbacks; no installed CLI;
+  unknown authentication; cancellation; invalid choice; atomic saved configuration.
+- Advice: default-off and common-path zero calls; deterministic skip; trigger
+  thresholds; redaction; no writes; invalid/malicious output; timeout/call budget;
+  repeat deduplication; authoritative decision unchanged; bounded failure capsule.
+- Delivery: retained plan passes controller audits; full tests and fixed budgets;
+  identify native-provider/Windows limits separately from mocks and local checks.

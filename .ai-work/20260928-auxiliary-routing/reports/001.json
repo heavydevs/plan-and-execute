@@ -1,0 +1,21 @@
+{
+  "task_id": "001",
+  "status": "completed",
+  "summary": "Refined requirements with 11 primary sources, explicit safety boundaries and measurable acceptance.",
+  "changed_files": [
+    "docs/requests/auxiliary-model-assistants-and-tier-routing.md",
+    "docs/research/AUXILIARY_ROUTING.md"
+  ],
+  "completed_subtask_ids": [
+    "S001"
+  ],
+  "validation_results": [
+    {
+      "validation": "REQUIREMENTS",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "Host-managed execution; no independent model worker."
+  ]
+}
