@@ -1,6 +1,6 @@
 ---
 task_id: "005"
-status: "pending"
+status: "completed"
 requirements: "R007,R008,R009"
 dependencies: "002,003"
 allowed_related_task_reads: "none"
@@ -20,7 +20,7 @@ Objective: Provide gated, bounded, non-authoritative diagnostic advice without r
 
 ## Checkpoints
 
-- [ ] **S001** Implement and verify the bounded contract — Provide gated, bounded, non-authoritative diagnostic advice without repository write access.
+- [x] **S001** Implement and verify the bounded contract — Provide gated, bounded, non-authoritative diagnostic advice without repository write access.
 
 ## Scope
 

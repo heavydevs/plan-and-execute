@@ -32,6 +32,7 @@ import lifecyclectl  # noqa: E402
 import routingctl  # noqa: E402
 import routing_config  # noqa: E402
 import availability  # noqa: E402
+import assistant_triage  # noqa: E402
 import process_tree  # noqa: E402
 
 TIER_ORDER = routingctl.TIER_ORDER
@@ -1005,12 +1006,18 @@ def run_validation_commands(
             log.flush()
             output = read_log_tail_since(log_path, output_start)
             passed = exit_code == 0
+            # Keep only a bounded first-failure window; raw logs stay on disk.
+            with log_path.open("rb") as evidence_log:
+                evidence_log.seek(output_start)
+                first_window = evidence_log.read(1200).decode("utf-8", errors="replace")
             results.append(
                 {
                     "command": command,
                     "passed": passed,
                     "exit_code": exit_code,
                     "output_tail": output_tail(output, 2000),
+                    "output_head": first_window if not passed else "",
+                    **assistant_triage.observations(output),
                     "failure_class": (
                         "environmental"
                         if "[resource-watch] environment_failure=" in output
@@ -1152,6 +1159,7 @@ def execute_one_task(
             continue
         result_path = normalized_result_file(plan_dir, task, route)
         prompt = append_design_note(worker_prompt(plan_dir, manifest, task, route), plan_dir, task)
+        prompt += assistant_triage.hint(plan_dir, task, config)
         command = build_worker_command(route["provider"], route, config, prompt, result_path)
         if dry_run:
             print(json.dumps({"task": task["id"], "route": route, "command": redact_command(command)}, indent=2))
@@ -1285,6 +1293,12 @@ def execute_one_task(
                 ),
                 validation_log=validation_log.relative_to(plan_dir).as_posix(),
             )
+            advice_result = assistant_triage.triage(plan_dir, task, validation_results, config)
+            if advice_result.get("reason") != "not_eligible":
+                report["assistant_triage"] = advice_result
+                planctl.atomic_write_json(result_path, report)
+                print(f"[task {task['id']}] advisory triage: {advice_result['status']}; "
+                      f"{advice_result.get('reason', 'unverified advice saved')}", file=sys.stderr)
             print(f"[task {task['id']}] deterministic validation failed ({cls}); next route follows the evidence ladder", file=sys.stderr)
             return False
 
