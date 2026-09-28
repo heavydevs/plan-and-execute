@@ -23,8 +23,8 @@ def test_current_model_map() -> None:
     }
     assert configured["claude"]["models"] == {
         "economy": "haiku",
-        "standard": "sonnet",
-        "strong": "opus",
+        "standard": "claude-sonnet-5-5",
+        "strong": "claude-opus-5-5",
         "max": "claude-fable-5-1",
     }
     assert configured["routing_policy"] == {

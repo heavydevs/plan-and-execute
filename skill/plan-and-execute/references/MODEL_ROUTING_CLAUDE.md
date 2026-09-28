@@ -1,17 +1,17 @@
 # Claude Code model routing
 
-Read only when Claude Code will execute the current work. `MODEL_ROUTING.md` owns provider-independent policy.
+Read only when Claude Code will execute the current work. `MODEL_ROUTING.md` owns provider-independent policy. Concrete ids live in `scripts/routingctl.py` `CURRENT_MODELS` (map version 2026-09-28-v4); this table must match it.
 
 ## Current capability map
 
 | Tier | Model | Effort |
 |---|---|---|
 | `economy` | `haiku` | accepts **no effort** parameter; the runner omits `--effort` |
-| `standard` | `sonnet` | `medium` for cost-sensitive verified work; `high` when correctness is less mechanically verifiable |
-| `strong` | `opus` | `medium` when strong validation exists; otherwise `high` |
+| `standard` | `claude-sonnet-5-5` (Sonnet 5.5) | `medium` for cost-sensitive verified work; `high` when correctness is less mechanically verifiable |
+| `strong` | `claude-opus-5-5` (Opus 5.5) | `medium` when strong validation exists; otherwise `high` |
 | `max` | `claude-fable-5-1` | `high`; `xhigh` for demanding long-running coding; `max` is exceptional |
 
-Provider defaults for Opus 5 / Sonnet 5 / Fable 5.1 are adaptive (`high`-equivalent). Effort shapes thoroughness — files read, tools used, verification before returning — so do not dispatch an implementation worker at `low`.
+Provider defaults for Opus 5.5 / Sonnet 5.5 / Fable 5.1 are adaptive (`high`-equivalent). Effort shapes thoroughness — files read, tools used, verification before returning — so do not dispatch an implementation worker at `low`.
 
 ## Elevation mechanics (how a route is actually obtained)
 

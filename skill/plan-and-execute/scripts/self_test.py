@@ -615,7 +615,7 @@ def test_evidence_based_escalation() -> None:
 
     claude = {**base, "provider": "claude", "functional_failures": 1, "failure_classes": ["semantic"]}
     claude_route = run_isolated.choose_route(claude, config, None)
-    assert (claude_route["tier"], claude_route["model"]) == ("strong", "opus")
+    assert (claude_route["tier"], claude_route["model"]) == ("strong", "claude-opus-5-5")
 
 
 def test_ladder_exhaustion_blocks_instead_of_burning_attempts() -> None:

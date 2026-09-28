@@ -12,7 +12,7 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-MODEL_MAP_VERSION = "2026-09-11-v3"
+MODEL_MAP_VERSION = "2026-09-28-v4"
 
 TIER_ORDER = ["economy", "standard", "strong", "max"]
 EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"]
@@ -20,8 +20,8 @@ EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"]
 CURRENT_MODELS: dict[str, dict[str, str]] = {
     "claude": {
         "economy": "haiku",
-        "standard": "sonnet",
-        "strong": "opus",
+        "standard": "claude-sonnet-5-5",
+        "strong": "claude-opus-5-5",
         "max": "claude-fable-5-1",
     },
     "codex": {
