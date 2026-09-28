@@ -1,0 +1,28 @@
+{
+  "task_id": "003",
+  "status": "completed",
+  "summary": "Implemented durable per-provider cooldowns and same-logical-rung design/implementation fallback; 15 availability tests and routing regressions passed, including actual fake CLI subprocesses. Corrected concise-runtime catalog overwrite of explicit configuration.",
+  "changed_files": [
+    ".ai-work/20260928-auxiliary-routing/.orchestrator-plan",
+    ".ai-work/20260928-auxiliary-routing/TODO.md",
+    ".ai-work/20260928-auxiliary-routing/manifest.json",
+    ".ai-work/20260928-auxiliary-routing/tasks/003-implement-resumable-availability-failover.md",
+    ".ai-work/SERVICE_MAP.md",
+    "skill/plan-and-execute/scripts/availability.py",
+    "skill/plan-and-execute/scripts/availability_self_test.py",
+    "skill/plan-and-execute/scripts/routingctl.py",
+    "skill/plan-and-execute/scripts/run_isolated.py"
+  ],
+  "completed_subtask_ids": [
+    "S001"
+  ],
+  "validation_results": [
+    {
+      "validation": "AVAILABILITY",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "Host-managed execution; no independent model worker or authenticated provider invocation."
+  ]
+}

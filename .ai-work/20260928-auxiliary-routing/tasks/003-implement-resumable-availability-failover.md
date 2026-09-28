@@ -1,6 +1,6 @@
 ---
 task_id: "003"
-status: "pending"
+status: "completed"
 requirements: "R003,R004,R009"
 dependencies: "002"
 allowed_related_task_reads: "none"
@@ -20,13 +20,13 @@ Objective: Rotate unavailable providers at equivalent capability and pause bound
 
 ## Checkpoints
 
-- [ ] **S001** Implement and verify the bounded contract — Rotate unavailable providers at equivalent capability and pause boundedly without semantic escalation.
+- [x] **S001** Implement and verify the bounded contract — Rotate unavailable providers at equivalent capability and pause boundedly without semantic escalation.
 
 ## Scope
 
 In: Rotate unavailable providers at equivalent capability and pause boundedly without semantic escalation.
 Out: No unrelated framework refactoring or changes to model pricing/catalog.
-Files: `skill/plan-and-execute/scripts/availability.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/availability_self_test.py`
+Files: `skill/plan-and-execute/scripts/availability.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/availability_self_test.py`, `skill/plan-and-execute/scripts/routingctl.py`
 
 ## Guidance
 

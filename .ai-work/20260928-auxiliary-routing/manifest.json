@@ -210,7 +210,7 @@
   "language": "English",
   "summary_status": "pending",
   "created_at": "2026-09-28T14:46:26+00:00",
-  "updated_at": "2026-09-28T15:14:24+00:00",
+  "updated_at": "2026-09-28T15:23:22+00:00",
   "tasks": [
     {
       "id": "001",
@@ -534,7 +534,8 @@
         "expected_files": [
           "skill/plan-and-execute/scripts/availability.py",
           "skill/plan-and-execute/scripts/run_isolated.py",
-          "skill/plan-and-execute/scripts/availability_self_test.py"
+          "skill/plan-and-execute/scripts/availability_self_test.py",
+          "skill/plan-and-execute/scripts/routingctl.py"
         ]
       },
       "dependencies": [
@@ -564,32 +565,95 @@
           "title": "Implement and verify the bounded contract",
           "objective": "Rotate unavailable providers at equivalent capability and pause boundedly without semantic escalation.",
           "required": true,
-          "status": "pending",
-          "started_at": null,
-          "completed_at": null,
-          "history": []
+          "status": "completed",
+          "started_at": "2026-09-28T15:15:55+00:00",
+          "completed_at": "2026-09-28T15:20:52+00:00",
+          "history": [
+            {
+              "at": "2026-09-28T15:15:55+00:00",
+              "event": "started",
+              "previous_status": "pending"
+            },
+            {
+              "at": "2026-09-28T15:20:52+00:00",
+              "event": "completed",
+              "previous_status": "in_progress"
+            }
+          ]
         }
       ],
       "learning_targets": [],
       "learning_files": [],
       "published_learning_files": [],
       "max_attempts": 8,
-      "status": "pending",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "functional_failures": 0,
       "failure_classes": [],
       "rate_limit_events": 0,
-      "current_route": null,
-      "started_at": null,
-      "completed_at": null,
+      "current_route": {
+        "provider": "host-managed",
+        "tier": "strong",
+        "model": "current-chat-model",
+        "effort": "high",
+        "isolation": "unavailable"
+      },
+      "started_at": "2026-09-28T15:15:54+00:00",
+      "completed_at": "2026-09-28T15:20:54+00:00",
       "last_error": null,
-      "history": [],
-      "changed_files": [],
-      "validation_results": [],
-      "result_file": null,
+      "history": [
+        {
+          "at": "2026-09-28T15:15:54+00:00",
+          "event": "claimed",
+          "route": {
+            "provider": "host-managed",
+            "tier": "strong",
+            "model": "current-chat-model",
+            "effort": "high",
+            "isolation": "unavailable"
+          }
+        },
+        {
+          "at": "2026-09-28T15:15:55+00:00",
+          "event": "subtask_started",
+          "subtask_id": "S001"
+        },
+        {
+          "at": "2026-09-28T15:20:52+00:00",
+          "event": "subtask_completed",
+          "subtask_id": "S001"
+        },
+        {
+          "at": "2026-09-28T15:20:54+00:00",
+          "event": "completed",
+          "result_file": "reports/003.json",
+          "published_learning_files": []
+        }
+      ],
+      "changed_files": [
+        ".ai-work/20260928-auxiliary-routing/.orchestrator-plan",
+        ".ai-work/20260928-auxiliary-routing/TODO.md",
+        ".ai-work/20260928-auxiliary-routing/manifest.json",
+        ".ai-work/20260928-auxiliary-routing/tasks/003-implement-resumable-availability-failover.md",
+        ".ai-work/SERVICE_MAP.md",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/availability_self_test.py",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py"
+      ],
+      "validation_results": [
+        {
+          "validation": "AVAILABILITY",
+          "exit_code": 0
+        }
+      ],
+      "result_file": "reports/003.json",
       "context_files": [],
       "file": "tasks/003-implement-resumable-availability-failover.md",
-      "related_task_files": []
+      "related_task_files": [],
+      "completion_summary": "Implemented durable per-provider cooldowns and same-logical-rung design/implementation fallback; 15 availability tests and routing regressions passed, including actual fake CLI subprocesses. Corrected concise-runtime catalog overwrite of explicit configuration.",
+      "completion_risks": [],
+      "completion_follow_ups": []
     },
     {
       "id": "004",
@@ -939,6 +1003,42 @@
       "at": "2026-09-28T15:06:59+00:00",
       "type": "task_completed",
       "task_id": "002",
+      "published_learning_files": []
+    },
+    {
+      "at": "2026-09-28T15:15:54+00:00",
+      "type": "task_claimed",
+      "task_id": "003",
+      "route": {
+        "provider": "host-managed",
+        "tier": "strong",
+        "model": "current-chat-model",
+        "effort": "high",
+        "isolation": "unavailable"
+      }
+    },
+    {
+      "at": "2026-09-28T15:15:55+00:00",
+      "type": "subtask_started",
+      "task_id": "003",
+      "subtask_id": "S001"
+    },
+    {
+      "at": "2026-09-28T15:20:17+00:00",
+      "type": "scope_refined",
+      "task_id": "003",
+      "reason": "Integration found runtime catalog overwrite of explicit model settings; fix and test the actual concise runner entrypoint in this dispatch task."
+    },
+    {
+      "at": "2026-09-28T15:20:52+00:00",
+      "type": "subtask_completed",
+      "task_id": "003",
+      "subtask_id": "S001"
+    },
+    {
+      "at": "2026-09-28T15:20:54+00:00",
+      "type": "task_completed",
+      "task_id": "003",
       "published_learning_files": []
     }
   ],
