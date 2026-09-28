@@ -911,7 +911,7 @@ def test_request_intake_and_vscode_editor() -> None:
         subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
         draft, language = requestctl.create_request_file(repo, language="en")
         assert language == "en"
-        assert draft.parent == repo / ".ai-work" / "intake"
+        assert draft.parent == (repo / ".ai-work" / "intake").resolve()
         raw = draft.read_text(encoding="utf-8")
         assert requestctl.INSTRUCTIONS_START in raw
         assert requestctl.REQUEST_START in raw

@@ -92,6 +92,11 @@ def test_deep_primary_plan_uses_relative_package_guidance_and_validates_by_cli()
     with tempfile.TemporaryDirectory() as temp:
         root = Path(temp)
         repository = root.joinpath(*(["deep_repository_path"] * 12))
+        # Windows CreateProcess rejects cwd > MAX_PATH even with long paths on.
+        # Keep only the process cwd short; package/plan paths still exceed 260.
+        if sys.platform == "win32":
+            while len(str(repository)) > 230 and repository != root:
+                repository = repository.parent
         repository.mkdir(parents=True)
         subprocess.run(["git", "init", "-q"], cwd=repository, check=True)
         source = root / "large.md"
@@ -113,6 +118,7 @@ def test_deep_primary_plan_uses_relative_package_guidance_and_validates_by_cli()
         with redirect_stdout(io.StringIO()):
             preplanctl.command_prepare(args)
         package = repository / preplanctl.PREPARED_ROOT / package_id
+        assert len(str(package / "package.json")) > 260
         plan_dir = Path(preplanctl.read_json(package / "package.json")["primary_plan"])
         assert plan_dir.is_dir()
         assert plan_dir.name != f"primary-{package_id}"

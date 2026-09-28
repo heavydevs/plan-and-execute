@@ -29,7 +29,7 @@ const testScripts = [
   'pattern_runner_self_test.py'
 ].map((name) => path.join(scriptDirectory, name));
 const candidates = process.platform === 'win32'
-  ? [['py', ['-3']], ['python', []], ['python3', []]]
+  ? [['python', []], ['python3', []], ['py', ['-3']]]
   : [['python3', []], ['python', []]];
 let python = null;
 for (const [command, prefix] of candidates) {
