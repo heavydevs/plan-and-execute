@@ -97,6 +97,49 @@ def _plan_relative_files(files: Any, plan_dir: Path, task_file: Any = None) -> A
     return [item for item in names if not (own and isinstance(item, str) and Path(item).name == own)]
 
 
+def _plan_context_files(files: Any, plan_dir: Path, expected: list[str], task_file: Any = None) -> Any:
+    """Keep only plan context artifacts so extra repository reads never count as an assignment mismatch.
+
+    Workers routinely list runbooks, docs, patterns and the service map next to their assigned context;
+    only `CONTEXT.md`, `contexts/*` and the assigned names themselves are governed by the assignment check.
+    The result is an ordered set: order and repeats are not part of the assignment.
+    """
+    if not isinstance(files, list):
+        return files
+    slashed = [item.replace("\\", "/") if isinstance(item, str) else item for item in files]
+    names = _plan_relative_files(slashed, plan_dir, task_file)
+    return sorted(
+        {
+            item
+            for item in names
+            if isinstance(item, str) and (item in expected or item == "CONTEXT.md" or item.startswith("contexts/"))
+        }
+    )
+
+
+def refresh_manifest(plan_dir: Path, manifest: dict[str, Any]) -> None:
+    """Re-read the manifest in place after a long-running worker.
+
+    The worker checkpoints subtasks through the controller CLI and the operator may edit the plan meanwhile;
+    saving the runner's older in-memory copy would silently discard both (a lost update).
+    """
+    fresh = planctl.read_json(plan_dir / planctl.MANIFEST)
+    current = {item["id"]: item for item in manifest.get("tasks", [])}
+    tasks: list[dict[str, Any]] = []
+    for incoming in fresh.get("tasks", []):
+        # Refresh each task dict in place: callers keep references to the task they are executing.
+        existing = current.get(incoming["id"])
+        if existing is None:
+            tasks.append(incoming)
+            continue
+        existing.clear()
+        existing.update(incoming)
+        tasks.append(existing)
+    fresh["tasks"] = tasks
+    manifest.clear()
+    manifest.update(fresh)
+
+
 def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
     merged: dict[str, Any] = {}
     for key, value in base.items():
@@ -1202,8 +1245,11 @@ def execute_one_task(
                 stream_output=bool(config.get("stream_provider_output", True)),
             )
         except KeyboardInterrupt:
+            refresh_manifest(plan_dir, manifest)
             release_interrupted_task(plan_dir, manifest, task["id"])
             raise
+        refresh_manifest(plan_dir, manifest)
+        task = planctl.find_task(manifest, task["id"])
 
         combined = f"{stdout}\n{stderr}"
         if return_code in (130, 143, -2, -15):
@@ -1234,7 +1280,9 @@ def execute_one_task(
             return False
         expected_context_files = list(task.get("context_files", []))
         reported_context_files = report.get("context_files_read")
-        if _plan_relative_files(reported_context_files, plan_dir, task.get("file")) != _plan_relative_files(expected_context_files, plan_dir):
+        if _plan_context_files(
+            reported_context_files, plan_dir, expected_context_files, task.get("file")
+        ) != sorted(_plan_relative_files(expected_context_files, plan_dir)):
             reason = (
                 "Worker context report mismatch: expected "
                 f"{expected_context_files!r}, received {reported_context_files!r}"
@@ -1414,8 +1462,11 @@ def run_design_phase(
             stream_output=bool(config.get("stream_provider_output", True)),
         )
     except KeyboardInterrupt:
+        refresh_manifest(plan_dir, manifest)
         release_interrupted_task(plan_dir, manifest, task["id"])
         raise
+    refresh_manifest(plan_dir, manifest)
+    task = planctl.find_task(manifest, task["id"])
     combined = f"{stdout}\n{stderr}"
     if return_code in (130, 143, -2, -15):
         release_interrupted_task(plan_dir, manifest, task["id"])

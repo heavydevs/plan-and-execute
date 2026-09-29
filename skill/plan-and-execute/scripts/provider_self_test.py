@@ -366,7 +366,46 @@ def test_codex_output_schema_is_api_compatible() -> None:
     assert mixed["completed_subtask_ids"] == ["S001", 1, "S001"], "non-string lists are left to planctl"
 
 
+def test_context_report_ignores_extra_repository_reads() -> None:
+    plan_dir = Path("C:/repo/.ai-work/plan-1")
+    expected = ["CONTEXT.md", "contexts/a.md"]
+    baseline = sorted(run_isolated._plan_relative_files(expected, plan_dir))
+
+    def check(reported: object) -> bool:
+        return run_isolated._plan_context_files(reported, plan_dir, expected, "tasks/001-x.md") == baseline
+
+    assert check(["CONTEXT.md", "contexts/a.md"])
+    assert check(["contexts/a.md", "CONTEXT.md", "CONTEXT.md"]), "order and repeats are not part of the assignment"
+    assert check(
+        [
+            ".ai-work/plan-1/CONTEXT.md",
+            ".ai-work/plan-1/contexts/a.md",
+            ".ai-work/plan-1/patterns/assignments/001.md",
+            "docs/architecture/x.md",
+            ".ai-work/SERVICE_MAP.md",
+        ]
+    ), "repository docs and pattern reads are not context assignments"
+    assert check(["C:\\repo\\.ai-work\\plan-1\\CONTEXT.md", "contexts\\a.md"]), "Windows separators are normalized"
+    assert not check(["CONTEXT.md"]), "an assigned context that was not read is still a mismatch"
+    assert not check(["CONTEXT.md", "contexts/a.md", "contexts/b.md"]), "an unassigned scoped context is still a mismatch"
+    assert not check(None)
+
+
+def test_refresh_manifest_keeps_external_edits() -> None:
+    with tempfile.TemporaryDirectory() as raw:
+        plan_dir = Path(raw)
+        planctl.atomic_write_json(plan_dir / planctl.MANIFEST, {"tasks": [{"id": "001"}, {"id": "046"}], "updated_at": "later"})
+        held = {"id": "001", "status": "in_progress"}
+        stale = {"tasks": [held], "updated_at": "earlier"}
+        run_isolated.refresh_manifest(plan_dir, stale)
+        assert stale["tasks"][0] is held and "status" not in held, "a task the caller holds is refreshed in place"
+        assert [task["id"] for task in stale["tasks"]] == ["001", "046"], "a task inserted while the worker ran survives"
+        assert stale["updated_at"] == "later"
+
+
 def main() -> int:
+    test_context_report_ignores_extra_repository_reads()
+    test_refresh_manifest_keeps_external_edits()
     test_default_provider_policy()
     test_worker_command_adapters()
     test_configured_models_are_forwarded()

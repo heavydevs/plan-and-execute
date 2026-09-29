@@ -13,6 +13,9 @@ All notable changes to this project are documented here.
 
 - Adds a persistent project test-resource map with compact source fingerprints, validation-to-service coverage audit, and a periodic read-only health watcher; resource failures now route as environmental evidence. Records reusable Tomcat, MySQL, Selenium, Compose, and Testcontainers monitoring guidance in Markdown.
 
+- Fixes the worker context-acknowledgement check rejecting valid work: workers routinely list repository docs, pattern files and the service map next to their assigned context, and the exact-equality comparison escalated the route on that harmless report (`unknown` failure). Only `CONTEXT.md`, `contexts/*` and the assigned names are compared now, as an ordered set with Windows separators normalized; a missing or unassigned scoped context is still a mismatch.
+- Fixes a lost update in the runner: it held the manifest loaded at start while a worker ran for tens of minutes, then saved that stale copy on completion or failure, discarding the worker's subtask checkpoints and any task the operator inserted meanwhile. The runner now re-reads the manifest in place (task objects keep their identity) as soon as a worker or design process returns.
+
 ## 0.9.1 - 2026-09-11
 
 - Fixes Codex worker dispatch failing before the worker starts: the OpenAI structured-output validator rejects `uniqueItems` (`invalid_json_schema ... 'uniqueItems' is not permitted`), so every `codex exec --output-schema` attempt exited with HTTP 400 and the TODO was marked as a provider failure. The runner now derives a Codex-compatible copy of `completion-report.schema.json` per attempt (unsupported keywords stripped, every object strict-compliant with all properties in `required`) into `results/codex-output-schema.json`, while Claude, Antigravity and Qwen keep receiving the canonical schema. Verified against the live API with `gpt-5.6-luna`.
