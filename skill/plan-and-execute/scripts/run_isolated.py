@@ -725,6 +725,10 @@ def run_process(
     log_path.parent.mkdir(parents=True, exist_ok=True)
     stdout_lines: list[str] = []
     stderr_lines: list[str] = []
+    # cmd.exe truncates a `.cmd` shim argument at its first newline (the worker then sees only the
+    # prompt's last line), so newlines inside any argument become an ASCII separator on Windows shims.
+    if os.name == "nt" and command and command[0].lower().endswith((".cmd", ".bat")):
+        command = [" ;; ".join(line.strip() for line in part.splitlines() if line.strip()) if "\n" in part else part for part in command]
     with log_path.open("w", encoding="utf-8", newline="\n") as log:
         log.write("COMMAND: " + shlex.join(redact_command(command)) + "\n\n")
         log.flush()
