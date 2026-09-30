@@ -1,17 +1,23 @@
 # Claude Code model routing
 
-Read only when Claude Code will execute the current work. `MODEL_ROUTING.md` owns provider-independent policy. Concrete ids live in `scripts/routingctl.py` `CURRENT_MODELS` (map version 2026-09-28-v4); this table must match it.
+Read only when Claude Code will execute the current work. `MODEL_ROUTING.md` owns provider-independent policy. Concrete ids live in `scripts/routingctl.py` `CURRENT_MODELS` (map version 2026-09-30-v5); this table must match it.
 
 ## Current capability map
 
-| Tier | Model | Effort |
-|---|---|---|
-| `economy` | `haiku` | accepts **no effort** parameter; the runner omits `--effort` |
-| `standard` | `claude-sonnet-5-5` (Sonnet 5.5) | `medium` for cost-sensitive verified work; `high` when correctness is less mechanically verifiable |
-| `strong` | `claude-opus-5-5` (Opus 5.5) | `medium` when strong validation exists; otherwise `high` |
-| `max` | `claude-fable-5-1` | `high`; `xhigh` for demanding long-running coding; `max` is exceptional |
+| Tier | Model | List price in/out per MTok | Effort |
+|---|---|---|---|
+| `economy` | `haiku` (alias for Haiku 4.5, 200K context) | $1 / $5 | accepts **no effort** parameter; the runner omits `--effort` |
+| `standard` | `claude-sonnet-5-5` (Sonnet 5.5) | $2 / $10 | `medium` for cost-sensitive verified work; `high` when correctness is less mechanically verifiable |
+| `strong` | `claude-opus-5-5` (Opus 5.5) | $4 / $20 | `medium` when strong validation exists; otherwise `high` |
+| `max` | `claude-fable-5-1` (Fable 5.1, most capable widely released) | $10 / $50 | `high`; `xhigh` for demanding long-running coding; `max` is exceptional |
 
-Provider defaults for Opus 5.5 / Sonnet 5.5 / Fable 5.1 are adaptive (`high`-equivalent). Effort shapes thoroughness — files read, tools used, verification before returning — so do not dispatch an implementation worker at `low`.
+Reviewed 2026-09-30 against the Claude Code CLI 2.1.285 model list and Anthropic's model table: no newer generally available id exists, so the ids are unchanged. Opus 5.5 replaced Opus 5 at a lower price ($4/$20 vs $5/$25) with the same 1M context and feature set, which makes it the right `strong` model, not a downgrade. Fable 5.1 succeeds Fable 5 at the same price.
+
+Not routes: `claude-mythos-5-1` (Project Glasswing access program only), and the previous generation (`claude-opus-5`, `claude-opus-4-x`, `claude-sonnet-5`, `claude-sonnet-4-6`, `claude-fable-5`) which cost the same or more for less capability. The `opus`/`sonnet`/`fable` aliases resolve to the latest id, which is why `Agent` tool calls may name them.
+
+Provider defaults differ per model: Sonnet 5.5 and Fable 5.1 default to `high`, Opus 5.5 defaults to `medium` (the runner always passes an explicit effort). Thinking is always on for Opus 5.5 and Fable 5.1, so the lowest effort still thinks; effort shapes thoroughness — files read, tools used, verification before returning — so do not dispatch an implementation worker at `low`.
+
+Access caveat: Fable 5.1 needs usage credits on some plans/accounts. The CLI then answers HTTP 429 `credits_required`, which the runner classifies as quota, so a route that reaches the `max` rung pauses (exit 75) even though Opus is fine. Reach `max` only from real failure evidence; if the account cannot serve Fable, handle that task at Opus `xhigh` by hand rather than waiting.
 
 ## Elevation mechanics (how a route is actually obtained)
 

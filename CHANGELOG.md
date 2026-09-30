@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## Unreleased
 
+- Updates the Codex model map to the GPT-6 family from the live `codex debug models` catalog: economy `gpt-6-luna`, standard `gpt-6-sol` (there is no GPT-6 Terra; the GPT-5.6 line is now "older"), strong/max `gpt-6-astra`. The escalation ladders keep their calibrated shape. The Claude map was re-reviewed against the Claude Code model list and Anthropic's model table and stays `haiku` / `claude-sonnet-5-5` / `claude-opus-5-5` / `claude-fable-5-1`; the Claude reference now records prices, per-model effort defaults, non-routes (`claude-mythos-5-1`, previous generations) and the Fable `credits_required` caveat. Map version `2026-09-30-v5`.
 - Adds strict user-global/version-2 per-plan configuration, primary/fallback chains per logical tier, and backward compatibility with legacy full snapshots.
 - Adds bounded same-rung availability failover for design and implementation, durable cooldowns, and resumable exit-75 pauses without changing functional-failure counters.
 - Adds `pae configure`: sequential numbered questions, non-generative authentication probes, independent assistant selection, custom model/capability configuration, cancellation, previews and private atomic/concurrency-safe writes.

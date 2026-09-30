@@ -16,8 +16,8 @@ REFERENCES = SKILL_DIR / "references"
 def test_current_model_map() -> None:
     configured = routingctl.configure_config(planctl.default_config())
     assert configured["codex"]["models"] == {
-        "economy": "gpt-5.6-luna",
-        "standard": "gpt-5.6-terra",
+        "economy": "gpt-6-luna",
+        "standard": "gpt-6-sol",
         "strong": "gpt-6-astra",
         "max": "gpt-6-astra",
     }
@@ -38,7 +38,7 @@ def test_current_model_map() -> None:
     assert planctl.default_config()["claude"]["models_without_effort"] == ["haiku"]
     assert routingctl.model_supports_effort(configured["claude"], "haiku") is False
     assert routingctl.model_supports_effort(configured["claude"], "sonnet") is True
-    assert routingctl.model_supports_effort(configured["codex"], "gpt-5.6-luna") is True
+    assert routingctl.model_supports_effort(configured["codex"], "gpt-6-luna") is True
 
 
 def test_legacy_ceiling_state_is_replaced() -> None:
@@ -72,7 +72,7 @@ def test_catalog_installer_is_idempotent() -> None:
 def test_escalation_ladders_follow_calibration() -> None:
     codex = routingctl.configure_config({})["codex"]
     rungs = routingctl.route_rungs(codex, "standard", "medium")
-    # Codex never spends a Terra High retry before an Astra Low attempt.
+    # Codex never spends a Sol High retry before an Astra Low attempt.
     assert rungs[0] == ("standard", "medium")
     assert rungs[1] == ("strong", "low"), rungs
     assert ("standard", "high") not in rungs

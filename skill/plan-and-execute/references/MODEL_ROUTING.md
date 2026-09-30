@@ -69,7 +69,7 @@ DIRECT means **no planning harness**, not "one expensive model does everything":
 | `strong` | difficult, subtle, high-risk, or weakly verifiable engineering |
 | `max` | frontier/long-horizon escalation after semantic need or failure evidence |
 
-Concrete models are provider-specific. Model generation and reasoning effort are independent axes: a newer model at low/medium effort can dominate an older model at high effort (Codex: Astra Low >= Sol High; Claude: Opus Medium is a valid first strong rung under strong validation).
+Concrete models are provider-specific. Model generation and reasoning effort are independent axes: a newer model at low/medium effort can dominate an older model at high effort (Codex: Astra Low >= the previous strong model at High; Claude: Opus Medium is a valid first strong rung under strong validation).
 
 ## 5. Effort: thoroughness, not only thinking time
 

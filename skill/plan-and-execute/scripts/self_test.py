@@ -601,7 +601,7 @@ def test_evidence_based_escalation() -> None:
     assert (route(["mechanical"])["tier"], route(["mechanical"])["effort"]) == ("standard", "medium")
     two_mech = route(["mechanical", "mechanical"])
     assert (two_mech["tier"], two_mech["effort"]) == ("strong", "low"), two_mech
-    # a semantic failure on Codex skips Terra High and jumps straight to Astra Low
+    # a semantic failure on Codex skips Sol High and jumps straight to Astra Low
     semantic = route(["semantic"])
     assert (semantic["tier"], semantic["effort"], semantic["model"]) == ("strong", "low", "gpt-6-astra")
     # environmental failures never change the route
@@ -823,7 +823,7 @@ def test_effort_flag_omitted_for_effortless_models() -> None:
         config["codex"]["rollout_token_budget"] = 250000
         codex = run_isolated.build_worker_command(
             "codex",
-            {"provider": "codex", "tier": "economy", "model": "gpt-5.6-luna", "effort": "low"},
+            {"provider": "codex", "tier": "economy", "model": "gpt-6-luna", "effort": "low"},
             config,
             "prompt",
             result_path,

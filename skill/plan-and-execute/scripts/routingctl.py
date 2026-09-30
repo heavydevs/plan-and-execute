@@ -12,7 +12,7 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-MODEL_MAP_VERSION = "2026-09-28-v4"
+MODEL_MAP_VERSION = "2026-09-30-v5"
 
 TIER_ORDER = ["economy", "standard", "strong", "max"]
 EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"]
@@ -24,12 +24,16 @@ CURRENT_MODELS: dict[str, dict[str, str]] = {
         "strong": "claude-opus-5-5",
         "max": "claude-fable-5-1",
     },
+    # Codex catalog (`codex debug models`, 2026-09-30): GPT-6 Astra = "frontier
+    # intelligence for the most demanding work", GPT-6 Sol = the workhorse,
+    # GPT-6 Luna = "fast and affordable, easier tasks". The GPT-5.6 line is
+    # listed as "older" and there is no GPT-6 Terra, so Sol takes the balanced
+    # standard slot. Keep effort separate from model tier so the agent spends
+    # only the reasoning depth justified by verifiability, risk, and failure
+    # evidence.
     "codex": {
-        "economy": "gpt-5.6-luna",
-        "standard": "gpt-5.6-terra",
-        # Astra low/medium supersedes Sol-high as the default hard-work family.
-        # Keep effort separate from model tier so the agent can spend only the
-        # reasoning depth justified by verifiability, risk, and failure evidence.
+        "economy": "gpt-6-luna",
+        "standard": "gpt-6-sol",
         "strong": "gpt-6-astra",
         "max": "gpt-6-astra",
     },
@@ -62,8 +66,9 @@ MODELS_WITHOUT_EFFORT: dict[str, list[str]] = {
 # by verified cost per solved task, not price per token:
 # - Claude: Haiku accepts no effort, so an economy failure moves straight to
 #   Sonnet; Opus Medium is a valid first strong rung when validation is strong.
-# - Codex: Astra Low dominates Terra High (OpenAI calibration), so the ladder
-#   never spends a Terra High retry before an Astra Low attempt.
+# - Codex: Astra Low dominated the previous generation's High-effort standard
+#   model (OpenAI calibration for GPT-5.6; no newer published numbers), so the
+#   ladder never spends a Sol High retry before an Astra Low attempt.
 ESCALATION_LADDERS: dict[str, list[list[str]]] = {
     "claude": [
         ["economy", "low"],
