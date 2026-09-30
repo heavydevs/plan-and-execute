@@ -1,6 +1,6 @@
 # Claude Code model routing
 
-Read only when Claude Code will execute the current work. `MODEL_ROUTING.md` owns provider-independent policy. Concrete ids live in `scripts/routingctl.py` `CURRENT_MODELS` (map version 2026-09-30-v5); this table must match it.
+Read only when Claude Code will execute the current work. `MODEL_ROUTING.md` owns provider-independent policy. Concrete ids live in `scripts/routingctl.py` `CURRENT_MODELS` (map version 2026-09-30-v6); this table must match it.
 
 ## Current capability map
 

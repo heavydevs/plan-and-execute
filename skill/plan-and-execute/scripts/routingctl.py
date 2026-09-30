@@ -12,7 +12,7 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-MODEL_MAP_VERSION = "2026-09-30-v5"
+MODEL_MAP_VERSION = "2026-09-30-v6"
 
 TIER_ORDER = ["economy", "standard", "strong", "max"]
 EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"]
@@ -24,16 +24,17 @@ CURRENT_MODELS: dict[str, dict[str, str]] = {
         "strong": "claude-opus-5-5",
         "max": "claude-fable-5-1",
     },
-    # Codex catalog (`codex debug models`, 2026-09-30): GPT-6 Astra = "frontier
-    # intelligence for the most demanding work", GPT-6 Sol = the workhorse,
-    # GPT-6 Luna = "fast and affordable, easier tasks". The GPT-5.6 line is
-    # listed as "older" and there is no GPT-6 Terra, so Sol takes the balanced
-    # standard slot. Keep effort separate from model tier so the agent spends
+    # Codex catalog (`codex debug models`, CLI 0.159.2, 2026-09-30): GPT-6 Astra
+    # = "frontier intelligence for the most demanding work", GPT-6.1 Sol = "the
+    # latest workhorse for coding and everyday work" (GPT-6 Sol is now the
+    # previous generation), GPT-6 Luna = "fast and affordable, easier tasks".
+    # The GPT-5.6 line is listed as "older" and there is no GPT-6 Terra, so
+    # GPT-6.1 Sol takes the balanced standard slot. Keep effort separate from model tier so the agent spends
     # only the reasoning depth justified by verifiability, risk, and failure
     # evidence.
     "codex": {
         "economy": "gpt-6-luna",
-        "standard": "gpt-6-sol",
+        "standard": "gpt-6.1-sol",
         "strong": "gpt-6-astra",
         "max": "gpt-6-astra",
     },

@@ -4,16 +4,16 @@ Read only when Codex will execute the current work. `MODEL_ROUTING.md` owns prov
 
 ## Current capability map
 
-Concrete ids live in `scripts/routingctl.py` `CURRENT_MODELS` (map version 2026-09-30-v5); this table must match it. Verify what an installation actually serves with `codex debug models` (live catalog; `~/.codex/models_cache.json` can be stale).
+Concrete ids live in `scripts/routingctl.py` `CURRENT_MODELS` (map version 2026-09-30-v6); this table must match it. Verify what an installation actually serves with `codex debug models` (live catalog; `~/.codex/models_cache.json` can be stale).
 
 | Tier | Model | Catalog description | Typical starting effort |
 |---|---|---|---|
 | `economy` | `gpt-6-luna` | "Fast and affordable model for easier tasks" | `low` |
-| `standard` | `gpt-6-sol` | GPT-6 workhorse (previous generation to Astra) | `medium` |
+| `standard` | `gpt-6.1-sol` | "Latest workhorse model for coding and everyday work" | `medium` |
 | `strong` | `gpt-6-astra` | "Frontier intelligence for the most demanding work" | `low` or `medium` |
 | `max` | `gpt-6-astra` | same | `xhigh` only when long-horizon evidence justifies it; `max` is exceptional |
 
-The GPT-5.6 line (`gpt-5.6-luna`/`-terra`/`-sol`) is listed as *older* in the catalog and is not a default route anywhere. There is no GPT-6 Terra, so Sol takes the balanced standard slot that Terra held. No published benchmark separates GPT-6 Sol from GPT-6 Astra: the ladder below keeps the shape calibrated on GPT-5.6 (a demonstrated capability gap goes to Astra Low before any High-effort retry on the standard model) until a project eval says otherwise.
+The GPT-5.6 line (`gpt-5.6-luna`/`-terra`/`-sol`) is listed as *older* in the catalog and is not a default route anywhere. There is no GPT-6 Terra, so Sol takes the balanced standard slot that Terra held, and GPT-6.1 Sol replaces GPT-6 Sol (now "previous generation workhorse") there; Astra stays the top model, so 6.1 Sol is not a `strong` route. GPT-6.1 Sol defaults to `low` effort like Astra; the skill still starts standard work at `medium` because the worker must read and verify. No published benchmark separates GPT-6.1 Sol from GPT-6 Astra: the ladder below keeps the shape calibrated on GPT-5.6 (a demonstrated capability gap goes to Astra Low before any High-effort retry on the standard model) until a project eval says otherwise.
 
 Do **not** use a High-effort standard-model retry as the default difficult-work route. OpenAI's calibration (GPT-5.6, carried over) places Astra Low/Medium above the previous strong model at High (Astra Low outperforms it at a fraction of the tokens). Use **Astra Medium as the safer difficult-work baseline when verification is weak**, and Astra Low when the task is bounded and objectively verifiable. Astra always reasons (no `none` effort). Efforts accepted (from the catalog): Luna `low`..`max`; Sol and Astra `low`..`max` plus `ultra`. The skill never selects `ultra`: it is above the ladder's `xhigh` ceiling and has no evidence-based trigger; a project may opt in through its own configuration after measuring it.
 
@@ -82,7 +82,7 @@ Do not burn several high-effort Sol retries when one Astra Low attempt is more l
 
 ## Older catalogs and quota
 
-The Claude/Codex model ids are fixed in `CURRENT_MODELS` and re-applied on every config load, so a per-plan `orchestrator.config.json` edit of `codex.models` is overwritten. A Codex installation whose catalog predates GPT-6 Luna/Sol (`codex debug models` lacks them) should update Codex; an unknown model id is rejected by the CLI as a configuration error, not rotated as quota. Availability/quota failure is not evidence to increase reasoning effort.
+The Claude/Codex model ids are fixed in `CURRENT_MODELS` and re-applied on every config load, so a per-plan `orchestrator.config.json` edit of `codex.models` is overwritten. GPT-6.1 Sol is listed by Codex CLI 0.159.2 and absent from 0.155.1. A Codex installation whose catalog predates it (`codex debug models` lacks `gpt-6.1-sol`; upgrade with `npm i -g @openai/codex`) should update Codex; an unknown model id is rejected by the CLI as a configuration error, not rotated as quota. Availability/quota failure is not evidence to increase reasoning effort.
 
 ## Runner flags
 

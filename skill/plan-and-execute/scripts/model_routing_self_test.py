@@ -17,7 +17,7 @@ def test_current_model_map() -> None:
     configured = routingctl.configure_config(planctl.default_config())
     assert configured["codex"]["models"] == {
         "economy": "gpt-6-luna",
-        "standard": "gpt-6-sol",
+        "standard": "gpt-6.1-sol",
         "strong": "gpt-6-astra",
         "max": "gpt-6-astra",
     }

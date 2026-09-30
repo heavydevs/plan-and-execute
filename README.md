@@ -269,7 +269,7 @@ Each TODO keeps:
 }
 ```
 
-Concrete provider model ids are resolved through `orchestrator.config.json` from one catalog (`scripts/routingctl.py`): Claude `haiku`/`sonnet`/`opus`/`claude-fable-5-1`, Codex `gpt-6-luna`/`gpt-6-sol`/`gpt-6-astra`. This keeps the task portable when one provider runs out of quota or a different compatible model is available.
+Concrete provider model ids are resolved through `orchestrator.config.json` from one catalog (`scripts/routingctl.py`): Claude `haiku`/`sonnet`/`opus`/`claude-fable-5-1`, Codex `gpt-6-luna`/`gpt-6.1-sol`/`gpt-6-astra`. This keeps the task portable when one provider runs out of quota or a different compatible model is available.
 
 ### Routing from leaf signals, elevation by delegation
 
