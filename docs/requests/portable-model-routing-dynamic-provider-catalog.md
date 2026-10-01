@@ -984,6 +984,40 @@ Durante execução normal, catálogo fresh deve causar **zero pesquisas web** e 
 - nunca sobrescrever catálogo válido com resposta parcial;
 - não contar “model id invalid porque catálogo mudou” como falha funcional do TODO.
 
+### 23.1. Refresh explícito durante planos longos
+
+Planos podem permanecer ativos por muitos dias ou semanas. Nesse intervalo, um provider pode lançar um modelo novo, retirar um alias, alterar effort/capabilities/preço ou mudar a relação qualidade/custo entre os tiers. O usuário precisa poder pedir **proativamente** uma atualização da tabela de modelos/levels sem recriar o plano.
+
+A skill SHALL oferecer uma intenção/CLI explícita equivalente a:
+
+```bash
+pae models status --plan .ai-work/<plan-id>
+pae models diff --plan .ai-work/<plan-id>
+pae models refresh --plan .ai-work/<plan-id>
+```
+
+Semântica:
+
+1. `status` mostra idade/digest do snapshot, providers realmente elegíveis e facets stale, sem geração/model call.
+2. `diff` compara o snapshot do plano com o catálogo compartilhado/current sources e mostra mudanças de modelos, capabilities, level placement, effort e economics sem alterar o plano.
+3. `refresh --plan` atualiza apenas providers instalados/configurados/elegíveis, recompõe `MODEL_MATRIX.json/md`, grava provenance/fonte/data/digest e passa a usar a nova resolução em **tentativas futuras**.
+4. TODOs `completed` nunca são reabertos só porque saiu um modelo novo.
+5. Uma tentativa `in_progress` nunca é interrompida para trocar modelo; a nova matrix vale na próxima tentativa/task.
+6. TODOs `pending` preservam seus semantic floors/difficulty signals; a resolução concreta é recalculada contra o catálogo novo.
+7. Reclassificar a dificuldade/floor de TODOs pendentes é uma operação diferente e explícita (por exemplo `--reclassify-pending`) porque nova disponibilidade de modelos não prova que a dificuldade da tarefa mudou.
+8. Nenhuma atualização pode reduzir silenciosamente um floor existente. Um novo modelo pode preencher `advanced`, `strong` ou outro tier somente se sua evidência/capabilities satisfizerem o contrato daquele workload.
+9. Providers ausentes continuam ausentes; refresh não transforma catálogo global em dependência do plano.
+10. A mudança deve registrar um pequeno audit trail old-snapshot-digest → new-snapshot-digest + motivos/fontes, sem copiar benchmark/doc prose para worker context.
+
+Além do comando explícito, `pae resume/current/status` SHOULD emitir apenas um aviso curto e não bloqueante quando o snapshot do plano estiver stale pela freshness policy ou quando o catálogo compartilhado possuir versão mais nova:
+
+```text
+Model map may be stale; run 'pae models diff --plan <plan>' or
+'pae models refresh --plan <plan>' to review current models.
+```
+
+Esse aviso não deve fazer web research automaticamente. O objetivo é dar agência ao usuário e permitir refresh no momento que ele escolher.
+
 ---
 
 # Parte VIII — Telemetry e aprendizado local
@@ -1084,6 +1118,11 @@ pae models status --json
 pae models refresh --provider deepseek
 pae models refresh --provider glm
 pae models show --provider claude --json
+
+# Plano longo: revisar/atualizar o snapshot sem recriar o plano
+pae models status --plan .ai-work/<plan-id> --json
+pae models diff --plan .ai-work/<plan-id>
+pae models refresh --plan .ai-work/<plan-id>
 ```
 
 A implementação deve fazer probing determinístico e somente solicitar web/manual research quando metadata local/oficial não for suficiente.
@@ -1825,6 +1864,14 @@ Artefatos produzidos durante monitoramento/diagnóstico — incluindo logs de va
 4. ser removidos deterministicamente quando o owner termina e nenhuma referência viva de retry, diagnosis, handoff ou auditoria exige retenção;
 5. sobreviver apenas quando forem estado compartilhado deliberado, como o `SERVICE_MAP.md`, ou quando uma política de retenção configurada exigir evidência pós-execução.
 
+### FR-035 — User-initiated model-map refresh
+Durante um plano ativo, o usuário SHALL poder solicitar atualização explícita do catálogo e da tabela model↔tier/level sem recriar o plano. A operação SHALL atualizar o plan snapshot/provenance e afetar somente futuras resoluções de rota.
+
+### FR-036 — Safe long-plan route rebasing
+Refresh de catálogo SHALL preservar requirements, TODO boundaries, dependencies, acceptance, semantic floors e completed work. Tasks pendentes SHALL ser re-resolvidas contra o snapshot novo; tasks em andamento SHALL concluir a tentativa atual; reclassificação de dificuldade SHALL exigir operação explícita separada.
+
+### FR-037 — Initial whole-documentation reconciliation
+Antes de iniciar a implementação deste documento, o plano SHALL executar uma revisão baseline de toda a documentação interna da skill/repositório relevante ao produto, reconciliar contradições e acrescentar ao plano/requisitos qualquer informação material descoberta antes de modificar contratos centrais.
 
 ## 66. Requisitos não funcionais
 
@@ -1899,6 +1946,9 @@ A implementação só pode ser considerada pronta quando:
 16. Um relatório de eval mostra custo/tokens/créditos por TODO validado, não apenas preço por MTok.
 17. Execuções de monitoring/validation não deixam logs, cursors, snapshots ou reports transitórios dentro da pasta da skill.
 18. Após a conclusão de uma task/plano, artefatos de tracking efêmeros sem referência viva são removidos, enquanto evidência ainda necessária e state project-shared deliberado são preservados.
+19. Um plano ativo com snapshot antigo pode executar `models diff/refresh --plan` sem recriar TODOs ou perder progresso.
+20. Após refresh, tasks concluídas permanecem concluídas, tentativa em andamento não é interrompida e futuras tentativas usam o snapshot novo.
+21. O início da implementação registra uma revisão baseline de toda a documentação interna relevante, com coverage verificável, contradições/staleness identificadas e impactos materiais incorporados ao documento/plano antes dos contratos centrais.
 
 ---
 
@@ -2351,6 +2401,8 @@ Este plano já incorpora as otimizações de qualidade/contexto descritas acima.
 
 ## 67. Princípios de decomposição do plano
 
+Antes de qualquer TODO de implementação, executar o **TODO-000 Documentation baseline & reconciliation** abaixo. Essa etapa é uma revisão única da documentação interna no início do plano, não uma regra para reler tudo em cada resume/TODO.
+
 - Não criar um TODO por arquivo.
 - Agrupar arquivos quando implementam o mesmo contrato/invariante.
 - Separar adapters de providers diferentes quando seus protocolos/testes não compartilham contexto suficiente.
@@ -2358,6 +2410,42 @@ Este plano já incorpora as otimizações de qualidade/contexto descritas acima.
 - Não fazer provider integration antes de existir profile schema estável.
 - Não habilitar auto-routing novo antes de telemetry + shadow eval.
 - Manter compatibilidade da `main` como gate em todas as etapas.
+
+---
+
+## TODO-000 — Documentation baseline & requirements reconciliation
+
+**Objetivo:** começar a implementação com entendimento completo e atual da documentação existente, incorporando ao plano qualquer informação pertinente que este documento tenha omitido ou que tenha mudado desde sua redação.
+
+**Escopo obrigatório:**
+
+- inventariar deterministicamente toda documentação interna relevante: `README*.md`, `docs/**/*.md`, `skill/plan-and-execute/SKILL.md`, `skill/plan-and-execute/references/**/*`, schemas/examples e documentação de manutenção;
+- registrar path + hash/digest para provar coverage;
+- ler **todos** os documentos internos relevantes, mas em batches/contextos bounded — nunca concatenar o corpus inteiro em um único prompt;
+- extrair somente contratos, invariantes, comportamento atual, limitações, compatibilidade, TODO-impact e contradições que possam mudar esta implementação;
+- reconciliar documentação com o código/estado atual quando houver conflito; documento não deve vencer comportamento comprovado silenciosamente;
+- revisar documentação oficial externa de providers/modelos **somente** para fatos voláteis/materialmente necessários e facets stale; não “ler a internet inteira”;
+- produzir um artefato compacto de baseline com: coverage, findings materiais, stale/conflicting docs, decisions requeridas e mudanças necessárias neste documento/plano;
+- quando houver informação material ausente, atualizar este documento/plan spec antes de iniciar TODO-001;
+- persistir hashes para que resumes posteriores revisem somente documentação alterada.
+
+**Estratégia econômica:**
+
+1. tool determinístico cria inventory/hash;
+2. workers economy/standard leem batches independentes e retornam apenas findings com source refs;
+3. um synthesis/reviewer strong é usado somente se houver contradições cross-document, security/architecture ou decisões de alto impacto;
+4. o produto é um índice compacto, não summaries longos de cada arquivo.
+
+**Validação:**
+
+- coverage = 100% do corpus documental classificado como relevante;
+- todo path relevante possui status `reviewed|not_applicable` com justificativa curta;
+- nenhum documento é copiado integralmente para o baseline;
+- findings materiais citam path/section;
+- alterações de requisitos são explicitamente diffadas antes de implementação;
+- rerun com os mesmos hashes não requer releitura dos documentos.
+
+**Rota:** deterministic inventory + `economy/standard` batch review; `strong/medium` apenas para synthesis material.
 
 ---
 
@@ -2408,6 +2496,9 @@ references/MODEL_CATALOG.md
 - cache global/provider-scoped;
 - atomic write;
 - status/show/refresh/validate;
+- `status/diff/refresh --plan` para refresh proativo de planos longos;
+- aviso non-blocking de snapshot stale em status/resume;
+- audit trail de snapshot digest/provenance;
 - source/facet freshness;
 - version/CLI-change invalidation;
 - stale-but-valid grace behavior.
@@ -2840,9 +2931,10 @@ Expandir somente por evidência.
 ## 68. Ordem de execução e paralelismo
 
 ```text
-TODO-001
- ├─ TODO-002
- └─ TODO-003
+TODO-000 documentation baseline
+ └─ TODO-001
+     ├─ TODO-002
+     └─ TODO-003
       ├─ TODO-004 Muse
       ├─ TODO-005 GLM
       └─ TODO-006 DeepSeek
@@ -2895,7 +2987,10 @@ Para economizar tokens ao implementar este plano:
 - validar cada provider adapter deterministicamente antes de integrar CLI;
 - guardar eval datasets fora de prompts e passar paths/summary;
 - usar um modelo forte em contratos/core routing, não em docs/CLI mecânicos;
-- não fazer fresh web research dentro de cada TODO: usar este documento + refresh targeted apenas quando uma informação atual realmente for necessária.
+- não fazer fresh web research dentro de cada TODO: usar este documento + refresh targeted apenas quando uma informação atual realmente for necessária;
+- executar o whole-documentation baseline uma vez no início; em resumes posteriores usar hashes e revisar somente docs alterados;
+- em planos de longa duração, usar `models status/diff` antes de decidir por refresh; refresh explícito do usuário atualiza o snapshot sem reconstruir o plano;
+- uma nova geração de modelos deve mudar concrete route resolution, não apagar semantic difficulty/floors já validados.
 
 - considerar `advanced` somente quando o environment tiver candidate elegível; não carregar documentação de GLM/Muse se eles não estiverem disponíveis;
 - manter `DelegationDecision` fora do worker prompt; worker recebe apenas a rota resolvida e sua tarefa;
