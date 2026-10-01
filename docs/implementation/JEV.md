@@ -1,66 +1,40 @@
-# Optional Jev integration: implementation plan
+# Optional Jev diagnostic adviser implementation
 
-Base: `6be46885ad691d3d43557a42fc2fd36a804b7eba`. Work branch: `JEV`.
-Do not merge into `main` as part of this request.
+Target branch: `JEV`. Main is intentionally left unchanged until an explicit merge request.
 
-## Request and decision
+## Scope implemented
 
-Keep Jev optional and preserve ordinary execution without configuration, credentials,
-or available inference. Minimize calls and conditional instruction loading. Implement
-only a narrowly justified use: non-authoritative diagnostic focus after repeated,
-ambiguous validation failures, at the existing advisory hook.
+- Added a lazy Jev adapter using the TypeSafe System One `Choice` API.
+- Kept Jev outside the coding-provider catalog and all coding route ladders.
+- Reused the existing post-validation advisory hook rather than creating another orchestration path.
+- Added per-task and per-plan reservation budgets, duplicate suppression, confidence abstention, usage telemetry, and no-retry fail-open behavior.
+- Split provider-specific advisory documentation so Jev instructions are not loaded in normal/Claude-only flows and Claude details are not loaded in Jev flows.
+- Updated configuration validation and the setup wizard so `jev` is an advisory provider only; selecting it does not ask for coding model tiers/effort.
+- Fixed the adjacent redaction order so secret removal happens before fixed-size evidence truncation.
 
-Do not use Jev to generate plans/code, select coding models, filter out requirements,
-approve tests, monitor numerical resource state or control cleanup. Those applications
-have either no demonstrated workload benefit or authority/safety costs disproportionate
-to this integration. A typed diagnostic label has architectural fit, not demonstrated
-net savings or measured diagnostic accuracy.
+## Runtime behavior
 
-## Native Plan and Execute workstreams
+Jev is called only when all of the following are true:
 
-The real controllers created a schema-4 plan, attached a schema-2 study, mapped six
-requirements, validated the study/plan/resource-map gates and activated three TODOs.
-The 79 base skill files were recovered from the matching CI artifact and their Git blob
-hashes checked against the preceding study. This is not a full local repository clone.
-Codex/Claude executables were unavailable: execution is host-managed, not independent
-model workers. Independent model review is not claimed.
+1. advisory mode is explicitly enabled;
+2. `assistant.provider` is `jev`;
+3. `TYPESAFE_API_KEY` exists;
+4. deterministic validation has failed and the existing trigger is eligible (repeated ambiguous failure, repeated unhealthy resource evidence, or confirmed stall);
+5. the same evidence was not already reserved/sent;
+6. per-task and per-plan budgets remain.
 
-| TODO | Route intent | Scope | Acceptance |
-|---|---|---|---|
-| 001 | strong/high | Typed Choice, bounded transport, durable attempt ledger | Never change task/route authority; reservations survive interruption. |
-| 002 | standard/medium | Optional configuration, lazy dispatch, selected guides | Missing opt-in/key makes no Jev call/import/state; ordinary flow survives failures. |
-| 003 | strong/medium | Whole-skill review, regressions, packaging and publication | Preserve existing controllers and main; publish exact tested content and disclose limits. |
+Otherwise the normal execution path continues. Missing key is rejected before reservation. Once a provider dispatch is reserved, interruption/provider failure consumes that reservation to avoid accidental rebilling after resume.
 
-No shared/global context or evolving pattern registry was added: this narrow dependency
-chain does not justify recurring context. Disposable native plan state is cleaned only
-after validated completion and handoff; implementation and these review notes remain.
+A valid Jev response must select one of the six existing diagnostic classes and provide a valid probability distribution, confidence, returned model, and nonnegative usage counts. `unknown` or confidence below the threshold is retained only as a skipped result. Accepted Jev advice contains no model-generated free-text hypothesis: a fixed local description is attached to the selected class before the untrusted hint reaches the next worker.
 
-## Recovery checkpoint
+## Validation performed locally
 
-TODO 001 completed after 20 offline contract tests. TODO 002 has 26 passing offline
-contract/integration tests, including the real runner with fake worker/transport and a
-quota-like failure. The next gate is whole-skill regression and final publication.
-No authenticated Jev request was made. These tests establish software behavior, not
-actual billing, diagnostic quality, native Windows transport or net token savings.
+Offline tests send no authenticated Jev request. The new Jev suite covers request shape, fixed endpoint, credential separation, 401/402/403/429/529/network/redirect handling, strict response validation, missing-key zero-call behavior, low-confidence abstention, usage telemetry, and plan-wide call budgeting.
 
-## Sources and evaluation gate
+The existing advisory, availability, routing, context, lifecycle, pattern, planning, provider, study, token-efficiency, and other Python self-test suites were rerun. Nineteen of twenty suites passed in the recovered skill-only CI artifact. `configure_self_test.py` passed all Python-side tests but its Node bridge assertion could not run locally because that artifact intentionally lacks repository root `bin/plan-and-execute.js`. The full repository CI on the pushed branch/PR is the authoritative check for that bridge.
 
-Official contracts checked on 2026-09-30:
+No live TypeSafe call was made because no `TYPESAFE_API_KEY` is available in this environment. Therefore real classification quality, account-specific credit exhaustion semantics, billing, and latency remain unverified and must not be presented as proven improvements.
 
-- https://docs.typesafe.ai/api
-- https://docs.typesafe.ai/primitives/choice
-- https://docs.typesafe.ai/models
-- https://docs.typesafe.ai/model-jaggedness/jev-1.13
+## Follow-up experiment before broader Jev use
 
-Pin the model; keep the optional evaluator outside coding-provider policy. Include an
-insufficient-evidence option and validate the complete typed response. No retries are
-needed for optional advice: continue normally and apply a bounded persistent cooldown.
-The documented HTTP errors include 401, 422, 429 and 529; handling 402/403 defensively
-does not claim that TypeSafe uses a verified credit-exhaustion contract.
-
-Before recommending broad adoption, compare ordinary execution with opt-in Jev on the
-same consented, representative failures and independently validated outcomes. Measure
-cost per validated TODO, regressions, omissions, retries, latency, abstention, dispatch
-frequency and returned/unknown usage. Use held-out cases and do not equate agreement
-with the current worker to correctness. Disable the adviser if outcome quality or cost
-worsens. Keep speculative applications outside this implementation.
+On consented representative failures, compare normal execution versus optional Jev with independently adjudicated outcomes. Measure total input tokens/cost per validated TODO, additional retries, regressions/omissions, latency, abstention rate, and whether the diagnostic suggestion changed a worker action beneficially. Keep a held-out set and include `unknown`/adversarial evidence. Do not expand Jev into planning, routing, or context deletion unless that experiment demonstrates a clear net benefit.
