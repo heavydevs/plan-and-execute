@@ -82,7 +82,7 @@ O resultado é persistido como:
 .ai-work/<plan-id>/MODEL_MATRIX.md
 ```
 
-A matrix associa F1–F4 e L1–L5 a configurações concretas de cada provider.
+A matrix associa F1–F5 e L1–L5 a configurações concretas de cada provider.
 
 ### 2.3. Resolver provider/modelo somente no runtime
 
@@ -218,7 +218,7 @@ sem adicionar nova informação semântica.
 
 **Não substituir o vocabulário canônico da `main`.**
 
-A solução nova deve aceitar e exibir F1–F4/L1–L5 como **aliases portáveis**, mas normalizar o estado durável para:
+A solução nova deve aceitar e exibir F1–F5/L1–L5 como **aliases portáveis**, mas normalizar o estado durável para:
 
 ```text
 economy | standard | strong | max
@@ -679,6 +679,47 @@ O segundo estágio jamais pode reduzir o primeiro.
 
 ---
 
+
+### 13.2. Novo tier `advanced`: faixa de alto valor entre `standard` e `strong`
+
+A arquitetura futura SHALL adotar cinco tiers canônicos:
+
+| Alias portátil | Tier canônico | Intenção |
+|---|---|---|
+| F1 | `economy` | descoberta, leitura, transformação e mudanças mecânicas fortemente verificáveis |
+| F2 | `standard` | implementação cotidiana bem delimitada |
+| F3 | `advanced` | modelos de alta competência e excelente relação qualidade/custo, úteis antes de pagar por frontier premium |
+| F4 | `strong` | decisões/implementações difíceis, alto risco, debugging sutil ou validação fraca |
+| F5 | `max` | frontier/long-horizon excepcional ou falha comprovada dos níveis inferiores |
+
+`L1–L5` continua sendo alias do eixo de esforço `low|medium|high|xhigh|max`.
+
+O novo `advanced` **não é uma afirmação de ranking universal entre marcas**. Benchmarks de 2026 mostram que a ordenação muda por workload: Sonnet 5.5 supera modelos mais caros em alguns testes; Muse Spark 1.3 Max é competitivo com Sonnet 5.5 High/Medium em vários índices agregados; GLM-5.3/Flash apresenta excelente eficiência em coding/agentic workloads. Portanto, `advanced` é uma **faixa de roteamento capability/cost-aware**, preenchida somente quando a evidência do workload mostra que o modelo satisfaz o piso da tarefa.
+
+Bootstrap candidates para F3, quando realmente instalados/configurados e elegíveis:
+
+- Muse Spark 1.3, especialmente em coding/agentic workloads onde sua evidência local o coloca acima do baseline `standard`;
+- GLM-5.3 e/ou GLM-5.3-Flash, dependendo de effort, workload, harness e telemetria local;
+- outros modelos futuros de alto valor que satisfaçam o mesmo contrato.
+
+Regras obrigatórias:
+
+1. A ausência de GLM, Muse ou qualquer provider opcional **não pode alterar negativamente o plano**.
+2. Providers/modelos não instalados, não autenticados ou não configurados não entram no `MODEL_MATRIX`, nas opções de rota nem no texto do TODO.
+3. Se o floor for `advanced` e não existir candidato F3 elegível, subir para o primeiro candidato `strong`; nunca reduzir silenciosamente para `standard`.
+4. Se o floor for `standard`, um candidato `advanced` pode ser escolhido quando tiver menor custo esperado por sucesso validado.
+5. Escalation ladders devem pular tiers vazios.
+6. Inserir `advanced` não reinterpreta planos antigos: `strong` continua significando `strong`, e `max` continua `max`.
+7. A classificação de um modelo em F3 deve ser workload-specific e versionada no catálogo; nome de produto, marketing ou preço não basta.
+
+Evidência atual que motiva a faixa:
+
+- Anthropic recomenda comparar **custo por tarefa**, inclusive modelo maior em effort menor versus modelo menor em effort maior, e mostra Sonnet 5.5 muito próximo de Opus 5.5 em vários workloads: https://www.anthropic.com/claude-sonnet-5-5
+- Meta descreve Muse Spark 1.3 como modelo para long-horizon coding/agentic work, com menos turnos/tokens desnecessários: https://ai.meta.com/tools/muse/
+- Artificial Analysis, como evidência secundária e não autoridade do roteador, mede Muse Spark 1.3 Max próximo/superior a Sonnet 5.5 Medium/High em parte de seu conjunto, com custo menor em seu modelo de preços: https://artificialanalysis.ai/models/comparisons/claude-sonnet-5-5-medium-vs-muse-spark-1-3
+- Z.AI reporta GLM-5.3 e GLM-5.3-Flash como modelos de coding/agentic efficiency, com ganhos relevantes de qualidade por output token: https://z.ai/blog/glm-5.3 e https://z.ai/blog/glm-5.3-flash
+
+
 ## 14. Candidate eligibility
 
 Antes de comparar preços, eliminar candidatos incompatíveis.
@@ -990,7 +1031,7 @@ Manter responsabilidades atuais:
 
 Modificar para:
 
-- aceitar aliases F1–F4/L1–L5;
+- aceitar aliases F1–F5/L1–L5;
 - delegar catálogo concreto ao novo `model_catalog.py`;
 - remover dependência de um único `CURRENT_MODELS` como verdade runtime;
 - manter um fallback embarcado versionado para bootstrap/offline;
@@ -1090,7 +1131,7 @@ TODOs continuam canônicos:
 
 ```text
 provider: auto
-model_tier: economy|standard|strong|max
+model_tier: economy|standard|advanced|strong|max
 reasoning_effort: low|medium|high|xhigh|max
 ```
 
@@ -1664,7 +1705,7 @@ Usar histórico local para melhorar desempates/custo esperado, mantendo floors e
 A skill SHALL manter TODOs independentes do provider/model concreto.
 
 ### FR-002 — F/L aliases
-A skill SHALL aceitar F1–F4 e L1–L5 como aliases portáveis e SHALL normalizá-los para o vocabulário canônico atual, preservando compatibilidade.
+A skill SHALL aceitar F1–F5 e L1–L5 como aliases portáveis e SHALL normalizá-los para o vocabulário canônico atual, preservando compatibilidade.
 
 ### FR-003 — Dynamic model catalog
 A skill SHALL resolver modelos concretos por catálogo atualizável e não por IDs embutidos no TODO.
@@ -1722,6 +1763,47 @@ A seleção de provider/model SHALL NOT fazer chamada de LLM dedicada.
 
 ---
 
+
+### FR-021 — Five-tier capability lattice
+A skill SHALL adotar `economy|standard|advanced|strong|max`, mantendo planos antigos semanticamente estáveis.
+
+### FR-022 — Availability-aware advanced tier
+`advanced` SHALL conter apenas candidates realmente disponíveis/configurados para o environment e workload; tier vazio SHALL ser pulado sem inventar provider.
+
+### FR-023 — Advanced value preference
+Quando `advanced` e `strong` satisfizerem o mesmo quality floor, a policy SHALL poder preferir F3 por menor expected validated cost.
+
+### FR-024 — Delegation gate
+A skill SHALL decidir deterministicamente `tool|keep_root|delegate` a partir de difficulty, validation, blast radius, context affinity, capabilities, availability e coordination overhead.
+
+### FR-025 — Bounded multi-agent execution
+Delegation SHALL possuir limites de fan-out, nesting, tokens, output e write isolation; parent SHALL receber artefato compacto, não transcript.
+
+### FR-026 — Provider absence neutrality
+Provider/model opcional ausente SHALL desaparecer das opções/snapshots e SHALL NOT bloquear criação ou execução do plano.
+
+### FR-027 — FailureEvidencePacket
+Falhas elegíveis SHALL possuir representação compacta estruturada antes de qualquer diagnóstico por modelo.
+
+### FR-028 — Progress-aware stall detection
+Elapsed time sozinho SHALL NOT classificar stall; watcher SHALL combinar progress, process/resource evidence e quiet-phase policy.
+
+### FR-029 — Diagnostic authority separation
+Diagnostic workers SHALL produzir hipótese/guidance bounded; implementação, failure class autoritativa, comandos e completion permanecem sob owner + deterministic validators.
+
+### FR-030 — Cache-aware delegation
+Routing/delegation SHALL considerar cache affinity e SHALL registrar usage/cache metrics quando provider expuser.
+
+### FR-031 — Delegation cost accounting
+Métricas SHALL contabilizar root, todos subagents, retries, diagnostics e summaries para custo por resultado validado.
+
+### FR-032 — Large-request retrieval discipline
+Primary planning SHALL preservar fragments imutáveis e SHALL recuperar raw evidence por pergunta material em vez de reconstruir o request inteiro em context.
+
+### FR-033 — Quality/economy rollout gate
+Nova policy automática SHALL permanecer shadow/opt-in até demonstrar quality non-inferiority e redução material de cost/context por TODO validado.
+
+
 ## 66. Requisitos não funcionais
 
 ### NFR-001 — Backward compatibility
@@ -1756,6 +1838,20 @@ Mudança de mapping deve atualizar versão/digest do catálogo e provenance.
 
 ---
 
+
+### NFR-011 — Optional-provider neutrality
+Instalar a versão nova sem Muse/GLM/DeepSeek deve preservar o comportamento funcional e o custo de controle próximo ao baseline.
+
+### NFR-012 — Delegation boundedness
+Nenhum fluxo pode criar fan-out/nesting ilimitado ou retry recursion.
+
+### NFR-013 — Cache observability
+Quando usage metadata existir, cache hit/read/write e route identity devem ser mensuráveis sem inserir telemetry no worker prompt.
+
+### NFR-014 — Evidence compactness
+Failure/context/handoff artifacts entregues a modelos devem possuir budgets explícitos e pointers para raw evidence.
+
+
 # Parte XVI — Critérios de aceitação da demanda
 
 A implementação só pode ser considerada pronta quando:
@@ -1783,7 +1879,7 @@ A implementação só pode ser considerada pronta quando:
 
 1. Não mergear a PR #17 literalmente sobre a `main` atual.
 2. Não pesquisar todos os providers na web para cada plano.
-3. Não duplicar `economy/standard/strong/max` com F1–F4 no schema durável sem ganho semântico.
+3. Não duplicar `economy/standard/advanced/strong/max` com F1–F5 no schema durável sem ganho semântico.
 4. Não criar adapters inteiros separados para GLM/DeepSeek se o mesmo harness já suporta seus protocolos.
 5. Não escolher modelo por nome (`Pro`, `Flash`, `Max`) como proxy de qualidade.
 6. Não usar preço de input isoladamente como custo.
@@ -1864,7 +1960,363 @@ Essa arquitetura mantém a qualidade como restrição dura e usa economia soment
 
 ---
 
-# Parte XIX — Plano de implementação recomendado
+
+# Parte XIX — Propósitos e objetivos completos da skill
+
+Esta seção registra o **contrato de produto** da skill antes da implementação deste documento. O objetivo é evitar regressões funcionais durante a evolução do roteamento. Cada bullet abaixo representa uma finalidade real observada na `main` atual, não apenas uma ideia futura.
+
+- **Orquestrar somente quando a orquestração paga seu próprio custo.** O primeiro objetivo é decidir `DIRECT` versus `ORCHESTRATED`; tarefas coesas pequenas/médias devem continuar no contexto atual sem criar plano, study, TODOs ou workers apenas por cerimônia.
+- **Promover trabalho DIRECT tardiamente sem reiniciar o que já foi feito.** Se a tarefa cresce durante a implementação, persistir apenas goal, decisões, resultados validados, paths/symbols, riscos e remaining outcomes; o plano cobre somente o trabalho restante.
+- **Sobreviver a requests enormes antes mesmo do plano final existir.** Para prompts/arquivos grandes e estruturalmente amplos, estimar working-set pressure, fragmentar deterministicamente, persistir fragmentos imutáveis, criar digests resumíveis e só depois produzir o input compacto do plano final. Requests menores seguem direto para o plano final.
+- **Preservar integralmente a evidência do request sem repetir seu texto em todos os artefatos.** Request original/fragmentos imutáveis são source-of-truth; requirements, TODOs e handoffs referenciam IDs, paths e evidências em vez de copiar parágrafos.
+- **Estudar somente o que pode mudar arquitetura, compatibilidade, boundaries, risco ou validação.** O estudo adaptativo começa por busca/indexação barata e amplia leitura/pesquisa somente quando a resposta de uma questão material pode alterar o plano.
+- **Transformar o request em rastreabilidade executável.** Cada request part mapeia para requirement observável; cada requirement mapeia para pelo menos um TODO; cada TODO volta às requirements que implementa.
+- **Decompor TODOs por coesão de contexto e boundary de validação, não por quantidade de arquivos.** Domínios independentes ficam separados; controller/service/entity/tests que implementam o mesmo invariante podem permanecer juntos.
+- **Persistir progresso durável e resumível em disco.** `manifest.json` é autoritativo; subtasks/checkpoints, status, falhas, rotas e resultados permitem retomar após quota, interrupção ou troca de provider sem depender do chat antigo.
+- **Separar planning capability de implementation capability.** Primary planning, final planning, hard decisions, design e implementação podem usar rotas diferentes.
+- **Resolver poucas decisões difíceis antes do planejamento mecânico.** `hard_decisions` podem ser delegadas a workers fortes e compactadas em decisão/rationale/constraints; um planner mais econômico monta a estrutura restante.
+- **Separar design difícil da implementação volumosa quando isso reduz custo total.** `design_route` permite um worker forte produzir um design curto e outro worker mais econômico implementar e validar.
+- **Escolher capacidade por leaf e por verificabilidade.** Mechanical + strong validation pode usar rota barata; subtle debugging, cross-cutting risk e silent-failure risk elevam o piso; task grande não implica modelo grande.
+- **Escalar por evidência de falha, não por retry cego.** `mechanical`, `semantic`, `environmental`, `budget`, `plan_defect` e `unknown` têm semânticas diferentes; indisponibilidade não é confundida com incapacidade.
+- **Separar provider availability de model capability.** Quota, rate-limit, auth/capacity e cooldown tentam fallback equivalente antes de aumentar inteligência.
+- **Delegar trabalho descartável a agentes baratos quando o isolamento compensa.** Exploração ampla, localização, análise de evidência ou tarefas mecânicas podem ir para workers baratos; a skill evita criar worker para um grep ou duas leituras óbvias.
+- **Permitir múltiplos providers/agentes sem transformar o plano em dependente deles.** TODOs persistem tier/effort/provider lógico; concrete model/harness é resolvido tarde e pode mudar por disponibilidade.
+- **Carregar instruções progressivamente.** `SKILL.md` funciona como control plane; referências de routing, planning, provider, monitoring, patterns e lifecycle são abertas somente na fase pertinente.
+- **Preservar contexto útil e isolar contexto descartável.** Fresh context não é automaticamente melhor; a skill mantém contexto quando há afinidade de raciocínio e isola discovery/leafs independentes quando a poluição custaria mais.
+- **Criar shared context somente por necessidade real.** `CONTEXT.md` é omission-first; scoped contexts atendem apenas subconjuntos estritos; fatos de um único TODO ficam no TODO.
+- **Propagar descobertas somente quando validadas e economicamente úteis.** Learnings são direcionais, predeclarados, target-specific e só materializados depois de validação determinística.
+- **Manter contratos cross-TODO versionados.** Shared patterns têm revisão, signatories e invalidation seletiva: uma alteração reabre apenas consumidores realmente desatualizados, não o plano inteiro.
+- **Validar fora do worker.** Worker report é evidência, não aceitação; o orquestrador executa comandos determinísticos e verifica outcomes, negative cases e integration contracts.
+- **Mapear toolchains, serviços e recursos necessários por validação.** `.ai-work/SERVICE_MAP.md` liga cada validation ID aos toolchains/resources/checks; fingerprint evita rediscovery do ambiente quando nada relevante mudou.
+- **Detectar validações travadas com evidência operacional.** `resource_watch.py` acompanha processo, progresso, CPU e dependências, com no-progress timeout default de 300s; environment health evita culpar o modelo por Tomcat/MySQL/Selenium/etc.
+- **Ler somente linhas novas de logs crescentes.** `log_watch.py` usa cursor persistente por arquivo/pattern, detecta rotation/truncation, limita bytes e matches e evita reenviar erros antigos.
+- **Manter logs completos fora do contexto e prompts com evidência limitada.** Full output vai para arquivos; state/worker recebem tail bounded, fingerprint normalizado, failure class e paths para evidência bruta.
+- **Usar diagnóstico auxiliar somente depois de falha elegível.** Assistant opcional recebe evidência redigida/bounded após falha repetida/ambígua, unhealthy samples ou stall confirmado; nunca aprova tarefa, executa comandos ou muda failure class autoritativamente.
+- **Aplicar budgets para impedir runaway workers.** Turn/token/budget limits transformam excesso de consumo em estado resumível, não em loop indefinido.
+- **Preservar prompt cache e prefixos estáveis quando o provider suporta.** Root session não muda model/effort automaticamente; tarefas que exigem rota diferente são delegadas, evitando reconstruir contexto enorme em outro modelo.
+- **Gerar handoffs e summaries a partir de estado autoritativo compacto.** Nunca concatenar transcript de workers; usar goal, completed tasks, changed files, validation status, risks/follow-ups e evidência de repo.
+- **Limpar somente controle efêmero.** Após conclusão, remover plan/study/log control state guardado pelo sentinel, preservando código, testes, artefatos do produto, commits e service map do projeto.
+- **Proteger a própria economia/qualidade com regression suites.** Routing evals, tier evals, token-efficiency tests, provider tests, lifecycle/recovery tests e whole-skill validation impedem regressões silenciosas.
+- **Usar código determinístico para tudo que não precisa de julgamento.** Hashing, splitting, state transitions, graph validation, path safety, scheduling, fingerprints, lifecycle, routing floors e cleanup não devem consumir LLM.
+- **Manter segurança e provenance.** Paths/symlinks, credentials, sandbox/read-only semantics, provider/harness/model/effort e state transitions devem ser verificáveis e auditáveis.
+
+---
+
+# Parte XX — Pesquisa de melhoria: qualidade máxima sem desperdício
+
+A regra de otimização desta parte é:
+
+> **minimizar custo/contexto por resultado externamente validado, sujeito a um piso explícito de qualidade e risco.**
+
+Preço por token, tamanho do contexto, número de agentes ou benchmark isolado não são objetivos finais.
+
+## 71. Melhorias por propósito/recurso
+
+| Propósito atual | Melhoria recomendada | Ganho esperado | Gate de segurança/qualidade |
+|---|---|---|---|
+| DIRECT vs ORCHESTRATED | Calibrar o gate com corpus real de near-misses e custo histórico; incorporar `estimated_coordination_overhead` e `independence_score` | evitar harness e multi-agent overhead | incerteza continua favorecendo DIRECT; promoção tardia permanece disponível |
+| Promoção tardia | Persistir handoff por delta: somente decisões/invariantes/resultados que não podem ser recuperados barato do repo | menos reread após promoção | nunca descartar requirement material nem validated outcome |
+| Requests gigantes | Combinar working-set pressure + breadth + dependency density; fragments imutáveis e retrieval por pergunta material | evita gastar frontier context antes de haver plano durável | coverage review prova que todos fragments foram digeridos |
+| Evidência do request | Não formar summary pyramid irreversível; manter source refs e retrieval sob demanda | reduz duplicação e risco de omissão | raw source permanece recuperável |
+| Adaptive study | Adotar selective retrieval: busca/ranking primeiro, leitura só dos top hits; widening por evidência | menos tokens e menos distractors | questões materiais/risco alto podem ampliar scope |
+| Rastreabilidade | Manter índices determinísticos request→requirement→TODO e validação de cobertura | melhora qualidade sem tokens extras | create/audit falham quando há buracos |
+| TODO boundaries | Adicionar métricas de context affinity e independent validation boundary ao review | evita microtasks e monolitos | reviewer rejeita `extreme` e boundaries artificiais |
+| Resumibilidade | Checkpoint no menor ponto semanticamente estável, não em cada tool call | menos state e retry waste | checkpoint deve ser suficiente para continuar sem transcript |
+| Planning/implementation routing | Roteamento step-level, não request-level; usar workload class + validation strength + blast radius | frontier somente onde muda qualidade | nenhum route abaixo do deterministic floor |
+| Hard decisions | Agrupar somente decisões fortemente acopladas; paralelizar decisões independentes read-only | reduz strong-model context | synthesis verifica contradições entre decisões |
+| `design_route` | Medir break-even: só dividir se implementação posterior economizar mais do que o handoff adicional | evita dois workers desnecessários | design obrigatório quando high-blast-radius + implementation volume justificarem |
+| Capability routing | Introduzir `advanced` e comparar candidate routes por expected validated cost | usa GLM/Muse/value models antes de premium quando seguro | task-class eval + availability + capability filter |
+| Failure escalation | Complementar failure class com evidence confidence e failure signature; não escalar quando o novo retry não muda hipótese | menos retries caros | semantic/plan_defect continuam protegidos |
+| Availability fallback | Cooldown/adaptive provider chain considerando quota observada e cache affinity | menos loops e cache loss | mesma capability floor durante failover |
+| Delegação barata | Usar um `delegation_gate` determinístico que estime overhead, context pollution, parallelism e route delta | evita 15× token explosion de multi-agent em tarefas inadequadas | delegation somente quando expected benefit > coordination cost |
+| Multi-provider | Descobrir somente providers instalados/autenticados/configurados; snapshot omite ausentes | zero planejamento fictício | provider opcional ausente nunca bloqueia plano |
+| Progressive disclosure | Aplicar ainda mais aggressively: control plane curto, provider refs e model catalog lazy | reduz always-loaded tokens | CI impõe budgets de chars/tokens e links válidos |
+| Context reuse/isolation | Introduzir explicit `context_affinity` em planning review e scheduler | preserva cache/raciocínio onde vale | fresh worker apenas com motivo registrado |
+| Shared context | Deduplicação semântica + source references; preferir path/symbol ao prose | menos repeated tokens | itens ainda precisam ser suficientes para executar |
+| Validated learnings | Adicionar `rediscovery_cost` e `staleness_scope`; não criar learning barato de redescobrir | menos artefatos/contexto futuro | somente após deterministic validation |
+| Shared patterns | Usar invalidation graph incremental e digest de contract revision | evita revalidar todo plano | signatories stale obrigatoriamente reabertos |
+| Validação externa | Preferir testes/linters/checkers sobre self-judgment; criar weakest-link review para silent failure | melhora qualidade | nenhum worker pode auto-completar sem gate externo |
+| Service map | Incremental discovery por fingerprints + changed paths; mapear readiness além de PID | evita rediscovery e falsos positives | stale map bloqueia execução não monitorada |
+| Stall detection | Manter 300s como default, mas exigir no-progress composto: output + CPU/process + dependency health; suportar quiet-phase override | menos falsa escalada e melhor deadlock diagnosis | elapsed time sozinho nunca prova failure |
+| Log cursor | Cursor por inode/file identity + offset, bounded delta e rotation detection; adicionar semantic fingerprint opcional | evita reread e prompt pollution | raw log permanece intacto |
+| Failure evidence | Gerar `FailureEvidencePacket` estruturado antes de qualquer modelo: invariant/check, first failing step, latest delta, resource health, process metrics, paths | melhor diagnóstico com menos tokens | packet é evidence, não authority |
+| Assistant triage | Aplicar modelo PROBE/AgentRx: deterministic constraints/checks → structured diagnosis → bounded guidance | maior recoverability com prompt menor | guidance não muda state/commands/tests sem owner verificar |
+| Worker budgets | Budgets adaptativos por route/workload e checkpoint density | limita worst-case spend | budget exhaustion é resumível e não semantic failure |
+| Prompt cache | Monitorar cache hit como SLO; static prefix primeiro, dynamic suffix último; tool schemas estáveis; cache-safe forks | grande redução de custo/latency | não adicionar texto inútil só para atingir cache threshold |
+| Summaries | Summary determinístico quando possível; model only para synthesis ambígua | elimina última chamada desnecessária | final handoff precisa cobrir riscos/follow-ups/validation |
+| Cleanup | Garbage collection por ownership/sentinel e retention policies separadas para shared telemetry | evita lixo sem risco de apagar produto | refuse unsafe/symlink paths |
+| Regression/evals | Avaliar quality non-inferiority + cost per validated TODO + cache + retries + latency + under-routing | otimização guiada por dado real | shadow/A-B antes de auto-routing |
+| Deterministic control plane | Expandir scripts para policy/routing/evidence compaction em vez de prompt instructions | menos token e menos nondeterminism | logic versionada e coberta por tests |
+| Security/provenance | Provider profile separado de harness; secrets só por env name; telemetry sem prompt/code | mais providers sem aumentar risco | fail closed quando read-only/sandbox não puder ser provado |
+
+## 72. Evidência externa que sustenta as melhorias
+
+- **Multi-agent só quando compensa:** a Anthropic relata que seus agentes usam ~4× tokens de chat e multi-agent ~15×; o padrão paga melhor em pesquisa paralelizável, contexto que excede um único agente e muitos tools, enquanto coding costuma ter menos paralelismo independente: https://www.anthropic.com/engineering/multi-agent-research-system
+- **Contexto é recurso finito:** a Anthropic recomenda subagents focados e handoffs condensados, preservando o lead context para synthesis: https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
+- **Long context não substitui retrieval:** `Lost in the Middle` mostra queda de qualidade com informação relevante perdida em contextos longos; mais documentos podem aumentar custo sem melhorar resposta: https://aclanthology.org/2024.tacl-1.9/
+- **Selective retrieval funciona em código:** Repoformer reporta ganhos de eficiência evitando retrieval quando ele não ajuda, com até 70% de speedup em seus experimentos sem perda de performance: https://arxiv.org/abs/2403.10059
+- **Routing step-level:** AgentRouter reporta 72% de redução de custo mantendo 97,3% da qualidade frontier-only em seu benchmark de workflows multi-step; é evidência para route each semantic leaf, não uma garantia para este projeto: https://arxiv.org/abs/2609.22951
+- **Cascades cheap-first:** FrugalGPT e RouteLLM mostram que encaminhar casos simples para modelos econômicos e escalar os difíceis pode preservar qualidade com custo muito menor: https://arxiv.org/abs/2305.05176 e https://arxiv.org/abs/2406.18665
+- **Cache deve ser métrica operacional:** Claude Code trata cache hit como SLO; trocar model/tools no meio quebra cache e pode custar mais, enquanto subagents/handoffs preservam a sessão principal: https://claude.com/blog/lessons-from-building-claude-code-prompt-caching-is-everything
+- **GPT-6 caching:** OpenAI documenta descontos de cached input de até 95%, prefix matching, cache diagnostics e cache-safe prompt design: https://developers.openai.com/api/docs/guides/prompt-caching
+- **Cost per task, não preço por token:** a orientação Anthropic para Claude 5.5 recomenda evals do workload, effort calibration, caching e orchestration, inclusive Opus planning + Sonnet execution: https://www.anthropic.com/webinars/building-with-the-claude-5-5-family-choosing-the-right-model-and-getting-more-from-every-token
+- **Failure diagnosis estruturado:** AgentRx transforma trajectory em invariants/checker/evidence log antes do judge; Microsoft reporta ganhos de localização/attribution sobre prompting baseline: https://www.microsoft.com/en-us/research/blog/systematic-debugging-for-ai-agents-introducing-the-agentrx-framework/
+- **Recovery bounded:** PROBE separa telemetry, diagnosis e guidance gate; em 257 casos inicialmente não resolvidos reporta 65,37% Top-1 diagnosis e 21,79% recovery, defendendo side-channel recovery sem mudar policy/tool budget: https://www.microsoft.com/en-us/research/publication/debugging-the-debuggers-failure-anchored-structured-recovery-for-software-engineering-agents/
+- **Failure attribution ainda é difícil:** Who&When Pro contém 12.326 trajectories com labels controlados e mostra que error-mode/root-cause attribution permanece fraco; logo diagnósticos de IA devem ser advisory e verificados: https://arxiv.org/abs/2607.09996
+
+---
+
+# Parte XXI — Delegação multi-IA / multi-agente v2
+
+## 73. Objetivo
+
+Evoluir delegação para aproveitar competência específica e preço de cada agente **sem criar um sistema multiagente que consome mais tokens do que o trabalho**.
+
+A decisão de delegar passa a ser explícita:
+
+```text
+leaf
+  ↓
+can deterministic tool solve it?
+  ├─ yes → tool
+  └─ no
+      ↓
+would fresh/cheaper/specialist worker materially help?
+      ├─ no → keep current useful context
+      └─ yes
+          ↓
+eligible installed providers
+          ↓
+cheapest route satisfying quality floor
+          ↓
+bounded worker → compact result → independent validation
+```
+
+## 74. DelegationDecision
+
+Adicionar um contrato determinístico de decisão com pelo menos:
+
+- `work_kind`: exploration | design | implementation | debugging | review | diagnostics | validation_support | summary;
+- `semantic_difficulty`;
+- `validation_strength`;
+- `blast_radius`;
+- `silent_failure_cost`;
+- `parallelizable`;
+- `context_affinity`;
+- `estimated_context_pollution`;
+- `required_capabilities`;
+- `required_tools`;
+- `write_scope`;
+- `expected_output_size`;
+- `cache_affinity`;
+- `provider_availability`;
+- `coordination_overhead_class`.
+
+A policy decide `tool | keep_root | delegate` e, somente no último caso, resolve provider/tier/effort.
+
+Não usar um LLM exclusivamente para calcular esse gate inicialmente. Os sinais já existem no planning/routing e podem ser combinados deterministicamente.
+
+## 75. Roles de delegação
+
+### Explorer
+- read-only;
+- economy/standard;
+- busca/localização/multi-hop bounded;
+- entrega evidence map: paths, symbols, tests/contracts, unresolved questions;
+- não entrega narrativa longa.
+
+### Design specialist
+- strong/max somente quando hard decision/design realmente exigir;
+- produz design bounded, contracts, ordered checkpoints e validation strategy;
+- não implementa quando o objetivo é permitir executor mais barato.
+
+### Implementer
+- menor route que satisfaz floor;
+- write-enabled somente no scope da task;
+- report estruturado e pequeno.
+
+### Reviewer
+- fresh context quando independência ajuda;
+- tier igual ao hardest material risk, não automaticamente max;
+- recebe requirements/acceptance/change summary e recupera evidência sob demanda.
+
+### Diagnostic specialist
+- não recebe repo inteiro;
+- recebe `FailureEvidencePacket`;
+- pode ser Antigravity/GLM/Muse/outro provider barato somente se profile/sandbox adequado estiver disponível;
+- advisory por padrão, sem authority.
+
+### Summarizer
+- preferir deterministic summary;
+- model economy apenas quando synthesis humana/semântica for necessária.
+
+## 76. Preference por modelos de alto valor
+
+O selector deve preferir modelos de melhor **expected validated cost** dentro do floor. Em especial, F3/`advanced` existe para capturar casos em que GLM/Muse ou outro value model evita o salto direto de Sonnet/standard para Opus/Fable/Astra/strong.
+
+Contudo:
+
+- `advanced` não é obrigatório em todos os environments;
+- provider deve estar instalado/configurado/autenticado;
+- model/harness deve suportar a tarefa;
+- benchmark/telemetry da task class deve atingir quality floor;
+- ausência remove o candidato completamente;
+- nenhuma task deve dizer “usar GLM” ou “usar Muse” apenas porque o catálogo global conhece esses nomes.
+
+## 77. Regras contra explosão multiagente
+
+- default máximo de dois explorers concorrentes permanece;
+- não criar subagent para um lookup deterministicamente barato;
+- não delegar sequential steps com alta `context_affinity`;
+- não permitir recursive delegation irrestrita; default depth 1, exceção explícita e budgeted;
+- fan-out write-heavy somente com worktree/isolation comprovado;
+- cada worker recebe output budget;
+- parent recebe compact result, nunca transcript;
+- sibling workers compartilham stable prefix quando o provider/harness possibilitar;
+- cancelar fan-out restante quando acceptance evidence já tornou o resultado suficiente;
+- medir tokens de root + todos subagents + retries, não apenas worker “vencedor”.
+
+## 78. GLM/Muse no tier `advanced`
+
+A classificação inicial deve ser conservadora e data-driven.
+
+### Muse Spark 1.3
+
+Meta descreve Spark 1.3 como voltado a long-horizon coding/agentic work e menos turnos/tokens desnecessários. Evidência independente recente mostra desempenho próximo a Sonnet 5.5 em vários testes, variando bastante por workload. Portanto:
+
+- candidato preferencial F3 para coding/agentic workloads onde eval local confirma non-inferiority;
+- não substituir Sonnet/Opus globalmente;
+- model effort e harness fazem parte da identidade da rota;
+- se Muse Code não estiver instalado/ready, não aparece no plano.
+
+Fontes:
+- https://ai.meta.com/tools/muse/
+- https://artificialanalysis.ai/models/comparisons/claude-sonnet-5-5-high-vs-muse-spark-1-3
+
+### GLM-5.3 / GLM-5.3-Flash
+
+Z.AI reporta forte eficiência de output tokens e coding/agentic performance, além de Coding Plan com cache/credits. Portanto:
+
+- GLM-5.3-Flash pode concorrer em F2/F3 dependendo do workload;
+- GLM-5.3 pode concorrer em F3/F4 quando seu eval local justificar;
+- não inferir qualidade pelo nome Flash;
+- em subscription, otimizar credits/quota e não USD fictício;
+- provider ausente não entra na matrix.
+
+Fontes:
+- https://z.ai/blog/glm-5.3
+- https://z.ai/blog/glm-5.3-flash
+- https://docs.z.ai/devpack/overview
+
+## 79. FailureEvidencePacket e diagnóstico progressivo
+
+Antes de qualquer assistant/model diagnosis, produzir deterministicamente:
+
+```json
+{
+  "validation_id": "...",
+  "command_id": "...",
+  "failure_signature": "...",
+  "first_failure_excerpt": "...",
+  "latest_delta_excerpt": "...",
+  "process": {"alive": true, "cpu_delta": 0.0, "children": 3},
+  "resources": [{"id":"tomcat","status":"healthy"}],
+  "progress": {"last_output_age_seconds": 420, "cpu_idle_seconds": 380},
+  "invariant_violations": [],
+  "evidence_paths": ["..."],
+  "prior_attempt_classes": ["..."]
+}
+```
+
+O packet deve referenciar paths para artefatos grandes, não embuti-los.
+
+Pipeline:
+
+```text
+raw validation/log/resource evidence
+      ↓
+deterministic compaction + known checks/invariants
+      ↓
+FailureEvidencePacket
+      ↓
+optional cheap diagnostic specialist
+      ↓
+bounded hypothesis / next investigation
+      ↓
+implementation owner verifies
+      ↓
+deterministic validation
+```
+
+Isso incorpora a principal ideia de AgentRx/PROBE sem transformar a skill em um autonomous self-repair loop.
+
+## 80. Stall monitoring v2
+
+Preservar 300 segundos como **default de no-progress**, mas não como regra “cinco minutos = erro”.
+
+Confirmar stall somente quando os sinais configurados justificarem, por exemplo:
+
+- nenhum output/progress semanticamente novo;
+- CPU/process-group sem atividade útil;
+- dependências mapeadas permanecem healthy;
+- processo continua vivo;
+- validation não declarou quiet phase legítima.
+
+Permitir por validation:
+
+- `no_progress_timeout_seconds`;
+- `expected_quiet_seconds`;
+- `progress_regex`/progress extractor determinístico quando o framework fornece markers;
+- health checks específicos.
+
+Se resource falhou, classificar environmental. Se processo está trabalhando legitimamente, continuar. Se stall real for confirmado, persistir process snapshot + FailureEvidencePacket antes de parar o grupo.
+
+## 81. Cache-aware delegation
+
+Cache passa a influenciar a decisão **antes** de criar worker.
+
+- root com contexto útil e cache quente pode ser mais barato que subagent cheap;
+- mudança de model/effort no root é proibida automaticamente;
+- side work que exige modelo diferente deve ir para fresh worker;
+- static worker prefix deve ser byte-stable;
+- dynamic task/context entra no suffix;
+- cache hit/miss/read/write tokens entram em telemetry quando expostos;
+- cache hit rate vira métrica do harness, não curiosidade de billing;
+- provider switch considera custo de reconstrução de contexto.
+
+Anthropic documenta que em contexto grande até trocar Opus→Haiku pode sair mais caro que manter Opus devido ao cache miss; OpenAI documenta descontos de cached input de até 95%. Fontes:
+- https://claude.com/blog/lessons-from-building-claude-code-prompt-caching-is-everything
+- https://developers.openai.com/api/docs/guides/prompt-caching
+
+## 82. Quality/economy scorecard
+
+Toda evolução de routing/delegation deve medir, por workload class:
+
+- validated completion rate;
+- regression/negative-case pass rate;
+- under-routing rate;
+- over-routing rate;
+- attempts até sucesso;
+- root input/output tokens;
+- subagent input/output tokens;
+- cached input/cache writes quando disponível;
+- credits/quota consumed;
+- USD marginal quando aplicável;
+- wall-clock e p95;
+- context bytes/tokens entregues ao worker;
+- number of model calls;
+- number of delegated workers;
+- failure recovery rate;
+- cache hit rate;
+- cost per validated TODO;
+- quality-adjusted cost.
+
+A decisão de ativar uma otimização precisa de **quality non-inferiority predeclared** e ganho econômico material. Não escolher política olhando apenas o melhor resultado pós-hoc.
+
+---
+
+# Parte XXII — Plano de implementação recomendado
+
 
 Este plano já incorpora as otimizações de qualidade/contexto descritas acima. Ele evita um único TODO monolítico e separa mudanças por fronteiras em que histórico/contexto realmente se reutilizam.
 
@@ -1888,7 +2340,7 @@ Este plano já incorpora as otimizações de qualidade/contexto descritas acima.
 
 - novo `model_catalog.py`;
 - schema de catalog/provider/model/economics/capabilities/evidence;
-- F1–F4/L1–L5 como aliases do vocabulário canônico;
+- F1–F5/L1–L5 como aliases do vocabulário canônico;
 - catalog version/digest/freshness;
 - validação estrita.
 
@@ -2238,6 +2690,120 @@ Expandir somente por evidência.
 
 ---
 
+
+## TODO-014 — Delegation policy v2 e role contracts
+
+**Objetivo:** transformar delegação em uma decisão econômica/qualitativa explícita, sem fan-out cerimonial.
+
+**Escopo:**
+
+- `DelegationDecision`;
+- `tool|keep_root|delegate`;
+- roles explorer/design/implementer/reviewer/diagnostic/summarizer;
+- context-affinity e coordination-overhead signals;
+- max fan-out/nesting/budgets;
+- installed-provider eligibility;
+- compact result contracts.
+
+**Dependências:** TODO-001, TODO-003 e TODO-008.
+
+**Validação:**
+
+- grep/lookup simples não cria worker;
+- high-affinity sequential task permanece no contexto útil;
+- independent read-only discovery pode fan-out bounded;
+- absent GLM/Muse nunca aparece na decisão;
+- strong floor não pode ser reduzido pelo delegation optimizer;
+- token accounting inclui todos os workers.
+
+**Rota:** `strong/high` — policy cross-cutting com risco de desperdício/under-routing.
+
+---
+
+## TODO-015 — Structured failure evidence e diagnostic recovery
+
+**Objetivo:** melhorar debug pós-falha com mais qualidade e menos log em prompt.
+
+**Escopo:**
+
+- `FailureEvidencePacket`;
+- invariant/check violations determinísticos;
+- first failure + latest delta;
+- process/resource snapshot;
+- progress-aware stall;
+- bounded diagnostic specialist input/output;
+- advisory-only authority.
+
+**Dependências:** service-map/resource-watch atuais + TODO-014 para diagnostic role.
+
+**Validação:**
+
+- raw log grande nunca é copiado integralmente;
+- repeated old log lines não reaparecem;
+- resource outage fica environmental;
+- elapsed time sozinho não confirma stall;
+- assistant unavailable não altera baseline;
+- guidance nunca executa comando nem completa task.
+
+**Rota:** `strong/medium` para contrato + implementation standard onde determinístico.
+
+---
+
+## TODO-016 — Oversized-request/context retrieval refinements
+
+**Objetivo:** reduzir custo do primary planning sem perder coverage.
+
+**Escopo:**
+
+- working-set/breadth/dependency signals;
+- immutable fragments;
+- digest batches por context cohesion;
+- material-question retrieval;
+- contradiction/dependency index;
+- coverage gate;
+- no summary pyramid irreversível.
+
+**Dependências:** nenhuma de provider routing; pode ser desenvolvida em paralelo depois de contratos estáveis.
+
+**Validação:**
+
+- corpus de requests pequenos não entra em PRIMARY_PLAN;
+- request gigante repetitivo não força frontier por tamanho;
+- todos fragments recebem coverage;
+- final planner não carrega package inteiro;
+- source evidence continua recuperável.
+
+**Rota:** `strong/medium` design; implementação fortemente determinística pode usar `standard/medium`.
+
+---
+
+## TODO-017 — Whole-skill quality/economy benchmark
+
+**Objetivo:** medir se routing, `advanced`, delegation, diagnostics e context refinements realmente melhoram o produto.
+
+**Escopo:**
+
+- fixed workload corpus;
+- DIRECT e ORCHESTRATED cases;
+- large-request cases;
+- debugging/stall/resource failures;
+- provider availability cases;
+- standard vs advanced vs strong;
+- root-only vs delegated;
+- cache warm/cold scenarios;
+- matched-run methodology;
+- non-inferiority gate.
+
+**Dependências:** TODO-009, TODO-012, TODO-014, TODO-015 e TODO-016.
+
+**Métricas:** conforme §82.
+
+**Gate:** nenhuma policy passa a default se reduzir validated completion acima da margem predefinida, mesmo que economize tokens.
+
+**Rota:** `strong/medium` para desenho experimental + ferramentas determinísticas para agregação.
+
+---
+
 ## 68. Ordem de execução e paralelismo
 
 ```text
@@ -2264,6 +2830,16 @@ contracts stabilized
 TODO-008 + 009 + 011
  └─ TODO-012 shadow eval
       └─ TODO-013 rollout
+
+TODO-001 + TODO-003 + TODO-008
+ └─ TODO-014 delegation policy
+      └─ TODO-015 structured diagnostics
+
+PRIMARY planning path
+ └─ TODO-016 oversized-request refinements
+
+TODO-009 + TODO-012 + TODO-014 + TODO-015 + TODO-016
+ └─ TODO-017 whole-skill quality/economy benchmark
 ```
 
 TODO-004, TODO-005 e TODO-006 são bons candidatos a contextos/workers isolados e até execução paralela depois de TODO-003, pois os aprendizados específicos de Muse, GLM e DeepSeek têm pouco reaproveitamento entre si além do provider-profile contract já estabilizado.
@@ -2288,6 +2864,15 @@ Para economizar tokens ao implementar este plano:
 - usar um modelo forte em contratos/core routing, não em docs/CLI mecânicos;
 - não fazer fresh web research dentro de cada TODO: usar este documento + refresh targeted apenas quando uma informação atual realmente for necessária.
 
+- considerar `advanced` somente quando o environment tiver candidate elegível; não carregar documentação de GLM/Muse se eles não estiverem disponíveis;
+- manter `DelegationDecision` fora do worker prompt; worker recebe apenas a rota resolvida e sua tarefa;
+- medir coordination overhead antes de ampliar fan-out;
+- executar diagnostics sobre `FailureEvidencePacket`, não raw logs;
+- preservar cache-safe static prefixes e registrar cache misses relevantes;
+- para requests enormes, recuperar fragments por questão material em vez de concatenar o package;
+- tratar TODO-017 como gate de produto: preço menor sem quality non-inferiority não é sucesso.
+
+
 ---
 
 ## 70. Critério final de sucesso do plano
@@ -2307,3 +2892,12 @@ nenhum aumento material do contexto always-loaded
 ```
 
 Esse resultado deve ser provado pelo shadow benchmark e pelas métricas de execuções reais, não inferido de preços ou benchmarks isolados.
+
+Adicionalmente, o resultado final deve demonstrar:
+
+- que o tier `advanced` reduz saltos prematuros para frontier premium sem aumentar under-routing;
+- que environments sem GLM/Muse/providers opcionais mantêm comportamento correto;
+- que delegação reduz custo/context pollution nos workloads onde é ativada e permanece desligada onde não compensa;
+- que diagnosticar a partir de evidence packets melhora recovery sem aumentar authority do advisor;
+- que oversized requests podem chegar a um plano final resumível sem obrigar um único modelo caro a reler o prompt completo;
+- que cache hit rate e custo de todos os subagents entram no cálculo econômico.
