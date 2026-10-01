@@ -10,7 +10,7 @@ The UI-neutral `Question` has `id`, `prompt`, `choices`. A host may render it na
 
 The wizard discovers seven coding CLIs: Claude, Codex, Antigravity, Gemini, Qwen, Kimi and Trae. It uses only non-generative documented `claude auth status` and `codex login status` probes. Other/custom wrappers require explicit authentication confirmation. Installed, authenticated, quota available and access to a concrete model are separate facts; no token-consuming test prompt is sent.
 
-For economy, standard, strong and max: choose a primary, then each fallback in order. Configure concrete models/caps only for chosen routes. Assistant opt-in/provider is independent. Native advisory support is narrower than coding support: see `ASSISTANTS.md` before enabling it. Final preview and explicit confirmation precede an atomic, owner-only write. Concurrent edits and symlink destinations fail rather than overwrite.
+For economy, standard, strong and max: choose a primary, then each fallback in order. Configure concrete models/caps only for chosen routes. Assistant opt-in/provider is independent. Jev and Claude are supported advisory profiles; Jev is not a coding provider. See `ASSISTANTS.md`, then load only the selected provider guide before enabling or diagnosing advice. Final preview and explicit confirmation precede an atomic, owner-only write. Concurrent edits and symlink destinations fail rather than overwrite.
 
 ```bash
 pae configure --show --json
@@ -37,11 +37,11 @@ Runtime resolution: built-in defaults < global config < explicit plan overlay. D
     "max": {"primary": "codex", "fallbacks": ["claude"]}
   },
   "availability": {"cooldown_seconds": 300, "max_attempts_per_run": 7},
-  "assistant": {"enabled": false, "provider": "antigravity"}
+  "assistant": {"enabled": false, "provider": "jev"}
 }
 ```
 
-These are example preferences, not model quality rankings. Provider names are not model tiers. Concrete model IDs come from provider `models`; capability caps use `max_effort_by_tier`. Verify IDs with the installed provider CLI. Antigravity IDs embedding a reasoning mode omit separate `--effort`; explicit `models_without_effort` also wins. Invalid types, repeated providers, unknown tiers or impossible combinations fail before execution.
+The Jev assistant line is an opt-in example, not a default activation; without explicit enablement no Jev request occurs. These are example preferences, not model quality rankings. Provider names are not model tiers. Concrete model IDs come from provider `models`; capability caps use `max_effort_by_tier`. Verify IDs with the installed provider CLI. Antigravity IDs embedding a reasoning mode omit separate `--effort`; explicit `models_without_effort` also wins. Invalid types, repeated providers, unknown tiers or impossible combinations fail before execution.
 
 An explicit task/CLI provider is first; declared alternatives remain subject to `allow_provider_fallback`. A pinned provider plus fallback disabled never silently switches. Existing `provider_order` behavior remains when no tier-specific chain is present.
 
