@@ -113,6 +113,21 @@ class RoutingConfigurationTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(rc.ConfigError):
                 rc.validate(value)
 
+    def test_jev_is_advisory_only_and_validated(self):
+        cfg = self.load()
+        cfg['assistant'].update(enabled=True, provider='jev', jev_model='jev-1.13.0',
+                                jev_min_confidence=.7, max_calls_per_plan=4)
+        rc.validate(cfg)
+        self.assertNotIn('jev', rc.PROVIDERS)
+        self.assertIn('jev', rc.ASSISTANT_PROVIDERS)
+        for bad in ({'assistant': {'provider': 'unknown'}},
+                    {'assistant': {'jev_model': 'bad model'}},
+                    {'assistant': {'jev_min_confidence': float('nan')}},
+                    {'assistant': {'jev_min_confidence': 1.1}},
+                    {'assistant': {'max_calls_per_plan': 0}}):
+            with self.subTest(bad=bad), self.assertRaises(rc.ConfigError):
+                rc.validate(bad, partial=True)
+
     def test_unreadable_malformed_and_oversized_files(self):
         for content in ('[]', '{', '{"assistant":{"timeout_seconds":NaN}}', 'x' * (rc.MAX_CONFIG_BYTES + 1)):
             self.global_file.write_text(content, encoding='utf-8')
