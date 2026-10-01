@@ -72,6 +72,18 @@ class SetupTests(unittest.TestCase):
         with self.assertRaises(c.rc.ConfigError):
             c.wizard(defaults(), statuses, lambda q: 'Nao')
 
+    def test_jev_assistant_does_not_enter_coding_model_configuration(self):
+        questions = []
+        def ask(q):
+            questions.append(q)
+            if q.id == 'assistant.enabled': return 'Sim'
+            if q.id == 'assistant.provider': return 'jev'
+            return q.choices[0]
+        cfg = c.wizard(defaults(), {'codex': {'installed': True, 'authentication': 'authenticated'}}, ask)
+        self.assertEqual(cfg['assistant']['provider'], 'jev')
+        self.assertFalse(any(q.id.startswith('jev.') for q in questions))
+        self.assertNotIn('jev', cfg['tier_routes']['economy'].values())
+
     def test_manual_model_and_embedded_effort(self):
         def ask(q):
             if q.id.endswith('.model'): return 'Outro ID'
