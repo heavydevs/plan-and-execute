@@ -58,7 +58,7 @@ Default to no `CONTEXT.md`. Create global/scoped context only for non-obvious fa
 
 Keep shared rules before task-specific evidence. Reuse a stable model/tool/schema configuration when it meets the task's floor; do not switch the root route solely to chase a cheaper nominal token price. Provider cache keys, TTLs and effort exceptions change: verify the active provider documentation before tuning them. Do not claim every fresh worker starts cold or that all effort changes invalidate all caches.
 
-Availability fallback preserves the declared logical tier and requested effort, subject only to provider capability caps. It is independent of semantic escalation (`ROUTING_CONFIG.md`). Optional diagnostics load only the latest bounded evidence (`ASSISTANTS.md`); disabled assistants and routine deterministic diagnostics make zero advisory calls. Provider-specific instructions are loaded only for the selected adviser, and Jev has both per-task and per-plan call caps with no automatic retry. Character limits bound supplied text, not billed tokens or internal provider context.
+Availability fallback preserves the declared logical tier and requested effort, subject only to provider capability caps. It is independent of semantic escalation (`ROUTING_CONFIG.md`). Optional diagnostics load only the latest bounded evidence (`ASSISTANTS.md`); disabled assistants and routine deterministic diagnostics make zero advisory calls. Load only the selected adviser guide; Jev has task/plan call caps and no retry. Character limits bound supplied text, not billed tokens or internal provider context.
 
 ## 12. Route by verified task cost, not price per token
 
