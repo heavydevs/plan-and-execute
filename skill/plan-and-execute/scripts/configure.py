@@ -119,10 +119,17 @@ def wizard(config: dict, installed: dict, ask: Callable[[Question], str]) -> dic
                    ('Nao', 'Sim')) == 'Sim'
     result['assistant'] = {'enabled': enabled}
     if enabled:
-        preferred = sorted(ready, key=lambda p: (p != config['assistant']['provider'], ready.index(p)))
-        provider = _ask(ask, 'assistant.provider', 'Provedor do assistente? Somente Claude bare/tool-less e suportado; exige ANTHROPIC_API_KEY e cobra na API, nao na assinatura. Outros perfis resultam em skip.', preferred)
+        supported = ['jev'] + (['claude'] if 'claude' in ready else [])
+        current = config['assistant']['provider']
+        preferred = sorted(supported, key=lambda p: (p != current, supported.index(p)))
+        provider = _ask(
+            ask, 'assistant.provider',
+            'Provedor do conselho? Jev usa TYPESAFE_API_KEY e falha para o fluxo normal sem retry; Claude usa bare/tool-less com ANTHROPIC_API_KEY.',
+            preferred,
+        )
         result['assistant']['provider'] = provider
-        selected.add((provider, config['assistant']['model_tier']))
+        if provider == 'claude':
+            selected.add((provider, config['assistant']['model_tier']))
     for provider, tier in sorted(selected, key=lambda x: (rc.PROVIDERS.index(x[0]), rc.TIER_ORDER.index(x[1]))):
         previous = config[provider]['models'][tier]
         choices = list(dict.fromkeys([previous, *config[provider]['models'].values()])) + ['Outro ID']
