@@ -216,27 +216,28 @@ sem adicionar nova informação semântica.
 
 ### Decisão arquitetural AD-001
 
-**Não substituir o vocabulário canônico da `main`.**
+**Evoluir o vocabulário canônico da `main` somente onde existe ganho semântico real.**
 
-A solução nova deve aceitar e exibir F1–F5/L1–L5 como **aliases portáveis**, mas normalizar o estado durável para:
+A PR #17 original não justificava renomear quatro tiers existentes apenas para F1–F4. Este documento agora acrescenta uma mudança semanticamente útil: o novo tier `advanced`, entre `standard` e `strong`, para capturar modelos de alta relação qualidade/custo antes do salto para frontier premium.
+
+O estado durável futuro deve normalizar para:
 
 ```text
-economy | standard | strong | max
+economy | standard | advanced | strong | max
 low | medium | high | xhigh | max
 ```
 
-Isso preserva integralmente o objetivo da PR #17 sem forçar schema v5 apenas para renomear conceitos.
-
-O `MODEL_MATRIX.md` poderá mostrar as duas representações:
+F1–F5/L1–L5 permanecem **aliases portáveis/display**, não um segundo schema concorrente:
 
 ```text
 F1 / economy
 F2 / standard
-F3 / strong
-F4 / max
+F3 / advanced
+F4 / strong
+F5 / max
 ```
 
-Se no futuro F/L adquirirem semântica realmente diferente dos tiers atuais, uma migração de schema poderá ser considerada com evidência concreta.
+Compatibilidade é obrigatória: planos antigos com `strong` e `max` mantêm exatamente sua semântica; inserir `advanced` não desloca nem rebaixa tiers persistidos.
 
 ---
 
@@ -573,8 +574,9 @@ por nome.
 Como bootstrap atual:
 
 - Flash é candidato forte para `economy` e `standard`;
-- GLM-5.3 é candidato a `strong`/`max` em tarefas onde a evidência de qualidade justifica;
-- Flash pode subir acima disso se benchmarks/telemetry mostrarem melhor custo por sucesso naquele workload.
+- GLM-5.3 e GLM-5.3-Flash podem ocupar `advanced` quando evals do workload demonstrarem qualidade suficiente com melhor custo esperado;
+- GLM-5.3 só deve subir para `strong` se evidência local realmente atingir o floor daquele workload; o nome do modelo não autoriza promoção;
+- Flash pode mudar de banda se benchmarks/telemetry mostrarem melhor custo por sucesso naquele workload.
 
 ---
 
@@ -711,6 +713,18 @@ Regras obrigatórias:
 5. Escalation ladders devem pular tiers vazios.
 6. Inserir `advanced` não reinterpreta planos antigos: `strong` continua significando `strong`, e `max` continua `max`.
 7. A classificação de um modelo em F3 deve ser workload-specific e versionada no catálogo; nome de produto, marketing ou preço não basta.
+
+Bootstrap de mapeamento para orientar implementação — **somente candidates disponíveis entram na matrix real do plano**:
+
+| Provider/profile | `economy` F1 | `standard` F2 | `advanced` F3 | `strong` F4 | `max` F5 |
+|---|---|---|---|---|---|
+| Claude | Haiku/current economy | Sonnet 5.5 | vazio por default | Opus 5.5 | Fable/current max, conforme catálogo/evals |
+| Codex | GPT-6 Luna | GPT-6.1 Sol | vazio por default | GPT-6 Astra | Astra em effort superior, conforme catálogo |
+| GLM/Z.AI | GLM-5.3-Flash low quando elegível | GLM-5.3-Flash | GLM-5.3-Flash max e/ou GLM-5.3 conforme eval | somente se eval local atingir F4 | não assumir |
+| Muse | somente se futuro eval justificar | Muse Spark em workload delimitado quando suficiente | Muse Spark 1.3 como candidato principal de alto valor | somente se eval local atingir F4 | não assumir |
+| DeepSeek | V4.1 Flash | V4.1 Flash em classes adequadas | somente se eval local justificar | não assumir | não assumir |
+
+A tabela é **bootstrap, não hardcode de qualidade**. O catálogo dinâmico, a task class e a telemetry podem mudar a colocação. Em particular, Sonnet 5.5 atual supera Muse/GLM em alguns workloads e perde/empata em outros; por isso o router não deve interpretar F3 como “marca X é sempre melhor que F2”.
 
 Evidência atual que motiva a faixa:
 
