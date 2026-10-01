@@ -1817,6 +1817,14 @@ Primary planning SHALL preservar fragments imutáveis e SHALL recuperar raw evid
 ### FR-033 — Quality/economy rollout gate
 Nova policy automática SHALL permanecer shadow/opt-in até demonstrar quality non-inferiority e redução material de cost/context por TODO validado.
 
+### FR-034 — Runtime monitoring artifact ownership and cleanup
+Artefatos produzidos durante monitoramento/diagnóstico — incluindo logs de validação, JSONL de resource watch, process snapshots, log cursors, temporary reports e arquivos equivalentes — SHALL:
+1. nunca ser criados dentro da pasta instalada/source da skill;
+2. possuir owner/scope explícito (`task|plan|project-shared|temporary`);
+3. possuir retention policy explícita;
+4. ser removidos deterministicamente quando o owner termina e nenhuma referência viva de retry, diagnosis, handoff ou auditoria exige retenção;
+5. sobreviver apenas quando forem estado compartilhado deliberado, como o `SERVICE_MAP.md`, ou quando uma política de retenção configurada exigir evidência pós-execução.
+
 
 ## 66. Requisitos não funcionais
 
@@ -1865,6 +1873,9 @@ Quando usage metadata existir, cache hit/read/write e route identity devem ser m
 ### NFR-014 — Evidence compactness
 Failure/context/handoff artifacts entregues a modelos devem possuir budgets explícitos e pointers para raw evidence.
 
+### NFR-015 — Clean skill installation
+A árvore instalada/source da skill SHALL permanecer imutável durante execução normal quanto a logs/tracking/runtime state. Testes de integração SHALL falhar se uma execução criar novos arquivos transitórios sob `skill/plan-and-execute/` (exceto arquivos deliberadamente versionados pelo desenvolvimento).
+
 
 # Parte XVI — Critérios de aceitação da demanda
 
@@ -1886,6 +1897,8 @@ A implementação só pode ser considerada pronta quando:
 14. Validator/installer exigem todos os runtime files novos.
 15. Shadow eval demonstra que a policy nova não cria regressão material de validated success antes de ser habilitada automaticamente.
 16. Um relatório de eval mostra custo/tokens/créditos por TODO validado, não apenas preço por MTok.
+17. Execuções de monitoring/validation não deixam logs, cursors, snapshots ou reports transitórios dentro da pasta da skill.
+18. Após a conclusão de uma task/plano, artefatos de tracking efêmeros sem referência viva são removidos, enquanto evidência ainda necessária e state project-shared deliberado são preservados.
 
 ---
 
@@ -2005,6 +2018,7 @@ Esta seção registra o **contrato de produto** da skill antes da implementaçã
 - **Detectar validações travadas com evidência operacional.** `resource_watch.py` acompanha processo, progresso, CPU e dependências, com no-progress timeout default de 300s; environment health evita culpar o modelo por Tomcat/MySQL/Selenium/etc.
 - **Ler somente linhas novas de logs crescentes.** `log_watch.py` usa cursor persistente por arquivo/pattern, detecta rotation/truncation, limita bytes e matches e evita reenviar erros antigos.
 - **Manter logs completos fora do contexto e prompts com evidência limitada.** Full output vai para arquivos; state/worker recebem tail bounded, fingerprint normalizado, failure class e paths para evidência bruta.
+- **Não deixar lixo de monitoramento na instalação da skill.** Logs, snapshots, cursors, JSONL, process/resource reports e outros artefatos gerados por `resource_watch.py`, `log_watch.py`, service diagnostics ou mecanismos futuros são runtime state: SHALL ser gravados em workspace controlado do projeto/plano ou diretório temporário apropriado, nunca dentro da pasta instalada/source da skill. Quando a task que os possui termina e a evidência já não é necessária para retry, diagnosis, handoff ou auditoria configurada, esses artefatos efêmeros devem ser removidos deterministicamente.
 - **Usar diagnóstico auxiliar somente depois de falha elegível.** Assistant opcional recebe evidência redigida/bounded após falha repetida/ambígua, unhealthy samples ou stall confirmado; nunca aprova tarefa, executa comandos ou muda failure class autoritativamente.
 - **Aplicar budgets para impedir runaway workers.** Turn/token/budget limits transformam excesso de consumo em estado resumível, não em loop indefinido.
 - **Preservar prompt cache e prefixos estáveis quando o provider suporta.** Root session não muda model/effort automaticamente; tarefas que exigem rota diferente são delegadas, evitando reconstruir contexto enorme em outro modelo.
@@ -2059,6 +2073,7 @@ Preço por token, tamanho do contexto, número de agentes ou benchmark isolado n
 | Prompt cache | Monitorar cache hit como SLO; static prefix primeiro, dynamic suffix último; tool schemas estáveis; cache-safe forks | grande redução de custo/latency | não adicionar texto inútil só para atingir cache threshold |
 | Summaries | Summary determinístico quando possível; model only para synthesis ambígua | elimina última chamada desnecessária | final handoff precisa cobrir riscos/follow-ups/validation |
 | Cleanup | Garbage collection por ownership/sentinel e retention policies separadas para shared telemetry | evita lixo sem risco de apagar produto | refuse unsafe/symlink paths |
+| Monitor artifact cleanup | Tirar todo runtime log/report/cursor da pasta da skill; registrar owner/scope/retention e apagar artefatos task-scoped assim que a task termina e eles deixam de ser necessários | evita lixo acumulado, leitura acidental de logs antigos e crescimento permanente da instalação | não apagar evidência ainda referenciada por retry/diagnosis/handoff; shared project state só por política explícita |
 | Regression/evals | Avaliar quality non-inferiority + cost per validated TODO + cache + retries + latency + under-routing | otimização guiada por dado real | shadow/A-B antes de auto-routing |
 | Deterministic control plane | Expandir scripts para policy/routing/evidence compaction em vez de prompt instructions | menos token e menos nondeterminism | logic versionada e coberta por tests |
 | Security/provenance | Provider profile separado de harness; secrets só por env name; telemetry sem prompt/code | mais providers sem aumentar risco | fail closed quando read-only/sandbox não puder ser provado |
@@ -2757,7 +2772,11 @@ Expandir somente por evidência.
 - resource outage fica environmental;
 - elapsed time sozinho não confirma stall;
 - assistant unavailable não altera baseline;
-- guidance nunca executa comando nem completa task.
+- guidance nunca executa comando nem completa task;
+- resource/log watcher artifacts são criados fora da pasta da skill;
+- ao concluir a task, artefatos task-scoped sem referência viva são removidos;
+- artefatos necessários para retry/diagnosis permanecem enquanto a task estiver pending/blocked e são removidos no momento seguro posterior;
+- project-shared state deliberado, como `.ai-work/SERVICE_MAP.md`, não é apagado pelo cleanup da task.
 
 **Rota:** `strong/medium` para contrato + implementation standard onde determinístico.
 
