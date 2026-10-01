@@ -61,7 +61,7 @@ Keep the root route stable; delegate leaves above its capability, including plan
 
 Planning routes: [PLANNING_ROUTING.md](references/PLANNING_ROUTING.md). Implementation: [MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus only the active provider guide. Do not preload both provider guides.
 
-Tier priority/fallback: [ROUTING_CONFIG.md](references/ROUTING_CONFIG.md). Optional bounded advice: [ASSISTANTS.md](references/ASSISTANTS.md), loaded only for setup, eligible failure or maintenance. Unsupported read-only profiles skip.
+Tier priority/fallback: [ROUTING_CONFIG.md](references/ROUTING_CONFIG.md). Optional bounded advice: [ASSISTANTS.md](references/ASSISTANTS.md), loaded only for setup, an eligible failure, or maintenance. If advice is enabled, load exactly the selected provider guide (`ASSISTANT_JEV.md` or `ASSISTANT_CLAUDE.md`); disabled advice loads neither. Unsupported read-only profiles skip.
 
 ## 5. Promote late
 
