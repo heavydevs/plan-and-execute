@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 import os
 import re
 from pathlib import Path
@@ -12,14 +13,16 @@ from typing import Any
 from routingctl import TIER_ORDER, EFFORT_ORDER
 
 PROVIDERS = ('claude', 'codex', 'antigravity', 'gemini', 'qwen', 'kimi', 'trae')
+ASSISTANT_PROVIDERS = (*PROVIDERS, 'jev')
 MAX_CONFIG_BYTES = 256 * 1024
 EXTRA_DEFAULTS = {
     'tier_routes': {},
     'availability': {'cooldown_seconds': 300, 'max_attempts_per_run': 7},
     'assistant': {
         'enabled': False, 'provider': 'antigravity', 'model_tier': 'economy',
-        'reasoning_effort': 'low', 'max_calls_per_task': 1,
+        'reasoning_effort': 'low', 'max_calls_per_task': 1, 'max_calls_per_plan': 4,
         'max_input_chars': 6000, 'max_output_chars': 2000, 'timeout_seconds': 30,
+        'jev_model': 'jev-1.13.0', 'jev_min_confidence': 0.60,
         'repetition_threshold': 2, 'unhealthy_threshold': 2, 'stall_seconds': 300,
     },
 }
@@ -154,12 +157,20 @@ def validate(config: dict, *, partial: bool = False) -> None:
         raise ConfigError('Unknown assistant setting')
     if 'enabled' in assistant:
         _boolean(assistant['enabled'], 'assistant.enabled')
-    for key, values in (('provider', PROVIDERS), ('model_tier', TIER_ORDER), ('reasoning_effort', EFFORT_ORDER)):
+    for key, values in (('provider', ASSISTANT_PROVIDERS), ('model_tier', TIER_ORDER), ('reasoning_effort', EFFORT_ORDER)):
         if key in assistant and assistant[key] not in values:
             raise ConfigError(f'Invalid assistant.{key}')
-    for key, bounds in {'max_calls_per_task': (1, 3), 'max_input_chars': (512, 12000), 'max_output_chars': (256, 4000), 'timeout_seconds': (1, 120), 'repetition_threshold': (2, 20), 'unhealthy_threshold': (1, 20), 'stall_seconds': (1, 3600)}.items():
+    for key, bounds in {'max_calls_per_task': (1, 3), 'max_calls_per_plan': (1, 32), 'max_input_chars': (512, 12000), 'max_output_chars': (256, 4000), 'timeout_seconds': (1, 120), 'repetition_threshold': (2, 20), 'unhealthy_threshold': (1, 20), 'stall_seconds': (1, 3600)}.items():
         if key in assistant:
             _integer(assistant[key], f'assistant.{key}', *bounds)
+    if 'jev_model' in assistant:
+        model = assistant['jev_model']
+        if not isinstance(model, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._:-]{0,99}', model):
+            raise ConfigError('Invalid assistant.jev_model')
+    if 'jev_min_confidence' in assistant:
+        value = assistant['jev_min_confidence']
+        if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 1:
+            raise ConfigError('assistant.jev_min_confidence must be a finite number in [0, 1]')
 
 
 def _names_codes(value: Any, provider: str) -> list:
