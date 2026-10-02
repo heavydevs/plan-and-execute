@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import service_map
+import resource_watch
 
 
 def cursor_for(root: Path, log_path: Path, pattern: str, log_id: str) -> Path:
@@ -64,6 +65,7 @@ def scan(args: argparse.Namespace) -> int:
     pattern = re.compile(args.pattern, re.IGNORECASE)
     cursor_path = cursor_for(root, log_path, args.pattern, args.id)
     previous = load_cursor(cursor_path)
+    resource_watch.register_artifact(root, cursor_path)
     with log_path.open("rb") as source:
         metadata = os.fstat(source.fileno())
         identity = {"device": metadata.st_dev, "inode": metadata.st_ino}

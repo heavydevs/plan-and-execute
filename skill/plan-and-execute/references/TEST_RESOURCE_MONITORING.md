@@ -75,6 +75,8 @@ Validation, toolchain, and health-check commands are argv arrays and execute wit
 
 Each validation may set `no_progress_timeout_seconds` (default `300`, range `0..7200`; `0` disables). On POSIX, the watcher samples the test process group every 20 seconds and counts changed normalized output or increased aggregate CPU time as progress. If neither advances for the configured window while mapped dependencies are healthy, it records a bounded process snapshot, terminates that test process group, and returns a semantic failure so the next fresh worker is elevated. CPU activity prevents a quiet but working test from being interrupted. Increase this value for long silent phases; use the test's own per-test/global timeout for a more precise bound. Resource `every_seconds` checks continue independently at their configured interval (normally 60 seconds), so a 10-minute test receives repeated service samples. When process metrics are unavailable or the host is Windows, the watcher does not infer a stall from silence alone; repeated identical validation failures still feed the cross-attempt escalation clock.
 
+A stall requires missing progress under the quiet-phase policy, not silence alone. A validation may declare `expected_quiet_seconds` (a known silent phase; the stall window becomes the larger of it and `no_progress_timeout_seconds`) and `progress_regex` (any matching output line restarts the idle clock, even when its text repeats, e.g. `^progress \d+/\d+`). An invalid regex fails as a configuration error before the test starts, on every host; the in-run stall monitor that uses both keys runs only on POSIX.
+
 ## 2. Build a test-to-resource map
 
 Inventory all automated validation commands used by the plan, then link each validation ID to every external process/service the command requires. Look for resources in test annotations/fixtures, test profile configuration, local launch scripts, build files, container definitions, CI jobs, environment variable names, and existing test documentation. Include resources the test starts itself (for example Testcontainers containers) as well as long-lived local backends. Record evidence paths so a later invocation can review only likely sources.
@@ -126,6 +128,12 @@ The test argv comes from that map entry, which binds it to its toolchain IDs and
 
 The wrapper runs commands directly from argv; it does not start, stop, repair, or reconfigure project services. A health command's nonzero exit, timeout, missing executable, or failed regex is recorded as unhealthy. Environmental health failure keeps the model route stable; a deliberately semantic diagnostic may elevate it. On POSIX, monitored validations require process enumeration via `ps` or `/proc` so timeouts can also clean nested probe processes; without either, the watcher fails before starting the test.
 
+### FailureEvidencePacket and advisory diagnosis
+
+Before any diagnosis, the runner builds one bounded FailureEvidencePacket per failed validation (`resource_watch.build_failure_packet`, default budget 4 KiB): `signature`, `first_failure`, `latest_delta`, `process`, `resources`, `progress`, `block_scope` and `evidence_paths` (the raw log path). It reads only the first and last windows of the log, so a multi-megabyte log costs a fixed scan. Lines already reported by the previous attempt's packet (normalized hashes in its `seen` list) are omitted from `latest_delta`; lines dropped for budget stay unreported. A stale or invalid service map sets `block_scope=service_map`: the map must be reconciled, not the task's code changed. The packet is written beside the attempt log as `logs/<task>-attempt-<n>-evidence.json`, registered with task owner scope and `on-task-end` retention, never under `skill/plan-and-execute/`. The next worker's latest-failure capsule summarizes it.
+
+The diagnostic assistant receives the packet (first failure and new delta), not raw log windows, and its output is stored as advice only: `failure_class`, completion and next-route keys are stripped, and the deterministic class is computed from monitor evidence before the assistant runs. With the assistant disabled or unavailable, failure class and next route equal the no-assistant baseline.
+
 Before execution, audit that every task validation is a standalone Python watcher invocation, refers to a known validation ID, uses the expected map, and the map is still fresh. The audit rejects shell pipelines, comments, and trailing commands:
 
 ```bash
@@ -134,6 +142,10 @@ python <skill-dir>/scripts/service_map.py audit-plan \
 ```
 
 After a worker changes a test, test configuration, or service dependency, reconcile and restamp the project map before the validation wrapper runs. If the change introduces a new resource or a new validation command, update the map and plan mapping first; do not silently accept an unmapped dependency. Successful plan cleanup deletes only `.ai-work/<plan-id>/`, not `SERVICE_MAP.md`, its hash index, or runtime-monitor reports.
+
+### Monitor artifact registry and cleanup
+
+Monitor outputs (reports, evidence packets) are registered in `.ai-work/resource-watch/registry.jsonl` with scope (`task`, `plan`, `project-shared`, `temporary`), owner and retention (`on-task-end`, `on-plan-end`, `keep`). The runner sets `PAE_ARTIFACT_SCOPE=task`/`PAE_ARTIFACT_OWNER=<task id>` around validations; outside it the default is `temporary`. Registration inside `skill/plan-and-execute/` is refused. The runner cleans the task scope after the task completes and the plan scope at plan end; `resource_watch.py cleanup --scope task|plan|temporary --owner <id>` does the same by hand. Cleanup deletes only files under `.ai-work/`, never `project-shared` or `keep` entries, and leaves the service map alone.
 
 ## 4. Research notes
 

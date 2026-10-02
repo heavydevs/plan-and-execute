@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+import configure
 import planctl
 import routing_config as rc
 import routingctl
@@ -125,6 +126,64 @@ class RoutingConfigurationTests(unittest.TestCase):
         with patch.dict(os.environ, {'PAE_CONFIG_PATH': str(missing)}):
             with self.assertRaises(runner.RunnerError):
                 runner.load_config(self.root)
+
+    def test_profiles_validate_and_layer(self):
+        self.write(self.global_file, {'version': 2, 'profiles': {'gateway': {'harness': 'claude', 'base_url_env': 'GW_URL', 'token_env': 'GW_TOKEN'}}})
+        self.write(self.plan_file, {'version': 2, 'profiles': {'gateway': {'token_env': 'PLAN_TOKEN'}}, 'kimi': {'profile': 'gateway'}})
+        cfg = self.load()
+        self.assertEqual(cfg['profiles']['gateway'], {'harness': 'claude', 'base_url_env': 'GW_URL', 'token_env': 'PLAN_TOKEN'})
+        resolved = rc.resolve_profile('kimi', cfg)
+        self.assertEqual((resolved['harness'], resolved['adapter'], resolved['command']), ('claude', 'claude', 'claude'))
+        self.assertEqual((resolved['base_url_env'], resolved['token_env']), ('GW_URL', 'PLAN_TOKEN'))
+        self.assertNotIn('profiles', rc.plan_overlay())
+
+    def test_profile_and_harness_are_independent_axes(self):
+        cfg = self.load()
+        for provider in rc.PROVIDERS:
+            implicit = rc.resolve_profile(provider, cfg)
+            self.assertEqual((implicit['adapter'], implicit['command'], implicit['token_env']), (provider, cfg[provider]['command'], None))
+        cfg['profiles'] = {'p': {'harness': 'codex', 'token_env': 'A_TOKEN'}}
+        cfg['qwen']['profile'] = 'p'
+        first = rc.resolve_profile('qwen', cfg)
+        cfg['profiles']['p']['token_env'] = 'B_TOKEN'  # profile changes, harness does not
+        second = rc.resolve_profile('qwen', cfg)
+        self.assertEqual((first['adapter'], second['adapter']), ('codex', 'codex'))
+        self.assertEqual((first['token_env'], second['token_env']), ('A_TOKEN', 'B_TOKEN'))
+        cfg['profiles']['p']['harness'] = 'native'  # harness changes, credentials do not
+        third = rc.resolve_profile('qwen', cfg)
+        self.assertEqual((third['adapter'], third['command'], third['token_env']), ('qwen', 'qwen', 'B_TOKEN'))
+        cfg['profiles']['p']['command'] = ['my-cli', '--flag']
+        self.assertEqual(rc.resolve_profile('qwen', cfg)['command'], ['my-cli', '--flag'])
+
+    def test_invalid_profiles_fail_closed_without_echoing_values(self):
+        secret = 'sk-planted-SECRET-0001'
+        invalid = [{'profiles': []}, {'profiles': {'Bad Name': {'harness': 'claude'}}},
+                   {'profiles': {'p': {'harness': 'openai'}}}, {'profiles': {'p': {}}},
+                   {'profiles': {'p': {'harness': 'claude', 'token': secret}}},
+                   {'profiles': {'p': {'harness': 'claude', 'token_env': secret}}},
+                   {'profiles': {'p': {'harness': 'claude', 'base_url_env': 'https://' + secret}}},
+                   {'profiles': {'p': {'harness': 'claude', 'command': []}}},
+                   {'claude': {'profile': 'missing'}}, {'claude': {'profile': 3}}]
+        for value in invalid:
+            with self.subTest(value=value), self.assertRaises(rc.ConfigError) as caught:
+                rc.validate(value)
+            self.assertNotIn(secret, str(caught.exception))
+        rc.validate({'claude': {'profile': 'later'}}, partial=True)
+        rc.validate({'profiles': {'p': {'token_env': 'ONLY_TOKEN'}}}, partial=True)
+
+    def test_show_never_prints_profile_secrets(self):
+        secret = 'sk-planted-SECRET-0002'
+        self.write(self.global_file, {'version': 2, 'profiles': {'gw': {'harness': 'claude', 'base_url_env': 'GW_URL', 'token_env': 'GW_TOKEN'}},
+                                      'kimi': {'profile': 'gw'}})
+        output = []
+        with patch.dict(os.environ, {'GW_TOKEN': secret, 'GW_URL': 'https://' + secret}):
+            configure.configure(self.global_file, show=True, discover_fn=lambda _: self.fail('show probes'), write=output.append)
+        self.assertTrue(output)
+        self.assertNotIn(secret, '\n'.join(output))
+        self.write(self.global_file, {'version': 2, 'profiles': {'gw': {'harness': 'claude', 'api_key': secret}}})
+        with self.assertRaises(rc.ConfigError) as caught:
+            configure.configure(self.global_file, show=True, write=output.append)
+        self.assertNotIn(secret, str(caught.exception) + '\n'.join(output))
 
     def test_empty_command_rejected_at_dispatch(self):
         with self.assertRaises(runner.RunnerError):

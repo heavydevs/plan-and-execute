@@ -34,6 +34,8 @@ The defaults are **economic guardrails**, not claims about model context limits:
 - `direct_final`: estimated request <= 12,000 tokens and no strong breadth signal;
 - `primary_plan`: estimated request >= 24,000 tokens;
 - between those bounds, choose `primary_plan` when structural breadth suggests many independently constrainable sections (default: >= 30 detected headings at >= 8,000 estimated tokens), or when the host/provider credit budget makes one-shot planning unsafe;
+- thresholds apply to the **working set** (exact-duplicate blocks counted once), so a large repetitive request does not select `primary_plan` by size alone; also trigger on dependency density (default: >= 40 cross-reference phrases such as `depends on`/`conflicts with` at >= 8,000 working-set tokens);
+- digest batches group fragments by top-level heading (cohesion) within the token/fragment caps; the final planner retrieves fragments by id per material question, and every fragment still receives coverage;
 - callers may override thresholds for a provider/project-specific measured budget.
 
 Never classify solely from file count. A 30k-token repetitive log can be mechanically filtered; a smaller architecture document with many interacting normative sections may deserve staged preparation.

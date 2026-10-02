@@ -159,7 +159,9 @@ A scoped file must serve at least two but fewer than all TODOs. Single-task fact
 
 ### Task rules
 
+- TODOs never store concrete model ids; provider config (or, with `model_resolution: snapshot`, the plan's `MODEL_MATRIX.json` catalog snapshot, `MODEL_CATALOG.md`) resolves them per attempt, and spawn decisions follow `DELEGATION.md`.
 - Allowed complexity: `low`, `medium`, `high`; `extreme` is rejected and must be split.
+- `model_tier` (also in `design_route` and `route_used`) is one of `economy`, `standard`, `advanced`, `strong`, `max`. Aliases `F1`-`F5` and `L1`-`L5` map to those tiers in order (`F3`/`L3` = `advanced`) and are stored only as the canonical name. A tier without a configured model for the provider is skipped upward to the next tier that has one, never downward; the built-in Claude and Codex ladders have no `advanced` model, so `advanced` runs as `strong` and escalation from `standard` goes to `strong`.
 - `design_route` is optional and allowed only on `high` TODOs (effort may not be `low`): the runner dispatches a design worker at that route first, persists `tasks/<id>.design.md`, then runs the implementation worker at `model_tier`/`reasoning_effort` with the note. The design attempt does not consume an implementation attempt; a reset discards the note.
 - One TODO = one context-cohesive outcome + one independent validation boundary.
 - `atomicity_rationale` and `context_boundary` are planning/review evidence. Keep them short and concrete; they are not repeated in the compact worker projection.

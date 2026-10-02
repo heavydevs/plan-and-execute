@@ -1,0 +1,679 @@
+{
+  "schema_version": 1,
+  "algorithm": "sha256-lf-normalized-text",
+  "scope": [
+    "*.md",
+    "docs/**/*.md",
+    "skill/*/SKILL.md",
+    "skill/*/references/**",
+    "skill/*/assets/**/*.md",
+    "skill/*/assets/**/*.json",
+    "skill/*/agents/**"
+  ],
+  "exclude": [
+    "docs/requests/**",
+    "docs/research/ROUTING_DOC_BASELINE.*",
+    "**/__pycache__/**",
+    "**/node_modules/**"
+  ],
+  "request": {
+    "path": "docs/requests/portable-model-routing-dynamic-provider-catalog.md",
+    "sha256": "5a4aa2b3898236e3fa042651c81bf557340cb503e553804c4cd7250cbd1f618f"
+  },
+  "entries": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "2a146e502d73ac7a467c237340950ed5010907a78e6f78677ee11ca163bad7c0",
+      "status": "reviewed",
+      "reason": "Read Unreleased entries; concrete Codex model ids recorded; new work needs Unreleased entries."
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "a4b4995ddb3335c6e4a545ac2b0faf054c29b3691f972bfb33a979ca09044788",
+      "status": "not_applicable",
+      "reason": "Contributor etiquette only; no routing, planning or monitoring contract."
+    },
+    {
+      "path": "README.md",
+      "sha256": "054c580b8d2f64d95894381a4e39655d55d9a4972aa7403c765780dfe7afe0a1",
+      "status": "reviewed",
+      "reason": "Read tier table and provider table sections; four tiers and no GLM/DeepSeek/Muse; config via routingctl.py catalog."
+    },
+    {
+      "path": "README.pt-BR.md",
+      "sha256": "b0ae6ac01e00e7b44d0b7fd8c3729fa45b1d824ea94a0e16730f28b933fcb7f7",
+      "status": "reviewed",
+      "reason": "Mirror of README.md; same tier/provider sections must change together (headings and tier table checked)."
+    },
+    {
+      "path": "SECURITY.md",
+      "sha256": "ace4f544568076007de2152ce8d61f3e448be91f7914b3a5accbc48455bca792",
+      "status": "not_applicable",
+      "reason": "Vulnerability-reporting contact policy only; no routing or monitoring contract."
+    },
+    {
+      "path": "docs/PUBLISHING.md",
+      "sha256": "09d2ac8494793aab9561a0439762ce63ad5e9246c8851e071f5860d60d591b00",
+      "status": "not_applicable",
+      "reason": "npm/GitHub release procedure; no routing contract. Release checklist is unaffected by this plan."
+    },
+    {
+      "path": "docs/PUBLISHING.pt-BR.md",
+      "sha256": "a3a065c524a12d34a37a6a1d60971b61a03ca1a22b203f4f035c6112107885c4",
+      "status": "not_applicable",
+      "reason": "Portuguese mirror of PUBLISHING.md; release procedure only."
+    },
+    {
+      "path": "docs/RESEARCH_BASIS.md",
+      "sha256": "f2ef0dcf8eef5331f7215bad9b22c377c814380c66595a2ebe7bc85ca14cdc0b",
+      "status": "reviewed",
+      "reason": "Headings and term grep: no GLM/DeepSeek/Muse/cache-economics/multi-agent sources; request Part XVIII sources must land here."
+    },
+    {
+      "path": "docs/STAGED_PLANNING.pt-BR.md",
+      "sha256": "a5779122bb14f882b10c1d3b3792c68faaf46cabbacdc2695c98401caf3d7c81",
+      "status": "reviewed",
+      "reason": "Headings read; planning-route and shared-pattern text unaffected except mirrored tier wording."
+    },
+    {
+      "path": "docs/research/AUXILIARY_ROUTING.md",
+      "sha256": "8aab1b2473678201ef4ffd6754179a521b7122883a08f20b102304f906ab1179",
+      "status": "reviewed",
+      "reason": "Headings read; E012/E013 cover only Claude/Antigravity; comparative quality/cost protocol still unexecuted."
+    },
+    {
+      "path": "skill/plan-and-execute/SKILL.md",
+      "sha256": "969df654fb6f7dcdf32a88636623f6e6a8fd5bf7f3ea314e5ae58ce85794b58c",
+      "status": "reviewed",
+      "reason": "Read fully; four-tier floor table in section 4, size-budgeted entry point, 'exactly one provider guide' rule."
+    },
+    {
+      "path": "skill/plan-and-execute/agents/openai.yaml",
+      "sha256": "946bfc18fd1fe75d17647e2abd50eab9f6ca21f6549ba43753a1ffc5c04acff9",
+      "status": "reviewed",
+      "reason": "Read; default_prompt restates routing policy and must change in step with SKILL.md."
+    },
+    {
+      "path": "skill/plan-and-execute/assets/service-map-template.md",
+      "sha256": "882a4a9cd50568c08f7a12fd06cc3c076dac7d37e2cfb8781a6e1431d6301c5b",
+      "status": "reviewed",
+      "reason": "Read; shared project map is deliberate retained state (FR-034 item 5)."
+    },
+    {
+      "path": "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+      "sha256": "349f06551e9fd94a33f437d814c4c116339b9a111cebfe506bb6a5f0b59f50a3",
+      "status": "reviewed",
+      "reason": "Headings and tier grep; study staging independent of provider catalog; no conflict found."
+    },
+    {
+      "path": "skill/plan-and-execute/references/ARTIFACT_WRITING.md",
+      "sha256": "bccbc3b6b28ee34d900b399d9dfbd4b74638df7089e6717e854cef1bde9fdcec",
+      "status": "reviewed",
+      "reason": "Headings checked; requirement-writing rules apply to new artifacts; no routing contract."
+    },
+    {
+      "path": "skill/plan-and-execute/references/ASSISTANTS.md",
+      "sha256": "e3c6c868345b9ac91da06ecb07e2b61412b186668b4a0dc76ca3962d7d6b0542",
+      "status": "reviewed",
+      "reason": "Headings read; assistants are advisory-only with no authority, consistent with FR-029."
+    },
+    {
+      "path": "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+      "sha256": "4ed0e09d146e6a228943f9607de92a3156e19ca5c5e19b77bdd78ffa5de82447",
+      "status": "reviewed",
+      "reason": "Headings checked; per-TODO context isolation matches NFR-009; no conflict found."
+    },
+    {
+      "path": "skill/plan-and-execute/references/INSTALLATION.md",
+      "sha256": "0d77e5bbc2e21bdd80f21e83b1fd37eb12811ce268dc74a8849a42ac6015bc1d",
+      "status": "reviewed",
+      "reason": "Read Model mapping section; places concrete ids in per-plan orchestrator.config.json, not a matrix snapshot."
+    },
+    {
+      "path": "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
+      "sha256": "9efbf9526e792ecdcfe7232d290b8da89ced8b410ac11b9b3fe76b458b597877",
+      "status": "reviewed",
+      "reason": "Mirror of INSTALLATION.md; same model-mapping section must change together."
+    },
+    {
+      "path": "skill/plan-and-execute/references/INTAKE.md",
+      "sha256": "c85793afb47d6201f5f91b8664494604018f34e81853f43dcdd0981e7e031145",
+      "status": "reviewed",
+      "reason": "Grep for tier/provider terms: none beyond DIRECT/ORCHESTRATED gate; no conflict found."
+    },
+    {
+      "path": "skill/plan-and-execute/references/LIFECYCLE.md",
+      "sha256": "a2ee6dc9f8b46a2208b61004457b54f9d2204330d642d8653070f2062dcecda2",
+      "status": "reviewed",
+      "reason": "Read cleanup section; states resource-monitor reports survive cleanup and reset."
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+      "sha256": "abd26af0c9f820724c581d3336b01a7c5675a8de26d2853dab4053f831b823e4",
+      "status": "reviewed",
+      "reason": "Read fully; four logical tiers, two provider guides, Windows stall-detection limit, floor table."
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+      "sha256": "ba6e2fe3334f9204445aaf20ea28fa1675638029b7de568bfcb9068693af999a",
+      "status": "reviewed",
+      "reason": "Read capability map and elevation mechanics; ids mirror routingctl CURRENT_MODELS v2026-09-30-v6."
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+      "sha256": "827ef0c4b445d22b9971781ae21b24839502e285a8f73f9276ecc87a58f8f9e3",
+      "status": "reviewed",
+      "reason": "Read effort ladder and map header; ids mirror routingctl CURRENT_MODELS; Luna/Sol/Astra map."
+    },
+    {
+      "path": "skill/plan-and-execute/references/ORCHESTRATION.md",
+      "sha256": "a1952c4190521ac101d7d8078a5ffa31b25fb92a80b66118c8672a31e06b009b",
+      "status": "reviewed",
+      "reason": "Read sections 6-9; states four logical tiers and plan creation/audit commands."
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md",
+      "sha256": "4ce41b6f447b1f0214d493ec579d272e687ee110f2831fb16dd930f91620cbc2",
+      "status": "reviewed",
+      "reason": "Prepared-package contract unaffected by routing; checked headings and fragment-hash usage."
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+      "sha256": "e58d7622f909cd110f868289732b8b1b11221ac463be0ec20404a38de1281923",
+      "status": "reviewed",
+      "reason": "Headings read; section 10 implementation routing and section 13 gates need five-tier wording."
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_ROUTING.md",
+      "sha256": "f94a32b80795d7700daf065f1fd6a5abc0b2129c1c6bc0d545b023a100cd19e5",
+      "status": "reviewed",
+      "reason": "Read sections 4-7; planning routes independent of implementation; resolves provider only at dispatch."
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLAN_SPEC.md",
+      "sha256": "f2c2e6fa9a35e1f514151812de61636841328abdb103e2fe0b106451d2377aea",
+      "status": "reviewed",
+      "reason": "Read tasks[] section; model_tier values appear only in example; no alias or snapshot fields."
+    },
+    {
+      "path": "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+      "sha256": "9774bdb8a13e18b8d79a9f2f3eb42b42fd43cac38680980dae5b497c736a0ef3",
+      "status": "reviewed",
+      "reason": "Read section 3; immutable SHA-256 fragments already satisfy FR-032 base layer."
+    },
+    {
+      "path": "skill/plan-and-execute/references/PROMOTION.md",
+      "sha256": "b9a5a4c37abb2c04f1d56e7ec5f916ca0c882b01a707bd2c0d3f41f0fb561215",
+      "status": "reviewed",
+      "reason": "Headings checked; late promotion unaffected; plan only remaining outcomes."
+    },
+    {
+      "path": "skill/plan-and-execute/references/ROUTING.md",
+      "sha256": "706d2f979cee55aac67c147cceaa97099fbdc520df5871eccf081a9668463f22",
+      "status": "reviewed",
+      "reason": "Grep: DIRECT/ORCHESTRATED boundary only; no tier or provider content; no conflict found."
+    },
+    {
+      "path": "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+      "sha256": "5f91240329a7ed2e91692b109f90fab97179150850b18fdac81135af6e41f1c1",
+      "status": "reviewed",
+      "reason": "Read fully; tier_routes has four tiers, seven CLIs, version-2 overlay, availability fallback."
+    },
+    {
+      "path": "skill/plan-and-execute/references/SHARED_PATTERNS.md",
+      "sha256": "d9f785d9acf44b667d6cc3301e2e1520a15a1b7af5460535d00e3c6676f1382f",
+      "status": "reviewed",
+      "reason": "Headings read; pattern contracts independent of catalog; may carry catalog contract across TODOs."
+    },
+    {
+      "path": "skill/plan-and-execute/references/SKILL_MAINTENANCE_REVIEW.md",
+      "sha256": "6ad40c36185c9ce4e6c51161617110809000cd06ced4e5f572d74c1c71b310cc",
+      "status": "reviewed",
+      "reason": "Read; final whole-skill review requires map/freshness/cleanup agreement."
+    },
+    {
+      "path": "skill/plan-and-execute/references/STUDY_CHOICES.md",
+      "sha256": "8c8adbcdc085eb181009926e3f6306fd99b5ff888de0cef6990e60e3843c4266",
+      "status": "reviewed",
+      "reason": "Headings checked; user-choice flow unrelated to routing contracts; no conflict found."
+    },
+    {
+      "path": "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+      "sha256": "bd21cd6ac3a630572bda94cc9731c134accf132548ac62e29f6e4aa184ebe10c",
+      "status": "reviewed",
+      "reason": "Read sections 2-3; JSONL and log cursors persist under .ai-work/resource-watch outside plan cleanup."
+    },
+    {
+      "path": "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+      "sha256": "c7442696283f56b1070e3c15a27b5e6ab9fb047dfab64890e47cd3df639c70dc",
+      "status": "reviewed",
+      "reason": "Grep and headings read; sections 4, 11, 12 consistent with request, no tier enumeration to change."
+    },
+    {
+      "path": "skill/plan-and-execute/references/WORKFLOW.md",
+      "sha256": "9c3357fd9e2948e71a3bcd15a564a942affa62a382b300648092e60e9b61ce55",
+      "status": "reviewed",
+      "reason": "Read section 6 validate; says monitor JSONL survives cleanup; failure classes per section Failure and escalation."
+    },
+    {
+      "path": "skill/plan-and-execute/references/completion-report.schema.json",
+      "sha256": "d9ccbf22b85b8411386c3612f7b432bef615f0af3670116871c710df98a1c1c2",
+      "status": "reviewed",
+      "reason": "Read fully; additionalProperties false; no failure-evidence, delegation or usage/cache fields."
+    },
+    {
+      "path": "skill/plan-and-execute/references/plan-spec.example.json",
+      "sha256": "aa7da260f741effbd26693a7dbbbf6ddfd4233345e4688e1920d701f3f4a5959",
+      "status": "reviewed",
+      "reason": "Grep: single model_tier/provider example; no tier enum or alias; no conflict beyond PLAN_SPEC."
+    },
+    {
+      "path": "skill/plan-and-execute/references/routing-evals.json",
+      "sha256": "1a6a6b87c9db0afdf8cd67b6379ee044d904ab773a6033f3c0a3d6fc21e031d8",
+      "status": "reviewed",
+      "reason": "Head read; DIRECT/ORCHESTRATED cases only; unaffected but regression corpus must stay green."
+    },
+    {
+      "path": "skill/plan-and-execute/references/study-spec.example.json",
+      "sha256": "83d321988a4a77f63ca2f5281796d904b1784146457e9c8e485b8fc7f55ea66b",
+      "status": "reviewed",
+      "reason": "Header checked; study schema independent of routing; no conflict found."
+    },
+    {
+      "path": "skill/plan-and-execute/references/tier-evals.json",
+      "sha256": "290512351b02f7c764efa65a795a307777cc31739f0a0630da0afff722c11916",
+      "status": "reviewed",
+      "reason": "Head read; signals map to four tiers; five-tier lattice must keep every expected route stable."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F001",
+      "kind": "conflict",
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+      "section": "4. Logical tiers remain portable",
+      "summary": "Documents four tiers economy|standard|strong|max; FR-021 adds advanced between standard and strong while keeping old plans semantically stable.",
+      "affects": [
+        "FR-021",
+        "FR-022",
+        "FR-023",
+        "TODO-001",
+        "TODO-008"
+      ]
+    },
+    {
+      "id": "F002",
+      "kind": "conflict",
+      "path": "skill/plan-and-execute/SKILL.md",
+      "section": "4. Always-on model economy",
+      "summary": "Floor table and routing text assume four tiers; entry point is size-budgeted so five-tier and catalog guidance must replace text, not append.",
+      "affects": [
+        "FR-021",
+        "NFR-002",
+        "NFR-009",
+        "TODO-011"
+      ]
+    },
+    {
+      "id": "F003",
+      "kind": "conflict",
+      "path": "skill/plan-and-execute/references/ORCHESTRATION.md",
+      "section": "6. Preserve adaptive implementation routing",
+      "summary": "States logical tiers are economy, standard, strong, max; needs advanced plus F1-F5/L1-L5 alias normalization language.",
+      "affects": [
+        "FR-002",
+        "FR-021",
+        "TODO-001",
+        "TODO-011"
+      ]
+    },
+    {
+      "id": "F004",
+      "kind": "gap",
+      "path": "skill/plan-and-execute/references/PLAN_SPEC.md",
+      "section": "tasks[]",
+      "summary": "model_tier appears only in an example; there is no documented value set, alias rule or MODEL_MATRIX reference, so advanced and aliases need an explicit contract.",
+      "affects": [
+        "FR-002",
+        "FR-004",
+        "FR-021",
+        "TODO-001",
+        "TODO-007"
+      ]
+    },
+    {
+      "id": "F005",
+      "kind": "conflict",
+      "path": "README.md",
+      "section": "Logical tiers (table under routing configuration)",
+      "summary": "Public tier table lists four tiers and the provider table omits Muse, GLM and DeepSeek; README.pt-BR.md mirrors both and must change in step.",
+      "affects": [
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-021",
+        "TODO-011"
+      ]
+    },
+    {
+      "id": "F006",
+      "kind": "conflict",
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+      "section": "Objective / provider reference rule",
+      "summary": "Requires reading exactly one of two provider files (Codex, Claude); FR-006..008 add Muse, GLM and DeepSeek profiles with their own MODEL_ROUTING_<PROVIDER>.md.",
+      "affects": [
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-026",
+        "TODO-003",
+        "TODO-011"
+      ]
+    },
+    {
+      "id": "F007",
+      "kind": "constraint",
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+      "section": "Header and Current capability map",
+      "summary": "Concrete ids live in routingctl CURRENT_MODELS (map v2026-09-30-v6) and the tables must match it; the catalog must bootstrap from this map to keep NFR-001 compatibility and not duplicate ids.",
+      "affects": [
+        "FR-003",
+        "FR-015",
+        "NFR-001",
+        "TODO-001",
+        "TODO-002"
+      ]
+    },
+    {
+      "id": "F008",
+      "kind": "constraint",
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+      "section": "Older catalogs and quota",
+      "summary": "CURRENT_MODELS re-applied on every run overrides stale ids; catalog refresh and invalid-model recovery must define precedence against this fixed map.",
+      "affects": [
+        "FR-003",
+        "FR-016",
+        "TODO-002",
+        "TODO-010"
+      ]
+    },
+    {
+      "id": "F009",
+      "kind": "conflict",
+      "path": "skill/plan-and-execute/references/INSTALLATION.md",
+      "section": "Model mapping and provider fallback",
+      "summary": "States concrete model ids live in the per-plan orchestrator.config.json; FR-004/005 move resolution provenance to a plan-local MODEL_MATRIX snapshot without changing TODO semantics.",
+      "affects": [
+        "FR-004",
+        "FR-005",
+        "FR-017",
+        "TODO-007",
+        "TODO-010"
+      ]
+    },
+    {
+      "id": "F010",
+      "kind": "gap",
+      "path": "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+      "section": "Paths and precedence",
+      "summary": "Version-2 overlay and tier_routes are keyed by four tiers; advanced and absent optional providers (FR-026) need schema, configure and doctor treatment without breaking v1/v2 files.",
+      "affects": [
+        "FR-021",
+        "FR-022",
+        "FR-026",
+        "NFR-001",
+        "TODO-003",
+        "TODO-010"
+      ]
+    },
+    {
+      "id": "F011",
+      "kind": "conflict",
+      "path": "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+      "section": "3. Run mapped validations under the watcher",
+      "summary": "Evidence JSONL under .ai-work/resource-watch persists past plan cleanup and section 2 keeps log cursors across retries; FR-034 requires owner/scope, retention policy and deterministic removal.",
+      "affects": [
+        "FR-034",
+        "NFR-015",
+        "TODO-015"
+      ]
+    },
+    {
+      "id": "F012",
+      "kind": "conflict",
+      "path": "skill/plan-and-execute/references/LIFECYCLE.md",
+      "section": "Successful completion cleanup",
+      "summary": "Says resource-monitor reports are preserved by cleanup and reset; FR-034 keeps only deliberate shared state such as SERVICE_MAP.md or retention-policy evidence.",
+      "affects": [
+        "FR-034",
+        "TODO-015"
+      ]
+    },
+    {
+      "id": "F013",
+      "kind": "conflict",
+      "path": "skill/plan-and-execute/references/WORKFLOW.md",
+      "section": "6. Validate independently",
+      "summary": "Says monitor JSONL is recorded outside plan directories so cleanup preserves it; needs the FR-034 ownership/retention wording.",
+      "affects": [
+        "FR-034",
+        "TODO-015"
+      ]
+    },
+    {
+      "id": "F014",
+      "kind": "constraint",
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+      "section": "6. Escalate from classified evidence / Validation stagnation",
+      "summary": "No-progress rule uses output/CPU progress on POSIX but only signature aging on Windows; FR-028 forbids elapsed-time-only stall classification, so the Windows path needs explicit evidence or a documented limit.",
+      "affects": [
+        "FR-028",
+        "NFR-007",
+        "TODO-015"
+      ]
+    },
+    {
+      "id": "F015",
+      "kind": "gap",
+      "path": "skill/plan-and-execute/references/completion-report.schema.json",
+      "section": "root object (additionalProperties false)",
+      "summary": "Worker report has no failure-evidence, delegation, usage or cache fields; FR-027/030/031 additions must be optional and versioned because this schema also validates current workers.",
+      "affects": [
+        "FR-027",
+        "FR-030",
+        "FR-031",
+        "NFR-001",
+        "TODO-009",
+        "TODO-015"
+      ]
+    },
+    {
+      "id": "F016",
+      "kind": "constraint",
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+      "section": "3. Elevate by delegation. Never switch the root session",
+      "summary": "Existing rules never switch the root, run at most two read-only explorers, and give assistants no authority; FR-024/025/029 delegation roles must extend these bounds, not relax them.",
+      "affects": [
+        "FR-024",
+        "FR-025",
+        "FR-029",
+        "NFR-012",
+        "TODO-014",
+        "TODO-015"
+      ]
+    },
+    {
+      "id": "F017",
+      "kind": "constraint",
+      "path": "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+      "section": "3. Split deterministically before asking a model to summarize",
+      "summary": "Immutable SHA-256 fragments and anchors already exist (preplanctl); FR-032 retrieval refinements should build on them and not introduce a second fragment store.",
+      "affects": [
+        "FR-032",
+        "NFR-014",
+        "TODO-016"
+      ]
+    },
+    {
+      "id": "F018",
+      "kind": "constraint",
+      "path": "skill/plan-and-execute/references/tier-evals.json",
+      "section": "signals and expected routes",
+      "summary": "Regression corpus pins current minimum routes per signal; the five-tier lattice and any floor change must keep these expected routes green (old plans stay semantically stable).",
+      "affects": [
+        "FR-021",
+        "FR-010",
+        "TODO-001",
+        "TODO-012"
+      ]
+    },
+    {
+      "id": "F019",
+      "kind": "gap",
+      "path": "skill/plan-and-execute/agents/openai.yaml",
+      "section": "interface.default_prompt",
+      "summary": "Duplicates SKILL.md routing policy in one long prompt; tier, catalog and delegation changes must update it together with SKILL.md.",
+      "affects": [
+        "FR-021",
+        "TODO-011"
+      ]
+    },
+    {
+      "id": "F020",
+      "kind": "gap",
+      "path": "docs/RESEARCH_BASIS.md",
+      "section": "Routing and cascades",
+      "summary": "No sources for GLM, DeepSeek, Muse, prompt-cache economics or multi-agent delegation; request Part XVIII sources and later benchmark evidence need a home here.",
+      "affects": [
+        "FR-007",
+        "FR-008",
+        "FR-013",
+        "TODO-011",
+        "TODO-017"
+      ]
+    },
+    {
+      "id": "F021",
+      "kind": "gap",
+      "path": "CHANGELOG.md",
+      "section": "Unreleased",
+      "summary": "Unreleased section records concrete model ids and feature lists; every new contract (catalog, aliases, providers, cleanup) needs an entry and package version policy should be followed.",
+      "affects": [
+        "FR-037",
+        "TODO-011"
+      ]
+    }
+  ],
+  "requirement_diff": [
+    {
+      "id": "FR-021",
+      "change": "add",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-021",
+      "summary": "Five-tier lattice economy|standard|advanced|strong|max replaces the documented four tiers; old plans keep their meaning.",
+      "findings": [
+        "F001"
+      ]
+    },
+    {
+      "id": "FR-002",
+      "change": "add",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-002",
+      "summary": "F1-F5/L1-L5 aliases are new; normalize to canonical tiers at the plan/config boundary.",
+      "findings": [
+        "F004"
+      ]
+    },
+    {
+      "id": "FR-003",
+      "change": "add",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-003",
+      "summary": "Catalog replaces fixed CURRENT_MODELS as the source of concrete ids; fixed map becomes bootstrap.",
+      "findings": [
+        "F007"
+      ]
+    },
+    {
+      "id": "FR-004",
+      "change": "change",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-004",
+      "summary": "Concrete ids move from per-plan orchestrator.config.json prose to MODEL_MATRIX.json/.md snapshot; config remains for provider chains.",
+      "findings": [
+        "F009"
+      ]
+    },
+    {
+      "id": "FR-006",
+      "change": "add",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-006",
+      "summary": "Muse, GLM and DeepSeek provider profiles and per-provider routing references are added beyond Claude and Codex.",
+      "findings": [
+        "F006"
+      ]
+    },
+    {
+      "id": "FR-026",
+      "change": "change",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-026",
+      "summary": "SKILL.md rule 'exactly one provider guide' stays; absent optional providers disappear from options and never block plans.",
+      "findings": [
+        "F010"
+      ]
+    },
+    {
+      "id": "FR-034",
+      "change": "change",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-034",
+      "summary": "Docs currently promise monitor reports survive cleanup; contract becomes owner/scope/retention with deterministic cleanup and no artifacts in the skill folder.",
+      "findings": [
+        "F011"
+      ]
+    },
+    {
+      "id": "FR-028",
+      "change": "change",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-028",
+      "summary": "Windows stall detection currently relies on signature aging; requirement demands progress and process evidence instead of elapsed time.",
+      "findings": [
+        "F014"
+      ]
+    },
+    {
+      "id": "FR-027",
+      "change": "add",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-027",
+      "summary": "FailureEvidencePacket and delegation/usage fields are absent from the completion report; add as optional versioned fields.",
+      "findings": [
+        "F015"
+      ]
+    },
+    {
+      "id": "FR-032",
+      "change": "confirm",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-032",
+      "summary": "Immutable fragments and hashes already exist; only per-question retrieval discipline is new.",
+      "findings": [
+        "F017"
+      ]
+    },
+    {
+      "id": "FR-029",
+      "change": "confirm",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-029",
+      "summary": "Assistants already lack authority; diagnostic roles may extend the pattern but must keep owner and validator authority.",
+      "findings": [
+        "F016"
+      ]
+    },
+    {
+      "id": "FR-037",
+      "change": "confirm",
+      "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md#FR-037",
+      "summary": "Baseline found conflicts only in docs, no contradiction with request boundaries; no change to plan requirements or dependencies (no plan_defect).",
+      "findings": [
+        "F002",
+        "F006",
+        "F011"
+      ]
+    }
+  ]
+}

@@ -62,7 +62,7 @@ Separately ask whether multiple TODOs share a **normative contract that may evol
 
 Read `MODEL_ROUTING.md` only when selecting/escalating implementation routes, then read only the chosen provider mapping when a concrete model is needed.
 
-Logical tiers are `economy`, `standard`, `strong`, and `max`. Choose the lowest credible capability based on leaf difficulty, verifiability, and blast radius. Keep `provider: auto` unless provider-specific behavior is required. Record actual execution route separately so another compatible provider can resume.
+`MODEL_CATALOG.md`/`DELEGATION.md` on demand. Tiers: `economy`, `standard`, `advanced`, `strong`, `max`; empty tiers skip up. Choose the lowest credible capability by leaf difficulty, verifiability and blast radius. Keep `provider: auto` unless provider-specific behavior matters. Record the actual route separately so another provider can resume.
 
 Never inherit PRIMARY_PLAN routes into implementation.
 

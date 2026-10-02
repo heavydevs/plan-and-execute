@@ -48,7 +48,7 @@ For a prepared package:
 
 1. Read `FINAL_PLAN_INPUT.md`, `SOURCE_INDEX.json`, `PATTERN_SEEDS.json`, and `COVERAGE_REVIEW.json` first.
 2. Do **not** concatenate every fragment into final-planner context.
-3. Retrieve a fragment only when a requirement, architecture decision, contradiction, acceptance criterion, or pattern needs primary-source verification.
+3. Retrieve fragments by id per material question (no summary pyramid); retrieve a fragment only when a requirement, architecture decision, contradiction, acceptance criterion, or pattern needs primary-source verification.
 4. Preserve fragment/source ids in derived requirements and planning findings when they materially support the decision.
 5. Run the ordinary adaptive study, final planning, fresh review, task routing, validation, and execution workflow after this handoff. The primary plan never dictates final implementation model tiers.
 6. If package coverage is incomplete or a material contradiction remains unresolved, stop before autostart and repair/re-run the relevant primary-plan step.

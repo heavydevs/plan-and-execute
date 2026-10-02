@@ -10,6 +10,7 @@ import json
 import math
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import zipfile
@@ -23,6 +24,7 @@ SOFT_TOKENS = 12_000
 HARD_TOKENS = 24_000
 BREADTH_TOKEN_FLOOR = 8_000
 BREADTH_HEADINGS = 30
+DEPENDENCY_REFS = 40
 TARGET_FRAGMENT_TOKENS = 4_500
 MAX_FRAGMENT_TOKENS = 6_500
 BATCH_TOKENS = 9_000
@@ -155,23 +157,44 @@ def extract_blocks(path: Path) -> list[dict[str, Any]]:
     return docx_blocks(path) if path.suffix.lower() == ".docx" else text_blocks(path)
 
 
+DEPENDENCY_RE = re.compile(r"(?:depends on|see (?:section|requirement)|as defined in|conflicts? with|contradicts?|supersedes|requires R?\d+)", re.I)
+
+
+def working_set_tokens(blocks: list[dict[str, Any]]) -> int:
+    seen: set[str] = set()
+    unique: list[str] = []
+    for item in blocks:
+        key = re.sub(r"\s+", " ", item["text"]).strip().lower()
+        if key not in seen:
+            seen.add(key)
+            unique.append(item["text"])
+    return estimate_tokens(chr(10).join(unique)) if unique else 1
+
+
 def assess_source(
     path: Path,
     soft_tokens: int = SOFT_TOKENS,
     hard_tokens: int = HARD_TOKENS,
     breadth_token_floor: int = BREADTH_TOKEN_FLOOR,
     breadth_headings: int = BREADTH_HEADINGS,
+    dependency_refs: int = DEPENDENCY_REFS,
 ) -> dict[str, Any]:
     blocks = extract_blocks(path)
     logical = "\n\n".join(item["text"] for item in blocks)
-    tokens = estimate_tokens(logical)
+    raw_tokens = estimate_tokens(logical)
+    tokens = working_set_tokens(blocks)
+    dependencies = len(DEPENDENCY_RE.findall(logical))
     headings = sum(item["heading_level"] is not None for item in blocks)
     reasons: list[str] = []
     if tokens >= hard_tokens:
-        reasons.append(f"estimated_tokens={tokens} >= hard_threshold={hard_tokens}")
+        reasons.append(f"working_set_tokens={tokens} >= hard_threshold={hard_tokens}")
     if tokens >= breadth_token_floor and headings >= breadth_headings:
         reasons.append(f"structural_breadth=headings:{headings} at estimated_tokens:{tokens}")
-    route = "primary_plan" if reasons else "final_plan"
+    if tokens >= breadth_token_floor and dependencies >= dependency_refs:
+        reasons.append(f"dependency_density=refs:{dependencies} at working_set_tokens:{tokens}")
+    if raw_tokens >= hard_tokens and tokens < hard_tokens and not reasons:
+        reasons.append(f"repetitive_size_ignored=raw:{raw_tokens} working_set:{tokens}")
+    route = "primary_plan" if any(not r.startswith("repetitive_size_ignored") for r in reasons) else "final_plan"
     if route == "final_plan" and tokens > soft_tokens:
         reasons.append(f"between_thresholds={soft_tokens}:{hard_tokens}; no breadth trigger")
     raw = path.read_bytes()
@@ -183,6 +206,9 @@ def assess_source(
         "logical_blocks": len(blocks),
         "heading_count": headings,
         "estimated_tokens": tokens,
+        "raw_estimated_tokens": raw_tokens,
+        "dependency_refs": dependencies,
+        "dependency_ref_threshold": dependency_refs,
         "soft_tokens": soft_tokens,
         "hard_tokens": hard_tokens,
         "breadth_token_floor": breadth_token_floor,
@@ -360,7 +386,9 @@ def batch_fragments(index: list[dict[str, Any]]) -> list[list[dict[str, Any]]]:
     tokens = 0
     for fragment in index:
         size = int(fragment["estimated_tokens"])
-        if current and (len(current) >= MAX_BATCH_FRAGMENTS or tokens + size > BATCH_TOKENS):
+        root = (fragment.get("heading_path") or [""])[0]
+        shifted = bool(current) and root != (current[-1].get("heading_path") or [""])[0] and tokens >= BATCH_TOKENS // 2
+        if current and (shifted or len(current) >= MAX_BATCH_FRAGMENTS or tokens + size > BATCH_TOKENS):
             batches.append(current)
             current, tokens = [], 0
         current.append(fragment)
@@ -391,7 +419,6 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
     for batch_no, batch in enumerate(batches, 1):
         digest_id = f"D{batch_no:03d}"
         fragment_ids = [item["id"] for item in batch]
-        fragment_names = [Path(item["path"]).name for item in batch]
         output = package_root / "digests" / f"{digest_id}.json"
         tasks.append(
             {
@@ -413,7 +440,7 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any]) 
                 "dependencies": [],
                 "implementation_guidance": [
                     package_locator,
-                    f"Read only immutable fragments in $PACKAGE_ROOT/fragments: {', '.join(fragment_names)}.",
+                    f"Read only immutable fragments {', '.join(fragment_ids)}; SOURCE_INDEX.json maps each id to its path under $PACKAGE_ROOT/fragments.",
                     f"Write $PACKAGE_ROOT/digests/{digest_id}.json.",
                     "Include digest_id, fragment_ids, obligations, constraints, interfaces, dependencies, validation_implications, pattern_candidates, and material_questions.",
                     "Each semantic item is an object with non-empty text and source_refs using only assigned fragment ids.",
@@ -711,14 +738,7 @@ def command_split(args: argparse.Namespace) -> None:
     print(json.dumps({"assessment": assessment, "package": str(package), "metadata": metadata}, ensure_ascii=False, indent=2))
 
 
-def command_prepare(args: argparse.Namespace) -> None:
-    repo = Path(args.repo_root).expanduser().resolve()
-    source = safe_source(args.file)
-    assessment = assess_source(source, args.soft_tokens, args.hard_tokens, args.breadth_token_floor, args.breadth_headings)
-    if assessment["route"] != "primary_plan" and not args.force:
-        print(json.dumps({"route": "final_plan", "assessment": assessment}, ensure_ascii=False, indent=2))
-        raise SystemExit(3)
-    package, metadata = create_package(repo, source, assessment, args.package_id, args.target_fragment_tokens, args.max_fragment_tokens)
+def create_primary_plan(repo: Path, package: Path, metadata: dict[str, Any], work_root: str) -> Path:
     spec = make_primary_spec(repo, package, metadata)
     write_json(package / "PRIMARY_PLAN_SPEC.json", spec)
     plan_id = f"primary-{metadata['package_id']}"
@@ -734,7 +754,7 @@ def command_prepare(args: argparse.Namespace) -> None:
                 "--spec",
                 str(package / "PRIMARY_PLAN_SPEC.json"),
                 "--work-root",
-                args.work_root,
+                work_root,
                 "--plan-id",
                 plan_id,
             ],
@@ -750,6 +770,23 @@ def command_prepare(args: argparse.Namespace) -> None:
     plan_dir = Path(created_path)
     if not plan_dir.is_absolute():
         plan_dir = (repo / plan_dir).resolve()
+    return plan_dir
+
+
+def command_prepare(args: argparse.Namespace) -> None:
+    repo = Path(args.repo_root).expanduser().resolve()
+    source = safe_source(args.file)
+    assessment = assess_source(source, args.soft_tokens, args.hard_tokens, args.breadth_token_floor, args.breadth_headings)
+    if assessment["route"] != "primary_plan" and not args.force:
+        print(json.dumps({"route": "final_plan", "assessment": assessment}, ensure_ascii=False, indent=2))
+        raise SystemExit(3)
+    package, metadata = create_package(repo, source, assessment, args.package_id, args.target_fragment_tokens, args.max_fragment_tokens)
+    try:
+        plan_dir = create_primary_plan(repo, package, metadata, args.work_root)
+    except BaseException:
+        # A package without its primary plan blocks every retry; remove only what this call created.
+        shutil.rmtree(package, ignore_errors=True)
+        raise
     metadata = read_json(package / "package.json")
     metadata.update({"state": "primary_plan_created", "primary_plan": str(plan_dir)})
     write_json(package / "package.json", metadata)

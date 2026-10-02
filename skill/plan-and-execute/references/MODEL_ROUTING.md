@@ -4,8 +4,10 @@ Load this reference only when choosing or escalating a model route. It defines p
 
 - Codex -> `MODEL_ROUTING_CODEX.md`
 - Claude Code -> `MODEL_ROUTING_CLAUDE.md`
+- GLM -> `MODEL_ROUTING_GLM.md`; DeepSeek -> `MODEL_ROUTING_DEEPSEEK.md`; Muse -> `MODEL_ROUTING_MUSE.md`
+- Model catalog/snapshot schema: `MODEL_CATALOG.md`; spawn decision and roles: `DELEGATION.md` (load only when needed)
 
-Do not preload both provider files. A fallback provider loads its own reference only when fallback actually occurs.
+Do not preload other provider files. A fallback provider loads its own reference only when fallback actually occurs.
 
 ## Objective
 
@@ -29,6 +31,12 @@ Name the leaf's observable signals and let `python <skill-dir>/scripts/routingct
 | `repeated_strong_failure` — the strong route failed with useful evidence | `max` xhigh |
 
 Modifiers: `weak_validation` raises the tier one step and the effort floor to `high`; `strong_validation` lets `standard`/`strong` start at `medium`; `implementation` forbids `low` unless the edit is mechanical **and** deterministically checked, because a worker at `low` effort tends to skip reading and validation.
+
+### Candidate selector (opt-in, pure)
+
+`routingctl.py select --signals <a,b> --providers <p1,p2>` (or `--request <json|->` with `route`, `required_capabilities`, `availability`, `tokens`, `billing`, `at`, `previous_route`, `cache_affinity`, `last_failure_class`, `min_quality_score`) resolves an attempt-time candidate without a model, clock, process or network call. Stages, each recorded in the explanation: floor -> capability (required capabilities, effort above the model's max) -> availability (catalog flag, `provider` or `provider/model` outage/quota/rate-limit state, exhausted subscription window) -> quality (catalog rank below the tier, optional minimum score) -> target tier (lowest tier with an eligible candidate, so an outage takes a same-tier equivalent before any lift) -> effective cost -> tie-break `marginal_cash_cost, quota_cost, provider_order, quality_rank_desc, model_id`. Unknown costs rank after known ones; candidates removed before economics never appear in the ranking.
+
+Effective cost: `api` billing is cash (uncached, cached, cache-write and output tokens; off-peak rates inside the catalog window at `at`); `subscription` billing is `quota_cost` = usage (plan credits when the catalog has a formula, else tokens) / `window_capacity` with zero marginal cash until the window is exhausted, then `overage: block` makes the candidate unavailable and `overage: api` bills cash. With `previous_route`, cached tokens count as hits only on that provider/model. Sticky routing keeps an eligible previous route at or above the floor under `cache_affinity: high` unless a non-environmental failure or a strictly cheaper alternative wins. With only claude/codex configured and no economics, `select` equals the provider ladder (first configured provider wins ties). With `routing.auto_select: off` (the default) the runner does not call `select` and routes are unchanged; `shadow`/`on` rollout and its gates are in `ROUTING_CONFIG.md`.
 
 A large parent request does not make every leaf strong/max. Size and semantic difficulty are separate axes: localize a big file with cheap tools, then send only the hard decision to the strong model.
 
@@ -66,6 +74,7 @@ DIRECT means **no planning harness**, not "one expensive model does everything":
 |---|---|
 | `economy` | exploration, mechanical/narrow work, cheap summaries |
 | `standard` | ordinary bounded implementation/debugging/tests |
+| `advanced` | between standard and strong; no signal floor returns it, but a TODO or the selector may use it; a provider without an `advanced` model skips upward to `strong` |
 | `strong` | difficult, subtle, high-risk, or weakly verifiable engineering |
 | `max` | frontier/long-horizon escalation after semantic need or failure evidence |
 

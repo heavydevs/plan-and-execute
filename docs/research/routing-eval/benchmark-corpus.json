@@ -1,0 +1,2286 @@
+{
+ "schema_version": 1,
+ "purpose": "Fixed offline workload corpus for the whole-skill quality/economy benchmark (TODO 024, request §82 / F016). Each case replays recorded-shape PAT003 attempt metadata for the main and candidate arms; no prompts, code or transcripts and no live provider runs (HD012).",
+ "thresholds": "docs/research/routing-eval/thresholds.json",
+ "repetitions": 2,
+ "arms": [
+  "main",
+  "candidate"
+ ],
+ "categories": [
+  "direct",
+  "orchestrated",
+  "large_request",
+  "stall_failure",
+  "resource_failure",
+  "provider_availability",
+  "tier_variant",
+  "delegation_variant",
+  "cache_warm",
+  "cache_cold"
+ ],
+ "cases": [
+  {
+   "id": "B01",
+   "category": "direct",
+   "segment": "deterministic_low_blast",
+   "task_class": "mechanical",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "economy",
+    "effort": "low"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 14000,
+       "output_tokens": 2600,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 70.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-haiku-4-5",
+      "tier": "economy",
+      "effort": "low"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 9000,
+       "output_tokens": 1500,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 40.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B02",
+   "category": "direct",
+   "segment": "deterministic_low_blast",
+   "task_class": "mechanical",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "economy",
+    "effort": "low"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 17500,
+       "output_tokens": 3250,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 87.5,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-haiku-4-5",
+      "tier": "economy",
+      "effort": "low"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 11250,
+       "output_tokens": 1875,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 50.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B03",
+   "category": "direct",
+   "segment": "deterministic_low_blast",
+   "task_class": "mechanical",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "economy",
+    "effort": "low"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 21000,
+       "output_tokens": 3900,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 105.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-haiku-4-5",
+      "tier": "economy",
+      "effort": "low"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 13500,
+       "output_tokens": 2250,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 60.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B04",
+   "category": "orchestrated",
+   "segment": "floor_locked",
+   "task_class": "architecture",
+   "validation_strength": "weak",
+   "minimum_acceptable_route": {
+    "tier": "strong",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 30000,
+       "output_tokens": 5000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 200.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "subagent",
+       "input_tokens": 18000,
+       "output_tokens": 3000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 120.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 4000,
+       "output_tokens": 600,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 15.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 30000,
+       "output_tokens": 5000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 200.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "subagent",
+       "input_tokens": 18000,
+       "output_tokens": 3000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 120.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 4000,
+       "output_tokens": 600,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 15.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B05",
+   "category": "orchestrated",
+   "segment": "floor_locked",
+   "task_class": "architecture",
+   "validation_strength": "weak",
+   "minimum_acceptable_route": {
+    "tier": "strong",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 37500,
+       "output_tokens": 6250,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 250.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "subagent",
+       "input_tokens": 22500,
+       "output_tokens": 3750,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 150.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 5000,
+       "output_tokens": 750,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 18.8,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 37500,
+       "output_tokens": 6250,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 250.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "subagent",
+       "input_tokens": 22500,
+       "output_tokens": 3750,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 150.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 5000,
+       "output_tokens": 750,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 18.8,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B06",
+   "category": "orchestrated",
+   "segment": "floor_locked",
+   "task_class": "architecture",
+   "validation_strength": "weak",
+   "minimum_acceptable_route": {
+    "tier": "strong",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 45000,
+       "output_tokens": 7500,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 300.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "subagent",
+       "input_tokens": 27000,
+       "output_tokens": 4500,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 180.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 6000,
+       "output_tokens": 900,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 22.5,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 45000,
+       "output_tokens": 7500,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 300.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "subagent",
+       "input_tokens": 27000,
+       "output_tokens": 4500,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 180.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 6000,
+       "output_tokens": 900,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 22.5,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B07",
+   "category": "large_request",
+   "segment": "floor_locked",
+   "task_class": "long_horizon",
+   "validation_strength": "medium",
+   "minimum_acceptable_route": {
+    "tier": "strong",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 60000,
+       "output_tokens": 8000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 12000,
+       "latency_seconds": 300.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 6000,
+       "output_tokens": 900,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 20.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 52000,
+       "output_tokens": 8000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 12000,
+       "latency_seconds": 290.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 6000,
+       "output_tokens": 900,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 20.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B08",
+   "category": "large_request",
+   "segment": "floor_locked",
+   "task_class": "long_horizon",
+   "validation_strength": "medium",
+   "minimum_acceptable_route": {
+    "tier": "strong",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 75000,
+       "output_tokens": 10000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 15000,
+       "latency_seconds": 375.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 7500,
+       "output_tokens": 1125,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 25.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 65000,
+       "output_tokens": 10000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 15000,
+       "latency_seconds": 362.5,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 7500,
+       "output_tokens": 1125,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 25.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B09",
+   "category": "large_request",
+   "segment": "floor_locked",
+   "task_class": "long_horizon",
+   "validation_strength": "medium",
+   "minimum_acceptable_route": {
+    "tier": "strong",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 90000,
+       "output_tokens": 12000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 18000,
+       "latency_seconds": 450.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 9000,
+       "output_tokens": 1350,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 30.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 78000,
+       "output_tokens": 12000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 18000,
+       "latency_seconds": 435.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 9000,
+       "output_tokens": 1350,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 30.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B10",
+   "category": "stall_failure",
+   "segment": "resilience",
+   "task_class": "bounded_implementation",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "standard",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 12000,
+       "output_tokens": 300,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 300.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "stalled",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 15000,
+       "output_tokens": 2600,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 80.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 12000,
+       "output_tokens": 300,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 300.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "stalled",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 15000,
+       "output_tokens": 2600,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 80.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B11",
+   "category": "stall_failure",
+   "segment": "resilience",
+   "task_class": "bounded_implementation",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "standard",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 15000,
+       "output_tokens": 375,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 375.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "stalled",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 18750,
+       "output_tokens": 3250,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 100.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 15000,
+       "output_tokens": 375,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 375.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "stalled",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 18750,
+       "output_tokens": 3250,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 100.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B12",
+   "category": "stall_failure",
+   "segment": "resilience",
+   "task_class": "bounded_implementation",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "standard",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 18000,
+       "output_tokens": 450,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 450.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "stalled",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 22500,
+       "output_tokens": 3900,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 120.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 18000,
+       "output_tokens": 450,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 450.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "stalled",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 22500,
+       "output_tokens": 3900,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 120.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B13",
+   "category": "resource_failure",
+   "segment": "resilience",
+   "task_class": "bounded_implementation",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "standard",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 14000,
+       "output_tokens": 2000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 90.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "failed",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "diagnostic",
+       "input_tokens": 5000,
+       "output_tokens": 800,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 25.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 15000,
+       "output_tokens": 2400,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 85.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 14000,
+       "output_tokens": 2000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 90.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "failed",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "diagnostic",
+       "input_tokens": 5000,
+       "output_tokens": 800,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 25.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 15000,
+       "output_tokens": 2400,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 85.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B14",
+   "category": "resource_failure",
+   "segment": "resilience",
+   "task_class": "bounded_implementation",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "standard",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 17500,
+       "output_tokens": 2500,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 112.5,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "failed",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "diagnostic",
+       "input_tokens": 6250,
+       "output_tokens": 1000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 31.2,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 18750,
+       "output_tokens": 3000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 106.2,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 17500,
+       "output_tokens": 2500,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 112.5,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "failed",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "diagnostic",
+       "input_tokens": 6250,
+       "output_tokens": 1000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 31.2,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 18750,
+       "output_tokens": 3000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 106.2,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B15",
+   "category": "resource_failure",
+   "segment": "resilience",
+   "task_class": "bounded_implementation",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "standard",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 21000,
+       "output_tokens": 3000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 135.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "failed",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "diagnostic",
+       "input_tokens": 7500,
+       "output_tokens": 1200,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 37.5,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 22500,
+       "output_tokens": 3600,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 127.5,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 21000,
+       "output_tokens": 3000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 135.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "failed",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "diagnostic",
+       "input_tokens": 7500,
+       "output_tokens": 1200,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 37.5,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 22500,
+       "output_tokens": 3600,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 127.5,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B16",
+   "category": "provider_availability",
+   "segment": "resilience",
+   "task_class": "subtle_debugging",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "strong",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 5.0,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "provider_unavailable",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 22000,
+       "output_tokens": 3800,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 140.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null,
+       "model": "gpt-5.5",
+       "provider": "codex"
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "codex",
+      "model": "gpt-5.5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 22000,
+       "output_tokens": 3800,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 140.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B17",
+   "category": "provider_availability",
+   "segment": "resilience",
+   "task_class": "subtle_debugging",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "strong",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 6.2,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "provider_unavailable",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 27500,
+       "output_tokens": 4750,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 175.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null,
+       "model": "gpt-5.5",
+       "provider": "codex"
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "codex",
+      "model": "gpt-5.5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 27500,
+       "output_tokens": 4750,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 175.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B18",
+   "category": "provider_availability",
+   "segment": "resilience",
+   "task_class": "subtle_debugging",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "strong",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 7.5,
+       "validation_pass": false,
+       "retry_count": 0,
+       "outcome": "provider_unavailable",
+       "failure_class": "environmental"
+      },
+      {
+       "kind": "retry",
+       "input_tokens": 33000,
+       "output_tokens": 5700,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 210.0,
+       "validation_pass": true,
+       "retry_count": 1,
+       "outcome": "completed",
+       "failure_class": null,
+       "model": "gpt-5.5",
+       "provider": "codex"
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "codex",
+      "model": "gpt-5.5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 33000,
+       "output_tokens": 5700,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 210.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B19",
+   "category": "tier_variant",
+   "segment": "guarded",
+   "task_class": "subtle_debugging",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "advanced",
+    "effort": "high"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 21000,
+       "output_tokens": 3800,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 130.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "advanced",
+      "effort": "high"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 17000,
+       "output_tokens": 3200,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 110.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B20",
+   "category": "tier_variant",
+   "segment": "guarded",
+   "task_class": "subtle_debugging",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "advanced",
+    "effort": "high"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 26250,
+       "output_tokens": 4750,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 162.5,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "advanced",
+      "effort": "high"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 21250,
+       "output_tokens": 4000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 137.5,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B21",
+   "category": "tier_variant",
+   "segment": "guarded",
+   "task_class": "subtle_debugging",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "advanced",
+    "effort": "high"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "tier": "strong",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 31500,
+       "output_tokens": 5700,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 195.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "advanced",
+      "effort": "high"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 25500,
+       "output_tokens": 4800,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 165.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B22",
+   "category": "delegation_variant",
+   "segment": "deterministic_low_blast",
+   "task_class": "bounded_implementation",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "standard",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 26000,
+       "output_tokens": 4200,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 150.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 9000,
+       "output_tokens": 1500,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 60.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "subagent",
+       "input_tokens": 8000,
+       "output_tokens": 1600,
+       "cached_tokens": 0,
+       "cache_write_tokens": 4000,
+       "latency_seconds": 50.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null,
+       "model": "claude-haiku-4-5",
+       "native_effort": "low"
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 2000,
+       "output_tokens": 300,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 8.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B23",
+   "category": "delegation_variant",
+   "segment": "deterministic_low_blast",
+   "task_class": "bounded_implementation",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "standard",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 32500,
+       "output_tokens": 5250,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 187.5,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 11250,
+       "output_tokens": 1875,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 75.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "subagent",
+       "input_tokens": 10000,
+       "output_tokens": 2000,
+       "cached_tokens": 0,
+       "cache_write_tokens": 5000,
+       "latency_seconds": 62.5,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null,
+       "model": "claude-haiku-4-5",
+       "native_effort": "low"
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 2500,
+       "output_tokens": 375,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 10.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B24",
+   "category": "delegation_variant",
+   "segment": "deterministic_low_blast",
+   "task_class": "bounded_implementation",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "standard",
+    "effort": "medium"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 39000,
+       "output_tokens": 6300,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 225.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 13500,
+       "output_tokens": 2250,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 90.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      },
+      {
+       "kind": "subagent",
+       "input_tokens": 12000,
+       "output_tokens": 2400,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 75.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null,
+       "model": "claude-haiku-4-5",
+       "native_effort": "low"
+      },
+      {
+       "kind": "summary",
+       "input_tokens": 3000,
+       "output_tokens": 450,
+       "cached_tokens": 0,
+       "cache_write_tokens": 0,
+       "latency_seconds": 12.0,
+       "validation_pass": null,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B25",
+   "category": "cache_warm",
+   "segment": "deterministic_low_blast",
+   "task_class": "mechanical",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "economy",
+    "effort": "low"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 13000,
+       "output_tokens": 2300,
+       "cached_tokens": 9000,
+       "cache_write_tokens": 500,
+       "latency_seconds": 65.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-haiku-4-5",
+      "tier": "economy",
+      "effort": "low"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 8500,
+       "output_tokens": 1400,
+       "cached_tokens": 6000,
+       "cache_write_tokens": 500,
+       "latency_seconds": 38.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B26",
+   "category": "cache_warm",
+   "segment": "deterministic_low_blast",
+   "task_class": "mechanical",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "economy",
+    "effort": "low"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 16250,
+       "output_tokens": 2875,
+       "cached_tokens": 11250,
+       "cache_write_tokens": 625,
+       "latency_seconds": 81.2,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-haiku-4-5",
+      "tier": "economy",
+      "effort": "low"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 10625,
+       "output_tokens": 1750,
+       "cached_tokens": 7500,
+       "cache_write_tokens": 625,
+       "latency_seconds": 47.5,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B27",
+   "category": "cache_warm",
+   "segment": "deterministic_low_blast",
+   "task_class": "mechanical",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "economy",
+    "effort": "low"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 19500,
+       "output_tokens": 3450,
+       "cached_tokens": 13500,
+       "cache_write_tokens": 750,
+       "latency_seconds": 97.5,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-haiku-4-5",
+      "tier": "economy",
+      "effort": "low"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 12750,
+       "output_tokens": 2100,
+       "cached_tokens": 9000,
+       "cache_write_tokens": 750,
+       "latency_seconds": 57.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B28",
+   "category": "cache_cold",
+   "segment": "deterministic_low_blast",
+   "task_class": "mechanical",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "economy",
+    "effort": "low"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 14500,
+       "output_tokens": 2600,
+       "cached_tokens": 0,
+       "cache_write_tokens": 8000,
+       "latency_seconds": 75.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-haiku-4-5",
+      "tier": "economy",
+      "effort": "low"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 9500,
+       "output_tokens": 1500,
+       "cached_tokens": 0,
+       "cache_write_tokens": 6000,
+       "latency_seconds": 42.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B29",
+   "category": "cache_cold",
+   "segment": "deterministic_low_blast",
+   "task_class": "mechanical",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "economy",
+    "effort": "low"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 18125,
+       "output_tokens": 3250,
+       "cached_tokens": 0,
+       "cache_write_tokens": 10000,
+       "latency_seconds": 93.8,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-haiku-4-5",
+      "tier": "economy",
+      "effort": "low"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 11875,
+       "output_tokens": 1875,
+       "cached_tokens": 0,
+       "cache_write_tokens": 7500,
+       "latency_seconds": 52.5,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B30",
+   "category": "cache_cold",
+   "segment": "deterministic_low_blast",
+   "task_class": "mechanical",
+   "validation_strength": "strong",
+   "minimum_acceptable_route": {
+    "tier": "economy",
+    "effort": "low"
+   },
+   "arms": {
+    "main": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-sonnet-5",
+      "tier": "standard",
+      "effort": "medium"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 21750,
+       "output_tokens": 3900,
+       "cached_tokens": 0,
+       "cache_write_tokens": 12000,
+       "latency_seconds": 112.5,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    },
+    "candidate": {
+     "route": {
+      "provider": "claude",
+      "model": "claude-haiku-4-5",
+      "tier": "economy",
+      "effort": "low"
+     },
+     "attempts": [
+      {
+       "kind": "root",
+       "input_tokens": 14250,
+       "output_tokens": 2250,
+       "cached_tokens": 0,
+       "cache_write_tokens": 9000,
+       "latency_seconds": 63.0,
+       "validation_pass": true,
+       "retry_count": 0,
+       "outcome": "completed",
+       "failure_class": null
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

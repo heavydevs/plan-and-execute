@@ -22,7 +22,9 @@ class SetupTests(unittest.TestCase):
         def probe(args, **kw):
             calls.append((args, kw))
             return subprocess.CompletedProcess(args, 0)
-        result = c.discover(defaults(), which=lambda _: '/bin/fake', probe=probe)
+        # Host PATH may hold real claude/codex shims; keep bare names regardless.
+        with patch('run_isolated.resolve_windows_shim', side_effect=lambda parts: parts):
+            result = c.discover(defaults(), which=lambda _: '/bin/fake', probe=probe)
         self.assertEqual([x[0] for x in calls], [['claude', 'auth', 'status'], ['codex', 'login', 'status']])
         self.assertEqual(result['antigravity']['authentication'], 'unknown')
         self.assertTrue(all(x[1]['stdout'] == subprocess.DEVNULL and x[1]['timeout'] == 3 for x in calls))
@@ -151,6 +153,29 @@ class SetupTests(unittest.TestCase):
             self.assertEqual(r.returncode, 0, r.stderr)
             self.assertEqual(json.loads(r.stdout)['path'], str(p))
             self.assertNotIn('SECRET', r.stdout)
+
+    def test_profile_setup_and_doctor_report_names_only(self):
+        secret = 'sk-never-print-this'
+        env = {'ZAI_API_KEY': secret, 'ZAI_BASE_URL': 'https://secret.invalid'}
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / 'config.json'
+            out = []
+            self.assertEqual(c.doctor(p, env=env, which=lambda _: None)['configured'], [])
+            c.set_profile(p, 'glm', write=out.append)
+            c.set_profile(p, 'deepseek', 'codex', write=out.append)
+            saved = json.loads(p.read_text())
+            self.assertEqual(saved['profiles']['deepseek']['harness'], 'codex')
+            with self.assertRaises(c.rc.ConfigError): c.set_profile(p, 'glm', 'codex', write=out.append)
+            with self.assertRaises(c.rc.ConfigError): c.set_profile(p, 'nope', write=out.append)
+            report = c.doctor(p, env=env, which=lambda _: '/bin/fake')
+            text = json.dumps(report) + ''.join(out)
+            self.assertNotIn(secret, text)
+            self.assertNotIn('secret.invalid', text)
+            self.assertEqual(report['configured'], ['deepseek', 'glm'])
+            self.assertTrue(report['providers']['glm']['token_set'])
+            self.assertFalse(report['providers']['deepseek']['token_set'])
+            self.assertTrue(report['providers']['glm']['command_found'])
+            self.assertEqual(c.summary(c.rc.merge(defaults(), saved))['profiles']['glm']['token_env'], 'ZAI_API_KEY')
 
     def test_missing_global_setup_destination_and_plan_validation(self):
         with tempfile.TemporaryDirectory() as d, patch.dict(os.environ, {'PAE_CONFIG_PATH': str(Path(d) / 'new.json')}):

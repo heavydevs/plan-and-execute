@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "predeclared_on": "2026-10-01",
+  "purpose": "Quality non-inferiority and economy thresholds for routing evals, fixed before any measurement (request §82, TODO-013, TODO-017). Edits after a recorded measurement invalidate the predeclaration.",
+  "telemetry_contract": {
+    "pattern": "PAT003",
+    "revision": 1,
+    "source": "skill/plan-and-execute/scripts/routing_telemetry.py",
+    "units": "native only: tokens, credits, quota fraction; usd only when the provider reports it"
+  },
+  "corpus_manifest": {
+    "path": "docs/research/routing-eval/corpus-manifest.json",
+    "sha256": "e0c03274a677cf6018939cbfbe1741710c3bdf1339df8f54b4b1cc7a020186bf"
+  },
+  "metrics": {
+    "validated_success_rate": {"fields": ["validation_pass"], "definition": "cases whose final attempt has validation_pass=true divided by cases attempted"},
+    "first_attempt_validated_success": {"fields": ["validation_pass", "retry_count"], "definition": "cases with validation_pass=true on the attempt with retry_count=0"},
+    "attempts_per_validated": {"fields": ["validation_pass", "retry_count"], "definition": "attempts across all worker kinds divided by validated results"},
+    "under_routing_rate": {"fields": ["model", "native_effort", "validation_pass"], "definition": "candidate cases routed below the case minimum acceptable route, or failing validation where main validated with a higher tier"},
+    "cost_per_validated_result": {"fields": ["input_tokens", "cached_tokens", "cache_write_tokens", "output_tokens", "credits", "usd"], "definition": "routing_telemetry.rollup per_validated_result, summing root, subagent, retry, diagnostic and summary kinds"},
+    "latency_p95": {"fields": ["latency_seconds"], "definition": "95th percentile wall-clock latency per validated case"}
+  },
+  "thresholds": {
+    "regression_margin": {
+      "metric": "validated_success_rate",
+      "value": 0.02,
+      "unit": "absolute rate (candidate minus main)",
+      "rule": "one-sided 95% lower confidence bound (Newcombe hybrid score) of candidate minus main must be >= -0.02 in every reported segment; first_attempt_validated_success uses the same bound with margin 0.05",
+      "rationale": "Validated completion is the product; savings never buy a measurable drop in it.",
+      "why_conservative": "Common non-inferiority margins are 5-10 points; 2 points applied to the confidence bound, not the point estimate, makes the candidate prove non-inferiority instead of merely not appearing worse, and an underpowered run fails."
+    },
+    "under_routing_limit": {
+      "metric": "under_routing_rate",
+      "value": {"floor_violation_max_count": 0, "attributed_failure_max_rate": 0.02, "attributed_failure_upper_bound_max": 0.05},
+      "unit": "count and rate per segment",
+      "rule": "zero candidate routes below a case minimum acceptable route in any segment; failure-attributed under-routing rate <= 0.02 with one-sided 95% upper bound <= 0.05",
+      "rationale": "Under-routing fails silently and costs retries, diagnosis and trust; floors are deterministic so any violation is a policy defect, not noise.",
+      "why_conservative": "A single floor violation fails the gate regardless of savings, and the attributed-failure limit is checked on its upper bound so small samples cannot hide it."
+    },
+    "material_gain": {
+      "metric": "cost_per_validated_result",
+      "value": 0.15,
+      "unit": "relative reduction in one native unit",
+      "rule": "candidate reduces cost per validated result by >= 15% in input_tokens+output_tokens or in credits, while no other reported native unit and attempts_per_validated rise by more than 5% and latency_p95 rises by no more than 25%",
+      "rationale": "Routing changes carry switching, cache-affinity and review cost; only a clear native-unit saving justifies them (request §82: material economic gain).",
+      "why_conservative": "15% sits above typical run-to-run token variance for agentic tasks, and the no-shift guard blocks savings that only move cost into retries, cache writes or another unit. No USD conversion is used to manufacture a gain."
+    },
+    "minimum_sample": {
+      "value": {"validated_attempts_per_segment_per_arm": 30, "cases_per_category": 3, "repetitions_per_case": 2},
+      "unit": "counts",
+      "rule": "a segment with fewer samples is reported as inconclusive and cannot pass any gate; matched runs pair main and candidate on the same case and cache state",
+      "rationale": "Below these counts the confidence bounds are too wide to support a non-inferiority claim.",
+      "why_conservative": "Inconclusive is treated as fail, so missing data can only keep the current main policy."
+    },
+    "safe_segments": {
+      "value": ["deterministic_low_blast"],
+      "unit": "corpus segment ids",
+      "rule": "auto-routing may be enabled only in listed segments after every gate passes there; floor_locked, guarded and resilience stay shadow-only regardless of results until a new predeclaration widens the list",
+      "rationale": "TODO-013 starts with strong deterministic validation plus low or medium blast radius and expands only by evidence.",
+      "why_conservative": "Exactly one segment is eligible, the one where a wrong route is caught by deterministic validation before it ships."
+    }
+  },
+  "decision_rule": "A candidate policy passes in a segment only when minimum_sample, regression_margin, under_routing_limit and material_gain all pass there and the segment is listed in safe_segments; any failed or inconclusive gate keeps the main policy.",
+  "measurement_ledger": "docs/research/routing-eval/measurements.jsonl"
+}

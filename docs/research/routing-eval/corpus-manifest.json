@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "purpose": "Versioned routing-eval corpus manifest, predeclared before any measurement. Each category is a workload class from request §62 and TODO-017 scope; each names the deterministic floor source that defines its minimum acceptable route and the evaluation segment it reports into. Cases declare a minimum acceptable route, never a permanent winner model.",
+  "sources": [
+    "docs/requests/portable-model-routing-dynamic-provider-catalog.md §62",
+    "docs/requests/portable-model-routing-dynamic-provider-catalog.md §82",
+    "docs/requests/portable-model-routing-dynamic-provider-catalog.md TODO-017"
+  ],
+  "case_contract": {
+    "required_fields": ["id", "category", "origin", "signals", "minimum_acceptable_route", "validation_command"],
+    "origins": ["real", "synthetic"],
+    "content_policy": "Cases reference repository fixtures by path; telemetry stays metadata only (PAT003)."
+  },
+  "segments": {
+    "deterministic_low_blast": "Strong deterministic validation and low or medium blast radius; the only segment eligible for conservative auto-routing.",
+    "guarded": "Credible validation but non-trivial diagnosis or capability gating; shadow-only until a later predeclaration widens safe segments.",
+    "floor_locked": "Architecture, cross-cutting risk, weak validation or long horizon; candidates may only reorder models at or above the static floor and never auto-route below it.",
+    "resilience": "Provider availability, quota and stall cases; judged on fallback correctness and floor preservation, never on economy."
+  },
+  "comparison_arms": [
+    {"id": "policy", "arms": ["main", "candidate"], "note": "Shadow mode: actual execution follows main; candidate route is recorded."},
+    {"id": "tier_band", "arms": ["standard", "advanced", "strong"], "note": "advanced must cut premature strong jumps without raising under-routing."},
+    {"id": "delegation", "arms": ["root_only", "delegated"], "note": "Cost per validated result sums root, subagents, retries, diagnostics and summaries."},
+    {"id": "cache", "arms": ["cold", "warm"], "note": "Matched runs; cached_tokens and cache_write_tokens reported natively."}
+  ],
+  "categories": [
+    {
+      "id": "C01",
+      "name": "mechanical",
+      "source": "§62 mechanical",
+      "segment": "deterministic_low_blast",
+      "origin": "mixed",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["mechanical_edit", "strong_validation"], "expected_floor": {"tier": "economy", "effort": "low"}}
+    },
+    {
+      "id": "C02",
+      "name": "bounded_implementation",
+      "source": "§62 bounded implementation",
+      "segment": "deterministic_low_blast",
+      "origin": "mixed",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["bounded_implementation", "implementation", "strong_validation"], "expected_floor": {"tier": "standard", "effort": "medium"}}
+    },
+    {
+      "id": "C03",
+      "name": "subtle_debugging",
+      "source": "§62 subtle debugging",
+      "segment": "guarded",
+      "origin": "mixed",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["subtle_debugging", "implementation"], "expected_floor": {"tier": "strong", "effort": "medium"}}
+    },
+    {
+      "id": "C04",
+      "name": "architecture",
+      "source": "§62 architecture",
+      "segment": "floor_locked",
+      "origin": "synthetic",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["architecture_decision"], "expected_floor": {"tier": "strong", "effort": "high"}}
+    },
+    {
+      "id": "C05",
+      "name": "security_concurrency_migration",
+      "source": "§62 security/concurrency/migration",
+      "segment": "floor_locked",
+      "origin": "synthetic",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["cross_cutting_risk", "implementation"], "expected_floor": {"tier": "strong", "effort": "high"}}
+    },
+    {
+      "id": "C06",
+      "name": "weak_validation",
+      "source": "§62 weak validation",
+      "segment": "floor_locked",
+      "origin": "mixed",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["bounded_implementation", "implementation", "weak_validation"], "expected_floor": {"tier": "strong", "effort": "high"}}
+    },
+    {
+      "id": "C07",
+      "name": "strong_validation",
+      "source": "§62 strong validation",
+      "segment": "deterministic_low_blast",
+      "origin": "mixed",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["bounded_implementation", "strong_validation"], "expected_floor": {"tier": "standard", "effort": "medium"}}
+    },
+    {
+      "id": "C08",
+      "name": "long_horizon",
+      "source": "§62 long-horizon",
+      "segment": "floor_locked",
+      "origin": "synthetic",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["frontier_long_horizon"], "expected_floor": {"tier": "max", "effort": "high"}}
+    },
+    {
+      "id": "C09",
+      "name": "vision_ui",
+      "source": "§62 vision/UI",
+      "segment": "guarded",
+      "origin": "synthetic",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["bounded_implementation", "implementation"], "expected_floor": {"tier": "standard", "effort": "medium"}, "capabilities": ["vision"]}
+    },
+    {
+      "id": "C10",
+      "name": "quota_provider_failures",
+      "source": "§62 quota/provider failures; TODO-017 provider availability cases",
+      "segment": "resilience",
+      "origin": "synthetic",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["bounded_implementation", "implementation"], "expected_floor": {"tier": "standard", "effort": "medium"}, "note": "Fallback must keep the original floor; availability never lowers it."}
+    },
+    {
+      "id": "C11",
+      "name": "direct_vs_orchestrated",
+      "source": "TODO-017 DIRECT and ORCHESTRATED cases",
+      "segment": "deterministic_low_blast",
+      "origin": "real",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["bounded_implementation", "implementation", "strong_validation"], "expected_floor": {"tier": "standard", "effort": "medium"}}
+    },
+    {
+      "id": "C12",
+      "name": "large_request",
+      "source": "TODO-017 large-request cases",
+      "segment": "guarded",
+      "origin": "real",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["architecture_decision", "exploration"], "expected_floor": {"tier": "strong", "effort": "high"}, "note": "Floor applies to final planning; staged retrieval leaves keep their own exploration floor."}
+    },
+    {
+      "id": "C13",
+      "name": "stall_resource_failures",
+      "source": "TODO-017 debugging/stall/resource failures",
+      "segment": "resilience",
+      "origin": "synthetic",
+      "floor_source": {"kind": "routingctl.minimum_route", "signals": ["subtle_debugging", "implementation"], "expected_floor": {"tier": "strong", "effort": "medium"}}
+    }
+  ]
+}

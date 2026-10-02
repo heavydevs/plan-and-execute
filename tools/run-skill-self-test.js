@@ -26,7 +26,20 @@ const testScripts = [
   'promotion_self_test.py',
   'preplan_self_test.py',
   'pattern_self_test.py',
-  'pattern_runner_self_test.py'
+  'pattern_runner_self_test.py',
+  'model_catalog_self_test.py',
+  'model_catalogctl_self_test.py',
+  'muse_provider_self_test.py',
+  'glm_provider_self_test.py',
+  'deepseek_provider_self_test.py',
+  'model_matrix_self_test.py',
+  'snapshot_runner_self_test.py',
+  'route_selector_self_test.py',
+  'artifact_hygiene_self_test.py',
+  'telemetry_self_test.py',
+  'delegation_self_test.py',
+  'failure_evidence_self_test.py',
+  'rollout_gate_self_test.py'
 ].map((name) => path.join(scriptDirectory, name));
 const candidates = process.platform === 'win32'
   ? [['python', []], ['python3', []], ['py', ['-3']]]

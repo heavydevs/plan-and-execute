@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "audited_at": "2026-10-01",
+  "base": "12d9213",
+  "diff_command": "git diff -U3 -- <files>",
+  "files": [
+    ".ai-work/SERVICE_MAP.md",
+    "skill/plan-and-execute/scripts/preplan_self_test.py",
+    "skill/plan-and-execute/scripts/preplanctl.py",
+    "skill/plan-and-execute/scripts/resource_watch.py",
+    "skill/plan-and-execute/scripts/run_isolated.py"
+  ],
+  "hunks": [
+    {
+      "file": ".ai-work/SERVICE_MAP.md",
+      "header": "@@ -9,8 +9,8 @@ This project-local router maps every automated validation to its toolchain prere",
+      "purpose": "Snapshot digest and source_count refreshed by service_map.py stamp after the discovery inputs changed.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "rationale",
+        "detail": "Helper-generated hash index; hand-reverting it would desynchronize the map from the validation entries this plan needs. Only service_map.py stamp may change it."
+      }
+    },
+    {
+      "file": ".ai-work/SERVICE_MAP.md",
+      "header": "@@ -95,6 +95,325 @@ This project-local router maps every automated validation to its toolchain prere",
+      "purpose": "Adds validation ids for this plan (MODEL_ROUTING, PROVIDER, ROUTING, PREPLAN, DOC_BASELINE, catalog/provider tests, CLI, SKILL_DOCS, eval, ROLLOUT, BENCHMARK, WORKTREE_AUDIT, RUNNER_SNAPSHOT).",
+      "decision": "keep",
+      "evidence": {
+        "kind": "test",
+        "command": "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation WORKTREE_AUDIT",
+        "detail": "Task validations (WORKTREE_AUDIT, PREPLAN) resolve only through these ids; plan guidance requires keeping them."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/preplan_self_test.py",
+      "header": "@@ -179,12 +179,84 @@ def test_prepare_primary_plan_is_immediately_discoverable_by_lifecycle_resume()",
+      "purpose": "Adds prepare_args helper and two regression tests: long-heading fragment guidance stays within the 240-char budget, and a failed create_primary_plan removes the package so prepare can retry. Also registers both tests in main().",
+      "decision": "keep",
+      "evidence": {
+        "kind": "test",
+        "command": "python -c \"import preplan_self_test as m; m.test_full_batches_of_long_heading_fragments_fit_guidance_budget(); m.test_failed_primary_plan_creation_removes_package_so_prepare_can_retry()\" (cwd skill/plan-and-execute/scripts)",
+        "detail": "Both pass on the working tree; on a HEAD scratch copy they fail ('implementation_guidance[1] exceeds the 240-character derived-text budget'; no attribute create_primary_plan), so they guard the preplanctl hunks."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/preplanctl.py",
+      "header": "@@ -10,6 +10,7 @@ import json",
+      "purpose": "Imports shutil for the package rollback in command_prepare.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "rationale",
+        "detail": "Required by the kept rollback hunk (shutil.rmtree)."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/preplanctl.py",
+      "header": "@@ -391,7 +392,6 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any])",
+      "purpose": "Drops the unused fragment_names list after guidance switched to fragment ids.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "rationale",
+        "detail": "Dead variable once the fragment-id guidance hunk is kept."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/preplanctl.py",
+      "header": "@@ -413,7 +413,7 @@ def make_primary_spec(repo_root: Path, package: Path, metadata: dict[str, Any])",
+      "purpose": "Digest guidance cites fragment ids and points to SOURCE_INDEX.json instead of listing long fragment file names.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "test",
+        "command": "python -c \"import preplan_self_test as m; m.test_full_batches_of_long_heading_fragments_fit_guidance_budget()\" (cwd skill/plan-and-execute/scripts)",
+        "detail": "Passes on the working tree; fails on HEAD with 'Task 6 implementation_guidance[1] exceeds the 240-character derived-text budget'."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/preplanctl.py",
+      "header": "@@ -711,14 +711,7 @@ def command_split(args: argparse.Namespace) -> None:",
+      "purpose": "Extracts create_primary_plan(repo, package, metadata, work_root) from command_prepare.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "test",
+        "command": "python -c \"import preplan_self_test as m; m.test_failed_primary_plan_creation_removes_package_so_prepare_can_retry()\" (cwd skill/plan-and-execute/scripts)",
+        "detail": "Seam needed for rollback and its test; HEAD fails with AttributeError (no create_primary_plan), working tree passes."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/preplanctl.py",
+      "header": "@@ -734,7 +727,7 @@ def command_prepare(args: argparse.Namespace) -> None:",
+      "purpose": "Uses the work_root parameter inside the extracted create_primary_plan.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "rationale",
+        "detail": "Part of the same extraction; args is no longer in scope."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/preplanctl.py",
+      "header": "@@ -750,6 +743,23 @@ def command_prepare(args: argparse.Namespace) -> None:",
+      "purpose": "Returns plan_dir and re-adds command_prepare that removes the just-created package when primary plan creation fails, so prepare can be retried.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "test",
+        "command": "python -c \"import preplan_self_test as m; m.test_failed_primary_plan_creation_removes_package_so_prepare_can_retry()\" (cwd skill/plan-and-execute/scripts)",
+        "detail": "Passes on the working tree: package is removed after a simulated failure and a retry reaches state primary_plan_created."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/resource_watch.py",
+      "header": "@@ -9,6 +9,7 @@ import datetime as dt",
+      "purpose": "Imports shutil for spawnable().",
+      "decision": "keep",
+      "evidence": {
+        "kind": "rationale",
+        "detail": "Required by the kept spawnable() hunk (shutil.which)."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/resource_watch.py",
+      "header": "@@ -25,6 +26,15 @@ def stamp() -> str:",
+      "purpose": "Adds spawnable(): on Windows resolves the executable via shutil.which so PATHEXT shims such as npm.cmd can be launched.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "test",
+        "command": "python -c \"import subprocess, resource_watch as r; subprocess.run(r.spawnable(['npm','--version']))\" (cwd skill/plan-and-execute/scripts)",
+        "detail": "On this Windows host subprocess.run(['npm','--version']) raises FileNotFoundError while the spawnable() form prints 11.19.0."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/resource_watch.py",
+      "header": "@@ -50,7 +60,7 @@ def run_toolchain_check(toolchain: dict[str, Any], repo_root: Path) -> dict[str,",
+      "purpose": "Toolchain probe commands go through spawnable().",
+      "decision": "keep",
+      "evidence": {
+        "kind": "rationale",
+        "detail": "Same PATHEXT failure as above for npm/npx toolchain probes; no-op on POSIX."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/resource_watch.py",
+      "header": "@@ -100,7 +110,7 @@ def evaluate_check(",
+      "purpose": "Resource check commands go through spawnable() (also copies the list instead of aliasing the map entry).",
+      "decision": "keep",
+      "evidence": {
+        "kind": "rationale",
+        "detail": "Same PATHEXT failure as above for resource probes; no-op on POSIX."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/resource_watch.py",
+      "header": "@@ -374,7 +384,7 @@ def run_validation(args: argparse.Namespace) -> int:",
+      "purpose": "Validation test commands go through spawnable().",
+      "decision": "keep",
+      "evidence": {
+        "kind": "rationale",
+        "detail": "Same PATHEXT failure as above for npm-based validations; no-op on POSIX."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/resource_watch.py",
+      "header": "@@ -531,6 +541,11 @@ def parser() -> argparse.ArgumentParser:",
+      "purpose": "Reconfigures stdout/stderr with errors=replace so relayed non-encodable output cannot kill the reader thread and hang the test.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "test",
+        "command": "env -u PYTHONIOENCODING PYTHONUTF8=0 python -c \"print('\\u2714')\" | cat",
+        "detail": "Without the override, a piped Python stdout is cp1252 here and printing U+2714 (node --test output) raises UnicodeEncodeError; with reconfigure(errors='replace') it prints '?' and exits 0."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/run_isolated.py",
+      "header": "@@ -597,6 +597,31 @@ def redact_command(command: list[str]) -> list[str]:",
+      "purpose": "Adds antigravity_schema_text(): strips null from enum and union types so Gemini function declarations accept the completion-report schema.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "test",
+        "command": "python -c \"import json, run_isolated as r; s=json.load(open('<skill>/references/completion-report.schema.json')); assert 'null' not in json.dumps(json.loads(r.antigravity_schema_text(s)))\" (cwd skill/plan-and-execute/scripts)",
+        "detail": "Converted schema has no null; failure_class becomes type string with the five non-null enum values. Rationale: agy rejects enum null with INVALID_ARGUMENT."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/run_isolated.py",
+      "header": "@@ -659,7 +684,7 @@ def build_worker_command(",
+      "purpose": "Antigravity worker command passes antigravity_schema_text(schema) to --json-schema.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "rationale",
+        "detail": "Wires the converter into the agy command only; other providers keep the original schema_text. provider_self_test.py fails identically at HEAD and on the working tree (line 77, pre-existing host issue), so this hunk adds no regression."
+      }
+    },
+    {
+      "file": "skill/plan-and-execute/scripts/run_isolated.py",
+      "header": "@@ -883,7 +908,7 @@ def decode_json_candidates(text: str, *, maximum: int = 200) -> list[Any]:",
+      "purpose": "extract_report checks status is a string before the set-membership test, avoiding TypeError on nested dict status values.",
+      "decision": "keep",
+      "evidence": {
+        "kind": "test",
+        "command": "python skill/plan-and-execute/scripts/self_test.py (on a git-archive HEAD scratch copy, with and without the working-tree run_isolated.py)",
+        "detail": "HEAD crashes with 'TypeError: unhashable type: dict' in extract_report; with this hunk the crash is gone (the later test_completion_metadata_recovery failure is pre-existing and identical on the working tree)."
+      }
+    }
+  ]
+}

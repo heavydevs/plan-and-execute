@@ -536,4 +536,9 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Plans are created by planctl_concise; validate them with the same contract.
+    from artifact_contract import install_plan_contract
+    import routingctl
+
+    routingctl.install_current_model_catalog(install_plan_contract())
     raise SystemExit(main())

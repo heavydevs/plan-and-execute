@@ -1246,5 +1246,15 @@ def main() -> int:
     return 0
 
 
+def isolated_main() -> int:
+    # The host's global routing config (e.g. tier_routes to antigravity) must not
+    # steer sample plans away from the fake claude worker; pin an empty overlay.
+    with tempfile.TemporaryDirectory() as home:
+        config = Path(home) / "orchestrator.config.json"
+        config.write_text("{}\n", encoding="utf-8")
+        with patch.dict(os.environ, {"PAE_CONFIG_PATH": str(config)}):
+            return main()
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(isolated_main())

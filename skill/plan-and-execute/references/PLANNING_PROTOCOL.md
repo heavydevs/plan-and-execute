@@ -20,7 +20,7 @@ For prepared packages, keep fragment/digest ids in source refs when they materia
 
 ## 2. Route planning work explicitly
 
-Read `PLANNING_ROUTING.md` when assigning a model to planning work. The planner's current/root model is not automatically the planning route, and it is never switched: a stage whose floor exceeds the root tier is delegated to a fresh worker at that tier.
+Concrete model ids resolve at attempt time from provider config, or from the plan's catalog snapshot with `model_resolution: snapshot` (`MODEL_CATALOG.md`); plans keep only provider, tier and effort. Read `PLANNING_ROUTING.md` when assigning a model to planning work. The planner's current/root model is not automatically the planning route, and it is never switched: a stage whose floor exceeds the root tier is delegated to a fresh worker at that tier.
 
 Use deterministic tools for mechanical operations; economy for bounded extraction; standard for ordinary synthesis; strong for architecture/decomposition with high blast radius, weak verification, security/migration/data-integrity risk, or subtle cross-domain constraints. Fresh review should be capable enough to challenge the hardest material planning decision.
 

@@ -21,7 +21,8 @@
     "validate:skill": "node tools/validate-skill.js",
     "test:node": "node --test test/*.test.js",
     "test:skill": "node tools/run-skill-self-test.js",
-    "test": "npm run test:node && npm run test:skill",
+    "test:repo": "node tools/run-repo-checks.js",
+    "test": "npm run test:node && npm run test:skill && npm run test:repo",
     "check": "npm run clean && npm run validate:skill && npm test",
     "prepack": "npm run check"
   },

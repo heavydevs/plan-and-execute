@@ -28,15 +28,22 @@ SKILL_DIR = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 import planctl  # noqa: E402
+import resource_watch  # noqa: E402
 import lifecyclectl  # noqa: E402
 import routingctl  # noqa: E402
 import routing_config  # noqa: E402
 import availability  # noqa: E402
 import assistant_triage  # noqa: E402
 import process_tree  # noqa: E402
+import model_catalogctl  # noqa: E402
+import routing_telemetry  # noqa: E402
 
 TIER_ORDER = routingctl.TIER_ORDER
 EFFORT_ORDER = routingctl.EFFORT_ORDER
+MUSE_TRUST_WORKSPACE_FLAG = "--trust-workspace"
+MUSE_DISABLE_APPROVAL_FLAG = "--disable-approval"
+MUSE_READ_ONLY_FLAG = "--disable-write"
+MUSE_WRITE_FLAGS = frozenset({MUSE_TRUST_WORKSPACE_FLAG, MUSE_DISABLE_APPROVAL_FLAG})
 DESIGN_NOTE_MAX_CHARS = 6000
 VALIDATION_FAILURE_CONTEXT_CHARS = 900
 BUDGET_PATTERNS = [
@@ -197,6 +204,42 @@ def command_prefix(value: Any) -> list[str]:
     raise RunnerError(f"Invalid provider command: {value!r}")
 
 
+def provider_profile(provider: str, config: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return routing_config.resolve_profile(provider, config)
+    except routing_config.ConfigError as exc:
+        raise RunnerError(str(exc)) from exc
+
+
+def provider_prefix(provider: str, config: dict[str, Any]) -> list[str]:
+    return command_prefix(provider_profile(provider, config)["command"])
+
+
+def spawn_env(provider: str, config: dict[str, Any], environ: Any = None) -> dict[str, str] | None:
+    """Child env for a profile with credential references, read now (at spawn) and never persisted.
+
+    Returns None (inherit unchanged) when the profile names no variables. Errors name the
+    variable, never its value.
+    """
+    profile = provider_profile(provider, config)
+    environ = os.environ if environ is None else environ
+    targets = routing_config.HARNESS_ENV[profile["harness"]]
+    overlay: dict[str, str] = {}
+    for key in ("base_url_env", "token_env"):
+        source = profile.get(key)
+        if not source:
+            continue
+        value = environ.get(source)
+        if not value:
+            raise RunnerError(f"Profile {profile['name']} requires environment variable {source}")
+        # `native` harnesses read their own variables; the check above only proves presence.
+        if key in targets:
+            overlay[targets[key]] = value
+    if not profile.get("base_url_env") and not profile.get("token_env"):
+        return None
+    return {**environ, **overlay}
+
+
 def antigravity_print_timeout(provider_cfg: dict[str, Any], config: dict[str, Any]) -> str:
     """agy kills a print-mode run after `--print-timeout` (default 5m).
 
@@ -242,7 +285,7 @@ def candidate_providers(task: dict[str, Any], config: dict[str, Any], override: 
 
     available: list[str] = []
     for provider in providers:
-        prefix = command_prefix(config[provider].get("command", provider))
+        prefix = provider_prefix(provider, config)
         if executable_available(prefix):
             available.append(provider)
     if not available:
@@ -297,6 +340,284 @@ def choose_route(task: dict[str, Any], config: dict[str, Any], override: str | N
     if not model:
         raise RunnerError(f"No model configured for {provider}/{tier}")
     return {"provider": provider, "tier": tier, "model": model, "effort": effort, "requested_effort": requested_effort}
+
+
+# Plan snapshot resolution stays opt-in until the rollout gate. The config
+# ladder still picks provider, tier and effort; `model_resolution: "snapshot"`
+# only binds the concrete model id from the plan's MODEL_MATRIX.json, falling
+# back to the configured ladder model when the snapshot has no entry. The
+# snapshot path and catalog economics never reach the worker prompt.
+INVALID_MODEL = re.compile(
+    r"invalid model|unknown model|model[^\n]{0,80}(?:not found|does not exist|not available|not supported)", re.I
+)
+
+
+def snapshot_resolution(config: dict[str, Any]) -> bool:
+    return config.get("model_resolution", "config") == "snapshot"
+
+
+def resolve_snapshot_route(
+    plan_dir: Path,
+    task: dict[str, Any],
+    route: dict[str, str],
+    config: dict[str, Any],
+    catalog_models: dict[str, dict[str, str]] | None = None,
+) -> dict[str, str]:
+    if not snapshot_resolution(config):
+        return route
+    matrix, _warning = model_catalogctl.load_matrix(plan_dir)
+    provider, tier = route["provider"], route["tier"]
+    current = task.get("current_route")
+    if (task.get("status") == "in_progress" and isinstance(current, dict)
+            and current.get("provider") == provider and current.get("tier") == tier and current.get("model")):
+        return {**route, "model": str(current["model"])}
+    if matrix is not None:
+        # The task binding wins: refresh rebases pending tasks only, so an
+        # in-progress binding keeps the model of the snapshot it started with.
+        for candidate in matrix.get("tasks", {}).get(task["id"], {}).get("candidates", []):
+            if candidate.get("provider") == provider and candidate.get("tier") == tier:
+                return {**route, "model": candidate["model"]}
+        model = matrix.get("tiers", {}).get(tier, {}).get(provider)
+        if model:
+            return {**route, "model": model}
+    model = (catalog_models or {}).get(provider, {}).get(tier)
+    return {**route, "model": model} if model else route
+
+
+# Shadow routing stays observational until the rollout gate. With
+# `routing_shadow: true` the runner asks the deterministic selector
+# (routingctl.select_route) for a candidate next to each executed route and
+# records both, with the selector's explanation, as plan-scoped telemetry
+# (PAT004). The candidate never changes provider, model, effort or argv and
+# never reaches the worker prompt.
+SHADOW_RELATIVE = "telemetry/shadow.jsonl"
+SHADOW_ROUTE_KEYS = ("provider", "model", "tier", "effort")
+
+
+def auto_select_mode(config: dict[str, Any]) -> str:
+    routing = config.get("routing")
+    mode = routing.get("auto_select", "off") if isinstance(routing, dict) else "off"
+    return mode if mode in routing_config.AUTO_SELECT_MODES else "off"
+
+
+def shadow_enabled(config: dict[str, Any]) -> bool:
+    return config.get("routing_shadow") is True or auto_select_mode(config) in ("shadow", "on")
+
+
+def shadow_catalog_providers(providers: list[str], config: dict[str, Any]) -> list[str]:
+    """Catalog provider ids for a config chain: a profile named after a catalog provider (glm, deepseek) wins."""
+    import model_catalog
+
+    known = model_catalog.BOOTSTRAP_CATALOG["providers"]
+    out: list[str] = []
+    for provider in providers:
+        profile = (config.get(provider) or {}).get("profile")
+        name = profile if isinstance(profile, str) and profile in known else provider
+        if name not in out:
+            out.append(name)
+    return out
+
+
+def shadow_candidate(
+    task: dict[str, Any], route: dict[str, str], config: dict[str, Any], override: str | None = None,
+    *, phase: str = "implementation",
+) -> dict[str, Any]:
+    """Pure: the selector's candidate for the task's declared route; never raises."""
+    record: dict[str, Any] = {
+        "task_id": str(task.get("id")) if task.get("id") is not None else None,
+        "phase": phase,
+        "executed": {key: route.get(key) for key in SHADOW_ROUTE_KEYS},
+        "candidate": None,
+        "decision": "error",
+    }
+    try:
+        providers = shadow_catalog_providers(routing_config.provider_chain(task, config, override), config)
+        request: dict[str, Any] = {"providers": providers}
+        signals = task.get("routing_signals")
+        if isinstance(signals, list) and signals:
+            # Declared signals give the selector its own floor; otherwise it starts at the declared route.
+            request["signals"] = [str(item) for item in signals]
+        else:
+            request["route"] = {"tier": routingctl.normalize_tier(task.get("model_tier", "standard")),
+                                "effort": str(task.get("reasoning_effort", "medium"))}
+        capabilities = task.get("required_capabilities")
+        if isinstance(capabilities, list) and capabilities:
+            request["required_capabilities"] = sorted(str(item) for item in capabilities)
+        selection = routingctl.select_route(request)
+    except Exception as exc:  # noqa: BLE001 - shadow must not stop execution
+        record["error"] = type(exc).__name__
+        return record
+    chosen = selection.get("route")
+    explanation = selection.get("explanation") or {}
+    record.update(
+        decision=selection.get("decision"),
+        floor=selection.get("floor"),
+        candidate={key: chosen.get(key) for key in SHADOW_ROUTE_KEYS} if chosen else None,
+        explanation={
+            "catalog_version": explanation.get("catalog_version"),
+            "providers": explanation.get("providers"),
+            "target_tier": explanation.get("target_tier"),
+            "tier_lifted": explanation.get("tier_lifted"),
+            "stages": [{"stage": stage.get("stage"), "kept": len(stage.get("kept", [])),
+                        "dropped": sorted({item.get("reason") for item in stage.get("dropped", [])})}
+                       for stage in explanation.get("stages", [])],
+            "sticky": (selection.get("sticky") or {}).get("reason"),
+        },
+    )
+    return record
+
+
+def record_shadow(plan_dir: Path, record: dict[str, Any], repo_root: Path | None = None) -> bool:
+    """Append one shadow record; failure never interrupts execution."""
+    path = Path(plan_dir) / SHADOW_RELATIVE
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if repo_root is not None and not path.exists():
+            import resource_watch
+            resource_watch.register_artifact(Path(repo_root), path, "plan", Path(plan_dir).name, "keep")
+        with path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(record, sort_keys=True) + "\n")
+        return True
+    except Exception as exc:  # noqa: BLE001 - shadow telemetry is best-effort
+        print(f"[shadow] not recorded: {type(exc).__name__}", file=sys.stderr)
+        return False
+
+
+# Conservative rollout: `routing.auto_select: on` applies the shadow candidate
+# only for a task whose `routing_segment` is both in `routing.allowlist` and
+# passing every predeclared gate (routingctl.load_gate over `routing.gate_dir`).
+# Only a first implementation attempt on the provider the ladder already chose
+# is eligible; retries stay on the evidence ladder. Any other case, including a
+# selector exception, keeps the ladder route and records why.
+DEFAULT_GATE_DIR = "docs/research/routing-eval"
+
+
+def auto_route(
+    plan_dir: Path,
+    repo_root: Path,
+    task: dict[str, Any],
+    route: dict[str, str],
+    config: dict[str, Any],
+    shadow: dict[str, Any],
+    *,
+    phase: str = "implementation",
+    catalog_models: dict[str, dict[str, str]] | None = None,
+) -> tuple[dict[str, str], dict[str, Any]]:
+    """Return (route, decision); the ladder route on any failed condition or error."""
+    segment = task.get("routing_segment")
+    decision: dict[str, Any] = {"mode": "on", "segment": segment if isinstance(segment, str) else None,
+                                "applied": False, "reason": None, "allowlist": []}
+    try:
+        routing = config.get("routing") or {}
+        gate_dir = Path(str(routing.get("gate_dir") or DEFAULT_GATE_DIR))
+        requested = routing.get("allowlist") or []
+        gate = routingctl.load_gate(gate_dir if gate_dir.is_absolute() else Path(repo_root) / gate_dir) if requested else {}
+        allowlist = routingctl.effective_allowlist(requested, gate)
+        decision["allowlist"] = allowlist
+        if gate.get("error"):
+            decision["gate_error"] = gate["error"]
+        candidate = shadow.get("candidate")
+        if not isinstance(segment, str) or segment not in allowlist:
+            decision["reason"] = "segment_not_allowlisted"
+        elif phase != "implementation":
+            decision["reason"] = "design_phase"
+        elif int(task.get("attempts") or 0) > 0 or task.get("functional_failures") or task.get("failure_classes"):
+            decision["reason"] = "ladder_owns_retry"
+        elif shadow.get("decision") == "error":
+            decision.update(reason="selector_error", error=shadow.get("error"))
+        elif shadow.get("decision") != "route" or not isinstance(candidate, dict):
+            decision["reason"] = "no_candidate"
+        elif candidate.get("provider") not in shadow_catalog_providers([route["provider"]], config):
+            decision["reason"] = "provider_differs"
+        else:
+            provider_cfg = config[route["provider"]]
+            tier = routingctl.normalize_tier(candidate["tier"])
+            model = str(provider_cfg.get("models", {}).get(tier, "")).strip()
+            if not model:
+                decision["reason"] = "no_configured_model"
+            else:
+                requested_effort = str(candidate["effort"])
+                selected = {**route, "tier": tier, "model": model,
+                            "effort": clamp_effort(provider_cfg, tier, requested_effort),
+                            "requested_effort": requested_effort}
+                selected = resolve_snapshot_route(plan_dir, task, selected, config, catalog_models)
+                decision.update(applied=True, reason="gate_passed")
+                return selected, decision
+    except Exception as exc:  # noqa: BLE001 - auto-routing falls back to the ladder
+        decision.update(applied=False, reason="selector_error", error=type(exc).__name__)
+    return route, decision
+
+
+def resume_provider_models(
+    plan_dir: Path, config: dict[str, Any], override: str | None, store: Any = None
+) -> dict[str, dict[str, str]]:
+    """HD002: `--provider X` absent from the snapshot resolves only from a fresh shared catalog.
+
+    A fresh catalog is used in memory and recorded as a snapshot audit entry;
+    a stale or missing one fails with refresh guidance. TODOs are never rewritten.
+    """
+    if not override or not snapshot_resolution(config):
+        return {}
+    matrix, _warning = model_catalogctl.load_matrix(plan_dir)
+    if matrix is None or override in matrix["catalog"].get("providers", {}):
+        return {}
+    store = store or model_catalogctl.CatalogStore()
+    record, _note = store.load(override)
+    state = "missing"
+    if record is not None:
+        state = model_catalogctl.facet_states(record, store.now(), store.policy)["capability"]
+    if state != "fresh":
+        raise RunnerError(
+            f"Provider {override} is not in this plan's MODEL_MATRIX snapshot and its shared catalog is {state}. "
+            f"Run `model_catalogctl.py refresh --provider {override}` and then "
+            f"`model_catalogctl.py refresh --plan {plan_dir}` before resuming; TODOs were not changed."
+        )
+    catalog, _notes = model_catalogctl.merged_catalog(store, override)
+    models = model_catalogctl.mc.provider_config_mapping(override, catalog)["models"]
+    model_catalogctl._audit(matrix, {
+        "at": model_catalogctl._iso(store.now()), "op": "resume_provider", "provider": override,
+        "old_digest": matrix["catalog_digest"], "new_digest": matrix["catalog_digest"],
+        "provider_catalog_digest": model_catalogctl.mc.digest(catalog),
+        "provider_catalog_version": record["catalog_version"],
+    })
+    model_catalogctl.write_matrix(plan_dir, matrix)
+    return {override: models}
+
+
+def stale_snapshot_warning(plan_dir: Path, now: Any = None) -> str | None:
+    """Non-blocking resume warning for a snapshot older than its threshold."""
+    matrix, _warning = model_catalogctl.load_matrix(plan_dir)
+    if matrix is None:
+        return None
+    now = now or model_catalogctl._utc_now()
+    age_days = (now - model_catalogctl.mc._parse_time(matrix["captured_at"])).total_seconds() / 86400
+    if age_days <= matrix["stale_after_days"]:
+        return None
+    return (f"MODEL_MATRIX snapshot is {age_days:.1f} days old (threshold {matrix['stale_after_days']}); "
+            "run `model_catalogctl.py diff --plan` / `refresh --plan` (non-blocking)")
+
+
+def refresh_model_snapshot(plan_dir: Path, provider: str) -> None:
+    """One-shot refresh after a confirmed invalid model id; never raises."""
+    store = model_catalogctl.CatalogStore()
+    try:
+        model_catalogctl.refresh(store, provider, {}, version_fn=model_catalogctl.probe_cli_version, force=True)
+        model_catalogctl.matrix_refresh(store, plan_dir)
+    except (model_catalogctl.CacheError, OSError, ValueError) as exc:
+        print(f"[model-refresh] {provider}: {str(exc)[:200]}", file=sys.stderr)
+
+
+def release_for_model_refresh(plan_dir: Path, manifest: dict[str, Any], task_id: str, reason: str) -> None:
+    """Return the claimed attempt to pending without recording failure evidence."""
+    task = planctl.find_task(manifest, task_id)
+    if task.get("status") != "in_progress":
+        return
+    recovered = planctl.recover_in_progress_subtasks(task, reason)
+    task["status"] = "pending"
+    task["last_error"] = planctl.bounded_failure_reason(reason)
+    task["history"].append({"at": planctl.now_utc(), "event": "model_refresh", "recovered_subtasks": recovered})
+    planctl.append_event(manifest, "task_model_refresh", task_id=task["id"])
+    planctl.save_manifest(plan_dir, manifest)
 
 
 def completion_schema_path() -> Path:
@@ -418,10 +739,34 @@ Task id: {task['id']}
 Attempt: {task['attempts'] + 1}
 Route: {route['provider']} / {route['model']} / effort {route['effort']}
 """
-    return prompt + failure_context(task)
+    return prompt + failure_context(task, plan_dir)
 
 
-def failure_context(task: dict[str, Any]) -> str:
+def evidence_packet_path(log_path: Path) -> Path:
+    """The FailureEvidencePacket sits beside its raw validation log under the plan workspace."""
+    name = log_path.name
+    stem = name[: -len("-validation.log")] if name.endswith("-validation.log") else log_path.stem
+    return log_path.with_name(f"{stem}-evidence.json")
+
+
+def load_evidence_packet(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {}
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def previous_evidence_path(plan_dir: Path | None, task: dict[str, Any]) -> Path | None:
+    latest_log = task.get("latest_validation_log")
+    if plan_dir is None or not isinstance(latest_log, str) or not latest_log:
+        return None
+    return evidence_packet_path(plan_dir / latest_log)
+
+
+def failure_context(task: dict[str, Any], plan_dir: Path | None = None) -> str:
     """Expose only the newest compact failure evidence; keep superseded logs on disk."""
     error = str(task.get("last_error") or "").strip()
     stagnation = task.get("validation_stagnation")
@@ -441,6 +786,15 @@ def failure_context(task: dict[str, Any]) -> str:
         )
         if stagnation.get("triggered") is True:
             lines.append("- Validation stagnation crossed five minutes; this worker was deliberately routed to a stronger model.")
+    packet = load_evidence_packet(previous_evidence_path(plan_dir, task)).get("packet")
+    if isinstance(packet, dict):
+        lines.append(
+            f"- Evidence packet: signature={str(packet.get('signature', ''))[:12]}; "
+            f"block_scope={packet.get('block_scope', 'validation')}; "
+            f"first_failure={str(packet.get('first_failure', ''))[:200]!r}; "
+            f"new_lines={len(packet.get('latest_delta') or [])}; "
+            f"already_reported_omitted={packet.get('omitted_seen_lines', 0)}."
+        )
     latest_log = task.get("latest_validation_log")
     if isinstance(latest_log, str) and latest_log:
         lines.append(
@@ -479,6 +833,46 @@ def validation_failure_fingerprint(results: list[dict[str, Any]]) -> str | None:
         stable_lines.append("validation_stalled")
     payload = "\n".join((str(failed.get("command", "")), str(failed.get("exit_code", "")), *stable_lines[-16:]))
     return hashlib.sha256(payload.encode("utf-8", "replace")).hexdigest()
+
+
+ADVISORY_FORBIDDEN_KEYS = frozenset({
+    "failure_class", "orchestrator_status", "status_override", "completed", "completion",
+    "next_route", "route", "validation_pass", "passed",
+})
+
+
+def diagnostic_results(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The diagnostic role sees the FailureEvidencePacket, not raw log windows."""
+    shaped: list[dict[str, Any]] = []
+    for item in results:
+        packet = item.get("failure_evidence")
+        if item.get("passed") is False and isinstance(packet, dict):
+            item = {
+                **item,
+                "output_head": str(packet.get("first_failure", "")),
+                "output_tail": "\n".join(str(line) for line in packet.get("latest_delta") or []),
+            }
+        shaped.append(item)
+    return shaped
+
+
+def validation_failure_class(results: list[dict[str, Any]], declared: Any = None) -> str:
+    """Deterministic class from monitor evidence; advisory diagnosis is never an input."""
+    classes = [item.get("failure_class") for item in results]
+    if "environmental" in classes:
+        return "environmental"
+    if "semantic" in classes or any(item.get("validation_stalled") is True for item in results):
+        return "semantic"
+    worker = str(declared or "").strip().lower()
+    return worker if worker in routingctl.FAILURE_CLASSES else "semantic"
+
+
+def advisory_only(advice: dict[str, Any]) -> dict[str, Any]:
+    """Diagnostic output is stored as advice; it can never set failure class, route or completion."""
+    return {
+        **{key: value for key, value in advice.items() if key not in ADVISORY_FORBIDDEN_KEYS},
+        "advisory": True,
+    }
 
 
 def design_note_relative(task: dict[str, Any]) -> str:
@@ -540,6 +934,8 @@ def effort_args(provider_cfg: dict[str, Any], model: str, effort: str, *, style:
         return ["--effort", effort]
     if style == "codex":
         return ["-c", f'model_reasoning_effort="{effort}"']
+    if style == "muse":
+        return ["--reasoning-effort", effort]
     return []
 
 
@@ -597,6 +993,31 @@ def redact_command(command: list[str]) -> list[str]:
     return redacted
 
 
+def antigravity_schema_text(schema: dict[str, Any]) -> str:
+    """Schema text for `agy --json-schema`: Gemini function declarations reject `null` in `enum`
+    (INVALID_ARGUMENT "enum[n]: cannot be empty") and union types; optional fields stay optional."""
+
+    def convert(node: Any, property_map: bool = False) -> Any:
+        if isinstance(node, dict):
+            if property_map:
+                return {key: convert(value) for key, value in node.items()}
+            out: dict[str, Any] = {}
+            for key, value in node.items():
+                if key == "enum" and isinstance(value, list):
+                    out[key] = [item for item in value if item is not None]
+                elif key == "type" and isinstance(value, list):
+                    kept = [item for item in value if item != "null"]
+                    out[key] = kept[0] if len(kept) == 1 else kept
+                else:
+                    out[key] = convert(value, property_map=(key == "properties"))
+            return out
+        if isinstance(node, list):
+            return [convert(item) for item in node]
+        return node
+
+    return json.dumps(convert(schema), ensure_ascii=False, separators=(",", ":"))
+
+
 def build_worker_command(
     provider: str,
     route: dict[str, str],
@@ -605,14 +1026,17 @@ def build_worker_command(
     result_path: Path,
 ) -> list[str]:
     provider_cfg = config[provider]
-    prefix = command_prefix(provider_cfg.get("command", provider))
+    # The profile picks the harness adapter; settings stay the provider's own.
+    profile = provider_profile(provider, config)
+    adapter = profile["adapter"]
+    prefix = command_prefix(profile["command"])
     schema = planctl.read_json(completion_schema_path())
     schema_text = json.dumps(schema, ensure_ascii=False, separators=(",", ":"))
     extra_args = provider_cfg.get("extra_args", [])
     if not isinstance(extra_args, list) or not all(isinstance(item, str) for item in extra_args):
         raise RunnerError(f"{provider}.extra_args must be a list of strings")
 
-    if provider == "claude":
+    if adapter == "claude":
         command = prefix + claude_bare_flags() + [
             "--print",
             "--no-session-persistence",
@@ -623,13 +1047,13 @@ def build_worker_command(
         ]
         command.extend(configured_model_args("--model", route["model"]))
         command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="claude"))
-        command.extend(budget_args(provider, provider_cfg))
+        command.extend(budget_args(adapter, provider_cfg))
         command.extend(["--json-schema", schema_text])
         command.extend(extra_args)
         command.append(prompt)
         return command
 
-    if provider == "codex":
+    if adapter == "codex":
         command = prefix + [
             "exec",
             "--ephemeral",
@@ -638,7 +1062,7 @@ def build_worker_command(
         ]
         command.extend(configured_model_args("--model", route["model"]))
         command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="codex"))
-        command.extend(budget_args(provider, provider_cfg))
+        command.extend(budget_args(adapter, provider_cfg))
         command.extend(
             [
                 "--output-schema",
@@ -653,13 +1077,13 @@ def build_worker_command(
         command.append(prompt)
         return command
 
-    if provider == "antigravity":
+    if adapter == "antigravity":
         command = list(prefix)
         if provider_cfg.get("skip_permissions", True):
             command.append("--dangerously-skip-permissions")
         if provider_cfg.get("sandbox", False):
             command.append("--sandbox")
-        command.extend(["--output-format", "json", "--json-schema", schema_text])
+        command.extend(["--output-format", "json", "--json-schema", antigravity_schema_text(schema)])
         command.extend(configured_model_args("--model", route["model"]))
         command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="claude"))
         command.extend(["--print-timeout", antigravity_print_timeout(provider_cfg, config)])
@@ -667,7 +1091,7 @@ def build_worker_command(
         command.extend(["-p", prompt])
         return command
 
-    if provider == "gemini":
+    if adapter == "gemini":
         command = prefix + [
             "--approval-mode",
             str(provider_cfg.get("approval_mode", "yolo")),
@@ -681,7 +1105,7 @@ def build_worker_command(
         command.extend(["--prompt", prompt])
         return command
 
-    if provider == "qwen":
+    if adapter == "qwen":
         command = prefix
         if provider_cfg.get("safe_mode", True):
             command.append("--safe-mode")
@@ -700,7 +1124,7 @@ def build_worker_command(
         command.extend(["--prompt", prompt])
         return command
 
-    if provider == "kimi":
+    if adapter == "kimi":
         command = prefix + [
             "--output-format",
             "stream-json",
@@ -717,7 +1141,7 @@ def build_worker_command(
         command.extend(["--prompt", prompt])
         return command
 
-    if provider == "trae":
+    if adapter == "trae":
         trajectory_path = result_path.parent.parent / "logs" / (
             result_path.stem + "-trae-trajectory.json"
         )
@@ -734,6 +1158,19 @@ def build_worker_command(
             command.extend(["--provider", model_provider])
         command.extend(configured_model_args("--model", route["model"]))
         command.extend(extra_args)
+        return command
+
+    if adapter == "muse":
+        command = prefix + ["exec", "--json"]
+        # Write authority is opt-in per provider config; both default to off.
+        if provider_cfg.get("trust_workspace", False) is True:
+            command.append(MUSE_TRUST_WORKSPACE_FLAG)
+        if provider_cfg.get("disable_approval", False) is True:
+            command.append(MUSE_DISABLE_APPROVAL_FLAG)
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="muse"))
+        command.extend(extra_args)
+        command.append(prompt)
         return command
 
     raise RunnerError(f"Unsupported provider adapter: {provider}")
@@ -764,6 +1201,7 @@ def run_process(
     *,
     timeout_seconds: int,
     stream_output: bool,
+    env: dict[str, str] | None = None,
 ) -> tuple[int, str, str]:
     log_path.parent.mkdir(parents=True, exist_ok=True)
     stdout_lines: list[str] = []
@@ -785,6 +1223,7 @@ def run_process(
                 encoding="utf-8",
                 errors="replace",
                 bufsize=1,
+                env=env,
             )
         except FileNotFoundError:
             return 127, "", "Provider executable disappeared after preflight"
@@ -883,7 +1322,7 @@ def decode_json_candidates(text: str, *, maximum: int = 200) -> list[Any]:
 
 def extract_report(value: Any) -> dict[str, Any] | None:
     if isinstance(value, dict):
-        if value.get("status") in {"completed", "blocked"} and isinstance(value.get("summary"), str):
+        if isinstance(value.get("status"), str) and value["status"] in {"completed", "blocked"} and isinstance(value.get("summary"), str):
             return value
         for key in (
             "structured_output",
@@ -1034,6 +1473,9 @@ def run_validation_commands(
     commands: list[str],
     log_path: Path,
     timeout_seconds: int,
+    *,
+    evidence_path: Path | None = None,
+    seen_lines: list[str] | None = None,
 ) -> tuple[bool, list[dict[str, Any]], str | None]:
     results: list[dict[str, Any]] = []
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1098,6 +1540,28 @@ def run_validation_commands(
                 }
             )
             if not passed:
+                failed = results[-1]
+                built = resource_watch.build_failure_packet(
+                    log_path,
+                    start_offset=output_start,
+                    command=command,
+                    exit_code=exit_code,
+                    signature=validation_failure_fingerprint([failed]),
+                    process={"timed_out": "Timed out after" in output, "exit_code": exit_code},
+                    resources={
+                        "unhealthy_samples": failed.get("unhealthy_samples", 0),
+                        "environment_failure": failed["failure_class"] == "environmental",
+                    },
+                    progress={
+                        "validation_stalled": failed["validation_stalled"],
+                        "idle_seconds": failed["validation_idle_seconds"],
+                    },
+                    seen=seen_lines,
+                )
+                failed["failure_evidence"] = built["packet"]
+                if evidence_path is not None:
+                    evidence_path.parent.mkdir(parents=True, exist_ok=True)
+                    planctl.atomic_write_json(evidence_path, built)
                 reason = f"Validation failed: {command} (exit {exit_code})\n{output_tail(output)}"
                 return False, results, reason
     return True, results, None
@@ -1181,9 +1645,11 @@ def execute_one_task(
     provider_override: str | None,
     dry_run: bool,
     no_wait: bool,
+    catalog_models: dict[str, dict[str, str]] | None = None,
 ) -> bool:
     repo_root = Path(manifest["repo_root"])
     dispatches = 0
+    model_refreshed = False
     visited = {"design": set(), "implementation": set()}
     maximum = config.get("availability", {}).get("max_attempts_per_run", 7)
     while True:
@@ -1205,9 +1671,21 @@ def execute_one_task(
         intent = choose_route(routing_task, config, provider_override, check_availability=False)
         route = availability.select(
             plan_dir, routing_task, config, intent, provider_override, phase, visited[phase],
-            lambda provider: executable_available(command_prefix(config[provider].get("command", provider))),
+            lambda provider: executable_available(provider_prefix(provider, config)),
             clamp_effort, persist=not dry_run,
         )
+        route = resolve_snapshot_route(plan_dir, routing_task, route, config, catalog_models)
+        shadow = shadow_candidate(routing_task, route, config, provider_override, phase=phase) if shadow_enabled(config) else None
+        if shadow is not None and auto_select_mode(config) == "on":
+            ladder = route
+            route, shadow["auto"] = auto_route(
+                plan_dir, repo_root, routing_task, route, config, shadow, phase=phase, catalog_models=catalog_models
+            )
+            if shadow["auto"]["applied"]:
+                shadow["ladder"] = {key: ladder.get(key) for key in SHADOW_ROUTE_KEYS}
+                shadow["executed"] = {key: route.get(key) for key in SHADOW_ROUTE_KEYS}
+        if shadow is not None and not dry_run:
+            record_shadow(plan_dir, shadow, repo_root)
         visited[phase].add(route["provider"])
         dispatches += 1
         if phase == "design":
@@ -1226,9 +1704,13 @@ def execute_one_task(
         prompt += assistant_triage.hint(plan_dir, task, config)
         command = build_worker_command(route["provider"], route, config, prompt, result_path)
         if dry_run:
-            print(json.dumps({"task": task["id"], "route": route, "command": redact_command(command)}, indent=2))
+            preview = {"task": task["id"], "route": route, "command": redact_command(command)}
+            if shadow is not None:
+                preview["shadow"] = shadow
+            print(json.dumps(preview, indent=2))
             return False
 
+        env = spawn_env(route["provider"], config)
         print(
             f"[task {task['id']}] {task['title']} — {route['provider']} / {route['model']} / {route['effort']}",
             flush=True,
@@ -1236,6 +1718,7 @@ def execute_one_task(
         claimed = planctl.claim_task(plan_dir, manifest, task["id"], route)
         attempt_number = claimed["attempts"]
         log_path = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-{route['provider']}.log"
+        started = time.monotonic()
         try:
             return_code, stdout, stderr = run_process(
                 command,
@@ -1243,11 +1726,26 @@ def execute_one_task(
                 log_path,
                 timeout_seconds=max(0, int(config.get("task_timeout_seconds", 0))),
                 stream_output=bool(config.get("stream_provider_output", True)),
+                env=env,
             )
         except KeyboardInterrupt:
             refresh_manifest(plan_dir, manifest)
             release_interrupted_task(plan_dir, manifest, task["id"])
             raise
+        elapsed = time.monotonic() - started
+
+        def record_attempt(outcome: str, failure_class: str | None = None, validation_pass: bool | None = None) -> None:
+            try:
+                profile = provider_profile(route["provider"], config)
+                entry = routing_telemetry.build_record(
+                    task=task, route=route, profile=profile, kind="retry" if attempt_number > 1 else "root",
+                    stdout=stdout, latency_seconds=elapsed, outcome=outcome, failure_class=failure_class,
+                    validation_pass=validation_pass, retry_count=max(0, attempt_number - 1),
+                )
+                routing_telemetry.append_record(plan_dir, entry, repo_root)
+            except Exception as exc:  # noqa: BLE001 - telemetry must not stop execution
+                print(f"[telemetry] not recorded: {type(exc).__name__}", file=sys.stderr)
+
         refresh_manifest(plan_dir, manifest)
         task = planctl.find_task(manifest, task["id"])
 
@@ -1256,6 +1754,20 @@ def execute_one_task(
             release_interrupted_task(plan_dir, manifest, task["id"])
             raise KeyboardInterrupt
         category = availability.classify(return_code, combined, configured_retry_exit_codes(route["provider"], config))
+        if (category == "configuration" and not model_refreshed and snapshot_resolution(config)
+                and INVALID_MODEL.search(combined[-16000:])):
+            # A retired/renamed model id is a configuration event, not task
+            # evidence: refresh the snapshot once and redispatch the same rung.
+            model_refreshed = True
+            release_for_model_refresh(plan_dir, manifest, task["id"], f"Invalid model {route['model']}; snapshot refreshed")
+            refresh_model_snapshot(plan_dir, route["provider"])
+            refresh_manifest(plan_dir, manifest)
+            task = planctl.find_task(manifest, task["id"])
+            visited[phase].discard(route["provider"])
+            print(f"[task {task['id']}] invalid model {route['model']}; snapshot refreshed once, redispatching", file=sys.stderr)
+            continue
+        if category:
+            record_attempt(category, "plan_defect" if category == "configuration" else None)
         if category == "configuration":
             planctl.fail_task(plan_dir, manifest, task["id"], "Provider rejected its arguments/model; repair configuration", failure_class="plan_defect")
             return False
@@ -1269,12 +1781,14 @@ def execute_one_task(
         if return_code != 0:
             reason = f"Provider exited with {return_code}: {output_tail(combined)}"
             cls = classify_report_failure(report, combined)
+            record_attempt("provider_error", cls)
             planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
             print(f"[task {task['id']}] provider failure ({cls}); next route follows the evidence ladder", file=sys.stderr)
             return False
         if not report:
             reason = f"Provider returned no valid completion report. Output: {output_tail(combined)}"
             cls = classify_report_failure(None, combined)
+            record_attempt("invalid_report", cls)
             planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
             print(f"[task {task['id']}] invalid report ({cls}); next route follows the evidence ladder", file=sys.stderr)
             return False
@@ -1283,6 +1797,7 @@ def execute_one_task(
         if _plan_context_files(
             reported_context_files, plan_dir, expected_context_files, task.get("file")
         ) != sorted(_plan_relative_files(expected_context_files, plan_dir)):
+            record_attempt("report_mismatch")
             reason = (
                 "Worker context report mismatch: expected "
                 f"{expected_context_files!r}, received {reported_context_files!r}"
@@ -1293,6 +1808,7 @@ def execute_one_task(
         expected_learning_files = list(task.get("learning_files", []))
         reported_learning_files = report.get("learning_files_read")
         if _plan_relative_files(reported_learning_files, plan_dir, task.get("file")) != _plan_relative_files(expected_learning_files, plan_dir):
+            record_attempt("report_mismatch")
             reason = (
                 "Worker learning report mismatch: expected "
                 f"{expected_learning_files!r}, received {reported_learning_files!r}"
@@ -1308,6 +1824,7 @@ def execute_one_task(
                 task = planctl.find_task(manifest, task["id"])
                 continue
             cls = classify_report_failure(report, reason)
+            record_attempt("blocked", cls)
             planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
             atomic = {**report, "orchestrator_status": "failed"}
             planctl.atomic_write_json(result_path, atomic)
@@ -1315,12 +1832,27 @@ def execute_one_task(
             return False
 
         validation_log = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-validation.log"
-        passed, validation_results, validation_reason = run_validation_commands(
-            repo_root,
-            list(task["validation_commands"]),
-            validation_log,
-            validation_timeout_seconds(task, config),
-        )
+        previous_owner = {key: os.environ.get(key) for key in ("PAE_ARTIFACT_SCOPE", "PAE_ARTIFACT_OWNER")}
+        os.environ["PAE_ARTIFACT_SCOPE"], os.environ["PAE_ARTIFACT_OWNER"] = "task", str(task["id"])
+        try:
+            resource_watch.register_artifact(repo_root, validation_log)
+            evidence_path = evidence_packet_path(validation_log)
+            resource_watch.register_artifact(repo_root, evidence_path)
+            previous_packet = load_evidence_packet(previous_evidence_path(plan_dir, task))
+            passed, validation_results, validation_reason = run_validation_commands(
+                repo_root,
+                list(task["validation_commands"]),
+                validation_log,
+                validation_timeout_seconds(task, config),
+                evidence_path=evidence_path,
+                seen_lines=list(previous_packet.get("seen") or []),
+            )
+        finally:
+            for key, value in previous_owner.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
         report["validation_results"] = validation_results
         reported_files = report.get("changed_files")
         if not isinstance(reported_files, list) or not reported_files:
@@ -1331,23 +1863,14 @@ def execute_one_task(
             # A worker that claimed completion but failed deterministic validation
             # misjudged the work: a reasoning gap (semantic) unless it declares a
             # narrower class itself.
-            declared = str(report.get("failure_class") or "").strip().lower()
-            monitor_class = next(
-                (item.get("failure_class") for item in validation_results if item.get("failure_class") == "environmental"),
-                None,
-            )
-            stalled = any(item.get("validation_stalled") is True for item in validation_results)
+            cls = validation_failure_class(validation_results, report.get("failure_class"))
             stalled_after_five = any(
                 isinstance(item.get("validation_idle_seconds"), int)
                 and item["validation_idle_seconds"] >= 300
                 for item in validation_results
             )
-            semantic_monitor = next(
-                (item.get("failure_class") for item in validation_results if item.get("failure_class") == "semantic"),
-                None,
-            )
-            cls = monitor_class or semantic_monitor or ("semantic" if stalled else (declared if declared in routingctl.FAILURE_CLASSES else "semantic"))
             signature = validation_failure_fingerprint(validation_results)
+            record_attempt("validation_failed", cls, False)
             planctl.fail_task(
                 plan_dir,
                 manifest,
@@ -1362,7 +1885,9 @@ def execute_one_task(
                 ),
                 validation_log=validation_log.relative_to(plan_dir).as_posix(),
             )
-            advice_result = assistant_triage.triage(plan_dir, task, validation_results, config)
+            advice_result = advisory_only(
+                assistant_triage.triage(plan_dir, task, diagnostic_results(validation_results), config)
+            )
             if advice_result.get("reason") != "not_eligible":
                 report["assistant_triage"] = advice_result
                 planctl.atomic_write_json(result_path, report)
@@ -1372,10 +1897,12 @@ def execute_one_task(
             return False
 
         report["orchestrator_status"] = "completed"
+        record_attempt("completed", None, True)
         planctl.atomic_write_json(result_path, report)
         relative_result = result_path.relative_to(plan_dir).as_posix()
         try:
             planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result)
+            resource_watch.cleanup_artifacts(repo_root, "task", str(task["id"]))
         except planctl.PlanError as exc:
             # Optional worker metadata must not strand validated work in progress.
             # Keep required completion evidence so a retry cannot bypass its checks.
@@ -1449,6 +1976,7 @@ def run_design_phase(
     if dry_run:
         print(json.dumps({"task": task["id"], "phase": "design", "route": route, "command": redact_command(command)}, indent=2))
         return "dry_run"
+    env = spawn_env(route["provider"], config)
     print(f"[task {task['id']}] design phase — {route['provider']} / {route['model']} / {route['effort']}", flush=True)
     planctl.claim_task(plan_dir, manifest, task["id"], {**route, "phase": "design"})
     attempt_number = planctl.find_task(manifest, task["id"])["attempts"]
@@ -1460,6 +1988,7 @@ def run_design_phase(
             log_path,
             timeout_seconds=max(0, int(config.get("task_timeout_seconds", 0))),
             stream_output=bool(config.get("stream_provider_output", True)),
+            env=env,
         )
     except KeyboardInterrupt:
         refresh_manifest(plan_dir, manifest)
@@ -1573,9 +2102,12 @@ def build_summary_command(
     output_path: Path,
 ) -> list[str]:
     provider_cfg = config[provider]
-    prefix = command_prefix(provider_cfg.get("command", provider))
+    profile = provider_profile(provider, config)
+    adapter = profile["adapter"]
+    prefix = command_prefix(profile["command"])
     extra_args = provider_cfg.get("extra_args", [])
-    if provider == "claude":
+    # Each adapter below pins its own read-only mode; an adapter without one fails closed before spawning.
+    if adapter == "claude":
         command = prefix + claude_bare_flags() + [
             "--print",
             "--no-session-persistence",
@@ -1589,7 +2121,7 @@ def build_summary_command(
         command.extend(extra_args)
         command.append(prompt)
         return command
-    if provider == "codex":
+    if adapter == "codex":
         command = prefix + [
             "exec",
             "--ephemeral",
@@ -1609,7 +2141,7 @@ def build_summary_command(
         command.extend(extra_args)
         command.append(prompt)
         return command
-    if provider == "antigravity":
+    if adapter == "antigravity":
         command = list(prefix)
         if provider_cfg.get("summary_skip_permissions", True):
             command.append("--dangerously-skip-permissions")
@@ -1622,7 +2154,7 @@ def build_summary_command(
         command.extend(extra_args)
         command.extend(["-p", prompt])
         return command
-    if provider == "gemini":
+    if adapter == "gemini":
         command = prefix + [
             "--approval-mode",
             str(provider_cfg.get("summary_approval_mode", "default")),
@@ -1635,7 +2167,7 @@ def build_summary_command(
         command.extend(extra_args)
         command.extend(["--prompt", prompt])
         return command
-    if provider == "qwen":
+    if adapter == "qwen":
         command = prefix
         if provider_cfg.get("safe_mode", True):
             command.append("--safe-mode")
@@ -1649,7 +2181,7 @@ def build_summary_command(
         command.extend(extra_args)
         command.extend(["--prompt", prompt])
         return command
-    if provider == "kimi":
+    if adapter == "kimi":
         command = prefix + [
             "--output-format",
             "stream-json",
@@ -1667,7 +2199,7 @@ def build_summary_command(
         command.extend(extra_args)
         command.extend(["--prompt", prompt])
         return command
-    if provider == "trae":
+    if adapter == "trae":
         trajectory_path = output_path.parent / "logs" / "final-summary-trae-trajectory.json"
         command = prefix + [
             "run",
@@ -1682,6 +2214,21 @@ def build_summary_command(
             command.extend(["--provider", model_provider])
         command.extend(configured_model_args("--model", route["model"]))
         command.extend(extra_args)
+        return command
+    if adapter == "muse":
+        if not isinstance(extra_args, list) or not all(isinstance(item, str) for item in extra_args):
+            raise RunnerError(f"{provider}.extra_args must be a list of strings")
+        widening = [item for item in extra_args if item in MUSE_WRITE_FLAGS]
+        if widening:
+            raise RunnerError(f"Muse summary is read-only; {widening[0]} cannot be passed to it")
+        command = prefix + ["exec", "--json", MUSE_READ_ONLY_FLAG]
+        command.extend(configured_model_args("--model", route["model"]))
+        command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="muse"))
+        command.extend(extra_args)
+        command.append(prompt)
+        # Fail closed before spawning if the read-only flag is not provably in the argv.
+        if MUSE_READ_ONLY_FLAG not in command[: len(command) - 1]:
+            raise RunnerError("Muse summary requires --disable-write and it is absent; refusing to spawn")
         return command
     raise RunnerError(f"Unsupported summary provider adapter: {provider}")
 
@@ -1728,9 +2275,40 @@ def extract_text_output(value: Any) -> str:
     return ""
 
 
+MUSE_TEXT_KEYS = ("result", "response", "final_message", "final_output", "answer", "text", "message", "content", "output")
+
+
+def muse_summary_text(stdout: str) -> str:
+    """Last text-bearing event of a Muse JSON envelope or JSONL stream.
+
+    Only named text keys are read: bookkeeping events (usage, init) carry no summary and
+    their `type` strings must never be mistaken for one.
+    """
+    events: list[Any] = []
+    try:
+        events.append(json.loads(stdout))
+    except json.JSONDecodeError:
+        for line in stdout.splitlines():
+            try:
+                events.append(json.loads(line.strip()))
+            except json.JSONDecodeError:
+                continue
+    for event in reversed(events):
+        if not isinstance(event, dict):
+            continue
+        for key in MUSE_TEXT_KEYS:
+            if key in event:
+                found = extract_text_output(event[key])
+                if found:
+                    return found
+    return ""
+
+
 def summary_stdout_text(provider: str, stdout: str, output_path: Path) -> str:
     if provider == "codex":
         return output_path.read_text(encoding="utf-8").strip() if output_path.is_file() else ""
+    if provider == "muse":
+        return muse_summary_text(stdout) if stdout.strip() else ""
     if not stdout.strip():
         return ""
     try:
@@ -1774,13 +2352,20 @@ def generate_final_summary(
     rate_cycle = 0
     try:
         route = summary_route(config)
+        env = spawn_env(route["provider"], config)
     except RunnerError:
         fallback = planctl.deterministic_summary(manifest)
         planctl.atomic_write_text(output_path, fallback)
         return fallback, output_path.relative_to(plan_dir).as_posix()
 
     while True:
-        command = build_summary_command(route["provider"], route, config, prompt, output_path)
+        try:
+            command = build_summary_command(route["provider"], route, config, prompt, output_path)
+        except RunnerError:
+            # No provable read-only mode: nothing is spawned and the deterministic summary stands in.
+            fallback = planctl.deterministic_summary(manifest)
+            planctl.atomic_write_text(output_path, fallback)
+            return fallback, output_path.relative_to(plan_dir).as_posix()
         log_path = plan_dir / "logs" / f"final-summary-{route['provider']}.log"
         print(f"[summary] {route['provider']} / {route['model']} / {route['effort']}", flush=True)
         return_code, stdout, stderr = run_process(
@@ -1789,6 +2374,7 @@ def generate_final_summary(
             log_path,
             timeout_seconds=max(0, int(config.get("task_timeout_seconds", 0))),
             stream_output=False,
+            env=env,
         )
         combined = f"{stdout}\n{stderr}"
         if return_code != 0 and is_provider_availability_failure(
@@ -1798,8 +2384,9 @@ def generate_final_summary(
                 rate_cycle += 1
                 continue
         if return_code == 0:
-            summary = summary_stdout_text(route["provider"], stdout, output_path)
-            if summary and route["provider"] != "codex":
+            adapter = provider_profile(route["provider"], config)["adapter"]
+            summary = summary_stdout_text(adapter, stdout, output_path)
+            if summary and adapter != "codex":
                 planctl.atomic_write_text(output_path, summary + "\n")
             if summary:
                 return summary + "\n", output_path.relative_to(plan_dir).as_posix()
@@ -1812,6 +2399,10 @@ def _run_plan(args: argparse.Namespace) -> int:
     plan_dir, manifest = planctl.load_plan(args.plan)
     planctl.require_valid(plan_dir, manifest)
     config = load_config(plan_dir)
+    stale = stale_snapshot_warning(plan_dir)
+    if stale:
+        print(f"[resume] warning: {stale}", file=sys.stderr)
+    catalog_models = resume_provider_models(plan_dir, config, args.provider)
 
     if args.dry_run:
         task = planctl.next_runnable_task(manifest)
@@ -1826,6 +2417,7 @@ def _run_plan(args: argparse.Namespace) -> int:
             provider_override=args.provider,
             dry_run=True,
             no_wait=True,
+            catalog_models=catalog_models,
         )
         return 0
 
@@ -1843,6 +2435,7 @@ def _run_plan(args: argparse.Namespace) -> int:
                 provider_override=args.provider,
                 dry_run=False,
                 no_wait=args.no_wait,
+                catalog_models=catalog_models,
             )
             completed_this_run += 1
             if args.once:
@@ -1869,6 +2462,7 @@ def _run_plan(args: argparse.Namespace) -> int:
         # the completed plan is intentionally retained for inspection.
         lifecyclectl.clear_active(plan_dir)
         if should_cleanup:
+            resource_watch.cleanup_artifacts(Path(manifest["repo_root"]), "plan", plan_dir.name)
             planctl.cleanup_plan(plan_dir, manifest)
             print("\n[cleanup] Planning artifacts deleted; implementation files were preserved.")
         else:

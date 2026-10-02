@@ -101,8 +101,10 @@ def wizard(config: dict, installed: dict, ask: Callable[[Question], str]) -> dic
         raise rc.ConfigError('Nenhuma CLI autenticada disponivel. Instale e autentique um provedor antes de configurar.')
     result = {'version': 2, 'tier_routes': {}}
     selected = set()
-    for tier in rc.TIER_ORDER:
-        primary = _ask(ask, f'{tier}.primary', f'{tier}: provedor principal?', ready)
+    # Tiers without a configured model in any ready provider are skipped (PAT001).
+    tiers = [t for t in rc.TIER_ORDER if any(config.get(p, {}).get('models', {}).get(t) for p in ready)]
+    for tier in tiers:
+        primary =_ask(ask, f'{tier}.primary', f'{tier}: provedor principal?', ready)
         remaining = [p for p in ready if p != primary]
         fallbacks = []
         while remaining:
@@ -214,9 +216,82 @@ def save(path: Path, value: dict, expected: bytes | None) -> None:
 
 def summary(config: dict) -> dict:
     """Allowlisted summary: never echo credentials, raw commands, or extra args."""
-    return {'tier_routes': copy.deepcopy(config.get('tier_routes', {})),
-            'models': {p: copy.deepcopy(config[p].get('models', {})) for p in rc.PROVIDERS},
-            'assistant': copy.deepcopy(config['assistant'])}
+    result = {'tier_routes': copy.deepcopy(config.get('tier_routes', {})),
+              'models': {p: copy.deepcopy(config[p].get('models', {})) for p in rc.PROVIDERS},
+              'assistant': copy.deepcopy(config['assistant'])}
+    profiles = {name: {k: p[k] for k in ('harness', 'base_url_env', 'token_env') if k in p}
+                for name, p in config.get('profiles', {}).items()}
+    if profiles:
+        result['profiles'] = profiles
+    return result
+
+
+# Optional providers that need no CLI of their own; everything else is claude/codex today.
+PROFILE_PRESETS = ('glm', 'deepseek')
+DOCTOR_PROVIDERS = ('muse', *PROFILE_PRESETS)
+
+
+def profile_preset(name: str, harness: str | None = None) -> dict:
+    if name == 'glm':
+        if harness not in (None, 'claude'):
+            raise rc.ConfigError('glm profile uses the claude harness')
+        return rc.glm_profile()
+    if name == 'deepseek':
+        return rc.deepseek_profile(harness or 'claude')
+    raise rc.ConfigError(f'Unknown profile preset: {name}; use {", ".join(PROFILE_PRESETS)}')
+
+
+def set_profile(path: Path, name: str, harness: str | None = None, *, dry_run: bool = False, write=print) -> dict:
+    """Save a preset profile (env-var names only) into the config file; no probing, no secrets."""
+    path = safe_path(path)
+    before = snapshot(path)
+    raw = rc.read(path) if before is not None else {}
+    value = rc.merge(raw, {'version': raw.get('version', 2)})
+    value.setdefault('profiles', {})[name] = profile_preset(name, harness)
+    rc.validate(value, partial=True)
+    write(json.dumps({'path': str(path), 'profiles': {name: value['profiles'][name]}}, indent=2, ensure_ascii=False))
+    if not dry_run:
+        save(path, value, before)
+    return value
+
+
+def doctor(path: Path, *, env: dict | None = None, which=shutil.which, cache_store=None) -> dict:
+    """Stable, secret-free report for configured optional providers; empty when none are configured."""
+    import model_catalogctl as mcc
+    env = os.environ if env is None else env
+    path = safe_path(path)
+    raw = rc.read(path) if snapshot(path) is not None else {}
+    rc.validate(raw, partial=True)
+    profiles = raw.get('profiles', {})
+    used = {raw[p]['profile'] for p in rc.PROVIDERS if isinstance(raw.get(p), dict) and 'profile' in raw[p]}
+    routed = {raw.get('tier_routes', {}).get(t, {}).get('primary') for t in rc.TIER_ORDER}
+    routed.update(f for t in raw.get('tier_routes', {}).values() for f in t.get('fallbacks', []))
+    configured = sorted(n for n in DOCTOR_PROVIDERS if n in profiles or n in used or n in routed
+                        or (n in rc.PROVIDERS and isinstance(raw.get(n), dict) and raw[n]))
+    effective = rc.merge(rc.EXTRA_DEFAULTS, raw)
+    store = cache_store or mcc.CatalogStore()
+    providers = {}
+    for name in configured:
+        entry: dict = {'harness': None, 'command': None, 'command_found': False,
+                       'base_url_env': None, 'base_url_set': None, 'token_env': None, 'token_set': None}
+        profile = profiles.get(name)
+        if profile is not None:
+            entry['harness'] = profile['harness']
+            for key in ('base_url_env', 'token_env'):
+                var = profile.get(key)
+                entry[key] = var
+                entry[key.replace('_env', '_set')] = bool(var and env.get(var))
+            command = profile.get('command') or effective.get(profile['harness'], {}).get('command', profile['harness'])
+        else:
+            entry['harness'] = 'native'
+            command = raw.get(name, {}).get('command', name) if isinstance(raw.get(name), dict) else name
+        prefix = command_prefix(command)
+        entry['command'] = prefix[0]
+        entry['command_found'] = bool(which(prefix[0]))
+        record, origin, _notes = mcc.effective_record(store, name)
+        entry['catalog'] = {'origin': origin, 'catalog_version': record['catalog_version'] if record else None}
+        providers[name] = entry
+    return {'version': 1, 'config_path': str(path), 'configured': configured, 'providers': providers}
 
 
 def configure(path: Path, *, plan: bool = False, dry_run: bool = False, show: bool = False,
@@ -261,14 +336,24 @@ def main(argv=None) -> int:
     group.add_argument('--config', type=Path, help='Configuration file; default is user-global')
     group.add_argument('--plan', type=Path, help='Existing plan directory; save an explicit per-plan overlay')
     parser.add_argument('--show', action='store_true', help='Show allowlisted effective configuration; no probing')
-    parser.add_argument('--json', action='store_true', help='With --show only')
+    parser.add_argument('--json', action='store_true', help='With --show or --doctor only')
     parser.add_argument('--dry-run', action='store_true', help='Ask and preview without saving')
+    parser.add_argument('--doctor', action='store_true', help='JSON report of configured optional providers; env-var presence only')
+    parser.add_argument('--profile', choices=PROFILE_PRESETS, help='Save a preset provider profile (env-var names only)')
+    parser.add_argument('--harness', choices=rc.HARNESSES, help='Harness for --profile deepseek (claude or codex)')
     args = parser.parse_args(argv)
-    if args.json and not args.show:
-        parser.error('--json requires --show; interactive questions are separate')
+    if args.json and not (args.show or args.doctor):
+        parser.error('--json requires --show or --doctor; interactive questions are separate')
+    if args.harness and not args.profile:
+        parser.error('--harness requires --profile')
     path = args.plan / planctl.CONFIG if args.plan else args.config or rc.global_path()
     try:
-        configure(path, plan=bool(args.plan), dry_run=args.dry_run, show=args.show)
+        if args.doctor:
+            print(json.dumps(doctor(path), indent=2, ensure_ascii=False, sort_keys=True))
+        elif args.profile:
+            set_profile(path, args.profile, args.harness, dry_run=args.dry_run)
+        else:
+            configure(path, plan=bool(args.plan), dry_run=args.dry_run, show=args.show)
         return 0
     except Cancelled:
         print('Configuracao cancelada; arquivo inalterado.')

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 import tempfile
 from argparse import Namespace
 from pathlib import Path
@@ -122,9 +123,50 @@ def test_completed_stale_signatory_is_rejected() -> None:
         assert any("completed TODO 001 is stale" in error for error in errors), errors
 
 
+def test_cli_accepts_plan_created_by_concise_controller() -> None:
+    scripts = Path(__file__).resolve().parent
+    with tempfile.TemporaryDirectory() as temp:
+        root = Path(temp)
+        repo = create_repo(root)
+        spec_path = root / "spec.json"
+        spec_path.write_text(json.dumps(sample_spec()), encoding="utf-8")
+        subprocess.run(
+            [sys.executable, str(scripts / "planctl_concise.py"), "create", "--repo-root", str(repo),
+             "--spec", str(spec_path), "--plan-id", "concise-patterns"],
+            check=True, capture_output=True, text=True,
+        )
+        plan_dir = repo / ".ai-work" / "concise-patterns"
+        pattern_path = root / "patterns.json"
+        pattern_path.write_text(
+            json.dumps(
+                {
+                    "patterns": [
+                        {
+                            "id": "PAT001",
+                            "title": "Shared marker format",
+                            "contract": ["Both TODOs use the same marker representation."],
+                            "source_refs": ["R001", "R002"],
+                            "rationale": "Two TODOs consume the same marker contract.",
+                            "signatories": ["001", "002"],
+                        }
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        for command in (["init", "--spec", str(pattern_path)], ["validate"]):
+            result = subprocess.run(
+                [sys.executable, str(scripts / "patternctl.py"), command[0], "--plan", str(plan_dir), *command[1:]],
+                capture_output=True, text=True,
+            )
+            assert result.returncode == 0, (command[0], result.stderr)
+        assert (plan_dir / "patterns" / "assignments" / "001.md").is_file()
+
+
 def main() -> int:
     test_pattern_assignment_adoption_and_revision_invalidation()
     test_completed_stale_signatory_is_rejected()
+    test_cli_accepts_plan_created_by_concise_controller()
     print("All shared-pattern self-tests passed.")
     return 0
 

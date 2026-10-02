@@ -6,9 +6,11 @@ from __future__ import annotations
 import argparse
 from collections import deque
 import datetime as dt
+import hashlib
 import json
 import os
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -23,6 +25,105 @@ import process_tree
 
 def stamp() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+
+
+def spawnable(command: list[str]) -> list[str]:
+    """CreateProcess ignores PATHEXT, so `npm`/`npx` shims (`npm.cmd`) need explicit resolution on Windows."""
+    if os.name == "nt" and command:
+        resolved = shutil.which(command[0])
+        if resolved:
+            return [resolved, *command[1:]]
+    return command
+
+SCOPES = ("task", "plan", "project-shared", "temporary")
+RETENTIONS = ("on-task-end", "on-plan-end", "keep")
+REGISTRY_RELATIVE = ".ai-work/resource-watch/registry.jsonl"
+SKILL_TREE_RELATIVE = "skill/plan-and-execute"
+
+
+def artifact_owner_from_env() -> tuple[str, str]:
+    scope = os.environ.get("PAE_ARTIFACT_SCOPE", "temporary")
+    owner = os.environ.get("PAE_ARTIFACT_OWNER", "")
+    if scope not in SCOPES:
+        scope = "temporary"
+    return scope, owner
+
+
+def _inside(path: Path, parent: Path) -> bool:
+    try:
+        path.resolve().relative_to(parent.resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def register_artifact(
+    repo_root: Path, path: Path, scope: str | None = None, owner: str | None = None, retention: str | None = None
+) -> None:
+    """Record owner scope and retention; monitoring output never lands in the skill tree."""
+    env_scope, env_owner = artifact_owner_from_env()
+    scope = scope or env_scope
+    owner = env_owner if owner is None else owner
+    if scope not in SCOPES:
+        raise service_map.MapError(f"Unknown artifact scope: {scope}")
+    if retention is None:
+        retention = {"task": "on-task-end", "plan": "on-plan-end"}.get(scope, "on-plan-end")
+    if retention not in RETENTIONS:
+        raise service_map.MapError(f"Unknown artifact retention: {retention}")
+    if _inside(path, repo_root / SKILL_TREE_RELATIVE):
+        raise service_map.MapError(f"Refusing monitor artifact inside the skill tree: {path}")
+    registry = repo_root / REGISTRY_RELATIVE
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    record = {"path": str(path.resolve()), "scope": scope, "owner": owner, "retention": retention, "created": stamp()}
+    with registry.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, sort_keys=True) + chr(10))
+
+
+def cleanup_artifacts(repo_root: Path, scope: str, owner: str = "", held: set[str] | None = None) -> list[str]:
+    """Remove eligible artifacts of one scope/owner; keep project-shared, retained and still-referenced ones."""
+    registry = repo_root / REGISTRY_RELATIVE
+    if not registry.is_file():
+        return []
+    held = {str(Path(item).resolve()) for item in (held or set())}
+    kept: list[str] = []
+    removed: list[str] = []
+    for line in registry.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            record = json.loads(line)
+        except ValueError:
+            continue
+        eligible = (
+            scope != "project-shared"
+            and record.get("scope") == scope
+            and record.get("owner", "") == owner
+            and record.get("retention") != "keep"
+            and record.get("path") not in held
+        )
+        target = Path(record.get("path", ""))
+        if eligible and _inside(target, repo_root / ".ai-work"):
+            try:
+                if target.is_file() or target.is_symlink():
+                    target.unlink()
+                removed.append(str(target))
+            except OSError:
+                kept.append(line)
+        elif eligible:
+            removed.append(str(target))
+        else:
+            kept.append(line)
+    if kept:
+        registry.write_text(chr(10).join(kept) + chr(10), encoding="utf-8")
+    else:
+        registry.unlink()
+    return removed
+
+
+def cleanup_command(args: argparse.Namespace) -> int:
+    removed = cleanup_artifacts(Path(args.repo_root).resolve(), args.scope, args.owner)
+    print(f"[resource-watch] cleanup scope={args.scope} owner={args.owner} removed={len(removed)}")
+    return 0
 
 
 def excerpt(value: str, limit: int = 240) -> str:
@@ -46,11 +147,130 @@ def progress_line(value: str) -> str:
     return " ".join(result.split())[:500]
 
 
+PACKET_BUDGET_BYTES = 4096
+PACKET_SCAN_BYTES = 65536
+PACKET_FIRST_BYTES = 1200
+PACKET_SEEN_LIMIT = 2048
+FAILURE_MARKER = re.compile(r"\b(?:error|fail(?:ed|ure)?|traceback|exception|assert(?:ion)?)\b", re.IGNORECASE)
+
+
+def _line_key(line: str) -> str:
+    return hashlib.sha256(progress_line(line).encode("utf-8", "replace")).hexdigest()[:16]
+
+
+def _read_window(path: Path, start: int, size: int, *, tail: bool) -> str:
+    try:
+        with path.open("rb") as source:
+            end = source.seek(0, os.SEEK_END)
+            begin = max(start, end - size) if tail else min(start, end)
+            source.seek(begin)
+            return source.read(size).decode("utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+def build_failure_packet(
+    log_path: Path,
+    *,
+    start_offset: int = 0,
+    command: str = "",
+    exit_code: int | None = None,
+    signature: str | None = None,
+    process: dict[str, Any] | None = None,
+    resources: dict[str, Any] | None = None,
+    progress: dict[str, Any] | None = None,
+    seen: list[str] | None = None,
+    budget_bytes: int = PACKET_BUDGET_BYTES,
+) -> dict[str, Any]:
+    """Bounded FailureEvidencePacket built before any diagnosis; the raw log stays on disk.
+
+    Only the first/last windows of the log are read, so a multi-megabyte log costs
+    O(PACKET_SCAN_BYTES). Lines whose normalized hash is in ``seen`` were reported by an
+    earlier packet and are omitted from ``latest_delta``.
+    """
+    head = _read_window(log_path, start_offset, PACKET_FIRST_BYTES, tail=False)
+    tail = _read_window(log_path, start_offset, PACKET_SCAN_BYTES, tail=True)
+    head_lines = [line for line in head.splitlines() if line.strip()]
+    first_failure = next((line for line in head_lines if FAILURE_MARKER.search(line)), head_lines[0] if head_lines else "")
+    tail_lines = [line for line in tail.splitlines() if line.strip()]
+    if len(tail.encode("utf-8")) >= PACKET_SCAN_BYTES and tail_lines:
+        tail_lines = tail_lines[1:]  # the first tail line may be cut mid-way
+    previous = set(seen or [])
+    delta: list[str] = []
+    delta_keys: list[str] = []
+    for line in reversed(tail_lines):
+        key = _line_key(line)
+        if key in previous or key in delta_keys:
+            continue
+        delta.append(line[:400])
+        delta_keys.append(key)
+    delta.reverse()
+    delta_keys.reverse()
+    try:
+        log_bytes = log_path.stat().st_size
+    except OSError:
+        log_bytes = 0
+    stale_map = "environment_failure=service_map_invalid" in tail
+    packet: dict[str, Any] = {
+        "schema": "failure-evidence-packet/v1",
+        "signature": signature or hashlib.sha256(
+            "\n".join((command, str(exit_code), first_failure)).encode("utf-8", "replace")
+        ).hexdigest(),
+        "command": command[:400],
+        "exit_code": exit_code,
+        "first_failure": first_failure[:400],
+        "latest_delta": delta,
+        "omitted_seen_lines": sum(1 for line in tail_lines if _line_key(line) in previous),
+        "process": process or {},
+        "resources": resources or {},
+        "progress": progress or {},
+        # HD009: a stale service map blocks only mapped validation, not the task's code.
+        "block_scope": "service_map" if stale_map else "validation",
+        "evidence_paths": [str(log_path)],
+        "log_bytes": log_bytes,
+        "budget_bytes": budget_bytes,
+    }
+
+    def size() -> int:
+        return len(json.dumps(packet, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+
+    while size() > budget_bytes and packet["latest_delta"]:
+        packet["latest_delta"].pop(0)
+        delta_keys.pop(0)
+    for key in ("process", "resources", "progress"):
+        if size() > budget_bytes:
+            packet[key] = {"truncated": True}
+    if size() > budget_bytes:
+        packet["first_failure"] = packet["first_failure"][:80]
+    reported = [*(seen or []), *delta_keys][-PACKET_SEEN_LIMIT:]
+    return {"packet": packet, "seen": reported}
+
+
+def stall_decision(
+    now: float,
+    last_progress_at: float,
+    no_progress_timeout: float,
+    *,
+    expected_quiet_seconds: float = 0,
+    last_marker_at: float | None = None,
+) -> tuple[bool, float]:
+    """A stall needs missing progress beyond the quiet-phase policy, not just silence.
+
+    ``last_marker_at`` is the latest ``progress_regex`` match; any marker restarts the
+    idle clock even when its text repeats. Returns (stalled, idle_seconds).
+    """
+    if not no_progress_timeout:
+        return False, 0.0
+    anchor = max(last_progress_at, last_marker_at or last_progress_at)
+    idle = now - anchor
+    return idle >= max(float(no_progress_timeout), float(expected_quiet_seconds or 0)), idle
+
+
 def run_toolchain_check(toolchain: dict[str, Any], repo_root: Path) -> dict[str, Any]:
     started = time.monotonic()
     process: subprocess.Popen[str] | None = None
     try:
-        command = list(toolchain["command"])
+        command = spawnable(list(toolchain["command"]))
         if os.name != "nt":
             command = [sys.executable, str(Path(__file__).resolve()), "_exec-group", *command]
         process = subprocess.Popen(
@@ -100,7 +320,7 @@ def evaluate_check(
 ) -> dict[str, Any]:
     started = time.monotonic()
     process: subprocess.Popen[str] | None = None
-    command = check["command"]
+    command = spawnable(list(check["command"]))
     if os.name != "nt":
         # The trampoline gives each probe its own process group but keeps it in
         # the runner's session, so both local timeout cleanup and the runner's
@@ -257,7 +477,10 @@ def run_validation(args: argparse.Namespace) -> int:
     test_started_at = start
     no_progress_timeout = validation.get("no_progress_timeout_seconds", 300)
     progress_monitor_enabled = bool(no_progress_timeout and os.name != "nt")
+    expected_quiet_seconds = validation.get("expected_quiet_seconds", 0)
+    progress_pattern = re.compile(validation["progress_regex"]) if validation.get("progress_regex") else None
     last_progress_at = start
+    last_marker_at: float | None = None
     deadlines: dict[tuple[str, str], float] = { (resource["id"], check["id"]): start for resource, check in selected }
     intervals = { (resource["id"], check["id"]): check.get("every_seconds", 60) for resource, check in selected }
     grace = { (resource["id"], check["id"]): check.get("startup_grace_seconds", 60) for resource, check in selected }
@@ -268,6 +491,7 @@ def run_validation(args: argparse.Namespace) -> int:
         report_path = repo_root / ".ai-work" / "resource-watch" / f"{dt.datetime.now().strftime('%Y%m%dT%H%M%S')}-{safe_id}-{watch_run_id}.jsonl"
         report_path = service_map.repo_path(repo_root, report_path.as_posix())
     report_path.parent.mkdir(parents=True, exist_ok=True)
+    register_artifact(repo_root, report_path)
     report = report_path.open("a", encoding="utf-8")
 
     def sample(phase: str, pid: int, process_running: bool) -> None:
@@ -374,7 +598,7 @@ def run_validation(args: argparse.Namespace) -> int:
                     file=sys.stderr, flush=True,
                 )
                 return 125
-        test_command = list(validation["command"])
+        test_command = spawnable(list(validation["command"]))
         if os.name != "nt":
             # A separate process group lets the idle detector stop the whole test
             # tree while keeping it in the runner's session for outer-timeout cleanup.
@@ -402,11 +626,13 @@ def run_validation(args: argparse.Namespace) -> int:
         progress_output_seen: set[str] = set()
 
         def read_test_output() -> None:
-            nonlocal last_progress_at
+            nonlocal last_progress_at, last_marker_at
             try:
                 for line in process.stdout:
                     sys.stdout.write(line)
                     sys.stdout.flush()
+                    if progress_pattern is not None and progress_pattern.search(line):
+                        last_marker_at = time.monotonic()
                     normalized = progress_line(line)
                     if normalized and normalized not in progress_output_seen:
                         if len(progress_output_order) >= 512:
@@ -460,7 +686,10 @@ def run_validation(args: argparse.Namespace) -> int:
                 next_progress_sample = now + 20
             if process.poll() is not None and process_metrics is None and now >= next_interval:
                 next_interval = next_process_sample
-            idle_for = now - last_progress_at
+            stall_due, idle_for = stall_decision(
+                now, last_progress_at, no_progress_timeout,
+                expected_quiet_seconds=expected_quiet_seconds, last_marker_at=last_marker_at,
+            )
             dependencies_healthy = not health_failure and all(
                 state == "healthy" for state in check_states.values()
             )
@@ -469,7 +698,7 @@ def run_validation(args: argparse.Namespace) -> int:
                 and idle_detector_available
                 and dependencies_healthy
                 and (process.poll() is None or process_metrics is not None)
-                and idle_for >= no_progress_timeout
+                and stall_due
             ):
                 snapshot = process_metrics or {"cpu_seconds": None, "processes": []}
                 stall = {
@@ -479,6 +708,7 @@ def run_validation(args: argparse.Namespace) -> int:
                     "test_pid": process.pid,
                     "idle_seconds": int(idle_for),
                     "no_progress_timeout_seconds": no_progress_timeout,
+                    "expected_quiet_seconds": expected_quiet_seconds,
                     "process_group": snapshot,
                 }
                 report.write(json.dumps(stall, ensure_ascii=False, separators=(",", ":")) + "\n")
@@ -527,14 +757,24 @@ def parser() -> argparse.ArgumentParser:
     run.add_argument("--validation", required=True)
     run.add_argument("--report", help="optional repository-relative JSONL report path")
     run.set_defaults(func=run_validation)
+    clean = commands.add_parser("cleanup", help="remove registered monitor artifacts for one owner scope")
+    clean.add_argument("--repo-root", default=".")
+    clean.add_argument("--scope", required=True, choices=("task", "plan", "temporary"))
+    clean.add_argument("--owner", default="")
+    clean.set_defaults(func=cleanup_command)
     return root
 
 
 def main() -> int:
+    # Relayed test output (e.g. node --test's ✔) must never kill the reader thread on a
+    # legacy console code page; a dead reader stops draining the pipe and hangs the test.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(errors="replace")
     args = parser().parse_args()
     try:
         return int(args.func(args))
-    except (service_map.MapError, OSError, KeyError, TypeError) as exc:
+    except (service_map.MapError, OSError, KeyError, TypeError, re.error) as exc:
         print(f"[resource-watch] environment_failure=configuration_error error={exc}", file=sys.stderr)
         return 125
 

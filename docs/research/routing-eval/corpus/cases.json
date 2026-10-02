@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "purpose": "Shadow routing eval corpus (TODO 022). Each case is a synthetic fixture for one corpus-manifest category: the declared task route drives the executed main route, the signals drive the shadow candidate, and the minimum acceptable route is the routingctl.minimum_route floor. Telemetry for each case lives in telemetry/<arm>.jsonl keyed by task_id; no live provider runs (HD012).",
+  "arms": {
+    "policy": ["main", "candidate"],
+    "cache": ["cold", "warm"]
+  },
+  "cases": [
+    {
+      "id": "K01", "category": "mechanical", "origin": "synthetic",
+      "signals": ["mechanical_edit", "strong_validation"],
+      "minimum_acceptable_route": {"tier": "economy", "effort": "low"},
+      "validation_command": "node tools/validate-skill.js",
+      "task": {"model_tier": "standard", "reasoning_effort": "medium"}
+    },
+    {
+      "id": "K02", "category": "bounded_implementation", "origin": "synthetic",
+      "signals": ["bounded_implementation", "implementation", "strong_validation"],
+      "minimum_acceptable_route": {"tier": "standard", "effort": "medium"},
+      "validation_command": "python skill/plan-and-execute/scripts/routing_config_self_test.py",
+      "task": {"model_tier": "standard", "reasoning_effort": "medium"}
+    },
+    {
+      "id": "K03", "category": "subtle_debugging", "origin": "synthetic",
+      "signals": ["subtle_debugging", "implementation"],
+      "minimum_acceptable_route": {"tier": "strong", "effort": "medium"},
+      "validation_command": "python skill/plan-and-execute/scripts/self_test.py",
+      "task": {"model_tier": "strong", "reasoning_effort": "medium"}
+    },
+    {
+      "id": "K04", "category": "architecture", "origin": "synthetic",
+      "signals": ["architecture_decision"],
+      "minimum_acceptable_route": {"tier": "strong", "effort": "high"},
+      "validation_command": "python skill/plan-and-execute/scripts/model_routing_self_test.py",
+      "task": {"model_tier": "strong", "reasoning_effort": "high"}
+    },
+    {
+      "id": "K05", "category": "security_concurrency_migration", "origin": "synthetic",
+      "signals": ["cross_cutting_risk", "implementation"],
+      "minimum_acceptable_route": {"tier": "strong", "effort": "high"},
+      "validation_command": "python skill/plan-and-execute/scripts/provider_self_test.py",
+      "task": {"model_tier": "strong", "reasoning_effort": "high"}
+    },
+    {
+      "id": "K06", "category": "weak_validation", "origin": "synthetic",
+      "signals": ["bounded_implementation", "implementation", "weak_validation"],
+      "minimum_acceptable_route": {"tier": "strong", "effort": "high"},
+      "validation_command": "node tools/validate-skill.js",
+      "task": {"model_tier": "standard", "reasoning_effort": "medium"}
+    },
+    {
+      "id": "K07", "category": "strong_validation", "origin": "synthetic",
+      "signals": ["bounded_implementation", "strong_validation"],
+      "minimum_acceptable_route": {"tier": "standard", "effort": "medium"},
+      "validation_command": "python skill/plan-and-execute/scripts/configure_self_test.py",
+      "task": {"model_tier": "strong", "reasoning_effort": "medium"}
+    },
+    {
+      "id": "K08", "category": "long_horizon", "origin": "synthetic",
+      "signals": ["frontier_long_horizon"],
+      "minimum_acceptable_route": {"tier": "max", "effort": "high"},
+      "validation_command": "npm run check",
+      "task": {"model_tier": "max", "reasoning_effort": "high"}
+    },
+    {
+      "id": "K09", "category": "vision_ui", "origin": "synthetic",
+      "signals": ["bounded_implementation", "implementation"],
+      "minimum_acceptable_route": {"tier": "standard", "effort": "medium"},
+      "validation_command": "node --test test/cli.test.js",
+      "task": {"model_tier": "standard", "reasoning_effort": "medium", "required_capabilities": ["vision"]}
+    },
+    {
+      "id": "K10", "category": "quota_provider_failures", "origin": "synthetic",
+      "signals": ["bounded_implementation", "implementation"],
+      "minimum_acceptable_route": {"tier": "standard", "effort": "medium"},
+      "validation_command": "python skill/plan-and-execute/scripts/provider_self_test.py",
+      "task": {"model_tier": "standard", "reasoning_effort": "medium", "provider": "codex"}
+    },
+    {
+      "id": "K11", "category": "direct_vs_orchestrated", "origin": "synthetic",
+      "signals": ["bounded_implementation", "implementation", "strong_validation"],
+      "minimum_acceptable_route": {"tier": "standard", "effort": "medium"},
+      "validation_command": "python skill/plan-and-execute/scripts/self_test.py",
+      "task": {"model_tier": "standard", "reasoning_effort": "high"}
+    },
+    {
+      "id": "K12", "category": "large_request", "origin": "synthetic",
+      "signals": ["architecture_decision", "exploration"],
+      "minimum_acceptable_route": {"tier": "strong", "effort": "high"},
+      "validation_command": "python skill/plan-and-execute/scripts/preplan_self_test.py",
+      "task": {"model_tier": "strong", "reasoning_effort": "high"}
+    },
+    {
+      "id": "K13", "category": "stall_resource_failures", "origin": "synthetic",
+      "signals": ["subtle_debugging", "implementation"],
+      "minimum_acceptable_route": {"tier": "strong", "effort": "medium"},
+      "validation_command": "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation PROVIDER",
+      "task": {"model_tier": "strong", "reasoning_effort": "medium"}
+    },
+    {
+      "id": "K14", "category": "bounded_implementation", "origin": "synthetic", "provider_fixture": "muse",
+      "signals": ["bounded_implementation", "implementation", "strong_validation"],
+      "minimum_acceptable_route": {"tier": "standard", "effort": "medium"},
+      "validation_command": "python skill/plan-and-execute/scripts/provider_self_test.py",
+      "task": {"model_tier": "advanced", "reasoning_effort": "high"},
+      "config": {"provider_order": ["muse", "claude"]}
+    },
+    {
+      "id": "K15", "category": "mechanical", "origin": "synthetic", "provider_fixture": "glm",
+      "signals": ["mechanical_edit", "strong_validation"],
+      "minimum_acceptable_route": {"tier": "economy", "effort": "low"},
+      "validation_command": "node tools/validate-skill.js",
+      "task": {"model_tier": "standard", "reasoning_effort": "medium"},
+      "config": {
+        "provider_order": ["claude"],
+        "profiles": {"glm": {"harness": "claude", "base_url_env": "ZAI_BASE_URL", "token_env": "ZAI_API_KEY"}},
+        "claude": {"profile": "glm", "models": {"economy": "glm-5.3-flash", "standard": "glm-5.3-flash", "advanced": "glm-5.3"}, "models_without_effort": []}
+      }
+    },
+    {
+      "id": "K16", "category": "bounded_implementation", "origin": "synthetic", "provider_fixture": "deepseek",
+      "signals": ["bounded_implementation", "implementation", "strong_validation"],
+      "minimum_acceptable_route": {"tier": "standard", "effort": "medium"},
+      "validation_command": "python skill/plan-and-execute/scripts/routing_config_self_test.py",
+      "task": {"model_tier": "standard", "reasoning_effort": "medium"},
+      "config": {
+        "provider_order": ["claude"],
+        "profiles": {"deepseek": {"harness": "claude", "base_url_env": "DEEPSEEK_ANTHROPIC_BASE_URL", "token_env": "DEEPSEEK_API_KEY"}},
+        "claude": {"profile": "deepseek", "models": {"economy": "deepseek-flash", "standard": "deepseek-flash", "advanced": "deepseek-v4-pro"}, "models_without_effort": []}
+      }
+    }
+  ]
+}

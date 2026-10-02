@@ -87,6 +87,8 @@ for (const relative of [
   path.join('references', 'LIFECYCLE.md'),
   path.join('references', 'MODEL_ROUTING.md'),
   path.join('references', 'TOKEN_EFFICIENCY.md'),
+  ...['MODEL_CATALOG', 'DELEGATION', 'MODEL_ROUTING_GLM', 'MODEL_ROUTING_DEEPSEEK', 'MODEL_ROUTING_MUSE'].map(name => path.join('references', `${name}.md`)),
+  ...['model_catalog.py', 'model_catalogctl.py', 'routing_telemetry.py', 'routingctl.py', 'model_catalog_self_test.py', 'model_catalogctl_self_test.py', 'delegation_self_test.py', 'route_selector_self_test.py', 'snapshot_runner_self_test.py', 'telemetry_self_test.py', 'model_matrix_self_test.py', 'glm_provider_self_test.py', 'deepseek_provider_self_test.py', 'muse_provider_self_test.py', 'artifact_hygiene_self_test.py', 'failure_evidence_self_test.py'].map(name => path.join('scripts', name)),
   path.join('references', 'completion-report.schema.json'),
   path.join('references', 'plan-spec.example.json'),
   path.join('references', 'study-spec.example.json'),
@@ -136,7 +138,9 @@ requireText(skill, [
   'without the previous chat transcript',
   'implementation changes'
 ], 'SKILL.md');
-requireMax(skill, 7000, 'SKILL.md');
+const SKILL_BASELINE_CHARS = 6826;
+requireMax(skill, Math.floor(SKILL_BASELINE_CHARS * 1.05), 'SKILL.md');
+requireText(skill, ['references/MODEL_CATALOG.md', 'references/DELEGATION.md', 'Do not preload other provider guides'], 'SKILL.md lazy-load reference map');
 const frontmatter = skill.match(/^---\n([\s\S]*?)\n---/);
 if (!frontmatter) fail('SKILL.md frontmatter is missing.');
 if (frontmatter[1].length > 1700) fail('SKILL.md frontmatter is too broad for cheap routing.');
@@ -173,6 +177,7 @@ requireMax(promotion, 9000, 'PROMOTION.md');
 
 const orchestration = read(path.join('references', 'ORCHESTRATION.md'));
 requireText(orchestration, [
+  'MODEL_CATALOG.md',
   'TODO.md',
   'manifest.json',
   'provider',
@@ -201,7 +206,7 @@ requireText(writing, ['one field, one job', 'Vague wording rejected', 'Derived-t
 const planning = read(path.join('references', 'PLANNING_PROTOCOL.md'));
 requireText(planning, ['context_boundary', 'learning_targets', 'contexts_minimal', 'context_boundaries_sound'], 'PLANNING_PROTOCOL.md');
 const planSpec = read(path.join('references', 'PLAN_SPEC.md'));
-requireText(planSpec, ['schema v4', 'request_analysis', 'context_boundary', 'learning_targets', 'model_tier', 'reasoning_effort'], 'PLAN_SPEC.md');
+requireText(planSpec, ['MODEL_CATALOG.md', 'DELEGATION.md', 'schema v4', 'request_analysis', 'context_boundary', 'learning_targets', 'model_tier', 'reasoning_effort'], 'PLAN_SPEC.md');
 const workflow = read(path.join('references', 'WORKFLOW.md'));
 requireText(workflow, ['Fresh workers', 'SUMMARY_INPUT.json'], 'WORKFLOW.md');
 const contextProtocol = read(path.join('references', 'EXECUTION_CONTEXT.md'));

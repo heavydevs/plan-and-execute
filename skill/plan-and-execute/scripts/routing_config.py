@@ -11,8 +11,23 @@ from typing import Any
 
 from routingctl import TIER_ORDER, EFFORT_ORDER
 
-PROVIDERS = ('claude', 'codex', 'antigravity', 'gemini', 'qwen', 'kimi', 'trae')
+PROVIDERS = ('claude', 'codex', 'antigravity', 'gemini', 'qwen', 'kimi', 'trae', 'muse')
+# Harness = which CLI adapter builds argv; `native` is the provider's own adapter.
+HARNESSES = ('claude', 'codex', 'native')
+# Spawn-time env each harness CLI reads; profiles name the source variables only.
+HARNESS_ENV = {
+    'claude': {'base_url_env': 'ANTHROPIC_BASE_URL', 'token_env': 'ANTHROPIC_AUTH_TOKEN'},
+    'codex': {'base_url_env': 'OPENAI_BASE_URL', 'token_env': 'OPENAI_API_KEY'},
+    'native': {},
+}
+PROFILE_KEYS = ('harness', 'command', 'base_url_env', 'token_env')
+PROFILE_NAME = re.compile(r'[a-z][a-z0-9_-]{0,47}')
+ENV_NAME = re.compile(r'[A-Z_][A-Z0-9_]{0,127}')
 MAX_CONFIG_BYTES = 256 * 1024
+# Opt-in auto-routing; absent `routing` means `auto_select: off` (routes unchanged).
+AUTO_SELECT_MODES = ('off', 'shadow', 'on')
+ROUTING_KEYS = ('auto_select', 'allowlist', 'gate_dir')
+SEGMENT_NAME = re.compile(r'[a-z][a-z0-9_]{0,63}')
 EXTRA_DEFAULTS = {
     'tier_routes': {},
     'availability': {'cooldown_seconds': 300, 'max_attempts_per_run': 7},
@@ -119,14 +134,21 @@ def validate(config: dict, *, partial: bool = False) -> None:
         fallbacks = _names(route.get('fallbacks', []), f'tier_routes.{tier}.fallbacks')
         if route.get('primary') in fallbacks:
             raise ConfigError(f'tier_routes.{tier}: primary cannot repeat in fallbacks')
+    profiles = _object(config.get('profiles', {}), 'profiles')
+    for name, profile in profiles.items():
+        _profile(name, profile, partial=partial)
     for provider in PROVIDERS:
         if provider not in config:
             continue
         cfg = _object(config[provider], provider)
         if 'command' in cfg:
-            cmd = cfg['command']
-            if not ((isinstance(cmd, str) and cmd.strip()) or (isinstance(cmd, list) and cmd and all(isinstance(x, str) and x.strip() for x in cmd))):
-                raise ConfigError(f'{provider}.command must be a nonempty command or argv')
+            _command(cfg['command'], f'{provider}.command')
+        if 'profile' in cfg:
+            name = cfg['profile']
+            if not isinstance(name, str) or not PROFILE_NAME.fullmatch(name):
+                raise ConfigError(f'{provider}.profile must be a profile name')
+            if not partial and name not in profiles:
+                raise ConfigError(f'{provider}.profile names an undefined profile')
         for key in ('extra_args', 'models_without_effort'):
             if key in cfg and (not isinstance(cfg[key], list) or any(not isinstance(x, str) or not x.strip() for x in cfg[key])):
                 raise ConfigError(f'{provider}.{key} must be an array of nonempty strings')
@@ -139,10 +161,25 @@ def validate(config: dict, *, partial: bool = False) -> None:
         if 'retry_exit_codes' in cfg:
             for code in _names_codes(cfg['retry_exit_codes'], provider):
                 _integer(code, f'{provider}.retry_exit_codes', 1, 255)
+        if provider == 'muse':
+            for key in ('trust_workspace', 'disable_approval'):
+                if key in cfg:
+                    _boolean(cfg[key], f'muse.{key}')
         if provider == 'antigravity' and any(embedded_effort_model(m) for m in cfg.get('models', {}).values()):
             args = cfg.get('extra_args', [])
             if any(x in ('--effort', '--reasoning-effort') or x.startswith(('--effort=', '--reasoning-effort=')) for x in args):
                 raise ConfigError('Antigravity effort-bearing model IDs cannot be combined with explicit effort flags')
+    routing = _object(config.get('routing', {}), 'routing')
+    if set(routing) - set(ROUTING_KEYS):
+        raise ConfigError('Unknown routing setting')
+    if 'auto_select' in routing and routing['auto_select'] not in AUTO_SELECT_MODES:
+        raise ConfigError(f'routing.auto_select must be one of {", ".join(AUTO_SELECT_MODES)}')
+    if 'allowlist' in routing:
+        allowlist = routing['allowlist']
+        if not isinstance(allowlist, list) or any(not isinstance(x, str) or not SEGMENT_NAME.fullmatch(x) for x in allowlist) or len(allowlist) != len(set(allowlist)):
+            raise ConfigError('routing.allowlist must contain distinct segment ids')
+    if 'gate_dir' in routing and (not isinstance(routing['gate_dir'], str) or not routing['gate_dir'].strip()):
+        raise ConfigError('routing.gate_dir must be a nonempty path')
     availability = _object(config.get('availability', {}), 'availability')
     if set(availability) - {'cooldown_seconds', 'max_attempts_per_run'}:
         raise ConfigError('Unknown availability setting')
@@ -160,6 +197,69 @@ def validate(config: dict, *, partial: bool = False) -> None:
     for key, bounds in {'max_calls_per_task': (1, 3), 'max_input_chars': (512, 12000), 'max_output_chars': (256, 4000), 'timeout_seconds': (1, 120), 'repetition_threshold': (2, 20), 'unhealthy_threshold': (1, 20), 'stall_seconds': (1, 3600)}.items():
         if key in assistant:
             _integer(assistant[key], f'assistant.{key}', *bounds)
+
+
+def _command(value: Any, name: str) -> None:
+    if not ((isinstance(value, str) and value.strip()) or (isinstance(value, list) and value and all(isinstance(x, str) and x.strip() for x in value))):
+        raise ConfigError(f'{name} must be a nonempty command or argv')
+
+
+def _profile(name: Any, profile: Any, *, partial: bool) -> None:
+    # Messages name fields, never values: a misplaced secret must not reach errors or logs.
+    if not isinstance(name, str) or not PROFILE_NAME.fullmatch(name):
+        raise ConfigError('profiles contains an invalid profile name')
+    _object(profile, f'profiles.{name}')
+    if set(profile) - set(PROFILE_KEYS):
+        raise ConfigError(f'profiles.{name} has an unknown setting; credentials are referenced only by env-var name')
+    if ('harness' in profile or not partial) and profile.get('harness') not in HARNESSES:
+        raise ConfigError(f'profiles.{name}.harness must be one of {", ".join(HARNESSES)}')
+    if 'command' in profile:
+        _command(profile['command'], f'profiles.{name}.command')
+    for key in ('base_url_env', 'token_env'):
+        if key in profile and (not isinstance(profile[key], str) or not ENV_NAME.fullmatch(profile[key])):
+            raise ConfigError(f'profiles.{name}.{key} must be an environment variable name, not a value')
+
+
+GLM_PROFILE = {'harness': 'claude', 'base_url_env': 'ZAI_BASE_URL', 'token_env': 'ZAI_API_KEY'}
+
+
+def glm_profile(*, thinking: bool = True) -> dict:
+    """Preset `glm` profile: Z.AI through the existing claude harness; env-var names only, no values."""
+    if not thinking:
+        raise ConfigError('GLM-5.3 thinking is always on; a thinking-disabled config is invalid')
+    return dict(GLM_PROFILE)
+
+
+DEEPSEEK_PROFILES = {
+    'claude': {'harness': 'claude', 'base_url_env': 'DEEPSEEK_ANTHROPIC_BASE_URL', 'token_env': 'DEEPSEEK_API_KEY'},
+    'codex': {'harness': 'codex', 'base_url_env': 'DEEPSEEK_OPENAI_BASE_URL', 'token_env': 'DEEPSEEK_API_KEY'},
+}
+
+
+def deepseek_profile(harness: str = 'claude') -> dict:
+    """Preset `deepseek` profile on the claude (Anthropic API) or codex (Responses API) harness; env-var names only."""
+    if harness not in DEEPSEEK_PROFILES:
+        raise ConfigError('deepseek profiles exist for the claude and codex harnesses only')
+    return dict(DEEPSEEK_PROFILES[harness])
+
+
+def resolve_profile(provider: str, config: dict) -> dict:
+    """Compose a provider with its profile: harness adapter, command and env-var names (never values)."""
+    cfg = config.get(provider, {})
+    name = cfg.get('profile')
+    if name is None:
+        harness = provider if provider in ('claude', 'codex') else 'native'
+        return {'name': None, 'harness': harness, 'adapter': provider, 'command': cfg.get('command', provider),
+                'base_url_env': None, 'token_env': None}
+    profile = config.get('profiles', {}).get(name)
+    if not isinstance(profile, dict):
+        raise ConfigError(f'{provider}.profile names an undefined profile')
+    harness = profile['harness']
+    adapter = provider if harness == 'native' else harness
+    # A profile without its own command reuses the CLI configured for the adapter it composes with.
+    command = profile.get('command') or config.get(adapter, {}).get('command', adapter)
+    return {'name': name, 'harness': harness, 'adapter': adapter, 'command': command,
+            'base_url_env': profile.get('base_url_env'), 'token_env': profile.get('token_env')}
 
 
 def _names_codes(value: Any, provider: str) -> list:

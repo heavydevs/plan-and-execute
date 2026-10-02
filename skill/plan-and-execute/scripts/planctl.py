@@ -20,6 +20,8 @@ import tempfile
 from pathlib import Path
 from typing import Any, Iterable
 
+import model_catalog
+import model_catalogctl
 import requestctl
 import routingctl
 
@@ -33,8 +35,8 @@ REQUEST_FILE = "REQUEST.md"
 GLOBAL_CONTEXT_FILE = "CONTEXT.md"
 CONTEXT_DIRECTORY = "contexts"
 LEARNING_DIRECTORY = "learnings"
-VALID_PROVIDERS = {"auto", "claude", "codex", "antigravity", "gemini", "qwen", "kimi", "trae"}
-VALID_TIERS = {"economy", "standard", "strong", "max"}
+VALID_PROVIDERS = {"auto", "claude", "codex", "antigravity", "gemini", "qwen", "kimi", "trae", "muse"}
+VALID_TIERS = set(routingctl.TIER_ORDER)
 VALID_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
 VALID_STATUSES = {"pending", "in_progress", "completed", "blocked"}
 VALID_SUBTASK_STATUSES = {"pending", "in_progress", "completed"}
@@ -295,6 +297,9 @@ def normalize_hard_decisions(raw: Any) -> list[dict[str, Any]]:
         route_used = str(item.get("route_used", "")).strip().lower()
         if route_used:
             parts = route_used.split("/")
+            if len(parts) == 2:
+                parts[0] = routingctl.normalize_tier(parts[0])
+                route_used = "/".join(parts)
             if len(parts) != 2 or parts[0] not in VALID_TIERS or parts[1] not in VALID_EFFORTS:
                 raise PlanError(
                     f"request_analysis.hard_decisions[{index}].route_used must be '<tier>/<effort>'"
@@ -1125,6 +1130,17 @@ def default_config() -> dict[str, Any]:
             },
             "extra_args": [],
         },
+        "muse": {
+            # Muse Code native harness (`muse exec --json`). Models, effort caps and
+            # effortless models come from the bootstrap catalog; the permission
+            # opt-ins stay off until a provider config enables them.
+            "command": "muse",
+            **model_catalog.provider_config_mapping("muse"),
+            "trust_workspace": False,
+            "disable_approval": False,
+            "retry_exit_codes": [],
+            "extra_args": [],
+        },
         "summary": {
             "provider": "auto",
             "model_tier": "economy",
@@ -1164,7 +1180,7 @@ def normalize_design_route(raw: Any, task_id: str, complexity: str) -> dict[str,
             f"Task {task_id}: design_route is only allowed on high-complexity TODOs; "
             "route lower-complexity leaves directly"
         )
-    tier = str(raw.get("model_tier", "strong")).strip().lower()
+    tier = routingctl.normalize_tier(raw.get("model_tier", "strong"))
     effort = str(raw.get("reasoning_effort", "medium")).strip().lower()
     if tier not in VALID_TIERS:
         raise PlanError(f"Task {task_id}: design_route.model_tier {tier!r} is invalid")
@@ -1324,7 +1340,7 @@ def normalize_task(
         raise PlanError(f"Task {task_id} requires title and objective")
 
     provider = str(raw.get("provider", "auto")).strip().lower()
-    tier = str(raw.get("model_tier", "standard")).strip().lower()
+    tier = routingctl.normalize_tier(raw.get("model_tier", "standard"))
     effort = str(raw.get("reasoning_effort", "medium")).strip().lower()
     complexity = str(raw.get("complexity", "")).strip().lower()
     if provider not in VALID_PROVIDERS:
@@ -2096,6 +2112,16 @@ def create_plan(
         )
     from routing_config import plan_overlay
     atomic_write_json(plan_dir / CONFIG, plan_overlay())
+    # Plans stay valid without a snapshot, so a catalog failure is recorded, not fatal.
+    try:
+        matrix = model_catalogctl.create_plan_matrix(model_catalogctl.CatalogStore(), plan_dir, manifest)
+        manifest["events"].append(
+            {"at": created, "type": "model_matrix_created", "catalog_digest": matrix["catalog_digest"]}
+        )
+    except Exception as exc:  # noqa: BLE001
+        manifest["events"].append(
+            {"at": created, "type": "model_matrix_skipped", "error": f"{exc.__class__.__name__}: {str(exc)[:200]}"}
+        )
     save_manifest(plan_dir, manifest)
     errors = validate_plan(plan_dir, manifest)
     if errors:

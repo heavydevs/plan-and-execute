@@ -28,7 +28,10 @@ const lifecycleScript = path.join(
 const EXECUTION_PROVIDERS = Object.freeze([
   'claude', 'codex', 'antigravity', 'gemini', 'qwen', 'kimi', 'trae'
 ]);
-const OPTIONAL_PROVIDER_COMMANDS = Object.freeze({
+const PROFILE_PROVIDERS = Object.freeze(['muse', 'glm', 'deepseek']);
+const RESUME_PROVIDERS = Object.freeze([...EXECUTION_PROVIDERS, ...PROFILE_PROVIDERS]);
+const MODELS_ACTIONS = Object.freeze(['status', 'show', 'refresh', 'diff']);
+const OPTIONAL_PROVIDER_COMMANDS =Object.freeze({
   antigravity: 'agy',
   gemini: 'gemini',
   qwen: 'qwen',
@@ -60,6 +63,14 @@ Configuracao de roteamento (sem chamadas de geracao):
   pae configure --plan <diretorio>   Substituicoes para um plano existente
   pae configure --config <arquivo>   Destino explicito
   pae configure --show [--json]      Mostrar configuracao sem gravar
+  pae configure --profile <glm|deepseek> [--harness <claude|codex>]
+                                    Salvar perfil de provedor (somente nomes de variaveis de ambiente)
+
+Catalogo de modelos (sem chamadas de geracao):
+  pae models status [--provider <nome>] [--plan <diretorio>]
+  pae models show [--provider <nome>]
+  pae models refresh --provider <nome> | --plan <diretorio>
+  pae models diff --plan <diretorio>
 
 Uso da instalacao:
   pae install [claude|codex|both] [opcoes]
@@ -77,7 +88,9 @@ Opcoes gerais:
   -v, --version                     Mostrar versao
 
 Opcoes de execucao:
-  --provider <nome>                 claude|codex|antigravity|gemini|qwen|kimi|trae
+  --provider <nome>                 claude|codex|antigravity|gemini|qwen|kimi|trae|muse|glm|deepseek
+  --harness <nome>                  Com configure --profile: claude|codex
+  --cache-dir <caminho>             Com models: cache do catalogo
   --once                            Executar no maximo um TODO pai
   --no-wait                         Nao aguardar automaticamente limites de uso
   --no-cleanup                      Manter o plano concluido para inspecao
@@ -98,6 +111,8 @@ Exemplos:
   pae resume
   pae resume --provider codex --once
   pae resume --provider antigravity --once
+  pae resume --provider muse --once
+  pae models refresh --plan .ai-work/<plano>
   pae cancel
   pae reset --force
   npx @luizcgvrj/plan-and-execute install both --global
@@ -123,7 +138,8 @@ export function parseArguments(argv) {
   const options = {
     agent: 'both', scope: 'workspace', workspaceDir: process.cwd(), activation: 'selective',
     force: false, dryRun: false, json: false, provider: null, once: false, noWait: false,
-    noCleanup: false, allPlans: false, configPath: null, planPath: null, showConfig: false
+    noCleanup: false, allPlans: false, configPath: null, planPath: null, showConfig: false,
+    profile: null, harness: null, cacheDir: null, action: null
   };
   let showHelp = false;
   let showVersion = false;
@@ -133,6 +149,9 @@ export function parseArguments(argv) {
     if (!arg.startsWith('-')) {
       if (!positionalAgentUsed && ['claude', 'codex', 'both'].includes(arg)) {
         options.agent = arg; positionalAgentUsed = true; continue;
+      }
+      if (command === 'models' && !options.action && MODELS_ACTIONS.includes(arg)) {
+        options.action = arg; continue;
       }
       throw new Error(`Argumento desconhecido: ${arg}`);
     }
@@ -156,6 +175,9 @@ export function parseArguments(argv) {
       case '--config': options.configPath = requireValue(args, index, arg); index += 1; break;
       case '--plan': options.planPath = requireValue(args, index, arg); index += 1; break;
       case '--show': options.showConfig = true; break;
+      case '--profile': options.profile = requireValue(args, index, arg).toLowerCase(); index += 1; break;
+      case '--harness': options.harness = requireValue(args, index, arg).toLowerCase(); index += 1; break;
+      case '--cache-dir': options.cacheDir = requireValue(args, index, arg); index += 1; break;
       case '--once': options.once = true; break;
       case '--no-wait': options.noWait = true; break;
       case '--no-cleanup': options.noCleanup = true; break;
@@ -168,9 +190,10 @@ export function parseArguments(argv) {
       default: throw new Error(`Opcao desconhecida: ${arg}`);
     }
   }
-  if (options.provider && !EXECUTION_PROVIDERS.includes(options.provider)) {
-    throw new Error(`Provedor invalido: ${options.provider}. Use ${EXECUTION_PROVIDERS.join(', ')}.`);
+  if (options.provider && !RESUME_PROVIDERS.includes(options.provider)) {
+    throw new Error(`Provedor invalido: ${options.provider}. Use ${RESUME_PROVIDERS.join(', ')}.`);
   }
+  if (command === 'models' && !options.action) options.action = 'status';
   if (!ACTIVATION_MODES.includes(options.activation)) {
     throw new Error(`Modo de ativacao invalido: ${options.activation}. Use ${ACTIVATION_MODES.join(' ou ')}.`);
   }
@@ -198,7 +221,7 @@ function printResults(results, json) {
   }
 }
 
-function executionDoctorReport() {
+function executionDoctorReport(options) {
   const report = runDoctor();
   for (const [provider, command] of Object.entries(OPTIONAL_PROVIDER_COMMANDS)) {
     report[provider] = probeCommand(command);
@@ -206,6 +229,7 @@ function executionDoctorReport() {
   report.executionProviders = [...EXECUTION_PROVIDERS];
   report.defaultProviderOrder = ['claude', 'codex'];
   report.standardInstallTargets = ['claude', 'codex'];
+  report.routingProfiles = routingProfilesReport(options);
   return report;
 }
 
@@ -224,6 +248,11 @@ function printDoctor(report, json) {
   console.log(`Kimi Code CLI (opcional): ${report.kimi?.version ?? 'nao encontrado'}`);
   console.log(`Trae Agent (opcional): ${report.trae?.version ?? 'nao encontrado'}`);
   console.log(`Ordem padrao: ${report.defaultProviderOrder.join(' -> ')}`);
+  for (const [name, entry] of Object.entries(report.routingProfiles.providers)) {
+    const env = [entry.base_url_env && `${entry.base_url_env}=${entry.base_url_set ? 'definida' : 'ausente'}`,
+      entry.token_env && `${entry.token_env}=${entry.token_set ? 'definida' : 'ausente'}`].filter(Boolean).join(', ');
+    console.log(`Perfil ${name} (${entry.harness}): CLI ${entry.command_found ? 'encontrada' : 'nao encontrada'}${env ? `; ${env}` : ''}`);
+  }
 }
 
 function pythonCandidates(scriptArgs, script = lifecycleScript) {
@@ -252,6 +281,75 @@ function runLifecycle(scriptArgs, options, { stream = false, script = lifecycleS
     return result.status ?? 1;
   }
   throw new Error('Python 3 nao foi encontrado. Instale Python 3.10+ para controlar a implementacao.');
+}
+
+const scriptsDir = path.join(packageRoot, 'skill', 'plan-and-execute', 'scripts');
+const configureScript = path.join(scriptsDir, 'configure.py');
+const catalogScript = path.join(scriptsDir, 'model_catalogctl.py');
+
+function capturePython(scriptArgs, options, script) {
+  for (const [command, args] of pythonCandidates(scriptArgs, script)) {
+    const result = spawnSync(command, args, {
+      cwd: path.resolve(options.workspaceDir),
+      encoding: 'utf8',
+      windowsHide: true,
+      env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1', PYTHONIOENCODING: 'utf-8' }
+    });
+    if (isMissingCommand(result)) continue;
+    if (result.stderr) process.stderr.write(result.stderr);
+    return { status: result.status ?? 1, stdout: result.stdout ?? '' };
+  }
+  throw new Error('Python 3 nao foi encontrado. Instale Python 3.10+ para controlar a implementacao.');
+}
+
+function routingProfilesReport(options) {
+  const args = ['--doctor', '--json'];
+  if (options.configPath) args.push('--config', path.resolve(options.workspaceDir, options.configPath));
+  try {
+    const result = capturePython(args, options, configureScript);
+    if (result.status === 0) return JSON.parse(result.stdout);
+  } catch { /* the doctor stays usable without Python or with an unreadable config */ }
+  return { version: 1, config_path: null, configured: [], providers: {}, error: 'unavailable' };
+}
+
+function modelsCommand(options) {
+  const { action } = options;
+  const plan = options.planPath ? path.resolve(options.workspaceDir, options.planPath) : null;
+  const cache = options.cacheDir ? ['--cache-dir', path.resolve(options.workspaceDir, options.cacheDir)] : [];
+  const call = (args) => capturePython([...args, ...cache], options, catalogScript);
+  if (action === 'refresh') {
+    if (!plan && !options.provider) throw new Error('models refresh exige --provider ou --plan.');
+    const results = {};
+    if (options.provider) {
+      results.provider = call(['refresh', '--provider', options.provider, '--json']);
+      if (results.provider.status !== 0) return results.provider.status;
+    }
+    if (plan) {
+      results.plan = call(['refresh', '--plan', plan, '--json']);
+      if (results.plan.status !== 0) return results.plan.status;
+    }
+    const parsed = Object.fromEntries(Object.entries(results).map(([key, value]) => [key, JSON.parse(value.stdout)]));
+    if (options.json) {
+      console.log(JSON.stringify(results.provider && results.plan ? parsed : (parsed.plan ?? parsed.provider), null, 2));
+      return 0;
+    }
+    if (parsed.provider) {
+      console.log(`Catalogo ${parsed.provider.provider}: ${parsed.provider.origin}${parsed.provider.catalog_version ? ` ${parsed.provider.catalog_version}` : ''}`);
+    }
+    if (parsed.plan) {
+      const state = parsed.plan.old_digest === parsed.plan.new_digest ? 'inalterado' : 'alterado';
+      console.log(`Digest: ${parsed.plan.old_digest ?? 'nenhum'} -> ${parsed.plan.new_digest} (${state})`);
+      console.log(`Tarefas reavaliadas: ${(parsed.plan.rebased ?? []).join(', ') || 'nenhuma'}`);
+    }
+    return 0;
+  }
+  const args = [action];
+  if (options.provider && action !== 'diff') args.push('--provider', options.provider);
+  if (plan && action !== 'show') args.push('--plan', plan);
+  if (options.json) args.push('--json');
+  const result = call(args);
+  if (result.stdout) process.stdout.write(result.stdout);
+  return result.status;
 }
 
 function lifecycleArguments(command, options) {
@@ -286,20 +384,23 @@ async function main() {
       case 'status': printResults(getStatus(options), options.json); break;
       case 'paths': printResults(resolveTargets(options).map((target) => ({ ...target, action: 'target' })), options.json); break;
       case 'uninstall': printResults(uninstallSkill(options), options.json); break;
-      case 'doctor': printDoctor(executionDoctorReport(), options.json); break;
+      case 'doctor': printDoctor(executionDoctorReport(options), options.json); break;
       case 'configure': {
         const args = [];
         if (options.configPath) args.push('--config', path.resolve(options.workspaceDir, options.configPath));
         if (options.planPath) args.push('--plan', path.resolve(options.workspaceDir, options.planPath));
         if (options.showConfig) args.push('--show');
+        if (options.profile) args.push('--profile', options.profile);
+        if (options.harness) args.push('--harness', options.harness);
         if (options.json) args.push('--json');
         if (options.dryRun) args.push('--dry-run');
         process.exitCode = runLifecycle(args, options, {
-          stream: !options.showConfig,
-          script: path.join(packageRoot, 'skill', 'plan-and-execute', 'scripts', 'configure.py')
+          stream: !options.showConfig && !options.profile,
+          script: configureScript
         });
         break;
       }
+      case 'models': process.exitCode = modelsCommand(options); break;
       case 'current': process.exitCode = runLifecycle(lifecycleArguments('current', options), options); break;
       case 'resume': process.exitCode = runLifecycle(lifecycleArguments('resume', options), options, { stream: true }); break;
       case 'cancel': process.exitCode = runLifecycle(lifecycleArguments('cancel', options), options); break;

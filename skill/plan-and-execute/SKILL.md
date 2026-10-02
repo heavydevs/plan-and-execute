@@ -59,7 +59,7 @@ Route each leaf by its own signals, not parent size or root model. Compute its f
 
 Keep the root route stable; delegate leaves above its capability, including planning, to fresh qualified workers and consume compact results. Cache effects depend on provider/model settings, not a universal effort rule. Start stronger when silent failure is costly; otherwise use cheap-first with strong validation. Escalate only from classified failure evidence; stop after acceptance plus independent validation pass.
 
-Planning routes: [PLANNING_ROUTING.md](references/PLANNING_ROUTING.md). Implementation: [MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus only the active provider guide. Do not preload both provider guides.
+Planning routes: [PLANNING_ROUTING.md](references/PLANNING_ROUTING.md). Implementation: [MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus only the active provider guide. Load catalog/delegation details ([MODEL_CATALOG.md](references/MODEL_CATALOG.md), [DELEGATION.md](references/DELEGATION.md)) only when needed. Do not preload other provider guides.
 
 Tier priority/fallback: [ROUTING_CONFIG.md](references/ROUTING_CONFIG.md). Optional bounded advice: [ASSISTANTS.md](references/ASSISTANTS.md), loaded only for setup, eligible failure or maintenance. Unsupported read-only profiles skip.
 

@@ -22,6 +22,8 @@ Use a fresh worker when context boundaries diverge, disposable exploration would
 
 `MODEL_ROUTING.md` §1–§3 own: search-first/read-second, the explorer contract (compact evidence map, read-only, at most two concurrent), the leaf-signal floors, and the rule that a small hard edit with weak validation deserves a stronger implementer while its exploration stays cheap. Do not restate them here or in phase references; link to the section.
 
+Load `MODEL_CATALOG.md`, `DELEGATION.md` and provider guides only on demand.
+
 ## 4. Elevation is delegation, not a root switch
 
 Keep the root route stable and delegate a harder leaf with minimal context. Changing model, tools or the cached prefix can discard cache reuse; effort behavior depends on the provider/model. A fresh worker can reuse matching provider prefixes, but fresh context alone does not guarantee a cheaper call. Measure total validated-outcome cost, not nominal input price.
