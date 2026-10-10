@@ -4,18 +4,18 @@ Read only when Codex will execute the current work. `MODEL_ROUTING.md` owns prov
 
 ## Current capability map
 
-Concrete ids live in `scripts/routingctl.py` `CURRENT_MODELS` (map version 2026-09-30-v6); this table must match it. Verify what an installation actually serves with `codex debug models` (live catalog; `~/.codex/models_cache.json` can be stale).
+Concrete ids live in `scripts/routingctl.py` `CURRENT_MODELS` (map version 2026-10-09-v7); this table must match it. Verify what an installation actually serves with `codex debug models` (live catalog; `~/.codex/models_cache.json` can be stale).
 
 | Tier | Model | Catalog description | Typical starting effort |
 |---|---|---|---|
 | `economy` | `gpt-6-luna` | "Fast and affordable model for easier tasks" | `low` |
 | `standard` | `gpt-6.1-sol` | "Latest workhorse model for coding and everyday work" | `medium` |
-| `strong` | `gpt-6-astra` | "Frontier intelligence for the most demanding work" | `low` or `medium` |
-| `max` | `gpt-6-astra` | same | `xhigh` only when long-horizon evidence justifies it; `max` is exceptional |
+| `strong` | `gpt-6.1-sol` | same | `medium` with strong validation, otherwise `high` |
+| `max` | `gpt-6.1-sol` | same | `xhigh` when long-horizon evidence justifies it; `max` is exceptional |
 
-The GPT-5.6 line (`gpt-5.6-luna`/`-terra`/`-sol`) is listed as *older* in the catalog and is not a default route anywhere. There is no GPT-6 Terra, so Sol takes the balanced standard slot that Terra held, and GPT-6.1 Sol replaces GPT-6 Sol (now "previous generation workhorse") there; Astra stays the top model, so 6.1 Sol is not a `strong` route. GPT-6.1 Sol defaults to `low` effort like Astra; the skill still starts standard work at `medium` because the worker must read and verify. No published benchmark separates GPT-6.1 Sol from GPT-6 Astra: the ladder below keeps the shape calibrated on GPT-5.6 (a demonstrated capability gap goes to Astra Low before any High-effort retry on the standard model) until a project eval says otherwise.
+Owner decision 2026-10-09: GPT-6.1 Sol is clearly better than GPT-6 Astra in practice, so Sol serves every tier above economy and Astra is not routed (it stays in the live catalog and can be opted into through a project's own configuration). Model and effort are independent axes: standard, strong and max differ by **effort**, not by model, so a retry climbs Sol Medium -> Sol High -> Sol XHigh without changing the cached prefix's model. The GPT-5.6 line (`gpt-5.6-luna`/`-terra`/`-sol`) is listed as *older* in the catalog and is not a default route anywhere; there is no GPT-6 Terra.
 
-Do **not** use a High-effort standard-model retry as the default difficult-work route. OpenAI's calibration (GPT-5.6, carried over) places Astra Low/Medium above the previous strong model at High (Astra Low outperforms it at a fraction of the tokens). Use **Astra Medium as the safer difficult-work baseline when verification is weak**, and Astra Low when the task is bounded and objectively verifiable. Astra always reasons (no `none` effort). Efforts accepted (from the catalog): Luna `low`..`max`; Sol and Astra `low`..`max` plus `ultra`. The skill never selects `ultra`: it is above the ladder's `xhigh` ceiling and has no evidence-based trigger; a project may opt in through its own configuration after measuring it.
+GPT-6.1 Sol defaults to `low` effort; the skill still starts standard work at `medium` because the worker must read and verify. Use **Sol High as the difficult-work baseline when verification is weak**, and Sol Medium when the task is bounded and objectively verifiable. Efforts accepted (from the catalog): Luna `low`..`max`; Sol `low`..`max` plus `ultra`. The skill never selects `ultra`: it is above the ladder's `xhigh` ceiling and has no evidence-based trigger; a project may opt in through its own configuration after measuring it.
 
 Codex charges no cache writes and no long-context multiplier, and cached reads cost ~10% of input, so stable worker prefixes are cheap to reuse; `tool_output_token_limit` bounds how much tool output is kept in history.
 
@@ -26,7 +26,7 @@ The skill never changes the thread's model (`/model` is the user's); it obtains 
 | Need | Mechanism |
 |---|---|
 | Cheap read-only discovery | `spawn_agent` with the built-in `explorer` role and `model: gpt-6-luna` (`model_reasoning_effort: low`; `medium` only for multi-hop tracing). Explorers run `sandbox_mode: read-only`. |
-| Stronger leaf from a smaller root | `spawn_agent` with the `worker` role, `model: gpt-6-astra`, and an explicit `model_reasoning_effort`; a minimal prompt (task, paths/symbols, acceptance, validation). |
+| Stronger leaf from a smaller root | `spawn_agent` with the `worker` role, `model: gpt-6.1-sol`, and an explicit `model_reasoning_effort`; a minimal prompt (task, paths/symbols, acceptance, validation). |
 | Reusable roles | `.codex/agents/<name>.toml` with `model`, `model_reasoning_effort`, `sandbox_mode`, `developer_instructions`; a custom agent named like a built-in overrides it. |
 | Session-wide subagent defaults | `agents.default_subagent_model` and `agents.default_subagent_reasoning_effort` in `config.toml`; explicit spawn values win. Concurrency: `agents.max_concurrent_threads_per_session`. |
 | Strong plan, cheap execution | `plan_mode_reasoning_effort` gives `/plan` its own effort; the skill's planning-stage routing achieves the same split by delegating planning leaves. |
@@ -42,23 +42,23 @@ Small or medium-small work stays without a plan when it is cohesive. Model routi
 - broad read-only discovery -> Luna Low explorer; Luna Medium only for bounded multi-hop tracing;
 - tiny mechanical edit with obvious local review or deterministic validation -> keep current useful context; delegate to Luna only when isolation actually saves context;
 - normal bounded implementation with good validation -> Sol Medium;
-- normal implementation that exposes a reasoning gap -> Astra Low (semantic gap), not Sol High;
-- small but subtle change with weak/no tests -> Astra Low when silent semantic failure would be materially costly; otherwise Sol Medium plus focused review is cheaper;
-- difficult but strongly verifiable debugging/implementation -> Astra Low first, then Astra Medium from concrete failure evidence;
-- high-blast-radius or weakly verifiable architecture/security/concurrency/migration decisions -> Astra Medium or High directly.
+- normal implementation that exposes a reasoning gap -> Sol High (semantic gap);
+- small but subtle change with weak/no tests -> Sol High when silent semantic failure would be materially costly; otherwise Sol Medium plus focused review is cheaper;
+- difficult but strongly verifiable debugging/implementation -> Sol Medium first, then Sol High from concrete failure evidence;
+- high-blast-radius or weakly verifiable architecture/security/concurrency/migration decisions -> Sol High or XHigh directly.
 
-Do not create an ORCHESTRATED plan merely to obtain Astra. DIRECT can choose any justified route.
+Do not create an ORCHESTRATED plan merely to obtain a higher effort. DIRECT can choose any justified route.
 
 ## ORCHESTRATED tasks
 
 Choose the logical tier per TODO, not per parent request:
 
 - `economy`: Luna Low; Medium only when the exploration itself requires multi-hop reasoning;
-- `standard`: Sol Medium; a semantic failure moves to Astra Low rather than Sol High;
-- `strong`: Astra Low when deterministic validation is strong, otherwise Astra Medium; High for high-risk/weak-verification work or evidence that Medium under-reasoned;
-- `max`: Astra High/XHigh for genuinely demanding long-running work; Max only when lower efforts leave a plausible capability gap.
+- `standard`: Sol Medium; a semantic failure moves to Sol High;
+- `strong`: Sol Medium when deterministic validation is strong, otherwise Sol High; XHigh for high-risk/weak-verification work or evidence that High under-reasoned;
+- `max`: Sol XHigh for genuinely demanding long-running work; Max only when lower efforts leave a plausible capability gap.
 
-A failed compiler command does not automatically justify Astra. A wrong architecture decision may justify Astra before any retry.
+A failed compiler command does not automatically justify a higher effort. A wrong architecture decision may justify Sol High before any retry.
 
 ## Exploration subagents
 
@@ -72,13 +72,11 @@ Climbed from `failure_class` evidence (`MODEL_ROUTING.md` §6), starting at the 
 Luna Low
   -> Luna Medium
   -> Sol Medium
-  -> Astra Low             (semantic from Sol jumps here; Sol High is never a rung)
-  -> Astra Medium
-  -> Astra High
-  -> Astra XHigh
+  -> Sol High              (strong tier; a semantic failure from Sol Medium jumps here)
+  -> Sol XHigh
 ```
 
-Do not burn several high-effort Sol retries when one Astra Low attempt is more likely to solve a demonstrated capability gap.
+The ladder carries a single High rung: a standard-tier High rung would be the same model and effort as the strong-tier one. Do not spend several same-effort Sol retries on a demonstrated capability gap: a semantic failure goes straight to the next tier boundary.
 
 ## Older catalogs and quota
 

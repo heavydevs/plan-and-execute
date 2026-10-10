@@ -51,7 +51,7 @@ Defaults are conservative: availability drifts fastest, so it ages first. `fresh
 
 ## Bootstrap
 
-`bootstrap_catalog()` returns the embedded dated evidence (`catalog_version` in `scripts/model_catalog.py`) for `claude` (haiku, claude-sonnet-5-5, claude-opus-5-5, claude-fable-5-1), `codex` (gpt-6-luna, gpt-6.1-sol, gpt-6-astra for strong and max), and the opt-in `muse`, `glm` and `deepseek` entries described in their provider guides. The `advanced` tier is intentionally empty for Claude and Codex: an empty tier is skipped upward, never filled by invention and never downgraded below the floor.
+`bootstrap_catalog()` returns the embedded dated evidence (`catalog_version` in `scripts/model_catalog.py`) for `claude` (haiku, claude-sonnet-5-5, claude-opus-5-5, claude-fable-5-1), `codex` (gpt-6-luna for economy, gpt-6.1-sol for standard, strong and max), and the opt-in `muse`, `glm` and `deepseek` entries described in their provider guides. The `advanced` tier is intentionally empty for Claude and Codex: an empty tier is skipped upward, never filled by invention and never downgraded below the floor.
 
 ## Shared cache and refresh controller
 

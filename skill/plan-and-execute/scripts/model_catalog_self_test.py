@@ -98,7 +98,7 @@ class ModelCatalogTests(unittest.TestCase):
         self.assertEqual(mc.facet_freshness(stamp, 'capability', at(11)), 'expired')
         self.assertEqual(mc.facet_freshness(stamp, 'economics', at(9)), 'fresh')
         report = mc.catalog_freshness(self.catalog, now=at(9))
-        self.assertEqual(report['codex']['gpt-6-astra'], {'capability': 'stale', 'economics': 'fresh', 'quality': 'fresh'})
+        self.assertEqual(report['codex']['gpt-6.1-sol'], {'capability': 'stale', 'economics': 'fresh', 'quality': 'fresh'})
 
     def test_override_merges_and_rejects_bad_values(self):
         policy = mc.freshness_policy({'capability': {'grace_days': 10}})

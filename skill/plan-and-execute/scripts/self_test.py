@@ -600,10 +600,10 @@ def test_evidence_based_escalation() -> None:
     # one mechanical slip repeats the rung; the second moves one rung up
     assert (route(["mechanical"])["tier"], route(["mechanical"])["effort"]) == ("standard", "medium")
     two_mech = route(["mechanical", "mechanical"])
-    assert (two_mech["tier"], two_mech["effort"]) == ("strong", "low"), two_mech
-    # a semantic failure on Codex skips Sol High and jumps straight to Astra Low
+    assert (two_mech["tier"], two_mech["effort"]) == ("strong", "high"), two_mech
+    # a semantic failure on Codex jumps to the next tier boundary: Sol High at strong
     semantic = route(["semantic"])
-    assert (semantic["tier"], semantic["effort"], semantic["model"]) == ("strong", "low", "gpt-6-astra")
+    assert (semantic["tier"], semantic["effort"], semantic["model"]) == ("strong", "high", "gpt-6.1-sol")
     # environmental failures never change the route
     assert route(["environmental", "environmental"]) == route([])
     # a second semantic failure jumps to the next tier boundary again

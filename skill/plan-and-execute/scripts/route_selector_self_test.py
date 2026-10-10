@@ -69,7 +69,7 @@ CORPUS: list[dict] = [
     {"id": "F06-advanced-muse", "request": {"route": {"tier": "advanced", "effort": "medium"}, "providers": ["claude", "muse"]},
      "floor": ["advanced", "medium"], "expect": {"route": ["muse", "muse-spark-1.3", "advanced", "medium"], "tier_lifted": False}},
     {"id": "F07-alias-tier", "request": {"route": {"tier": "L4", "effort": "medium"}, "providers": ["codex"]},
-     "floor": ["strong", "medium"], "expect": {"route": ["codex", "gpt-6-astra", "strong", "medium"]}},
+     "floor": ["strong", "medium"], "expect": {"route": ["codex", "gpt-6.1-sol", "strong", "medium"]}},
     # --- capability
     {"id": "F08-capability-vision", "request": {"signals": ["bounded_implementation"], "providers": ["claude", "deepseek"],
                                                 "required_capabilities": ["vision"]},
@@ -84,7 +84,7 @@ CORPUS: list[dict] = [
     # --- availability
     {"id": "F11-outage-same-tier", "request": {"signals": ["subtle_debugging"], "providers": ["claude", "codex"],
                                                "availability": {"claude": "outage"}},
-     "floor": ["strong", "medium"], "expect": {"route": ["codex", "gpt-6-astra", "strong", "medium"], "tier_lifted": False,
+     "floor": ["strong", "medium"], "expect": {"route": ["codex", "gpt-6.1-sol", "strong", "medium"], "tier_lifted": False,
                                                "dropped": {"claude/claude-opus-5-5@strong": "outage"}}},
     {"id": "F12-model-outage-equivalent-first", "request": {"signals": ["bounded_implementation"], "providers": ["claude", "codex"],
                                                             "availability": {"claude/claude-sonnet-5-5": "outage"}},
@@ -93,7 +93,7 @@ CORPUS: list[dict] = [
                                                       "availability": {"claude/claude-sonnet-5-5": "quota_exhausted"}},
      "floor": ["standard", "medium"], "expect": {"route": ["claude", "claude-opus-5-5", "strong", "medium"], "tier_lifted": True}},
     {"id": "F14-unconfigured-provider-skipped", "request": {"route": {"tier": "advanced", "effort": "low"}, "providers": ["codex"]},
-     "floor": ["advanced", "low"], "expect": {"route": ["codex", "gpt-6-astra", "strong", "low"], "tier_lifted": True}},
+     "floor": ["advanced", "low"], "expect": {"route": ["codex", "gpt-6.1-sol", "strong", "low"], "tier_lifted": True}},
     # --- quality constraint and tie-break (synthetic catalog)
     {"id": "F15-quality-rank-below-tier", "catalog": "synthetic", "request": {"signals": ["bounded_implementation"], "providers": ["p"]},
      "floor": ["standard", "medium"], "expect": {"route": ["p", "m-c", "standard", "medium"],
@@ -163,8 +163,8 @@ CORPUS: list[dict] = [
                                                  "sticky_reason": "previous_route_ineligible"}},
     {"id": "F31-sticky-above-floor", "request": {
         "signals": ["bounded_implementation"], "providers": ["claude", "codex"], "cache_affinity": "high",
-        "previous_route": {"provider": "codex", "model": "gpt-6-astra", "tier": "strong", "effort": "medium"}},
-     "floor": ["standard", "medium"], "expect": {"route": ["codex", "gpt-6-astra", "strong", "medium"], "sticky": True}},
+        "previous_route": {"provider": "codex", "model": "gpt-6.1-sol", "tier": "strong", "effort": "medium"}},
+     "floor": ["standard", "medium"], "expect": {"route": ["codex", "gpt-6.1-sol", "strong", "medium"], "sticky": True}},
     {"id": "F32-sticky-previous-outage", "request": {
         "signals": ["bounded_implementation"], "providers": ["claude", "codex"], "cache_affinity": "high",
         "availability": {"codex": "rate_limited"},
@@ -179,7 +179,7 @@ CORPUS: list[dict] = [
                                                  "sticky_reason": "cheaper_alternative"}},
     {"id": "F34-sticky-effort-below-floor", "request": {
         "signals": ["bounded_implementation", "weak_validation"], "providers": ["claude", "codex"], "cache_affinity": "high",
-        "previous_route": {"provider": "codex", "model": "gpt-6-astra", "tier": "strong", "effort": "medium"}},
+        "previous_route": {"provider": "codex", "model": "gpt-6.1-sol", "tier": "strong", "effort": "medium"}},
      "floor": ["strong", "high"], "expect": {"route": ["claude", "claude-opus-5-5", "strong", "high"], "sticky": False,
                                              "sticky_reason": "previous_route_ineligible"}},
 ]

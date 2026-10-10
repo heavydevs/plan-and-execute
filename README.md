@@ -269,7 +269,7 @@ Each TODO keeps:
 }
 ```
 
-Concrete provider model ids are resolved through `orchestrator.config.json` from one catalog (`scripts/routingctl.py`): Claude `haiku`/`sonnet`/`opus`/`claude-fable-5-1`, Codex `gpt-6-luna`/`gpt-6.1-sol`/`gpt-6-astra`. This keeps the task portable when one provider runs out of quota or a different compatible model is available.
+Concrete provider model ids are resolved through `orchestrator.config.json` from one catalog (`scripts/routingctl.py`): Claude `haiku`/`sonnet`/`opus`/`claude-fable-5-1`, Codex `gpt-6-luna`/`gpt-6.1-sol` (Sol serves every tier above economy; tiers differ by effort). This keeps the task portable when one provider runs out of quota or a different compatible model is available.
 
 ### Routing from leaf signals, elevation by delegation
 
@@ -284,7 +284,7 @@ The skill **never switches the root session's model or effort** (that invalidate
 
 ### Escalation from classified evidence
 
-A failed attempt records a `failure_class` (worker report field or `planctl fail --failure-class`): `mechanical` repeats the rung once and then climbs one step; `semantic` jumps to the next stronger tier (on Codex, Terra → Astra Low, never Terra High); `environmental` keeps the route; `budget` resumes from checkpoints; `plan_defect` blocks the TODO for replanning. Rate limits and quota are never evidence. Provider ladders live in the catalog; Haiku, which accepts no effort parameter, is dispatched without `--effort`.
+A failed attempt records a `failure_class` (worker report field or `planctl fail --failure-class`): `mechanical` repeats the rung once and then climbs one step; `semantic` jumps to the next stronger tier (on Codex, Sol Medium → Sol High); `environmental` keeps the route; `budget` resumes from checkpoints; `plan_defect` blocks the TODO for replanning. Rate limits and quota are never evidence. Provider ladders live in the catalog; Haiku, which accepts no effort parameter, is dispatched without `--effort`.
 
 ### Two-phase leaves and decision-first planning
 

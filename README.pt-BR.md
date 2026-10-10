@@ -263,7 +263,7 @@ Cada definição mantém algo como:
 }
 ```
 
-Os IDs concretos dos modelos ficam em `orchestrator.config.json`, vindos de um único catálogo (`scripts/routingctl.py`): Claude `haiku`/`sonnet`/`opus`/`claude-fable-5-1`, Codex `gpt-6-luna`/`gpt-6.1-sol`/`gpt-6-astra`. Assim, se os créditos de um provider acabarem, outro provider/modelo compatível pode resolver o mesmo nível lógico sem perder o contrato da tarefa.
+Os IDs concretos dos modelos ficam em `orchestrator.config.json`, vindos de um único catálogo (`scripts/routingctl.py`): Claude `haiku`/`sonnet`/`opus`/`claude-fable-5-1`, Codex `gpt-6-luna`/`gpt-6.1-sol` (o Sol atende todos os tiers acima de economy; os tiers diferem pelo esforço). Assim, se os créditos de um provider acabarem, outro provider/modelo compatível pode resolver o mesmo nível lógico sem perder o contrato da tarefa.
 
 ### Rota por sinais da folha, elevação por delegação
 
@@ -278,7 +278,7 @@ A skill **nunca troca o modelo/effort da sessão raiz** (isso preserva uma rota 
 
 ### Escalada por evidência classificada
 
-Cada tentativa falha registra um `failure_class` (campo do report do worker ou `planctl fail --failure-class`): `mechanical` repete o degrau uma vez e depois sobe um; `semantic` pula para o próximo tier mais forte (no Codex, Terra → Astra Low, nunca Terra High); `environmental` mantém a rota; `budget` retoma dos checkpoints; `plan_defect` bloqueia o TODO para replanejamento. Rate limit e quota nunca são evidência. As escadas por provider ficam no catálogo; o Haiku, que não aceita parâmetro de effort, é despachado sem `--effort`.
+Cada tentativa falha registra um `failure_class` (campo do report do worker ou `planctl fail --failure-class`): `mechanical` repete o degrau uma vez e depois sobe um; `semantic` pula para o próximo tier mais forte (no Codex, Sol Medium → Sol High); `environmental` mantém a rota; `budget` retoma dos checkpoints; `plan_defect` bloqueia o TODO para replanejamento. Rate limit e quota nunca são evidência. As escadas por provider ficam no catálogo; o Haiku, que não aceita parâmetro de effort, é despachado sem `--effort`.
 
 ### Folha em duas fases e planejamento "decisões primeiro"
 

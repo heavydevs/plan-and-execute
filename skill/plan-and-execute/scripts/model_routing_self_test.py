@@ -18,8 +18,8 @@ def test_current_model_map() -> None:
     assert configured["codex"]["models"] == {
         "economy": "gpt-6-luna",
         "standard": "gpt-6.1-sol",
-        "strong": "gpt-6-astra",
-        "max": "gpt-6-astra",
+        "strong": "gpt-6.1-sol",
+        "max": "gpt-6.1-sol",
     }
     assert configured["claude"]["models"] == {
         "economy": "haiku",
@@ -34,7 +34,7 @@ def test_current_model_map() -> None:
     }
     # planctl.default_config is itself catalog-backed: no second source of truth.
     assert planctl.default_config()["claude"]["models"]["max"] == "claude-fable-5-1"
-    assert planctl.default_config()["codex"]["models"]["strong"] == "gpt-6-astra"
+    assert planctl.default_config()["codex"]["models"]["strong"] == "gpt-6.1-sol"
     assert planctl.default_config()["claude"]["models_without_effort"] == ["haiku"]
     assert routingctl.model_supports_effort(configured["claude"], "haiku") is False
     assert routingctl.model_supports_effort(configured["claude"], "sonnet") is True
@@ -52,8 +52,8 @@ def test_legacy_ceiling_state_is_replaced() -> None:
         "max_effort": "high",
     }
     configured = routingctl.configure_config(legacy)
-    assert configured["codex"]["models"]["strong"] == "gpt-6-astra"
-    assert configured["codex"]["models"]["max"] == "gpt-6-astra"
+    assert configured["codex"]["models"]["strong"] == "gpt-6.1-sol"
+    assert configured["codex"]["models"]["max"] == "gpt-6.1-sol"
     assert configured["codex"]["max_effort_by_tier"]["max"] == "max"
     assert "hard_ceiling" not in configured["routing_policy"]
     assert "max_tier" not in configured["routing_policy"]
@@ -66,16 +66,19 @@ def test_catalog_installer_is_idempotent() -> None:
     module = routingctl.install_current_model_catalog(module)
     second = module.default_config()
     assert first == second
-    assert second["codex"]["models"]["strong"] == "gpt-6-astra"
+    assert second["codex"]["models"]["strong"] == "gpt-6.1-sol"
 
 
 def test_escalation_ladders_follow_calibration() -> None:
     codex = routingctl.configure_config({})["codex"]
     rungs = routingctl.route_rungs(codex, "standard", "medium")
-    # Codex never spends a Sol High retry before an Astra Low attempt.
+    # Codex climbs by effort on one model: Sol Medium -> Sol High -> Sol XHigh.
     assert rungs[0] == ("standard", "medium")
-    assert rungs[1] == ("strong", "low"), rungs
-    assert ("standard", "high") not in rungs
+    assert rungs == [("standard", "medium"), ("strong", "high"), ("max", "xhigh")], rungs
+    models = routingctl.configure_config({})["codex"]["models"]
+    assert len({models[tier] for tier in ("standard", "strong", "max")}) == 1
+    # no two consecutive rungs resolve to the same model and effort
+    assert len({(models[tier], effort) for tier, effort in rungs}) == len(rungs), rungs
     claude = routingctl.configure_config({})["claude"]
     rungs = routingctl.route_rungs(claude, "economy", "low")
     # Haiku accepts no effort, so the rung above economy/low is Sonnet Medium.
@@ -166,8 +169,7 @@ def test_legacy_schema_fixtures_route_unchanged() -> None:
                                        ("strong", "medium"), ("strong", "high"), ("max", "high"), ("max", "xhigh")],
         ("claude", "standard", "medium"): [("standard", "medium"), ("standard", "high"), ("strong", "medium"),
                                            ("strong", "high"), ("max", "high"), ("max", "xhigh")],
-        ("codex", "standard", "medium"): [("standard", "medium"), ("strong", "low"), ("strong", "medium"),
-                                          ("strong", "high"), ("max", "xhigh")],
+        ("codex", "standard", "medium"): [("standard", "medium"), ("strong", "high"), ("max", "xhigh")],
         ("codex", "strong", "high"): [("strong", "high"), ("max", "xhigh")],
     }
     for (provider, tier, effort), expected in legacy.items():
@@ -231,8 +233,8 @@ def test_provider_guidance_is_split_and_lazy() -> None:
     codex = (REFERENCES / "MODEL_ROUTING_CODEX.md").read_text(encoding="utf-8")
     claude = (REFERENCES / "MODEL_ROUTING_CLAUDE.md").read_text(encoding="utf-8")
     assert "exactly one" in generic
-    assert "gpt-6-astra" in codex
-    assert "Astra Low" in codex and "Astra Medium" in codex
+    assert "gpt-6.1-sol" in codex and "gpt-6-astra" not in codex
+    assert "Sol High" in codex and "Sol XHigh" in codex
     assert "Explore/Haiku" in claude
     assert "Opus High" in claude
 

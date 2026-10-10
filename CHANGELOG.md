@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## Unreleased
 
+- Routes Codex only through GPT-6.1 Sol above economy (owner decision 2026-10-09: Sol is clearly better than GPT-6 Astra in practice): `strong`/`max` change from `gpt-6-astra` to `gpt-6.1-sol`, the bootstrap catalog drops Astra, and the Codex ladder becomes Luna Low → Luna Medium → Sol Medium → Sol High → Sol XHigh (map `2026-10-09-v7`, catalog `2026-10-09-bootstrap-v5`). `ultra` stays an opt-in effort.
 - Updates the Codex model map to the GPT-6 family from the live `codex debug models` catalog: economy `gpt-6-luna`, standard `gpt-6.1-sol` (the new latest workhorse; there is no GPT-6 Terra and GPT-6 Sol is now the previous generation; the GPT-5.6 line is "older"; needs Codex CLI 0.159+, absent from 0.155.1's catalog), strong/max `gpt-6-astra`. The escalation ladders keep their calibrated shape. The Claude map was re-reviewed against the Claude Code model list and Anthropic's model table and stays `haiku` / `claude-sonnet-5-5` / `claude-opus-5-5` / `claude-fable-5-1`; the Claude reference now records prices, per-model effort defaults, non-routes (`claude-mythos-5-1`, previous generations) and the Fable `credits_required` caveat. Map version `2026-09-30-v6`.
 - Adds strict user-global/version-2 per-plan configuration, primary/fallback chains per logical tier, and backward compatibility with legacy full snapshots.
 - Adds bounded same-rung availability failover for design and implementation, durable cooldowns, and resumable exit-75 pauses without changing functional-failure counters.

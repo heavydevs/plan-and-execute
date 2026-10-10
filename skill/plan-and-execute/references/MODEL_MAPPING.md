@@ -51,9 +51,11 @@ Configuração sincronizada no arquivo global do sistema operacional:
 |:---:|---|---|---|
 | **`economy` (L1)** | `haiku` *(Haiku 4.5; sem flag `--effort`)* | `gpt-6-luna` *(effort: low)* | `gemini-3.8-flash-high` |
 | **`standard` (L2)** | `claude-sonnet-5-5` *(effort: medium/high)* | `gpt-6.1-sol` *(effort: medium)* | `gemini-3.1-pro-high` |
-| **`advanced` (L3)** | `claude-opus-5-5` *(effort: medium)* | `gpt-6-astra` *(effort: low/medium)* | `claude-sonnet-4-6` |
-| **`strong` (L4)** | `claude-opus-5-5` *(effort: medium/high)* | `gpt-6-astra` *(effort: medium/high)* | `claude-opus-4-6-thinking` |
-| **`max` (L5)** | `claude-opus-5-5` *(effort: xhigh/max)* | `gpt-6-astra` *(effort: xhigh)* | `claude-opus-4-6-thinking` |
+| **`advanced` (L3)** | `claude-opus-5-5` *(effort: medium)* | `gpt-6.1-sol` *(effort: medium)* | `claude-sonnet-4-6` |
+| **`strong` (L4)** | `claude-opus-5-5` *(effort: medium/high)* | `gpt-6.1-sol` *(effort: medium/high)* | `claude-opus-4-6-thinking` |
+| **`max` (L5)** | `claude-opus-5-5` *(effort: xhigh/max)* | `gpt-6.1-sol` *(effort: xhigh)* | `claude-opus-4-6-thinking` |
+
+*(Nota sobre o Codex, decisão do responsável em 2026-10-09: o `gpt-6.1-sol` é claramente superior ao `gpt-6-astra` na prática, então atende todos os tiers acima de `economy` e o Astra deixou de ser roteado. Os tiers diferem apenas pelo **esforço**, e a escada de escalação do Codex é `luna low → luna medium → sol medium → sol high → sol xhigh`. O esforço `ultra` existe no catálogo do Sol 6.1, mas a skill não o seleciona sozinha: só por opt-in na configuração do projeto.)*
 
 *(Nota sobre Fable 5.1: Caso deseje utilizar o `claude-fable-5-1` no tier `max`, ele permanece suportado pelo catálogo, mas exige créditos pré-pagos e opera com maior latência/custo do que o Opus 5.5).*
 

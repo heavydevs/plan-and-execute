@@ -16,7 +16,7 @@ import json
 import math
 from typing import Any
 
-MODEL_MAP_VERSION = "2026-09-30-v6"
+MODEL_MAP_VERSION = "2026-10-09-v7"
 
 TIER_ORDER = ["economy", "standard", "advanced", "strong", "max"]
 EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"]
@@ -42,19 +42,19 @@ CURRENT_MODELS: dict[str, dict[str, str]] = {
         "strong": "claude-opus-5-5",
         "max": "claude-fable-5-1",
     },
-    # Codex catalog (`codex debug models`, CLI 0.159.2, 2026-09-30): GPT-6 Astra
-    # = "frontier intelligence for the most demanding work", GPT-6.1 Sol = "the
-    # latest workhorse for coding and everyday work" (GPT-6 Sol is now the
-    # previous generation), GPT-6 Luna = "fast and affordable, easier tasks".
-    # The GPT-5.6 line is listed as "older" and there is no GPT-6 Terra, so
-    # GPT-6.1 Sol takes the balanced standard slot. Keep effort separate from model tier so the agent spends
-    # only the reasoning depth justified by verifiability, risk, and failure
-    # evidence.
+    # Codex catalog (`codex debug models`, CLI 0.159.2): GPT-6.1 Sol = "the latest
+    # workhorse for coding and everyday work", GPT-6 Astra = "frontier intelligence
+    # for the most demanding work", GPT-6 Luna = "fast and affordable, easier
+    # tasks". Owner decision 2026-10-09: GPT-6.1 Sol is clearly better than Astra
+    # in practice, so Sol takes standard, strong and max; Astra is not routed.
+    # Tiers above standard differ by effort, not by model. Keep effort separate
+    # from model tier so the agent spends only the reasoning depth justified by
+    # verifiability, risk, and failure evidence.
     "codex": {
         "economy": "gpt-6-luna",
         "standard": "gpt-6.1-sol",
-        "strong": "gpt-6-astra",
-        "max": "gpt-6-astra",
+        "strong": "gpt-6.1-sol",
+        "max": "gpt-6.1-sol",
     },
 }
 
@@ -85,9 +85,9 @@ MODELS_WITHOUT_EFFORT: dict[str, list[str]] = {
 # by verified cost per solved task, not price per token:
 # - Claude: Haiku accepts no effort, so an economy failure moves straight to
 #   Sonnet; Opus Medium is a valid first strong rung when validation is strong.
-# - Codex: Astra Low dominated the previous generation's High-effort standard
-#   model (OpenAI calibration for GPT-5.6; no newer published numbers), so the
-#   ladder never spends a Sol High retry before an Astra Low attempt.
+# - Codex: GPT-6.1 Sol serves standard, strong and max, so a retry climbs by effort
+#   (Medium -> High -> XHigh) instead of switching model. The ladder carries one
+#   High rung (strong): a standard/high rung would be the same model and effort.
 ESCALATION_LADDERS: dict[str, list[list[str]]] = {
     "claude": [
         ["economy", "low"],
@@ -102,8 +102,6 @@ ESCALATION_LADDERS: dict[str, list[list[str]]] = {
         ["economy", "low"],
         ["economy", "medium"],
         ["standard", "medium"],
-        ["strong", "low"],
-        ["strong", "medium"],
         ["strong", "high"],
         ["max", "xhigh"],
     ],

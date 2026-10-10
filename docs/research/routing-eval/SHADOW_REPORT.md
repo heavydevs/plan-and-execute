@@ -16,7 +16,7 @@ project-shared; retention: keep, regenerated in place (PAT004). Telemetry units 
 | `corpus/telemetry/cold.jsonl` | `8d7c79f8804e520d56e5e50e55c40359d3f673145ce2f3417a3048b613cee390` |
 | `corpus/telemetry/warm.jsonl` | `ebec98647a5aded369b3928c086bf3f3bf783862050e47961716530e3f079a5b` |
 
-Selector catalog: `2026-10-01-bootstrap-v4`.
+Selector catalog: `2026-10-09-bootstrap-v5`.
 
 ## Execution invariance
 

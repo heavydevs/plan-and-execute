@@ -352,7 +352,7 @@ _DEEPSEEK_REF = ("docs/requests/portable-model-routing-dynamic-provider-catalog.
                  "request and is unverified bootstrap evidence; tier placement is not a quality ranking")
 DEEPSEEK_EFFORT_MAP = {"low": "high", "medium": "high", "high": "high", "xhigh": "max", "max": "max"}
 DEEPSEEK_OFF_PEAK_WINDOW = {"start": "16:30", "end": "00:30"}
-_CLAUDE_REF = "routingctl.py MODEL_MAP_VERSION 2026-09-30-v6"
+_CLAUDE_REF = "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7"
 _CODEX_REF = "codex debug models, CLI 0.159.2, 2026-09-30"
 _GLM_REF = ("docs/requests/portable-model-routing-dynamic-provider-catalog.md s10 (Z.AI GLM-5.3 pricing and "
             "Coding Plan credit multipliers, 2026-10-01); tier placement is bootstrap evidence only")
@@ -382,7 +382,7 @@ _MUSE_REF = ("docs/requests/portable-model-routing-dynamic-provider-catalog.md s
 # empty for Claude and Codex (skipped upward, never filled by invention).
 BOOTSTRAP_CATALOG: dict = {
     "schema_version": SCHEMA_VERSION,
-    "catalog_version": "2026-10-01-bootstrap-v4",
+    "catalog_version": "2026-10-09-bootstrap-v5",
     "providers": {
         "claude": {"models": {
             "haiku": _bootstrap_entry(["economy"], ["code", "tool_use"], False, None, 1, _CLAUDE_REF),
@@ -392,8 +392,7 @@ BOOTSTRAP_CATALOG: dict = {
         }},
         "codex": {"models": {
             "gpt-6-luna": _bootstrap_entry(["economy"], ["code", "tool_use"], True, "max", 1, _CODEX_REF),
-            "gpt-6.1-sol": _bootstrap_entry(["standard"], _FULL, True, "max", 2, _CODEX_REF),
-            "gpt-6-astra": _bootstrap_entry(["strong", "max"], _FULL, True, "max", 5, _CODEX_REF),
+            "gpt-6.1-sol": _bootstrap_entry(["standard", "strong", "max"], _FULL, True, "max", 5, _CODEX_REF),
         }},
         "muse": {"models": {
             "muse-spark-1.3": _bootstrap_entry(["advanced"], _FULL, True, "high", 3, _MUSE_REF),
