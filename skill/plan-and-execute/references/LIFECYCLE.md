@@ -47,6 +47,8 @@ python <skill-dir>/scripts/run_concise.py --plan <plan-path>
 
 An interruption is not automatically a technical failure. Recovery resets the interrupted task/subtask state needed for safe continuation without discarding implementation changes.
 
+Ordinary interruption preserves tracked jobs and their evidence for resume; a completed worker checkpoint resumes validation without another model dispatch.
+
 ## Lease
 
 `.runner-lease.json` prevents duplicate runners.
@@ -67,6 +69,8 @@ python <skill-dir>/scripts/lifecyclectl_concise.py cancel --repo-root . --json
 ```
 
 The command must not run arbitrary rollback/revert/clean operations on the repository.
+
+Explicit cancellation stops tracked jobs before deleting their plan workspace. Reset follows the same stop-before-delete rule; if stopping fails, preserve the workspace and report the failure.
 
 ## Reset
 

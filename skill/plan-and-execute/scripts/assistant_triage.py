@@ -17,6 +17,9 @@ import time
 from pathlib import Path
 from typing import Any, Callable
 
+import progress_watch
+import process_tree
+
 MAX_STATE = 24000
 CLASSES = ('mechanical', 'semantic', 'environmental', 'budget', 'plan_defect', 'unknown')
 FIELDS = {'suggested_class', 'confidence', 'hypothesis', 'evidence_refs'}
@@ -163,7 +166,7 @@ def kill_tree(process: subprocess.Popen) -> None:
         process.kill()
 
 
-def bounded_process(argv: list[str], prompt: str, cwd: Path, env: dict, timeout: float, cap: int) -> str:
+def bounded_process(argv: list[str], prompt: str, cwd: Path, env: dict, timeout: float, cap: int, idle_timeout: float = 0) -> str:
     """Bound both pipe capture and process-tree lifetime; evidence never goes in argv."""
     output = bytearray()
     overflow, finished = threading.Event(), threading.Event()
@@ -171,14 +174,22 @@ def bounded_process(argv: list[str], prompt: str, cwd: Path, env: dict, timeout:
         stdin.write(prompt.encode('utf-8'))
         stdin.seek(0)
         options = {'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == 'nt' else {'start_new_session': True}
-        with subprocess.Popen(argv, cwd=cwd, env=env, stdin=stdin, stdout=subprocess.PIPE,
-                              stderr=subprocess.STDOUT, **options) as process:
+        launch = process_tree.launch if idle_timeout else subprocess.Popen
+        with launch(argv, cwd=cwd, env=env, stdin=stdin, stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT, **options) as process:
+            state = progress_watch.ProgressState(idle_timeout, timeout)
+            monitor = progress_watch.ProgressMonitor(process, state, cwd) if idle_timeout else None
+            if monitor:
+                monitor.start()
             def reader():
                 try:
                     while True:
-                        block = process.stdout.read(4096)
+                        block = process.stdout.read1(4096)
                         if not block:
                             break
+                        if monitor:
+                            for line in block.decode('utf-8', errors='replace').splitlines():
+                                state.observe_output(line)
                         room = cap - len(output)
                         output.extend(block[:max(0, room)])
                         if len(block) > room:
@@ -193,17 +204,37 @@ def bounded_process(argv: list[str], prompt: str, cwd: Path, env: dict, timeout:
                 while process.poll() is None or not finished.is_set():
                     if overflow.is_set():
                         raise Skip('output_limit')
+                    if monitor and monitor.reason:
+                        snap = state.snapshot()
+                        print(f"[assistant] timeout={monitor.reason} idle_seconds={int(snap['idle_seconds'])} "
+                              f"last_progress_source={snap.get('last_progress_source', 'start')} "
+                              f"window={idle_timeout:g}s ceiling={timeout:g}s", flush=True)
+                        raise Skip('idle_timeout' if monitor.reason == 'idle' else 'timeout')
                     if time.monotonic() >= deadline:
+                        snap = state.snapshot()
+                        print(f"[assistant] timeout=hard idle_seconds={int(snap['idle_seconds'])} "
+                              f"last_progress_source={snap.get('last_progress_source', 'start')} "
+                              f"window={idle_timeout:g}s ceiling={timeout:g}s", flush=True)
                         raise Skip('timeout')
                     finished.wait(0.02)
                     if finished.is_set():
                         time.sleep(0.01)
                 if overflow.is_set():
                     raise Skip('output_limit')
+                if monitor and monitor.reason:
+                    snap = state.snapshot()
+                    print(f"[assistant] timeout={monitor.reason} idle_seconds={int(snap['idle_seconds'])} "
+                          f"last_progress_source={snap.get('last_progress_source', 'start')} "
+                          f"window={idle_timeout:g}s ceiling={timeout:g}s", flush=True)
+                    raise Skip('idle_timeout' if monitor.reason == 'idle' else 'timeout')
                 if process.returncode != 0:
                     raise Skip('provider_error')
             finally:
-                kill_tree(process)
+                if monitor:
+                    monitor.close()
+                    process_tree.close(process)
+                else:
+                    kill_tree(process)
                 thread.join(timeout=1)
             return output.decode('utf-8', errors='strict')
 
@@ -261,7 +292,8 @@ def native_invoke(config: dict, prompt: str, refs: set[str]) -> dict:
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise Skip('timeout')
-        text = bounded_process(argv, prompt, work, env, remaining, 32768)
+        idle = config['assistant'].get('idle_timeout_seconds', 0)
+        text = bounded_process(argv, prompt, work, env, remaining, 32768, idle_timeout=idle) if idle else bounded_process(argv, prompt, work, env, remaining, 32768)
     envelope = strict_json(text)
     if not isinstance(envelope, dict) or envelope.get('is_error') is True:
         raise ValueError('invalid provider envelope')

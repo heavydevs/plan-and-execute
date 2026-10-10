@@ -29,12 +29,14 @@ AUTO_SELECT_MODES = ('off', 'shadow', 'on')
 ROUTING_KEYS = ('auto_select', 'allowlist', 'gate_dir')
 SEGMENT_NAME = re.compile(r'[a-z][a-z0-9_]{0,63}')
 EXTRA_DEFAULTS = {
+    'validation_hard_timeout_seconds': 0,
+    'task_idle_timeout_seconds': 0,
     'tier_routes': {},
     'availability': {'cooldown_seconds': 300, 'max_attempts_per_run': 7},
     'assistant': {
         'enabled': False, 'provider': 'antigravity', 'model_tier': 'economy',
         'reasoning_effort': 'low', 'max_calls_per_task': 1,
-        'max_input_chars': 6000, 'max_output_chars': 2000, 'timeout_seconds': 30,
+        'max_input_chars': 6000, 'max_output_chars': 2000, 'timeout_seconds': 30, 'idle_timeout_seconds': 0,
         'repetition_threshold': 2, 'unhealthy_threshold': 2, 'stall_seconds': 300,
     },
 }
@@ -116,7 +118,7 @@ def validate(config: dict, *, partial: bool = False) -> None:
     for key in ('allow_provider_fallback', 'strict_fresh_context', 'auto_cleanup', 'stream_provider_output'):
         if key in config:
             _boolean(config[key], key)
-    for key, low, high in (('functional_failures_per_provider', 1, 50), ('task_timeout_seconds', 0, 604800), ('validation_timeout_seconds', 1, 604800)):
+    for key, low, high in (('functional_failures_per_provider', 1, 50), ('task_timeout_seconds', 0, 604800), ('task_idle_timeout_seconds', 0, 604800), ('validation_timeout_seconds', 0, 604800), ('validation_hard_timeout_seconds', 0, 604800)):
         if key in config:
             _integer(config[key], key, low, high)
     limits = _object(config.get('rate_limit', {}), 'rate_limit')
@@ -194,7 +196,7 @@ def validate(config: dict, *, partial: bool = False) -> None:
     for key, values in (('provider', PROVIDERS), ('model_tier', TIER_ORDER), ('reasoning_effort', EFFORT_ORDER)):
         if key in assistant and assistant[key] not in values:
             raise ConfigError(f'Invalid assistant.{key}')
-    for key, bounds in {'max_calls_per_task': (1, 3), 'max_input_chars': (512, 12000), 'max_output_chars': (256, 4000), 'timeout_seconds': (1, 120), 'repetition_threshold': (2, 20), 'unhealthy_threshold': (1, 20), 'stall_seconds': (1, 3600)}.items():
+    for key, bounds in {'max_calls_per_task': (1, 3), 'max_input_chars': (512, 12000), 'max_output_chars': (256, 4000), 'timeout_seconds': (1, 120), 'idle_timeout_seconds': (0, 120), 'repetition_threshold': (2, 20), 'unhealthy_threshold': (1, 20), 'stall_seconds': (1, 3600)}.items():
         if key in assistant:
             _integer(assistant[key], f'assistant.{key}', *bounds)
 

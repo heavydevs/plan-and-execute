@@ -102,6 +102,7 @@ Every failed attempt records a `failure_class` (worker report field or `planctl 
 | `semantic` | wrong approach or reasoning gap | jump to the next stronger **tier** (skip same-tier effort rungs) |
 | `environmental` | toolchain/repository problem outside the task | same route; repair the environment |
 | `budget` | turn/token budget exhausted | repeat once (resume from checkpoints), then +1 |
+| `timeout_ceiling` | explicit fixed runtime ceiling exhausted | block and review the runtime budget; no automatic escalation |
 | `plan_defect` | task boundary, requirement, or dependency is wrong | block the task; replan |
 | `unknown` | no report/invalid report/non-zero exit | +1 rung |
 
@@ -111,11 +112,11 @@ Diagnostic for choosing the class: *did the worker not know enough (semantic -> 
 
 Provider fallback (quota, rate limit, capacity, CLI interruption) is availability, not evidence: state is preserved and the equivalent logical rung runs on the fallback provider. When the evidence asks for a rung above the ladder's top on the last available provider (for example a `semantic` failure at the `max` tier), the runner blocks the TODO (`ladder_exhausted`) for replanning instead of spending the remaining attempts at the strongest route. Stop as soon as acceptance and independent validation pass.
 
-### Validation stagnation: promote after five minutes without progress
+### Validation stagnation: promote from missing progress
 
-For a mapped validation, `resource_watch.py` defaults `no_progress_timeout_seconds` to 300. On POSIX it samples the test process group every 20 seconds. A changed normalized output line or higher aggregate CPU time is progress; if neither advances for five minutes while dependencies are healthy, the watcher records a bounded process snapshot, terminates the test process group, and records a semantic validation failure. Set a longer per-validation window for a legitimate long silent phase; set `0` only when the project has another reliable deadlock timeout/diagnostic. Service probes continue on their own interval while the test runs.
+For a mapped validation, explicit `no_progress_timeout_seconds` wins, including `0`; omission inherits the runner's per-command idle window (default 1800), or 300 for a standalone watcher. Changed normalized output, increased process-tree CPU and configured probes/files renew that window. Missing progress while dependencies remain healthy preserves a bounded snapshot, stops the process tree and supplies semantic stagnation evidence. Every command starts fresh; productive work may continue beyond the original window. Service health probes continue independently and do not count as progress. See [PROGRESS_TIMEOUTS.md](PROGRESS_TIMEOUTS.md) for quiet phases, portable signals and optional fixed ceilings.
 
-That evidence raises the next fresh worker's route floor to `strong` (at least medium effort), or to `max` if the failed attempt already used `strong`/`max`. Repeated identical validation fingerprints use the same floor once their recorded age reaches five minutes, including time spent between attempts. This is a floor within the provider's configured ladder, not a forced root-session model switch. The next worker gets a compact latest-attempt excerpt and signature; it does not reread older logs. If the watcher identifies an unhealthy external dependency, retain the `environmental` class and repair/restore the service instead of buying a stronger model. On Windows, where this watcher currently cannot compare process-group CPU, use cross-attempt signature aging and the test/framework's own timeouts.
+Confirmed stagnation raises the next fresh worker's route floor to `strong` (at least medium effort), or to `max` from `strong`/`max`. Repeated identical validation fingerprints keep their five-minute cross-attempt floor. This does not switch the root model. The next worker gets a compact latest-attempt excerpt/signature, not older logs. An unhealthy dependency remains `environmental`; an explicit fixed runtime ceiling is `timeout_ceiling`. Neither automatically raises capability: repair the dependency or review the selected runtime budget. Unavailable process metrics require output/probe/file evidence rather than invented CPU progress.
 
 ## 7. Two-phase leaves (optional)
 

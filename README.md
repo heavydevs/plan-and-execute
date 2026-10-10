@@ -327,6 +327,10 @@ python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
 
 The runner starts a fresh process for each TODO, independently reruns validations, bounds diagnostic output, and builds the final summary from compact authoritative state rather than raw worker transcripts.
 
+Long validations can continue while meaningful progress renews their idle window: the default 1800-second `validation_timeout_seconds` is now per-command idle time, including for existing plans. Set `validation_hard_timeout_seconds` only when total runtime needs a fixed ceiling (default `0`, disabled). A read-only batch counter can keep a silent book import alive without exposing credentials; unchanged heartbeats and failed probes do not count. Explicit worker, advisory and provider ceilings remain in force.
+
+Tasks can declare mapped validation IDs in `validation_jobs`. Workers start those tracked `jobctl.py` validations and finish; the deterministic runner waits and verifies the result. See [progress windows, silent-job examples and tracked waiting](skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md).
+
 ## Activation modes
 
 ### Selective — recommended

@@ -84,6 +84,9 @@ for (const relative of [
   path.join('references', 'PLANNING_PROTOCOL.md'),
   path.join('references', 'PLAN_SPEC.md'),
   path.join('references', 'WORKFLOW.md'),
+  path.join('references', 'PROGRESS_TIMEOUTS.md'),
+  path.join('references', 'TEST_RESOURCE_MONITORING.md'),
+  ...['progress_watch.py', 'progress_watch_self_test.py', 'progress_runner_self_test.py', 'jobctl.py', 'jobctl_self_test.py'].map(name => path.join('scripts', name)),
   path.join('references', 'LIFECYCLE.md'),
   path.join('references', 'MODEL_ROUTING.md'),
   path.join('references', 'TOKEN_EFFICIENCY.md'),
@@ -209,6 +212,18 @@ const planSpec = read(path.join('references', 'PLAN_SPEC.md'));
 requireText(planSpec, ['MODEL_CATALOG.md', 'DELEGATION.md', 'schema v4', 'request_analysis', 'context_boundary', 'learning_targets', 'model_tier', 'reasoning_effort'], 'PLAN_SPEC.md');
 const workflow = read(path.join('references', 'WORKFLOW.md'));
 requireText(workflow, ['Fresh workers', 'SUMMARY_INPUT.json'], 'WORKFLOW.md');
+const progressTimeouts = read(path.join('references', 'PROGRESS_TIMEOUTS.md'));
+requireText(progressTimeouts, [
+  'no absolute timeout covers the validation set',
+  'progress_probe', 'progress_files', 'progress_regex', 'expected_quiet_seconds',
+  'validation_hard_timeout_seconds', 'task_idle_timeout_seconds', 'assistant.idle_timeout_seconds',
+  'jobctl', 'timeout_ceiling', 'TalePace', 'Migration:', '--confirm-reconciled'
+], 'PROGRESS_TIMEOUTS.md');
+requireMax(progressTimeouts, 9000, 'PROGRESS_TIMEOUTS.md');
+const testResources = read(path.join('references', 'TEST_RESOURCE_MONITORING.md'));
+requireText(testResources, ['PROGRESS_TIMEOUTS.md', 'no_progress_timeout_seconds', 'validation_hard_timeout_seconds', 'progress_probe', 'progress_files'], 'TEST_RESOURCE_MONITORING.md');
+const routingConfig = read(path.join('references', 'ROUTING_CONFIG.md'));
+requireText(routingConfig, ['PROGRESS_TIMEOUTS.md', 'validation_timeout_seconds', 'validation_hard_timeout_seconds', 'task_idle_timeout_seconds', 'assistant.idle_timeout_seconds'], 'ROUTING_CONFIG.md');
 const contextProtocol = read(path.join('references', 'EXECUTION_CONTEXT.md'));
 requireText(contextProtocol, ['Omission is the default', 'CONTEXT.md', 'Validated execution learnings'], 'EXECUTION_CONTEXT.md');
 

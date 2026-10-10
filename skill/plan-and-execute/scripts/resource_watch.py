@@ -15,12 +15,14 @@ import signal
 import subprocess
 import sys
 import threading
+import codecs
 import time
 from pathlib import Path
 from typing import Any
 
 import service_map
 import process_tree
+import progress_watch
 
 
 def stamp() -> str:
@@ -273,7 +275,7 @@ def run_toolchain_check(toolchain: dict[str, Any], repo_root: Path) -> dict[str,
         command = spawnable(list(toolchain["command"]))
         if os.name != "nt":
             command = [sys.executable, str(Path(__file__).resolve()), "_exec-group", *command]
-        process = subprocess.Popen(
+        process = process_tree.launch(
             command,
             cwd=repo_root,
             stdout=subprocess.PIPE,
@@ -281,6 +283,7 @@ def run_toolchain_check(toolchain: dict[str, Any], repo_root: Path) -> dict[str,
             text=True,
             encoding="utf-8",
             errors="replace",
+            start_new_session=False,
         )
         try:
             output, _ = process.communicate(timeout=toolchain.get("timeout_seconds", 10))
@@ -311,12 +314,16 @@ def run_toolchain_check(toolchain: dict[str, Any], repo_root: Path) -> dict[str,
             "version": "",
             "error": str(exc)[:200],
         }
+    finally:
+        if process is not None:
+            process_tree.close(process)
 
 
 def evaluate_check(
     check: dict[str, Any],
     repo_root: Path,
     monitor_env: dict[str, str] | None = None,
+    cancelled: Any = None,
 ) -> dict[str, Any]:
     started = time.monotonic()
     process: subprocess.Popen[str] | None = None
@@ -327,7 +334,7 @@ def evaluate_check(
         # outer timeout can terminate it, including orphaned descendants.
         command = [sys.executable, str(Path(__file__).resolve()), "_exec-group", *command]
     try:
-        process = subprocess.Popen(
+        process = process_tree.launch(
             command,
             cwd=repo_root,
             stdout=subprocess.PIPE,
@@ -336,9 +343,22 @@ def evaluate_check(
             encoding="utf-8",
             errors="replace",
             env={**os.environ, **(monitor_env or {})},
+            start_new_session=False,
         )
         try:
-            stdout, stderr = process.communicate(timeout=check.get("timeout_seconds", 5))
+            deadline = time.monotonic() + check.get("timeout_seconds", 5)
+            while True:
+                if cancelled is not None and cancelled():
+                    raise subprocess.TimeoutExpired(command, check.get("timeout_seconds", 5))
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(command, check.get("timeout_seconds", 5))
+                try:
+                    stdout, stderr = process.communicate(timeout=min(0.1, remaining))
+                    break
+                except subprocess.TimeoutExpired:
+                    if time.monotonic() >= deadline:
+                        raise
             output = (stdout or "") + (stderr or "")
             exit_code: int | None = process.returncode
             error = None
@@ -354,6 +374,9 @@ def evaluate_check(
             error = f"probe timed out after {check.get('timeout_seconds', 5)}s"
     except (OSError, ValueError) as exc:
         output, exit_code, error = "", None, f"probe could not start: {exc}"
+    finally:
+        if process is not None:
+            process_tree.close(process)
 
     success_codes = check.get("success_exit_codes", [0])
     healthy = exit_code in success_codes
@@ -374,6 +397,9 @@ def evaluate_check(
 
 def _terminate_process_group(process: subprocess.Popen[str]) -> None:
     """Stop a timed-out command and descendants so repeated samples do not leak processes."""
+    if getattr(process, "_pae_owned_group", False) or hasattr(process, "_pae_tree_lock"):
+        process_tree.terminate(process)
+        return
     if os.name == "nt":
         try:
             subprocess.run(
@@ -475,12 +501,14 @@ def run_validation(args: argparse.Namespace) -> int:
     check_states: dict[tuple[str, str], str] = {}
     start = time.monotonic()
     test_started_at = start
-    no_progress_timeout = validation.get("no_progress_timeout_seconds", 300)
-    progress_monitor_enabled = bool(no_progress_timeout and os.name != "nt")
+    inherited_idle = os.environ.get("PAE_VALIDATION_IDLE_SECONDS", "300")
+    no_progress_timeout = validation["no_progress_timeout_seconds"] if "no_progress_timeout_seconds" in validation else float(inherited_idle)
+    ceiling_values = [validation.get("validation_hard_timeout_seconds", 0),
+                      float(os.environ.get("PAE_VALIDATION_HARD_SECONDS", "0"))]
+    hard_timeout = min((value for value in ceiling_values if value), default=0)
     expected_quiet_seconds = validation.get("expected_quiet_seconds", 0)
-    progress_pattern = re.compile(validation["progress_regex"]) if validation.get("progress_regex") else None
-    last_progress_at = start
-    last_marker_at: float | None = None
+    monitor: progress_watch.ProgressMonitor | None = None
+    process: subprocess.Popen | None = None
     deadlines: dict[tuple[str, str], float] = { (resource["id"], check["id"]): start for resource, check in selected }
     intervals = { (resource["id"], check["id"]): check.get("every_seconds", 60) for resource, check in selected }
     grace = { (resource["id"], check["id"]): check.get("startup_grace_seconds", 60) for resource, check in selected }
@@ -495,9 +523,11 @@ def run_validation(args: argparse.Namespace) -> int:
     report = report_path.open("a", encoding="utf-8")
 
     def sample(phase: str, pid: int, process_running: bool) -> None:
-        nonlocal health_failure, environment_failure_reported, semantic_health_failure, last_progress_at
+        nonlocal health_failure, environment_failure_reported, semantic_health_failure
         now = time.monotonic()
         for resource, check in selected:
+            if monitor is not None and monitor.reason:
+                return
             key = (resource["id"], check["id"])
             if phase == "interval" and now < deadlines[key]:
                 continue
@@ -505,16 +535,17 @@ def run_validation(args: argparse.Namespace) -> int:
                 check,
                 repo_root,
                 {"PAE_RESOURCE_WATCH_RESOURCE_ID": resource["id"]},
+                cancelled=lambda: monitor is not None and bool(monitor.reason),
             )
+            if monitor is not None and monitor.reason:
+                return
             deadlines[key] = time.monotonic() + intervals[key]
             in_grace = (now - test_started_at) < grace[key] and phase != "final"
             state = result["state"]
             if state == "unhealthy" and in_grace:
                 state = "starting"
-                last_progress_at = time.monotonic()
             elif state == "unhealthy":
                 health_failure = True
-                last_progress_at = time.monotonic()
                 check_class = check.get("failure_class", "environmental")
                 if check_class == "semantic":
                     semantic_health_failure = True
@@ -604,64 +635,61 @@ def run_validation(args: argparse.Namespace) -> int:
             # tree while keeping it in the runner's session for outer-timeout cleanup.
             test_command = [sys.executable, str(Path(__file__).resolve()), "_exec-group", *test_command]
         try:
-            process = subprocess.Popen(
+            process = process_tree.launch(
                 test_command,
                 cwd=repo_root,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                bufsize=1,
+                start_new_session=False,
             )
         except (OSError, ValueError) as exc:
             print(f"[resource-watch] environment_failure=test_command_unavailable error={exc}", file=sys.stderr)
             return 125
 
-        last_progress_at = time.monotonic()
-        test_started_at = last_progress_at
+        test_started_at = time.monotonic()
+        progress_state = progress_watch.ProgressState(
+            no_progress_timeout, hard_timeout, expected_quiet_seconds, validation.get("progress_regex"),
+        )
+        monitor = progress_watch.ProgressMonitor(
+            process, progress_state, repo_root, validation.get("progress_probe"), validation.get("progress_files"),
+        ).start()
         assert process.stdout is not None
         output_finished = threading.Event()
-        progress_output_order: deque[str] = deque()
-        progress_output_seen: set[str] = set()
 
         def read_test_output() -> None:
-            nonlocal last_progress_at, last_marker_at
+            decoder = codecs.getincrementaldecoder("utf-8")("replace")
             try:
-                for line in process.stdout:
-                    sys.stdout.write(line)
+                while chunk := process.stdout.read1(4096):
+                    text = decoder.decode(chunk)
+                    progress_state.observe_output(text)
+                    sys.stdout.write(text)
                     sys.stdout.flush()
-                    if progress_pattern is not None and progress_pattern.search(line):
-                        last_marker_at = time.monotonic()
-                    normalized = progress_line(line)
-                    if normalized and normalized not in progress_output_seen:
-                        if len(progress_output_order) >= 512:
-                            progress_output_seen.discard(progress_output_order.popleft())
-                        progress_output_order.append(normalized)
-                        progress_output_seen.add(normalized)
-                        last_progress_at = time.monotonic()
+                tail = decoder.decode(b"", final=True)
+                if tail:
+                    progress_state.observe_output(tail)
+                    sys.stdout.write(tail)
+                    sys.stdout.flush()
             finally:
                 output_finished.set()
 
         reader = threading.Thread(target=read_test_output, daemon=True)
         reader.start()
-        process_metrics = process_tree.posix_group_metrics(process.pid) if os.name != "nt" else None
+        process_metrics = monitor.metrics
         record_test_process("start", process.pid, True, process_metrics)
         sample("start", process.pid, True)
         next_process_sample = time.monotonic() + 60
-        next_progress_sample = time.monotonic() + 20
-        observed_cpu = int(process_metrics["cpu_seconds"]) if process_metrics else None
-        idle_detector_available = process_metrics is not None
         next_interval = min([*deadlines.values(), next_process_sample])
         stalled = False
+        ceiling = False
+        idle_for = 0.0
         while True:
-            next_wakeup = min(next_interval, next_progress_sample) if progress_monitor_enabled else next_interval
-            wait_for = max(0.05, min(0.5, next_wakeup - time.monotonic()))
+            wait_for = max(0.05, min(0.1, next_interval - time.monotonic()))
             if output_finished.is_set():
                 time.sleep(wait_for)
             else:
                 output_finished.wait(wait_for)
             now = time.monotonic()
+            process_metrics = monitor.metrics
             if now >= next_interval and (process.poll() is None or process_metrics is not None):
                 if any(deadline <= now for deadline in deadlines.values()):
                     sample("interval", process.pid, True)
@@ -669,37 +697,10 @@ def run_validation(args: argparse.Namespace) -> int:
                     record_test_process("interval", process.pid, process.poll() is None, process_metrics)
                     next_process_sample = time.monotonic() + 60
                 next_interval = min([*deadlines.values(), next_process_sample], default=next_process_sample)
-            if progress_monitor_enabled and now >= next_progress_sample and (
-                process.poll() is None or process_metrics is not None
-            ):
-                process_metrics = process_tree.posix_group_metrics(process.pid) if os.name != "nt" else None
-                if process_metrics is not None:
-                    cpu_now = int(process_metrics["cpu_seconds"])
-                    if observed_cpu is None:
-                        last_progress_at = now
-                        idle_detector_available = True
-                    elif cpu_now > observed_cpu:
-                        last_progress_at = now
-                    observed_cpu = cpu_now
-                next_progress_sample = now + 20
-            elif progress_monitor_enabled and now >= next_progress_sample:
-                next_progress_sample = now + 20
             if process.poll() is not None and process_metrics is None and now >= next_interval:
                 next_interval = next_process_sample
-            stall_due, idle_for = stall_decision(
-                now, last_progress_at, no_progress_timeout,
-                expected_quiet_seconds=expected_quiet_seconds, last_marker_at=last_marker_at,
-            )
-            dependencies_healthy = not health_failure and all(
-                state == "healthy" for state in check_states.values()
-            )
-            if (
-                progress_monitor_enabled
-                and idle_detector_available
-                and dependencies_healthy
-                and (process.poll() is None or process_metrics is not None)
-                and stall_due
-            ):
+            if monitor.reason == "idle" and not stalled:
+                idle_for = progress_state.snapshot()["idle_seconds"]
                 snapshot = process_metrics or {"cpu_seconds": None, "processes": []}
                 stall = {
                     "timestamp": stamp(),
@@ -710,30 +711,37 @@ def run_validation(args: argparse.Namespace) -> int:
                     "no_progress_timeout_seconds": no_progress_timeout,
                     "expected_quiet_seconds": expected_quiet_seconds,
                     "process_group": snapshot,
+                    "progress": progress_state.snapshot(),
                 }
                 report.write(json.dumps(stall, ensure_ascii=False, separators=(",", ":")) + "\n")
                 report.flush()
-                print(
-                    f"[resource-watch] validation_stalled=no_output_or_cpu_progress "
-                    f"idle_seconds={int(idle_for)} pid={process.pid} "
-                    f"cpu_seconds={snapshot['cpu_seconds']} "
-                    f"processes={json.dumps(snapshot['processes'], ensure_ascii=False, separators=(',', ':'))}",
-                    file=sys.stderr, flush=True,
-                )
-                _terminate_process_group(process)
                 stalled = True
+            elif monitor.reason == "hard" and not ceiling:
+                ceiling = True
+                report.write(json.dumps({"timestamp": stamp(), "validation": args.validation,
+                                         "kind": "validation_ceiling", "reason": "hard",
+                                         "progress": progress_state.snapshot()}, separators=(",", ":")) + "\n")
+                report.flush()
             if process.poll() is not None and output_finished.is_set():
                 break
         reader.join(timeout=1)
-        exit_code = 124 if stalled else process.wait()
+        monitor.close()
+        exit_code = 126 if ceiling else (124 if stalled else process.wait())
         sample("final", process.pid, False)
         record_test_process("final", process.pid, False, process_metrics)
         if stalled:
             print(
                 f"[resource-watch] validation_stalled=confirmed id={args.validation} "
-                f"pid={process.pid} idle_seconds={int(idle_for)}",
+                f"idle_seconds={int(idle_for)} last_progress_source={progress_state.last_progress_source} "
+                f"window={max(no_progress_timeout, expected_quiet_seconds)} ceiling={hard_timeout}",
                 file=sys.stderr, flush=True,
             )
+        elif ceiling:
+            snapshot = progress_state.snapshot()
+            print(f"[resource-watch] validation_ceiling=hard id={args.validation} "
+                  f"idle_seconds={snapshot['idle_seconds']} last_progress_source={snapshot['last_progress_source']} "
+                  f"window={max(no_progress_timeout, expected_quiet_seconds)} ceiling={hard_timeout}",
+                  file=sys.stderr, flush=True)
         if health_failure:
             if semantic_health_failure:
                 print(f"[resource-watch] semantic_failure=health_check_failed id={args.validation}", file=sys.stderr, flush=True)
@@ -745,6 +753,12 @@ def run_validation(args: argparse.Namespace) -> int:
             return 124 if semantic_health_failure else 125
         return exit_code
     finally:
+        if monitor is not None:
+            monitor.close()
+        if process is not None:
+            if process.poll() is None:
+                process_tree.terminate(process)
+            process_tree.close(process)
         report.close()
 
 
@@ -774,7 +788,7 @@ def main() -> int:
     args = parser().parse_args()
     try:
         return int(args.func(args))
-    except (service_map.MapError, OSError, KeyError, TypeError, re.error) as exc:
+    except (service_map.MapError, OSError, KeyError, TypeError, ValueError, re.error) as exc:
         print(f"[resource-watch] environment_failure=configuration_error error={exc}", file=sys.stderr)
         return 125
 

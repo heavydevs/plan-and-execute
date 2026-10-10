@@ -998,7 +998,9 @@ def default_config() -> dict[str, Any]:
         "auto_cleanup": True,
         "functional_failures_per_provider": 4,
         "task_timeout_seconds": 0,
+        "task_idle_timeout_seconds": 0,
         "validation_timeout_seconds": 1800,
+        "validation_hard_timeout_seconds": 0,
         "stream_provider_output": True,
         "rate_limit": {
             "auto_wait": True,
@@ -1326,6 +1328,14 @@ def normalize_learning_targets(raw: Any, task_id: str) -> list[dict[str, Any]]:
     return result
 
 
+def valid_validation_job_id(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}", value) is not None
+        and value.upper() not in {"CON", "PRN", "AUX", "NUL", *[f"COM{i}" for i in range(1, 10)], *[f"LPT{i}" for i in range(1, 10)]}
+    )
+
+
 def normalize_task(
     raw: Any,
     index: int,
@@ -1395,15 +1405,21 @@ def normalize_task(
     acceptance = ensure_str_list(raw.get("acceptance_criteria"), f"Task {task_id} acceptance_criteria")
     validations = ensure_str_list(raw.get("validation_commands"), f"Task {task_id} validation_commands")
     timeout_override = {}
-    if "validation_timeout_seconds" in raw:
-        timeout = raw["validation_timeout_seconds"]
-        if type(timeout) is not int or timeout < 0:
-            raise PlanError(f"Task {task_id}: validation_timeout_seconds must be a nonnegative integer")
-        timeout_override["validation_timeout_seconds"] = timeout
+    for key in ("validation_timeout_seconds", "validation_hard_timeout_seconds", "task_idle_timeout_seconds"):
+        if key in raw:
+            timeout = raw[key]
+            if type(timeout) is not int or not 0 <= timeout <= 604800:
+                raise PlanError(f"Task {task_id}: {key} must be an integer in 0..604800")
+            timeout_override[key] = timeout
+    if "validation_jobs" in raw and not isinstance(raw["validation_jobs"], list):
+        raise PlanError(f"Task {task_id}: validation_jobs must be an array")
+    jobs = ensure_str_list(raw.get("validation_jobs"), f"Task {task_id} validation_jobs")
+    if len(jobs) > 32 or len(jobs) != len(set(jobs)) or any(not valid_validation_job_id(job) for job in jobs):
+        raise PlanError(f"Task {task_id}: validation_jobs must contain at most 32 distinct safe job IDs")
     if not acceptance:
         raise PlanError(f"Task {task_id} requires at least one acceptance criterion")
-    if not validations:
-        raise PlanError(f"Task {task_id} requires at least one validation command")
+    if not validations and not jobs:
+        raise PlanError(f"Task {task_id} requires at least one validation command or job")
 
     context_boundary = normalize_context_boundary(raw.get("context_boundary"), task_id)
     subtasks = normalize_subtasks(raw.get("subtasks"), task_id)
@@ -1426,6 +1442,7 @@ def normalize_task(
         ),
         "acceptance_criteria": acceptance,
         "validation_commands": validations,
+        **({"validation_jobs": jobs} if jobs else {}),
         **timeout_override,
         "provider": provider,
         "model_tier": tier,
@@ -1882,6 +1899,7 @@ The manifest is authoritative. Checkpoint progress only through the dedicated `p
 ## Required validation
 
 {chr(10).join(f'- `{command}`' for command in task['validation_commands'])}
+{chr(10).join(f'- Supervised job `{job}`: start through `jobctl.py` and return; the runner waits outside model context.' for job in task.get('validation_jobs', []))}
 
 ## Completion report
 
@@ -2269,8 +2287,14 @@ def validate_plan(plan_dir: Path, manifest: dict[str, Any] | None = None) -> lis
                 errors.append(f"Task {task_id}: could not read definition file: {exc}")
         if not task.get("acceptance_criteria"):
             errors.append(f"Task {task_id}: missing acceptance criteria")
-        if not task.get("validation_commands"):
+        if not task.get("validation_commands") and not task.get("validation_jobs"):
             errors.append(f"Task {task_id}: missing validation commands")
+        for key in ("validation_timeout_seconds", "validation_hard_timeout_seconds", "task_idle_timeout_seconds"):
+            if key in task and (type(task[key]) is not int or not 0 <= task[key] <= 604800):
+                errors.append(f"Task {task_id}: invalid {key}")
+        jobs = task.get("validation_jobs", [])
+        if not isinstance(jobs, list) or len(jobs) > 32 or any(not valid_validation_job_id(job) for job in jobs) or len(jobs) != len(set(jobs)):
+            errors.append(f"Task {task_id}: invalid validation_jobs")
         if schema_version == 4:
             try:
                 normalize_context_boundary(task.get("context_boundary"), str(task_id))
@@ -3245,7 +3269,7 @@ def fail_task(
             task.pop("validation_stagnation", None)
             task.pop("latest_validation_log", None)
     if not rate_limited and (
-        task["functional_failures"] >= task["max_attempts"] or cls == "plan_defect"
+        task["functional_failures"] >= task["max_attempts"] or cls in {"plan_defect", "timeout_ceiling"}
     ):
         task["status"] = "blocked"
     else:
@@ -3399,7 +3423,10 @@ def deterministic_summary(manifest: dict[str, Any]) -> str:
         )
     lines.extend(["", "## Validation", ""])
     for task in manifest["tasks"]:
-        commands = ", ".join(f"`{cmd}`" for cmd in task["validation_commands"])
+        commands = ", ".join([
+            *[f"`{cmd}`" for cmd in task["validation_commands"]],
+            *[f"supervised job `{job}`" for job in task.get("validation_jobs", [])],
+        ])
         lines.append(f"- **{task['id']}**: {commands}")
     return "\n".join(lines) + "\n"
 
@@ -3415,6 +3442,18 @@ def cleanup_plan(plan_dir: Path, manifest: dict[str, Any], force: bool = False) 
         raise PlanError("Refusing cleanup because plan path does not match manifest")
     if not (plan_dir / SENTINEL).is_file():
         raise PlanError("Refusing cleanup without sentinel")
+    jobs_root = plan_dir / "jobs"
+    if jobs_root.exists():
+        import jobctl
+        for job_dir in jobs_root.iterdir():
+            if not job_dir.is_dir():
+                raise PlanError("Refusing cleanup with an invalid job workspace")
+            try:
+                state = jobctl.status_job(plan_dir, job_dir.name)
+            except jobctl.JobError as exc:
+                raise PlanError("Refusing cleanup with unknown job ownership") from exc
+            if state.get("state") in {"starting", "running", "lost"} or (state.get("reason") == "supervisor_start_failed" and state.get("pid")):
+                raise PlanError("Refusing cleanup with a live or unowned supervised job; preserve evidence and stop it first")
     if not force:
         if manifest.get("state") != "completed":
             raise PlanError("Refusing cleanup before all tasks are completed")

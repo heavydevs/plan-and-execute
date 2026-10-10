@@ -70,6 +70,8 @@ python <skill-dir>/scripts/planctl_concise.py subtask-complete \
 
 Use `subtask-reset` only when that checkpoint must deliberately be redone. Never edit task Markdown for state.
 
+For a task declaring `validation_jobs: ["VAL_BOOKS"]`, the worker requests `jobctl.py start --plan <plan-path> --id VAL_BOOKS --validation VAL_BOOKS --map .ai-work/SERVICE_MAP.md` and returns its ordinary `completed` report. The runner launches the supervisor outside the worker's process tree and waits without holding model context. Job IDs equal mapped validation IDs. Acceptance checks pinned validation/prerequisite/source evidence against the current fresh map; changed evidence requires retesting. Interruption preserves jobs/checkpoints for resume; explicit cancellation stops jobs before deletion. Load [PROGRESS_TIMEOUTS.md](PROGRESS_TIMEOUTS.md) for bounded waits, progress probes and exit codes.
+
 ### 5. Handle shared-pattern evidence
 
 If implementation reveals that an assigned shared contract is unsafe, impossible, incompatible, or materially wrong:
@@ -140,6 +142,7 @@ python <skill-dir>/scripts/planctl_concise.py fail \
 | `semantic` | wrong approach or reasoning gap (also: claimed completion but deterministic validation failed) | next stronger tier |
 | `environmental` | toolchain/repository issue outside the task | unchanged; repair the environment |
 | `budget` | turn/token budget exhausted | repeat once from checkpoints, then +1 |
+| `timeout_ceiling` | explicit fixed runtime ceiling exhausted | block and review the runtime budget; no automatic escalation |
 | `plan_defect` | task boundary/requirement/dependency is wrong | task blocked; replan |
 | `unknown` (default) | no report/invalid report | +1 rung |
 
@@ -195,7 +198,7 @@ Classify before changing route:
 
 Persist the smallest diagnostic excerpt that can guide the next attempt plus the newest validation-log path. Do not reread superseded logs: the runner fingerprints normalized validation failures, stores repeated occurrences as signature/count/age, and gives the next worker the latest bounded excerpt. If the latest excerpt is insufficient, that worker may open only the immediately preceding attempt's full log.
 
-The mapped validation watcher samples external resources during the run and, by default, watches for five minutes without changed output or increased process-group CPU while dependencies remain healthy. It then saves a bounded process snapshot, stops the stalled test process group, and marks the result semantic. The next fresh worker is raised to at least `strong`; if the previous route was already `strong`/`max`, use `max`. A repeated identical validation signature also activates that floor after five elapsed minutes across attempts. Environmental health failures keep the route stable. See `MODEL_ROUTING.md` §6 for the routing rule and `TEST_RESOURCE_MONITORING.md` for per-validation tuning/platform behavior.
+Each validation has a sliding idle window: an explicit map `no_progress_timeout_seconds` wins; omission inherits the runner's default 1800-second window (standalone watcher default 300). Changed normalized output, increasing process-tree CPU or configured probes/files renew it. The next command starts fresh. Confirmed stagnation preserves a snapshot, stops the process tree and supplies semantic evidence; it may raise the next fresh worker to `strong`, or `max` from `strong`/`max`. Repeated identical validation signatures retain their five-minute cross-attempt floor. Environmental health failures and explicit `timeout_ceiling` failures keep the route stable. See [PROGRESS_TIMEOUTS.md](PROGRESS_TIMEOUTS.md) and `TEST_RESOURCE_MONITORING.md` for tuning and tradeoffs.
 
 The ladder climbs only from these classes and stagnation evidence; once evidence asks for a rung above the top on the last provider, the runner blocks the TODO (`ladder_exhausted`) so it is replanned rather than retried at the strongest route until `max_attempts`. Optional per-worker guards: `claude.max_turns`, `claude.max_budget_usd`, and `codex.rollout_token_budget` in `orchestrator.config.json`.
 

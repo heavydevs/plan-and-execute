@@ -27,6 +27,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 import planctl  # noqa: E402
+import jobctl  # noqa: E402
 
 ACTIVE_FILE = ".active-plan.json"
 LEASE_FILE = ".runner-lease.json"
@@ -502,11 +503,42 @@ def terminate_live_runner(plan_dir: Path, *, force: bool) -> dict[str, Any] | No
     return lease
 
 
+def stop_plan_jobs(plan_dir: Path) -> list[str]:
+    """Cancellation stops known live jobs before deleting their ownership evidence."""
+    jobs = plan_dir / "jobs"
+    if jobs.is_symlink() or getattr(jobs, "is_junction", lambda: False)():
+        raise LifecycleError("Refusing cancellation through a symlink job workspace")
+    if not jobs.exists():
+        return []
+    if not jobs.is_dir():
+        raise LifecycleError("Refusing cancellation of an invalid job workspace")
+    stopped = []
+    for directory in sorted(jobs.iterdir(), key=lambda item: item.name):
+        if directory.is_symlink() or getattr(directory, "is_junction", lambda: False)() or not directory.is_dir():
+            raise LifecycleError("Refusing cancellation with unknown job workspace ownership")
+        try:
+            identifier = jobctl.safe_id(directory.name)
+            record = jobctl.status_job(plan_dir, identifier)
+            if record.get("status") in jobctl.ACTIVE:
+                record = jobctl.stop_job(plan_dir, identifier)
+                stopped.append(identifier)
+            if record.get("status") in jobctl.ACTIVE:
+                raise LifecycleError(f"Job {identifier} is still running; its evidence was preserved")
+            if record.get("state") == "lost" or record.get("reason") == "supervisor_lost":
+                raise LifecycleError(f"Job {identifier} ownership is unknown; its evidence was preserved")
+            if record.get("reason") == "supervisor_start_failed" and record.get("pid"):
+                raise LifecycleError(f"Job {identifier} startup ownership is unknown; its evidence was preserved")
+        except (jobctl.JobError, OSError) as exc:
+            raise LifecycleError("Cannot stop tracked jobs safely; their evidence was preserved") from exc
+    return stopped
+
+
 def remove_plan_workspace(plan_arg: str | Path) -> dict[str, Any]:
     plan_dir, manifest = planctl.load_plan(plan_arg)
     plan_id = str(manifest.get("plan_id"))
     root = Path(manifest["repo_root"]).resolve()
     work_root = str(manifest.get("work_root", DEFAULT_WORK_ROOT))
+    stopped_jobs = stop_plan_jobs(plan_dir)
     clear_active(plan_dir)
     shutil.rmtree(plan_dir)
     directory = work_directory(root, work_root)
@@ -518,7 +550,7 @@ def remove_plan_workspace(plan_arg: str | Path) -> dict[str, Any]:
         pass
     if parent_removed:
         planctl.remove_git_exclude_entry(manifest.get("git_exclude"))
-    return {"plan_id": plan_id, "plan": str(plan_dir)}
+    return {"plan_id": plan_id, "plan": str(plan_dir), "jobs_stopped": stopped_jobs}
 
 
 def all_recognized_plans(repo_root: Path, work_root: str) -> list[tuple[Path, dict[str, Any]]]:

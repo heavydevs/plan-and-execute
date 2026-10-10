@@ -35,6 +35,9 @@ import routing_config  # noqa: E402
 import availability  # noqa: E402
 import assistant_triage  # noqa: E402
 import process_tree  # noqa: E402
+import progress_watch  # noqa: E402
+import service_map  # noqa: E402
+import jobctl  # noqa: E402
 import model_catalogctl  # noqa: E402
 import routing_telemetry  # noqa: E402
 
@@ -723,15 +726,17 @@ Mandatory isolation rules:
 5. Existing changes in the working tree may belong to earlier completed tasks. Preserve them and do not broadly revert or reformat unrelated code.
 6. Open another task definition only when the assigned definition explicitly permits its id and a dependency, ambiguity, or validation conflict makes it necessary. Report the id and reason.
 7. Implement only this task, run its required validation commands, and avoid speculative work outside scope.
-8. Do not edit any planning, context, or learning artifact. The orchestrator owns plan state. The only allowed planning-state write is invoking the dedicated subtask controller for this task.
+8. Do not edit any planning, context, or learning artifact. The orchestrator owns plan state. Use only the dedicated subtask controller and jobctl to write controller-owned state.
 9. Do not ask for conversational context. When blocked, stop safely and report the concrete blocker, and set `failure_class` (mechanical, semantic, environmental, budget, plan_defect) so the orchestrator can choose the next route from evidence.
 10. Checkpoint resumable work with the subtask controller (`subtask-start` / `subtask-complete --plan <workspace> --task <id> --subtask <id>`), never by editing the checklist.
 11. Report `context_files_read` and `learning_files_read` using the exact plan-relative names from task frontmatter; use empty lists when none are assigned.
 12. Report every completed checklist id in `completed_subtask_ids`. Report reusable learnings only for predeclared downstream targets and only with concrete references.
 
-Return only the completion report requested by the configured JSON schema. Use status "completed" only when the task is implemented and its required checks pass; otherwise use "blocked".
+For declared validation_jobs, launch the named job through jobctl with meaningful progress sources, then return the implemented task's completion report. The runner supervises and validates it without a model. Do not invent detached jobs or unbounded polling loops. On a retry restart a terminal failed job explicitly with --restart.
+Return only the completion report requested by the configured JSON schema. Use status "completed" when implementation and synchronous checks pass and declared jobs are started; otherwise use "blocked". The runner owns final acceptance.
 
 Subtask controller: {SCRIPT_DIR / 'planctl.py'}
+Job controller: {SCRIPT_DIR / 'jobctl.py'}
 Repository root: {repo_root}
 Plan workspace: {plan_dir}
 Assigned task definition: {relative_task}
@@ -816,7 +821,7 @@ VOLATILE_FAILURE_PATTERNS = (
 def validation_failure_fingerprint(results: list[dict[str, Any]]) -> str | None:
     """Hash stable failure evidence so the runner can detect a stuck validation across attempts."""
     failed = next((item for item in results if item.get("passed") is False), None)
-    if not isinstance(failed, dict) or failed.get("failure_class") == "environmental":
+    if not isinstance(failed, dict) or failed.get("failure_class") in {"environmental", "timeout_ceiling"}:
         return None
     output = str(failed.get("output_tail") or "")
     stable_lines: list[str] = []
@@ -861,6 +866,8 @@ def validation_failure_class(results: list[dict[str, Any]], declared: Any = None
     classes = [item.get("failure_class") for item in results]
     if "environmental" in classes:
         return "environmental"
+    if "timeout_ceiling" in classes:
+        return "timeout_ceiling"
     if "semantic" in classes or any(item.get("validation_stalled") is True for item in results):
         return "semantic"
     worker = str(declared or "").strip().lower()
@@ -968,6 +975,10 @@ def is_budget_exhausted(text: str) -> bool:
 
 def classify_report_failure(report: dict[str, Any] | None, text: str) -> str:
     """Map worker/report evidence to a routing failure class."""
+    if "provider_ceiling=" in text:
+        return "timeout_ceiling"
+    if "provider_stalled=" in text:
+        return "semantic"
     if isinstance(report, dict):
         declared = str(report.get("failure_class") or "").strip().lower()
         if declared in routingctl.FAILURE_CLASSES:
@@ -1182,9 +1193,12 @@ def pump_stream(
     log: IO[str],
     prefix: str,
     show: bool,
+    progress: Any = None,
 ) -> None:
     try:
         for line in iter(stream.readline, ""):
+            if progress is not None:
+                progress.observe_output(line)
             buffer.append(line)
             log.write(f"{prefix}{line}")
             log.flush()
@@ -1202,10 +1216,19 @@ def run_process(
     timeout_seconds: int,
     stream_output: bool,
     env: dict[str, str] | None = None,
+    idle_timeout_seconds: int = 0,
+    job_plan_dir: Path | None = None,
+    validation_jobs: list[str] | None = None,
 ) -> tuple[int, str, str]:
     log_path.parent.mkdir(parents=True, exist_ok=True)
     stdout_lines: list[str] = []
     stderr_lines: list[str] = []
+    owned_tree = bool(timeout_seconds or idle_timeout_seconds or job_plan_dir is not None)
+    if job_plan_dir is not None:
+        env = dict(os.environ if env is None else env)
+        env.update(PAE_JOB_DISPATCH_PLAN=str(job_plan_dir.resolve()),
+                   PAE_JOB_DISPATCH_PID=str(os.getpid()),
+                   PAE_JOB_ALLOWED_IDS=json.dumps(validation_jobs or []))
     # cmd.exe truncates a `.cmd` shim argument at its first newline (the worker then sees only the
     # prompt's last line), so newlines inside any argument become an ASCII separator on Windows shims.
     if os.name == "nt" and command and command[0].lower().endswith((".cmd", ".bat")):
@@ -1214,7 +1237,8 @@ def run_process(
         log.write("COMMAND: " + shlex.join(redact_command(command)) + "\n\n")
         log.flush()
         try:
-            process = subprocess.Popen(
+            launch = process_tree.launch if owned_tree else subprocess.Popen
+            process = launch(
                 command,
                 cwd=cwd,
                 stdout=subprocess.PIPE,
@@ -1231,40 +1255,62 @@ def run_process(
             raise RunnerError(f"Failed to start provider process: {exc}") from exc
         assert process.stdout is not None
         assert process.stderr is not None
+        state = progress_watch.ProgressState(idle_timeout_seconds, timeout_seconds)
+        monitor = progress_watch.ProgressMonitor(
+            process, state, cwd, progress_files=["**/*"] if idle_timeout_seconds else None,
+        ) if owned_tree else None
+        if monitor:
+            monitor.start()
         stdout_thread = threading.Thread(
             target=pump_stream,
-            args=(process.stdout, stdout_lines, log, "[stdout] ", stream_output),
+            args=(process.stdout, stdout_lines, log, "[stdout] ", stream_output, state if monitor else None),
             daemon=True,
         )
         stderr_thread = threading.Thread(
             target=pump_stream,
-            args=(process.stderr, stderr_lines, log, "[stderr] ", stream_output),
+            args=(process.stderr, stderr_lines, log, "[stderr] ", stream_output, state if monitor else None),
             daemon=True,
         )
         stdout_thread.start()
         stderr_thread.start()
         try:
-            return_code = process.wait(timeout=timeout_seconds or None)
-        except subprocess.TimeoutExpired:
-            process.terminate()
-            try:
-                process.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait()
-            return_code = 124
-            stderr_lines.append(f"Provider timed out after {timeout_seconds} seconds\n")
+            next_dispatch = 0.0
+            while process.poll() is None:
+                if job_plan_dir is not None and time.monotonic() >= next_dispatch:
+                    jobctl.dispatch_jobs(job_plan_dir, validation_jobs or [])
+                    next_dispatch = time.monotonic() + 0.2
+                if monitor and monitor.reason:
+                    break
+                time.sleep(0.05)
+            if monitor and monitor.reason:
+                marker = "provider_stalled" if monitor.reason == "idle" else "provider_ceiling"
+                decision = timeout_decision_line(marker, state)
+                stderr_lines.append(decision + "\n")
+                log.write(decision + "\n")
+                log.flush()
+                return_code = 124 if monitor.reason == "idle" else 126
+            else:
+                return_code = process.wait()
         except KeyboardInterrupt:
-            process.terminate()
-            try:
-                process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait()
+            if owned_tree:
+                process_tree.terminate(process)
+            else:
+                process.terminate()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
             raise
         finally:
-            stdout_thread.join(timeout=5)
-            stderr_thread.join(timeout=5)
+            try:
+                if job_plan_dir is not None:
+                    jobctl.dispatch_jobs(job_plan_dir, validation_jobs or [])
+            finally:
+                if monitor:
+                    monitor.close()
+                process_tree.close(process)
+                stdout_thread.join(timeout=5)
+                stderr_thread.join(timeout=5)
     return return_code, "".join(stdout_lines), "".join(stderr_lines)
 
 
@@ -1419,6 +1465,115 @@ def validation_timeout_seconds(task: dict[str, Any], config: dict[str, Any]) -> 
     return max(0, int(configured))
 
 
+def timeout_decision_line(marker: str, state: Any) -> str:
+    snapshot = state.snapshot()
+    return (
+        f"[resource-watch] {marker}=confirmed idle_seconds={int(snapshot['idle_seconds'])} "
+        f"last_progress_source={snapshot.get('last_progress_source', 'start')} "
+        f"window={state.idle_seconds:g}s ceiling={state.hard_seconds:g}s"
+    )
+
+
+def validation_hard_timeout_seconds(task: dict[str, Any], config: dict[str, Any]) -> int:
+    ceilings = [int(source.get("validation_hard_timeout_seconds", 0)) for source in (task, config)]
+    return min((value for value in ceilings if value > 0), default=0)
+
+
+def validation_checkpoint_path(plan_dir: Path, task: dict[str, Any]) -> Path:
+    return plan_dir / "results" / f"{task['id']}-validation-pending.json"
+
+
+def validation_checkpoint_fingerprint(task: dict[str, Any]) -> str:
+    fields = ("validation_commands", "validation_jobs", "acceptance_criteria", "scope", "subtasks", "context_files", "learning_files")
+    values = {key: task.get(key) for key in fields}
+    # Subtask execution status changes on recovery, while its definition does not.
+    values["subtasks"] = [{key: value for key, value in item.items() if key not in {"status", "started_at", "completed_at", "history", "last_error"}} for item in task.get("subtasks", [])]
+    return hashlib.sha256(json.dumps(values, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+
+def job_evidence_current(status: dict[str, Any], repo_root: Path) -> bool:
+    """Acceptance requires the current validation definition and source snapshot."""
+    try:
+        path = service_map.repo_path(repo_root, str(status["map_path"]))
+        _, data = service_map.load_map(path)
+        fresh, _, truncated, _ = service_map.current_status(repo_root, path, data)
+        return bool(fresh and not truncated and not service_map.validate_data(data)
+                    and status.get("validation_fingerprint") == service_map.validation_fingerprint(data, status["validation_id"]))
+    except (service_map.MapError, KeyError, TypeError, ValueError, OSError):
+        return False
+
+
+def run_validation_jobs(plan_dir: Path, task: dict[str, Any], log_path: Path, evidence_path: Path, repo_root: Path | None = None) -> tuple[bool, list[dict[str, Any]], str | None]:
+    """Wait cheaply outside model context; the durable supervisor owns all clocks."""
+    results: list[dict[str, Any]] = []
+    for job_id in task.get("validation_jobs", []):
+        print(f"[validate-job] waiting id={job_id}", flush=True)
+        try:
+            status = jobctl.status_job(plan_dir, job_id)
+            if status.get("validation_id") != job_id:
+                raise jobctl.JobError("Job must be started with its matching service-map --validation ID")
+            while status.get("state") in {"starting", "running"}:
+                status = jobctl.wait_job(plan_dir, job_id, max_seconds=0.5)
+        except jobctl.JobError:
+            status = {"state": "failed", "exit_code": 125, "reason": "job_missing_or_unmapped", "idle_seconds": 0}
+        outcome = status.get("state")
+        if outcome == "succeeded" and not job_evidence_current(status, repo_root or plan_dir):
+            status = {**status, "state": "failed", "exit_code": 125, "reason": "job_evidence_stale"}
+            outcome = "failed"
+        passed = outcome == "succeeded"
+        stalled = outcome == "stalled"
+        ceiling = outcome == "ceiling"
+        environmental = status.get("failure_class") == "environmental" or bool(status.get("environment_failure")) or outcome == "lost" or status.get("exit_code") == 125
+        failure_class = "environmental" if environmental else "semantic" if stalled else "timeout_ceiling" if ceiling else None
+        environment_marker = str(status.get("environment_failure") or "job_validation_unavailable")
+        if not re.fullmatch(r"[A-Za-z0-9_]{1,64}", environment_marker):
+            environment_marker = "job_validation_unavailable"
+        marker = "validation_stalled" if stalled else "validation_ceiling" if ceiling else "job_state"
+        line = (
+            f"[resource-watch] {marker}=confirmed job={job_id} state={outcome} "
+            f"idle_seconds={int(status.get('idle_seconds', 0))} "
+            f"last_progress_source={status.get('last_progress_source', 'start')} "
+            f"window={status.get('idle_timeout_seconds', 0)}s ceiling={status.get('hard_timeout_seconds', 0)}s"
+        )
+        if environmental:
+            line += f" environment_failure={environment_marker}"
+        with log_path.open("a", encoding="utf-8") as log:
+            offset = log.tell()
+            log.write(line + "\n")
+        item = {"command": f"jobctl wait {job_id}", "job_id": job_id, "passed": passed,
+                "exit_code": status.get("exit_code", 1), "output_head": "", "output_tail": line,
+                "failure_class": failure_class, "validation_stalled": stalled, "validation_ceiling": ceiling,
+                "validation_idle_seconds": int(status.get("idle_seconds", 0))}
+        if not passed:
+            built = resource_watch.build_failure_packet(log_path, start_offset=offset, command=item["command"],
+                exit_code=item["exit_code"], process={"exit_code": item["exit_code"]},
+                resources={"failure_class": "environmental", "environment_failure": environment_marker} if environmental else None,
+                progress={"validation_stalled": stalled, "validation_ceiling": ceiling, "idle_seconds": item["validation_idle_seconds"]})
+            item["failure_evidence"] = built["packet"]
+            planctl.atomic_write_json(evidence_path, built)
+        results.append(item)
+        print(f"[validate-job] id={job_id} state={outcome}", flush=True)
+        if not passed:
+            return False, results, f"Supervised validation job {job_id} {outcome} (exit {item['exit_code']})"
+    return True, results, None
+
+
+def observe_validation_log(path: Path, offset: int, state: Any, stopped: threading.Event) -> None:
+    """Read bounded chunks from a separate handle; never retain raw output in state."""
+    with path.open("rb") as source:
+        source.seek(offset)
+        pending = b""
+        while not stopped.is_set():
+            chunk = source.read(4096)
+            if not chunk:
+                stopped.wait(0.03)
+                continue
+            parts = (pending + chunk).split(b"\n")
+            pending = parts.pop()[-4096:]
+            for part in parts:
+                state.observe_output(part.decode("utf-8", errors="replace"))
+
+
 def terminate_validation_tree(process: subprocess.Popen, grace_seconds: float = 2) -> None:
     """Allow graceful exit, then kill the entire validation session."""
     if os.name == "nt":
@@ -1476,6 +1631,8 @@ def run_validation_commands(
     *,
     evidence_path: Path | None = None,
     seen_lines: list[str] | None = None,
+    hard_timeout_seconds: int = 0,
+    map_path: str = ".ai-work/SERVICE_MAP.md",
 ) -> tuple[bool, list[dict[str, Any]], str | None]:
     results: list[dict[str, Any]] = []
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1485,27 +1642,47 @@ def run_validation_commands(
             log.write(f"$ {command}\n".encode("utf-8", errors="replace"))
             log.flush()
             output_start = log.tell()
-            group_options = (
-                {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
-                if os.name == "nt" else {"start_new_session": True}
-            )
-            with subprocess.Popen(
+            # Mapped watchers own progress from CPU/probes as well as output. An
+            # output-only outer clock would incorrectly kill a silent healthy job.
+            mapped = service_map.parse_watcher_command(command, None, repo_root) is not None
+            child_env = dict(os.environ)
+            child_env["PAE_VALIDATION_IDLE_SECONDS"] = str(timeout_seconds)
+            child_env["PAE_VALIDATION_HARD_SECONDS"] = str(hard_timeout_seconds)
+            with process_tree.launch(
                 command,
                 cwd=repo_root,
                 shell=True,
                 stdout=log,
                 stderr=subprocess.STDOUT,
-                **group_options,
+                env=child_env,
             ) as process:
+                state = progress_watch.ProgressState(0 if mapped else timeout_seconds, hard_timeout_seconds)
+                monitor = progress_watch.ProgressMonitor(process, state, repo_root)
+                output_stop = threading.Event()
+                reader = threading.Thread(target=observe_validation_log, args=(log_path, output_start, state, output_stop), daemon=True)
+                reader.start()
+                monitor.start()
                 try:
-                    process.wait(timeout=timeout_seconds or None)
-                    exit_code = process.returncode
-                except subprocess.TimeoutExpired:
-                    terminate_validation_tree(process)
+                    while process.poll() is None and monitor.reason is None:
+                        time.sleep(0.05)
+                    if monitor.reason:
+                        marker = "validation_stalled" if monitor.reason == "idle" else "validation_ceiling"
+                        exit_code = 124 if monitor.reason == "idle" else 126
+                    else:
+                        marker = None
+                        exit_code = process.wait()
+                except KeyboardInterrupt:
+                    process_tree.terminate(process)
+                    raise
+                finally:
+                    monitor.close()
+                    process_tree.close(process)
+                    output_stop.set()
+                    reader.join(timeout=1)
+                if marker:
                     log.flush()
                     log.seek(0, os.SEEK_END)
-                    log.write(f"\nTimed out after {timeout_seconds} seconds\n".encode("utf-8"))
-                    exit_code = 124
+                    log.write(("\n" + timeout_decision_line(marker, state) + "\n").encode("utf-8"))
             log.flush()
             log.seek(0, os.SEEK_END)
             log.write(f"[exit {exit_code}]\n\n".encode("utf-8"))
@@ -1527,12 +1704,15 @@ def run_validation_commands(
                     "failure_class": (
                         "environmental"
                         if "[resource-watch] environment_failure=" in output
+                        else "timeout_ceiling"
+                        if "[resource-watch] validation_ceiling=" in output
                         else "semantic"
                         if "[resource-watch] validation_stalled=" in output
                         or "[resource-watch] semantic_failure=" in output
                         else None
                     ),
                     "validation_stalled": "[resource-watch] validation_stalled=" in output,
+                    "validation_ceiling": "[resource-watch] validation_ceiling=" in output,
                     "validation_idle_seconds": max(
                         (int(value) for value in re.findall(r"validation_stalled=confirmed[^\n]*idle_seconds=(\d+)", output)),
                         default=0,
@@ -1547,13 +1727,14 @@ def run_validation_commands(
                     command=command,
                     exit_code=exit_code,
                     signature=validation_failure_fingerprint([failed]),
-                    process={"timed_out": "Timed out after" in output, "exit_code": exit_code},
+                    process={"timed_out": failed["validation_stalled"] or failed["validation_ceiling"], "exit_code": exit_code},
                     resources={
                         "unhealthy_samples": failed.get("unhealthy_samples", 0),
                         "environment_failure": failed["failure_class"] == "environmental",
                     },
                     progress={
                         "validation_stalled": failed["validation_stalled"],
+                        "validation_ceiling": failed["validation_ceiling"],
                         "idle_seconds": failed["validation_idle_seconds"],
                     },
                     seen=seen_lines,
@@ -1648,6 +1829,21 @@ def execute_one_task(
     catalog_models: dict[str, dict[str, str]] | None = None,
 ) -> bool:
     repo_root = Path(manifest["repo_root"])
+    checkpoint = validation_checkpoint_path(plan_dir, task)
+    if not dry_run and checkpoint.is_file():
+        if checkpoint.is_symlink():
+            raise RunnerError("Refusing symlink validation checkpoint")
+        pending = planctl.read_json(checkpoint)
+        if pending.get("fingerprint") == validation_checkpoint_fingerprint(task):
+            relative_result = Path(pending["result_path"])
+            if relative_result.is_absolute() or ".." in relative_result.parts:
+                raise RunnerError("Unsafe validation checkpoint result path")
+            task["status"] = "in_progress"
+            planctl.save_manifest(plan_dir, manifest)
+            print(f"[task {task['id']}] resuming supervised validation without a model", flush=True)
+            return finish_task_validation(plan_dir, manifest, config, task, pending["report"],
+                                          plan_dir / relative_result, int(pending["attempt_number"]))
+        checkpoint.unlink()
     dispatches = 0
     model_refreshed = False
     visited = {"design": set(), "implementation": set()}
@@ -1727,6 +1923,9 @@ def execute_one_task(
                 timeout_seconds=max(0, int(config.get("task_timeout_seconds", 0))),
                 stream_output=bool(config.get("stream_provider_output", True)),
                 env=env,
+                idle_timeout_seconds=int(task.get("task_idle_timeout_seconds", config.get("task_idle_timeout_seconds", 0))),
+                job_plan_dir=plan_dir if task.get("validation_jobs") else None,
+                validation_jobs=task.get("validation_jobs", []),
             )
         except KeyboardInterrupt:
             refresh_manifest(plan_dir, manifest)
@@ -1831,101 +2030,120 @@ def execute_one_task(
             print(f"[task {task['id']}] blocked ({cls}): {reason}", file=sys.stderr)
             return False
 
-        validation_log = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-validation.log"
-        previous_owner = {key: os.environ.get(key) for key in ("PAE_ARTIFACT_SCOPE", "PAE_ARTIFACT_OWNER")}
-        os.environ["PAE_ARTIFACT_SCOPE"], os.environ["PAE_ARTIFACT_OWNER"] = "task", str(task["id"])
-        try:
-            resource_watch.register_artifact(repo_root, validation_log)
-            evidence_path = evidence_packet_path(validation_log)
-            resource_watch.register_artifact(repo_root, evidence_path)
-            previous_packet = load_evidence_packet(previous_evidence_path(plan_dir, task))
-            passed, validation_results, validation_reason = run_validation_commands(
-                repo_root,
-                list(task["validation_commands"]),
-                validation_log,
-                validation_timeout_seconds(task, config),
-                evidence_path=evidence_path,
-                seen_lines=list(previous_packet.get("seen") or []),
-            )
-        finally:
-            for key, value in previous_owner.items():
-                if value is None:
-                    os.environ.pop(key, None)
-                else:
-                    os.environ[key] = value
-        report["validation_results"] = validation_results
-        reported_files = report.get("changed_files")
-        if not isinstance(reported_files, list) or not reported_files:
-            report["changed_files"] = git_changed_files(repo_root)
-        if not passed:
-            report["orchestrator_status"] = "validation_failed"
-            planctl.atomic_write_json(result_path, report)
-            # A worker that claimed completion but failed deterministic validation
-            # misjudged the work: a reasoning gap (semantic) unless it declares a
-            # narrower class itself.
-            cls = validation_failure_class(validation_results, report.get("failure_class"))
-            stalled_after_five = any(
-                isinstance(item.get("validation_idle_seconds"), int)
-                and item["validation_idle_seconds"] >= 300
-                for item in validation_results
-            )
-            signature = validation_failure_fingerprint(validation_results)
-            record_attempt("validation_failed", cls, False)
-            planctl.fail_task(
-                plan_dir,
-                manifest,
-                task["id"],
-                validation_reason or "Validation failed",
-                failure_class=cls,
-                validation_signature=signature,
-                validation_stalled=stalled_after_five,
-                validation_idle_seconds=max(
-                    (int(item.get("validation_idle_seconds", 0)) for item in validation_results),
-                    default=0,
-                ),
-                validation_log=validation_log.relative_to(plan_dir).as_posix(),
-            )
-            advice_result = advisory_only(
-                assistant_triage.triage(plan_dir, task, diagnostic_results(validation_results), config)
-            )
-            if advice_result.get("reason") != "not_eligible":
-                report["assistant_triage"] = advice_result
-                planctl.atomic_write_json(result_path, report)
-                print(f"[task {task['id']}] advisory triage: {advice_result['status']}; "
-                      f"{advice_result.get('reason', 'unverified advice saved')}", file=sys.stderr)
-            print(f"[task {task['id']}] deterministic validation failed ({cls}); next route follows the evidence ladder", file=sys.stderr)
-            return False
+        if task.get("validation_jobs"):
+            planctl.atomic_write_json(validation_checkpoint_path(plan_dir, task), {
+                "fingerprint": validation_checkpoint_fingerprint(task),
+                "report": report, "result_path": result_path.relative_to(plan_dir).as_posix(),
+                "attempt_number": attempt_number,
+            })
+        return finish_task_validation(plan_dir, manifest, config, task, report, result_path, attempt_number, record_attempt)
 
-        report["orchestrator_status"] = "completed"
-        record_attempt("completed", None, True)
+
+def finish_task_validation(
+    plan_dir: Path, manifest: dict[str, Any], config: dict[str, Any], task: dict[str, Any],
+    report: dict[str, Any], result_path: Path, attempt_number: int, record_attempt: Any = None,
+) -> bool:
+    repo_root = Path(manifest["repo_root"])
+    if record_attempt is None:
+        record_attempt = lambda *args: None
+    validation_log = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-validation.log"
+    previous_owner = {key: os.environ.get(key) for key in ("PAE_ARTIFACT_SCOPE", "PAE_ARTIFACT_OWNER")}
+    os.environ["PAE_ARTIFACT_SCOPE"], os.environ["PAE_ARTIFACT_OWNER"] = "task", str(task["id"])
+    try:
+        resource_watch.register_artifact(repo_root, validation_log)
+        evidence_path = evidence_packet_path(validation_log)
+        resource_watch.register_artifact(repo_root, evidence_path)
+        previous_packet = load_evidence_packet(previous_evidence_path(plan_dir, task))
+        passed, validation_results, validation_reason = run_validation_commands(
+            repo_root,
+            list(task["validation_commands"]),
+            validation_log,
+            validation_timeout_seconds(task, config),
+            evidence_path=evidence_path,
+            seen_lines=list(previous_packet.get("seen") or []),
+            hard_timeout_seconds=validation_hard_timeout_seconds(task, config),
+        )
+    finally:
+        for key, value in previous_owner.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+    if passed and task.get("validation_jobs"):
+        passed, job_results, validation_reason = run_validation_jobs(plan_dir, task, validation_log, evidence_path, repo_root)
+        validation_results.extend(job_results)
+    report["validation_results"] = validation_results
+    reported_files = report.get("changed_files")
+    if not isinstance(reported_files, list) or not reported_files:
+        report["changed_files"] = git_changed_files(repo_root)
+    if not passed:
+        report["orchestrator_status"] = "validation_failed"
         planctl.atomic_write_json(result_path, report)
-        relative_result = result_path.relative_to(plan_dir).as_posix()
+        # A worker that claimed completion but failed deterministic validation
+        # misjudged the work: a reasoning gap (semantic) unless it declares a
+        # narrower class itself.
+        cls = validation_failure_class(validation_results, report.get("failure_class"))
+        stalled_after_five = any(item.get("validation_stalled") is True for item in validation_results)
+        signature = validation_failure_fingerprint(validation_results)
+        record_attempt("validation_failed", cls, False)
+        planctl.fail_task(
+            plan_dir,
+            manifest,
+            task["id"],
+            validation_reason or "Validation failed",
+            failure_class=cls,
+            validation_signature=signature,
+            validation_stalled=stalled_after_five,
+            validation_idle_seconds=max(
+                (int(item.get("validation_idle_seconds", 0)) for item in validation_results),
+                default=0,
+            ),
+            validation_log=validation_log.relative_to(plan_dir).as_posix(),
+        )
+        advice_result = advisory_only(
+            assistant_triage.triage(plan_dir, task, diagnostic_results(validation_results), config)
+        )
+        if advice_result.get("reason") != "not_eligible":
+            report["assistant_triage"] = advice_result
+            planctl.atomic_write_json(result_path, report)
+            print(f"[task {task['id']}] advisory triage: {advice_result['status']}; "
+                  f"{advice_result.get('reason', 'unverified advice saved')}", file=sys.stderr)
+        validation_checkpoint_path(plan_dir, task).unlink(missing_ok=True)
+        print(f"[task {task['id']}] deterministic validation failed ({cls}); next route follows the evidence ladder", file=sys.stderr)
+        return False
+
+    report["orchestrator_status"] = "completed"
+    record_attempt("completed", None, True)
+    planctl.atomic_write_json(result_path, report)
+    relative_result = result_path.relative_to(plan_dir).as_posix()
+    try:
+        planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result)
+        resource_watch.cleanup_artifacts(repo_root, "task", str(task["id"]))
+    except planctl.PlanError as exc:
+        # Optional worker metadata must not strand validated work in progress.
+        # Keep required completion evidence so a retry cannot bypass its checks.
+        print(f"[task {task['id']}] completion report rejected: {exc}; retrying without optional metadata", file=sys.stderr)
+        report = {
+            **report,
+            "summary": report.get("summary") or f"Task {task['id']} completed and validated.",
+            "risks": [],
+            "follow_ups": [],
+            "reusable_learnings": [],
+        }
+        planctl.atomic_write_json(result_path, report)
         try:
             planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result)
-            resource_watch.cleanup_artifacts(repo_root, "task", str(task["id"]))
-        except planctl.PlanError as exc:
-            # Optional worker metadata must not strand validated work in progress.
-            # Keep required completion evidence so a retry cannot bypass its checks.
-            print(f"[task {task['id']}] completion report rejected: {exc}; retrying without optional metadata", file=sys.stderr)
-            report = {
-                **report,
-                "summary": report.get("summary") or f"Task {task['id']} completed and validated.",
-                "risks": [],
-                "follow_ups": [],
-                "reusable_learnings": [],
-            }
+        except planctl.PlanError as retry_exc:
+            reason = f"Completion report rejected after metadata recovery: {retry_exc} (initial error: {exc})"
+            report["orchestrator_status"] = "completion_failed"
             planctl.atomic_write_json(result_path, report)
-            try:
-                planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result)
-            except planctl.PlanError as retry_exc:
-                reason = f"Completion report rejected after metadata recovery: {retry_exc} (initial error: {exc})"
-                report["orchestrator_status"] = "completion_failed"
-                planctl.atomic_write_json(result_path, report)
-                planctl.fail_task(plan_dir, manifest, task["id"], reason)
-                print(f"[task {task['id']}] {reason}", file=sys.stderr)
-                return False
-        print(f"[task {task['id']}] completed and validated", flush=True)
-        return True
+            planctl.fail_task(plan_dir, manifest, task["id"], reason)
+            validation_checkpoint_path(plan_dir, task).unlink(missing_ok=True)
+            print(f"[task {task['id']}] {reason}", file=sys.stderr)
+            return False
+    validation_checkpoint_path(plan_dir, task).unlink(missing_ok=True)
+    print(f"[task {task['id']}] completed and validated", flush=True)
+    return True
 
 
 def ladder_exhausted(task: dict[str, Any], config: dict[str, Any], override: str | None, *, check_availability: bool = True) -> bool:
@@ -1989,6 +2207,7 @@ def run_design_phase(
             timeout_seconds=max(0, int(config.get("task_timeout_seconds", 0))),
             stream_output=bool(config.get("stream_provider_output", True)),
             env=env,
+            idle_timeout_seconds=int(task.get("task_idle_timeout_seconds", config.get("task_idle_timeout_seconds", 0))),
         )
     except KeyboardInterrupt:
         refresh_manifest(plan_dir, manifest)
@@ -2375,6 +2594,7 @@ def generate_final_summary(
             timeout_seconds=max(0, int(config.get("task_timeout_seconds", 0))),
             stream_output=False,
             env=env,
+            idle_timeout_seconds=int(config.get("task_idle_timeout_seconds", 0)),
         )
         combined = f"{stdout}\n{stderr}"
         if return_code != 0 and is_provider_availability_failure(

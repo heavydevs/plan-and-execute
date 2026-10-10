@@ -317,6 +317,10 @@ python <skill-dir>/scripts/run_isolated.py --plan .ai-work/<plan-id>
 
 O runner usa processo novo por TODO, reexecuta validações de forma independente, limita saída diagnóstica e gera o resumo final a partir do estado autoritativo compacto.
 
+Validações longas continuam enquanto há progresso significativo: `validation_timeout_seconds` (padrão 1800 segundos) agora mede inatividade por comando, inclusive em planos existentes. Defina `validation_hard_timeout_seconds` quando precisar de um teto fixo de duração total (padrão `0`, desativado). Um contador read-only de lotes concluídos permite acompanhar uma importação silenciosa de livros usando as credenciais locais existentes; heartbeats iguais e probes com erro não contam. Tetos explícitos de worker, assistente e provider continuam valendo.
+
+O TODO pode declarar IDs de validações mapeadas em `validation_jobs`. O worker inicia essas validações rastreadas com `jobctl.py` e conclui; o runner determinístico espera e verifica o resultado. Veja [janelas de progresso, exemplos silenciosos e espera rastreada](skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md).
+
 ## Modos de ativação
 
 ### Selective — recomendado

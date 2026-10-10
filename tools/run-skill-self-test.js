@@ -8,6 +8,9 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const scriptDirectory = path.join(root, 'skill', 'plan-and-execute', 'scripts');
 const testScripts = [
+  'progress_watch_self_test.py',
+  'progress_runner_self_test.py',
+  'jobctl_self_test.py',
   'routing_config_self_test.py',
   'availability_self_test.py',
   'configure_self_test.py',
@@ -49,7 +52,8 @@ for (const [command, prefix] of candidates) {
   const probe = spawnSync(command, [...prefix, '--version'], {
     cwd: root,
     encoding: 'utf8',
-    windowsHide: true
+    windowsHide: true,
+    env: { ...process.env, PYTHONUTF8: '1', PYTHONIOENCODING: 'utf-8' }
   });
   if (probe.error?.code === 'ENOENT') continue;
   if (probe.status === 0) { python = [command, prefix]; break; }
@@ -64,7 +68,7 @@ for (const testScript of testScripts) {
     cwd: root,
     stdio: 'inherit',
     windowsHide: true,
-    env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' }
+    env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1', PYTHONUTF8: '1', PYTHONIOENCODING: 'utf-8' }
   });
   if (result.status !== 0) process.exit(result.status ?? 1);
 }

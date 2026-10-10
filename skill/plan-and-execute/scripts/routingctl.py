@@ -125,6 +125,7 @@ FAILURE_CLASSES = (
     "semantic",        # wrong understanding or reasoning gap: jump to the next stronger tier
     "environmental",   # toolchain/repository issue outside the worker's control: no route change
     "budget",          # turn/token budget exhausted: retry same rung, then +1
+    "timeout_ceiling", # explicit wall budget reached: policy decision, no capability escalation
     "plan_defect",     # task boundary/requirement/dependency is wrong: block and replan
     "unknown",         # unclassified failure (no report, invalid report, non-zero exit): +1 rung
 )
@@ -271,7 +272,7 @@ def _uncapped_step(failure_classes: list[str], rungs: list[tuple[str, str]]) -> 
         cls = str(raw or "unknown").strip().lower()
         if cls not in FAILURE_CLASSES:
             cls = "unknown"
-        if cls in ("environmental", "plan_defect"):
+        if cls in ("environmental", "plan_defect", "timeout_ceiling"):
             continue
         if cls in ("mechanical", "budget"):
             repeat_streak += 1

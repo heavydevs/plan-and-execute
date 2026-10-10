@@ -20,7 +20,8 @@ for (const [command, prefix] of candidates) {
   const probe = spawnSync(command, [...prefix, '--version'], {
     cwd: root,
     encoding: 'utf8',
-    windowsHide: true
+    windowsHide: true,
+    env: { ...process.env, PYTHONUTF8: '1', PYTHONIOENCODING: 'utf-8' }
   });
   if (probe.error?.code === 'ENOENT') continue;
   if (probe.status === 0) { python = [command, prefix]; break; }
@@ -35,7 +36,7 @@ for (const args of checks) {
     cwd: root,
     stdio: 'inherit',
     windowsHide: true,
-    env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' }
+    env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1', PYTHONUTF8: '1', PYTHONIOENCODING: 'utf-8' }
   });
   if (result.status !== 0) process.exit(result.status ?? 1);
 }

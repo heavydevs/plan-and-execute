@@ -305,24 +305,13 @@ def test_validation_timeout_selection() -> None:
 def test_validation_timeout_byte_output() -> None:
     with tempfile.TemporaryDirectory() as temp:
         repo = Path(temp)
-        process = MagicMock()
-        # Validation now streams stdout to the raw log and waits separately.
-        # Model the current Popen contract rather than the removed communicate().
-        process.wait.side_effect = [subprocess.TimeoutExpired("command", 1), None]
-        process.poll.return_value = 1
-        process.__enter__.return_value = process
-        def spawn(*args, **kwargs):
-            kwargs["stdout"].flush()
-            os.write(kwargs["stdout"].fileno(), b"partial \xff")
-            return process
-        with patch.object(run_isolated.subprocess, "Popen", side_effect=spawn), patch.object(
-            run_isolated, "terminate_validation_tree"
-        ) as cleanup:
-            passed, results, reason = run_isolated.run_validation_commands(repo, ["command"], repo / "log", 1)
-        cleanup.assert_called_once_with(process)
+        argv = [sys.executable, '-c', r'import sys,time; sys.stdout.buffer.write(b"partial \xff\n"); sys.stdout.flush(); time.sleep(10)']
+        command = subprocess.list2cmdline(argv) if os.name == 'nt' else shlex.join(argv)
+        with patch.object(run_isolated.process_tree, "metrics", return_value=None):
+            passed, results, reason = run_isolated.run_validation_commands(repo, [command], repo / "log", .3)
         assert not passed and results[0]["exit_code"] == 124
         assert "partial \ufffd" in results[0]["output_tail"]
-        assert "Timed out after 1 seconds" in reason
+        assert "validation_stalled=confirmed" in reason
         assert "[exit 124]" in (repo / "log").read_text(encoding="utf-8", errors="replace")
 
 

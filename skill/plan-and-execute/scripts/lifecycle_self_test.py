@@ -16,6 +16,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 import lifecyclectl  # noqa: E402
 import planctl  # noqa: E402
+import jobctl  # noqa: E402
 
 
 def sample_spec(title: str = "Lifecycle sample") -> dict:
@@ -316,6 +317,50 @@ def test_live_runner_is_stopped_by_cancel() -> None:
                 process.wait(timeout=5)
 
 
+def test_cancel_stops_jobs_while_interruption_preserves_them() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp))
+        plan_dir = create_plan(repo)
+        lifecyclectl.activate_plan(plan_dir)
+        _, manifest = planctl.load_plan(plan_dir)
+        planctl.claim_task(plan_dir, manifest, "001", {"provider": "codex", "model": "fake", "tier": "economy", "effort": "low"})
+        record = jobctl.start_job(plan_dir, "cancel-job", [sys.executable, "-c", "import time; time.sleep(30)"], repo, idle_seconds=10)
+        supervisor_pid, identity = record["supervisor_pid"], record["supervisor_identity"]
+        try:
+            assert lifecyclectl.recover_interrupted_tasks(plan_dir) == 1
+            assert jobctl.status_job(plan_dir, "cancel-job")["status"] == "running"
+            assert Path(record["log_path"]).is_file()
+            result = lifecyclectl.cancel_workspace(repo)
+            assert result["status"] == "cancelled"
+            assert result["plans_removed"][0]["jobs_stopped"] == ["cancel-job"]
+            assert not plan_dir.exists()
+            deadline = time.monotonic() + 3
+            while jobctl.pid_identity(supervisor_pid) == identity and time.monotonic() < deadline:
+                time.sleep(0.05)
+            assert jobctl.pid_identity(supervisor_pid) != identity
+        finally:
+            if plan_dir.exists():
+                jobctl.stop_job(plan_dir, "cancel-job")
+
+
+def test_cancel_preserves_evidence_when_job_cannot_be_stopped_safely() -> None:
+    from unittest.mock import patch
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp))
+        plan_dir = create_plan(repo)
+        lifecyclectl.activate_plan(plan_dir)
+        (plan_dir / "jobs" / "unknown-job").mkdir(parents=True)
+        with patch.object(jobctl, "status_job", return_value={"status": "failed", "state": "lost", "reason": "supervisor_lost"}):
+            try:
+                lifecyclectl.cancel_workspace(repo, force=True)
+            except lifecyclectl.LifecycleError as exc:
+                assert "ownership is unknown" in str(exc)
+            else:
+                raise AssertionError("Even forced cancellation must preserve unknown job ownership")
+        assert plan_dir.is_dir()
+        assert (repo / ".ai-work" / lifecyclectl.ACTIVE_FILE).is_file()
+
+
 def main() -> int:
     test_idle_activate_and_pointer_repair()
     test_interrupted_task_recovery_does_not_count_failure()
@@ -325,6 +370,8 @@ def main() -> int:
     test_reset_removes_all_recognized_plans_only()
     test_pid_liveness_is_a_query_not_a_signal()
     test_live_runner_is_stopped_by_cancel()
+    test_cancel_stops_jobs_while_interruption_preserves_them()
+    test_cancel_preserves_evidence_when_job_cannot_be_stopped_safely()
     print("All resumable lifecycle self-tests passed.")
     return 0
 

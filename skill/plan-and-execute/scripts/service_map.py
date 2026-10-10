@@ -15,6 +15,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import progress_watch
+
 
 SCHEMA_VERSION = 1
 ALGORITHM = "sha256-path-content-v2-streamed"
@@ -121,8 +123,9 @@ def discover_paths(repo_root: Path) -> list[Path]:
         proc = subprocess.run(
             ["git", "-C", str(repo_root), "ls-files", "-co", "--exclude-standard", "-z"],
             check=False, capture_output=True,
+            timeout=30,
         )
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         proc = None
     if proc is not None and proc.returncode == 0:
         rel_paths = [item.decode("utf-8", "surrogateescape") for item in proc.stdout.split(b"\0") if item]
@@ -203,6 +206,25 @@ def load_map(path: Path) -> tuple[str, dict[str, Any]]:
     if not isinstance(data, dict) or data.get("schema_version") != SCHEMA_VERSION:
         raise MapError(f"Expected service map schema_version={SCHEMA_VERSION}")
     return text, data
+
+
+def validation_fingerprint(data: dict[str, Any], validation_id: str) -> str:
+    """Pin detached evidence to the mapped argv, prerequisites and source snapshot."""
+    validations = {item.get("id"): item for item in data.get("validations", []) if isinstance(item, dict)}
+    validation = validations.get(validation_id)
+    if validation is None:
+        raise MapError(f"Unknown validation id: {validation_id}")
+    resources = {item.get("id"): item for item in data.get("resources", []) if isinstance(item, dict)}
+    toolchains = {item.get("id"): item for item in data.get("toolchains", []) if isinstance(item, dict)}
+    try:
+        selected_resources = [resources[key] for key in sorted(validation.get("resources", []))]
+        selected_toolchains = [toolchains[key] for key in sorted(validation.get("toolchains", []))]
+    except KeyError as exc:
+        raise MapError("Validation references an unknown prerequisite") from exc
+    snapshot = data.get("snapshot", {})
+    payload = {"validation": validation, "resources": selected_resources, "toolchains": selected_toolchains,
+               "snapshot": {"algorithm": snapshot.get("algorithm"), "digest": snapshot.get("digest")}}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
 
 
 def replace_map_data(text: str, data: dict[str, Any]) -> str:
@@ -332,6 +354,7 @@ def validate_data(data: dict[str, Any]) -> list[str]:
             not isinstance(arg, str) or not arg or "\0" in arg for arg in command
         ):
             errors.append(f"validation {vid}: command must be a nonempty argv array")
+        errors.extend(f"validation {vid}: {error}" for error in progress_watch.validate_policy(validation))
         resource_list = validation.get("resources")
         if not isinstance(resource_list, list) or any(not isinstance(rid, str) for rid in resource_list):
             errors.append(f"validation {vid}: resources must be an array of resource ids")
@@ -350,9 +373,6 @@ def validate_data(data: dict[str, Any]) -> list[str]:
             for toolchain_id in toolchain_list:
                 if toolchain_id not in toolchain_ids:
                     errors.append(f"validation {vid}: unknown toolchain {toolchain_id!r}")
-        idle_value = validation.get("no_progress_timeout_seconds", 300)
-        if isinstance(idle_value, bool) or not isinstance(idle_value, int) or not 0 <= idle_value <= 7200:
-            errors.append(f"validation {vid}: no_progress_timeout_seconds must be 0..7200")
     return errors
 
 
@@ -465,7 +485,7 @@ def cmd_stamp(args: argparse.Namespace) -> int:
     return 0
 
 
-def parse_watcher_command(command: str, expected_map: str, repo_root: Path) -> str | None:
+def parse_watcher_command(command: str, expected_map: str | None, repo_root: Path) -> str | None:
     """Accept only a standalone Python resource-watch invocation.
 
     Validation commands are run through a shell by the plan runner, so looking
@@ -522,10 +542,14 @@ def parse_watcher_command(command: str, expected_map: str, repo_root: Path) -> s
         index += 1
     if set(values) - allowed or "--map" not in values or "--validation" not in values:
         return None
-    if values.get("--repo-root", ".") not in {".", "./"}:
+    declared_root = Path(values.get("--repo-root", "."))
+    try:
+        if (declared_root if declared_root.is_absolute() else repo_root / declared_root).resolve() != repo_root.resolve():
+            return None
+    except (OSError, RuntimeError):
         return None
     normalized_map = values["--map"].replace("\\", "/").removeprefix("./")
-    if normalized_map != expected_map.replace("\\", "/").removeprefix("./"):
+    if expected_map is not None and normalized_map != expected_map.replace("\\", "/").removeprefix("./"):
         return None
     if "--report" in values:
         report_path = Path(values["--report"])
@@ -545,28 +569,53 @@ def cmd_audit_plan(args: argparse.Namespace) -> int:
     errors = validate_data(data)
     if not fresh or truncated:
         errors.append("service map freshness snapshot is stale")
-    valid_ids = {item.get("id") for item in data.get("validations", []) if isinstance(item, dict)}
+    entries = data.get("validations", [])
+    valid_ids = {
+        item["id"] for item in entries
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    } if isinstance(entries, list) else set()
     plan_path = repo_path(root, args.plan)
     manifest_path = plan_path / "manifest.json" if plan_path.is_dir() else plan_path
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise MapError(f"Cannot read plan manifest: {exc}") from exc
+    if not isinstance(manifest, dict) or not isinstance(manifest.get("tasks"), list):
+        raise MapError("Plan manifest must contain a tasks array")
+    from planctl import valid_validation_job_id
+
     unmapped: list[str] = []
+    total = 0
     for task in manifest.get("tasks", []):
+        if not isinstance(task, dict):
+            errors.append("each plan task must be an object")
+            continue
         task_id = str(task.get("id", "?"))
-        for number, command in enumerate(task.get("validation_commands", []), 1):
+        commands = task.get("validation_commands", [])
+        if not isinstance(commands, list):
+            errors.append(f"task {task_id}: validation_commands must be an array")
+            commands = []
+        total += len(commands)
+        for number, command in enumerate(commands, 1):
             expected_map = args.map.removeprefix("./")
             validation_id = parse_watcher_command(command, expected_map, root) if isinstance(command, str) else None
             if validation_id not in valid_ids:
                 unmapped.append(f"task {task_id} validation {number}")
+        jobs = task.get("validation_jobs", [])
+        if (not isinstance(jobs, list) or len(jobs) > 32
+                or any(not valid_validation_job_id(job) for job in jobs) or len(jobs) != len(set(jobs))):
+            errors.append(f"task {task_id}: validation_jobs must contain at most 32 distinct safe job IDs")
+            continue
+        total += len(jobs)
+        for validation_id in jobs:
+            if validation_id not in valid_ids:
+                unmapped.append(f"task {task_id} validation job {validation_id}")
     errors.extend(f"unmapped plan validation: {item}" for item in unmapped)
     if errors:
         print("service-map-audit=failed")
         for error in errors[:20]:
             print(f"error: {error}")
         return 2
-    total = sum(len(task.get("validation_commands", [])) for task in manifest.get("tasks", []))
     print(f"service-map-audit=passed plan_validations={total} map_validations={len(valid_ids)}")
     return 0
 

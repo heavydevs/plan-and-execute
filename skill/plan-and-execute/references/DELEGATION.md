@@ -37,6 +37,8 @@ Output schema `delegation-decision/1`: `decision` (`tool` | `keep_root` | `deleg
 
 The brief carries the goal, role, write scope, validation and budgets only (at most 2000 tokens); never telemetry, transcripts or unrelated context.
 
+Waiting for a long deterministic command needs no model worker. Declare mapped IDs in the task's `validation_jobs`; the worker requests them through `jobctl.py` and returns its ordinary completion report. The runner launches supervisors outside the worker's process tree, waits and verifies pinned validation/map/source evidence. Interruption preserves running jobs; cancellation stops them before workspace deletion. This is separate from the compact result schema below. Use bounded status waits instead of occupying a worker with polling. Load [PROGRESS_TIMEOUTS.md](PROGRESS_TIMEOUTS.md) only for job handoff or idle/probe limits.
+
 ## Compact result schema
 
 Every worker returns exactly these keys, at most `RESULT_MAX_BYTES = 4000` serialized bytes:

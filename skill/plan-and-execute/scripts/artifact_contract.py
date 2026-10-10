@@ -627,6 +627,7 @@ def _compact_plan_renderers(planctl: Any) -> None:
                 "\n".join(
                     f"- `{command}`" for command in task["validation_commands"]
                 ),
+                *[f"- Supervised job `{job}`: start with `jobctl.py`, then return; the runner waits." for job in task.get("validation_jobs", [])],
                 "",
             ]
         )

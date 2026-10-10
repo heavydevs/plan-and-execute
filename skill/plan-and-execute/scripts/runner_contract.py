@@ -49,6 +49,12 @@ def install_runner_contract(run_isolated: Any) -> Any:
     ) -> str:
         task_path = (plan_dir / task["file"]).resolve()
         schema_path = run_isolated.completion_schema_path().resolve()
+        job_guidance = ""
+        if task.get("validation_jobs"):
+            job_guidance = f"""\nSupervised validation jobs: {', '.join(task['validation_jobs'])}
+Job controller: `{script_dir / 'jobctl.py'}`
+Plan workspace: `{plan_dir}`
+For these jobs, start each mapped ID using `start --plan <workspace> --id <ID> --validation <ID> --map <task-map>`. The runner launches and waits outside your process tree. Return the ordinary completed report after implementation, synchronous checks and job requests succeed; final acceptance belongs to the runner. Retest a terminal failed job with --restart. Use bounded jobctl waits only for a short status check; do not hold model context for a long job or invent detached polling loops.\n"""
         # Byte-stable rules first (shared prompt-cache prefix across TODOs and
         # sibling workers), stable paths next, per-task values last.
         return f"""Implement one isolated TODO. Keep context narrow and return only the required JSON report.
@@ -70,7 +76,7 @@ Task definition: `{task_path}`
 Task: `{task['id']}`
 Route: {route['provider']} / {route['model']} / {route['effort']}
 Service map helper: {script_dir / 'service_map.py'}
-""" + run_isolated.failure_context(task)
+""" + job_guidance + run_isolated.failure_context(task)
 
     original_validation = run_isolated.run_validation_commands
 

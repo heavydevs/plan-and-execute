@@ -38,7 +38,7 @@ Extract readable text from Drive/Office/PDF with host tools first, without pasti
 
 Defaults: FINAL_PLAN below ~12k estimated source tokens without breadth; PRIMARY_PLAN at 24k+, or 30+ headings at 8k+ tokens between the thresholds.
 
-Before planning, reconcile `.ai-work/SERVICE_MAP.md`: freshness, changed inputs, preflights, validation resources and plan audit. Validators use its resource watcher; long tests also monitor progress. Follow [TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md). Cleanup preserves the shared map; DIRECT creates none.
+Before planning, reconcile `.ai-work/SERVICE_MAP.md`: freshness, inputs, preflights, resources and plan audit. Use its watcher ([TEST_RESOURCE_MONITORING.md](references/TEST_RESOURCE_MONITORING.md)); for long jobs, load [progress controls](references/PROGRESS_TIMEOUTS.md). Cleanup preserves the map; DIRECT creates none.
 
 ## 4. Always-on model economy
 

@@ -70,7 +70,7 @@
     },
     "failure_class": {
       "type": ["string", "null"],
-      "enum": ["mechanical", "semantic", "environmental", "budget", "plan_defect", null]
+      "enum": ["mechanical", "semantic", "environmental", "budget", "timeout_ceiling", "plan_defect", null]
     },
     "learning_files_read": {
       "type": "array",
