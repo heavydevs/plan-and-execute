@@ -2,7 +2,14 @@
 
 All notable changes to this project are documented here.
 
-## Unreleased
+## 0.10.0 - 2026-10-12
+
+- Adds execution watchdog (`watchdogctl.py status|watch`) that inspects unfinished plans and validation jobs for anomalies (`blocked`, `permission_blocked`, `classifier_blocked`, `runner_dead`, `silent`, `awaiting_next`, `quota_resume_due`, `job_failed`) without mutating plan, job or process state. `status` is read-only; `watch` writes an observation cache for deduplication. Supports host scheduling (Task Scheduler, cron, loop).
+- Adds explicit progress and error contract with `progress_signal.py`, progress gap validation, sliding per-command validation timeouts renewed by genuine progress probes, and refactor-by-progress worker guidance.
+- Adds token-efficient log watcher (`log_watch.py digest`) to aggregate redacted error signatures and progress from bounded log prefixes. The [synthetic benchmark](docs/research/LOG_DIGEST.md) exceeds 99% reduction with a `chars/4` token estimate; reduction and coverage depend on the input and configured bounds.
+- Documents configurable global routing preferences: Codex `gpt-6.1-sol` above economy, Antigravity `gemini-3.8-flash-high` for economy/watchkeeping, and Claude fallback. Built-in provider order and explicit plan/task/CLI overrides remain compatible.
+- Adds native Antigravity installation support (`pae install antigravity`), all-hosts installation selector (`pae install all`), installation hash verification (`pae status --verify`), and tolerant cleanup in `clean-generated`.
+
 
 - Routes Codex only through GPT-6.1 Sol above economy (owner decision 2026-10-09: Sol is clearly better than GPT-6 Astra in practice): `strong`/`max` change from `gpt-6-astra` to `gpt-6.1-sol`, the bootstrap catalog drops Astra, and the Codex ladder becomes Luna Low → Luna Medium → Sol Medium → Sol High → Sol XHigh (map `2026-10-09-v7`, catalog `2026-10-09-bootstrap-v5`). `ultra` stays an opt-in effort.
 - Makes per-command validation timeouts slide with meaningful progress, adds optional fixed ceilings and read-only progress probes/files, and distinguishes `timeout_ceiling` from stagnation without automatic capability escalation. Existing explicit worker/advisory/provider caps remain fixed.

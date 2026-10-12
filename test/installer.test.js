@@ -45,6 +45,67 @@ function read(destination, relativePath) {
   return fs.readFileSync(path.join(destination, relativePath), 'utf8');
 }
 
+test('antigravity paths and all deduplicate only workspace destinations', () => {
+  const root = temporaryDirectory();
+  try {
+    const options = { workspaceDir: root, homeDir: root };
+    assert.equal(resolveTargets({ ...options, agent: 'antigravity', scope: 'user' })[0].destination,
+      path.join(root, '.gemini', 'config', 'skills', SKILL_NAME));
+    assert.equal(resolveTargets({ ...options, agent: 'antigravity' })[0].destination,
+      resolveTargets({ ...options, agent: 'codex' })[0].destination);
+    assert.deepEqual(resolveTargets({ ...options, agent: 'both', scope: 'user' }).map((t) => t.agent), ['claude', 'codex']);
+    assert.equal(installSkill({ ...options, agent: 'all' }).length, 2);
+    assert.equal(getStatus({ ...options, agent: 'all', verify: true }).length, 2);
+    assert.equal(uninstallSkill({ ...options, agent: 'all' }).length, 2);
+    assert.equal(installSkill({ ...options, agent: 'all', scope: 'user' }).length, 3);
+    assert.ok(getStatus({ ...options, agent: 'all', scope: 'user', verify: true }).every((t) => t.verified));
+    assert.equal(uninstallSkill({ ...options, agent: 'all', scope: 'user' }).length, 3);
+  } finally { cleanup(root); }
+});
+
+test('antigravity updates an intact managed copy marked for codex without force', () => {
+  const root = temporaryDirectory();
+  try {
+    const options = { agent: 'antigravity', scope: 'user', homeDir: root };
+    const destination = installSkill(options)[0].destination;
+    const markerPath = path.join(destination, INSTALL_MARKER);
+    const marker = JSON.parse(read(destination, INSTALL_MARKER));
+    marker.agent = 'codex';
+    marker.sourceHash = '0'.repeat(64);
+    fs.writeFileSync(markerPath, JSON.stringify(marker));
+    assert.equal(getStatus({ ...options, verify: true })[0].verified, false);
+    assert.equal(installSkill(options)[0].action, 'updated');
+    assert.equal(JSON.parse(read(destination, INSTALL_MARKER)).agent, 'antigravity');
+    assert.equal(getStatus({ ...options, verify: true })[0].verified, true);
+    assert.throws(() => installSkill({ ...options, activation: 'explicit' }), /Antigravity.*mecanismo documentado/);
+    assert.throws(() => installSkill({ agent: 'all', workspaceDir: root, activation: 'explicit' }), /Antigravity/);
+  } finally { cleanup(root); }
+});
+
+test('verification compares actual files with the current source and explicit variants', () => {
+  const root = temporaryDirectory();
+  try {
+    const options = { agent: 'codex', workspaceDir: root, verify: true };
+    assert.equal(getStatus(options)[0].verified, false);
+    const destination = installSkill(options)[0].destination;
+    assert.equal(getStatus(options)[0].verified, true);
+    fs.appendFileSync(path.join(destination, 'SKILL.md'), '\nmodified\n');
+    assert.equal(getStatus(options)[0].verified, false);
+    // Even a rewritten marker cannot hide a copy that differs from skill/.
+    const marker = JSON.parse(read(destination, INSTALL_MARKER));
+    marker.installedHash = computeDirectoryHash(destination);
+    fs.writeFileSync(path.join(destination, INSTALL_MARKER), JSON.stringify(marker));
+    assert.equal(getStatus(options)[0].modified, false);
+    assert.equal(getStatus(options)[0].verified, false);
+    installSkill({ ...options, force: true, activation: 'explicit' });
+    assert.equal(getStatus(options)[0].verified, true);
+    const source = path.join(root, 'source');
+    fs.cpSync(SKILL_SOURCE, source, { recursive: true });
+    fs.appendFileSync(path.join(source, 'SKILL.md'), '\nnew source\n');
+    assert.equal(getStatus({ ...options, sourceDirectory: source })[0].verified, false);
+  } finally { cleanup(root); }
+});
+
 test('bundled skill is valid and uses the short name', () => {
   assert.equal(validateBundledSkill(), true);
   assert.deepEqual(ACTIVATION_MODES, ['selective', 'explicit']);

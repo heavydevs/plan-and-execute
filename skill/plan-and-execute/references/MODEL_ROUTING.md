@@ -80,6 +80,14 @@ DIRECT means **no planning harness**, not "one expensive model does everything":
 
 Concrete models are provider-specific. Model generation and reasoning effort are independent axes: a newer model at low/medium effort can dominate an older model at high effort (Codex: GPT-6.1 Sol serves standard, strong and max, so those tiers differ by effort only; Claude: Opus Medium is a valid first strong rung under strong validation).
 
+### Configured global provider preference
+
+The following host preference requires global configuration (see [ROUTING_CONFIG.md](ROUTING_CONFIG.md) for paths/precedence). Built-in provider order remains Claude then Codex; explicit plan/task/CLI routes and legacy snapshots retain their documented precedence. Model examples require corresponding provider `models`; bootstrap `advanced` is empty for Claude/Codex and skips upward when not configured.
+
+- **`economy`**: **Antigravity** primary (`gemini-3.8-flash-high`, omitting `--effort` because the model ID embeds high reasoning effort) -> **Claude** fallback (`haiku`, without `--effort`) -> **Codex** fallback (`gpt-6-luna`, effort `low`). Used for exploration, mechanical edits, cheap summaries, and the execution watchkeeper agent.
+- **`standard`+ (`standard`, `advanced`, `strong`, `max`)**: **Codex** primary (`gpt-6.1-sol` across configured tiers, differentiated by reasoning effort: medium for standard/advanced, high for strong, xhigh for max) -> **Claude** fallback (`claude-sonnet-5-5` for standard, `claude-opus-5-5` for advanced, strong and max) -> **Antigravity** fallback (`gemini-3.1-pro-high` for standard, `claude-sonnet-4-6` for advanced, `claude-opus-4-6-thinking` for strong/max). These are preferences; configured overrides may select another primary.
+- **Watchdog and diagnosis**: Routine watchdog execution runs without a model (`watchdogctl.py status --quiet`); watchkeeper agent runs on economy (Antigravity `gemini-3.8-flash-high` without `--effort`); investigating `blocked` task failure capsules runs in the `strong` tier at `high` reasoning effort on Codex (`gpt-6.1-sol`, strong/high) with Claude Opus 5.5 fallback.
+
 ## 5. Effort: thoroughness, not only thinking time
 
 Effort controls how much work the model does per request — files read, tools used, verification steps before it returns — not just how long it thinks. Current provider defaults are adaptive/`high`; the skill pins effort only where it changes cost or quality:
@@ -127,5 +135,5 @@ A `high` TODO may declare `design_route` (`PLAN_SPEC.md`): a stronger worker wri
 - Keep stable instructions before dynamic task data; keep worker prompts byte-identical except for trailing task values so provider caches share the prefix.
 - Defer or disable unused tool/MCP definitions when supported; prefer batched deterministic queries over model round trips.
 - Keep full logs on disk; pass a bounded latest-attempt excerpt, stable repeated-failure signature, and path to that attempt. Keep repeated history as signature/counter/age instead of duplicating the same long reason. A worker may open only the immediately preceding validation log when the excerpt is insufficient; do not reread superseded logs. Do not repeatedly summarize the same evidence.
-- Final/status prose uses an economy route when no difficult synthesis is required.
+- Final/status prose uses economy when no difficult synthesis is required; the configured preference above selects Antigravity without `--effort`.
 - Optional per-worker budget guards (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway loops into resumable `budget` failures.

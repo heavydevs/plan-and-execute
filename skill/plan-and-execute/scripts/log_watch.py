@@ -16,6 +16,7 @@ from typing import Any
 
 import service_map
 import resource_watch
+import progress_signal
 
 
 def cursor_for(root: Path, log_path: Path, pattern: str, log_id: str) -> Path:
@@ -131,6 +132,85 @@ def scan(args: argparse.Namespace) -> int:
     return 1 if match_count else 0
 
 
+def digest(args: argparse.Namespace) -> int:
+    """Aggregate a bounded prefix; never echo domain text or additive fields."""
+    path = Path(args.file).expanduser()
+    if not path.is_absolute():
+        path = Path(args.repo_root) / path
+    groups: dict[tuple[str, ...], dict[str, Any]] = {}
+    input_lines = input_chars = read_bytes = omitted = 0
+    with path.open("rb") as source:
+        truncated = os.fstat(source.fileno()).st_size > args.max_read_bytes
+        while read_bytes < args.max_read_bytes:
+            raw = source.readline(args.max_read_bytes - read_bytes)
+            if not raw:
+                break
+            read_bytes += len(raw)
+            line = raw.decode("utf-8", errors="replace")
+            input_chars += len(line)
+            if truncated and read_bytes == args.max_read_bytes and not raw.endswith(b"\n"):
+                break  # A cut-off signal must not become a complete record.
+            input_lines += 1
+            try:
+                signal = progress_signal.parse_signal(line)
+            except ValueError:
+                signal = None
+            if signal and signal["kind"] == "PROGRESS":
+                key = ("PROGRESS", signal["stage"])
+            elif signal and signal["kind"] == "ERROR":
+                key = ("ERROR", signal["class"], signal["fp"])
+            else:
+                match = re.search(r"\b(Traceback|\w*Exception|FAILED|ERROR)\b", line, re.IGNORECASE)
+                if not match:
+                    continue
+                marker = match.group(1).lower()
+                category = "traceback" if marker == "traceback" else "exception" if marker.endswith("exception") else "failed" if marker == "failed" else "error"
+                key = ("ERROR", category, progress_signal.fingerprint_error(line))
+            if key not in groups:
+                if len(groups) >= args.max_classes:
+                    omitted += 1
+                    continue
+                groups[key] = {"count": 0, "first": input_lines}
+            group = groups[key]
+            group["count"] += 1
+            group["last"] = input_lines
+            if key[0] == "PROGRESS":
+                group["done"] = signal["done"]
+                # Latest record owns optional counters, including stage resets.
+                for field in ("total", "attempt", "seq"):
+                    group.pop(field, None)
+                    if field in signal:
+                        group[field] = signal[field]
+    output = [f"log-digest lines={input_lines} bytes={read_bytes} truncated={int(truncated)}"]
+    rows = []
+    for key, group in sorted(groups.items()):
+        label = f"PROGRESS stage={key[1]}" if key[0] == "PROGRESS" else f"ERROR class={key[1]} fp={key[2]} message=<redacted>"
+        fields = " ".join(f"{field}={group[field]}" for field in ("count", "first", "last", "done", "total", "attempt", "seq") if field in group)
+        rows.append((f"{label} {fields}"[:200], group["count"]))
+    slots = args.max_lines - 2 - int(args.stats)
+    output.extend(row for row, _ in rows[:slots])
+    omitted += sum(count for _, count in rows[slots:])
+    output.append(f"log-digest omitted_records={omitted} groups={len(groups)}")
+    if args.stats:
+        # Include the stats line itself in output sizes. Fixed-point iteration
+        # handles changes in digit widths without timing-dependent output.
+        base_chars = sum(len(line) + 1 for line in output)
+        stats = ""
+        for _ in range(20):
+            output_chars = base_chars + len(stats) + 1
+            reduction = 100 * (1 - output_chars / input_chars) if input_chars else 0
+            updated = (f"stats input_lines={input_lines} input_chars={input_chars} "
+                       f"output_lines={len(output) + 1} output_chars={output_chars} "
+                       f"input_tokens={input_chars / 4:.2f} output_tokens={output_chars / 4:.2f} "
+                       f"reduction_pct={reduction:.2f}")
+            if updated == stats:
+                break
+            stats = updated
+        output.append(stats)
+    print("\n".join(output))
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(description=__doc__)
     commands = root.add_subparsers(dest="command", required=True)
@@ -143,18 +223,29 @@ def parser() -> argparse.ArgumentParser:
     command.add_argument("--max-read-bytes", type=int, default=1048576)
     command.add_argument("--max-matches", type=int, default=5)
     command.set_defaults(func=scan)
+    command = commands.add_parser("digest", help="aggregate redacted errors and progress from a bounded log prefix")
+    command.add_argument("--repo-root", default=".")
+    command.add_argument("--file", required=True)
+    command.add_argument("--max-read-bytes", type=int, default=20971520)
+    command.add_argument("--max-lines", type=int, default=40)
+    command.add_argument("--max-classes", type=int, default=32)
+    command.add_argument("--stats", action="store_true")
+    command.set_defaults(func=digest)
     return root
 
 
 def main() -> int:
     args = parser().parse_args()
-    if not 1024 <= args.initial_tail_bytes <= 10485760:
+    if args.command == "digest" and not (4 <= args.max_lines <= 100 and 1 <= args.max_classes <= 100):
+        print("log-watch error: max-lines must be 4..100; max-classes must be 1..100", file=sys.stderr)
+        return 2
+    if args.command == "scan" and not 1024 <= args.initial_tail_bytes <= 10485760:
         print("log-watch error: initial-tail-bytes must be 1024..10485760", file=sys.stderr)
         return 2
     if not 1024 <= args.max_read_bytes <= 20971520:
         print("log-watch error: max-read-bytes must be 1024..20971520", file=sys.stderr)
         return 2
-    if not 1 <= args.max_matches <= 100:
+    if args.command == "scan" and not 1 <= args.max_matches <= 100:
         print("log-watch error: max-matches must be 1..100", file=sys.stderr)
         return 2
     try:

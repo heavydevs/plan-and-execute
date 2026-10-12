@@ -9,8 +9,8 @@ This project-local router maps every automated validation to its toolchain prere
   "inventory_reviewed": true,
   "snapshot": {
     "algorithm": "sha256-path-content-v2-streamed",
-    "digest": "ee2640c991aa6bfd08952c5645ffa2cdcbecb871b1299764c9a3bf9376e4fb0b",
-    "source_count": 42
+    "digest": "d110d815244eccda1796710feaaa73869fb34d059fba24d461bfd8c23296e420",
+    "source_count": 49
   },
   "toolchains": [
     {
@@ -426,10 +426,276 @@ This project-local router maps every automated validation to its toolchain prere
         "PYTHON",
         "NODE"
       ],
+      "no_progress_timeout_seconds": 900,
+      "name": "full npm run check"
+    },
+    {
+      "id": "PROGRESS_SIGNAL",
+      "name": "progress/error signal contract self-test",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/progress_signal_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "PROGRESS_WATCH",
+      "name": "progress window self-test",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/progress_watch_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "PROGRESS_RUNNER",
+      "name": "runner progress/timeout self-test",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "JOBCTL",
+      "name": "supervised job controller self-test",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/jobctl_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "LIFECYCLE",
+      "name": "lifecycle/lease self-test",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "SELF_TEST",
+      "name": "core planctl/runner self-test",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "TOKEN_EFFICIENCY",
+      "name": "prompt/token budget self-test",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/token_efficiency_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "WATCHDOG",
+      "name": "watchdogctl status/watch self-test",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "LOG_WATCH",
+      "name": "log_watch scan/digest self-test",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/log_watch_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "INSTALLER",
+      "name": "installer node tests",
+      "command": [
+        "node",
+        "--test",
+        "test/installer.test.js"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "CLEAN_TOOL",
+      "name": "generated-file cleaner tolerates unreadable .ai-work trees",
+      "command": [
+        "node",
+        "tools/clean-generated.js"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "VERSION_SYNC",
+      "name": "package/lock/changelog version 0.10.0 and README/CHANGELOG mention watchdogctl",
+      "command": [
+        "python",
+        "-c",
+        "import json,pathlib,re; v='0.10.0'; p=json.loads(pathlib.Path('package.json').read_text(encoding='utf-8')); l=json.loads(pathlib.Path('package-lock.json').read_text(encoding='utf-8')); c=pathlib.Path('CHANGELOG.md').read_text(encoding='utf-8'); assert p['version']==v, p['version']; assert l.get('version')==v, l.get('version'); assert l.get('packages',{}).get('',{}).get('version',v)==v; assert re.search(r'^## 0\\.10\\.0 - 20\\d\\d-\\d\\d-\\d\\d', c, re.M), 'CHANGELOG heading'; assert all('watchdogctl' in pathlib.Path(n).read_text(encoding='utf-8') for n in ('README.md','README.pt-BR.md','CHANGELOG.md')), 'README/CHANGELOG must mention watchdogctl'; print('version-sync ok', v)"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "DELIVERY",
+      "name": "HEAD on main pushed to origin with attribution and clean tree",
+      "command": [
+        "python",
+        "-c",
+        "import subprocess as s; g=lambda *a: s.run(['git',*a],capture_output=True,text=True,check=True).stdout.strip(); assert g('rev-parse','--abbrev-ref','HEAD')=='main'; assert g('status','--porcelain')=='', 'working tree not clean'; h=g('rev-parse','HEAD'); r=g('ls-remote','origin','refs/heads/main').split()[0]; assert h==r, ('remote main differs', h, r); assert 'Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>' in g('log','-1','--format=%B'), 'attribution trailer'; assert '\"version\": \"0.10.0\"' in g('show','HEAD:package.json'), 'version not committed'; assert g('ls-tree','--name-only','HEAD','skill/plan-and-execute/scripts/watchdogctl.py'), 'watchdogctl not committed'; print('delivery ok', h[:12])"
+      ],
+      "resources": [
+        "github-origin"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 120
+    },
+    {
+      "id": "HOST_INSTALL",
+      "name": "installed claude/codex/antigravity user copies match skill/ hash",
+      "command": [
+        "node",
+        "bin/plan-and-execute.js",
+        "status",
+        "all",
+        "--scope",
+        "user",
+        "--verify"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "TALEPACE_PLAN",
+      "name": "read-only validate of the active TalePace plan with the installed codex copy",
+      "command": [
+        "python",
+        "C:/Users/luizc/.agents/skills/plan-and-execute/scripts/planctl_concise.py",
+        "validate",
+        "--plan",
+        "C:/Users/luizc/projetos/talepace/git/talepace/.ai-work/20261011-021332-corrigir-as-falhas-de-processamento-e-provar-100-de-completude-d"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "NODE_TESTS",
+      "name": "all node tests (installer, cli, clean)",
+      "command": [
+        "npm",
+        "run",
+        "test:node"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
       "no_progress_timeout_seconds": 300
     }
   ],
-  "resources": []
+  "resources": [
+    {
+      "id": "github-origin",
+      "name": "GitHub origin remote reachable over SSH",
+      "type": "git-remote",
+      "evidence": [
+        ".git/config"
+      ],
+      "checks": [
+        {
+          "id": "origin-reachable",
+          "description": "git ls-remote answers for origin main",
+          "command": [
+            "git",
+            "ls-remote",
+            "--exit-code",
+            "origin",
+            "refs/heads/main"
+          ],
+          "every_seconds": 60,
+          "timeout_seconds": 30,
+          "success_exit_codes": [
+            0
+          ]
+        }
+      ]
+    }
+  ]
 }
 ```
 <!-- pae-service-map:end -->

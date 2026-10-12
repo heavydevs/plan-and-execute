@@ -12,6 +12,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import assistant_triage
@@ -20,6 +21,7 @@ import jobctl
 import planctl
 import routing_config
 import routingctl
+import runner_contract
 import run_isolated as runner
 import service_map
 from self_test import sample_spec
@@ -43,6 +45,23 @@ class RunnerProgressTests(unittest.TestCase):
         # Isolate output semantics from interpreter startup CPU and host scheduling.
         with patch.object(runner.process_tree, 'metrics', return_value=None):
             return runner.run_validation_commands(self.root, commands, self.log, idle, hard_timeout_seconds=hard)
+
+    def test_both_worker_prompts_require_progress_refactoring_in_stable_rules(self):
+        rule = ('For long execution or validation, refactor code to emit meaningful '
+                'PROGRESS/ERROR before raising fixed timeouts; HEARTBEAT is not progress.')
+        # Install the concise contract on a copy so the legacy prompt remains tested.
+        concise = runner_contract.install_runner_contract(SimpleNamespace(**vars(runner)))
+        manifest = {'repo_root': str(self.root)}
+        route = {'provider': 'codex', 'model': 'synthetic', 'effort': 'medium'}
+        for prompt_factory in (runner.worker_prompt, concise.worker_prompt):
+            with self.subTest(prompt=prompt_factory.__module__):
+                prompts = [prompt_factory(self.root, manifest,
+                    {'id': task_id, 'file': f'tasks/{task_id}.md', 'attempts': 0}, route)
+                    for task_id in ('001', '002')]
+                prefixes = [prompt.split('Subtask controller:', 1)[0] for prompt in prompts]
+                self.assertEqual(prefixes[0], prefixes[1])
+                self.assertEqual(prefixes[0].count(rule), 1)
+                self.assertIn(rule, prefixes[0].split('rules:', 1)[-1])
 
     def test_completed_tests_keep_single_command_alive_beyond_idle(self):
         code = 'import time\nfor i in range(9):\n print("test class", i, "passed", flush=True); time.sleep(.1)'

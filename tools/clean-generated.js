@@ -6,16 +6,31 @@ import process from 'node:process';
 
 function clean(directory) {
   if (!fs.existsSync(directory)) return;
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+  let entries;
+  try {
+    entries = fs.readdirSync(directory, { withFileTypes: true });
+  } catch (error) {
+    if (['EACCES', 'EPERM', 'ENOENT'].includes(error.code)) return;
+    throw error;
+  }
+  for (const entry of entries) {
     const absolute = path.join(directory, entry.name);
     if (entry.isDirectory()) {
       if (entry.name === '__pycache__') {
-        fs.rmSync(absolute, { recursive: true, force: true });
-      } else if (!['.git', 'node_modules'].includes(entry.name)) {
+        try {
+          fs.rmSync(absolute, { recursive: true, force: true });
+        } catch (error) {
+          if (!['EACCES', 'EPERM', 'ENOENT'].includes(error.code)) throw error;
+        }
+      } else if (!['.git', '.ai-work', 'node_modules'].includes(entry.name)) {
         clean(absolute);
       }
     } else if (entry.isFile() && entry.name.endsWith('.pyc')) {
-      fs.rmSync(absolute, { force: true });
+      try {
+        fs.rmSync(absolute, { force: true });
+      } catch (error) {
+        if (!['EACCES', 'EPERM', 'ENOENT'].includes(error.code)) throw error;
+      }
     }
   }
 }

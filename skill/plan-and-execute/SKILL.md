@@ -9,11 +9,13 @@ Treat context as a budget; preserve capability and durable progress. Choose **DI
 
 ## 1. Lifecycle and configuration
 
-`current`/`status`, `resume`/`continue`, `cancel`, and `reset`: [LIFECYCLE.md](references/LIFECYCLE.md). Exact `configure`: run `scripts/configure.py` or `pae configure`; see [ROUTING_CONFIG.md](references/ROUTING_CONFIG.md). Configuration does not create a plan. Ask one numbered question at a time; never assume installation proves authentication. Do not run configuration for ordinary implementation requests.
+`current`/`status`, `resume`/`continue`, `cancel`, and `reset`: [LIFECYCLE.md](references/LIFECYCLE.md). Exact `configure`: run `scripts/configure.py` or `pae configure`; see [ROUTING_CONFIG.md](references/ROUTING_CONFIG.md). Configuration does not create a plan. Ask one numbered question at a time; installation does not prove authentication. Never configure for ordinary implementation requests.
+
+Watchdog and watchkeeper prompt: [WATCHDOG.md](references/WATCHDOG.md).
 
 ## 2. Decide DIRECT vs ORCHESTRATED
 
-Prefer DIRECT unless durable orchestration pays for itself. Strong signals: independent workstreams, broad repository/external study, migration/security/data-integrity coordination, interruption/quota risk, or valuable worker-context isolation. File count alone is weak evidence.
+Prefer DIRECT unless durable orchestration pays for itself. Strong signals: independent workstreams, broad repository/external study, migration/security/data-integrity coordination, interruption/quota risk, or worker-context isolation. File count alone is weak evidence.
 
 ### DIRECT EXIT
 
@@ -42,7 +44,7 @@ Before planning, reconcile `.ai-work/SERVICE_MAP.md`: freshness, inputs, preflig
 
 ## 4. Always-on model economy
 
-Use tools for lookup, transforms, builds/tests/lint. Disposable exploration uses at most two credible cheap read-only workers and persists compact evidence. One grep needs no agent.
+Use tools for lookup, transforms, builds, tests, lint. Disposable exploration uses at most two credible cheap read-only workers and persists compact evidence. One grep needs no agent.
 
 Route each leaf by its own signals, not parent size or root model. Compute its floor with `python <skill-dir>/scripts/routingctl.py route --signals a,b`:
 
@@ -57,7 +59,7 @@ Route each leaf by its own signals, not parent size or root model. Compute its f
 
 `weak_validation`: +1 tier, high effort. With `strong_validation`, strong may start medium. Implementation never uses low effort unless mechanical and deterministically checked.
 
-Keep the root route stable; delegate leaves above its capability, including planning, to fresh qualified workers and consume compact results. Cache effects depend on provider/model settings, not a universal effort rule. Start stronger when silent failure is costly; otherwise use cheap-first with strong validation. Escalate only from classified failure evidence; stop after acceptance plus independent validation pass.
+Keep the root route stable; delegate leaves above its capability, including planning, to fresh qualified workers and consume compact results. Start stronger when silent failure is costly; otherwise use cheap-first with strong validation. Escalate only from classified failure evidence; stop after acceptance plus independent validation pass.
 
 Planning routes: [PLANNING_ROUTING.md](references/PLANNING_ROUTING.md). Implementation: [MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus only the active provider guide. Load catalog/delegation details ([MODEL_CATALOG.md](references/MODEL_CATALOG.md), [DELEGATION.md](references/DELEGATION.md)) only when needed. Do not preload other provider guides.
 
@@ -75,7 +77,7 @@ When DIRECT work grows into independent remaining outcomes, broad study or meani
 - implementation changes, tests, artifacts and commits survive cleanup. Retain the plan when explicitly requested or whenever completion/validation fails.
 - Every automated validation references the fresh service map and runs through its watcher. An assistant cannot classify authoritatively, edit, validate or complete a task.
 
-Shared normative contracts used by 2+ TODOs: [SHARED_PATTERNS.md](references/SHARED_PATTERNS.md). Revisions reopen only completed signatories on an older version.
+Shared contracts used by 2+ TODOs: [SHARED_PATTERNS.md](references/SHARED_PATTERNS.md). Revisions reopen only completed signatories on an older version.
 
 ## On-demand references
 

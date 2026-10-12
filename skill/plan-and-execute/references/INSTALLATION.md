@@ -1,10 +1,10 @@
-# Install Plan and Execute for Claude Code and Codex
+# Install Plan and Execute for Claude Code, Codex and Antigravity
 
 [Versão em português](INSTALLATION.pt-BR.md)
 
-The standard installation intentionally targets only Claude Code and Codex. Antigravity CLI (`agy`), Qwen Code, Kimi Code CLI, and Trae Agent remain optional execution backends after they are installed, authenticated, and added to plan routing; they are not `--agent` installation destinations. The `gemini` adapter targets the Gemini CLI, which Google sunset on 2026-06-18; use `antigravity` for new plans.
+The default `both` selector installs for Claude Code and Codex. Use `--agent antigravity` to install for Antigravity CLI (`agy`), or `--agent all` for all three hosts. Qwen Code, Kimi Code CLI, and Trae Agent remain optional execution backends, not installation destinations. The `gemini` adapter targets the Gemini CLI, which Google sunset on 2026-06-18; use `antigravity` for new plans.
 
-Antigravity notes: the adapter runs `agy --dangerously-skip-permissions --output-format json --json-schema <schema> [--model <slug>] --effort <low|medium|high> --print-timeout <auto> -p <prompt>`. Model slugs are `default` until you set `antigravity.models` in `orchestrator.config.json` from `agy models --output-format json`; `--effort` is capped at `high`; the summary runs with `--sandbox`. `print_timeout: "auto"` follows `task_timeout_seconds` (12h when the runner has no limit) so agy never kills a worker the runner would still wait for; set an explicit duration such as `"45m"` to override. Confirm with `pae doctor` and a `--dry-run` before relying on it; early `agy` 1.0.0 builds dropped stdout under non-TTY (`antigravity-cli#76`), so upgrade if a worker returns an empty report.
+Antigravity notes: the adapter runs `agy --dangerously-skip-permissions --output-format json --json-schema <schema> [--model <slug>] --effort <low|medium|high> --print-timeout <auto> -p <prompt>`. Model slugs are `default` until you set `antigravity.models` in `orchestrator.config.json` from `agy models`; `--effort` is capped at `high`; the summary runs with `--sandbox`. `print_timeout: "auto"` follows `task_timeout_seconds` (12h when the runner has no limit) so agy never kills a worker the runner would still wait for; set an explicit duration such as `"45m"` to override. Confirm with `pae doctor` and a `--dry-run` before relying on it; early `agy` 1.0.0 builds dropped stdout under non-TTY (`antigravity-cli#76`), so upgrade if a worker returns an empty report.
 
 ## Activation mode
 
@@ -46,7 +46,7 @@ npx --yes @luizcgvrj/plan-and-execute \
 Main options:
 
 ```text
---agent claude|codex|both
+--agent claude|codex|antigravity|both|all
 --scope user|workspace
 --activation selective|explicit
 --selective
@@ -79,6 +79,10 @@ pae uninstall both --global
 
 The installer automatically updates an intact managed copy. If installed files were edited manually, it stops before overwriting or deleting them. Use `--force` only when those local changes should be replaced.
 
+Antigravity uses `~/.gemini/config/skills` in user scope and shares `.agents/skills` with Codex in workspace scope. `all` deduplicates shared destinations; `both` continues to mean Claude + Codex. The legacy `~/.gemini/skills` copy is left in place. An intact managed copy at the Antigravity destination can be updated without `--force`, including one whose marker says `agent=codex`.
+
+Antigravity has no documented explicit-only activation mechanism: `install antigravity --activation explicit` and `install all --activation explicit` fail before installing. Use `selective` for Antigravity. `agy` 1.3.2 lists models with `agy models` (no output-format flag).
+
 ## Installation targets
 
 Workspace scope:
@@ -93,6 +97,7 @@ User scope:
 ```text
 ~/.claude/skills/plan-and-execute/SKILL.md
 ~/.agents/skills/plan-and-execute/SKILL.md
+~/.gemini/config/skills/plan-and-execute/SKILL.md
 ```
 
 On Windows, `~` normally maps to `%USERPROFILE%`.
@@ -159,6 +164,14 @@ Every orchestrated TODO keeps logical `provider`, `model_tier`, and `reasoning_e
 The default provider order remains `claude`, then `codex`. Optional execution backends can be selected with `pae resume --provider <name>` or configured in the plan. Usage/quota exhaustion does not count as a technical implementation failure.
 
 ## Verify the installation
+
+```bash
+pae install antigravity --global
+pae status all --global --verify
+pae status antigravity --local --verify --json
+```
+
+`status --verify` compares installed content against the current bundled `skill/` hash, using the host-specific variant for explicit Claude/Codex copies. Exit code is 0 when every selected copy matches and 1 for missing, modified or outdated copies. Plain `status` remains informational. `npm run clean` skips `.ai-work` and unreadable directories.
 
 ```bash
 npm run check

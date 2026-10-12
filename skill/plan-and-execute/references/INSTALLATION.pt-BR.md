@@ -1,10 +1,10 @@
-# Instalar o Plan and Execute no Claude Code e Codex
+# Instalar o Plan and Execute no Claude Code, Codex e Antigravity
 
 [English version](INSTALLATION.md)
 
-A instalação padrão continua limitada ao Claude Code e ao Codex. Antigravity CLI (`agy`), Qwen Code, Kimi Code CLI e Trae Agent permanecem backends opcionais de execução; não são novos destinos de `--agent`. O adapter `gemini` aponta para a Gemini CLI, descontinuada pelo Google em 18/06/2026; use `antigravity` em planos novos.
+O seletor padrão `both` instala para Claude Code e Codex. Use `--agent antigravity` para Antigravity CLI (`agy`) ou `--agent all` para os três hosts. Qwen Code, Kimi Code CLI e Trae Agent continuam backends opcionais de execução, sem destino de instalação. O adapter `gemini` aponta para a Gemini CLI, descontinuada pelo Google em 18/06/2026; use `antigravity` em planos novos.
 
-Notas do Antigravity: o adapter executa `agy --dangerously-skip-permissions --output-format json --json-schema <schema> [--model <slug>] --effort <low|medium|high> --print-timeout <auto> -p <prompt>`. Os slugs de modelo ficam em `default` até você preencher `antigravity.models` no `orchestrator.config.json` a partir de `agy models --output-format json`; `--effort` é limitado a `high`; o sumário roda com `--sandbox`. `print_timeout: "auto"` segue `task_timeout_seconds` (12h quando o runner não tem limite) para o agy nunca matar um worker que o runner ainda esperaria; defina uma duração explícita como `"45m"` para sobrescrever. Confirme com `pae doctor` e um `--dry-run` antes de depender dele; builds antigos (`agy` 1.0.0) descartavam stdout fora de TTY (`antigravity-cli#76`) — atualize se um worker devolver report vazio.
+Notas do Antigravity: o adapter executa `agy --dangerously-skip-permissions --output-format json --json-schema <schema> [--model <slug>] --effort <low|medium|high> --print-timeout <auto> -p <prompt>`. Os slugs de modelo ficam em `default` até você preencher `antigravity.models` no `orchestrator.config.json` a partir de `agy models`; `--effort` é limitado a `high`; o sumário roda com `--sandbox`. `print_timeout: "auto"` segue `task_timeout_seconds` (12h quando o runner não tem limite) para o agy nunca matar um worker que o runner ainda esperaria; defina uma duração explícita como `"45m"` para sobrescrever. Confirme com `pae doctor` e um `--dry-run` antes de depender dele; builds antigos (`agy` 1.0.0) descartavam stdout fora de TTY (`antigravity-cli#76`) — atualize se um worker devolver report vazio.
 
 ## Modo de ativação
 
@@ -46,7 +46,7 @@ npx --yes @luizcgvrj/plan-and-execute \
 Opções principais:
 
 ```text
---agent claude|codex|both
+--agent claude|codex|antigravity|both|all
 --scope user|workspace
 --activation selective|explicit
 --selective
@@ -70,6 +70,10 @@ pae uninstall both --global
 
 O instalador atualiza uma cópia gerenciada intacta automaticamente. Se houver edição local, ele para antes de sobrescrever/remover. Use `--force` somente para descartar conscientemente essas alterações.
 
+Antigravity usa `~/.gemini/config/skills` no perfil do usuário e compartilha `.agents/skills` com Codex no workspace. `all` deduplica destinos compartilhados; `both` continua significando Claude + Codex. A cópia legada em `~/.gemini/skills` permanece intacta. Uma cópia gerenciada intacta no destino do Antigravity atualiza sem `--force`, inclusive com marcador `agent=codex`.
+
+Antigravity não possui mecanismo documentado de ativação somente explícita: `install antigravity --activation explicit` e `install all --activation explicit` falham antes de instalar. Use `selective` para Antigravity. O `agy` 1.3.2 lista modelos com `agy models` (sem flag de formato).
+
 ## Destinos
 
 Workspace:
@@ -84,6 +88,7 @@ Perfil do usuário:
 ```text
 ~/.claude/skills/plan-and-execute/SKILL.md
 ~/.agents/skills/plan-and-execute/SKILL.md
+~/.gemini/config/skills/plan-and-execute/SKILL.md
 ```
 
 ## Instalação manual
@@ -149,6 +154,14 @@ pae resume --provider trae
 Respeite sandbox, permissões e políticas organizacionais de cada CLI.
 
 ## Verificação
+
+```bash
+pae install antigravity --global
+pae status all --global --verify
+pae status antigravity --local --verify --json
+```
+
+`status --verify` compara os arquivos instalados com o hash atual de `skill/`, considerando a variante por host nas cópias explícitas de Claude/Codex. Retorna 0 quando todas as cópias selecionadas correspondem e 1 para cópia ausente, modificada ou desatualizada. `status` sem essa opção continua informativo. `npm run clean` ignora `.ai-work` e diretórios ilegíveis.
 
 ```bash
 npm run check

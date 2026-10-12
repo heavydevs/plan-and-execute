@@ -2,15 +2,23 @@
 
 **Use um plano persistente com múltiplos workers somente quando esse custo realmente compensa.**
 
-`plan-and-execute` é uma skill de orquestração seletiva para Claude Code e OpenAI Codex. Demandas pequenas/médias coesas permanecem no contexto atual do agente. Trabalho long-horizon entra no fluxo completo desde o início, ou pode ser promovido mais tarde se crescer durante a implementação — sem jogar fora o que já foi feito.
+`plan-and-execute` é uma skill de orquestração seletiva para Claude Code, OpenAI Codex e Google Antigravity. Demandas pequenas/médias coesas permanecem no contexto atual do agente. Trabalho long-horizon entra no fluxo completo desde o início, ou pode ser promovido mais tarde se crescer durante a implementação — sem jogar fora o que já foi feito.
 
 [English version](README.md)
 
-## Roteamento configurável e diagnóstico auxiliar (ainda não publicado no npm)
+## Novidades na versão 0.10
 
-Esta versão acrescenta cadeias de provedores por nível, configuração global e por plano, troca limitada por indisponibilidade e diagnóstico auxiliar opcional. Continuam intactos o modo DIRECT, a escalada por falhas reais, os TODOs retomáveis e a validação determinística.
+A versão 0.10 introduz o watchdog de execução, contrato explícito de sinais de progresso e erro, digest de logs com alta redução de tokens, política atualizada de roteamento de modelos e suporte nativo ao Google Antigravity no instalador:
 
-Em um checkout que contenha estas mudanças:
+- **Watchdog de execução (`watchdogctl`)**: `status --quiet` observa planos e jobs somente para leitura; `watch --interval 300` grava apenas um cache de observações para desduplicação. Ambos preservam o estado de planos, jobs e processos. Detectam anomalias (`blocked`, `runner_dead`, `silent`, `awaiting_next`, `quota_resume_due`, `job_failed`) e aceitam agendamento no host (Windows Task Scheduler, cron, loop).
+- **Contrato de progresso e erro (`progress_signal`)**: Emissão padronizada de linhas `PROGRESS`, `ERROR` e `HEARTBEAT` via `progress_signal.py`. Configure uma sonda de contador crescente (`probe_file`) para renovar janelas de validação; workers também usam saída, CPU e mudanças no repositório. Heartbeats indicam atividade.
+- **Digest de log token-eficiente (`log_watch.py digest`)**: Agrega assinaturas redigidas de erros e progresso de um prefixo limitado do log. O [benchmark sintético](docs/research/LOG_DIGEST.md) supera 99% de redução usando a estimativa de tokens `chars/4`; o resultado depende do log. Confira `truncated` e `omitted_records` para avaliar a cobertura.
+- **Política de roteamento atualizada**: A preferência global documentada usa Codex `gpt-6.1-sol` acima de economy e Antigravity `gemini-3.8-flash-high` em economy/vigilância, com Claude como alternativa. Essas cadeias exigem configuração; a ordem embutida continua Claude e depois Codex. Configure cadeias globais e por plano via `pae configure`.
+- **Instalador e verificação**: Suporte nativo ao Antigravity (`~/.gemini/config/skills` no escopo do usuário, `.agents/skills` no escopo do workspace). Utilize `install all` (via `pae install all`) para instalar simultaneamente no Claude Code, Codex e Antigravity. Valide a integridade das instalações comparando com os hashes embutidos da skill via `status --verify` (ex.: `pae status all --verify`).
+
+### Roteamento configurável e diagnóstico auxiliar
+
+Em um checkout ou pacote instalado:
 
 ```bash
 node bin/plan-and-execute.js configure
@@ -18,7 +26,7 @@ node bin/plan-and-execute.js configure --show --json
 node bin/plan-and-execute.js configure --plan .ai-work/<plan-id>
 ```
 
-Depois de instalar esta versão, use `pae configure`. O assistente apresenta uma pergunta numerada de cada vez, consulta autenticação sem gerar texto quando há comando documentado e grava somente após confirmação. `--dry-run` permite simular sem salvar. Estas mudanças ainda não foram publicadas no npm.
+Execute `pae configure` (ou `node bin/plan-and-execute.js configure`). O assistente apresenta uma pergunta numerada de cada vez, consulta autenticação sem gerar texto quando há comando documentado e grava somente após confirmação. `--dry-run` permite simular sem salvar.
 
 A precedência é padrões da skill < configuração global < ajustes explícitos do plano. Objetos são mesclados; listas são substituídas. Planos novos usam pequenos overlays de versão 2; snapshots completos antigos preservam seu comportamento. Escolha principal e alternativas ordenadas de cada nível separadamente do assistente. Falta de crédito, autenticação ou capacidade não aumenta a dificuldade: esgotadas as alternativas, o runner pausa com código 75 e preserva os intervalos de espera e os checkpoints.
 
@@ -66,13 +74,13 @@ Quando a orquestração realmente é necessária, **todo o comportamento robusto
 |---|---:|---:|---:|
 | Claude Code | Sim | Sim | 1º |
 | OpenAI Codex | Sim | Sim | 2º |
-| Antigravity CLI (`agy`) | Sim | Não | Opt-in |
+| Antigravity CLI (`agy`) | Sim | Sim | Opt-in (instale com `pae install antigravity` ou `install all`) |
 | Gemini CLI | Legado | Não | Opt-in (descontinuada em 18/06/2026; use o adapter Antigravity) |
 | Qwen Code | Sim | Não | Opt-in |
 | Kimi Code CLI | Sim | Não | Opt-in |
 | Trae Agent | Sim | Não | Opt-in |
 
-Claude e Codex continuam sendo os únicos destinos de instalação padrão. Os demais são backends opcionais de execução dentro de um plano.
+O instalador npm suporta Claude Code, Codex e Google Antigravity (usando `both` para Claude + Codex, `antigravity`, ou `all` para os três). Os demais são backends opcionais de execução dentro de um plano.
 
 ## Início rápido
 
@@ -80,18 +88,30 @@ Requisitos:
 
 - Node.js 18.17+;
 - Python 3.10+;
-- Claude Code e/ou Codex instalados e autenticados.
+- Claude Code, Codex e/ou Google Antigravity (`agy`) instalados e autenticados.
 
-Workspace atual:
+Claude Code e Codex no workspace atual:
 
 ```bash
 npx @luizcgvrj/plan-and-execute install both
 ```
 
+Ou instale para todos os destinos suportados (Claude Code, Codex e Antigravity):
+
+```bash
+npx @luizcgvrj/plan-and-execute install all
+```
+
 Perfil do usuário:
 
 ```bash
-npx @luizcgvrj/plan-and-execute install both --global
+npx @luizcgvrj/plan-and-execute install all --global
+```
+
+Verificar a integridade da instalação em relação aos hashes da skill embutida:
+
+```bash
+pae status all --verify
 ```
 
 A ativação padrão é **selective**. Para tornar a skill somente explícita:
@@ -320,6 +340,17 @@ O runner usa processo novo por TODO, reexecuta validações de forma independent
 Validações longas continuam enquanto há progresso significativo: `validation_timeout_seconds` (padrão 1800 segundos) agora mede inatividade por comando, inclusive em planos existentes. Defina `validation_hard_timeout_seconds` quando precisar de um teto fixo de duração total (padrão `0`, desativado). Um contador read-only de lotes concluídos permite acompanhar uma importação silenciosa de livros usando as credenciais locais existentes; heartbeats iguais e probes com erro não contam. Tetos explícitos de worker, assistente e provider continuam valendo.
 
 O TODO pode declarar IDs de validações mapeadas em `validation_jobs`. O worker inicia essas validações rastreadas com `jobctl.py` e conclui; o runner determinístico espera e verifica o resultado. Veja [janelas de progresso, exemplos silenciosos e espera rastreada](skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md).
+
+### Watchdog de execução e monitoramento de progresso
+
+Um watchdog dedicado inspeciona planos e jobs ativos. `status` é somente leitura; `watch` persiste apenas seu cache de observações, preservando planos, jobs e processos:
+
+```bash
+python <skill-dir>/scripts/watchdogctl.py status --repo-root . --quiet
+python <skill-dir>/scripts/watchdogctl.py watch --repo-root . --interval 300
+```
+
+O `watchdogctl watch` desduplica anomalias (`blocked`, `runner_dead`, `silent`, `awaiting_next`, `quota_resume_due`, `job_failed`). Use `progress_signal.py` para emitir e sondar contadores de progresso, e `log_watch.py digest` para resumos limitados de logs com mensagens redigidas. Consulte [WATCHDOG.md](skill/plan-and-execute/references/WATCHDOG.md) e a [medição sintética do digest](docs/research/LOG_DIGEST.md).
 
 ## Modos de ativação
 

@@ -75,6 +75,10 @@ Validation, toolchain, and health-check commands are argv arrays and execute wit
 
 Each validation may set `no_progress_timeout_seconds` (`0..7200`); an explicit value wins, including `0` to disable. Omission inherits the runner's per-command `validation_timeout_seconds` window (default `1800`), or `300` when the watcher runs standalone. Productive validations may outlive that window repeatedly. A separate optional `validation_hard_timeout_seconds` remains fixed; see [PROGRESS_TIMEOUTS.md](PROGRESS_TIMEOUTS.md) for precedence, configuration and the complete timeout inventory.
 
+Optional `expected_duration_seconds` is integer metadata (`0..604800`), with no timeout effect. For values above `300`, `audit-plan` warns `progress-gap task=<id> validation=<ID> reason=<...>` when the validation lacks `progress_regex`, `progress_probe` and nonempty `progress_files`; warnings preserve the audit exit code. Existing maps that omit the field remain valid and produce no duration warning.
+
+For work exceeding five minutes, emit `PROGRESS stage=<enum> done=<int>` ticks (optional `total`, `attempt`, run-wide `seq`) and `ERROR class=<enum> fp=<hex8> stage=<enum>` through `progress_signal.py`. `HEARTBEAT` reports liveness only. A probe argv such as `["python", "<skill-dir>/scripts/progress_signal.py", "probe", "--file", "logs/validation.log"]` with `mode: increases` reads only the final 128 KiB and returns the latest complete PROGRESS counter, preferring `seq` over `done`; no valid tick returns baseline `0`. Keep the counter monotonic across stages/retries, and omit a heartbeat-matching regex. See [PROGRESS_TIMEOUTS.md](PROGRESS_TIMEOUTS.md#portable-progress-and-error-contract) for parsing, fingerprint and probe details.
+
 The watcher tracks changed normalized output and increasing CPU across the process tree, with portable output/probe/file evidence when metrics are unavailable. A repeated heartbeat does not renew the clock unless `progress_regex` explicitly opts it in. `expected_quiet_seconds` sets a minimum idle window after each progress event; idle `0` disables it. Read-only `progress_probe` counters and safe repository-relative `progress_files` establish progress during remote work or silent I/O; their initial samples, failures and health checks never renew the clock. Omit unused optional fields; explicit `null` and invalid types fail before dispatch. Idle expiration preserves evidence, stops the process tree and supplies stagnation evidence; a ceiling uses `timeout_ceiling` without automatic model escalation. Resource health checks continue independently. See [PROGRESS_TIMEOUTS.md](PROGRESS_TIMEOUTS.md) for exact post-install TalePace map edits and migration.
 
 ## 2. Build a test-to-resource map
@@ -129,6 +133,15 @@ The test argv comes from that map entry, which binds it to its toolchain IDs and
 The wrapper runs commands directly from argv; it does not start, stop, repair, or reconfigure project services. A health command's nonzero exit, timeout, missing executable, or failed regex is recorded as unhealthy. Environmental health failure keeps the model route stable; a deliberately semantic diagnostic may elevate it. On POSIX, monitored validations require process enumeration via `ps` or `/proc` so timeouts can also clean nested probe processes; without either, the watcher fails before starting the test.
 
 ### FailureEvidencePacket and advisory diagnosis
+
+For bounded manual log review, run
+`python <skill-dir>/scripts/log_watch.py digest --file <log> --max-lines 40 --max-classes 32 --stats`.
+It aggregates contract errors by class/fingerprint, generic errors with the same
+normalizer, and PROGRESS by stage, with counts and first/last source line numbers.
+Messages become `<redacted>`; input is a byte-limited prefix. Check `truncated`
+and `omitted_records` for incomplete coverage. Digest exits 0 on a successful
+read even if errors exist; keep `scan` for health checks. The reproducible
+10,000-line synthetic measurement is in `docs/research/LOG_DIGEST.md`.
 
 Before any diagnosis, the runner builds one bounded FailureEvidencePacket per failed validation (`resource_watch.build_failure_packet`, default budget 4 KiB): `signature`, `first_failure`, `latest_delta`, `process`, `resources`, `progress`, `block_scope` and `evidence_paths` (the raw log path). It reads only the first and last windows of the log, so a multi-megabyte log costs a fixed scan. Lines already reported by the previous attempt's packet (normalized hashes in its `seen` list) are omitted from `latest_delta`; lines dropped for budget stay unreported. A stale or invalid service map sets `block_scope=service_map`: the map must be reconciled, not the task's code changed. The packet is written beside the attempt log as `logs/<task>-attempt-<n>-evidence.json`, registered with task owner scope and `on-task-end` retention, never under `skill/plan-and-execute/`. The next worker's latest-failure capsule summarizes it.
 

@@ -49,7 +49,8 @@ Provedores de execucao suportados:
   claude, codex, antigravity, gemini, qwen, kimi, trae
 
 A instalacao padrao da skill e o tutorial rapido continuam restritos a Claude Code e Codex.
-Antigravity (agy), Qwen, Kimi e Trae sao backends opcionais de execucao; gemini e legado
+Antigravity (agy) tambem aceita instalacao com --agent antigravity ou all.
+Qwen, Kimi e Trae sao backends opcionais de execucao; gemini e legado
 (Gemini CLI descontinuada em 2026-06-18).
 
 Uso da implementacao:
@@ -73,10 +74,10 @@ Catalogo de modelos (sem chamadas de geracao):
   pae models diff --plan <diretorio>
 
 Uso da instalacao:
-  pae install [claude|codex|both] [opcoes]
-  pae status [claude|codex|both] [opcoes]
-  pae paths [claude|codex|both] [opcoes]
-  pae uninstall [claude|codex|both] [opcoes]
+  pae install [claude|codex|antigravity|both|all] [opcoes]
+  pae status [claude|codex|antigravity|both|all] [opcoes]
+  pae paths [claude|codex|antigravity|both|all] [opcoes]
+  pae uninstall [claude|codex|antigravity|both|all] [opcoes]
   pae doctor [--json]
 
 Opcoes gerais:
@@ -97,7 +98,8 @@ Opcoes de execucao:
   --all                             Com cancel, remover todos os planos reconhecidos
 
 Opcoes de instalacao:
-  --agent <claude|codex|both>       Destino. Padrao: both
+  --agent <claude|codex|antigravity|both|all> Destino. Padrao: both
+  --verify                          Com status: comparar hashes com a skill embutida
   --scope <workspace|user>          Projeto atual ou perfil do usuario. Padrao: workspace
   --activation <selective|explicit> Auto seletivo (padrao) ou somente invocacao explicita
   --selective                       Alias de --activation selective
@@ -147,7 +149,7 @@ export function parseArguments(argv) {
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     if (!arg.startsWith('-')) {
-      if (!positionalAgentUsed && ['claude', 'codex', 'both'].includes(arg)) {
+      if (!positionalAgentUsed && ['claude', 'codex', 'antigravity', 'both', 'all'].includes(arg)) {
         options.agent = arg; positionalAgentUsed = true; continue;
       }
       if (command === 'models' && !options.action && MODELS_ACTIONS.includes(arg)) {
@@ -185,6 +187,7 @@ export function parseArguments(argv) {
       case '--force': case '-f': options.force = true; break;
       case '--dry-run': options.dryRun = true; break;
       case '--json': options.json = true; break;
+      case '--verify': options.verify = true; break;
       case '-h': case '--help': showHelp = true; break;
       case '-v': case '--version': showVersion = true; break;
       default: throw new Error(`Opcao desconhecida: ${arg}`);
@@ -213,7 +216,8 @@ function printResults(results, json) {
         else status = 'instalada manualmente';
       }
       const activation = result.activation ? `, ativacao=${result.activation}` : '';
-      console.log(`${result.agent}/${result.scope}: ${status}${activation} - ${result.destination}`);
+      const verification = 'verified' in result ? `, verify=${result.verified ? 'ok' : 'failed'}` : '';
+      console.log(`${result.agent}/${result.scope}: ${status}${activation}${verification} - ${result.destination}`);
     } else {
       const activation = result.activation ? ` (${result.activation})` : '';
       console.log(`${result.agent}/${result.scope}: ${result.action}${activation} - ${result.destination}`);
@@ -381,7 +385,12 @@ async function main() {
   try {
     switch (command) {
       case 'install': printResults(installSkill(options), options.json); break;
-      case 'status': printResults(getStatus(options), options.json); break;
+      case 'status': {
+        const results = getStatus(options);
+        printResults(results, options.json);
+        if (options.verify && results.some((result) => !result.verified)) process.exitCode = 1;
+        break;
+      }
       case 'paths': printResults(resolveTargets(options).map((target) => ({ ...target, action: 'target' })), options.json); break;
       case 'uninstall': printResults(uninstallSkill(options), options.json); break;
       case 'doctor': printDoctor(executionDoctorReport(options), options.json); break;

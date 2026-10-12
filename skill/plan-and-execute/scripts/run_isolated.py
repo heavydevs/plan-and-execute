@@ -731,6 +731,7 @@ Mandatory isolation rules:
 10. Checkpoint resumable work with the subtask controller (`subtask-start` / `subtask-complete --plan <workspace> --task <id> --subtask <id>`), never by editing the checklist.
 11. Report `context_files_read` and `learning_files_read` using the exact plan-relative names from task frontmatter; use empty lists when none are assigned.
 12. Report every completed checklist id in `completed_subtask_ids`. Report reusable learnings only for predeclared downstream targets and only with concrete references.
+13. For long execution or validation, refactor code to emit meaningful PROGRESS/ERROR before raising fixed timeouts; HEARTBEAT is not progress.
 
 For declared validation_jobs, launch the named job through jobctl with meaningful progress sources, then return the implemented task's completion report. The runner supervises and validates it without a model. Do not invent detached jobs or unbounded polling loops. On a retry restart a terminal failed job explicitly with --restart.
 Return only the completion report requested by the configured JSON schema. Use status "completed" when implementation and synchronous checks pass and declared jobs are started; otherwise use "blocked". The runner owns final acceptance.

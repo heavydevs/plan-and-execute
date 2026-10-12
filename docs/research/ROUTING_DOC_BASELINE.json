@@ -148,10 +148,16 @@
       "reason": "Read cleanup section; states resource-monitor reports survive cleanup and reset."
     },
     {
-      "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
-      "sha256": "abd26af0c9f820724c581d3336b01a7c5675a8de26d2853dab4053f831b823e4",
+      "path": "skill/plan-and-execute/references/MODEL_MAPPING.md",
+      "sha256": "e3a5dca4adf9dd3b53ac63ebea5731cd3e9ac92cfb389d8a2e6cc7ff9f8ad47c",
       "status": "reviewed",
-      "reason": "Read fully; four logical tiers, two provider guides, Windows stall-detection limit, floor table."
+      "reason": "Referencia operacional de mapeamento de modelos e complexidade; cadeia standard+ codex primario -> claude -> antigravity, antigravity economy sem effort."
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+      "sha256": "527a05e66bffc98c569508e379284f6bcd12405f7da8bf2e000799e7190e1862",
+      "status": "reviewed",
+      "reason": "Alinhamento com config global: Codex primario em standard+, Antigravity economy, fallback Claude Opus 5.5, watchdog sem modelo."
     },
     {
       "path": "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
@@ -215,9 +221,9 @@
     },
     {
       "path": "skill/plan-and-execute/references/ROUTING_CONFIG.md",
-      "sha256": "5f91240329a7ed2e91692b109f90fab97179150850b18fdac81135af6e41f1c1",
+      "sha256": "7e493b76f6f05c1b1caf847f3542a712945d1d2ab3f57832c336061739cb030e",
       "status": "reviewed",
-      "reason": "Read fully; tier_routes has four tiers, seven CLIs, version-2 overlay, availability fallback."
+      "reason": "Alinhamento com config global: tier_routes e texto com Codex primario em standard+, Antigravity economy, fallback Claude Opus 5.5."
     },
     {
       "path": "skill/plan-and-execute/references/SHARED_PATTERNS.md",
@@ -248,6 +254,12 @@
       "sha256": "c7442696283f56b1070e3c15a27b5e6ab9fb047dfab64890e47cd3df639c70dc",
       "status": "reviewed",
       "reason": "Grep and headings read; sections 4, 11, 12 consistent with request, no tier enumeration to change."
+    },
+    {
+      "path": "skill/plan-and-execute/references/WATCHDOG.md",
+      "sha256": "0a67b6f0e5e58412d15c4e3200275ada17ee27d2ccae37198ff1f935ac8d3c90",
+      "status": "reviewed",
+      "reason": "Referencia do watchdog de execucao: checagem sem modelo, agente vigia economy em Antigravity sem effort, diagnostico de blocked em Codex Sol strong/high."
     },
     {
       "path": "skill/plan-and-execute/references/WORKFLOW.md",

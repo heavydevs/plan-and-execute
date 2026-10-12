@@ -22,13 +22,52 @@ function run(args, options = {}) {
   });
 }
 
+test('CLI accepts antigravity and all and verification controls the exit code', () => {
+  const workspace = temporaryDirectory();
+  const args = ['--cwd', workspace, '--json'];
+  try {
+    const missing = run(['status', 'all', '--verify', ...args]);
+    assert.equal(missing.status, 1, missing.stderr);
+    assert.ok(JSON.parse(missing.stdout).every((t) => !t.verified));
+    const explicit = run(['install', 'antigravity', '--explicit', ...args]);
+    assert.equal(explicit.status, 1);
+    assert.match(explicit.stderr, /Antigravity.*mecanismo documentado/);
+    assert.equal(fs.existsSync(path.join(workspace, '.agents')), false);
+    const install = run(['install', 'antigravity', ...args]);
+    assert.equal(install.status, 0, install.stderr);
+    const status = run(['status', 'antigravity', '--verify', ...args]);
+    assert.equal(status.status, 0, status.stderr);
+    assert.equal(JSON.parse(status.stdout)[0].verified, true);
+    const all = run(['install', '--agent', 'all', ...args]);
+    assert.equal(all.status, 0, all.stderr);
+    assert.equal(JSON.parse(all.stdout).length, 2);
+    assert.equal(run(['status', 'all', '--verify', ...args]).status, 0);
+    const destination = JSON.parse(status.stdout)[0].destination;
+    fs.appendFileSync(path.join(destination, 'SKILL.md'), '\nchanged\n');
+    const modified = run(['status', 'all', '--verify', ...args]);
+    assert.equal(modified.status, 1, modified.stderr);
+    assert.equal(run(['status', 'all', ...args]).status, 0);
+    const repair = run(['install', 'all', '--force', ...args]);
+    assert.equal(repair.status, 0, repair.stderr);
+    const markerPath = path.join(destination, '.plan-and-execute-install.json');
+    const marker = JSON.parse(fs.readFileSync(markerPath, 'utf8'));
+    marker.sourceHash = '0'.repeat(64);
+    fs.writeFileSync(markerPath, JSON.stringify(marker));
+    assert.equal(run(['status', 'all', '--verify', ...args]).status, 1);
+    const remove = run(['uninstall', 'all', ...args]);
+    assert.equal(remove.status, 0, remove.stderr);
+    assert.equal(JSON.parse(remove.stdout).length, 2);
+  } finally { fs.rmSync(workspace, { recursive: true, force: true }); }
+});
+
 test('help advertises selective/explicit activation and every execution provider', () => {
   const result = run(['--help']);
   assert.equal(result.status, 0, result.stderr);
   for (const provider of ['claude', 'codex', 'antigravity', 'gemini', 'qwen', 'kimi', 'trae']) {
     assert.match(result.stdout, new RegExp(`\\b${provider}\\b`));
   }
-  assert.match(result.stdout, /install \[claude\|codex\|both\]/);
+  assert.match(result.stdout, /install \[claude\|codex\|antigravity\|both\|all\]/);
+  assert.match(result.stdout, /--verify/);
   assert.match(result.stdout, /--activation <selective\|explicit>/);
   assert.match(result.stdout, /tarefas pequenas\/medias coesas ficam no agente atual/);
   assert.match(result.stdout, /tutorial rapido continuam restritos a Claude Code e Codex/);

@@ -31,17 +31,20 @@ Runtime resolution: built-in defaults < global config < explicit plan overlay. D
 {
   "version": 2,
   "tier_routes": {
-    "economy": {"primary": "antigravity", "fallbacks": ["claude"]},
-    "standard": {"primary": "codex", "fallbacks": ["claude"]},
-    "strong": {"primary": "claude", "fallbacks": ["codex"]},
-    "max": {"primary": "codex", "fallbacks": ["claude"]}
+    "economy": {"primary": "antigravity", "fallbacks": ["claude", "codex"]},
+    "standard": {"primary": "codex", "fallbacks": ["claude", "antigravity"]},
+    "advanced": {"primary": "codex", "fallbacks": ["claude", "antigravity"]},
+    "strong": {"primary": "codex", "fallbacks": ["claude", "antigravity"]},
+    "max": {"primary": "codex", "fallbacks": ["claude", "antigravity"]}
   },
   "availability": {"cooldown_seconds": 300, "max_attempts_per_run": 7},
   "assistant": {"enabled": false, "provider": "antigravity"}
 }
 ```
 
-These are example preferences, not model quality rankings. Provider names are not model tiers. Concrete model IDs come from provider `models`; capability caps use `max_effort_by_tier`. Verify IDs with the installed provider CLI. Antigravity IDs embedding a reasoning mode omit separate `--effort`; explicit `models_without_effort` also wins. Invalid types, repeated providers, unknown tiers or impossible combinations fail before execution.
+This global preference example puts Codex first for standard+ and Antigravity first for economy; it requires configured provider models. See [MODEL_MAPPING.md](MODEL_MAPPING.md) for the host model example and [WATCHDOG.md](WATCHDOG.md) for model-free checks, economy watchkeeping and strong/high blocked-task diagnosis.
+
+These preferences are configurable, not built-in defaults or model quality rankings. Built-in `tier_routes` is empty and `provider_order` remains Claude then Codex. Provider names are not model tiers. Concrete IDs come from provider `models`; caps use `max_effort_by_tier`. Empty tiers (including bootstrap `advanced` for Claude/Codex) skip upward. Verify IDs with the installed CLI. Antigravity IDs embedding reasoning omit `--effort`; `models_without_effort` also wins. Invalid types, repeated providers, unknown tiers or impossible combinations fail before execution.
 
 An explicit task/CLI provider is first; declared alternatives remain subject to `allow_provider_fallback`. A pinned provider plus fallback disabled never silently switches. Existing `provider_order` behavior remains when no tier-specific chain is present.
 

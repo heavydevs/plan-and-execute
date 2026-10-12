@@ -44,7 +44,7 @@ A classificação da complexidade de cada tarefa folha determina o piso (*floor*
 
 ## 3. Mapeamento de Modelos por Fornecedor no SO
 
-Configuração sincronizada no arquivo global do sistema operacional:  
+Exemplo de preferência configurada no arquivo global do sistema operacional:
 `%APPDATA%/plan-and-execute/orchestrator.config.json`
 
 | Tier / Nível | Claude Code (`claude`) | Codex CLI (`codex`) | Antigravity CLI (`agy`) |
@@ -56,6 +56,8 @@ Configuração sincronizada no arquivo global do sistema operacional:
 | **`max` (L5)** | `claude-opus-5-5` *(effort: xhigh/max)* | `gpt-6.1-sol` *(effort: xhigh)* | `claude-opus-4-6-thinking` |
 
 *(Nota sobre o Codex, decisão do responsável em 2026-10-09: o `gpt-6.1-sol` é claramente superior ao `gpt-6-astra` na prática, então atende todos os tiers acima de `economy` e o Astra deixou de ser roteado. Os tiers diferem apenas pelo **esforço**, e a escada de escalação do Codex é `luna low → luna medium → sol medium → sol high → sol xhigh`. O esforço `ultra` existe no catálogo do Sol 6.1, mas a skill não o seleciona sozinha: só por opt-in na configuração do projeto.)*
+
+*(Nota sobre o Antigravity: no tier `economy` utiliza `gemini-3.8-flash-high`, id que embute o esforço máximo internamente; portanto, o runner omite a flag `--effort` para esse modelo.)*
 
 *(Nota sobre Fable 5.1: Caso deseje utilizar o `claude-fable-5-1` no tier `max`, ele permanece suportado pelo catálogo, mas exige créditos pré-pagos e opera com maior latência/custo do que o Opus 5.5).*
 
@@ -78,17 +80,24 @@ Dados consolidados dos benchmarks de engenharia de software e custos (Anthropic,
 
 ---
 
-## 5. Cadeia Padrão de Roteamento e Fallbacks no SO
+## 5. Preferência Global de Roteamento e Fallbacks no SO
 
-Quando um fornecedor atinge limites de cota, rate limit (HTTP 429) ou instabilidade temporária, o orquestrador aciona a seguinte cadeia de prioridades:
+A política global de provedores (`%APPDATA%/plan-and-execute/orchestrator.config.json`) prioriza **Codex** (`gpt-6.1-sol`) como provedor primário para implementação em todos os tiers standard+, com **Claude** (Opus 5.5 em strong/max, Sonnet 5.5 em standard) como primeiro fallback e **Antigravity** como fallback secundário. No tier `economy`, **Antigravity** (`gemini-3.8-flash-high`, sem `--effort`) é o primário para exploração, tarefas mecânicas e resumos.
+
+Essas preferências exigem configuração; não alteram os defaults embutidos (Claude e depois Codex). Overrides de plano/tarefa/CLI e snapshots legados preservam a precedência descrita em [ROUTING_CONFIG.md](ROUTING_CONFIG.md). A tabela de modelos também é um exemplo de host: `advanced` vazio no bootstrap Claude/Codex pula para cima; Opus em `max` exige override do Fable embutido.
+
+Quando configurada, a cadeia abaixo permite fallback por indisponibilidade sem mudar o piso ou a escada de falhas:
 
 ```text
 economy:  Antigravity  ->  Claude  ->  Codex
-standard: Claude       ->  Codex   ->  Antigravity
-advanced: Claude       ->  Codex   ->  Antigravity
-strong:   Claude       ->  Codex   ->  Antigravity
-max:      Claude       ->  Codex   ->  Antigravity
+standard: Codex        ->  Claude  ->  Antigravity
+advanced: Codex        ->  Claude  ->  Antigravity
+strong:   Codex        ->  Claude  ->  Antigravity
+max:      Codex        ->  Claude  ->  Antigravity
 ```
 
-### Resumos e Assistentes:
-- **Resumo de Tarefas / Planos**: Executado primariamente via `antigravity` no tier `economy` (`gemini-3.8-flash-high`) com esforço `low` em ambiente de sandbox para economia máxima de tokens.
+### Resumos, Vigilância e Diagnósticos:
+- **Resumo de Tarefas / Planos**: Executado primariamente via `antigravity` no tier `economy` (`gemini-3.8-flash-high`, id que embute o esforço máximo; não passar `--effort`) para economia máxima de tokens.
+- **Checagem de Watchdog**: Executada sem modelo (`watchdogctl.py status --quiet`).
+- **Agente Vigia (Watchkeeper)**: Roteado no tier `economy` via `antigravity` (`gemini-3.8-flash-high`, sem `--effort`).
+- **Diagnóstico de Tarefas Bloqueadas**: Análise da cápsula de falha de tarefas `blocked` roteada no tier `strong` em Codex (`gpt-6.1-sol`, esforço `high`), com fallback para Claude (`claude-opus-5-5`, esforço `high`) -> Antigravity.

@@ -355,6 +355,10 @@ def validate_data(data: dict[str, Any]) -> list[str]:
         ):
             errors.append(f"validation {vid}: command must be a nonempty argv array")
         errors.extend(f"validation {vid}: {error}" for error in progress_watch.validate_policy(validation))
+        if "expected_duration_seconds" in validation:
+            duration = validation["expected_duration_seconds"]
+            if isinstance(duration, bool) or not isinstance(duration, int) or not 0 <= duration <= 604800:
+                errors.append(f"validation {vid}: expected_duration_seconds must be 0..604800")
         resource_list = validation.get("resources")
         if not isinstance(resource_list, list) or any(not isinstance(rid, str) for rid in resource_list):
             errors.append(f"validation {vid}: resources must be an array of resource ids")
@@ -561,6 +565,15 @@ def parse_watcher_command(command: str, expected_map: str | None, repo_root: Pat
     return validation_id
 
 
+def progress_gap_reason(validation: dict[str, Any]) -> str | None:
+    """Advisory only: duration metadata does not change timeout policy."""
+    duration = validation.get("expected_duration_seconds")
+    if (isinstance(duration, bool) or not isinstance(duration, int) or duration <= 300
+            or any(validation.get(key) for key in ("progress_regex", "progress_probe", "progress_files"))):
+        return None
+    return "expected_duration_seconds>300_without_progress_regex_probe_or_files"
+
+
 def cmd_audit_plan(args: argparse.Namespace) -> int:
     root = Path(args.repo_root).resolve()
     map_path = repo_path(root, args.map)
@@ -574,6 +587,8 @@ def cmd_audit_plan(args: argparse.Namespace) -> int:
         item["id"] for item in entries
         if isinstance(item, dict) and isinstance(item.get("id"), str)
     } if isinstance(entries, list) else set()
+    mapped = {item["id"]: item for item in entries
+              if isinstance(item, dict) and isinstance(item.get("id"), str)} if isinstance(entries, list) else {}
     plan_path = repo_path(root, args.plan)
     manifest_path = plan_path / "manifest.json" if plan_path.is_dir() else plan_path
     try:
@@ -591,6 +606,14 @@ def cmd_audit_plan(args: argparse.Namespace) -> int:
             errors.append("each plan task must be an object")
             continue
         task_id = str(task.get("id", "?"))
+        warned: set[str] = set()
+
+        def warn_progress_gap(validation_id: str) -> None:
+            reason = progress_gap_reason(mapped[validation_id])
+            if reason and validation_id not in warned:
+                print(f"progress-gap task={task_id} validation={validation_id} reason={reason}")
+                warned.add(validation_id)
+
         commands = task.get("validation_commands", [])
         if not isinstance(commands, list):
             errors.append(f"task {task_id}: validation_commands must be an array")
@@ -601,6 +624,8 @@ def cmd_audit_plan(args: argparse.Namespace) -> int:
             validation_id = parse_watcher_command(command, expected_map, root) if isinstance(command, str) else None
             if validation_id not in valid_ids:
                 unmapped.append(f"task {task_id} validation {number}")
+            else:
+                warn_progress_gap(validation_id)
         jobs = task.get("validation_jobs", [])
         if (not isinstance(jobs, list) or len(jobs) > 32
                 or any(not valid_validation_job_id(job) for job in jobs) or len(jobs) != len(set(jobs))):
@@ -610,6 +635,8 @@ def cmd_audit_plan(args: argparse.Namespace) -> int:
         for validation_id in jobs:
             if validation_id not in valid_ids:
                 unmapped.append(f"task {task_id} validation job {validation_id}")
+            else:
+                warn_progress_gap(validation_id)
     errors.extend(f"unmapped plan validation: {item}" for item in unmapped)
     if errors:
         print("service-map-audit=failed")

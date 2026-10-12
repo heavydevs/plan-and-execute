@@ -2,15 +2,23 @@
 
 **Use a persistent multi-worker plan only when it earns its cost.**
 
-`plan-and-execute` is a selective orchestration skill for Claude Code and OpenAI Codex. Routine cohesive small/medium coding requests stay in the agent's current context. Long-horizon work can enter the full evidence-backed workflow immediately, or a task that grows during implementation can be promoted later without throwing away completed work.
+`plan-and-execute` is a selective orchestration skill for Claude Code, OpenAI Codex, and Google Antigravity. Routine cohesive small/medium coding requests stay in the agent's current context. Long-horizon work can enter the full evidence-backed workflow immediately, or a task that grows during implementation can be promoted later without throwing away completed work.
 
 [Leia em Português](README.pt-BR.md)
 
-## Configurable routing and advisory diagnosis (unreleased)
+## What's new in 0.10
 
-This branch adds user-global/per-plan provider chains for each logical tier, bounded availability fallback, and an optional diagnostic assistant. The existing DIRECT escape, semantic escalation, resumable TODOs and deterministic acceptance gates remain intact.
+Version 0.10 introduces execution watchdog monitoring, an explicit progress/error signal contract, token-efficient log digests, refreshed model routing policy, and native Google Antigravity installer support:
 
-From a checkout containing these changes:
+- **Execution Watchdog (`watchdogctl`)**: `status --quiet` observes plans and jobs read-only; `watch --interval 300` writes only an observation cache for deduplication. Both preserve plan, job and process state. They detect anomalies (`blocked`, `runner_dead`, `silent`, `awaiting_next`, `quota_resume_due`, `job_failed`) and support host scheduling (Windows Task Scheduler, cron, loop).
+- **Progress and Error Contract (`progress_signal`)**: Standardized `PROGRESS`, `ERROR`, and `HEARTBEAT` emission via `progress_signal.py`. Configure an increasing-counter probe (`probe_file`) to renew validation idle windows; worker windows also use output, CPU and repository changes. Heartbeats report liveness.
+- **Token-Efficient Log Watcher (`log_watch.py digest`)**: Aggregates redacted error signatures and progress from a bounded log prefix. The [synthetic benchmark](docs/research/LOG_DIGEST.md) achieves >99% reduction using the `chars/4` token estimate; results depend on the log. Inspect `truncated` and `omitted_records` for coverage limits.
+- **Updated Model Routing Policy**: The documented global preference uses Codex `gpt-6.1-sol` above economy and Antigravity `gemini-3.8-flash-high` for economy/watchkeeping, with Claude fallback. These chains require configuration; built-in order remains Claude then Codex. Configure user-global and per-plan chains with `pae configure`.
+- **Installer and Verification**: Native support for Antigravity (`~/.gemini/config/skills` user scope, `.agents/skills` workspace scope). Use `install all` (via `pae install all`) to install across Claude Code, Codex, and Antigravity at once. Validate installation integrity against bundled skill hashes with `status --verify` (e.g. `pae status all --verify`).
+
+### Configurable routing and advisory diagnosis
+
+From a checkout or installed package:
 
 ```bash
 node bin/plan-and-execute.js configure
@@ -18,7 +26,7 @@ node bin/plan-and-execute.js configure --show --json
 node bin/plan-and-execute.js configure --plan .ai-work/<plan-id>
 ```
 
-After installing this version, the same command is `pae configure`. It asks one numbered question at a time, checks documented non-generative authentication status where available, and saves only after confirmation. `--dry-run` does not save. This is not yet an npm release.
+Run `pae configure` (or `node bin/plan-and-execute.js configure`). It asks one numbered question at a time, checks documented non-generative authentication status where available, and saves only after confirmation. `--dry-run` does not save.
 
 Defaults merge with your global configuration and then explicit plan overrides; dictionaries merge and lists replace. New version-2 overlays inherit global settings, while legacy full snapshots keep their previous behavior. For each tier, choose a primary and ordered fallbacks independently of the assistant. Quota/authentication/capacity failures keep the logical tier and functional failure count; exhausted chains pause with exit 75 and persisted cooldowns rather than looping.
 
@@ -66,13 +74,13 @@ The full harness described below is still intact when orchestration is justified
 |---|---:|---:|---:|---|
 | Claude Code | Yes | Yes | First | Standard quick-start target |
 | OpenAI Codex | Yes | Yes | Second | Standard quick-start target |
-| Google Antigravity CLI (`agy`) | Yes | No | Opt-in | Fresh headless `agy -p` process with JSON schema output; configure model slugs from `agy models --output-format json` |
+| Google Antigravity CLI (`agy`) | Yes | Yes | Opt-in | Headless `agy -p` process with JSON schema output; install with `pae install antigravity` or `install all` |
 | Google Gemini CLI | Legacy | No | Opt-in | Sunset on 2026-06-18; use the Antigravity adapter for new plans |
 | Qwen Code | Yes | No | Opt-in | Fresh headless CLI process |
 | Kimi Code CLI | Yes | No | Opt-in | Fresh prompt-mode CLI process |
 | Trae Agent | Yes | No | Opt-in | Fresh `trae-cli run` process |
 
-The npm installer intentionally installs the skill only for Claude Code, Codex, or both. Other providers are optional execution backends configured inside an orchestrated plan.
+The npm installer supports Claude Code, Codex, and Google Antigravity (using `both` for Claude + Codex, `antigravity`, or `all` for all three hosts). Other providers are optional execution backends configured inside an orchestrated plan.
 
 ## Quick start
 
@@ -80,18 +88,30 @@ Requirements:
 
 - Node.js 18.17+;
 - Python 3.10+;
-- Claude Code and/or Codex installed and authenticated.
+- Claude Code, Codex, and/or Google Antigravity (`agy`) installed and authenticated.
 
-Install for both agents in the current workspace:
+Install for Claude Code and Codex in the current workspace:
 
 ```bash
 npx @luizcgvrj/plan-and-execute install both
 ```
 
+Or install for all supported hosts (Claude Code, Codex, and Antigravity):
+
+```bash
+npx @luizcgvrj/plan-and-execute install all
+```
+
 Install globally for the current user:
 
 ```bash
-npx @luizcgvrj/plan-and-execute install both --global
+npx @luizcgvrj/plan-and-execute install all --global
+```
+
+Verify installation integrity against bundled skill hashes:
+
+```bash
+pae status all --verify
 ```
 
 The default activation is **selective**. To make the skill explicit-only:
@@ -330,6 +350,17 @@ The runner starts a fresh process for each TODO, independently reruns validation
 Long validations can continue while meaningful progress renews their idle window: the default 1800-second `validation_timeout_seconds` is now per-command idle time, including for existing plans. Set `validation_hard_timeout_seconds` only when total runtime needs a fixed ceiling (default `0`, disabled). A read-only batch counter can keep a silent book import alive without exposing credentials; unchanged heartbeats and failed probes do not count. Explicit worker, advisory and provider ceilings remain in force.
 
 Tasks can declare mapped validation IDs in `validation_jobs`. Workers start those tracked `jobctl.py` validations and finish; the deterministic runner waits and verifies the result. See [progress windows, silent-job examples and tracked waiting](skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md).
+
+### Execution watchdog and progress monitoring
+
+A dedicated watchdog inspects active plans and jobs. `status` is read-only; `watch` persists only its observation cache, preserving plan/job/process state:
+
+```bash
+python <skill-dir>/scripts/watchdogctl.py status --repo-root . --quiet
+python <skill-dir>/scripts/watchdogctl.py watch --repo-root . --interval 300
+```
+
+`watchdogctl watch` deduplicates anomalies (`blocked`, `runner_dead`, `silent`, `awaiting_next`, `quota_resume_due`, `job_failed`). Use `progress_signal.py` to emit and probe progress counters, and `log_watch.py digest` for bounded, redacted log summaries. See [WATCHDOG.md](skill/plan-and-execute/references/WATCHDOG.md) and the [synthetic digest measurement](docs/research/LOG_DIGEST.md).
 
 ## Activation modes
 

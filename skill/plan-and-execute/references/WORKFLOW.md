@@ -148,6 +148,8 @@ python <skill-dir>/scripts/planctl_concise.py fail \
 
 The strict runner derives the class from the worker report's `failure_class`, the validation outcome, and budget patterns automatically.
 
+For stagnation or `timeout_ceiling`, inspect retained evidence and have the worker refactor long stages to emit meaningful `PROGRESS`/`ERROR` before raising a fixed timeout. Follow the checklist in [PROGRESS_TIMEOUTS.md](PROGRESS_TIMEOUTS.md); `HEARTBEAT` is liveness only. Keep the existing failure route and escalation policy; a ceiling still blocks for runtime-budget review.
+
 Usage/rate limit:
 
 ```bash

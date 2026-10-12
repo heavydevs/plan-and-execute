@@ -68,6 +68,7 @@ Rules:
 6. Publish learning only to predeclared future targets/topics with concrete evidence; omit generic advice.
 7. Return one JSON object matching the schema below; bound summary, validation details, risks and follow-ups.
 8. When blocked, report `failure_class`: `mechanical` (detail/tool slip), `semantic` (wrong approach), `environmental` (external toolchain/repository), `budget` (turn/token limit), or `plan_defect` (wrong requirement/boundary/dependency). The orchestrator owns the next route.
+9. For long execution or validation, refactor code to emit meaningful PROGRESS/ERROR before raising fixed timeouts; HEARTBEAT is not progress.
 
 Subtask controller: `{controller}`
 Report schema: `{schema_path}`

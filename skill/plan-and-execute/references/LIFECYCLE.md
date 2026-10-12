@@ -4,6 +4,8 @@ Use this file only for active-plan discovery, resume, cancellation, reset, and c
 
 Use `lifecyclectl_concise.py` so any recovery rewrite keeps compact task projections.
 
+For read-only execution checks every 5–10 minutes, anomaly classes, host scheduling and the watchkeeper prompt, see [WATCHDOG.md](WATCHDOG.md). The watchdog reports suggested lifecycle actions; it never resumes or repairs a plan itself.
+
 ## Current/status
 
 ```bash
