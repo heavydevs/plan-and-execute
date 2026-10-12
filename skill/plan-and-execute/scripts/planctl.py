@@ -17,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -855,7 +856,26 @@ def atomic_write_text(path: Path, content: str) -> None:
     ) as handle:
         handle.write(content)
         tmp = Path(handle.name)
-    os.replace(tmp, path)
+    try:
+        replace_with_retry(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
+
+
+def replace_with_retry(source: Path, target: Path, attempts: int = 12) -> None:
+    """os.replace denies access (WinError 5/32) while an editor, indexer or scanner briefly holds the target.
+
+    A runner that died on that single transient error left its task in_progress for hours, so retry for a few seconds.
+    """
+    for attempt in range(attempts):
+        try:
+            os.replace(source, target)
+            return
+        except PermissionError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(min(0.05 * 2 ** attempt, 1.0))
 
 
 def atomic_write_json(path: Path, data: Any) -> None:

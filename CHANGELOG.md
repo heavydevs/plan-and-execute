@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## 0.10.2 - 2026-10-12
+
+- Adds `keepalivectl.py`: relaunches a runner that died while runnable work remains (`check`), with a live-lease check, a short-lived lock, a restart-loop guard, `pause`/`resume`, a hidden-console launch on Windows and a `schedule install|remove|status|print` helper (Windows Task Scheduler via XML import; cron line elsewhere). `watchdogctl` stays read-only.
+- `planctl.atomic_write_text` retries a transient `PermissionError` (WinError 5/32) for a few seconds and no longer leaves a temporary file behind on failure. A single such error had killed a runner and stalled a plan for hours.
+
 ## 0.10.1 - 2026-10-12
 
 - Fixes visible `cmd`/Windows Terminal windows opened by supervised validation jobs on Windows: the job supervisor now starts with a hidden console (`CREATE_NO_WINDOW`) that its children inherit, instead of `DETACHED_PROCESS` (no console).

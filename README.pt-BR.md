@@ -352,6 +352,8 @@ python <skill-dir>/scripts/watchdogctl.py watch --repo-root . --interval 300
 
 O `watchdogctl watch` desduplica anomalias (`blocked`, `runner_dead`, `silent`, `awaiting_next`, `quota_resume_due`, `job_failed`). Use `progress_signal.py` para emitir e sondar contadores de progresso, e `log_watch.py digest` para resumos limitados de logs com mensagens redigidas. Consulte [WATCHDOG.md](skill/plan-and-execute/references/WATCHDOG.md) e a [medição sintética do digest](docs/research/LOG_DIGEST.md).
 
+`keepalivectl.py check` (agende a cada 20 minutos, ou `keepalivectl.py schedule install --yes` no Windows) religa um runner que morreu com trabalho ainda executável, com guarda contra laço de reinício e console oculto.
+
 ## Modos de ativação
 
 ### Selective — recomendado

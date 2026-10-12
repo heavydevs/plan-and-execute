@@ -87,6 +87,7 @@ for (const relative of [
   path.join('references', 'PROGRESS_TIMEOUTS.md'),
   path.join('references', 'TEST_RESOURCE_MONITORING.md'),
   ...['progress_watch.py', 'progress_watch_self_test.py', 'progress_runner_self_test.py', 'jobctl.py', 'jobctl_self_test.py'].map(name => path.join('scripts', name)),
+  ...['watchdogctl.py', 'keepalivectl.py', 'keepalivectl_self_test.py'].map(name => path.join('scripts', name)),
   path.join('references', 'LIFECYCLE.md'),
   path.join('references', 'MODEL_ROUTING.md'),
   path.join('references', 'TOKEN_EFFICIENCY.md'),

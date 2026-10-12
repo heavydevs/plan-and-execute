@@ -11,6 +11,7 @@ const testScripts = [
   'progress_signal_self_test.py',
   'log_watch_self_test.py',
   'watchdogctl_self_test.py',
+  'keepalivectl_self_test.py',
   'progress_watch_self_test.py',
   'progress_runner_self_test.py',
   'jobctl_self_test.py',

@@ -1,6 +1,6 @@
 # Execution watchdog
 
-Run the watchdog without a model every 5–10 minutes. It reads lifecycle state and reports one compact line per unfinished task or current job. It never kills/restarts a process, claims a task, repairs a lease, or changes plan/job state. Resume remains an orchestrator decision under [LIFECYCLE.md](LIFECYCLE.md).
+Run the watchdog without a model every 5–10 minutes. It reads lifecycle state and reports one compact line per unfinished task or current job. It never kills/restarts a process, claims a task, repairs a lease, or changes plan/job state. Resume remains an orchestrator decision under [LIFECYCLE.md](LIFECYCLE.md); the one automatic exception is a dead runner, handled by `keepalivectl.py` (see Keepalive below).
 
 ## Commands and output
 
@@ -73,6 +73,31 @@ Start-Process -FilePath 'C:\Python313\python.exe' -ArgumentList 'C:\skills\plan-
 ```
 
 Create `.ai-work/watchdog` before using shell redirection or `Start-Process`. Stop/remove a scheduled host task through its host scheduler; the watchdog has no process-control command.
+
+## Keepalive: relaunch a dead runner
+
+`watchdogctl` never starts anything. `keepalivectl.py` is the one script that does, for one reason only: a runner died while runnable work remains (`runner_dead`, `awaiting_next`, `quota_resume_due`). Schedule it every 20 minutes instead of a bare status check; it prints the same compact `ANOMALY:` lines for everything else (blocked, silent, failed jobs), which it never restarts.
+
+```bash
+python <skill-dir>/scripts/keepalivectl.py check --repo-root <repo> --plan <plan-path> --quiet --runner-arg=--no-cleanup
+python <skill-dir>/scripts/keepalivectl.py check --repo-root <repo> --dry-run
+python <skill-dir>/scripts/keepalivectl.py pause --plan <plan-path>    # stop automatic relaunches
+python <skill-dir>/scripts/keepalivectl.py resume --plan <plan-path>
+python <skill-dir>/scripts/keepalivectl.py schedule install --plan <plan-path> --every 20 --yes
+```
+
+Safety rules:
+
+- **Never duplicates a runner.** A live lease (`lifecyclectl`) means `keepalive:ok ... runner_live`; a short-lived lock (`.ai-work/keepalive/<key>.lock`) covers two ticks racing, and the runner's own lease stays the final guard.
+- **Restart-loop guard.** At most `--max-restarts` (3) launches within `--within-minutes` (180) unless a task completed since the oldest of them; otherwise `ANOMALY:restart_loop:owner_inspect` and no launch.
+- **Blocked is a decision, not a crash.** Blocked tasks, permission or classifier blocks, silent live work and failed jobs are only reported. Exit `1` means something needs the owner; `2` is invalid evidence.
+- **Quota.** A future cooldown is not relaunched; a runner that exits `75` (resumable availability pause) is reported as `keepalive:skip reason=availability_pause`.
+- **No stray windows.** On Windows the runner starts with `CREATE_NO_WINDOW` (a hidden console its children inherit), appends to `.ai-work/keepalive/<key>-runner.log` (rotated at 5 MB), and a pythonw scheduler tick never flashes a window.
+- **Pass the original runner flags.** The runner does not remember how it was started: repeat them as `--runner-arg=--no-cleanup`, `--runner-arg=--once`, and so on. Without `--no-cleanup` a finished plan is cleaned as usual.
+
+`schedule install` registers a hidden Windows Task Scheduler entry (`PlanAndExecuteKeepalive-<hash>`, every `--every` minutes, XML import so long paths do not hit the `/TR` limit) and needs `--yes` because it persists beyond the session. `schedule print` shows the command, and on POSIX it prints the cron line to paste. `schedule status|remove` manage the entry. Session schedulers (cron/loop of the host) can call `check` instead.
+
+Runners also stop dying from the original cause of an incident: `planctl.atomic_write_text` now retries a transient `PermissionError` (WinError 5/32 from an editor, indexer or scanner holding a plan file) for a few seconds before failing.
 
 ## Watcher routing and provider policy
 
