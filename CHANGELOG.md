@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## 0.10.1 - 2026-10-12
+
+- Fixes visible `cmd`/Windows Terminal windows opened by supervised validation jobs on Windows: the job supervisor now starts with a hidden console (`CREATE_NO_WINDOW`) that its children inherit, instead of `DETACHED_PROCESS` (no console).
+
 ## 0.10.0 - 2026-10-12
 
 - Adds execution watchdog (`watchdogctl.py status|watch`) that inspects unfinished plans and validation jobs for anomalies (`blocked`, `permission_blocked`, `classifier_blocked`, `runner_dead`, `silent`, `awaiting_next`, `quota_resume_due`, `job_failed`) without mutating plan, job or process state. `status` is read-only; `watch` writes an observation cache for deduplication. Supports host scheduling (Task Scheduler, cron, loop).

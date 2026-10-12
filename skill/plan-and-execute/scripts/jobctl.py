@@ -321,7 +321,8 @@ def dispatcher_owner(plan_dir: Path | str, job_id: str, validation_id: str | Non
 def launch_supervisor(run: Path, cwd: Path | str) -> bool:
     env = {key: value for key, value in os.environ.items() if key not in {"PAE_JOB_DISPATCH_PLAN", "PAE_JOB_ALLOWED_IDS", "PAE_JOB_DISPATCH_PID"}}
     env.update(PYTHONUTF8="1", PYTHONIOENCODING="utf-8", PYTHONDONTWRITEBYTECODE="1")
-    detached = {"creationflags": subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+    # Windows: a hidden console (CREATE_NO_WINDOW) is inherited by the supervisor's children; DETACHED_PROCESS has none, so every child .cmd/powershell opened its own visible window.
+    detached = {"creationflags": subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
     try:
         process = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "_supervise", "--run", str(run)],
                                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
