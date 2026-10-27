@@ -6,6 +6,28 @@
 
 [English version](README.md)
 
+## Novidades na versão 0.11
+
+**Validação monitorada sem criar plano.** A nova skill independente `validate-or-fix` reutiliza o mapa de recursos, as janelas de progresso, as verificações de saúde e o controle da árvore de processos. DIRECT continua sem plano; verificações rápidas seguem diretas. Somente a validação supervisionada cria registros limitados em `.ai-work/validation/`. O monitoramento começa imediatamente: cinco minutos são uma indicação para instrumentar progresso, não uma espera obrigatória.
+
+```bash
+pae install all --skill all --global
+pae status all --skill all --verify
+pae validate run --validation UNIT
+pae validate inspect --validation UNIT
+pae validate cleanup --validation UNIT
+```
+
+Revise e atualize o mapa de recursos antes de executar a validação mapeada. `inspect` entrega apenas evidências novas, limitadas e com dados sensíveis ocultados. `cleanup` exige validação aprovada e preserva código, testes, mapa e logs externos. A recuperação recusa processos vivos e proprietários remotos não verificados. O agente principal continua responsável pelas correções: a recomendação de rota não inicia modelos nem altera código automaticamente.
+
+**Perfis por tipo de trabalho, capacidade, modelo exato e grupo de cota.** O campo opcional `workload` diferencia frontend/design, implementação, correção de validações e monitoramento de logs. A configuração é opcional e usa somente IDs observados no CLI e na conta. Um gerente Claude pode priorizar o Claude configurado no Antigravity para trabalho intermediário e preservar sua própria cota. O Claude do Antigravity fica limitado conservadoramente a `advanced`; demandas difíceis precisam respeitar os pisos `strong`/`max`. Isso é uma política de segurança, não uma equivalência comprovada de inteligência entre ambientes.
+
+Gemini e Claude/GPT podem usar grupos de cota distintos no Antigravity. Esgotamento de cota não bloqueia outro grupo; falha de autenticação bloqueia o agente, e capacidade indisponível fica restrita ao modelo. Sem a configuração nova, o roteamento anterior permanece. Não há troca silenciosa de assinatura para API cobrada separadamente.
+
+**Monitorar normalmente não usa IA.** O comando opcional `pae validate advise --validation UNIT` diagnostica anomalias novas com uma cadeia limitada de perfis `log_monitoring`. O Gemini Flash 3.8, quando descoberto e configurado, pode ser o primeiro; alternativas verificadas seguem a ordem definida. O Antigravity só recebe evidências após confirmar um agente sem ferramentas em workspace isolado; personalizações globais executáveis provocam recusa segura. O fallback de diagnóstico Claude exige permissão explícita de cobrança por API e uma chave. Adaptadores sem isolamento verificado são ignorados, nunca substituídos por execução com escrita. O conselho não aprova testes, executa correções, apaga evidências nem altera tarefas.
+
+Consulte os [contratos de configuração](skill/plan-and-execute/references/VALIDATION_WORKLOADS.md), a [operação independente](skill/validate-or-fix/references/OPERATIONS.md) e a [pesquisa com limitações](docs/research/VALIDATION_WORKLOAD_ROUTING.md). Qualidade de frontend exige avaliação visual, de interação e acessibilidade; não se presume um modelo universalmente melhor ou mais barato.
+
 ## Novidades na versão 0.10
 
 A versão 0.10 introduz o watchdog de execução, contrato explícito de sinais de progresso e erro, digest de logs com alta redução de tokens, política atualizada de roteamento de modelos e suporte nativo ao Google Antigravity no instalador:
@@ -32,7 +54,7 @@ A precedência é padrões da skill < configuração global < ajustes explícito
 
 **O diagnóstico auxiliar vem desligado.** Ele recebe evidência limitada e com remoção de segredos por melhores esforços, somente depois de falhas elegíveis na validação. O padrão permite uma tentativa por tarefa. A sugestão não altera arquivos, executa comandos nem aprova tarefas. A economia real de tokens ainda não foi medida.
 
-**Limitação importante:** a execução auxiliar nativa foi implementada somente para Claude Code em modo bare, sem ferramentas, com `ANTHROPIC_API_KEY` explícita. Isso cobra na API, não na assinatura OAuth. Antigravity pode ser selecionado, mas é ignorado com aviso: seu sandbox permite escrita e não satisfaz a fronteira somente leitura exigida. Outros perfis auxiliares também aguardam verificação; os sete adaptadores de desenvolvimento continuam funcionando. Confira a conta de cobranção e a confidencialidade antes de habilitar.
+**Limitação do assistente legado (não da nova cadeia observer acima):** a execução auxiliar nativa foi implementada somente para Claude Code em modo bare, sem ferramentas, com `ANTHROPIC_API_KEY` explícita. Isso cobra na API, não na assinatura OAuth. Antigravity pode ser selecionado, mas é ignorado com aviso: seu sandbox permite escrita e não satisfaz a fronteira somente leitura exigida. Outros perfis auxiliares também aguardam verificação; os sete adaptadores de desenvolvimento continuam funcionando. Confira a conta de cobranção e a confidencialidade antes de habilitar.
 
 Consulte [configuração](skill/plan-and-execute/references/ROUTING_CONFIG.md), [segurança e limites](skill/plan-and-execute/references/ASSISTANTS.md) e [pesquisa e protocolo de avaliação](docs/research/AUXILIARY_ROUTING.md). O plano desta implementação foi preservado em `.ai-work/20260928-auxiliary-routing`, conforme solicitado; a limpeza protegida normal continua disponível.
 
@@ -51,7 +73,7 @@ A 0.9 torna o roteamento de modelo baseado em evidência de ponta a ponta, em ve
 - **Folha em duas fases** (`design_route`): um TODO `high` pode ter um worker mais forte escrevendo uma nota de design bounded primeiro, e depois implementar na sua própria rota mais barata com essa nota.
 - **Planejamento "decisões primeiro"** (`request_analysis.hard_decisions`): quando só algumas decisões do plano são difíceis, resolvê-las com workers fortes antes de um planner padrão escrever o plano mecânico.
 - **Um único catálogo de modelos** (`routingctl.py`) alimenta todos os entrypoints; o effort é omitido para modelos que o rejeitam (Claude Haiku); orçamentos opcionais por worker (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) transformam workers descontrolados em falhas `budget` retomáveis em vez de técnicas.
-- **Um adapter para a Antigravity CLI do Google (`agy`)** se junta ao Claude Code e ao Codex como backend de execução; o adapter da Gemini CLI agora é marcado como legado (a própria CLI foi descontinuada).
+- **Um adapter para a Antigravity CLI do Google (`agy`)** se junta ao Claude Code e ao Codex como backend de execução; o adapter da Gemini CLI agora é marcado como legado (classificação interna de compatibilidade, não uma afirmação de descontinuação do produto).
 - Documenta a mecânica concreta de elevação por host (`model`/`effort` de subagente, `isolation: worktree`, `opusplan`, papéis `spawn_agent` do Codex, fatos de cache de prompt) e corrige diversos bugs de despacho específicos do Windows (resolução de shims `.cmd`, o alias Python da Store, liveness do lease do runner).
 
 Quando a orquestração realmente é necessária, **todo o comportamento robusto anterior continua existindo**:
@@ -75,7 +97,7 @@ Quando a orquestração realmente é necessária, **todo o comportamento robusto
 | Claude Code | Sim | Sim | 1º |
 | OpenAI Codex | Sim | Sim | 2º |
 | Antigravity CLI (`agy`) | Sim | Sim | Opt-in (instale com `pae install antigravity` ou `install all`) |
-| Gemini CLI | Legado | Não | Opt-in (descontinuada em 18/06/2026; use o adapter Antigravity) |
+| Gemini CLI | Legado | Não | Opt-in (adapter de compatibilidade; prefira Antigravity para novas integrações) |
 | Qwen Code | Sim | Não | Opt-in |
 | Kimi Code CLI | Sim | Não | Opt-in |
 | Trae Agent | Sim | Não | Opt-in |
@@ -152,7 +174,7 @@ Quantidade de arquivos é evidência fraca; independência semântica e valor de
 
 Se a skill for considerada implicitamente, mas não houver sinal forte:
 
-- não cria `.ai-work`;
+- não cria plano em `.ai-work` (validação supervisionada opcional tem registros próprios limitados);
 - não cria estudo;
 - não inventaria requirements rastreáveis;
 - não cria plano/TODO/task files;

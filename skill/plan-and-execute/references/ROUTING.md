@@ -66,3 +66,7 @@ When changing `SKILL.md` metadata or this gate:
 4. add every discovered routing regression to the corpus.
 
 A routing eval must not judge implementation quality. Its only question is whether paying the orchestration overhead was justified at the request boundary.
+
+## Plan-free validation is not promotion
+
+DIRECT may invoke `validate-or-fix` for mapped, long-running or uncertain tests. It creates only the shared resource map and bounded receipts in `.ai-work/validation/`, not a plan, study, manifest, TODO or active pointer. Do not load orchestration references for this exception. Simple fast checks remain direct. See [VALIDATION_WORKLOADS.md](VALIDATION_WORKLOADS.md) only when supervision is needed.

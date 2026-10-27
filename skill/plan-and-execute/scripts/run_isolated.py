@@ -32,7 +32,8 @@ import resource_watch  # noqa: E402
 import lifecyclectl  # noqa: E402
 import routingctl  # noqa: E402
 import routing_config  # noqa: E402
-import availability  # noqa: E402
+import availability
+import workload_routing  # noqa: E402
 import assistant_triage  # noqa: E402
 import process_tree  # noqa: E402
 import progress_watch  # noqa: E402
@@ -366,7 +367,7 @@ def resolve_snapshot_route(
     config: dict[str, Any],
     catalog_models: dict[str, dict[str, str]] | None = None,
 ) -> dict[str, str]:
-    if not snapshot_resolution(config):
+    if route.get("route_profile") or not snapshot_resolution(config):
         return route
     matrix, _warning = model_catalogctl.load_matrix(plan_dir)
     provider, tier = route["provider"], route["tier"]
@@ -1097,7 +1098,8 @@ def build_worker_command(
             command.append("--sandbox")
         command.extend(["--output-format", "json", "--json-schema", antigravity_schema_text(schema)])
         command.extend(configured_model_args("--model", route["model"]))
-        command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="claude"))
+        if not routing_config.embedded_effort_model(route["model"]):
+            command.extend(effort_args(provider_cfg, route["model"], route["effort"], style="claude"))
         command.extend(["--print-timeout", antigravity_print_timeout(provider_cfg, config)])
         command.extend(extra_args)
         command.extend(["-p", prompt])
@@ -1873,7 +1875,7 @@ def execute_one_task(
         )
         route = resolve_snapshot_route(plan_dir, routing_task, route, config, catalog_models)
         shadow = shadow_candidate(routing_task, route, config, provider_override, phase=phase) if shadow_enabled(config) else None
-        if shadow is not None and auto_select_mode(config) == "on":
+        if shadow is not None and auto_select_mode(config) == "on" and not route.get("route_profile"):
             ladder = route
             route, shadow["auto"] = auto_route(
                 plan_dir, repo_root, routing_task, route, config, shadow, phase=phase, catalog_models=catalog_models
@@ -1883,7 +1885,7 @@ def execute_one_task(
                 shadow["executed"] = {key: route.get(key) for key in SHADOW_ROUTE_KEYS}
         if shadow is not None and not dry_run:
             record_shadow(plan_dir, shadow, repo_root)
-        visited[phase].add(route["provider"])
+        visited[phase].add(workload_routing.identity(route))
         dispatches += 1
         if phase == "design":
             outcome = run_design_phase(
@@ -1954,7 +1956,7 @@ def execute_one_task(
             release_interrupted_task(plan_dir, manifest, task["id"])
             raise KeyboardInterrupt
         category = availability.classify(return_code, combined, configured_retry_exit_codes(route["provider"], config))
-        if (category == "configuration" and not model_refreshed and snapshot_resolution(config)
+        if (category == "configuration" and not route.get("route_profile") and not model_refreshed and snapshot_resolution(config)
                 and INVALID_MODEL.search(combined[-16000:])):
             # A retired/renamed model id is a configuration event, not task
             # evidence: refresh the snapshot once and redispatch the same rung.
@@ -1963,7 +1965,7 @@ def execute_one_task(
             refresh_model_snapshot(plan_dir, route["provider"])
             refresh_manifest(plan_dir, manifest)
             task = planctl.find_task(manifest, task["id"])
-            visited[phase].discard(route["provider"])
+            visited[phase].discard(workload_routing.identity(route))
             print(f"[task {task['id']}] invalid model {route['model']}; snapshot refreshed once, redispatching", file=sys.stderr)
             continue
         if category:

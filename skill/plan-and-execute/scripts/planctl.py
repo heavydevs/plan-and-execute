@@ -1445,6 +1445,10 @@ def normalize_task(
     subtasks = normalize_subtasks(raw.get("subtasks"), task_id)
     learning_targets = normalize_learning_targets(raw.get("learning_targets"), task_id)
     design_route = normalize_design_route(raw.get("design_route"), task_id, complexity)
+    from workload_routing import WORKLOADS
+    workload = raw.get("workload", "implementation")
+    if workload not in WORKLOADS:
+        raise PlanError(f"Task {task_id}: unsupported workload {workload!r}")
 
     return {
         "id": task_id,
@@ -1453,6 +1457,7 @@ def normalize_task(
         "objective": objective,
         "requirement_ids": requirement_ids,
         "complexity": complexity,
+        **({"workload": workload} if "workload" in raw else {}),
         "atomicity_rationale": atomicity_rationale,
         "context_boundary": context_boundary,
         "scope": normalize_scope(raw.get("scope"), f"Task {task_id} scope"),
@@ -1824,6 +1829,7 @@ def render_task(
                 f"**{target.get('task_id', '?')}** — {target.get('reason', '')} "
                 f"(topics: {topics})"
             )
+    workload_line = f'workload: "{task["workload"]}"\n' if task.get("workload") else ""
     return f"""---
 task_id: "{task['id']}"
 plan_id: "{plan_id}"
@@ -1831,7 +1837,7 @@ status: "{task['status']}"
 provider: "{task['provider']}"
 model_tier: "{task['model_tier']}"
 reasoning_effort: "{task['reasoning_effort']}"
-complexity: "{task['complexity']}"
+{workload_line}complexity: "{task['complexity']}"
 requirements: "{', '.join(task['requirement_ids'])}"
 dependencies: "{dependency_text}"
 context_files: "{context_frontmatter}"

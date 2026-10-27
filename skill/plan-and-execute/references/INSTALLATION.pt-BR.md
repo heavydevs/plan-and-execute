@@ -2,7 +2,7 @@
 
 [English version](INSTALLATION.md)
 
-O seletor padrão `both` instala para Claude Code e Codex. Use `--agent antigravity` para Antigravity CLI (`agy`) ou `--agent all` para os três hosts. Qwen Code, Kimi Code CLI e Trae Agent continuam backends opcionais de execução, sem destino de instalação. O adapter `gemini` aponta para a Gemini CLI, descontinuada pelo Google em 18/06/2026; use `antigravity` em planos novos.
+O seletor padrão `both` instala para Claude Code e Codex. Use `--agent antigravity` para Antigravity CLI (`agy`) ou `--agent all` para os três hosts. Qwen Code, Kimi Code CLI e Trae Agent continuam backends opcionais de execução, sem destino de instalação. O adapter `gemini` aponta para a Gemini CLI, mantida como backend de compatibilidade neste projeto; prefira `antigravity` para novas integrações. Essa classificação não afirma que o Google descontinuou o produto.
 
 Notas do Antigravity: o adapter executa `agy --dangerously-skip-permissions --output-format json --json-schema <schema> [--model <slug>] --effort <low|medium|high> --print-timeout <auto> -p <prompt>`. Os slugs de modelo ficam em `default` até você preencher `antigravity.models` no `orchestrator.config.json` a partir de `agy models`; `--effort` é limitado a `high`; o sumário roda com `--sandbox`. `print_timeout: "auto"` segue `task_timeout_seconds` (12h quando o runner não tem limite) para o agy nunca matar um worker que o runner ainda esperaria; defina uma duração explícita como `"45m"` para sobrescrever. Confirme com `pae doctor` e um `--dry-run` antes de depender dele; builds antigos (`agy` 1.0.0) descartavam stdout fora de TTY (`antigravity-cli#76`) — atualize se um worker devolver report vazio.
 
@@ -191,3 +191,9 @@ pae reset
 ```
 
 Use `--cwd /caminho/do/projeto` para outro workspace. O estado persistido continua em `.ai-work` e pode ser retomado por outro agente compatível.
+
+## Skill complementar
+
+Instale as duas skills com `pae install all --skill all --global`, ou apenas a nova com `pae install codex --skill validate-or-fix`. Sem `--skill`, o destino continua sendo `plan-and-execute`. `status --skill all --verify` verifica ambas; `uninstall --skill validate-or-fix` remove somente a complementar gerenciada. As proteções contra sobrescrita de edições locais permanecem.
+
+A complementar inclui um `_runtime` autossuficiente, copiado de forma determinística do código canônico e acompanhado de hashes. Não exige a skill principal instalada. No checkout, os wrappers reutilizam a irmã. Cada ZIP de distribuição contém uma skill: `plan-and-execute/skill.zip` e `validate-or-fix/skill.zip`.

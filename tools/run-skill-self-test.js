@@ -8,6 +8,10 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const scriptDirectory = path.join(root, 'skill', 'plan-and-execute', 'scripts');
 const testScripts = [
+  'workload_routing_self_test.py',
+  'validatectl_self_test.py',
+  'observer_self_test.py',
+  'companion_self_test.py',
   'progress_signal_self_test.py',
   'log_watch_self_test.py',
   'watchdogctl_self_test.py',

@@ -17,6 +17,7 @@ from typing import Any, Callable
 
 import planctl
 import routing_config
+import workload_routing
 
 MAX_STATE_BYTES = 32768
 CONFIGURATION = re.compile(r'unknown (?:argument|option)|unrecognized arguments|invalid (?:argument|option|model)|unsupported (?:argument|option|effort)|unexpected argument', re.I)
@@ -79,7 +80,7 @@ def read(plan_dir: Path, task_id: str) -> dict[str, Any]:
             raise ValueError('invalid phase')
         for provider, item in state['cooldowns'].items():
             until = item.get('until') if isinstance(item, dict) else None
-            if provider not in routing_config.PROVIDERS or type(until) not in (float, int) or not math.isfinite(until) or until < 0:
+            if not workload_routing.valid_cooldown_key(provider, routing_config.PROVIDERS) or type(until) not in (float, int) or not math.isfinite(until) or until < 0:
                 raise ValueError('invalid cooldown')
         return state
     except (OSError, ValueError, TypeError) as exc:
@@ -101,9 +102,12 @@ def unavailable(plan_dir: Path, task_id: str, phase: str, route: dict[str, str],
     if provider not in routing_config.PROVIDERS:
         raise AvailabilityError('Invalid availability provider')
     seconds = config.get('availability', {}).get('cooldown_seconds', 300)
-    state['cooldowns'][provider] = {'until': now + seconds, 'reason': category}
+    state['cooldowns'] = {k: v for k, v in state['cooldowns'].items() if v['until'] > now}
+    key = workload_routing.cooldown_key(route, category)
+    state['cooldowns'][key] = {'until': now + seconds, 'reason': category}
     state['events'] = (state['events'] + [{
         'at': now, 'phase': phase, 'provider': provider, 'category': category,
+        **({'route_profile': route['route_profile'], 'quota_pool': route['quota_pool']} if route.get('route_profile') else {}),
         'tier': route['tier'], 'requested_effort': route.get('requested_effort', route['effort']),
     }])[-32:]
     _save(plan_dir, task_id, state)
@@ -121,9 +125,9 @@ def select(plan_dir: Path, task: dict[str, Any], config: dict[str, Any], intent:
     # The fingerprint excludes current_route: claiming an availability retry must
     # not itself raise the stagnation floor on the next invocation.
     policy = {key: task.get(key) for key in ('provider', 'model_tier', 'reasoning_effort',
-              'allow_provider_fallback', 'functional_failures', 'failure_classes', 'validation_stagnation')}
+              'allow_provider_fallback', 'functional_failures', 'failure_classes', 'validation_stagnation', 'workload')}
     policy['override'] = override
-    policy['configuration'] = {key: config.get(key) for key in ('tier_routes', 'provider_order',
+    policy['configuration'] = {key: config.get(key) for key in ('tier_routes', 'provider_order', 'workload_routing',
                                'allow_provider_fallback', 'functional_failures_per_provider', *sorted(routing_config.PROVIDERS))}
     fingerprint = hashlib.sha256(json.dumps(policy, sort_keys=True).encode()).hexdigest()
     previous = state['phases'].get(phase, {})
@@ -141,19 +145,19 @@ def select(plan_dir: Path, task: dict[str, Any], config: dict[str, Any], intent:
     if persist:
         _save(plan_dir, task['id'], state)
     skipped: list[str] = []
-    for provider in chain:
-        if provider in visited:
-            skipped.append(f'{provider}:tried')
+    try:
+        routes = workload_routing.candidates(task, config, chain, tier, effort, clamp, override)
+    except workload_routing.WorkloadError as exc:
+        raise AvailabilityError(str(exc)) from exc
+    for route in routes:
+        provider = route['provider']
+        identity = workload_routing.identity(route)
+        if identity in visited or provider in visited:
+            skipped.append(f'{identity}:tried')
             continue
-        cooldown = state['cooldowns'].get(provider, {})
-        if cooldown.get('until', 0) > now:
-            skipped.append(f'{provider}:cooldown')
+        if any(state['cooldowns'].get(key, {}).get('until', 0) > now for key in workload_routing.cooldown_keys(route)):
+            skipped.append(f'{identity}:cooldown')
             continue
-        model = config[provider].get('models', {}).get(tier)
-        if not isinstance(model, str) or not model.strip():
-            raise AvailabilityError(f'No model configured for {provider}/{tier}; configure before dispatch')
-        route = {'provider': provider, 'tier': tier, 'model': model,
-                 'effort': clamp(config[provider], tier, effort), 'requested_effort': effort}
         if not available(provider):
             visited.add(provider)
             skipped.append(f'{provider}:missing_cli')

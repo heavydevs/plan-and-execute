@@ -297,6 +297,10 @@ def _uncapped_step(failure_classes: list[str], rungs: list[tuple[str, str]]) -> 
 # same table is printed in SKILL.md so a small root model routes consistently.
 PRIMARY_SIGNALS: dict[str, tuple[str, str]] = {
     "deterministic_lookup": ("tool", "none"),
+    "log_monitoring": ("tool", "none"),
+    "log_diagnosis": ("economy", "low"),
+    "frontend_design": ("standard", "medium"),
+    "validation_repair": ("standard", "medium"),
     "exploration": ("economy", "low"),
     "mechanical_edit": ("economy", "low"),
     "bounded_implementation": ("standard", "medium"),

@@ -1,0 +1,8 @@
+interface:
+  display_name: Validate or Fix
+  short_description: Monitor tests and route repairs without a plan
+  default_prompt: 'Use $validate-or-fix for this validation. Keep fast checks direct. Reuse the mapped supervisor for slow or resource-dependent tests; inspect bounded evidence, repair at the required capability and rerun. Create no plan or TODO. Poll with tools, not models. Never duplicate an active supervisor or delete external logs.'
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  allow_implicit_invocation: true

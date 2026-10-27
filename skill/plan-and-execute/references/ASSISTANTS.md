@@ -37,3 +37,7 @@ Primary references reviewed 2026-09-28:
 - https://antigravity.google/docs/permissions?tab=cli
 
 Research and the cost-per-validated-outcome experiment protocol live in repository `docs/research/AUXILIARY_ROUTING.md`, not ordinary worker prompts.
+
+## Separate observer chain (0.11)
+
+The legacy assistant above remains unchanged when `observer.enabled` is false. An opt-in `observer` chain can instead diagnose eligible anomalies using configured `log_monitoring` profiles. Antigravity requires a verified empty-tool stream handshake, isolated workspace and disabled customization; Claude additionally requires explicit API-billing permission and an API key. Unsupported providers skip, not fall back to write-enabled execution. See [VALIDATION_WORKLOADS.md](VALIDATION_WORKLOADS.md). No advice authorizes commands, termination, cleanup or acceptance. Missing/failed advice never stops deterministic monitoring.

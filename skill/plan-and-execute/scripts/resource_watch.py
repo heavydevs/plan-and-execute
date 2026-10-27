@@ -596,6 +596,8 @@ def run_validation(args: argparse.Namespace) -> int:
             "test_running": running,
             "test_tree_running": metrics is not None,
         }
+        if monitor is not None:
+            item["progress"] = progress_state.snapshot()
         if metrics is not None:
             item["process_group"] = metrics
         report.write(json.dumps(item, ensure_ascii=False, separators=(",", ":")) + "\n")
@@ -633,7 +635,10 @@ def run_validation(args: argparse.Namespace) -> int:
         if os.name != "nt":
             # A separate process group lets the idle detector stop the whole test
             # tree while keeping it in the runner's session for outer-timeout cleanup.
-            test_command = [sys.executable, str(Path(__file__).resolve()), "_exec-group", *test_command]
+            # This stdlib-only group bootstrap must not run arbitrary site hooks
+            # before the actual test starts. exec preserves the user's original
+            # command/flags: -S applies to the bootstrap, not to the test.
+            test_command = [sys.executable, "-S", str(Path(__file__).resolve()), "_exec-group", *test_command]
         try:
             process = process_tree.launch(
                 test_command,
@@ -682,7 +687,14 @@ def run_validation(args: argparse.Namespace) -> int:
         stalled = False
         ceiling = False
         idle_for = 0.0
+        health_stopped = False
         while True:
+            if health_failure and validation.get("stop_on_unhealthy", False) and not health_stopped:
+                health_stopped = True
+                report.write(json.dumps({"timestamp": stamp(), "validation": args.validation,
+                    "kind": "validation_health_stop", "failure_class": "semantic" if semantic_health_failure else "environmental"}) + "\n")
+                report.flush()
+                process_tree.terminate(process)
             wait_for = max(0.05, min(0.1, next_interval - time.monotonic()))
             if output_finished.is_set():
                 time.sleep(wait_for)
@@ -726,7 +738,7 @@ def run_validation(args: argparse.Namespace) -> int:
                 break
         reader.join(timeout=1)
         monitor.close()
-        exit_code = 126 if ceiling else (124 if stalled else process.wait())
+        exit_code = (124 if semantic_health_failure else 125) if health_stopped else (126 if ceiling else (124 if stalled else process.wait()))
         sample("final", process.pid, False)
         record_test_process("final", process.pid, False, process_metrics)
         if stalled:
@@ -750,7 +762,16 @@ def run_validation(args: argparse.Namespace) -> int:
         health_state = "unhealthy" if health_failure else ("unobserved" if "starting" in check_states.values() else "healthy")
         print(f"[resource-watch] validation={args.validation} test_exit={exit_code} health={health_state}")
         if health_failure and exit_code == 0:
-            return 124 if semantic_health_failure else 125
+            exit_code = 124 if semantic_health_failure else 125
+        # Preserve the authoritative classification in the terminal receipt:
+        # a bounded tail may no longer contain an earlier resource failure.
+        failure_class = ("environmental" if environment_failure_reported else "semantic") if health_failure else (
+            "timeout_ceiling" if ceiling else ("semantic" if stalled else (None if exit_code == 0 else "unknown")))
+        report.write(json.dumps({"timestamp": stamp(), "validation": args.validation, "kind": "validation_result",
+            "exit_code": exit_code, "failure_class": failure_class,
+            "health": health_state, "stalled": stalled, "ceiling": ceiling,
+            "health_stopped": health_stopped, "progress": progress_state.snapshot()}) + "\n")
+        report.flush()
         return exit_code
     finally:
         if monitor is not None:

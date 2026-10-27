@@ -27,10 +27,12 @@ import service_map
 from self_test import sample_spec
 
 
+# Tight-timing child fixtures use -S to exclude unrelated site startup hooks.
+# Their imports are stdlib; production worker argv and timeouts remain unchanged.
 def command(code: str) -> str:
     if '\n' in code:
         code = f'exec({code!r})'
-    argv = [sys.executable, '-u', '-c', code]
+    argv = [sys.executable, '-S', '-u', '-c', code]
     return subprocess.list2cmdline(argv) if os.name == 'nt' else shlex.join(argv)
 
 
@@ -102,7 +104,7 @@ class RunnerProgressTests(unittest.TestCase):
     def test_timeout_kills_child_before_later_write_on_every_host(self):
         late = self.root / 'late.txt'
         child = f'from pathlib import Path; import time; time.sleep(1); Path({str(late)!r}).write_text("escaped")'
-        parent = f'import subprocess,sys,time; subprocess.Popen([sys.executable,"-c",{child!r}]); time.sleep(30)'
+        parent = f'import subprocess,sys,time; subprocess.Popen([sys.executable,"-S","-c",{child!r}]); time.sleep(30)'
         passed, results, _ = self.validate([command(parent)], idle=.3)
         self.assertFalse(passed)
         self.assertEqual(results[0]['exit_code'], 124)
@@ -115,16 +117,16 @@ class RunnerProgressTests(unittest.TestCase):
         # than the idle window, with only repository writes as progress.
         code = 'from pathlib import Path; import time\nfor i in range(12):\n Path("result.txt").write_text(str(i)); time.sleep(.12)'
         with patch.object(runner.process_tree, 'metrics', return_value=None):
-            code, _, err = runner.run_process([sys.executable, '-u', '-c', code], self.root, log,
+            code, _, err = runner.run_process([sys.executable, '-S', '-u', '-c', code], self.root, log,
                 timeout_seconds=0, idle_timeout_seconds=1, stream_output=False)
         self.assertEqual(code, 0, err)
-        code, _, _ = runner.run_process([sys.executable, '-c', 'import time; time.sleep(.35)'], self.root, log,
+        code, _, _ = runner.run_process([sys.executable, '-S', '-c', 'import time; time.sleep(.35)'], self.root, log,
                                       timeout_seconds=0, stream_output=False)
         self.assertEqual(code, 0)
 
     def test_provider_idle_kill_and_legacy_hard_class(self):
         with patch.object(runner.process_tree, 'metrics', return_value=None):
-            code, _, err = runner.run_process([sys.executable, '-c', 'import time; time.sleep(30)'],
+            code, _, err = runner.run_process([sys.executable, '-S', '-c', 'import time; time.sleep(30)'],
                 self.root, self.log, timeout_seconds=0, idle_timeout_seconds=.25, stream_output=False)
         self.assertEqual(code, 124)
         self.assertEqual(runner.classify_report_failure(None, err), 'semantic')
@@ -238,26 +240,26 @@ class RunnerProgressTests(unittest.TestCase):
         sources, _ = service_map.scan_inputs(self.root)
         data = {'schema_version': 1, 'inventory_reviewed': True, 'resources': [], 'toolchains': [],
                 'snapshot': {'algorithm': service_map.ALGORITHM, 'digest': service_map.aggregate(sources)},
-                'validations': [{'id': 'VAL_BOOKS', 'command': [sys.executable, '-c', 'import time; time.sleep(.6)'],
+                'validations': [{'id': 'VAL_BOOKS', 'command': [sys.executable, '-S', '-c', 'import time; time.sleep(.6)'],
                                  'resources': [], 'no_progress_timeout_seconds': 2}]}
         template = service_map.MAP_BEGIN + '\n```json\n{}\n```\n' + service_map.MAP_END
         mapped.write_text(service_map.replace_map_data(template, data), encoding='utf-8')
         argv = [sys.executable, str(Path(jobctl.__file__)), 'start', '--plan', str(plan), '--id', 'VAL_BOOKS', '--validation', 'VAL_BOOKS']
         worker = f'import subprocess; raise SystemExit(subprocess.run({argv!r}).returncode)'
-        code, _, error = runner.run_process([sys.executable, '-c', worker], self.root, self.log,
+        code, _, error = runner.run_process([sys.executable, '-S', '-c', worker], self.root, self.log,
             timeout_seconds=0, stream_output=False, job_plan_dir=plan, validation_jobs=['VAL_BOOKS'])
         self.assertEqual(code, 0, error)
         status = jobctl.wait_job(plan, 'VAL_BOOKS', 5)
         self.assertEqual(status['state'], 'succeeded', status)
         self.assertTrue(runner.job_evidence_current(status, self.root))
-        data['validations'][0]['command'] = [sys.executable, '-c', 'raise SystemExit(1)']
+        data['validations'][0]['command'] = [sys.executable, '-S', '-c', 'raise SystemExit(1)']
         mapped.write_text(service_map.replace_map_data(template, data), encoding='utf-8')
         self.assertFalse(runner.job_evidence_current(status, self.root))
 
     def test_assistant_idle_opt_in_remains_inside_fixed_advisory_budget(self):
         with patch.object(runner.process_tree, 'metrics', return_value=None):
             with self.assertRaisesRegex(assistant_triage.Skip, 'idle_timeout'):
-                assistant_triage.bounded_process([sys.executable, '-c', 'import time; time.sleep(30)'],
+                assistant_triage.bounded_process([sys.executable, '-S', '-c', 'import time; time.sleep(30)'],
                                                 '', self.root, os.environ.copy(), 2, 100, idle_timeout=.25)
 
 

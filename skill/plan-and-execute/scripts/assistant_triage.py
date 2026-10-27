@@ -349,6 +349,12 @@ def write_state(path: Path, value: dict) -> None:
 def triage(plan: Path, task: dict, results: list[dict], config: dict,
            *, invoke: Callable | None = None) -> dict:
     """No manifest mutations. A reservation survives crashes and prevents repeat bills."""
+    if config.get('observer', {}).get('enabled') and invoke is None:
+        import observer
+        try:
+            return observer.triage_plan(plan, task, results, config)
+        except (observer.ObserverError, OSError, ValueError, TypeError, KeyError):
+            return {'status': 'skipped', 'reason': 'observer_state_or_input_unavailable'}
     started = time.monotonic()
     lock = None
     locked = False
@@ -404,6 +410,9 @@ def triage(plan: Path, task: dict, results: list[dict], config: dict,
 
 
 def hint(plan: Path, task: dict, config: dict) -> str:
+    if config.get('observer', {}).get('enabled'):
+        import observer
+        return observer.hint(plan, task, config)
     if not config.get('assistant', {}).get('enabled') or not task.get('last_error'):
         return ''
     try:

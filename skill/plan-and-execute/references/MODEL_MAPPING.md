@@ -1,103 +1,70 @@
-# Tabela de Mapeamento de Modelos, Complexidade e Níveis de IA
+# Mapeamento de modelos, tipos de tarefa e capacidade
 
-Este documento é a referência operacional de roteamento para a skill **plan-and-execute**, detalhando a relação entre **complexidade da tarefa (sinais)**, **níveis lógicos (tiers L1..L5)** e **nível de esforço de raciocínio de IA (effort)** para cada fornecedor de execução (**Claude Code**, **Codex**, **Antigravity**).
+Referência operacional revisada em 2026-10-27. Carregue este arquivo somente para configurar ou revisar o roteamento; uma tarefa comum usa apenas a rota selecionada. Fonte de comportamento: `workload_routing.py`, `routingctl.py`, `availability.py` e [ROUTING_CONFIG.md](ROUTING_CONFIG.md). Evidência externa e limitações: `docs/research/VALIDATION_WORKLOAD_ROUTING.md` no repositório.
 
----
+## 1. Quatro dimensões independentes
 
-## 1. Níveis Lógicos (Tiers) e Equivalências
+1. **Tipo de tarefa (`workload`)**: implementação, frontend/design, correção de validação ou monitoramento. Ser bom em uma delas não demonstra competência nas demais.
+2. **Piso de capacidade**: `model_tier` e `reasoning_effort`, determinados pelos sinais de risco e pela qualidade da validação.
+3. **Perfil de execução**: host/provedor, ID exato observado, limites e tipos de tarefa aprovados. O nome comercial de um modelo não prova equivalência entre hosts.
+4. **Grupo de cota (`quota_pool`)**: permite preservar o saldo do gerente e trocar de família sem reduzir o piso. Cota indisponível não é falha de inteligência.
 
-A skill utiliza 5 tiers lógicos independentes de fornecedor (com aliases portáteis `L1`..`L5` ou `F1`..`F5`):
+## 2. Piso lógico por sinal
 
-| Nível / Tier | Alias | Descrição e Finalidade |
-|---|:---:|---|
-| **`economy`** | `L1` / `F1` | Exploração rápida, leitura de código, tarefas mecânicas estreitas, resumos compactos. |
-| **`standard`** | `L2` / `F2` | Implementação rotineira com escopo fechado, refatorações pontuais, testes unitários. |
-| **`advanced`** | `L3` / `F3` | Intermediário entre Standard e Strong; depurações com acoplamento moderado ou decisões de escopo delimitado. |
-| **`strong`** | `L4` / `F4` | Engenharia complexa, sutilezas de estado/concorrência, decisões de arquitetura e tarefas com validação fraca. |
-| **`max`** | `L5` / `F5` | Escalação de fronteira / long-horizon, raciocínio profundo autônomo após falha comprovada no Strong. |
+| Sinal | Piso | Esforço |
+| --- | --- | --- |
+| `deterministic_lookup`, `log_monitoring` | ferramenta, sem modelo | nenhum |
+| `exploration`, `mechanical_edit`, `log_diagnosis` | economy / L1 | low |
+| `bounded_implementation`, `frontend_design`, `validation_repair` | standard / L2 | medium |
+| `subtle_debugging` | strong / L4 | medium |
+| `architecture_decision`, `cross_cutting_risk`, `silent_failure_costly` | strong / L4 | high |
+| `frontier_long_horizon` | max / L5 | high |
+| `repeated_strong_failure` | max / L5 | xhigh |
 
----
+`advanced` / L3 continua disponível como nível intermediário configurável. Um tier vazio não deve ser preenchido por invenção ou rebaixamento. `weak_validation` aumenta um tier e exige high; `strong_validation` pode permitir medium conforme o roteador. Implementação usa low somente quando mecânica e deterministicamente verificável. Os sinais se combinam: design com risco arquitetural não fica no piso de design simples.
 
-## 2. Matriz de Complexidade vs. Nível e Esforço de IA (Floor)
+## 3. Matriz por tipo de trabalho
 
-A classificação da complexidade de cada tarefa folha determina o piso (*floor*) mínimo de modelo e de esforço:
+| Workload / trabalho | Preferência condicional | Evidência de aceitação |
+| --- | --- | --- |
+| `implementation` | Perfil habilitado que cumpra o piso; com gerente Claude, o preset pode preferir Claude do Antigravity em standard/advanced. | Testes funcionais, integração e casos negativos. |
+| `frontend_design` | Perfil aprovado para frontend, independente da aptidão para backend. O preset Claude intermediário é uma política conservadora do usuário, não um ranking visual demonstrado. | Fluxos reais, screenshots responsivos, acessibilidade e revisão visual; testes unitários isolados não aprovam design. |
+| `validation_repair` | Rota de correção no piso requerido; falha semântica confirmada pode exigir strong/max fora do Claude intermediário do Antigravity. | Reprodução da falha e nova execução independente da validação. |
+| `log_monitoring` normal | Monitor determinístico (`resource_watch`, `progress_watch`, `validatectl`), **sem tokens de IA**. | Saída do processo, progresso semântico, CPU, arquivos/probes e saúde mapeada. |
+| Diagnóstico opcional de anomalia | Perfis economy de `log_monitoring`, na ordem configurada; preset prefere Flash 3.8 Medium observado, depois High quando Medium não existir. | Pacote redigido e limitado; resposta estruturada consultiva, nunca aprovação, comando ou permissão de escrita. |
 
-| Complexidade / Sinal Observável | Nível Mínimo (Tier) | Esforço Recomendado (Effort) | Ação Recomendada |
-|---|:---:|:---:|---|
-| **`deterministic_lookup`**<br>Busca de símbolo/arquivo, formatação, build/lint/test | — | — | **Ferramenta direta (tool)**, sem invocar modelo de IA. |
-| **`exploration`**<br>Descoberta ampla, varredura de call-sites, inventário | `economy` (L1) | `low` | Subagente explorador descartável somente leitura (máx. 2 simultâneos). |
-| **`mechanical_edit`**<br>Renomeação, movimentação, atualização com checagem local | `economy` (L1) | `low` | Edição direta no contexto ou subagente rápido verificado por comando. |
-| **`bounded_implementation`**<br>Feature comum, refatoração pontual, testes diretos | `standard` (L2) | `medium` | Implementação com validação automatizada determinística obrigatória. |
-| **`subtle_debugging`**<br>Problemas de estado, ordenação, causas flaky ou não-locais | `strong` (L4) | `medium` | Análise minuciosa de causa raiz e hipóteses verificáveis. |
-| **`architecture_decision`**<br>Fronteiras entre módulos, grafos de dependência, contratos | `strong` (L4) | `high` | Decisão formal preservando contratos prévios e compatibilidade. |
-| **`cross_cutting_risk`**<br>Segurança, concorrência, migração de dados, integridade | `strong` (L4) | `high` | Isolamento em subagente/worktree com plano de rollback/verificação. |
-| **`silent_failure_costly`**<br>Falha silenciosa que não seria pega de imediato e causaria dano | `strong` (L4) | `high` | Raciocínio profundo e testes de estresse / validação cruzada. |
-| **`frontier_long_horizon`**<br>Loops autônomos longos, raciocínio exploratório extremo | `max` (L5) | `high` | Apenas quando justificado pelo escopo e ausência de atalhos determinísticos. |
-| **`repeated_strong_failure`**<br>O nível Strong falhou e gerou evidências de déficit semântico | `max` (L5) | `xhigh` | Subida na escada de escalação guiada estritamente pela classe de falha. |
+O `observer` não chama uma IA a cada linha ou intervalo saudável. Repetição de evidência não gera nova consulta. Ler o restante da configuração de modelos não é necessário para executar um teste.
 
-### Modificadores de Validação:
-- **`weak_validation`**: Se a validação não puder ser 100% determinística (sem testes conclusivos ou resultado difícil de auditar mecanicamente), **eleve em +1 o tier** e suba o piso de esforço para **`high`**.
-- **`strong_validation`**: Se a validação determinística for sólida (ex: suite de testes unitários + compilação + linter), os tiers `standard` e `strong` podem iniciar em **`medium`**.
-- **Regra de Implementação**: Trabalhadores de implementação nunca utilizam esforço `low`, pois tendem a ignorar leituras e fases de validação.
+## 4. Antigravity: descoberta, capacidade e cotas
 
----
+A documentação oficial lista Gemini 3.8 Flash e Claude Opus 5.5, mas a conta/CLI determina disponibilidade e IDs. Consulte `agy models` e registre os IDs efetivamente exibidos. O preset aceita uma lista JSON normalizada; ele **não pressupõe** que toda versão de `agy models` suporte saída JSON.
 
-## 3. Mapeamento de Modelos por Fornecedor no SO
-
-Exemplo de preferência configurada no arquivo global do sistema operacional:
-`%APPDATA%/plan-and-execute/orchestrator.config.json`
-
-| Tier / Nível | Claude Code (`claude`) | Codex CLI (`codex`) | Antigravity CLI (`agy`) |
-|:---:|---|---|---|
-| **`economy` (L1)** | `haiku` *(Haiku 4.5; sem flag `--effort`)* | `gpt-6-luna` *(effort: low)* | `gemini-3.8-flash-high` |
-| **`standard` (L2)** | `claude-sonnet-5-5` *(effort: medium/high)* | `gpt-6.1-sol` *(effort: medium)* | `gemini-3.1-pro-high` |
-| **`advanced` (L3)** | `claude-opus-5-5` *(effort: medium)* | `gpt-6.1-sol` *(effort: medium)* | `claude-sonnet-4-6` |
-| **`strong` (L4)** | `claude-opus-5-5` *(effort: medium/high)* | `gpt-6.1-sol` *(effort: medium/high)* | `claude-opus-4-6-thinking` |
-| **`max` (L5)** | `claude-opus-5-5` *(effort: xhigh/max)* | `gpt-6.1-sol` *(effort: xhigh)* | `claude-opus-4-6-thinking` |
-
-*(Nota sobre o Codex, decisão do responsável em 2026-10-09: o `gpt-6.1-sol` é claramente superior ao `gpt-6-astra` na prática, então atende todos os tiers acima de `economy` e o Astra deixou de ser roteado. Os tiers diferem apenas pelo **esforço**, e a escada de escalação do Codex é `luna low → luna medium → sol medium → sol high → sol xhigh`. O esforço `ultra` existe no catálogo do Sol 6.1, mas a skill não o seleciona sozinha: só por opt-in na configuração do projeto.)*
-
-*(Nota sobre o Antigravity: no tier `economy` utiliza `gemini-3.8-flash-high`, id que embute o esforço máximo internamente; portanto, o runner omite a flag `--effort` para esse modelo.)*
-
-*(Nota sobre Fable 5.1: Caso deseje utilizar o `claude-fable-5-1` no tier `max`, ele permanece suportado pelo catálogo, mas exige créditos pré-pagos e opera com maior latência/custo do que o Opus 5.5).*
-
----
-
-## 4. Análise Atualizada: Claude Opus 5.5 vs. Claude Fable 5.1
-
-Dados consolidados dos benchmarks de engenharia de software e custos (Anthropic, out/2026):
-
-| Métrica / Dimensão | Claude Opus 5.5 (`claude-opus-5-5`) | Claude Fable 5.1 (`claude-fable-5-1`) | Vantagem Prática |
-|---|:---:|:---:|---|
-| **Data de Lançamento** | **22 de Setembro de 2026** | 01 de Setembro de 2026 | Opus 5.5 é mais recente e melhor calibrado. |
-| **Terminal-Bench 4.0** | **66.4%** | 55.8% | **Opus 5.5 supera em +10.6 p.p.** no terminal agentic. |
-| **CursorBench 4.0** | **57.8%** | 51.8% | **Opus 5.5 supera em +6.0 p.p.** em refatoração/código. |
-| **Preço por 1M Tokens (In/Out)** | **$4 / $20** | $10 / $50 | **Opus 5.5 é 60% mais barato (2.5x)**. |
-| **Esforço Padrão (Effort)** | `medium` (Adaptive Thinking ágil) | `high` (tende a overthinking/latência) | Opus 5.5 completa tarefas mais rápido e gasta menos tokens. |
-| **Restrições de Conta / Quota** | Suportado nos planos Pro/Team sem travas extras | Exige saldo de créditos dedicado (`credits_required` HTTP 429) | Opus 5.5 não pausa execuções por falta de pool de créditos. |
-
-**Conclusão**: Para tarefas de desenvolvimento de software e orquestração de código, **o Claude Opus 5.5 é objetivamente superior e mais eficiente que o Fable 5.1**, justificando seu uso como padrão nos tiers `strong` e `max`.
-
----
-
-## 5. Preferência Global de Roteamento e Fallbacks no SO
-
-A política global de provedores (`%APPDATA%/plan-and-execute/orchestrator.config.json`) prioriza **Codex** (`gpt-6.1-sol`) como provedor primário para implementação em todos os tiers standard+, com **Claude** (Opus 5.5 em strong/max, Sonnet 5.5 em standard) como primeiro fallback e **Antigravity** como fallback secundário. No tier `economy`, **Antigravity** (`gemini-3.8-flash-high`, sem `--effort`) é o primário para exploração, tarefas mecânicas e resumos.
-
-Essas preferências exigem configuração; não alteram os defaults embutidos (Claude e depois Codex). Overrides de plano/tarefa/CLI e snapshots legados preservam a precedência descrita em [ROUTING_CONFIG.md](ROUTING_CONFIG.md). A tabela de modelos também é um exemplo de host: `advanced` vazio no bootstrap Claude/Codex pula para cima; Opus em `max` exige override do Fable embutido.
-
-Quando configurada, a cadeia abaixo permite fallback por indisponibilidade sem mudar o piso ou a escada de falhas:
-
-```text
-economy:  Antigravity  ->  Claude  ->  Codex
-standard: Codex        ->  Claude  ->  Antigravity
-advanced: Codex        ->  Claude  ->  Antigravity
-strong:   Codex        ->  Claude  ->  Antigravity
-max:      Codex        ->  Claude  ->  Antigravity
+```bash
+pae workloads preset --models-file /path/to/observed-models.json --manager claude
+pae workloads explain --config /path/to/orchestrator.config.json --workload frontend_design --tier standard --effort medium
+pae configure --show --json
 ```
 
-### Resumos, Vigilância e Diagnósticos:
-- **Resumo de Tarefas / Planos**: Executado primariamente via `antigravity` no tier `economy` (`gemini-3.8-flash-high`, id que embute o esforço máximo; não passar `--effort`) para economia máxima de tokens.
-- **Checagem de Watchdog**: Executada sem modelo (`watchdogctl.py status --quiet`).
-- **Agente Vigia (Watchkeeper)**: Roteado no tier `economy` via `antigravity` (`gemini-3.8-flash-high`, sem `--effort`).
-- **Diagnóstico de Tarefas Bloqueadas**: Análise da cápsula de falha de tarefas `blocked` roteada no tier `strong` em Codex (`gpt-6.1-sol`, esforço `high`), com fallback para Claude (`claude-opus-5-5`, esforço `high`) -> Antigravity.
+O preset reconhece `gemini-3.8-flash-medium/high` e `claude-opus-5-5-high/medium` **somente se presentes na lista**. Outras variantes observadas exigem perfil manual revisado; não derivar ID de um rótulo como “Thinking”. Se o ID embute esforço, não duplicar uma flag contraditória.
+
+| Família / host | Grupo do preset | Limite desta política |
+| --- | --- | --- |
+| Gemini no Antigravity | `antigravity-gemini` | Flash para monitoramento/diagnóstico barato, não como prova de capacidade para todo trabalho. |
+| Claude/GPT no Antigravity | `antigravity-claude-gpt` | Claude limitado a standard/advanced; nunca strong/max no novo overlay. |
+| Claude Code nativo | Grupo configurado da assinatura/API | Independente do grupo Antigravity; subagentes no mesmo host não criam saldo novo. |
+
+O teto do Claude no Antigravity implementa a precaução solicitada. Não foi demonstrada uma diferença quantitativa de inteligência entre hosts. Quota bloqueia o grupo, capacidade temporária bloqueia o modelo, autenticação/CLI ausente bloqueia o host. Cooldowns legados por provedor continuam conservadores.
+
+## 5. Precedência, fallbacks e compatibilidade
+
+A configuração antiga de modelos/tier continua válida enquanto `workload_routing.enabled` estiver desligado. A preferência histórica do projeto por Codex acima de economy não é uma nova avaliação comparativa. Defaults embutidos continuam Claude, depois Codex; a política global e overrides seguem [ROUTING_CONFIG.md](ROUTING_CONFIG.md).
+
+Com overlay habilitado, selecione apenas perfis compatíveis com **workload + tier + effort + cadeia permitida**. A preferência de preservar a cota do gerente só reordena candidatos elegíveis. Um host com perfis explícitos não pode escapar dos limites usando seu modelo genérico. Override de provedor e `allow_provider_fallback: false` permanecem autoritativos. Snapshots não substituem o modelo/cota do perfil escolhido.
+
+O fallback consultivo é separado do fallback de implementação: Antigravity exige verificação de agente sem ferramentas; Claude bare exige opt-in explícito de API. Adaptadores sem fronteira somente-leitura verificada são ignorados, mesmo que possam implementar código normalmente. O monitor determinístico continua ativo se todos forem indisponíveis. Veja [VALIDATION_WORKLOADS.md](VALIDATION_WORKLOADS.md) para configuração e limites.
+
+## 6. Base de evidência e atualização
+
+Esta revisão substitui a tabela histórica Opus/Fable de benchmarks, preços e superioridade absoluta: seus números não foram revalidados e **não fundamentam** o novo roteamento. O texto anterior permanece no histórico Git (`6bdbab5`). A pesquisa atual confirma contratos dos hosts e grupos de cota; não mede economia monetária, sucesso visual ou equivalência de modelos na conta do usuário.
+
+Mantenha IDs/limites observados, registre resultados por workload e compare custo **por resultado validado**, não somente preço por token. Revalide os perfis quando o host ou modelo mudar. Não reduzir pisos nem inventar modelos para preencher lacunas.

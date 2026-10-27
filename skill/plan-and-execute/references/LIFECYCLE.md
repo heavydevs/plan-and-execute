@@ -113,3 +113,7 @@ Only include facts needed to choose one lifecycle action:
 - whether summary/cleanup remains pending.
 
 Do not load PLAN.md, task definitions, study, logs, or worker reports merely to answer lifecycle status.
+
+## Standalone validation is outside plan lifecycle
+
+`.ai-work/validation/<ID>` contains a `validate-or-fix` receipt, not a plan sentinel. Plan discovery, resume and reset must not adopt or remove it. Use `pae validate status|recover|cleanup --validation <ID>` for explicit standalone lifecycle actions. Cleanup is pass-only, refuses live ownership or foreign files and preserves source, external logs and the shared map.

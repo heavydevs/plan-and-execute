@@ -285,6 +285,8 @@ def launch(command: Any, **options: Any) -> subprocess.Popen:
     A Job Object accounts for exited descendants and kills them on close. Hosts
     that refuse nested Job assignment retain PID identities and use tree cleanup.
     """
+    # Guards are stdlib-only bootstraps. Skip unrelated site hooks here, not in
+    # the original child argv; this avoids startup delay consuming idle windows.
     if os.name != "nt":
         options.setdefault("start_new_session", True)
         owns_session = options["start_new_session"]
@@ -294,7 +296,7 @@ def launch(command: Any, **options: Any) -> subprocess.Popen:
             env["PAE_PROCESS_TREE_GUARD"] = json.dumps({"command": command,
                                                        "shell": bool(options.pop("shell", False)),
                                                        "executable": options.pop("executable", None)})
-            process = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "_posix-guard"], env=env, **options)
+            process = subprocess.Popen([sys.executable, "-S", str(Path(__file__).resolve()), "_posix-guard"], env=env, **options)
         else:
             process = subprocess.Popen(command, **options)
         with _CPU_LOCK:
@@ -329,7 +331,7 @@ def launch(command: Any, **options: Any) -> subprocess.Popen:
             job = None
     process: subprocess.Popen | None = None
     try:
-        process = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "_windows-guard", name], env=env, **options)
+        process = subprocess.Popen([sys.executable, "-S", str(Path(__file__).resolve()), "_windows-guard", name], env=env, **options)
         process._pae_job_handle = None
         process._pae_tree_lock = threading.RLock()
         identity = _windows_pid_time(process.pid)

@@ -51,7 +51,7 @@ Provedores de execucao suportados:
 A instalacao padrao da skill e o tutorial rapido continuam restritos a Claude Code e Codex.
 Antigravity (agy) tambem aceita instalacao com --agent antigravity ou all.
 Qwen, Kimi e Trae sao backends opcionais de execucao; gemini e legado
-(Gemini CLI descontinuada em 2026-06-18).
+(classificacao interna de compatibilidade; nao afirma descontinuacao do produto).
 
 Uso da implementacao:
   pae current [opcoes]              Mostrar a implementacao ativa
@@ -72,6 +72,12 @@ Catalogo de modelos (sem chamadas de geracao):
   pae models show [--provider <nome>]
   pae models refresh --provider <nome> | --plan <diretorio>
   pae models diff --plan <diretorio>
+
+Validacao sem plano e roteamento por tipo de trabalho:
+  pae validate run --validation TEST_ID
+  pae validate status|inspect|advise|recover|cleanup --validation TEST_ID
+  pae workloads preset --models-file agy-models.json --manager claude
+  pae workloads explain --config config.json --workload frontend_design --tier standard --effort medium
 
 Uso da instalacao:
   pae install [claude|codex|antigravity|both|all] [opcoes]
@@ -98,6 +104,7 @@ Opcoes de execucao:
   --all                             Com cancel, remover todos os planos reconhecidos
 
 Opcoes de instalacao:
+  --skill <plan-and-execute|validate-or-fix|all> Padrao: plan-and-execute
   --agent <claude|codex|antigravity|both|all> Destino. Padrao: both
   --verify                          Com status: comparar hashes com a skill embutida
   --scope <workspace|user>          Projeto atual ou perfil do usuario. Padrao: workspace
@@ -120,6 +127,7 @@ Exemplos:
   npx @luizcgvrj/plan-and-execute install both --global
   pae install both --activation explicit --global
   pae install codex --cwd /caminho/do/projeto
+  pae install all --skill all --global
 `;
 
 function fail(message, code = 1) {
@@ -138,11 +146,22 @@ export function parseArguments(argv) {
   let command = 'help';
   if (args.length > 0 && !args[0].startsWith('-')) command = args.shift();
   const options = {
+    skill: 'plan-and-execute',
     agent: 'both', scope: 'workspace', workspaceDir: process.cwd(), activation: 'selective',
     force: false, dryRun: false, json: false, provider: null, once: false, noWait: false,
     noCleanup: false, allPlans: false, configPath: null, planPath: null, showConfig: false,
     profile: null, harness: null, cacheDir: null, action: null
   };
+  if (['validate', 'workloads'].includes(command)) {
+    // Forward only to these two fixed controllers; never an arbitrary script.
+    const forwarded = [];
+    for (let index = 0; index < args.length; index += 1) {
+      if (['--cwd', '-C'].includes(args[index])) {
+        options.workspaceDir = requireValue(args, index, args[index]); index += 1;
+      } else forwarded.push(args[index]);
+    }
+    return { command, options: { ...options, scriptArgs: forwarded }, showHelp: false, showVersion: false };
+  }
   let showHelp = false;
   let showVersion = false;
   let positionalAgentUsed = false;
@@ -158,6 +177,7 @@ export function parseArguments(argv) {
       throw new Error(`Argumento desconhecido: ${arg}`);
     }
     switch (arg) {
+      case '--skill': options.skill = requireValue(args, index, arg); index += 1; break;
       case '--agent': case '--target': case '-a':
         options.agent = requireValue(args, index, arg); index += 1; break;
       case '--scope': case '-s':
@@ -409,6 +429,11 @@ async function main() {
         });
         break;
       }
+      case 'validate':
+      case 'workloads':
+        process.exitCode = runLifecycle(options.scriptArgs, options, { stream: true,
+          script: path.join(scriptsDir, command === 'validate' ? 'validatectl.py' : 'workload_routing.py') });
+        break;
       case 'models': process.exitCode = modelsCommand(options); break;
       case 'current': process.exitCode = runLifecycle(lifecycleArguments('current', options), options); break;
       case 'resume': process.exitCode = runLifecycle(lifecycleArguments('resume', options), options, { stream: true }); break;

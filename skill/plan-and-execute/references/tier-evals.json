@@ -2,7 +2,7 @@
   "schema_version": 1,
   "purpose": "Leaf-level routing corpus. Each case names the observable signals a small root model can identify and the minimum credible tier/effort the skill must assign. routingctl.minimum_route is the deterministic reference; the corpus protects it against regressions in both directions: paying frontier tokens for cheap leaves and under-routing risky small leaves.",
   "signals": {
-    "primary": ["deterministic_lookup", "exploration", "mechanical_edit", "bounded_implementation", "subtle_debugging", "architecture_decision", "cross_cutting_risk", "silent_failure_costly", "frontier_long_horizon", "repeated_strong_failure"],
+    "primary": ["deterministic_lookup", "log_monitoring", "log_diagnosis", "frontend_design", "validation_repair", "exploration", "mechanical_edit", "bounded_implementation", "subtle_debugging", "architecture_decision", "cross_cutting_risk", "silent_failure_costly", "frontier_long_horizon", "repeated_strong_failure"],
     "modifiers": ["weak_validation", "strong_validation", "implementation"]
   },
   "cases": [
@@ -29,6 +29,14 @@
     {"id":"T021","near_miss":true,"leaf":"Resolve a contradiction between two spec fragments about idempotency semantics.","signals":["architecture_decision","cross_cutting_risk"],"expected":{"tier":"strong","effort":"high"}},
     {"id":"T022","near_miss":false,"leaf":"Implement a bounded feature whose only check is a manual smoke test.","signals":["bounded_implementation","weak_validation","implementation"],"expected":{"tier":"strong","effort":"high"}},
     {"id":"T023","near_miss":true,"leaf":"Mechanical edit with deterministic checks, but a worker still has to run them.","signals":["mechanical_edit","implementation"],"expected":{"tier":"economy","effort":"medium"}},
-    {"id":"T024","near_miss":false,"leaf":"Fresh review of a plan whose hardest decision was an architecture split.","signals":["architecture_decision","strong_validation"],"expected":{"tier":"strong","effort":"medium"}}
+    {"id":"T024","near_miss":false,"leaf":"Fresh review of a plan whose hardest decision was an architecture split.","signals":["architecture_decision","strong_validation"],"expected":{"tier":"strong","effort":"medium"}},
+    {"id":"T025","near_miss":false,"leaf":"Poll mapped progress and resource health; no model judgement is required.","signals":["log_monitoring"],"expected":{"tier":"tool","effort":"none"}},
+    {"id":"T026","near_miss":false,"leaf":"Suggest a hypothesis from a bounded redacted anomaly packet without editing or approving work.","signals":["log_diagnosis"],"expected":{"tier":"economy","effort":"low"}},
+    {"id":"T027","near_miss":false,"leaf":"Implement a responsive frontend component with reviewed visual and interaction checks.","signals":["frontend_design","strong_validation","implementation"],"expected":{"tier":"standard","effort":"medium"}},
+    {"id":"T028","near_miss":true,"leaf":"Redesign a checkout interaction with only manual checks and costly silent acceptance errors.","signals":["frontend_design","weak_validation","silent_failure_costly","implementation"],"expected":{"tier":"strong","effort":"high"}},
+    {"id":"T029","near_miss":false,"leaf":"Fix one deterministic failing validation without weakening its acceptance assertions.","signals":["validation_repair","strong_validation","implementation"],"expected":{"tier":"standard","effort":"medium"}},
+    {"id":"T030","near_miss":true,"leaf":"Repair a validation failure involving a security-sensitive migration.","signals":["validation_repair","cross_cutting_risk","implementation"],"expected":{"tier":"strong","effort":"high"}},
+    {"id":"T031","near_miss":true,"leaf":"An anomaly diagnosis has weak evidence and cannot be verified mechanically.","signals":["log_diagnosis","weak_validation"],"expected":{"tier":"standard","effort":"high"}},
+    {"id":"T032","near_miss":true,"leaf":"Monitoring reveals an architecture decision; the cheap observation role must not lower that floor.","signals":["log_monitoring","architecture_decision"],"expected":{"tier":"strong","effort":"high"}}
   ]
 }

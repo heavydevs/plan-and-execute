@@ -355,6 +355,8 @@ def validate_data(data: dict[str, Any]) -> list[str]:
         ):
             errors.append(f"validation {vid}: command must be a nonempty argv array")
         errors.extend(f"validation {vid}: {error}" for error in progress_watch.validate_policy(validation))
+        if "stop_on_unhealthy" in validation and type(validation["stop_on_unhealthy"]) is not bool:
+            errors.append(f"validation {vid}: stop_on_unhealthy must be boolean")
         if "expected_duration_seconds" in validation:
             duration = validation["expected_duration_seconds"]
             if isinstance(duration, bool) or not isinstance(duration, int) or not 0 <= duration <= 604800:
@@ -656,14 +658,25 @@ def cmd_list(args: argparse.Namespace) -> int:
     if not fresh or truncated or errors:
         print("service-map=list-unavailable; run check and reconcile the map first")
         return 2
-    for item in data["validations"]:
+    selected_id = getattr(args, "validation", None)
+    selected = [item for item in data["validations"] if selected_id is None or item["id"] == selected_id]
+    if selected_id is not None and not selected:
+        print("service-map=list-unavailable; validation id not mapped")
+        return 2
+    used_tools = {tid for item in selected for tid in item.get("toolchains", [])}
+    used_resources = {rid for item in selected for rid in item["resources"]}
+    for item in selected:
         resources = ",".join(item["resources"]) or "none"
         toolchains = ",".join(item.get("toolchains", [])) or "none"
         idle = item.get("no_progress_timeout_seconds", 300)
         print(f"{item['id']} | {item.get('name', 'unnamed')} | tools={toolchains} resources={resources} no-progress={idle}s")
     for item in data.get("toolchains", []):
+        if selected_id is not None and item["id"] not in used_tools:
+            continue
         print(f"toolchain {item['id']} | {item.get('name', 'unnamed')}")
     for resource in data["resources"]:
+        if selected_id is not None and resource["id"] not in used_resources:
+            continue
         checks = ",".join(f"{check['id']}@{check.get('every_seconds', 60)}s" for check in resource["checks"])
         print(f"resource {resource['id']} | {resource.get('name', resource.get('type', 'service'))} | checks={checks}")
     return 0
@@ -693,6 +706,7 @@ def parser() -> argparse.ArgumentParser:
     listing = sub.add_parser("list", help="show only validation/resource ids and monitor intervals")
     listing.add_argument("--repo-root", default=".")
     listing.add_argument("--map", default=".ai-work/SERVICE_MAP.md")
+    listing.add_argument("--validation", help="show only one validation and its prerequisites")
     listing.set_defaults(func=cmd_list)
     return result
 

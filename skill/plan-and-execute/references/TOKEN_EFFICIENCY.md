@@ -4,13 +4,13 @@ Use this reference when reviewing prompt/context cost or changing the harness. `
 
 ## Objective
 
-Minimize tokens that do not improve an implementation decision while preserving or improving verified quality. A token is justified when it carries current-task requirements, evidence, a decision boundary, failure diagnosis, validation signal, or durable handoff needed to resume.
+Spend tokens on current-task requirements, decisions, failure evidence, validation and durable handoff; preserve verified quality.
 
 ## 1. Avoid the harness when the harness does not pay for itself
 
-Selective activation is the first and largest optimization: cohesive small/medium work stays DIRECT; file count and the word `implementation` are not orchestration triggers; uncertainty defaults to DIRECT because late promotion is available; full planning starts only when independent workstreams, broad study, cross-cutting risk, durable resume value, or isolation materially help.
+Keep cohesive work DIRECT. File count alone never justifies planning. Orchestrate only for independent workstreams, broad study, cross-cutting risk, durable resume or useful isolation; otherwise promote later.
 
-A direct exit creates no `.ai-work` state, but adaptive model-economy rules still apply.
+A direct exit creates no `.ai-work` planning state, but adaptive model-economy rules still apply.
 
 ## 2. Keep useful shared context while it is useful
 
@@ -85,3 +85,5 @@ Never concatenate raw worker reports into final-summary input. Use goal, task co
 Token reduction must not remove complete request evidence, requirement coverage for orchestrated remaining work, task scope/invariants, acceptance criteria, deterministic validation, material failure evidence, resume checkpoints, per-TODO model/effort routing, safety/path guards, or cleanup preservation.
 
 When concision and correctness appear to conflict, first remove repetition, disposable exploration context, and process narration. If a distinction still changes implementation or validation, keep it.
+
+Plan-free validation is an explicit exception: `validate-or-fix` uses only a reusable map and bounded receipts. Watch with code, consume incremental redacted evidence once, and invoke optional advisory models only for anomalies. See `VALIDATION_WORKLOADS.md`; do not load it for ordinary fast checks.

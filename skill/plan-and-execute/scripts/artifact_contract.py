@@ -577,6 +577,7 @@ def _compact_plan_renderers(planctl: Any) -> None:
             f'requirements: "{reqs}"',
             f'dependencies: "{deps}"',
             f'allowed_related_task_reads: "{related}"',
+            *([f'workload: "{task["workload"]}"'] if task.get("workload") else []),
             "---",
             "",
             f"# {task['id']} — {task['title']}",

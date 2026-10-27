@@ -137,3 +137,7 @@ A `high` TODO may declare `design_route` (`PLAN_SPEC.md`): a stronger worker wri
 - Keep full logs on disk; pass a bounded latest-attempt excerpt, stable repeated-failure signature, and path to that attempt. Keep repeated history as signature/counter/age instead of duplicating the same long reason. A worker may open only the immediately preceding validation log when the excerpt is insufficient; do not reread superseded logs. Do not repeatedly summarize the same evidence.
 - Final/status prose uses economy when no difficult synthesis is required; the configured preference above selects Antigravity without `--effort`.
 - Optional per-worker budget guards (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway loops into resumable `budget` failures.
+
+## Workload-specific profiles
+
+Optional task `workload` selects implementation, frontend design, validation repair or monitoring affinity **after** the logical floor is known. Exact profile routes survive snapshot/automatic selection; explicit provider restrictions still apply. Availability distinguishes host authentication, model capacity and quota-pool exhaustion. Antigravity Claude profiles are conservatively capped at `advanced`, not assumed equivalent to native Claude. Configure and inspect with [VALIDATION_WORKLOADS.md](VALIDATION_WORKLOADS.md); without this overlay legacy routing is unchanged.

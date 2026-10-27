@@ -235,3 +235,7 @@ Never concatenate raw worker reports, logs, source fragments, or primary-plan di
 - Keep plan artifacts under configured plan work root.
 - Reject symlink/path escapes through existing lifecycle/plan guards.
 - Retain plan state when execution, pattern adoption/validation, final validation, or summary generation fails so resume remains possible.
+
+## Shared validation and optional observers
+
+Plan-free work uses the same supervisor via `validate-or-fix`; do not promote it merely to monitor tests. Orchestrated work keeps its current watcher and task authority. With `observer.enabled`, existing anomaly gates may request bounded advice from a tool-less workload profile chain. Advice cannot classify authoritatively or complete a task. Capability and quota-pool controls are in [VALIDATION_WORKLOADS.md](VALIDATION_WORKLOADS.md), loaded only for setup or relevant diagnosis.

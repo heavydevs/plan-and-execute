@@ -228,3 +228,7 @@ python <skill-dir>/scripts/planctl_concise.py audit --plan <plan-path>
 ```
 
 If a field fails for size or vague wording, rewrite it as a smaller precise semantic unit. Do not silently truncate requirements.
+
+## Optional workload affinity
+
+`tasks[].workload` accepts `implementation` (omission default), `frontend_design`, `validation_repair`, or `log_monitoring`. It selects an explicit configured profile chain; it does not replace `model_tier`, `reasoning_effort`, provider restrictions or acceptance criteria. Frontend appearance needs visual review plus interaction/accessibility checks. Raw watching is a deterministic tool, not an implementation TODO. See [VALIDATION_WORKLOADS.md](VALIDATION_WORKLOADS.md) only when configuring profiles or monitoring advice.

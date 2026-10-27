@@ -46,7 +46,8 @@ class JobTests(unittest.TestCase):
         return record
 
     def cli(self, *arguments):
-        return subprocess.run([sys.executable, str(SCRIPTS / "jobctl.py"), *arguments],
+        # Bound the wait operation, not unrelated sitecustomize startup in the test harness.
+        return subprocess.run([sys.executable, "-S", str(SCRIPTS / "jobctl.py"), *arguments],
                               env=ENV, capture_output=True, text=True, encoding="utf-8", timeout=15)
 
     def test_detached_job_survives_starter_exit_and_wait_does_not_stop(self):

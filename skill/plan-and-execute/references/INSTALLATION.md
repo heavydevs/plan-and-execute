@@ -2,7 +2,7 @@
 
 [Versão em português](INSTALLATION.pt-BR.md)
 
-The default `both` selector installs for Claude Code and Codex. Use `--agent antigravity` to install for Antigravity CLI (`agy`), or `--agent all` for all three hosts. Qwen Code, Kimi Code CLI, and Trae Agent remain optional execution backends, not installation destinations. The `gemini` adapter targets the Gemini CLI, which Google sunset on 2026-06-18; use `antigravity` for new plans.
+The default `both` selector installs for Claude Code and Codex. Use `--agent antigravity` to install for Antigravity CLI (`agy`), or `--agent all` for all three hosts. Qwen Code, Kimi Code CLI, and Trae Agent remain optional execution backends, not installation destinations. The `gemini` adapter targets the Gemini CLI, retained as a compatibility backend in this project; prefer `antigravity` for new integrations. This designation does not assert that Google retired the product.
 
 Antigravity notes: the adapter runs `agy --dangerously-skip-permissions --output-format json --json-schema <schema> [--model <slug>] --effort <low|medium|high> --print-timeout <auto> -p <prompt>`. Model slugs are `default` until you set `antigravity.models` in `orchestrator.config.json` from `agy models`; `--effort` is capped at `high`; the summary runs with `--sandbox`. `print_timeout: "auto"` follows `task_timeout_seconds` (12h when the runner has no limit) so agy never kills a worker the runner would still wait for; set an explicit duration such as `"45m"` to override. Confirm with `pae doctor` and a `--dry-run` before relying on it; early `agy` 1.0.0 builds dropped stdout under non-TTY (`antigravity-cli#76`), so upgrade if a worker returns an empty report.
 
@@ -201,3 +201,9 @@ pae reset
 ```
 
 Use `--cwd /path/to/project` for another workspace. Lifecycle state remains in `.ai-work`; another compatible AI/provider can resume without the old chat transcript.
+
+## Companion skill
+
+Install both skills with `pae install all --skill all --global`, or only `validate-or-fix` with `pae install codex --skill validate-or-fix`. The default without `--skill` remains `plan-and-execute`. `status --skill all --verify` verifies both; `uninstall --skill validate-or-fix` removes only the owned companion. Local edits retain the same overwrite protection.
+
+The companion is built with a self-contained `_runtime` copied deterministically from the canonical runtime, including provenance hashes. It works without its sibling. Source wrappers reuse the sibling in a checkout. Release archives contain one skill each: `plan-and-execute/skill.zip` and `validate-or-fix/skill.zip`.

@@ -223,6 +223,19 @@ def summary(config: dict) -> dict:
                 for name, p in config.get('profiles', {}).items()}
     if profiles:
         result['profiles'] = profiles
+    if 'workload_routing' in config:
+        section = config['workload_routing']
+        result['workload_routing'] = {k: copy.deepcopy(section[k]) for k in
+            ('enabled', 'manager_provider', 'preserve_manager_quota', 'routes') if k in section}
+        safe_fields = ('provider', 'model', 'quota_pool', 'min_tier', 'max_tier',
+                       'max_effort', 'native_effort', 'workloads', 'enabled')
+        result['workload_routing']['profiles'] = {
+            name: {k: copy.deepcopy(profile[k]) for k in safe_fields if k in profile}
+            for name, profile in section.get('profiles', {}).items()}
+    if 'observer' in config:
+        result['observer'] = {k: copy.deepcopy(config['observer'][k]) for k in
+            ('enabled', 'max_calls', 'max_candidates', 'timeout_seconds',
+             'max_input_chars', 'max_output_chars', 'allow_claude_api') if k in config['observer']}
     return result
 
 

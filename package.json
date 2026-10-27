@@ -1,6 +1,6 @@
 {
   "name": "@luizcgvrj/plan-and-execute",
-  "version": "0.10.2",
+  "version": "0.11.0",
   "description": "Install selective long-horizon planning with direct-mode escape, late promotion, resumable context-isolated TODOs, model-tier routing, and fresh Claude Code, Codex, Gemini, Qwen, Kimi, or Trae workers.",
   "type": "module",
   "bin": {
@@ -24,7 +24,8 @@
     "test:repo": "node tools/run-repo-checks.js",
     "test": "npm run test:node && npm run test:skill && npm run test:repo",
     "check": "npm run clean && npm run validate:skill && npm test",
-    "prepack": "npm run check"
+    "prepack": "npm run check",
+    "package:skills": "node tools/package-skills.js"
   },
   "engines": {
     "node": ">=18.17"

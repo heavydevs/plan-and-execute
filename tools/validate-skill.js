@@ -9,6 +9,7 @@ import {
   computeDirectoryHash,
   validateBundledSkill
 } from '../lib/installer.js';
+import { stageSkillSource } from '../lib/skill-source.js';
 
 function fail(message) {
   console.error(message);
@@ -35,6 +36,13 @@ function requireMax(text, maximum, label) {
 }
 
 validateBundledSkill();
+const companion = stageSkillSource('validate-or-fix');
+try {
+  validateBundledSkill(companion.directory, 'validate-or-fix');
+  const text = fs.readFileSync(path.join(companion.directory, 'SKILL.md'), 'utf8');
+  requireMax(text, 6000, 'validate-or-fix/SKILL.md');
+  requireText(text, ['OPERATIONS.md', 'ROUTING.md', 'No plan lifecycle'], 'validate-or-fix router');
+} finally { companion.cleanup(); }
 
 const skillFiles = [];
 function walk(directory, output) {

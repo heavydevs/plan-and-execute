@@ -15,6 +15,9 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import process_tree
+
+# Tight-timing child fixtures use -S: all child imports are stdlib. Site hooks
+# can exceed the idle window before a fixture starts; production argv is unchanged.
 import progress_watch
 import service_map
 
@@ -247,20 +250,20 @@ def check_windows_tree():
 def check_probe_runtime(root: Path):
     state = progress_watch.ProgressState(5)
     monitor = progress_watch.ProgressMonitor(Mock(), state, root,
-                                             {"command": [sys.executable, "-c", "print(10)"], "mode": "increases"})
+                                             {"command": [sys.executable, "-S", "-c", "print(10)"], "mode": "increases"})
     monitor._observe_probe(monitor._run_probe())
     assert state.progress_events == 0
-    monitor.progress_probe["command"] = [sys.executable, "-c", "import sys; print(99); sys.exit(1)"]
+    monitor.progress_probe["command"] = [sys.executable, "-S", "-c", "import sys; print(99); sys.exit(1)"]
     assert monitor._run_probe() is None
     monitor._observe_probe(None)
     assert state.progress_events == 0
-    monitor.progress_probe["command"] = [sys.executable, "-c", "print('x'*65537)"]
+    monitor.progress_probe["command"] = [sys.executable, "-S", "-c", "print('x'*65537)"]
     assert monitor._run_probe() is None
-    monitor.progress_probe.update(command=[sys.executable, "-c", "import time; time.sleep(20)"], timeout_seconds=1)
+    monitor.progress_probe.update(command=[sys.executable, "-S", "-c", "import time; time.sleep(20)"], timeout_seconds=1)
     started = time.monotonic()
     assert monitor._run_probe() is None and time.monotonic() - started < 2.5
     assert state.progress_events == 0
-    monitor.progress_probe["command"] = [sys.executable, "-c", "print(11)"]
+    monitor.progress_probe.update(command=[sys.executable, "-S", "-c", "print(11)"], timeout_seconds=5)
     monitor._observe_probe(monitor._run_probe())
     assert state.progress_events == 1 and state.last_progress_source == "probe"
 
@@ -276,8 +279,8 @@ def check_probe_runtime(root: Path):
 
     updater = threading.Thread(target=advance, daemon=True)
     updater.start()
-    process = process_tree.launch([sys.executable, "-c", "import time; time.sleep(3.4)"])
-    probe = [sys.executable, "-c", "import pathlib,sys; print(pathlib.Path(sys.argv[1]).read_text())", str(counter)]
+    process = process_tree.launch([sys.executable, "-S", "-c", "import time; time.sleep(3.4)"])
+    probe = [sys.executable, "-S", "-c", "import pathlib,sys; print(pathlib.Path(sys.argv[1]).read_text())", str(counter)]
     with patch.object(process_tree, "metrics", return_value=None):
         state = progress_watch.ProgressState(1.6, hard_seconds=6)
         monitor = progress_watch.ProgressMonitor(process, state, root,
@@ -298,8 +301,8 @@ def check_processes(root: Path):
     # CPU from a silent child must keep the parent alive beyond its idle budget;
     # on Windows this exercises startup Job assignment and accounting of exits.
     busy = "import time; end=time.monotonic()+1.4\nwhile time.monotonic()<end: pass"
-    command = "import subprocess,sys; p=subprocess.Popen([sys.executable,'-c'," + repr(busy) + "]); p.wait()"
-    process = process_tree.launch([sys.executable, "-c", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    command = "import subprocess,sys; p=subprocess.Popen([sys.executable,'-S','-c'," + repr(busy) + "]); p.wait()"
+    process = process_tree.launch([sys.executable, "-S", "-c", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     state = progress_watch.ProgressState(0.65, hard_seconds=5)
     monitor = progress_watch.ProgressMonitor(process, state, root).start()
     try:
@@ -317,10 +320,10 @@ def check_processes(root: Path):
         process_tree.close(process)
 
     # A slow read-only progress probe cannot hold the hard-ceiling watchdog.
-    process = process_tree.launch([sys.executable, "-c", "import time; time.sleep(20)"])
+    process = process_tree.launch([sys.executable, "-S", "-c", "import time; time.sleep(20)"])
     state = progress_watch.ProgressState(0, hard_seconds=0.5)
     monitor = progress_watch.ProgressMonitor(process, state, root,
-              {"command": [sys.executable, "-c", "import time; time.sleep(10)"], "timeout_seconds": 5}).start()
+              {"command": [sys.executable, "-S", "-c", "import time; time.sleep(10)"], "timeout_seconds": 5}).start()
     started = time.monotonic()
     try:
         process.wait(timeout=3)
@@ -331,7 +334,7 @@ def check_processes(root: Path):
         process_tree.close(process)
 
     # Deadline enforcement remains available when platform CPU metrics fail.
-    process = process_tree.launch([sys.executable, "-c", "import time; time.sleep(20)"])
+    process = process_tree.launch([sys.executable, "-S", "-c", "import time; time.sleep(20)"])
     with patch.object(process_tree, "metrics", return_value=None):
         state = progress_watch.ProgressState(0.4)
         monitor = progress_watch.ProgressMonitor(process, state, root).start()
@@ -347,7 +350,7 @@ def check_processes(root: Path):
         # observes CPU, and can terminate the retained PID tree.
         api = process_tree._windows_api()
         with patch.object(api.kernel, "AssignProcessToJobObject", return_value=False):
-            process = process_tree.launch([sys.executable, "-c", "import time; time.sleep(20)"])
+            process = process_tree.launch([sys.executable, "-S", "-c", "import time; time.sleep(20)"])
         try:
             time.sleep(0.35)
             metric = process_tree.metrics(process)
@@ -357,11 +360,11 @@ def check_processes(root: Path):
         finally:
             process_tree.close(process)
 
-        child_script = ("import subprocess,sys,time; child=subprocess.Popen([sys.executable,'-c',"
+        child_script = ("import subprocess,sys,time; child=subprocess.Popen([sys.executable,'-S','-c',"
                         "'import time; time.sleep(20)'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); "
                         "print(child.pid,flush=True); time.sleep(.5)")
         with patch.object(api.kernel, "AssignProcessToJobObject", return_value=False):
-            process = process_tree.launch([sys.executable, "-c", child_script], stdout=subprocess.PIPE)
+            process = process_tree.launch([sys.executable, "-S", "-c", child_script], stdout=subprocess.PIPE)
         child_pid = None
         try:
             child_pid = int(process.stdout.readline())
@@ -389,7 +392,7 @@ def check_watcher(root: Path):
     sources, _ = service_map.scan_inputs(repo)
     data = {"schema_version": 1, "inventory_reviewed": True,
             "snapshot": {"algorithm": service_map.ALGORITHM, "digest": service_map.aggregate(sources)},
-            "resources": [], "validations": [{"id": "v", "command": [sys.executable, "-c", "import time; time.sleep(20)"], "resources": []}]}
+            "resources": [], "validations": [{"id": "v", "command": [sys.executable, "-S", "-c", "import time; time.sleep(20)"], "resources": []}]}
     template = service_map.MAP_BEGIN + "\n```json\n{}\n```\n" + service_map.MAP_END
     map_path.write_text(service_map.replace_map_data(template, data), encoding="utf-8")
     watcher = str(Path(__file__).with_name("resource_watch.py"))
@@ -407,7 +410,7 @@ def check_watcher(root: Path):
     # A mapped health command may be much slower than the validation idle
     # budget; it must be cancelled by the independent timeout decision.
     data["resources"] = [{"id": "slow", "evidence": ["explicit local dependency"], "checks": [
-        {"id": "wait", "command": [sys.executable, "-c", "import time; time.sleep(20)"],
+        {"id": "wait", "command": [sys.executable, "-S", "-c", "import time; time.sleep(20)"],
          "timeout_seconds": 60, "every_seconds": 10, "startup_grace_seconds": 0}]}]
     data["validations"][0]["resources"] = ["slow"]
     map_path.write_text(service_map.replace_map_data(template, data), encoding="utf-8")
@@ -444,9 +447,9 @@ def check_streaming(root: Path):
          "sys.stdout.buffer.write(text[-2:]); sys.stdout.buffer.flush(); time.sleep(.15)", 0),
     ]
     for script, expected in cases:
-        data["validations"][0]["command"] = [sys.executable, "-c", "import sys,time\n" + script]
+        data["validations"][0]["command"] = [sys.executable, "-S", "-c", "import sys,time\n" + script]
         map_path.write_text(service_map.replace_map_data(template, data), encoding="utf-8")
-        result = subprocess.run([sys.executable, "-c", shim, "run", "--repo-root", str(repo), "--validation", "v"],
+        result = subprocess.run([sys.executable, "-S", "-c", shim, "run", "--repo-root", str(repo), "--validation", "v"],
                                 capture_output=True, text=True, encoding="utf-8", env=env, timeout=6)
         assert result.returncode == expected, (expected, result.returncode, result.stdout, result.stderr)
         if expected == 124:

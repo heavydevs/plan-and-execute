@@ -305,7 +305,7 @@ def test_validation_timeout_selection() -> None:
 def test_validation_timeout_byte_output() -> None:
     with tempfile.TemporaryDirectory() as temp:
         repo = Path(temp)
-        argv = [sys.executable, '-c', r'import sys,time; sys.stdout.buffer.write(b"partial \xff\n"); sys.stdout.flush(); time.sleep(10)']
+        argv = [sys.executable, '-S', '-c', r'import sys,time; sys.stdout.buffer.write(b"partial \xff\n"); sys.stdout.flush(); time.sleep(10)']
         command = subprocess.list2cmdline(argv) if os.name == 'nt' else shlex.join(argv)
         with patch.object(run_isolated.process_tree, "metrics", return_value=None):
             passed, results, reason = run_isolated.run_validation_commands(repo, [command], repo / "log", .3)

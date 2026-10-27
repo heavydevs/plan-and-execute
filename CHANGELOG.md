@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+
+## 0.11.0 - 2026-10-27
+
+- Isolate stdlib process-ownership bootstraps from Python site hooks without changing user command flags; retain terminal failure classes for bounded report tails.
+
+- Add the independent `validate-or-fix` skill: plan-free mapped supervision, bounded incremental evidence, guarded recovery/cleanup and evidence-based repair recommendations. Reuse canonical runtime rather than maintaining a second supervisor.
+- Add opt-in workload profiles for implementation, frontend design, validation repair and log monitoring. Keep capability floors, exact observed IDs and provider restrictions. Conservatively cap Antigravity Claude at advanced.
+- Separate quota-pool, model-capacity and host-authentication availability. Preserve explicit profile identity through snapshot and automatic model selection.
+- Add a default-off bounded observer chain. Verify Antigravity tool-less initialization before sending redacted evidence; skip unsafe/unsupported adapters. Claude fallback requires explicit API-billing permission. Never grant advisory code execution, cleanup or acceptance authority.
+- Add `--skill plan-and-execute|validate-or-fix|all`, `pae validate`, `pae workloads`, deterministic standalone packaging and companion integrity verification.
+- Add regression tests for routing, quota isolation, standalone supervision, observer permissions/fallback and companion installation. Fix two existing Linux tests that globally mocked Windows `os.name` and broke pathlib, without changing production scheduling behavior.
+- Retain DIRECT/FINAL_PLAN/PRIMARY_PLAN boundaries and old behavior when optional overlays are absent. Native authenticated provider runs and Windows execution are not verified in the Linux development environment; CI retains its Windows job.
+
 ## 0.10.2 - 2026-10-12
 
 - Adds `keepalivectl.py`: relaunches a runner that died while runnable work remains (`check`), with a live-lease check, a short-lived lock, a restart-loop guard, `pause`/`resume`, a hidden-console launch on Windows and a `schedule install|remove|status|print` helper (Windows Task Scheduler via XML import; cron line elsewhere). `watchdogctl` stays read-only.

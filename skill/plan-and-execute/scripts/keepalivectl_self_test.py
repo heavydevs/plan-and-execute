@@ -12,6 +12,7 @@ import sys
 import tempfile
 import time
 import unittest
+from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -327,7 +328,7 @@ class ScheduleTests(unittest.TestCase):
         self.assertTrue(line.endswith("2>&1"), line)
 
     def test_install_requires_confirmation_and_creates_nothing(self) -> None:
-        with patch.object(keepalive, "schtasks") as run, patch.object(keepalive.os, "name", "nt"):
+        with patch.object(keepalive, "schtasks") as run, patch.object(keepalive, "os", SimpleNamespace(name="nt")):
             code, out, err = self.schedule("install")
         self.assertEqual(code, 2)
         self.assertIn("--yes", err)
@@ -345,7 +346,7 @@ class ScheduleTests(unittest.TestCase):
                 self.assertIn("PT20M", data[2:].decode("utf-16-le"))
             return MagicMock(returncode=0)
 
-        with patch.object(keepalive, "schtasks", side_effect=fake), patch.object(keepalive.os, "name", "nt"):
+        with patch.object(keepalive, "schtasks", side_effect=fake), patch.object(keepalive, "os", SimpleNamespace(name="nt")):
             self.assertEqual(self.schedule("install", "--yes")[0], 0)
             self.assertIn(f"keepalive:schedule {name} present", self.schedule("status")[1])
             self.assertIn(f"keepalive:schedule_removed {name}", self.schedule("remove")[1])

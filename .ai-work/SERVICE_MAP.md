@@ -9,8 +9,8 @@ This project-local router maps every automated validation to its toolchain prere
   "inventory_reviewed": true,
   "snapshot": {
     "algorithm": "sha256-path-content-v2-streamed",
-    "digest": "d110d815244eccda1796710feaaa73869fb34d059fba24d461bfd8c23296e420",
-    "source_count": 49
+    "digest": "e8f405abb47f9c2e8f190779943d66e6bfa8ef3327536a11891cd00a99013728",
+    "source_count": 55
   },
   "toolchains": [
     {
@@ -665,6 +665,73 @@ This project-local router maps every automated validation to its toolchain prere
         "PYTHON",
         "NODE"
       ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "WORKLOAD_ROUTING",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "STANDALONE_VALIDATION",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/validatectl_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "OBSERVER",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/observer_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "COMPANION",
+      "command": [
+        "python",
+        "skill/plan-and-execute/scripts/companion_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "COMPANION_INSTALL",
+      "command": [
+        "node",
+        "--test",
+        "test/companion.test.js",
+        "test/installer.test.js"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
       "no_progress_timeout_seconds": 300
     }
   ],

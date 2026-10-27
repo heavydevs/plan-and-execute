@@ -6,6 +6,28 @@
 
 [Leia em Português](README.pt-BR.md)
 
+## What is new in 0.11
+
+**Validation no longer requires a plan.** The independent `validate-or-fix` skill reuses the resource map, progress windows, health checks and owned process-tree supervisor. DIRECT remains plan-free; quick checks stay direct. Only supervised checks create bounded receipts under `.ai-work/validation/`. Monitoring starts immediately; five minutes is a cue to add progress signals, not a delay before watching.
+
+```bash
+pae install all --skill all --global
+pae status all --skill all --verify
+pae validate run --validation UNIT
+pae validate inspect --validation UNIT
+pae validate cleanup --validation UNIT
+```
+
+Review and stamp the resource map before running a mapped validation. `inspect` emits only new bounded/redacted evidence; `cleanup` requires a passing receipt and preserves source, tests, the map and external logs. Recovery refuses a live or unknown remote owner. Repairs stay under the host agent's control; evidence-based route recommendations never dispatch a model or rewrite code on their own.
+
+**Workload profiles separate task fit, capability, exact model ID and quota pool.** Optional `workload` distinguishes frontend design, implementation, validation repair and log monitoring. The profile overlay is off by default. It uses only model IDs observed in the installed CLI/account, not a name guessed from a marketing label. When enabled, a Claude manager may prefer configured Antigravity Claude for intermediate work while preserving native Claude capacity. Antigravity Claude is conservatively capped at `advanced`; difficult work must still meet its `strong`/`max` floor. This is a safety policy, not a measured cross-host intelligence ranking.
+
+Gemini and Claude/GPT can have distinct Antigravity quota pools. Quota exhaustion advances within the correct pool; authentication blocks the host, and model-capacity failures stay model-specific. Legacy provider routing remains unchanged without the overlay. No configuration silently switches subscription use to API billing.
+
+**Monitoring itself uses no model.** Optional `pae validate advise --validation UNIT` diagnoses new anomalies through a bounded `log_monitoring` chain. A discovered Gemini Flash 3.8 profile can be first; configured, verified alternatives follow. Antigravity receives evidence only after an empty-tool stream handshake in an isolated workspace; executable global customizations cause a safe skip. Claude advisory fallback requires explicit API-billing consent and an API key. Other unverified read-only adapters skip rather than acquire write tools. Advice cannot approve tests, execute fixes, delete evidence or change task state.
+
+See [configuration and evidence contracts](skill/plan-and-execute/references/VALIDATION_WORKLOADS.md), [standalone operations](skill/validate-or-fix/references/OPERATIONS.md) and [research and limitations](docs/research/VALIDATION_WORKLOAD_ROUTING.md). Frontend quality still needs visual, interaction and accessibility review; there is no universal cheapest/best-model claim.
+
 ## What's new in 0.10
 
 Version 0.10 introduces execution watchdog monitoring, an explicit progress/error signal contract, token-efficient log digests, refreshed model routing policy, and native Google Antigravity installer support:
@@ -32,7 +54,7 @@ Defaults merge with your global configuration and then explicit plan overrides; 
 
 **The assistant is off by default.** It can explain ambiguous repeated failures, repeated unhealthy checks or confirmed stalls after deterministic validation fails. One attempt per task, bounded/redacted evidence and strict JSON keep coordination limited. Advice never edits files, executes suggested commands or approves a task. Actual token/cost savings have not been measured.
 
-**Native advisory limitation:** only Claude Code bare/tool-less mode is implemented, with an explicitly supplied `ANTHROPIC_API_KEY` (API billing, not subscription OAuth). Antigravity is selectable as the preferred assistant but safely skips because its workspace-write sandbox is not a verified read-only boundary. Other advisory profiles also skip until verified; the seven coding adapters are unaffected. Check billing and confidentiality before opting in.
+**Legacy assistant limitation (the new observer chain is described above):** only Claude Code bare/tool-less mode is implemented, with an explicitly supplied `ANTHROPIC_API_KEY` (API billing, not subscription OAuth). Antigravity is selectable as the preferred assistant but safely skips because its workspace-write sandbox is not a verified read-only boundary. Other advisory profiles also skip until verified; the seven coding adapters are unaffected. Check billing and confidentiality before opting in.
 
 See [routing configuration](skill/plan-and-execute/references/ROUTING_CONFIG.md), [advisory safety and limits](skill/plan-and-execute/references/ASSISTANTS.md), and [research/evaluation protocol](docs/research/AUXILIARY_ROUTING.md). The implementation plan is retained in `.ai-work/20260928-auxiliary-routing` at the user's request; ordinary guarded cleanup remains available.
 
@@ -51,7 +73,7 @@ DIRECT by default -> ORCHESTRATE by evidence -> PROMOTE when necessary
 - **Two-phase leaves** (`design_route`): a `high` TODO can have a stronger worker write a bounded design note first, then implement at its own cheaper route with that note.
 - **Decision-first planning** (`request_analysis.hard_decisions`): when only a few planning decisions are hard, resolve them with strong workers before a standard planner writes the mechanical plan.
 - **One model catalog** (`routingctl.py`) backs every entrypoint; effort is omitted for models that reject it (Claude Haiku); optional per-worker budgets (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway workers into resumable `budget` failures instead of technical ones.
-- **A Google Antigravity CLI (`agy`) adapter** joins Claude Code and Codex as an execution backend; the Gemini CLI adapter is now marked legacy (the CLI itself was sunset).
+- **A Google Antigravity CLI (`agy`) adapter** joins Claude Code and Codex as an execution backend; the Gemini CLI adapter is now marked legacy (an internal compatibility designation, not a product-retirement claim).
 - Documents the concrete elevation mechanics per host (subagent `model`/`effort`, `isolation: worktree`, `opusplan`, Codex `spawn_agent` roles, prompt-cache facts) and fixes several Windows-specific dispatch bugs (`.cmd` shim resolution, the Store Python alias, runner-lease liveness).
 
 The full harness described below is still intact when orchestration is justified. An orchestrated or promoted implementation still has:
@@ -75,7 +97,7 @@ The full harness described below is still intact when orchestration is justified
 | Claude Code | Yes | Yes | First | Standard quick-start target |
 | OpenAI Codex | Yes | Yes | Second | Standard quick-start target |
 | Google Antigravity CLI (`agy`) | Yes | Yes | Opt-in | Headless `agy -p` process with JSON schema output; install with `pae install antigravity` or `install all` |
-| Google Gemini CLI | Legacy | No | Opt-in | Sunset on 2026-06-18; use the Antigravity adapter for new plans |
+| Google Gemini CLI | Legacy | No | Opt-in | Existing compatibility adapter; prefer Antigravity for new integration work |
 | Qwen Code | Yes | No | Opt-in | Fresh headless CLI process |
 | Kimi Code CLI | Yes | No | Opt-in | Fresh prompt-mode CLI process |
 | Trae Agent | Yes | No | Opt-in | Fresh `trae-cli run` process |
@@ -152,7 +174,7 @@ File count is weak evidence. Semantic independence and durable coordination valu
 
 If the skill is implicitly considered but no strong orchestration signal exists, it exits immediately:
 
-- no `.ai-work` directory;
+- no `.ai-work` planning directory (optional supervised validation has its own bounded receipts);
 - no study artifact;
 - no requirements inventory;
 - no plan/TODO/task files;

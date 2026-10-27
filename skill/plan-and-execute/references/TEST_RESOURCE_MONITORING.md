@@ -4,7 +4,7 @@ Read this reference before creating an ORCHESTRATED plan or changing its automat
 
 ## 1. Reuse the project router
 
-The durable project map defaults to `.ai-work/SERVICE_MAP.md`; it is outside any individual plan directory and survives plan cleanup/reset. This local Markdown cache reuses discoveries on the same checkout. If the team needs the map across clones/hosts, keep it in tracked project Markdown and pass that same `--map` path to `check`, `audit-plan`, and every watcher command. DIRECT work must still create no `.ai-work` state.
+The durable project map defaults to `.ai-work/SERVICE_MAP.md`; it is outside any individual plan directory and survives plan cleanup/reset. This local Markdown cache reuses discoveries on the same checkout. If the team needs the map across clones/hosts, keep it in tracked project Markdown and pass that same `--map` path to `check`, `audit-plan`, and every watcher command. DIRECT work creates no plan/lifecycle state. Optional `validate-or-fix` supervision may use this map and bounded validation receipts; fast checks create neither.
 
 Start with the deterministic freshness check; its normal output is one compact line:
 
@@ -163,3 +163,7 @@ Monitor outputs (reports, evidence packets) are registered in `.ai-work/resource
 ## 4. Research notes
 
 Vendor-specific setup details change. Prefer the project's existing mechanisms and current official docs; do not enable remote management interfaces just to satisfy monitoring. Tomcat notes, MySQL lock queries, Selenium readiness, Compose startup health, and Testcontainers wait strategies are summarized with source links in [`docs/RESEARCH_BASIS.md`](../../../docs/RESEARCH_BASIS.md#test-resource-observability).
+
+## Reuse without a plan
+
+The `validate-or-fix` companion calls these same map, progress and process-tree primitives in DIRECT mode. `pae validate run --validation <ID>` uses a reviewed fresh map and bounded `.ai-work/validation/<ID>` receipts; no plan, task manifest or active pointer is created. Monitoring starts immediately, not after five minutes. That threshold is a cue to design progress signals, not a blind waiting period. Optional map `stop_on_unhealthy: true` terminates only the owned test tree after existing health grace; it defaults false. Classified unhealthy dependencies are environmental, not proof that a stronger model is needed. See [VALIDATION_WORKLOADS.md](VALIDATION_WORKLOADS.md).

@@ -177,6 +177,31 @@ class SetupTests(unittest.TestCase):
             self.assertTrue(report['providers']['glm']['command_found'])
             self.assertEqual(c.summary(c.rc.merge(defaults(), saved))['profiles']['glm']['token_env'], 'ZAI_API_KEY')
 
+    def test_show_workload_profiles_and_observer_without_evidence_or_inventory(self):
+        import workload_routing
+        cfg = defaults()
+        cfg.update(workload_routing.antigravity_preset(['gemini-3.8-flash-medium']))
+        profile = cfg['workload_routing']['profiles']['agy-flash-monitor']
+        profile['evidence'] = 'PRIVATE-evidence-not-for-summary'
+        cfg['observer'] = {'enabled': True, 'max_calls': 1, 'timeout_seconds': 30, 'allow_claude_api': False}
+        c.rc.validate(cfg)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'config.json'
+            path.write_text(json.dumps(cfg))
+            output = []
+            c.configure(path, show=True, discover_fn=lambda _: self.fail('show probes'), write=output.append)
+            text = ''.join(output)
+            self.assertIn('agy-flash-monitor', text)
+            self.assertIn('gemini-3.8-flash-medium', text)
+            self.assertIn('observer', text)
+            self.assertIn('timeout_seconds', text)
+            self.assertNotIn('observed_models', text)
+            self.assertNotIn('PRIVATE-evidence', text)
+            self.assertEqual(json.loads(path.read_text()), cfg)
+        projected = c.summary(cfg)
+        projected['workload_routing']['routes']['log_monitoring'].clear()
+        self.assertTrue(cfg['workload_routing']['routes']['log_monitoring'])
+
     def test_missing_global_setup_destination_and_plan_validation(self):
         with tempfile.TemporaryDirectory() as d, patch.dict(os.environ, {'PAE_CONFIG_PATH': str(Path(d) / 'new.json')}):
             p = Path(d) / 'new.json'

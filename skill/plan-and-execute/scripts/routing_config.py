@@ -111,6 +111,18 @@ def embedded_effort_model(model: str) -> bool:
 
 def validate(config: dict, *, partial: bool = False) -> None:
     _object(config, 'configuration')
+    if 'observer' in config:
+        import observer
+        try:
+            observer.validate(config['observer'])
+        except observer.ObserverError as exc:
+            raise ConfigError(str(exc)) from exc
+    if 'workload_routing' in config:
+        import workload_routing
+        try:
+            workload_routing.validate(config['workload_routing'], PROVIDERS)
+        except workload_routing.WorkloadError as exc:
+            raise ConfigError(str(exc)) from exc
     if 'version' in config and (type(config['version']) is not int or config['version'] not in (1, 2)):
         raise ConfigError('Unsupported configuration version; expected 1 or 2')
     if 'provider_order' in config:
