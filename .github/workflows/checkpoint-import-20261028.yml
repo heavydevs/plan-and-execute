@@ -1,0 +1,19 @@
+name: One-time Plan 1 checkpoint import
+on:
+  push:
+    branches: ['checkpoint/plano1-estudo-provider-switch-20261028']
+    paths: ['.checkpoint-transfer/**']
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.repository == 'heavydevs/plan-and-execute' && github.ref == 'refs/heads/checkpoint/plano1-estudo-provider-switch-20261028'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+          ref: ${{ github.sha }}
+      - name: Verify hashes and publish only the requested checkpoint branch
+        run: python3 .checkpoint-transfer/import_checkpoint.py
