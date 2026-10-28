@@ -1,0 +1,19 @@
+{
+  "plan_id": "20261028-skill-study-provider-switch",
+  "native_state": "planned",
+  "task_counts": {
+    "pending": 86
+  },
+  "runner_exit_code": 75,
+  "pause_reason": "no allowed provider for implementation/max (claude:missing_cli, codex:missing_cli)",
+  "first_unaccepted_task": "001",
+  "task_attempts": 0,
+  "functional_failures": 0,
+  "runtime_changes": [],
+  "external_review_performed": false,
+  "plan2_created": false,
+  "verified_at": "2026-10-28T19:25:41.738126+00:00",
+  "baseline_commands_passed": true,
+  "active_runner_lease": false,
+  "live_model_workers": false
+}

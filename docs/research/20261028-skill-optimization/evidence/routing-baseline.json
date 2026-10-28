@@ -1,0 +1,545 @@
+{
+  "base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "live_provider_calls": 0,
+  "cases": [
+    {
+      "fixture": "default",
+      "tier": "strong",
+      "effort": "high",
+      "failure_class": "unknown",
+      "attempts": [
+        {
+          "n": 1,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "strong",
+          "model": "claude-opus-5-5",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 2,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 3,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 4,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        }
+      ],
+      "stop": "ladder_exhausted"
+    },
+    {
+      "fixture": "default",
+      "tier": "max",
+      "effort": "high",
+      "failure_class": "semantic",
+      "attempts": [
+        {
+          "n": 1,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 2,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 3,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 4,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        }
+      ],
+      "stop": "ladder_exhausted"
+    },
+    {
+      "fixture": "default",
+      "tier": "standard",
+      "effort": "medium",
+      "failure_class": "unknown",
+      "attempts": [
+        {
+          "n": 1,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5",
+          "effort": "medium",
+          "requested_effort": "medium"
+        },
+        {
+          "n": 2,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 3,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "strong",
+          "model": "claude-opus-5-5",
+          "effort": "medium",
+          "requested_effort": "medium"
+        },
+        {
+          "n": 4,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "strong",
+          "model": "claude-opus-5-5",
+          "effort": "high",
+          "requested_effort": "high"
+        }
+      ],
+      "stop": "ladder_exhausted"
+    },
+    {
+      "fixture": "default",
+      "tier": "standard",
+      "effort": "medium",
+      "failure_class": "mechanical",
+      "attempts": [
+        {
+          "n": 1,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5",
+          "effort": "medium",
+          "requested_effort": "medium"
+        },
+        {
+          "n": 2,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5",
+          "effort": "medium",
+          "requested_effort": "medium"
+        },
+        {
+          "n": 3,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 4,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 5,
+          "intent_provider": "codex",
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 6,
+          "intent_provider": "codex",
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        }
+      ],
+      "stop": "ladder_exhausted"
+    },
+    {
+      "fixture": "default",
+      "tier": "advanced",
+      "effort": "high",
+      "failure_class": "unknown",
+      "attempts": [
+        {
+          "n": 1,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "strong",
+          "model": "claude-opus-5-5",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 2,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 3,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 4,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        }
+      ],
+      "stop": "ladder_exhausted"
+    },
+    {
+      "fixture": "user-equivalent",
+      "tier": "strong",
+      "effort": "high",
+      "failure_class": "unknown",
+      "attempts": [
+        {
+          "n": 1,
+          "intent_provider": "codex",
+          "provider": "codex",
+          "tier": "strong",
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 2,
+          "intent_provider": "codex",
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 3,
+          "intent_provider": "codex",
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 4,
+          "intent_provider": "codex",
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 5,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 6,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 7,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 8,
+          "intent_provider": "claude",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        }
+      ],
+      "stop": "max_attempts"
+    },
+    {
+      "fixture": "user-equivalent",
+      "tier": "max",
+      "effort": "high",
+      "failure_class": "semantic",
+      "attempts": [
+        {
+          "n": 1,
+          "intent_provider": "codex",
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 2,
+          "intent_provider": "codex",
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 3,
+          "intent_provider": "codex",
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 4,
+          "intent_provider": "codex",
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        }
+      ],
+      "stop": "ladder_exhausted"
+    },
+    {
+      "fixture": "user-equivalent",
+      "tier": "standard",
+      "effort": "medium",
+      "failure_class": "unknown",
+      "attempts": [
+        {
+          "n": 1,
+          "intent_provider": "antigravity",
+          "provider": "antigravity",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5-medium",
+          "effort": "medium",
+          "requested_effort": "medium"
+        },
+        {
+          "n": 2,
+          "intent_provider": "antigravity",
+          "provider": "antigravity",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5-medium",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 3,
+          "intent_provider": "antigravity",
+          "provider": "codex",
+          "tier": "strong",
+          "model": "gpt-6.1-sol",
+          "effort": "medium",
+          "requested_effort": "medium"
+        },
+        {
+          "n": 4,
+          "intent_provider": "antigravity",
+          "provider": "codex",
+          "tier": "strong",
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 5,
+          "intent_provider": "codex",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 6,
+          "intent_provider": "codex",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 7,
+          "intent_provider": "codex",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 8,
+          "intent_provider": "codex",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        }
+      ],
+      "stop": "max_attempts"
+    },
+    {
+      "fixture": "user-equivalent",
+      "tier": "standard",
+      "effort": "medium",
+      "failure_class": "mechanical",
+      "attempts": [
+        {
+          "n": 1,
+          "intent_provider": "antigravity",
+          "provider": "antigravity",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5-medium",
+          "effort": "medium",
+          "requested_effort": "medium"
+        },
+        {
+          "n": 2,
+          "intent_provider": "antigravity",
+          "provider": "antigravity",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5-medium",
+          "effort": "medium",
+          "requested_effort": "medium"
+        },
+        {
+          "n": 3,
+          "intent_provider": "antigravity",
+          "provider": "antigravity",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5-medium",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 4,
+          "intent_provider": "antigravity",
+          "provider": "antigravity",
+          "tier": "standard",
+          "model": "claude-sonnet-5-5-medium",
+          "effort": "high",
+          "requested_effort": "high"
+        },
+        {
+          "n": 5,
+          "intent_provider": "codex",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 6,
+          "intent_provider": "codex",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 7,
+          "intent_provider": "codex",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        },
+        {
+          "n": 8,
+          "intent_provider": "codex",
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-opus-5-5",
+          "effort": "xhigh",
+          "requested_effort": "xhigh"
+        }
+      ],
+      "stop": "max_attempts"
+    },
+    {
+      "fixture": "user-equivalent",
+      "tier": "advanced",
+      "effort": "high",
+      "failure_class": "unknown",
+      "attempts": [],
+      "stop": "AvailabilityError: No model configured for codex/advanced; configure before dispatch"
+    }
+  ]
+}

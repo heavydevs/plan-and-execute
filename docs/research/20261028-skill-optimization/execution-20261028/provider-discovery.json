@@ -1,0 +1,15 @@
+{
+  "checked_at": "2026-10-28T19:18:48.577371+00:00",
+  "method": "PATH discovery only; no model calls or authentication attempted",
+  "executables": {
+    "claude": null,
+    "codex": null,
+    "agy": null,
+    "gemini": null,
+    "qwen": null,
+    "kimi": null,
+    "trae-cli": null,
+    "muse": null
+  },
+  "independent_reviewer_available": false
+}

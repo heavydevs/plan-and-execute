@@ -1,0 +1,205 @@
+{
+  "scope": "Plan preparation and existing focused routing checks; not Plan 1 execution or complete product validation",
+  "results": [
+    {
+      "name": "native-plan-validate",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/planctl_concise.py",
+        "validate",
+        "--plan",
+        ".ai-work/20261028-skill-study-provider-switch"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 0.969,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/native-plan-validate.log"
+    },
+    {
+      "name": "native-plan-audit",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/planctl_concise.py",
+        "audit",
+        "--plan",
+        ".ai-work/20261028-skill-study-provider-switch"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 1.078,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/native-plan-audit.log"
+    },
+    {
+      "name": "native-study-validate",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/studyctl_concise.py",
+        "validate-plan",
+        "--plan",
+        ".ai-work/20261028-skill-study-provider-switch",
+        "--json"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 0.919,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/native-study-validate.log"
+    },
+    {
+      "name": "service-map-check",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/service_map.py",
+        "check",
+        "--repo-root",
+        "."
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 0.97,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/service-map-check.log"
+    },
+    {
+      "name": "service-map-plan-audit",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/service_map.py",
+        "audit-plan",
+        "--repo-root",
+        ".",
+        "--plan",
+        ".ai-work/20261028-skill-study-provider-switch"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 0.819,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/service-map-plan-audit.log"
+    },
+    {
+      "name": "p1_structure",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "run",
+        "--repo-root",
+        ".",
+        "--map",
+        ".ai-work/SERVICE_MAP.md",
+        "--validation",
+        "P1_STRUCTURE"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 2.283,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/p1_structure.log"
+    },
+    {
+      "name": "p1_gate_tests",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "run",
+        "--repo-root",
+        ".",
+        "--map",
+        ".ai-work/SERVICE_MAP.md",
+        "--validation",
+        "P1_GATE_TESTS"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 2.381,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/p1_gate_tests.log"
+    },
+    {
+      "name": "routing",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "run",
+        "--repo-root",
+        ".",
+        "--map",
+        ".ai-work/SERVICE_MAP.md",
+        "--validation",
+        "ROUTING"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 3.082,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/routing.log"
+    },
+    {
+      "name": "model_routing",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "run",
+        "--repo-root",
+        ".",
+        "--map",
+        ".ai-work/SERVICE_MAP.md",
+        "--validation",
+        "MODEL_ROUTING"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 2.998,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/model_routing.log"
+    },
+    {
+      "name": "workload_routing",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "run",
+        "--repo-root",
+        ".",
+        "--map",
+        ".ai-work/SERVICE_MAP.md",
+        "--validation",
+        "WORKLOAD_ROUTING"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 3.286,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/workload_routing.log"
+    },
+    {
+      "name": "missing-review-rejected",
+      "argv": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--task",
+        "001"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "passed": true,
+      "seconds": 0.869,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/missing-review-rejected.log"
+    },
+    {
+      "name": "diff-whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "seconds": 0.004,
+      "log_path": "docs/research/20261028-skill-optimization/evidence/diff-whitespace.log"
+    }
+  ]
+}

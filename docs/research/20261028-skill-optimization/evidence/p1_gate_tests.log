@@ -1,0 +1,11 @@
+[resource-watch] validation=P1_GATE_TESTS report=.ai-work/resource-watch/20261028T170228-P1_GATE_TESTS-3188-1793206948559661769.jsonl
+[resource-watch] toolchain=PYTHON state=healthy version='Python 3.13.5'
+[resource-watch] time=2026-10-28T17:02:29+00:00 validation=P1_GATE_TESTS test_pid=3209 test_process=running
+[resource-watch] validation=P1_GATE_TESTS resources=none (explicitly mapped)
+...........
+----------------------------------------------------------------------
+Ran 11 tests in 0.014s
+
+OK
+[resource-watch] time=2026-10-28T17:02:30+00:00 validation=P1_GATE_TESTS test_pid=3209 test_process=exited group_cpu_seconds=0.0 processes=[{"pid":3209,"state":"R","cpu_seconds":0.0}]
+[resource-watch] validation=P1_GATE_TESTS test_exit=0 health=healthy

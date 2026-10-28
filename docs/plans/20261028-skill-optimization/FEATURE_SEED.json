@@ -1,0 +1,600 @@
+{
+  "schema_version": 1,
+  "base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "completeness": "pending full audit and feature-inventory tasks",
+  "features": [
+    {
+      "id": "F001",
+      "slug": "activation-intake",
+      "title": "Selective activation, intake and late promotion",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/requestctl.py",
+        "skill/plan-and-execute/scripts/promotectl.py",
+        "skill/plan-and-execute/SKILL.md",
+        "skill/plan-and-execute/references/ROUTING.md"
+      ],
+      "research_questions": [
+        "Preserve DIRECT without planning overhead; distinguish size from semantic coupling.",
+        "Measure request validation, explicit invocation and promotion of remaining outcomes."
+      ],
+      "model_tier": "standard",
+      "status": "seed_not_exhaustive",
+      "research_task": "006",
+      "review_task": "007"
+    },
+    {
+      "id": "F002",
+      "slug": "primary-planning",
+      "title": "Oversized request fragmentation and prepared packages",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/preplanctl.py",
+        "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+        "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md"
+      ],
+      "research_questions": [
+        "Trace source hashes, fragment coverage, digest loss and cross-fragment contradictions.",
+        "Compare deterministic grouping with bounded fan-out; measure re-read tokens and resume loss."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "008",
+      "review_task": "009"
+    },
+    {
+      "id": "F003",
+      "slug": "adaptive-study",
+      "title": "Adaptive internal and external study",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "skill/plan-and-execute/scripts/studyctl_concise.py",
+        "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+        "skill/plan-and-execute/references/STUDY_CHOICES.md"
+      ],
+      "research_questions": [
+        "Separate user-selected depth from discovery breadth and stopping criteria.",
+        "Evaluate authoritative evidence retrieval, access dates and deduplication without silently omitting requirements."
+      ],
+      "model_tier": "standard",
+      "status": "seed_not_exhaustive",
+      "research_task": "010",
+      "review_task": "011"
+    },
+    {
+      "id": "F004",
+      "slug": "plan-contract",
+      "title": "Requirements, task decomposition and schema-v4 state",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/planctl_concise.py",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "skill/plan-and-execute/references/PLANNING_PROTOCOL.md"
+      ],
+      "research_questions": [
+        "Trace request-part to requirement to task coverage and concise live projections.",
+        "Evaluate bounded subtasks, high-task splitting, review gates and legacy schema compatibility."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "012",
+      "review_task": "013"
+    },
+    {
+      "id": "F005",
+      "slug": "context-learning",
+      "title": "Assigned context, learned facts and token budgets",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md"
+      ],
+      "research_questions": [
+        "Compare global versus scoped context and validated directional learnings.",
+        "Measure repeated prefixes, assigned-read enforcement and anchoring from prior errors."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "014",
+      "review_task": "015"
+    },
+    {
+      "id": "F006",
+      "slug": "shared-patterns",
+      "title": "Versioned shared contracts and selective invalidation",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/patternctl.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "skill/plan-and-execute/references/SHARED_PATTERNS.md"
+      ],
+      "research_questions": [
+        "Check signatory adoption, contract revision races and invalidation of completed tasks.",
+        "Bound registry loading and evidence required to reopen a consumer."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "016",
+      "review_task": "017"
+    },
+    {
+      "id": "F007",
+      "slug": "lifecycle",
+      "title": "Leases, resume, cancellation, reset and guarded cleanup",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/lifecyclectl.py",
+        "skill/plan-and-execute/scripts/lifecyclectl_concise.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/references/LIFECYCLE.md"
+      ],
+      "research_questions": [
+        "Trace durable state under power loss, quota pauses, stale leases and cancellation.",
+        "Preserve product files and Plan 2 inputs while deleting only verified control artifacts."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "018",
+      "review_task": "019"
+    },
+    {
+      "id": "F008",
+      "slug": "escalation",
+      "title": "Capability floors, evidence ladders and retry accounting",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md"
+      ],
+      "research_questions": [
+        "Reproduce source section 2.8 and distinguish useful effective rungs from repeated dispatches.",
+        "Compare per-provider evidence with cumulative failure counts and reset semantics."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "020",
+      "review_task": "021"
+    },
+    {
+      "id": "F009",
+      "slug": "availability",
+      "title": "Provider chains, cooldowns, quotas and availability ledgers",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/workload_routing.py"
+      ],
+      "research_questions": [
+        "Trace declared versus escalated chains and quota_pool/model cooldown identities.",
+        "Preserve exit 75 and zero functional-failure increments for availability faults."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "022",
+      "review_task": "023"
+    },
+    {
+      "id": "F010",
+      "slug": "workload-affinity",
+      "title": "Workload routing for frontend, repair and monitoring",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "skill/plan-and-execute/references/VALIDATION_WORKLOADS.md"
+      ],
+      "research_questions": [
+        "Separate visual quality, code reasoning and cheap diagnostic workloads in evaluation.",
+        "Compare manager-quota preservation with capability floors and independent Antigravity model families."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "024",
+      "review_task": "025"
+    },
+    {
+      "id": "F011",
+      "slug": "catalog-snapshots",
+      "title": "Model catalog evidence, caches, snapshots and refresh",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/model_catalog.py",
+        "skill/plan-and-execute/scripts/model_catalogctl.py",
+        "skill/plan-and-execute/references/MODEL_CATALOG.md"
+      ],
+      "research_questions": [
+        "Check TTL by facet, stale fallback, empty-tier lifting and immutable in-progress routes.",
+        "Measure refresh costs and verify model/effort against live discovery without inventing entries."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "026",
+      "review_task": "027"
+    },
+    {
+      "id": "F012",
+      "slug": "delegation",
+      "title": "Fresh workers, delegation gates and prompt-cache boundaries",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_concise.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/DELEGATION.md"
+      ],
+      "research_questions": [
+        "Compare isolation benefits with coordination, cache writes and repeated repository exploration.",
+        "Keep root route fixed; separate native session resume from cross-provider handoff."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "028",
+      "review_task": "029"
+    },
+    {
+      "id": "F013",
+      "slug": "claude",
+      "title": "Claude Code and Claude Agent SDK adapter",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md"
+      ],
+      "research_questions": [
+        "Verify print mode, no-session-persistence, structured schema, tool restrictions and resume flags.",
+        "Measure subscription quota separately from API cash and cache write/read economics."
+      ],
+      "model_tier": "standard",
+      "status": "seed_not_exhaustive",
+      "research_task": "030",
+      "review_task": "031"
+    },
+    {
+      "id": "F014",
+      "slug": "codex",
+      "title": "Codex CLI, Agent SDK and schema adaptation",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md"
+      ],
+      "research_questions": [
+        "Verify ephemeral runs, exec resume/fork, required nullable fields and current sandbox flags.",
+        "Compare native compaction with short artifact handoffs using pinned CLI evidence."
+      ],
+      "model_tier": "standard",
+      "status": "seed_not_exhaustive",
+      "research_task": "032",
+      "review_task": "033"
+    },
+    {
+      "id": "F015",
+      "slug": "antigravity",
+      "title": "Antigravity and legacy Gemini adapter",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/references/INSTALLATION.md"
+      ],
+      "research_questions": [
+        "Check agy models, embedded-effort slugs, conversation persistence and per-family quotas.",
+        "Distinguish current Antigravity behavior from legacy Gemini; document CLI/help/model-list discrepancies."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "034",
+      "review_task": "035"
+    },
+    {
+      "id": "F016",
+      "slug": "qwen",
+      "title": "Qwen Code headless adapter",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py"
+      ],
+      "research_questions": [
+        "Inspect Qwen headless JSON, approvals, safe read-only execution and session persistence.",
+        "Compare budget, cancellation and resume contracts without assuming Claude-compatible flags."
+      ],
+      "model_tier": "standard",
+      "status": "seed_not_exhaustive",
+      "research_task": "036",
+      "review_task": "037"
+    },
+    {
+      "id": "F017",
+      "slug": "kimi",
+      "title": "Kimi Code CLI adapter",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py"
+      ],
+      "research_questions": [
+        "Verify print mode, sessions, automatic context compaction and schema/report extraction.",
+        "Check accounting, interruption and permission boundaries against pinned upstream code."
+      ],
+      "model_tier": "standard",
+      "status": "seed_not_exhaustive",
+      "research_task": "038",
+      "review_task": "039"
+    },
+    {
+      "id": "F018",
+      "slug": "trae",
+      "title": "Trae Agent adapter",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py"
+      ],
+      "research_questions": [
+        "Distinguish the configured Trae Agent CLI from the TRAE IDE or another CLI product.",
+        "Verify trajectory handling, provider configuration, secret routing and failure reporting."
+      ],
+      "model_tier": "standard",
+      "status": "seed_not_exhaustive",
+      "research_task": "040",
+      "review_task": "041"
+    },
+    {
+      "id": "F019",
+      "slug": "muse",
+      "title": "Muse Code adapter and session protocol",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/muse_provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_MUSE.md"
+      ],
+      "research_questions": [
+        "Resolve the exact Meta Muse Code product, exec JSON envelope and session protocol.",
+        "Verify cancellation, summary mode and resumable state without assuming flags from unrelated Muse CLIs."
+      ],
+      "model_tier": "standard",
+      "status": "seed_not_exhaustive",
+      "research_task": "042",
+      "review_task": "043"
+    },
+    {
+      "id": "F020",
+      "slug": "glm",
+      "title": "GLM provider profiles",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/glm_provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md"
+      ],
+      "research_questions": [
+        "Verify host versus model-provider identity, native thinking/effort and allowed capability tiers.",
+        "Keep credit multipliers, cache pricing and secret environment references as separate evidence."
+      ],
+      "model_tier": "standard",
+      "status": "seed_not_exhaustive",
+      "research_task": "044",
+      "review_task": "045"
+    },
+    {
+      "id": "F021",
+      "slug": "deepseek",
+      "title": "DeepSeek provider profiles",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md"
+      ],
+      "research_questions": [
+        "Verify model effort compatibility and host sandbox inherited by each profile.",
+        "Separate published prices, off-peak windows and unknown subscription costs."
+      ],
+      "model_tier": "standard",
+      "status": "seed_not_exhaustive",
+      "research_task": "046",
+      "review_task": "047"
+    },
+    {
+      "id": "F022",
+      "slug": "validation-evidence",
+      "title": "Independent validation, evidence packets and failure classification",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/WORKFLOW.md"
+      ],
+      "research_questions": [
+        "Trace report normalization, validation checkpoints and deterministic acceptance outside worker claims.",
+        "Check missing evidence-packet path in the concise prompt and stagnation fingerprints."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "048",
+      "review_task": "049"
+    },
+    {
+      "id": "F023",
+      "slug": "resource-map",
+      "title": "Resource discovery, freshness and runtime health",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md"
+      ],
+      "research_questions": [
+        "Trace change-only discovery, toolchain preflights, service dependencies and freshness fingerprints.",
+        "Test false unhealthy signals, deadlocks and environment versus semantic classification."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "050",
+      "review_task": "051"
+    },
+    {
+      "id": "F024",
+      "slug": "progress-processes",
+      "title": "Progress windows, cancellation and process-tree safety",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/progress_signal.py",
+        "skill/plan-and-execute/scripts/progress_watch.py",
+        "skill/plan-and-execute/scripts/process_tree.py"
+      ],
+      "research_questions": [
+        "Distinguish progress from heartbeat and fixed ceilings from per-command idle windows.",
+        "Check Windows/POSIX descendant cleanup, CPU false progress and quiet remote I/O."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "052",
+      "review_task": "053"
+    },
+    {
+      "id": "F025",
+      "slug": "supervised-jobs",
+      "title": "Durable supervised jobs and validation handoff",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md"
+      ],
+      "research_questions": [
+        "Trace job ownership, fingerprints, restart requests and terminal evidence pinning.",
+        "Measure resume without model redispatch and safe cancellation of tracked descendants."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "054",
+      "review_task": "055"
+    },
+    {
+      "id": "F026",
+      "slug": "watchdog-keepalive",
+      "title": "Read-only watchdog and guarded runner recovery",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "skill/plan-and-execute/references/WATCHDOG.md"
+      ],
+      "research_questions": [
+        "Separate passive observation from active restart permissions and live-lease checks.",
+        "Check restart-loop protection, scheduler portability and deduplicated alerts."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "056",
+      "review_task": "057"
+    },
+    {
+      "id": "F027",
+      "slug": "log-lifecycle",
+      "title": "Incremental log scanning, digest and artifact retention",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/log_watch.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "skill/plan-and-execute/scripts/observer.py"
+      ],
+      "research_questions": [
+        "Measure cursor gaps, rotation/truncation, bounded summaries and missed-error risk.",
+        "Prune owned stale artifacts without deleting active diagnostic evidence or rereading entire logs."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "058",
+      "review_task": "059"
+    },
+    {
+      "id": "F028",
+      "slug": "advisory-observer",
+      "title": "Read-only observer and diagnostic assistant",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/observer.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/references/ASSISTANTS.md"
+      ],
+      "research_questions": [
+        "Verify least-privilege tool restrictions, schema validation and untrusted advice boundaries.",
+        "Compare deterministic monitoring with event-triggered model diagnosis and cheap fallback chains."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "060",
+      "review_task": "061"
+    },
+    {
+      "id": "F029",
+      "slug": "validate-or-fix",
+      "title": "Plan-free monitored validation and repair",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/companion_self_test.py",
+        "skill/validate-or-fix/SKILL.md"
+      ],
+      "research_questions": [
+        "Check companion resolution, no-plan receipts, escalation and reuse of the shared resource map.",
+        "Preserve fast DIRECT checks and measure observer activation costs for long validations."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "062",
+      "review_task": "063"
+    },
+    {
+      "id": "F030",
+      "slug": "economic-evaluation",
+      "title": "Telemetry, shadow routing and non-inferiority benchmarks",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/routing_eval.py",
+        "tools/skill_benchmark.py"
+      ],
+      "research_questions": [
+        "Measure success per validated cost, first-pass success, latency, retries and handoff overhead.",
+        "Separate replay estimates from real-run evidence; test unknown costs and failure censoring."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "064",
+      "review_task": "065"
+    },
+    {
+      "id": "F031",
+      "slug": "distribution",
+      "title": "Installer, configuration, packaging and cross-platform CI",
+      "source_paths": [
+        "bin/plan-and-execute.js",
+        "lib/installer.js",
+        "lib/skill-source.js",
+        "tools/package-skills.js",
+        "tools/validate-skill.js",
+        "tools/clean-generated.js",
+        "skill/plan-and-execute/scripts/configure.py",
+        ".github/workflows/ci.yml",
+        "SECURITY.md"
+      ],
+      "research_questions": [
+        "Check selective/explicit activation, companion packages, local-edit protection and uninstall safety.",
+        "Evaluate schema drift, versions, docs budgets, dependency/secret handling and actual platform test coverage."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "066",
+      "review_task": "067"
+    },
+    {
+      "id": "F032",
+      "slug": "provider-switch-handoff",
+      "title": "Provider-top switching and evidence-bounded handoff design",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md"
+      ],
+      "research_questions": [
+        "Compare worker field, native session resume, extra read-only summary and deterministic capsule (source section 4).",
+        "Decide opt-in chain, entry rung, no-op identity, retry budget, phase state and handoff validation from evidence."
+      ],
+      "model_tier": "strong",
+      "status": "seed_not_exhaustive",
+      "research_task": "068",
+      "review_task": "069"
+    }
+  ]
+}

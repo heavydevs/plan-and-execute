@@ -1,0 +1,13 @@
+{"fixture": "defaults", "tier": "strong", "failure_class": "unknown", "stop": "ladder_exhausted", "repeated_dispatches": 1, "intent_dispatch_mismatches": 0, "unvisited_declared_providers": ["codex"]}
+{"fixture": "defaults", "tier": "max", "failure_class": "semantic", "stop": "ladder_exhausted", "repeated_dispatches": 2, "intent_dispatch_mismatches": 0, "unvisited_declared_providers": ["codex"]}
+{"fixture": "defaults", "tier": "standard", "failure_class": "unknown", "stop": "ladder_exhausted", "repeated_dispatches": 0, "intent_dispatch_mismatches": 0, "unvisited_declared_providers": ["codex"]}
+{"fixture": "defaults", "tier": "standard", "failure_class": "mechanical", "stop": "ladder_exhausted", "repeated_dispatches": 3, "intent_dispatch_mismatches": 0, "unvisited_declared_providers": []}
+{"fixture": "defaults", "tier": "advanced", "failure_class": "unknown", "stop": "ladder_exhausted", "repeated_dispatches": 1, "intent_dispatch_mismatches": 0, "unvisited_declared_providers": ["codex"]}
+{"fixture": "user-equivalent-fixture", "tier": "strong", "failure_class": "unknown", "stop": "max_attempts", "repeated_dispatches": 5, "intent_dispatch_mismatches": 0, "unvisited_declared_providers": ["antigravity"]}
+{"fixture": "user-equivalent-fixture", "tier": "max", "failure_class": "semantic", "stop": "ladder_exhausted", "repeated_dispatches": 2, "intent_dispatch_mismatches": 0, "unvisited_declared_providers": ["claude"]}
+{"fixture": "user-equivalent-fixture", "tier": "standard", "failure_class": "unknown", "stop": "max_attempts", "repeated_dispatches": 4, "intent_dispatch_mismatches": 6, "unvisited_declared_providers": []}
+{"fixture": "user-equivalent-fixture", "tier": "standard", "failure_class": "mechanical", "stop": "max_attempts", "repeated_dispatches": 6, "intent_dispatch_mismatches": 4, "unvisited_declared_providers": ["codex"]}
+{"fixture": "user-equivalent-fixture", "tier": "advanced", "failure_class": "unknown", "stop": "AvailabilityError: No model configured for codex/advanced; configure before dispatch", "repeated_dispatches": 0, "intent_dispatch_mismatches": 0, "unvisited_declared_providers": ["antigravity", "codex", "claude"]}
+RUNTIME_FILES_COMPARED 135 CHANGED 0
+ALL_OTHER_TASKS_DEPEND_ON_001 85
+OUTPUT /mnt/data/workspaces/plan-and-execute/docs/research/20261028-skill-optimization/retry-20261028T195011Z/pre-review-routing-probe.json

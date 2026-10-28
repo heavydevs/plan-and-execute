@@ -1,0 +1,2491 @@
+{
+  "audit": [
+    {
+      "at": "2026-10-28T17:02:03Z",
+      "new_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "old_digest": null,
+      "op": "create",
+      "rebased": [
+        "001",
+        "002",
+        "003",
+        "004",
+        "005",
+        "006",
+        "007",
+        "008",
+        "009",
+        "010",
+        "011",
+        "012",
+        "013",
+        "014",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019",
+        "020",
+        "021",
+        "022",
+        "023",
+        "024",
+        "025",
+        "026",
+        "027",
+        "028",
+        "029",
+        "030",
+        "031",
+        "032",
+        "033",
+        "034",
+        "035",
+        "036",
+        "037",
+        "038",
+        "039",
+        "040",
+        "041",
+        "042",
+        "043",
+        "044",
+        "045",
+        "046",
+        "047",
+        "048",
+        "049",
+        "050",
+        "051",
+        "052",
+        "053",
+        "054",
+        "055",
+        "056",
+        "057",
+        "058",
+        "059",
+        "060",
+        "061",
+        "062",
+        "063",
+        "064",
+        "065",
+        "066",
+        "067",
+        "068",
+        "069",
+        "070",
+        "071",
+        "072",
+        "073",
+        "074",
+        "075",
+        "076",
+        "077",
+        "078",
+        "079",
+        "080",
+        "081",
+        "082",
+        "083",
+        "084",
+        "085",
+        "086"
+      ]
+    }
+  ],
+  "captured_at": "2026-10-28T17:02:03Z",
+  "catalog": {
+    "catalog_version": "claude:2026-10-09-bootstrap-v5+codex:2026-10-09-bootstrap-v5+deepseek:2026-10-09-bootstrap-v5+glm:2026-10-09-bootstrap-v5+muse:2026-10-09-bootstrap-v5",
+    "providers": {
+      "claude": {
+        "models": {
+          "claude-fable-5-1": {
+            "capability": {
+              "accepts_effort": true,
+              "available": true,
+              "capabilities": [
+                "code",
+                "reasoning",
+                "tool_use",
+                "long_context"
+              ],
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "max_effort": "max",
+              "observed_at": "2026-09-30T00:00:00Z"
+            },
+            "economics": {
+              "currency": "USD",
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": null,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "output_per_mtok": null
+            },
+            "quality": {
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 5,
+              "score": null
+            },
+            "tiers": [
+              "max"
+            ]
+          },
+          "claude-opus-5-5": {
+            "capability": {
+              "accepts_effort": true,
+              "available": true,
+              "capabilities": [
+                "code",
+                "reasoning",
+                "tool_use",
+                "long_context"
+              ],
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "max_effort": "max",
+              "observed_at": "2026-09-30T00:00:00Z"
+            },
+            "economics": {
+              "currency": "USD",
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": null,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "output_per_mtok": null
+            },
+            "quality": {
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 4,
+              "score": null
+            },
+            "tiers": [
+              "strong"
+            ]
+          },
+          "claude-sonnet-5-5": {
+            "capability": {
+              "accepts_effort": true,
+              "available": true,
+              "capabilities": [
+                "code",
+                "reasoning",
+                "tool_use",
+                "long_context"
+              ],
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "max_effort": "max",
+              "observed_at": "2026-09-30T00:00:00Z"
+            },
+            "economics": {
+              "currency": "USD",
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": null,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "output_per_mtok": null
+            },
+            "quality": {
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 2,
+              "score": null
+            },
+            "tiers": [
+              "standard"
+            ]
+          },
+          "haiku": {
+            "capability": {
+              "accepts_effort": false,
+              "available": true,
+              "capabilities": [
+                "code",
+                "tool_use"
+              ],
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "max_effort": null,
+              "observed_at": "2026-09-30T00:00:00Z"
+            },
+            "economics": {
+              "currency": "USD",
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": null,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "output_per_mtok": null
+            },
+            "quality": {
+              "evidence": {
+                "ref": "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 1,
+              "score": null
+            },
+            "tiers": [
+              "economy"
+            ]
+          }
+        }
+      },
+      "codex": {
+        "models": {
+          "gpt-6-luna": {
+            "capability": {
+              "accepts_effort": true,
+              "available": true,
+              "capabilities": [
+                "code",
+                "tool_use"
+              ],
+              "evidence": {
+                "ref": "codex debug models, CLI 0.159.2, 2026-09-30",
+                "source": "bootstrap"
+              },
+              "max_effort": "max",
+              "observed_at": "2026-09-30T00:00:00Z"
+            },
+            "economics": {
+              "currency": "USD",
+              "evidence": {
+                "ref": "codex debug models, CLI 0.159.2, 2026-09-30",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": null,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "output_per_mtok": null
+            },
+            "quality": {
+              "evidence": {
+                "ref": "codex debug models, CLI 0.159.2, 2026-09-30",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 1,
+              "score": null
+            },
+            "tiers": [
+              "economy"
+            ]
+          },
+          "gpt-6.1-sol": {
+            "capability": {
+              "accepts_effort": true,
+              "available": true,
+              "capabilities": [
+                "code",
+                "reasoning",
+                "tool_use",
+                "long_context"
+              ],
+              "evidence": {
+                "ref": "codex debug models, CLI 0.159.2, 2026-09-30",
+                "source": "bootstrap"
+              },
+              "max_effort": "max",
+              "observed_at": "2026-09-30T00:00:00Z"
+            },
+            "economics": {
+              "currency": "USD",
+              "evidence": {
+                "ref": "codex debug models, CLI 0.159.2, 2026-09-30",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": null,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "output_per_mtok": null
+            },
+            "quality": {
+              "evidence": {
+                "ref": "codex debug models, CLI 0.159.2, 2026-09-30",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 5,
+              "score": null
+            },
+            "tiers": [
+              "standard",
+              "strong",
+              "max"
+            ]
+          }
+        }
+      },
+      "deepseek": {
+        "models": {
+          "deepseek-flash": {
+            "capability": {
+              "accepts_effort": true,
+              "available": true,
+              "capabilities": [
+                "code",
+                "reasoning",
+                "tool_use",
+                "long_context",
+                "vision"
+              ],
+              "effort_map": {
+                "high": "high",
+                "low": "high",
+                "max": "max",
+                "medium": "high",
+                "xhigh": "max"
+              },
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s11 (DeepSeek ids, 1M context, peak/off-peak pricing per 1M tokens, 2026-10-01); the 16:30-00:30 UTC off-peak window is not in the request and is unverified bootstrap evidence; tier placement is not a quality ranking",
+                "source": "bootstrap"
+              },
+              "max_effort": "max",
+              "observed_at": "2026-09-30T00:00:00Z",
+              "thinking": "optional"
+            },
+            "economics": {
+              "cached_input_per_mtok": 0.006,
+              "currency": "USD",
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s11 (DeepSeek ids, 1M context, peak/off-peak pricing per 1M tokens, 2026-10-01); the 16:30-00:30 UTC off-peak window is not in the request and is unverified bootstrap evidence; tier placement is not a quality ranking",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": 0.3,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "off_peak": {
+                "cached_input_per_mtok": 0.003,
+                "input_per_mtok": 0.15,
+                "output_per_mtok": 0.6,
+                "window_utc": {
+                  "end": "00:30",
+                  "start": "16:30"
+                }
+              },
+              "output_per_mtok": 1.2
+            },
+            "quality": {
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s11 (DeepSeek ids, 1M context, peak/off-peak pricing per 1M tokens, 2026-10-01); the 16:30-00:30 UTC off-peak window is not in the request and is unverified bootstrap evidence; tier placement is not a quality ranking",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 2,
+              "score": null
+            },
+            "tiers": [
+              "economy",
+              "standard"
+            ]
+          },
+          "deepseek-v4-pro": {
+            "capability": {
+              "accepts_effort": true,
+              "available": true,
+              "capabilities": [
+                "code",
+                "reasoning",
+                "tool_use",
+                "long_context"
+              ],
+              "effort_map": {
+                "high": "high",
+                "low": "high",
+                "max": "max",
+                "medium": "high",
+                "xhigh": "max"
+              },
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s11 (DeepSeek ids, 1M context, peak/off-peak pricing per 1M tokens, 2026-10-01); the 16:30-00:30 UTC off-peak window is not in the request and is unverified bootstrap evidence; tier placement is not a quality ranking",
+                "source": "bootstrap"
+              },
+              "max_effort": "max",
+              "observed_at": "2026-09-30T00:00:00Z",
+              "thinking": "optional"
+            },
+            "economics": {
+              "cached_input_per_mtok": 0.044,
+              "currency": "USD",
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s11 (DeepSeek ids, 1M context, peak/off-peak pricing per 1M tokens, 2026-10-01); the 16:30-00:30 UTC off-peak window is not in the request and is unverified bootstrap evidence; tier placement is not a quality ranking",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": 1.32,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "off_peak": {
+                "cached_input_per_mtok": 0.022,
+                "input_per_mtok": 0.66,
+                "output_per_mtok": 1.98,
+                "window_utc": {
+                  "end": "00:30",
+                  "start": "16:30"
+                }
+              },
+              "output_per_mtok": 3.96
+            },
+            "quality": {
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s11 (DeepSeek ids, 1M context, peak/off-peak pricing per 1M tokens, 2026-10-01); the 16:30-00:30 UTC off-peak window is not in the request and is unverified bootstrap evidence; tier placement is not a quality ranking",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 3,
+              "score": null
+            },
+            "tiers": [
+              "advanced"
+            ]
+          }
+        }
+      },
+      "glm": {
+        "models": {
+          "glm-5.3": {
+            "capability": {
+              "accepts_effort": true,
+              "available": true,
+              "capabilities": [
+                "code",
+                "reasoning",
+                "tool_use",
+                "long_context"
+              ],
+              "effort_map": {
+                "high": "high",
+                "low": "low",
+                "max": "max",
+                "medium": "high",
+                "xhigh": "max"
+              },
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s10 (Z.AI GLM-5.3 pricing and Coding Plan credit multipliers, 2026-10-01); tier placement is bootstrap evidence only",
+                "source": "bootstrap"
+              },
+              "max_effort": "max",
+              "observed_at": "2026-09-30T00:00:00Z",
+              "thinking": "always_on"
+            },
+            "economics": {
+              "cached_input_per_mtok": 0.26,
+              "currency": "USD",
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s10 (Z.AI GLM-5.3 pricing and Coding Plan credit multipliers, 2026-10-01); tier placement is bootstrap evidence only",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": 1.4,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "output_per_mtok": 4.4,
+              "plan_credits": {
+                "cached_multiplier": 1.7,
+                "divisor": 10000,
+                "input_multiplier": 6.9,
+                "off_peak_factor": 0.5,
+                "output_multiplier": 24,
+                "unit": "credits"
+              }
+            },
+            "quality": {
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s10 (Z.AI GLM-5.3 pricing and Coding Plan credit multipliers, 2026-10-01); tier placement is bootstrap evidence only",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 3,
+              "score": null
+            },
+            "tiers": [
+              "advanced"
+            ]
+          },
+          "glm-5.3-flash": {
+            "capability": {
+              "accepts_effort": true,
+              "available": true,
+              "capabilities": [
+                "code",
+                "reasoning",
+                "tool_use",
+                "long_context"
+              ],
+              "effort_map": {
+                "high": "high",
+                "low": "low",
+                "max": "max",
+                "medium": "high",
+                "xhigh": "max"
+              },
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s10 (Z.AI GLM-5.3 pricing and Coding Plan credit multipliers, 2026-10-01); tier placement is bootstrap evidence only",
+                "source": "bootstrap"
+              },
+              "max_effort": "max",
+              "observed_at": "2026-09-30T00:00:00Z",
+              "thinking": "always_on"
+            },
+            "economics": {
+              "cached_input_per_mtok": 0.03,
+              "currency": "USD",
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s10 (Z.AI GLM-5.3 pricing and Coding Plan credit multipliers, 2026-10-01); tier placement is bootstrap evidence only",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": 0.15,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "output_per_mtok": 0.5,
+              "plan_credits": {
+                "cached_multiplier": 0.56,
+                "divisor": 10000,
+                "input_multiplier": 2.3,
+                "off_peak_factor": 0.5,
+                "output_multiplier": 8,
+                "unit": "credits"
+              }
+            },
+            "quality": {
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s10 (Z.AI GLM-5.3 pricing and Coding Plan credit multipliers, 2026-10-01); tier placement is bootstrap evidence only",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 2,
+              "score": null
+            },
+            "tiers": [
+              "economy",
+              "standard"
+            ]
+          }
+        }
+      },
+      "muse": {
+        "models": {
+          "muse-spark-1.3": {
+            "capability": {
+              "accepts_effort": true,
+              "available": true,
+              "capabilities": [
+                "code",
+                "reasoning",
+                "tool_use",
+                "long_context"
+              ],
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s2.4/s12/s78; Muse Spark 1.3 id and effort vocabulary not yet verified against the muse CLI",
+                "source": "bootstrap"
+              },
+              "max_effort": "high",
+              "observed_at": "2026-09-30T00:00:00Z"
+            },
+            "economics": {
+              "currency": "USD",
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s2.4/s12/s78; Muse Spark 1.3 id and effort vocabulary not yet verified against the muse CLI",
+                "source": "bootstrap"
+              },
+              "input_per_mtok": null,
+              "observed_at": "2026-09-30T00:00:00Z",
+              "output_per_mtok": null
+            },
+            "quality": {
+              "evidence": {
+                "ref": "docs/requests/portable-model-routing-dynamic-provider-catalog.md s2.4/s12/s78; Muse Spark 1.3 id and effort vocabulary not yet verified against the muse CLI",
+                "source": "bootstrap"
+              },
+              "observed_at": "2026-09-30T00:00:00Z",
+              "rank": 3,
+              "score": null
+            },
+            "tiers": [
+              "advanced"
+            ]
+          }
+        }
+      }
+    },
+    "schema_version": 1
+  },
+  "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+  "catalog_version": "claude:2026-10-09-bootstrap-v5+codex:2026-10-09-bootstrap-v5+deepseek:2026-10-09-bootstrap-v5+glm:2026-10-09-bootstrap-v5+muse:2026-10-09-bootstrap-v5",
+  "created_at": "2026-10-28T17:02:03Z",
+  "freshness_policy_version": "2026-10-01-v1",
+  "matrix_digest": "850b645550e10b067b201369c171b114c5b14af26eafb735ed69354b177fa2e0",
+  "matrix_version": 1,
+  "plan_id": "20261028-skill-study-provider-switch",
+  "sources": {
+    "claude": {
+      "catalog_version": "2026-10-09-bootstrap-v5",
+      "origin": "bootstrap",
+      "revision": 0
+    },
+    "codex": {
+      "catalog_version": "2026-10-09-bootstrap-v5",
+      "origin": "bootstrap",
+      "revision": 0
+    },
+    "deepseek": {
+      "catalog_version": "2026-10-09-bootstrap-v5",
+      "origin": "bootstrap",
+      "revision": 0
+    },
+    "glm": {
+      "catalog_version": "2026-10-09-bootstrap-v5",
+      "origin": "bootstrap",
+      "revision": 0
+    },
+    "muse": {
+      "catalog_version": "2026-10-09-bootstrap-v5",
+      "origin": "bootstrap",
+      "revision": 0
+    }
+  },
+  "stale_after_days": 7,
+  "tasks": {
+    "001": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "002": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "003": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "004": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "005": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "006": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-sonnet-5-5",
+          "provider": "claude",
+          "tier": "standard"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "medium",
+      "floor": "standard",
+      "provider": "auto"
+    },
+    "007": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "008": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "009": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "010": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-sonnet-5-5",
+          "provider": "claude",
+          "tier": "standard"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "medium",
+      "floor": "standard",
+      "provider": "auto"
+    },
+    "011": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "012": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "013": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "014": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "015": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "016": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "017": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "018": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "019": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "020": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "021": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "022": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "023": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "024": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "025": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "026": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "027": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "028": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "029": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "030": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-sonnet-5-5",
+          "provider": "claude",
+          "tier": "standard"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "medium",
+      "floor": "standard",
+      "provider": "auto"
+    },
+    "031": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "032": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-sonnet-5-5",
+          "provider": "claude",
+          "tier": "standard"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "medium",
+      "floor": "standard",
+      "provider": "auto"
+    },
+    "033": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "034": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "035": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "036": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-sonnet-5-5",
+          "provider": "claude",
+          "tier": "standard"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "medium",
+      "floor": "standard",
+      "provider": "auto"
+    },
+    "037": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "038": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-sonnet-5-5",
+          "provider": "claude",
+          "tier": "standard"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "medium",
+      "floor": "standard",
+      "provider": "auto"
+    },
+    "039": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "040": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-sonnet-5-5",
+          "provider": "claude",
+          "tier": "standard"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "medium",
+      "floor": "standard",
+      "provider": "auto"
+    },
+    "041": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "042": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-sonnet-5-5",
+          "provider": "claude",
+          "tier": "standard"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "medium",
+      "floor": "standard",
+      "provider": "auto"
+    },
+    "043": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "044": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-sonnet-5-5",
+          "provider": "claude",
+          "tier": "standard"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "medium",
+      "floor": "standard",
+      "provider": "auto"
+    },
+    "045": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "046": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-sonnet-5-5",
+          "provider": "claude",
+          "tier": "standard"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "medium",
+      "floor": "standard",
+      "provider": "auto"
+    },
+    "047": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "048": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "049": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "050": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "051": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "052": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "053": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "054": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "055": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "056": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "057": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "058": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "059": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "060": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "061": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "062": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "063": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "064": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "065": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "066": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "067": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "068": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "069": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "070": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "071": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "072": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "073": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "074": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "075": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "076": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "077": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "078": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "079": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "080": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "081": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "082": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "083": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "084": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-opus-5-5",
+          "provider": "claude",
+          "tier": "strong"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "strong"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "085": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "086": {
+      "bound_at": "2026-10-28T17:02:03Z",
+      "candidates": [
+        {
+          "model": "claude-fable-5-1",
+          "provider": "claude",
+          "tier": "max"
+        },
+        {
+          "model": "gpt-6.1-sol",
+          "provider": "codex",
+          "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    }
+  },
+  "tiers": {
+    "advanced": {
+      "deepseek": "deepseek-v4-pro",
+      "glm": "glm-5.3",
+      "muse": "muse-spark-1.3"
+    },
+    "economy": {
+      "claude": "haiku",
+      "codex": "gpt-6-luna",
+      "deepseek": "deepseek-flash",
+      "glm": "glm-5.3-flash"
+    },
+    "max": {
+      "claude": "claude-fable-5-1",
+      "codex": "gpt-6.1-sol"
+    },
+    "standard": {
+      "claude": "claude-sonnet-5-5",
+      "codex": "gpt-6.1-sol",
+      "deepseek": "deepseek-flash",
+      "glm": "glm-5.3-flash"
+    },
+    "strong": {
+      "claude": "claude-opus-5-5",
+      "codex": "gpt-6.1-sol"
+    }
+  },
+  "warnings": [
+    "claude: no valid cache; using bootstrap catalog",
+    "codex: no valid cache; using bootstrap catalog",
+    "deepseek: no valid cache; using bootstrap catalog",
+    "glm: no valid cache; using bootstrap catalog",
+    "muse: no valid cache; using bootstrap catalog"
+  ]
+}

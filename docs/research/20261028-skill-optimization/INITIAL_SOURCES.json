@@ -1,0 +1,149 @@
+{
+  "scope": "Initial planning reconnaissance only; does not complete any of the 32 research TODOs.",
+  "sources": [
+    {
+      "id": "E001",
+      "title": "Effective harnesses for long-running agents",
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/research/effective-harnesses-for-long-running-agents",
+      "source_type": "official_documentation",
+      "version_or_date": "2025-11-26; accessed 2026-10-28",
+      "finding": "Incremental tasks and durable progress artifacts address loss of context; the article does not prove this skill is complete.",
+      "planning_impact": "Separate audit, feature evidence and final-plan synthesis; preserve unfinished work.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "selected_official_page_or_paper_abstract"
+    },
+    {
+      "id": "E002",
+      "title": "Claude Code CLI reference",
+      "publisher": "Anthropic",
+      "url": "https://code.claude.com/docs/en/cli-reference",
+      "source_type": "official_documentation",
+      "version_or_date": "Live documentation accessed 2026-10-28",
+      "finding": "Print mode and session controls have distinct contracts; nonpersistent execution cannot be assumed resumable.",
+      "planning_impact": "Compare a worker-provided summary and deterministic fallback before choosing native-session persistence.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "selected_official_page_or_paper_abstract"
+    },
+    {
+      "id": "E003",
+      "title": "Codex non-interactive mode",
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/codex/noninteractive/",
+      "source_type": "official_documentation",
+      "version_or_date": "Redirects to learn.chatgpt.com; accessed 2026-10-28",
+      "finding": "The documentation distinguishes ephemeral execution, structured output and explicit sandbox settings.",
+      "planning_impact": "Test adapter flags and schema against the installed CLI version; do not assume existing argv is current.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "selected_official_page_or_paper_abstract"
+    },
+    {
+      "id": "E004",
+      "title": "Antigravity CLI commands",
+      "publisher": "Google",
+      "url": "https://antigravity.google/docs/cli/reference/",
+      "source_type": "official_documentation",
+      "version_or_date": "Live documentation accessed 2026-10-28",
+      "finding": "Effort is model-dependent; --continue and --conversation are documented session controls.",
+      "planning_impact": "Resolve effective effort from both CLI and model list; preserve divergence as an explicit test input.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "selected_official_page_or_paper_abstract"
+    },
+    {
+      "id": "E005",
+      "title": "Antigravity model quotas",
+      "publisher": "Google",
+      "url": "https://antigravity.google/docs/cli/commands/usage",
+      "source_type": "official_documentation",
+      "version_or_date": "Live documentation accessed 2026-10-28",
+      "finding": "The CLI exposes usage/quota inspection; this alone does not prove a selected account has a particular available quota.",
+      "planning_impact": "Plan per-profile and model-family checks without spending authenticated quota during preparation.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "selected_official_page_or_paper_abstract"
+    },
+    {
+      "id": "E006",
+      "title": "Handoffs - OpenAI Agents SDK",
+      "publisher": "OpenAI",
+      "url": "https://openai.github.io/openai-agents-python/handoffs/",
+      "source_type": "official_documentation",
+      "version_or_date": "Live documentation accessed 2026-10-28",
+      "finding": "Structured handoff inputs and input filters are explicit SDK mechanisms.",
+      "planning_impact": "Use their separation of metadata and history as an alternative, not proof of cross-CLI session portability.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "selected_official_page_or_paper_abstract"
+    },
+    {
+      "id": "E007",
+      "title": "AutoMix: Automatically Mixing Language Models",
+      "publisher": "NeurIPS / paper authors",
+      "url": "https://papers.nips.cc/paper_files/paper/2024/hash/ecda225cb187b40ea8edc1f46b03ffda-Abstract-Conference.html",
+      "source_type": "paper",
+      "version_or_date": "NeurIPS 2024; abstract accessed 2026-10-28",
+      "finding": "The abstract reports model routing with noisy self-verification and cost/quality experiments.",
+      "planning_impact": "Compare against measured skill baselines; do not import the paper savings percentage into project claims.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "selected_official_page_or_paper_abstract"
+    },
+    {
+      "id": "E008",
+      "title": "AI Engineering book overview",
+      "publisher": "Chip Huyen",
+      "url": "https://huyenchip.com/books/",
+      "source_type": "author_book_metadata",
+      "version_or_date": "OReilly 2025; author overview accessed 2026-10-28",
+      "finding": "The author describes coverage of foundation-model applications, evaluation and deployment. Full book text was not consulted.",
+      "planning_impact": "Research tasks must obtain accessible author excerpts or an authorized book copy and state reading scope.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "metadata_only"
+    },
+    {
+      "id": "E009",
+      "title": "Qwen Code headless mode",
+      "publisher": "QwenLM",
+      "url": "https://qwenlm.github.io/qwen-code-docs/en/users/features/headless/",
+      "source_type": "official_documentation",
+      "version_or_date": "Search-discovered on 2026-10-28; full reading pending",
+      "finding": "Official source located for the Qwen-specific research task.",
+      "planning_impact": "Verify pinned headless flags, permission behavior and structured output in that task.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "metadata_only"
+    },
+    {
+      "id": "E010",
+      "title": "Kimi command reference",
+      "publisher": "Moonshot AI",
+      "url": "https://www.kimi.com/code/docs/en/kimi-code-cli/reference/kimi-command",
+      "source_type": "official_documentation",
+      "version_or_date": "Search-discovered on 2026-10-28; full reading pending",
+      "finding": "Official source located for the Kimi-specific research task.",
+      "planning_impact": "Verify session, print and interruption semantics before proposing adapter changes.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "metadata_only"
+    },
+    {
+      "id": "E011",
+      "title": "Trae Agent repository",
+      "publisher": "ByteDance",
+      "url": "https://github.com/bytedance/trae-agent",
+      "source_type": "official_code",
+      "version_or_date": "Search-discovered on 2026-10-28; code review pending",
+      "finding": "Official source located for the Trae Agent-specific research task.",
+      "planning_impact": "Disambiguate this repository from TRAE IDE and other CLI products.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "metadata_only"
+    },
+    {
+      "id": "E012",
+      "title": "Muse Code documentation",
+      "publisher": "Meta",
+      "url": "https://dev.meta.ai/docs/muse-code",
+      "source_type": "official_documentation",
+      "version_or_date": "Search-discovered on 2026-10-28; full reading pending",
+      "finding": "Meta documentation located; unrelated muse-cli products must not be substituted.",
+      "planning_impact": "Pin exact adapter identity and version before session or summary changes.",
+      "accessed_at": "2026-10-28",
+      "verification_scope": "metadata_only"
+    }
+  ]
+}

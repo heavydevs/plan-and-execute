@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "cooldowns": {
+    "claude": {
+      "until": 1793217315.8520696,
+      "reason": "missing_cli"
+    },
+    "codex": {
+      "until": 1793217315.8520696,
+      "reason": "missing_cli"
+    }
+  },
+  "phases": {
+    "implementation": {
+      "fingerprint": "76736a815fe039652d4b90609f1884cf927e67339470c5c32be52d649a6f31a5",
+      "logical_route": {
+        "tier": "max",
+        "requested_effort": "xhigh"
+      }
+    }
+  },
+  "events": [
+    {
+      "at": 1793215152.55617,
+      "phase": "implementation",
+      "provider": "claude",
+      "category": "missing_cli",
+      "tier": "max",
+      "requested_effort": "xhigh"
+    },
+    {
+      "at": 1793215152.55617,
+      "phase": "implementation",
+      "provider": "codex",
+      "category": "missing_cli",
+      "tier": "max",
+      "requested_effort": "xhigh"
+    },
+    {
+      "at": 1793215486.0027978,
+      "phase": "implementation",
+      "provider": "claude",
+      "category": "missing_cli",
+      "tier": "max",
+      "requested_effort": "xhigh"
+    },
+    {
+      "at": 1793215486.0027978,
+      "phase": "implementation",
+      "provider": "codex",
+      "category": "missing_cli",
+      "tier": "max",
+      "requested_effort": "xhigh"
+    },
+    {
+      "at": 1793217015.8520696,
+      "phase": "implementation",
+      "provider": "claude",
+      "category": "missing_cli",
+      "tier": "max",
+      "requested_effort": "xhigh"
+    },
+    {
+      "at": 1793217015.8520696,
+      "phase": "implementation",
+      "provider": "codex",
+      "category": "missing_cli",
+      "tier": "max",
+      "requested_effort": "xhigh"
+    }
+  ]
+}

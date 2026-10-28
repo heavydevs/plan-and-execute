@@ -1,0 +1,17 @@
+{
+  "status": "planned",
+  "repo_root": "/mnt/data/workspaces/plan-and-execute",
+  "active": true,
+  "action": "resume",
+  "plan_id": "20261028-skill-study-provider-switch",
+  "plan": "/mnt/data/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch",
+  "plan_relative": ".ai-work/20261028-skill-study-provider-switch",
+  "summary_status": "pending",
+  "tasks": {
+    "pending": 86,
+    "in_progress": 0,
+    "completed": 0,
+    "blocked": 0
+  },
+  "runner": null
+}

@@ -1,0 +1,90 @@
+{
+  "checked_at": "2026-10-28T19:50:19.479214+00:00",
+  "plan_id": "20261028-skill-study-provider-switch",
+  "counts": {
+    "pending": 86
+  },
+  "worker_attempts": 0,
+  "functional_failures": 0,
+  "provider_commands": {
+    "claude": null,
+    "codex": null,
+    "agy": null,
+    "gemini": null,
+    "qwen": null,
+    "kimi": null,
+    "trae-cli": null,
+    "muse": null
+  },
+  "standard_auth_files_present": {
+    "/home/oai/.codex/auth.json": false,
+    "/home/oai/.claude/.credentials.json": false,
+    "/home/oai/.gemini/oauth_creds.json": false
+  },
+  "auth_env_present": {
+    "OPENAI_API_KEY": false,
+    "ANTHROPIC_API_KEY": false,
+    "GEMINI_API_KEY": false,
+    "GOOGLE_API_KEY": false
+  },
+  "checks": [
+    {
+      "name": "validate",
+      "command": [
+        "/opt/pyvenv/bin/python",
+        "skill/plan-and-execute/scripts/planctl_concise.py",
+        "validate",
+        "--plan",
+        "/mnt/data/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch"
+      ],
+      "started_at": "2026-10-28T19:50:11.176362+00:00",
+      "exit_code": 0,
+      "log": "docs/research/20261028-skill-optimization/retry-20261028T195011Z/validate.log",
+      "sha256": "064bfb41caf1a785928b2bc696a00d01027bc54171b44f7872d9d5655bc1f147"
+    },
+    {
+      "name": "audit",
+      "command": [
+        "/opt/pyvenv/bin/python",
+        "skill/plan-and-execute/scripts/planctl_concise.py",
+        "audit",
+        "--plan",
+        "/mnt/data/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch"
+      ],
+      "started_at": "2026-10-28T19:50:12.298080+00:00",
+      "exit_code": 0,
+      "log": "docs/research/20261028-skill-optimization/retry-20261028T195011Z/audit.log",
+      "sha256": "025828a915b75910fd303ab0188362a31d1365c1240a510a94d1a718cffee28a"
+    },
+    {
+      "name": "runner",
+      "command": [
+        "/opt/pyvenv/bin/python",
+        "skill/plan-and-execute/scripts/run_concise.py",
+        "--plan",
+        "/mnt/data/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch",
+        "--no-wait",
+        "--no-cleanup"
+      ],
+      "started_at": "2026-10-28T19:50:14.176970+00:00",
+      "exit_code": 75,
+      "log": "docs/research/20261028-skill-optimization/retry-20261028T195011Z/runner.log",
+      "sha256": "b94e20846df61096afcc1a01cbbbb42e74fddb4676f4ec29b4a79a7c307c913d"
+    },
+    {
+      "name": "status",
+      "command": [
+        "/opt/pyvenv/bin/python",
+        "skill/plan-and-execute/scripts/lifecyclectl_concise.py",
+        "current",
+        "--repo-root",
+        ".",
+        "--json"
+      ],
+      "started_at": "2026-10-28T19:50:16.105547+00:00",
+      "exit_code": 0,
+      "log": "docs/research/20261028-skill-optimization/retry-20261028T195011Z/status.log",
+      "sha256": "f3c06e53707890ef9541b10b6de32b7b8d61ca73934e1b88d1f50ac12d4cad9c"
+    }
+  ]
+}

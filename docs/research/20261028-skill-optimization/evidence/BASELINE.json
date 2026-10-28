@@ -1,0 +1,21 @@
+{
+  "local_commit": "6e6ba53b5a9972fb3146c3db609c4961574275c4",
+  "remote_commit_verified": "193fefd96a3a8d9f2b4a655f237071fdf7c211f8",
+  "tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "branch": "feat/skill-study-and-provider-switch",
+  "dependency_command": "npm ci --ignore-scripts --offline",
+  "dependency_exit": 0,
+  "full_check": "inconclusive: container command limit reached at 200 seconds; no full-suite exit or assertion failure observed",
+  "fast_tests": [
+    "routing_self_test.py passed: 28 cases",
+    "model_routing_self_test.py passed",
+    "workload_routing_self_test.py passed: 16 cases"
+  ],
+  "live_provider_calls": 0,
+  "cli_discovery": {
+    "claude": "not on PATH",
+    "codex": "not on PATH",
+    "agy": "not on PATH"
+  },
+  "source_tree_modified": false
+}

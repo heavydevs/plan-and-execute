@@ -1,0 +1,321 @@
+{
+  "source": "REQUEST.md (verbatim in the plan workspace)",
+  "display_citation": "turn292file0",
+  "requirements": [
+    {
+      "id": "R001",
+      "source_lines": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "R002",
+      "source_lines": [
+        3,
+        10
+      ]
+    },
+    {
+      "id": "R003",
+      "source_lines": [
+        11,
+        11
+      ]
+    },
+    {
+      "id": "R004",
+      "source_lines": [
+        12,
+        12
+      ]
+    },
+    {
+      "id": "R005",
+      "source_lines": [
+        11,
+        12
+      ]
+    },
+    {
+      "id": "R006",
+      "source_lines": [
+        17,
+        35
+      ]
+    },
+    {
+      "id": "R007",
+      "source_lines": [
+        20,
+        20
+      ]
+    },
+    {
+      "id": "R008",
+      "source_lines": [
+        37,
+        37
+      ]
+    },
+    {
+      "id": "R009",
+      "source_lines": [
+        39,
+        103
+      ]
+    },
+    {
+      "id": "R010",
+      "source_lines": [
+        169,
+        171
+      ]
+    },
+    {
+      "id": "R011",
+      "source_lines": [
+        204,
+        204
+      ]
+    },
+    {
+      "id": "R012",
+      "source_lines": [
+        157,
+        157
+      ]
+    },
+    {
+      "id": "R013",
+      "source_lines": [
+        147,
+        150
+      ]
+    },
+    {
+      "id": "R014",
+      "source_lines": [
+        163,
+        164
+      ]
+    },
+    {
+      "id": "R015",
+      "source_lines": [
+        151,
+        151
+      ]
+    },
+    {
+      "id": "R016",
+      "source_lines": [
+        148,
+        148
+      ]
+    },
+    {
+      "id": "R017",
+      "source_lines": [
+        127,
+        138
+      ]
+    },
+    {
+      "id": "R018",
+      "source_lines": [
+        139,
+        140
+      ]
+    },
+    {
+      "id": "R019",
+      "source_lines": [
+        142,
+        144
+      ]
+    },
+    {
+      "id": "R020",
+      "source_lines": [
+        143,
+        143
+      ]
+    },
+    {
+      "id": "R021",
+      "source_lines": [
+        141,
+        141
+      ]
+    },
+    {
+      "id": "R022",
+      "source_lines": [
+        144,
+        144
+      ]
+    },
+    {
+      "id": "R023",
+      "source_lines": [
+        80,
+        80
+      ]
+    },
+    {
+      "id": "R024",
+      "source_lines": [
+        159,
+        160
+      ]
+    },
+    {
+      "id": "R025",
+      "source_lines": [
+        159,
+        159
+      ]
+    },
+    {
+      "id": "R026",
+      "source_lines": [
+        158,
+        158
+      ]
+    },
+    {
+      "id": "R027",
+      "source_lines": [
+        165,
+        165
+      ]
+    },
+    {
+      "id": "R028",
+      "source_lines": [
+        157,
+        157
+      ]
+    },
+    {
+      "id": "R029",
+      "source_lines": [
+        145,
+        145
+      ]
+    },
+    {
+      "id": "R030",
+      "source_lines": [
+        163,
+        163
+      ]
+    },
+    {
+      "id": "R031",
+      "source_lines": [
+        176,
+        176
+      ]
+    },
+    {
+      "id": "R032",
+      "source_lines": [
+        111,
+        123
+      ]
+    },
+    {
+      "id": "R033",
+      "source_lines": [
+        167,
+        175
+      ]
+    },
+    {
+      "id": "R034",
+      "source_lines": [
+        181,
+        197
+      ]
+    },
+    {
+      "id": "R035",
+      "source_lines": [
+        197,
+        197
+      ]
+    },
+    {
+      "id": "R036",
+      "source_lines": [
+        177,
+        177
+      ]
+    },
+    {
+      "id": "R037",
+      "source_lines": [
+        125,
+        125
+      ]
+    },
+    {
+      "id": "R038",
+      "source_lines": [
+        111,
+        123
+      ]
+    },
+    {
+      "id": "R039",
+      "source_lines": [
+        161,
+        162
+      ]
+    },
+    {
+      "id": "R040",
+      "source_lines": [
+        179,
+        179
+      ]
+    },
+    {
+      "id": "R041",
+      "source_lines": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "R042",
+      "source_lines": [
+        35,
+        35
+      ]
+    },
+    {
+      "id": "R043",
+      "source_lines": [
+        1,
+        11
+      ]
+    },
+    {
+      "id": "R044",
+      "source_lines": [
+        10,
+        12
+      ]
+    },
+    {
+      "id": "R045",
+      "source_lines": [
+        205,
+        205
+      ]
+    }
+  ]
+}

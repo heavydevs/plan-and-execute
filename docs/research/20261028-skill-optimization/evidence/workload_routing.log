@@ -1,0 +1,12 @@
+[resource-watch] validation=WORKLOAD_ROUTING report=.ai-work/resource-watch/20261028T170236-WORKLOAD_ROUTING-3313-1793206956978973091.jsonl
+[resource-watch] toolchain=PYTHON state=healthy version='Python 3.13.5'
+[resource-watch] toolchain=NODE state=healthy version='v22.16.0'
+[resource-watch] time=2026-10-28T17:02:38+00:00 validation=WORKLOAD_ROUTING test_pid=3344 test_process=running
+[resource-watch] validation=WORKLOAD_ROUTING resources=none (explicitly mapped)
+................
+----------------------------------------------------------------------
+Ran 16 tests in 0.032s
+
+OK
+[resource-watch] time=2026-10-28T17:02:39+00:00 validation=WORKLOAD_ROUTING test_pid=3344 test_process=exited group_cpu_seconds=1.31 processes=[{"pid":3344,"state":"R","cpu_seconds":1.31}]
+[resource-watch] validation=WORKLOAD_ROUTING test_exit=0 health=healthy

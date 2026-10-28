@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "source": "REQUEST_ORIGINAL.md section 7; original attachment lines 183-195",
+  "implementation_status": "pending",
+  "cases": [
+    {
+      "id": "A01",
+      "requirement": "Disabled option preserves legacy assertions, argv goldens and reference sequences.",
+      "owner_tasks": [
+        "070",
+        "072",
+        "074",
+        "078",
+        "080"
+      ],
+      "review_tasks": [
+        "071",
+        "073",
+        "075",
+        "079",
+        "081"
+      ],
+      "notes": "The ten offline baseline scenarios are stored; new behavior is not implemented.",
+      "status": "pending"
+    },
+    {
+      "id": "A02",
+      "requirement": "A useful top in the first provider moves the next eligible attempt to the second provider without waiting for the old failure bucket.",
+      "owner_tasks": [
+        "072",
+        "074"
+      ],
+      "review_tasks": [
+        "073",
+        "075"
+      ],
+      "notes": "Define and test mechanical/budget retry exceptions explicitly.",
+      "status": "pending"
+    },
+    {
+      "id": "A03",
+      "requirement": "Embedded-effort Antigravity slugs and Claude strong=max aliases do not create duplicate effective top attempts.",
+      "owner_tasks": [
+        "072"
+      ],
+      "review_tasks": [
+        "073"
+      ],
+      "notes": "Compare resolved model plus actual dispatched effort, not logical labels alone.",
+      "status": "pending"
+    },
+    {
+      "id": "A04",
+      "requirement": "The final eligible provider runs before ladder_exhausted in claude/codex and codex/claude fixtures.",
+      "owner_tasks": [
+        "074"
+      ],
+      "review_tasks": [
+        "075"
+      ],
+      "notes": "Persist evidence per provider/phase; do not replay prior-provider classes blindly.",
+      "status": "pending"
+    },
+    {
+      "id": "A05",
+      "requirement": "The third strong-chain provider is reachable at max_attempts=8, or a validated and documented budget rule rejects the impossible case.",
+      "owner_tasks": [
+        "070",
+        "074"
+      ],
+      "review_tasks": [
+        "071",
+        "075"
+      ],
+      "notes": "A budget exception must be explicit; no silent success claim.",
+      "status": "pending"
+    },
+    {
+      "id": "A06",
+      "requirement": "Escalation ladder and actual dispatch use a coherent chain without hidden provider changes or skipped candidates.",
+      "owner_tasks": [
+        "070",
+        "074"
+      ],
+      "review_tasks": [
+        "071",
+        "075"
+      ],
+      "notes": "Include standard-to-strong transitions under the user-equivalent fixture.",
+      "status": "pending"
+    },
+    {
+      "id": "A07",
+      "requirement": "A missing destination tier lifts upward or skips the provider with a recorded reason, never lowers the floor.",
+      "owner_tasks": [
+        "072",
+        "074"
+      ],
+      "review_tasks": [
+        "073",
+        "075"
+      ],
+      "notes": "Disposition the existing advanced-tier failure outside switching separately.",
+      "status": "pending"
+    },
+    {
+      "id": "A08",
+      "requirement": "Quota/capacity fallback and exit 75 stay separate from functional failures; fallback-disabled remains pinned.",
+      "owner_tasks": [
+        "074"
+      ],
+      "review_tasks": [
+        "075"
+      ],
+      "notes": "Exercise provider, quota_pool and model cooldown identities.",
+      "status": "pending"
+    },
+    {
+      "id": "A09",
+      "requirement": "Available-predecessor handoff is redacted before truncation, bounded, validated, unverified and valid for exactly the next attempt.",
+      "owner_tasks": [
+        "076",
+        "078"
+      ],
+      "review_tasks": [
+        "077",
+        "079"
+      ],
+      "notes": "Inject synthetic sk-token and Authorization headers; preserve byte-stable prompt prefixes.",
+      "status": "pending"
+    },
+    {
+      "id": "A10",
+      "requirement": "Missing, invalid or unavailable predecessor output falls back to deterministic evidence without a model call.",
+      "owner_tasks": [
+        "076",
+        "078"
+      ],
+      "review_tasks": [
+        "077",
+        "079"
+      ],
+      "notes": "Crash, timeout and quota fixtures must retain useful current work-tree evidence.",
+      "status": "pending"
+    },
+    {
+      "id": "A11",
+      "requirement": "Manifest schemas 1-4, absent failure_classes, full v1 config snapshots and existing availability ledgers remain compatible.",
+      "owner_tasks": [
+        "074",
+        "078"
+      ],
+      "review_tasks": [
+        "075",
+        "079"
+      ],
+      "notes": "Include design-phase counters, reset, snapshots and strict report schema adapters.",
+      "status": "pending"
+    },
+    {
+      "id": "A12",
+      "requirement": "Switch reason and handoff cost telemetry contain no secrets and preserve rollup/benchmark contracts.",
+      "owner_tasks": [
+        "080"
+      ],
+      "review_tasks": [
+        "081"
+      ],
+      "notes": "Unknown native usage is null; deterministic replay is not measured real-world cost.",
+      "status": "pending"
+    }
+  ],
+  "final_validation": {
+    "owner_task": "080",
+    "review_task": "081",
+    "commands": [
+      "npm ci",
+      "npm run check",
+      "npm pack --dry-run"
+    ],
+    "current_status": "not completed; preparation baseline full check was inconclusive"
+  },
+  "whole_skill_review": "086"
+}

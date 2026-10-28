@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "state": "plan_created_execution_pending",
+  "plan_id": "20261028-skill-study-provider-switch",
+  "branch": "feat/skill-study-and-provider-switch",
+  "base_local_commit": "6e6ba53b5a9972fb3146c3db609c4961574275c4",
+  "remote_base_commit": "193fefd96a3a8d9f2b4a655f237071fdf7c211f8",
+  "baseline_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "tasks": 86,
+  "task_states": {
+    "pending": 86
+  },
+  "task_kinds": {
+    "review": 44,
+    "audit": 1,
+    "inventory": 1,
+    "research": 32,
+    "implementation": 6,
+    "synthesis": 1,
+    "plan2": 1
+  },
+  "requirements": 45,
+  "seed_features": 32,
+  "preparation_checks_passed": 12,
+  "validator_unit_tests_passed": 11,
+  "full_suite": "inconclusive at 200-second host limit",
+  "runtime_source_changes": false,
+  "live_provider_calls": 0,
+  "max_model_reviews_completed": 0,
+  "commits_created": 0,
+  "pushes": 0,
+  "plan2_created": false,
+  "original_request_sha256": "81867f0f0a31a2fcf48c78bf7b548160924d1459ad3252fa4513fefd7de03e77"
+}

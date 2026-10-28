@@ -1,0 +1,8 @@
+[resource-watch] validation=MODEL_ROUTING report=.ai-work/resource-watch/20261028T170234-MODEL_ROUTING-3268-1793206954047141938.jsonl
+[resource-watch] toolchain=PYTHON state=healthy version='Python 3.13.5'
+[resource-watch] toolchain=NODE state=healthy version='v22.16.0'
+[resource-watch] time=2026-10-28T17:02:35+00:00 validation=MODEL_ROUTING test_pid=3299 test_process=running
+[resource-watch] validation=MODEL_ROUTING resources=none (explicitly mapped)
+All adaptive model-routing self-tests passed.
+[resource-watch] time=2026-10-28T17:02:36+00:00 validation=MODEL_ROUTING test_pid=3299 test_process=exited group_cpu_seconds=0.0 processes=[{"pid":3299,"state":"R","cpu_seconds":0.0}]
+[resource-watch] validation=MODEL_ROUTING test_exit=0 health=healthy

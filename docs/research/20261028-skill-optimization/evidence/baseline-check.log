@@ -1,0 +1,39 @@
+[resource-watch] validation=ALL report=.ai-work/resource-watch/20261028T164924-ALL-742-1793206164641616311.jsonl
+[resource-watch] toolchain=PYTHON state=healthy version='Python 3.13.5'
+[resource-watch] toolchain=NODE state=healthy version='v22.16.0'
+[resource-watch] time=2026-10-28T16:49:25+00:00 validation=ALL test_pid=773 test_process=running
+[resource-watch] validation=ALL resources=none (explicitly mapped)
+
+> @luizcgvrj/plan-and-execute@0.11.0 check
+> npm run clean && npm run validate:skill && npm test
+
+
+> @luizcgvrj/plan-and-execute@0.11.0 clean
+> node tools/clean-generated.js
+
+
+> @luizcgvrj/plan-and-execute@0.11.0 validate:skill
+> node tools/validate-skill.js
+
+Skill plan-and-execute validated (123 files, sha256 6b03c14746faf1b88b29e4e2b5f581c8aca56c19dc20c957d5eb800285460c03).
+
+> @luizcgvrj/plan-and-execute@0.11.0 test
+> npm run test:node && npm run test:skill && npm run test:repo
+
+
+> @luizcgvrj/plan-and-execute@0.11.0 test:node
+> node --test test/*.test.js
+
+TAP version 13
+# Subtest: clean preserves .ai-work caches and removes generated files elsewhere
+ok 1 - clean preserves .ai-work caches and removes generated files elsewhere
+  ---
+  duration_ms: 62.207716
+  type: 'test'
+  ...
+# Subtest: clean skips unreadable directories
+ok 2 - clean skips unreadable directories # SKIP
+  ---
+  duration_ms: 0.237481
+  type: 'test'
+  ...

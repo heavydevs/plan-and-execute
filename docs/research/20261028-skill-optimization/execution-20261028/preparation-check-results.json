@@ -1,0 +1,48 @@
+[
+  {
+    "name": "delivery-gate-self-tests",
+    "command": [
+      "python",
+      "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py"
+    ],
+    "started_at": "2026-10-28T19:21:50.176342+00:00",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "matches_expected": true,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/delivery-gate-self-tests.log",
+    "sha256": "1716b47a03188bc918a0e69af2d063dbf3f51ded577934827cd953a60bd6070d"
+  },
+  {
+    "name": "plan-structure-check",
+    "command": [
+      "python",
+      "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+      "--repo-root",
+      ".",
+      "--structure"
+    ],
+    "started_at": "2026-10-28T19:21:51.052380+00:00",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "matches_expected": true,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/plan-structure-check.log",
+    "sha256": "28cd0ff467775b493480e212e0fec6efb9deb0a5ad414c5abf88dff5fd21c32b"
+  },
+  {
+    "name": "review-gate-negative-check",
+    "command": [
+      "python",
+      "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+      "--repo-root",
+      ".",
+      "--task",
+      "001"
+    ],
+    "started_at": "2026-10-28T19:21:51.869264+00:00",
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "matches_expected": true,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/review-gate-negative-check.log",
+    "sha256": "643bdf60463cb14c5026641b1fcb54db2a44d11d931fde71e3e6d163741547f3"
+  }
+]

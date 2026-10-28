@@ -1,0 +1,8 @@
+[resource-watch] validation=ROUTING report=.ai-work/resource-watch/20261028T170231-ROUTING-3223-1793206951043160090.jsonl
+[resource-watch] toolchain=PYTHON state=healthy version='Python 3.13.5'
+[resource-watch] toolchain=NODE state=healthy version='v22.16.0'
+[resource-watch] time=2026-10-28T17:02:32+00:00 validation=ROUTING test_pid=3254 test_process=running
+[resource-watch] validation=ROUTING resources=none (explicitly mapped)
+routing self-test passed (28 cases: {'direct': 16, 'orchestrated': 10, 'promote': 2}).
+[resource-watch] time=2026-10-28T17:02:33+00:00 validation=ROUTING test_pid=3254 test_process=exited group_cpu_seconds=0.0 processes=[{"pid":3254,"state":"R","cpu_seconds":0.0}]
+[resource-watch] validation=ROUTING test_exit=0 health=healthy

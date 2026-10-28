@@ -1,0 +1,112 @@
+[
+  {
+    "command": [
+      "python",
+      "skill/plan-and-execute/scripts/planctl_concise.py",
+      "validate",
+      "--plan",
+      ".ai-work/20261028-skill-study-provider-switch"
+    ],
+    "started_at": "2026-10-28T19:18:45.171163+00:00",
+    "exit_code": 2,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/native-plan-validate.log",
+    "log_sha256": "0996b41db11b0661c5840a30046745ba05bde7f544848c41eb7ec2133442d63f"
+  },
+  {
+    "command": [
+      "python",
+      "skill/plan-and-execute/scripts/planctl_concise.py",
+      "audit",
+      "--plan",
+      ".ai-work/20261028-skill-study-provider-switch"
+    ],
+    "started_at": "2026-10-28T19:18:46.290286+00:00",
+    "exit_code": 2,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/native-plan-audit.log",
+    "log_sha256": "662c8d1ff2902b3ff4779ae5ee01efb86d09ab73ccd6c4afc452543b140035ab"
+  },
+  {
+    "command": [
+      "python",
+      "skill/plan-and-execute/scripts/run_concise.py",
+      "--plan",
+      ".ai-work/20261028-skill-study-provider-switch",
+      "--once",
+      "--no-wait",
+      "--no-cleanup"
+    ],
+    "started_at": "2026-10-28T19:18:47.432542+00:00",
+    "exit_code": 2,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/native-runner-attempt.log",
+    "log_sha256": "662c8d1ff2902b3ff4779ae5ee01efb86d09ab73ccd6c4afc452543b140035ab"
+  },
+  {
+    "command": [
+      "python",
+      "skill/plan-and-execute/scripts/planctl_concise.py",
+      "validate",
+      "--plan",
+      "/mnt/data/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch"
+    ],
+    "started_at": "2026-10-28T19:19:10.186236+00:00",
+    "exit_code": 0,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/native-plan-validate-after-repair.log",
+    "log_sha256": "064bfb41caf1a785928b2bc696a00d01027bc54171b44f7872d9d5655bc1f147"
+  },
+  {
+    "command": [
+      "python",
+      "skill/plan-and-execute/scripts/planctl_concise.py",
+      "audit",
+      "--plan",
+      "/mnt/data/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch"
+    ],
+    "started_at": "2026-10-28T19:19:11.057298+00:00",
+    "exit_code": 0,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/native-plan-audit-after-repair.log",
+    "log_sha256": "025828a915b75910fd303ab0188362a31d1365c1240a510a94d1a718cffee28a"
+  },
+  {
+    "command": [
+      "python",
+      "skill/plan-and-execute/scripts/run_concise.py",
+      "--plan",
+      "/mnt/data/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch",
+      "--once",
+      "--no-wait",
+      "--no-cleanup"
+    ],
+    "started_at": "2026-10-28T19:19:11.875995+00:00",
+    "exit_code": 75,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/native-runner-attempt-after-repair.log",
+    "log_sha256": "b94e20846df61096afcc1a01cbbbb42e74fddb4676f4ec29b4a79a7c307c913d"
+  },
+  {
+    "command": [
+      "python",
+      "skill/plan-and-execute/scripts/lifecyclectl_concise.py",
+      "current",
+      "--repo-root",
+      ".",
+      "--json"
+    ],
+    "started_at": "2026-10-28T19:19:12.774227+00:00",
+    "exit_code": 0,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/native-status-after-attempt.log",
+    "log_sha256": "f3c06e53707890ef9541b10b6de32b7b8d61ca73934e1b88d1f50ac12d4cad9c"
+  },
+  {
+    "command": [
+      "python",
+      "skill/plan-and-execute/scripts/run_concise.py",
+      "--plan",
+      ".ai-work/20261028-skill-study-provider-switch",
+      "--no-wait",
+      "--no-cleanup"
+    ],
+    "started_at": "2026-10-28T19:24:44.991383+00:00",
+    "exit_code": 75,
+    "log": "docs/research/20261028-skill-optimization/execution-20261028/native-full-runner-attempt.log",
+    "log_sha256": "b94e20846df61096afcc1a01cbbbb42e74fddb4676f4ec29b4a79a7c307c913d"
+  }
+]

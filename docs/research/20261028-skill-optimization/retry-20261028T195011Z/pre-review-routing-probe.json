@@ -1,0 +1,724 @@
+{
+  "schema_version": 1,
+  "status": "preparatory_evidence_only",
+  "independent_review": "not_performed",
+  "live_provider_calls": 0,
+  "note": "Model names are user-provided fixture labels, not verified available models. Command signatures are built but never executed. This is not a completed plan task.",
+  "baseline_commit": "6e6ba53b5a9972fb3146c3db609c4961574275c4",
+  "tracked_files": 188,
+  "runtime_files_compared": 135,
+  "runtime_files_changed": [],
+  "task_counts": {
+    "pending": 86
+  },
+  "tasks_transitively_waiting_for_001": 85,
+  "code_fingerprints": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/availability.py",
+      "sha256": "39e4e02663a26a1a3d6324037fef96bbf7d5c28cc2511a89d0431b377fa97c0d"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routing_config.py",
+      "sha256": "4c21ed17b26062511023e151edd60f56eb68219129418303f17ddc2b26e9d4e4"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routingctl.py",
+      "sha256": "f792363c783596aef972925edb9aad5d97b86da43e45a212a69c5a2355a78616"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/workload_routing.py",
+      "sha256": "1a387675edbf3ef9e9b58dbc2fdcfa072173329ca864a4d1577ad7ca369147b1"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "sha256": "74db8be9153d63c8accc1e3a650279fd54da0ea0b6405b0bfb4e470f183a97c6"
+    }
+  ],
+  "cases": [
+    {
+      "fixture": "defaults",
+      "tier": "strong",
+      "effort": "high",
+      "failure_class": "unknown",
+      "attempts": [
+        {
+          "attempt": 1,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "strong",
+          "logical_effort": "high",
+          "argv_sha256": "0a9e316b97ff52d85b82e212ae143fc4f0edfba600bcdbd7ff3bf31ac1668ec3",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 2,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-fable-5-1",
+          "tier": "max",
+          "logical_effort": "high",
+          "argv_sha256": "176c66948273ef686b1b72a016b3daa169a2147013e29df5f39636343e71646b",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 3,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-fable-5-1",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "83e41fe0c1606272851bf37b588414764daf3bd0f0882e4d7fbae3dfe20bd62f",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 4,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-fable-5-1",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "83e41fe0c1606272851bf37b588414764daf3bd0f0882e4d7fbae3dfe20bd62f",
+          "explicit_effort_flag": true
+        }
+      ],
+      "declared_chain": [
+        "claude",
+        "codex"
+      ],
+      "stop": "ladder_exhausted",
+      "repeated_dispatches": 1,
+      "intent_dispatch_mismatches": 0,
+      "unvisited_declared_providers": [
+        "codex"
+      ]
+    },
+    {
+      "fixture": "defaults",
+      "tier": "max",
+      "effort": "high",
+      "failure_class": "semantic",
+      "attempts": [
+        {
+          "attempt": 1,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-fable-5-1",
+          "tier": "max",
+          "logical_effort": "high",
+          "argv_sha256": "176c66948273ef686b1b72a016b3daa169a2147013e29df5f39636343e71646b",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 2,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-fable-5-1",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "83e41fe0c1606272851bf37b588414764daf3bd0f0882e4d7fbae3dfe20bd62f",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 3,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-fable-5-1",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "83e41fe0c1606272851bf37b588414764daf3bd0f0882e4d7fbae3dfe20bd62f",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 4,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-fable-5-1",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "83e41fe0c1606272851bf37b588414764daf3bd0f0882e4d7fbae3dfe20bd62f",
+          "explicit_effort_flag": true
+        }
+      ],
+      "declared_chain": [
+        "claude",
+        "codex"
+      ],
+      "stop": "ladder_exhausted",
+      "repeated_dispatches": 2,
+      "intent_dispatch_mismatches": 0,
+      "unvisited_declared_providers": [
+        "codex"
+      ]
+    },
+    {
+      "fixture": "defaults",
+      "tier": "standard",
+      "effort": "medium",
+      "failure_class": "unknown",
+      "attempts": [
+        {
+          "attempt": 1,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-sonnet-5-5",
+          "tier": "standard",
+          "logical_effort": "medium",
+          "argv_sha256": "43f2b4f1d5f0a7c8c90121d7abcd0224041d955661a69ce5569b66792e7584fe",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 2,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-sonnet-5-5",
+          "tier": "standard",
+          "logical_effort": "high",
+          "argv_sha256": "46156317ab57754107ff5ac8a0d2803d310224b31c73844981d15dc77592b944",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 3,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "strong",
+          "logical_effort": "medium",
+          "argv_sha256": "cd5f51170fc2debd119f5b0a17e2dc4c19a3811cc5869edb66a765421c504e51",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 4,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "strong",
+          "logical_effort": "high",
+          "argv_sha256": "0a9e316b97ff52d85b82e212ae143fc4f0edfba600bcdbd7ff3bf31ac1668ec3",
+          "explicit_effort_flag": true
+        }
+      ],
+      "declared_chain": [
+        "claude",
+        "codex"
+      ],
+      "stop": "ladder_exhausted",
+      "repeated_dispatches": 0,
+      "intent_dispatch_mismatches": 0,
+      "unvisited_declared_providers": [
+        "codex"
+      ]
+    },
+    {
+      "fixture": "defaults",
+      "tier": "standard",
+      "effort": "medium",
+      "failure_class": "mechanical",
+      "attempts": [
+        {
+          "attempt": 1,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-sonnet-5-5",
+          "tier": "standard",
+          "logical_effort": "medium",
+          "argv_sha256": "43f2b4f1d5f0a7c8c90121d7abcd0224041d955661a69ce5569b66792e7584fe",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 2,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-sonnet-5-5",
+          "tier": "standard",
+          "logical_effort": "medium",
+          "argv_sha256": "43f2b4f1d5f0a7c8c90121d7abcd0224041d955661a69ce5569b66792e7584fe",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 3,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-sonnet-5-5",
+          "tier": "standard",
+          "logical_effort": "high",
+          "argv_sha256": "46156317ab57754107ff5ac8a0d2803d310224b31c73844981d15dc77592b944",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 4,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-sonnet-5-5",
+          "tier": "standard",
+          "logical_effort": "high",
+          "argv_sha256": "46156317ab57754107ff5ac8a0d2803d310224b31c73844981d15dc77592b944",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 5,
+          "intent_provider": "codex",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "e501f7777f095ed48d63c0f703198681d2ab3f0f18fe07e40aacdbdf22ed2031",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 6,
+          "intent_provider": "codex",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "e501f7777f095ed48d63c0f703198681d2ab3f0f18fe07e40aacdbdf22ed2031",
+          "explicit_effort_flag": false
+        }
+      ],
+      "declared_chain": [
+        "claude",
+        "codex"
+      ],
+      "stop": "ladder_exhausted",
+      "repeated_dispatches": 3,
+      "intent_dispatch_mismatches": 0,
+      "unvisited_declared_providers": []
+    },
+    {
+      "fixture": "defaults",
+      "tier": "advanced",
+      "effort": "high",
+      "failure_class": "unknown",
+      "attempts": [
+        {
+          "attempt": 1,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "strong",
+          "logical_effort": "high",
+          "argv_sha256": "0a9e316b97ff52d85b82e212ae143fc4f0edfba600bcdbd7ff3bf31ac1668ec3",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 2,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-fable-5-1",
+          "tier": "max",
+          "logical_effort": "high",
+          "argv_sha256": "176c66948273ef686b1b72a016b3daa169a2147013e29df5f39636343e71646b",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 3,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-fable-5-1",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "83e41fe0c1606272851bf37b588414764daf3bd0f0882e4d7fbae3dfe20bd62f",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 4,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-fable-5-1",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "83e41fe0c1606272851bf37b588414764daf3bd0f0882e4d7fbae3dfe20bd62f",
+          "explicit_effort_flag": true
+        }
+      ],
+      "declared_chain": [
+        "claude",
+        "codex"
+      ],
+      "stop": "ladder_exhausted",
+      "repeated_dispatches": 1,
+      "intent_dispatch_mismatches": 0,
+      "unvisited_declared_providers": [
+        "codex"
+      ]
+    },
+    {
+      "fixture": "user-equivalent-fixture",
+      "tier": "strong",
+      "effort": "high",
+      "failure_class": "unknown",
+      "attempts": [
+        {
+          "attempt": 1,
+          "intent_provider": "codex",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "strong",
+          "logical_effort": "high",
+          "argv_sha256": "29fecc25503e29fbe06cac6105cbf9089880d805d3e13030a89d96d24b8016e2",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 2,
+          "intent_provider": "codex",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "e501f7777f095ed48d63c0f703198681d2ab3f0f18fe07e40aacdbdf22ed2031",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 3,
+          "intent_provider": "codex",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "e501f7777f095ed48d63c0f703198681d2ab3f0f18fe07e40aacdbdf22ed2031",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 4,
+          "intent_provider": "codex",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "e501f7777f095ed48d63c0f703198681d2ab3f0f18fe07e40aacdbdf22ed2031",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 5,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 6,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 7,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 8,
+          "intent_provider": "claude",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        }
+      ],
+      "declared_chain": [
+        "codex",
+        "claude",
+        "antigravity"
+      ],
+      "stop": "max_attempts",
+      "repeated_dispatches": 5,
+      "intent_dispatch_mismatches": 0,
+      "unvisited_declared_providers": [
+        "antigravity"
+      ]
+    },
+    {
+      "fixture": "user-equivalent-fixture",
+      "tier": "max",
+      "effort": "high",
+      "failure_class": "semantic",
+      "attempts": [
+        {
+          "attempt": 1,
+          "intent_provider": "codex",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "max",
+          "logical_effort": "high",
+          "argv_sha256": "29fecc25503e29fbe06cac6105cbf9089880d805d3e13030a89d96d24b8016e2",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 2,
+          "intent_provider": "codex",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "e501f7777f095ed48d63c0f703198681d2ab3f0f18fe07e40aacdbdf22ed2031",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 3,
+          "intent_provider": "codex",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "e501f7777f095ed48d63c0f703198681d2ab3f0f18fe07e40aacdbdf22ed2031",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 4,
+          "intent_provider": "codex",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "e501f7777f095ed48d63c0f703198681d2ab3f0f18fe07e40aacdbdf22ed2031",
+          "explicit_effort_flag": false
+        }
+      ],
+      "declared_chain": [
+        "codex",
+        "claude"
+      ],
+      "stop": "ladder_exhausted",
+      "repeated_dispatches": 2,
+      "intent_dispatch_mismatches": 0,
+      "unvisited_declared_providers": [
+        "claude"
+      ]
+    },
+    {
+      "fixture": "user-equivalent-fixture",
+      "tier": "standard",
+      "effort": "medium",
+      "failure_class": "unknown",
+      "attempts": [
+        {
+          "attempt": 1,
+          "intent_provider": "antigravity",
+          "dispatch_provider": "antigravity",
+          "model": "claude-sonnet-5-5-medium",
+          "tier": "standard",
+          "logical_effort": "medium",
+          "argv_sha256": "73146fda56e7359eba775121a6f452e9c5ece1784a329104246a275a511e5d93",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 2,
+          "intent_provider": "antigravity",
+          "dispatch_provider": "antigravity",
+          "model": "claude-sonnet-5-5-medium",
+          "tier": "standard",
+          "logical_effort": "high",
+          "argv_sha256": "73146fda56e7359eba775121a6f452e9c5ece1784a329104246a275a511e5d93",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 3,
+          "intent_provider": "antigravity",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "strong",
+          "logical_effort": "medium",
+          "argv_sha256": "075611d0b3766e99ba665ba62c41ed2ffa3c33214a277b8d2c2a8e4c058f8b68",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 4,
+          "intent_provider": "antigravity",
+          "dispatch_provider": "codex",
+          "model": "gpt-6.1-sol",
+          "tier": "strong",
+          "logical_effort": "high",
+          "argv_sha256": "29fecc25503e29fbe06cac6105cbf9089880d805d3e13030a89d96d24b8016e2",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 5,
+          "intent_provider": "codex",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 6,
+          "intent_provider": "codex",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 7,
+          "intent_provider": "codex",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 8,
+          "intent_provider": "codex",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        }
+      ],
+      "declared_chain": [
+        "antigravity",
+        "codex",
+        "claude"
+      ],
+      "stop": "max_attempts",
+      "repeated_dispatches": 4,
+      "intent_dispatch_mismatches": 6,
+      "unvisited_declared_providers": []
+    },
+    {
+      "fixture": "user-equivalent-fixture",
+      "tier": "standard",
+      "effort": "medium",
+      "failure_class": "mechanical",
+      "attempts": [
+        {
+          "attempt": 1,
+          "intent_provider": "antigravity",
+          "dispatch_provider": "antigravity",
+          "model": "claude-sonnet-5-5-medium",
+          "tier": "standard",
+          "logical_effort": "medium",
+          "argv_sha256": "73146fda56e7359eba775121a6f452e9c5ece1784a329104246a275a511e5d93",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 2,
+          "intent_provider": "antigravity",
+          "dispatch_provider": "antigravity",
+          "model": "claude-sonnet-5-5-medium",
+          "tier": "standard",
+          "logical_effort": "medium",
+          "argv_sha256": "73146fda56e7359eba775121a6f452e9c5ece1784a329104246a275a511e5d93",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 3,
+          "intent_provider": "antigravity",
+          "dispatch_provider": "antigravity",
+          "model": "claude-sonnet-5-5-medium",
+          "tier": "standard",
+          "logical_effort": "high",
+          "argv_sha256": "73146fda56e7359eba775121a6f452e9c5ece1784a329104246a275a511e5d93",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 4,
+          "intent_provider": "antigravity",
+          "dispatch_provider": "antigravity",
+          "model": "claude-sonnet-5-5-medium",
+          "tier": "standard",
+          "logical_effort": "high",
+          "argv_sha256": "73146fda56e7359eba775121a6f452e9c5ece1784a329104246a275a511e5d93",
+          "explicit_effort_flag": false
+        },
+        {
+          "attempt": 5,
+          "intent_provider": "codex",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 6,
+          "intent_provider": "codex",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 7,
+          "intent_provider": "codex",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        },
+        {
+          "attempt": 8,
+          "intent_provider": "codex",
+          "dispatch_provider": "claude",
+          "model": "claude-opus-5-5",
+          "tier": "max",
+          "logical_effort": "xhigh",
+          "argv_sha256": "c5993bf4f4412fbe22b43a080584a859a5661be9c8bb4f83200bb391ad1fb069",
+          "explicit_effort_flag": true
+        }
+      ],
+      "declared_chain": [
+        "antigravity",
+        "codex",
+        "claude"
+      ],
+      "stop": "max_attempts",
+      "repeated_dispatches": 6,
+      "intent_dispatch_mismatches": 4,
+      "unvisited_declared_providers": [
+        "codex"
+      ]
+    },
+    {
+      "fixture": "user-equivalent-fixture",
+      "tier": "advanced",
+      "effort": "high",
+      "failure_class": "unknown",
+      "attempts": [],
+      "declared_chain": [
+        "antigravity",
+        "codex",
+        "claude"
+      ],
+      "stop": "AvailabilityError: No model configured for codex/advanced; configure before dispatch",
+      "repeated_dispatches": 0,
+      "intent_dispatch_mismatches": 0,
+      "unvisited_declared_providers": [
+        "antigravity",
+        "codex",
+        "claude"
+      ]
+    }
+  ]
+}

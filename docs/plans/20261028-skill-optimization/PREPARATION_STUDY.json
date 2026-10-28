@@ -1,0 +1,204 @@
+{
+  "schema_version": 2,
+  "request_summary": "Prepare a resumable first plan for full-skill research, a bounded provider-switch improvement and creation of the remaining implementation plan.",
+  "complexity_assessment": {
+    "level": "complex",
+    "rationale": "Cross-provider dispatch, durable state, context safety and full-skill discovery require independent research and review boundaries.",
+    "signals": [
+      "Multiple independently verifiable mechanisms and adapters.",
+      "A provider-state change touches availability, schemas, prompts and replay compatibility."
+    ]
+  },
+  "internal_study": {
+    "selection_source": "user",
+    "depth": "full_project",
+    "rationale": "Full-project depth is explicitly requested; preparation indexed the complete tree, while the semantic full audit remains a pending TODO.",
+    "plan_finding": "The full audit and complete feature inventory are separate pending tasks before any topic synthesis."
+  },
+  "material_questions": [
+    {
+      "id": "Q001",
+      "question": "Does the first plan include implementation of the embedded provider-switch request?",
+      "importance": "high",
+      "status": "resolved",
+      "resolution": "The attachment expressly includes that improvement in Plan 1; Plan 2 contains other accepted remaining changes.",
+      "evidence_ids": [
+        "I001"
+      ],
+      "planning_impact": "Reserve a bounded implementation track after research, then generate Plan 2 without duplicate work."
+    },
+    {
+      "id": "Q002",
+      "question": "Can this host perform the requested real maximum-model reviews now?",
+      "importance": "high",
+      "status": "resolved",
+      "resolution": "No supported worker CLI is on PATH; authenticated execution also needs user confirmation.",
+      "evidence_ids": [
+        "I004"
+      ],
+      "planning_impact": "Keep autostart false and TODO 001 pending; never simulate external review."
+    }
+  ],
+  "internal_sources": [
+    {
+      "id": "I001",
+      "kind": "instructions",
+      "location": "Original attachment lines 1-17 and 169-205",
+      "finding": "The request nests a study/plan workflow and an explicit provider-switch implementation track with confirmation requirements.",
+      "planning_impact": "Keep both scopes and preserve the original request bytes."
+    },
+    {
+      "id": "I002",
+      "kind": "implementation",
+      "location": "skill/plan-and-execute/scripts/run_isolated.py:301-346; availability.py:116-168",
+      "finding": "Logical escalation and availability dispatch use different tier-dependent provider chains.",
+      "planning_impact": "Make chain coherence a reviewed contract before editing either path."
+    },
+    {
+      "id": "I003",
+      "kind": "tests",
+      "location": "docs/research/20261028-skill-optimization/evidence/routing-baseline.json",
+      "finding": "Offline fixture replay reproduces provider-top repetition, early exhaustion and empty-tier dispatch error.",
+      "planning_impact": "Preserve these as the disabled-mode compatibility baseline and new-mode acceptance scenarios."
+    },
+    {
+      "id": "I004",
+      "kind": "build",
+      "location": "docs/research/20261028-skill-optimization/evidence/BASELINE.json",
+      "finding": "Three focused routing checks pass; full npm check is inconclusive at the host timeout; worker CLIs are absent.",
+      "planning_impact": "Separate baseline recovery, real reviewer qualification and authenticated evaluation gates."
+    }
+  ],
+  "external_research": {
+    "decision": "required",
+    "selection_source": "user",
+    "depth": "broad",
+    "rationale": "Broad provider documentation and research are explicitly requested; this packet records initial reconnaissance only. Full topic research remains pending.",
+    "trigger_assessment": {
+      "user_requested": true,
+      "unfamiliar_domain": false,
+      "version_sensitive": true,
+      "security_sensitive": true,
+      "current_behavior": true,
+      "repository_gap": true,
+      "conflicting_evidence": true,
+      "technology_selection": true,
+      "high_risk": true
+    },
+    "sources": [
+      {
+        "id": "E001",
+        "source_type": "official_documentation",
+        "title": "Effective harnesses for long-running agents",
+        "publisher": "Anthropic",
+        "url": "https://www.anthropic.com/research/effective-harnesses-for-long-running-agents",
+        "version_or_date": "2025-11-26; accessed 2026-10-28",
+        "finding": "Incremental tasks and durable progress artifacts address loss of context; the article does not prove this skill is complete.",
+        "planning_impact": "Separate audit, feature evidence and final-plan synthesis; preserve unfinished work.",
+        "why_authoritative": "First-party provider documentation or the original authors; reading scope is limited to initial planning evidence."
+      },
+      {
+        "id": "E002",
+        "source_type": "official_documentation",
+        "title": "Claude Code CLI reference",
+        "publisher": "Anthropic",
+        "url": "https://code.claude.com/docs/en/cli-reference",
+        "version_or_date": "Live documentation accessed 2026-10-28",
+        "finding": "Print mode and session controls have distinct contracts; nonpersistent execution cannot be assumed resumable.",
+        "planning_impact": "Compare a worker-provided summary and deterministic fallback before choosing native-session persistence.",
+        "why_authoritative": "First-party provider documentation or the original authors; reading scope is limited to initial planning evidence."
+      },
+      {
+        "id": "E003",
+        "source_type": "official_documentation",
+        "title": "Codex non-interactive mode",
+        "publisher": "OpenAI",
+        "url": "https://developers.openai.com/codex/noninteractive/",
+        "version_or_date": "Redirects to learn.chatgpt.com; accessed 2026-10-28",
+        "finding": "The documentation distinguishes ephemeral execution, structured output and explicit sandbox settings.",
+        "planning_impact": "Test adapter flags and schema against the installed CLI version; do not assume existing argv is current.",
+        "why_authoritative": "First-party provider documentation or the original authors; reading scope is limited to initial planning evidence."
+      },
+      {
+        "id": "E004",
+        "source_type": "official_documentation",
+        "title": "Antigravity CLI commands",
+        "publisher": "Google",
+        "url": "https://antigravity.google/docs/cli/reference/",
+        "version_or_date": "Live documentation accessed 2026-10-28",
+        "finding": "Effort is model-dependent; --continue and --conversation are documented session controls.",
+        "planning_impact": "Resolve effective effort from both CLI and model list; preserve divergence as an explicit test input.",
+        "why_authoritative": "First-party provider documentation or the original authors; reading scope is limited to initial planning evidence."
+      },
+      {
+        "id": "E005",
+        "source_type": "official_documentation",
+        "title": "Antigravity model quotas",
+        "publisher": "Google",
+        "url": "https://antigravity.google/docs/cli/commands/usage",
+        "version_or_date": "Live documentation accessed 2026-10-28",
+        "finding": "The CLI exposes usage/quota inspection; this alone does not prove a selected account has a particular available quota.",
+        "planning_impact": "Plan per-profile and model-family checks without spending authenticated quota during preparation.",
+        "why_authoritative": "First-party provider documentation or the original authors; reading scope is limited to initial planning evidence."
+      },
+      {
+        "id": "E006",
+        "source_type": "official_documentation",
+        "title": "Handoffs - OpenAI Agents SDK",
+        "publisher": "OpenAI",
+        "url": "https://openai.github.io/openai-agents-python/handoffs/",
+        "version_or_date": "Live documentation accessed 2026-10-28",
+        "finding": "Structured handoff inputs and input filters are explicit SDK mechanisms.",
+        "planning_impact": "Use their separation of metadata and history as an alternative, not proof of cross-CLI session portability.",
+        "why_authoritative": "First-party provider documentation or the original authors; reading scope is limited to initial planning evidence."
+      },
+      {
+        "id": "E007",
+        "source_type": "research_paper",
+        "title": "AutoMix: Automatically Mixing Language Models",
+        "publisher": "NeurIPS / paper authors",
+        "url": "https://papers.nips.cc/paper_files/paper/2024/hash/ecda225cb187b40ea8edc1f46b03ffda-Abstract-Conference.html",
+        "version_or_date": "NeurIPS 2024; abstract accessed 2026-10-28",
+        "finding": "The abstract reports model routing with noisy self-verification and cost/quality experiments.",
+        "planning_impact": "Compare against measured skill baselines; do not import the paper savings percentage into project claims.",
+        "why_authoritative": "First-party provider documentation or the original authors; reading scope is limited to initial planning evidence."
+      }
+    ]
+  },
+  "synthesis": {
+    "planning_constraints": [
+      "Do not call authenticated workers or publish without confirmation.",
+      "Preserve installed copies, user-global config and original request bytes.",
+      "Use separate fresh max-capability review gates; no lower substitute."
+    ],
+    "derived_requirements": [
+      "Create one independently resumable broad-research task for each inventoried topic.",
+      "Include the provider-top switching improvement in Plan 1, not only in a later backlog.",
+      "Plan 2 contains only approved remaining improvements and references completed Plan 1 work as baseline, not new TODOs."
+    ],
+    "risks": [
+      "Full-project semantic coverage is not yet complete.",
+      "No real external reviewer is available in this host.",
+      "The full-suite baseline has no completed exit result."
+    ],
+    "validation_implications": [
+      "Check native plan schema, requirements, dependencies and resource-map bindings.",
+      "Require actual reviewer route receipts and hashes before accepting results.",
+      "Run source fixture replay without user-global configuration."
+    ],
+    "unresolved_questions": [],
+    "stopping_reason": "The evidence resolves scope, task boundaries and authorization for plan creation; exhaustive per-feature study is the work to be executed by this plan.",
+    "ready_for_planning": true
+  },
+  "review": {
+    "reviewer": "Host preliminary consistency pass; independent maximum review pending in TODO 001",
+    "internal_coverage_sufficient": true,
+    "external_decision_justified": true,
+    "source_quality_sufficient": true,
+    "findings_translated_to_plan": true,
+    "contradictions_resolved": true,
+    "notes": [
+      "This approval covers plan creation only, not completion of broad research or maximum-model review."
+    ]
+  }
+}

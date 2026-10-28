@@ -1,0 +1,9 @@
+{
+  "created_empty_directories": [
+    "learnings",
+    "results",
+    "logs"
+  ],
+  "reason": "ZIP did not include empty required plan directories",
+  "task_status_edits": false
+}
