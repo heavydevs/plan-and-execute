@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "feature_id": "F003",
+  "former_research_task": "010",
+  "implementation_task": "010",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Separate user-selected depth from discovery breadth and stopping criteria.",
+    "Evaluate authoritative evidence retrieval, access dates and deduplication without silently omitting requirements."
+  ],
+  "decision": "Turn adaptive study into a bounded decision log: preserve user-selected depth, ask material questions, reuse dated evidence and stop when decisions are stable.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "studyctl normalizes explicit internal/external study choices and attaches evidence to planning. Its records distinguish questions, sources and synthesis.",
+    "The former plan repeated research as a future task even though the user now requests research in advance. Prepared reports should be inputs, not a reason to restart the same literature search."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/studyctl.py",
+      "sha256": "fefef4d70d93e92a2aaff124af727d26596de4a7935232c9b009df6269c94d82",
+      "line_count": 1190,
+      "symbols": [
+        {
+          "name": "normalize_study",
+          "line": 706,
+          "end": 715
+        },
+        {
+          "name": "attach_study",
+          "line": 1001,
+          "end": 1043
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/studyctl_concise.py",
+      "sha256": "7dc5480368dba06e5c5a14f91b4c41d896ec3b86c8864641929177a3f5d35735",
+      "line_count": 10,
+      "symbols": []
+    },
+    {
+      "path": "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+      "sha256": "349f06551e9fd94a33f437d814c4c116339b9a111cebfe506bb6a5f0b59f50a3",
+      "line_count": 163,
+      "symbols": [
+        {
+          "name": "# Adaptive study protocol",
+          "line": 1
+        },
+        {
+          "name": "## 1. Classify before broad repository inspection",
+          "line": 5
+        },
+        {
+          "name": "### Simple",
+          "line": 9
+        },
+        {
+          "name": "### Medium",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/STUDY_CHOICES.md",
+      "sha256": "8c8adbcdc085eb181009926e3f6306fd99b5ff888de0cef6990e60e3843c4266",
+      "line_count": 86,
+      "symbols": [
+        {
+          "name": "# Complex-study choices",
+          "line": 1
+        },
+        {
+          "name": "## Recommendation marker",
+          "line": 7
+        },
+        {
+          "name": "## Interactive choice UI",
+          "line": 31
+        },
+        {
+          "name": "## Choice 1 — internal study",
+          "line": 45
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E008",
+    "E009",
+    "E003",
+    "E002"
+  ],
+  "implementation_steps": [
+    "Add a compact reusable evidence record with material question, source/version/date, repository applicability, confidence and implementation consequence.",
+    "Distinguish verified source facts, observed repository behavior and proposed design. Store failed access attempts and unknowns explicitly rather than substituting a plausible fact.",
+    "Deduplicate shared external sources by stable ID while giving each task its own applicability analysis. Refresh only version-sensitive decisions or contradicted evidence.",
+    "Use a stopping condition: every high-impact question is answered or has a concrete implementation-time capability probe; no unresolved issue can silently change acceptance.",
+    "Preserve user-requested study breadth and the original source. Do not silently narrow a broad study to one blog or use an arbitrary source count as semantic proof."
+  ],
+  "proposed_acceptance_tests": [
+    "A source with no date/version is flagged for refresh when it affects CLI behavior.",
+    "Two tasks sharing the same source retain different applicability notes without copying an entire article.",
+    "A contradictory provider document yields a probe requirement, not an invented resolution.",
+    "Known prepared reports are consumed without requiring another broad research phase."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Study packet with broad prose findings",
+      "tradeoff": "Supports traceability, but can encourage repeated reading without explicit freshness disposition."
+    },
+    {
+      "id": "recommended",
+      "title": "Question-first evidence and selective refresh",
+      "tradeoff": "Keeps auditability with smaller repeated context and exposes unresolved material facts."
+    },
+    {
+      "id": "rejected",
+      "title": "Autonomous unlimited web exploration or source-count-only approval",
+      "tradeoff": "Expensive and may still miss the decisive compatibility question."
+    }
+  ],
+  "cost_model": "Reuse verified source metadata and only reopen the source for a material uncertainty. Track sources retrieved, duplicated input bytes and decisions changed; do not equate more citations with higher quality.",
+  "unverified": [
+    "No complete commercial book was available. This research uses the public AI Engineering excerpt and a public SRE chapter, explicitly labeled as such."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

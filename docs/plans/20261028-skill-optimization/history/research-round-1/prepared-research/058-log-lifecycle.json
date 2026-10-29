@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "feature_id": "F027",
+  "former_research_task": "058",
+  "implementation_task": "058",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Measure cursor gaps, rotation/truncation, bounded summaries and missed-error risk.",
+    "Prune owned stale artifacts without deleting active diagnostic evidence or rereading entire logs."
+  ],
+  "decision": "Preserve incremental cursors and explicit coverage gaps; add rotation recovery and owned retention rather than deleting logs to save prompt tokens.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "log_watch.scan tracks file device/inode and byte offset, keeps incomplete trailing lines for the next sample and reports skipped bytes with exit2.",
+    "digest reads a bounded prefix and reports truncation/omission. A small digest is not evidence that the entire source log was inspected.",
+    "The scan output truncates matching lines before any shared secret redactor is applied in that function; model-facing consumers need a defined sanitation boundary."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/log_watch.py",
+      "sha256": "114ea5c9c0ef6db6523e4fd7ea41faf2a8e9464968f3a8527738cec6321d3aaf",
+      "line_count": 259,
+      "symbols": [
+        {
+          "name": "scan",
+          "line": 58,
+          "end": 132
+        },
+        {
+          "name": "digest",
+          "line": 135,
+          "end": 211
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/resource_watch.py",
+      "sha256": "22ac707b846a428c832671c6cfc96d9e45b367f5b3a61963ac0258791a5c2184",
+      "line_count": 820,
+      "symbols": [
+        {
+          "name": "register_artifact",
+          "line": 62,
+          "end": 81
+        },
+        {
+          "name": "cleanup_artifacts",
+          "line": 84,
+          "end": 122
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/observer.py",
+      "sha256": "ad84f96624f85c860edd925ed5bf354dc805b726f943bf14a435f6ef5179b322",
+      "line_count": 440,
+      "symbols": [
+        {
+          "name": "ObserverError",
+          "line": 37,
+          "end": 38
+        },
+        {
+          "name": "Unavailable",
+          "line": 41,
+          "end": 44
+        },
+        {
+          "name": "validate",
+          "line": 47,
+          "end": 55
+        },
+        {
+          "name": "options",
+          "line": 58,
+          "end": 61
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E046",
+    "E044",
+    "E045",
+    "E043"
+  ],
+  "implementation_steps": [
+    "Represent read coverage with start/end offsets, file identity, truncation/rotation events and omitted ranges. Do not convert a partial scan into a healthy result.",
+    "Test move/create and copytruncate rotation, same-size replacement, partial UTF-8 and very long lines. Choose explicit replay/deduplication policy for each case.",
+    "Apply sanitation before model-facing truncation and preserve bounded safe error signatures. Keep full raw logs only in owned access-controlled storage, not in prompts or packages.",
+    "Resume from cursor/digest checkpoints instead of rereading entire logs. Cursor corruption or uncertain identity should produce visible uncertainty and a bounded recovery path.",
+    "Prune only registered stale artifacts after acceptance and retention checks. Never let an observer delete active application logs or erase evidence needed by an unresolved failure."
+  ],
+  "proposed_acceptance_tests": [
+    "An error split across two writes is detected once the line completes.",
+    "An omitted interval yields a coverage-gap status, never a claim of no errors.",
+    "Rotation/replacement does not inherit an unrelated offset silently.",
+    "A planted credential at a truncation boundary is absent from model-facing excerpts.",
+    "Cleanup preserves active/unresolved evidence and rejects unregistered paths and symlinks."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Read full logs repeatedly or delete them after reading",
+      "tradeoff": "Either wastes tokens/I/O or destroys diagnostic evidence."
+    },
+    {
+      "id": "recommended",
+      "title": "Incremental coverage receipts plus guarded retention",
+      "tradeoff": "Bounded work with explicit missed-data risk and reproducible diagnosis."
+    },
+    {
+      "id": "rejected",
+      "title": "Optimize only for digest size",
+      "tradeoff": "Can hide errors and produce attractive but meaningless token-reduction percentages."
+    }
+  ],
+  "cost_model": "Measure bytes actually read, duplicate bytes, omitted intervals, detection recall and digest size. The repository's synthetic >99% reduction is not a universal production saving.",
+  "unverified": [
+    "Secret redaction is best effort, not a proof that arbitrary raw application output is safe to disclose. Sensitive logs may require stronger policy or no model access."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

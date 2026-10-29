@@ -1,0 +1,3936 @@
+{
+  "schema_version": 2,
+  "plan_mode": "single_implementation",
+  "tasks": [
+    {
+      "id": "001",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "test/optimization/baseline_contracts.py",
+        "test/optimization/task_001_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/001-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/001-outcome.md",
+      "write_scope": [
+        "test/optimization/baseline_contracts.py",
+        "test/optimization/task_001_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/task_001_self_test.py"
+        ],
+        [
+          "python",
+          "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+          "--structure"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "002",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "test/optimization/baseline_contracts.py",
+        "test/optimization/task_002_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/002-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/002-outcome.md",
+      "write_scope": [
+        "test/optimization/baseline_contracts.py",
+        "test/optimization/task_002_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/task_002_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "003",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "002",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "test/optimization/baseline_contracts.py",
+        "test/optimization/task_003_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/002-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/002-outcome.md",
+        "test/optimization/task_002_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/003-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/003-outcome.md",
+      "write_scope": [
+        "test/optimization/baseline_contracts.py",
+        "test/optimization/task_002_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/task_002_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "004",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "test/optimization/shared_fixtures.py",
+        "test/optimization/task_004_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/004-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/004-outcome.md",
+      "write_scope": [
+        "test/optimization/shared_fixtures.py",
+        "test/optimization/task_004_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/task_004_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "005",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "004",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "test/optimization/shared_fixtures.py",
+        "test/optimization/task_005_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/004-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/004-outcome.md",
+        "test/optimization/task_004_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/005-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/005-outcome.md",
+      "write_scope": [
+        "test/optimization/shared_fixtures.py",
+        "test/optimization/task_004_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/task_004_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "006",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md",
+        "skill/plan-and-execute/scripts/requestctl.py",
+        "skill/plan-and-execute/scripts/promotectl.py",
+        "skill/plan-and-execute/scripts/routing_self_test.py",
+        "test/optimization/activation_intake_self_test.py",
+        "skill/plan-and-execute/SKILL.md",
+        "skill/plan-and-execute/references/ROUTING.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/006-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/006-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/requestctl.py",
+        "skill/plan-and-execute/scripts/promotectl.py",
+        "skill/plan-and-execute/scripts/routing_self_test.py",
+        "test/optimization/activation_intake_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/activation_intake_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/promotion_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04"
+      ],
+      "feature_id": "F001",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md",
+      "research_sha256": "1c76855583ae2490c1d0bf6e56a75ac17102c2d38a0313aace39563778fe458f",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/requestctl.py",
+        "skill/plan-and-execute/scripts/promotectl.py",
+        "skill/plan-and-execute/SKILL.md",
+        "skill/plan-and-execute/references/ROUTING.md"
+      ]
+    },
+    {
+      "id": "007",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "006",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md",
+        "skill/plan-and-execute/scripts/requestctl.py",
+        "skill/plan-and-execute/scripts/promotectl.py",
+        "skill/plan-and-execute/scripts/routing_self_test.py",
+        "test/optimization/activation_intake_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/006-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/006-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/007-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/007-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/requestctl.py",
+        "skill/plan-and-execute/scripts/promotectl.py",
+        "skill/plan-and-execute/scripts/routing_self_test.py",
+        "test/optimization/activation_intake_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/activation_intake_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/promotion_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "008",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md",
+        "skill/plan-and-execute/scripts/preplanctl.py",
+        "skill/plan-and-execute/scripts/preplan_self_test.py",
+        "test/optimization/primary_planning_self_test.py",
+        "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+        "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/008-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/008-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/preplanctl.py",
+        "skill/plan-and-execute/scripts/preplan_self_test.py",
+        "test/optimization/primary_planning_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/primary_planning_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/preplan_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F002",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md",
+      "research_sha256": "ca73066adaa09341838a87e31f7a56140543a3eeb2646b2717bc440b4028de76",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/preplanctl.py",
+        "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+        "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md"
+      ]
+    },
+    {
+      "id": "009",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "008",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md",
+        "skill/plan-and-execute/scripts/preplanctl.py",
+        "skill/plan-and-execute/scripts/preplan_self_test.py",
+        "test/optimization/primary_planning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/008-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/008-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/009-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/009-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/preplanctl.py",
+        "skill/plan-and-execute/scripts/preplan_self_test.py",
+        "test/optimization/primary_planning_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/primary_planning_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/preplan_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "010",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md",
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "skill/plan-and-execute/scripts/study_self_test.py",
+        "test/optimization/adaptive_study_self_test.py",
+        "skill/plan-and-execute/scripts/studyctl_concise.py",
+        "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+        "skill/plan-and-execute/references/STUDY_CHOICES.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/010-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/010-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "skill/plan-and-execute/scripts/study_self_test.py",
+        "test/optimization/adaptive_study_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/adaptive_study_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/study_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04"
+      ],
+      "feature_id": "F003",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md",
+      "research_sha256": "de1d8155b6a7c0c422855a445cc18876ea6ded361cc9061818b8eb2d72fe8fe2",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "skill/plan-and-execute/scripts/studyctl_concise.py",
+        "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+        "skill/plan-and-execute/references/STUDY_CHOICES.md"
+      ]
+    },
+    {
+      "id": "011",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "010",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md",
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "skill/plan-and-execute/scripts/study_self_test.py",
+        "test/optimization/adaptive_study_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/010-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/010-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/011-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/011-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "skill/plan-and-execute/scripts/study_self_test.py",
+        "test/optimization/adaptive_study_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/adaptive_study_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/study_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "012",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "test/optimization/plan_contract_self_test.py",
+        "skill/plan-and-execute/scripts/planctl_concise.py",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "skill/plan-and-execute/references/PLANNING_PROTOCOL.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/012-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/012-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "test/optimization/plan_contract_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/plan_contract_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F004",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md",
+      "research_sha256": "2fbd730a6916fccb41fb9c68c35a7d03a28d137f8bde1640b280872706ee8b74",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/planctl_concise.py",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "skill/plan-and-execute/references/PLANNING_PROTOCOL.md"
+      ]
+    },
+    {
+      "id": "013",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "012",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/012-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/012-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/013-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/013-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "test/optimization/plan_contract_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/plan_contract_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "014",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "test/optimization/context_learning_self_test.py",
+        "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/014-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/014-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "test/optimization/context_learning_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/context_learning_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/context_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/task_memory_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F005",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
+      "research_sha256": "071fc7de11ff085489d2bce8e5f302db0ab42615ece0374b772efed660802ee3",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md"
+      ]
+    },
+    {
+      "id": "015",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "014",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "test/optimization/context_learning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/014-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/014-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/015-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/015-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "test/optimization/context_learning_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/context_learning_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/context_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/task_memory_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "016",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/016-shared-patterns.md",
+        "skill/plan-and-execute/scripts/patternctl.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "test/optimization/shared_patterns_self_test.py",
+        "skill/plan-and-execute/references/SHARED_PATTERNS.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/016-shared-patterns.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/016-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/016-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/patternctl.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "test/optimization/shared_patterns_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/shared_patterns_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/pattern_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/pattern_runner_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F006",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/016-shared-patterns.md",
+      "research_sha256": "ff612c6c70a94c8da342bf9e5bf938978774c16d848f3f253611deee02a2586e",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/patternctl.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "skill/plan-and-execute/references/SHARED_PATTERNS.md"
+      ]
+    },
+    {
+      "id": "017",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "016",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/016-shared-patterns.md",
+        "skill/plan-and-execute/scripts/patternctl.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "test/optimization/shared_patterns_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/016-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/016-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/016-shared-patterns.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/017-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/017-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/patternctl.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "test/optimization/shared_patterns_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/shared_patterns_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/pattern_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/pattern_runner_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "018",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/018-lifecycle.md",
+        "skill/plan-and-execute/scripts/lifecyclectl.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/lifecycle_self_test.py",
+        "skill/plan-and-execute/scripts/lifecyclectl_concise.py",
+        "skill/plan-and-execute/references/LIFECYCLE.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/018-lifecycle.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/018-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/018-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/lifecyclectl.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/lifecycle_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F007",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/018-lifecycle.md",
+      "research_sha256": "a62386506f4efd32cb933bf91e7d95f6d5c7e297e4bf6face9003359eaf77779",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/lifecyclectl.py",
+        "skill/plan-and-execute/scripts/lifecyclectl_concise.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/references/LIFECYCLE.md"
+      ]
+    },
+    {
+      "id": "019",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "018",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/018-lifecycle.md",
+        "skill/plan-and-execute/scripts/lifecyclectl.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/lifecycle_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/018-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/018-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/018-lifecycle.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/019-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/019-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/lifecyclectl.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/lifecycle_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "020",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/020-escalation.md",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "test/optimization/escalation_self_test.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/020-escalation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/020-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/020-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "test/optimization/escalation_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/escalation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F008",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/020-escalation.md",
+      "research_sha256": "613faff87cb6d2cc471697f38fdc2453b499b6a05b407fb56c9aa3d599aa477f",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md"
+      ]
+    },
+    {
+      "id": "021",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "020",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/020-escalation.md",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "test/optimization/escalation_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/020-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/020-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/020-escalation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/021-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/021-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "test/optimization/escalation_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/escalation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "022",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/022-availability.md",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "test/optimization/availability_self_test.py",
+        "skill/plan-and-execute/scripts/routing_config.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/022-availability.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/022-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/022-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "test/optimization/availability_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F009",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/022-availability.md",
+      "research_sha256": "59f4b220471d6648ec7fa3e2da15c1f7aa4b747c64a3d08206db880829462871",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/workload_routing.py"
+      ]
+    },
+    {
+      "id": "023",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "022",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/022-availability.md",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "test/optimization/availability_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/022-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/022-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/022-availability.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/023-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/023-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "test/optimization/availability_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "024",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "test/optimization/workload_affinity_self_test.py",
+        "skill/plan-and-execute/references/VALIDATION_WORKLOADS.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/024-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/024-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "test/optimization/workload_affinity_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/workload_affinity_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F010",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md",
+      "research_sha256": "18e9390e4f2d3e304e3c9f703aa9c62baf4ef2dad66071b17dc942623e85c67d",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "skill/plan-and-execute/references/VALIDATION_WORKLOADS.md"
+      ]
+    },
+    {
+      "id": "025",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "024",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "test/optimization/workload_affinity_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/024-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/024-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/025-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/025-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "test/optimization/workload_affinity_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/workload_affinity_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "026",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/026-catalog-snapshots.md",
+        "skill/plan-and-execute/scripts/model_catalog.py",
+        "skill/plan-and-execute/scripts/model_catalogctl.py",
+        "test/optimization/catalog_snapshots_self_test.py",
+        "skill/plan-and-execute/references/MODEL_CATALOG.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/026-catalog-snapshots.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/026-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/026-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/model_catalog.py",
+        "skill/plan-and-execute/scripts/model_catalogctl.py",
+        "test/optimization/catalog_snapshots_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/catalog_snapshots_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_catalogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_matrix_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F011",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/026-catalog-snapshots.md",
+      "research_sha256": "9e5f9f63d37c0de34f6ff555acbffe40feef218b3a8ba9b92fdaab538cb9dc63",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/model_catalog.py",
+        "skill/plan-and-execute/scripts/model_catalogctl.py",
+        "skill/plan-and-execute/references/MODEL_CATALOG.md"
+      ]
+    },
+    {
+      "id": "027",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "026",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/026-catalog-snapshots.md",
+        "skill/plan-and-execute/scripts/model_catalog.py",
+        "skill/plan-and-execute/scripts/model_catalogctl.py",
+        "test/optimization/catalog_snapshots_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/026-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/026-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/026-catalog-snapshots.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/027-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/027-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/model_catalog.py",
+        "skill/plan-and-execute/scripts/model_catalogctl.py",
+        "test/optimization/catalog_snapshots_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/catalog_snapshots_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_catalogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_matrix_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "028",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/028-delegation.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "test/optimization/delegation_self_test.py",
+        "skill/plan-and-execute/scripts/run_concise.py",
+        "skill/plan-and-execute/references/DELEGATION.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/028-delegation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/028-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/028-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "test/optimization/delegation_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F012",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/028-delegation.md",
+      "research_sha256": "6358ad740b95d0fa8a81d9642f8263f55e77f54863aa9cad607bf3782cc1eead",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_concise.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/DELEGATION.md"
+      ]
+    },
+    {
+      "id": "029",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "028",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/028-delegation.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "test/optimization/delegation_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/028-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/028-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/028-delegation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/029-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/029-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "test/optimization/delegation_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "030",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/030-claude.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/claude_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/030-claude.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/030-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/030-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/claude_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/claude_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F013",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/030-claude.md",
+      "research_sha256": "2d4f10b6dd1e2e80de9c44d55c9b613ec9b9f84e32f1155180b52ad814e59fc3",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md"
+      ]
+    },
+    {
+      "id": "031",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "030",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/030-claude.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/claude_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/030-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/030-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/030-claude.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/031-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/031-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/claude_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/claude_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "032",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/032-codex.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/codex_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/032-codex.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/032-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/032-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/codex_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/codex_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F014",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/032-codex.md",
+      "research_sha256": "ebe0ca00f60e3c92f87c5a95c56464cc719a847ab11b4970752fdeaf4b37069e",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md"
+      ]
+    },
+    {
+      "id": "033",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "032",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/032-codex.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/codex_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/032-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/032-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/032-codex.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/033-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/033-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/codex_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/codex_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "034",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/034-antigravity.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "test/optimization/antigravity_self_test.py",
+        "skill/plan-and-execute/references/INSTALLATION.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/034-antigravity.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/034-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/034-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "test/optimization/antigravity_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/antigravity_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F015",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/034-antigravity.md",
+      "research_sha256": "c882160a57f21040f80c92f757209ea128d72aad28983a493b42eb9bf90e5577",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/references/INSTALLATION.md"
+      ]
+    },
+    {
+      "id": "035",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "034",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/034-antigravity.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "test/optimization/antigravity_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/034-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/034-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/034-antigravity.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/035-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/035-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "test/optimization/antigravity_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/antigravity_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "036",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/036-qwen.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/qwen_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/036-qwen.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/036-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/036-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/qwen_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/qwen_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F016",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/036-qwen.md",
+      "research_sha256": "905ff75e3dd98e45fa708c0e17b5dd1b6fa8539050a1c63fdf76da3c8c2d15f8",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py"
+      ]
+    },
+    {
+      "id": "037",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "036",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/036-qwen.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/qwen_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/036-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/036-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/036-qwen.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/037-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/037-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/qwen_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/qwen_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "038",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/038-kimi.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/kimi_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/038-kimi.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/038-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/038-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/kimi_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/kimi_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F017",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/038-kimi.md",
+      "research_sha256": "78be058958cb251dcbab815bc5cc48fb803f9d168f9cda65619302dc6f53f10b",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py"
+      ]
+    },
+    {
+      "id": "039",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "038",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/038-kimi.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/kimi_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/038-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/038-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/038-kimi.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/039-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/039-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/kimi_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/kimi_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "040",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/040-trae.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/trae_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/040-trae.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/040-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/040-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/trae_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/trae_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F018",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/040-trae.md",
+      "research_sha256": "fb268492da14b0174da2441f2f8a59f81d54b54feadcb5b4fb9d360d7075553e",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py"
+      ]
+    },
+    {
+      "id": "041",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "040",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/040-trae.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/trae_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/040-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/040-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/040-trae.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/041-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/041-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "test/optimization/trae_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/trae_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "042",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/042-muse.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/muse_provider_self_test.py",
+        "test/optimization/muse_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_MUSE.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/042-muse.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/042-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/042-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/muse_provider_self_test.py",
+        "test/optimization/muse_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/muse_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/muse_provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F019",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/042-muse.md",
+      "research_sha256": "55cf9e85c5e0e3212e85c64705aac3062b58891ed0155681c3119d461bf7b6b1",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/muse_provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_MUSE.md"
+      ]
+    },
+    {
+      "id": "043",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "042",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/042-muse.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/muse_provider_self_test.py",
+        "test/optimization/muse_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/042-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/042-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/042-muse.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/043-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/043-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/muse_provider_self_test.py",
+        "test/optimization/muse_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/muse_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/muse_provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "044",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/044-glm.md",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/glm_provider_self_test.py",
+        "test/optimization/glm_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/044-glm.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/044-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/044-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/glm_provider_self_test.py",
+        "test/optimization/glm_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/glm_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/glm_provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F020",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/044-glm.md",
+      "research_sha256": "ea68d720ac1fd6b2b468bfdb46d7f0f608776917264154caa7733822abf4af9a",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/glm_provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md"
+      ]
+    },
+    {
+      "id": "045",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "044",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/044-glm.md",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/glm_provider_self_test.py",
+        "test/optimization/glm_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/044-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/044-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/044-glm.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/045-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/045-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/glm_provider_self_test.py",
+        "test/optimization/glm_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/glm_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/glm_provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "046",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/046-deepseek.md",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
+        "test/optimization/deepseek_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/046-deepseek.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/046-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/046-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
+        "test/optimization/deepseek_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/deepseek_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/deepseek_provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F021",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/046-deepseek.md",
+      "research_sha256": "c4624f64e125f7e536936ab8b6aaff18e15d292d2aa125d64553f015af0ff46f",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md"
+      ]
+    },
+    {
+      "id": "047",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "046",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/046-deepseek.md",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
+        "test/optimization/deepseek_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/046-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/046-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/046-deepseek.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/047-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/047-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
+        "test/optimization/deepseek_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/deepseek_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/deepseek_provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "048",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/048-validation-evidence.md",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "test/optimization/validation_evidence_self_test.py",
+        "skill/plan-and-execute/references/WORKFLOW.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/048-validation-evidence.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/048-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/048-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "test/optimization/validation_evidence_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/validation_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F022",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/048-validation-evidence.md",
+      "research_sha256": "62c782f586066fc9a4caffb008c5b1fb46b0e93fa1e6f2abe089beb71437305d",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/WORKFLOW.md"
+      ]
+    },
+    {
+      "id": "049",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "048",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/048-validation-evidence.md",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "test/optimization/validation_evidence_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/048-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/048-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/048-validation-evidence.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/049-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/049-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "test/optimization/validation_evidence_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/validation_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "050",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/050-resource-map.md",
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "test/optimization/resource_map_self_test.py",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/050-resource-map.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/050-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/050-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "test/optimization/resource_map_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/resource_map_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F023",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/050-resource-map.md",
+      "research_sha256": "88cac650e3a7b031c099cee31d159522458818cbd762d3a0d64712815f8a1eb2",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md"
+      ]
+    },
+    {
+      "id": "051",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "050",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/050-resource-map.md",
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "test/optimization/resource_map_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/050-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/050-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/050-resource-map.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/051-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/051-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "test/optimization/resource_map_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/resource_map_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "052",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/052-progress-processes.md",
+        "skill/plan-and-execute/scripts/progress_signal.py",
+        "skill/plan-and-execute/scripts/progress_watch.py",
+        "skill/plan-and-execute/scripts/process_tree.py",
+        "test/optimization/progress_processes_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/052-progress-processes.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/052-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/052-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/progress_signal.py",
+        "skill/plan-and-execute/scripts/progress_watch.py",
+        "skill/plan-and-execute/scripts/process_tree.py",
+        "test/optimization/progress_processes_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/progress_processes_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_watch_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_signal_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F024",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/052-progress-processes.md",
+      "research_sha256": "914932aad02d06e0b1ab9f9d3ee490755b9da614ba913462e1160cecd3444a5b",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/progress_signal.py",
+        "skill/plan-and-execute/scripts/progress_watch.py",
+        "skill/plan-and-execute/scripts/process_tree.py"
+      ]
+    },
+    {
+      "id": "053",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "052",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/052-progress-processes.md",
+        "skill/plan-and-execute/scripts/progress_signal.py",
+        "skill/plan-and-execute/scripts/progress_watch.py",
+        "skill/plan-and-execute/scripts/process_tree.py",
+        "test/optimization/progress_processes_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/052-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/052-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/052-progress-processes.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/053-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/053-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/progress_signal.py",
+        "skill/plan-and-execute/scripts/progress_watch.py",
+        "skill/plan-and-execute/scripts/process_tree.py",
+        "test/optimization/progress_processes_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/progress_processes_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_watch_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_signal_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "054",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/054-supervised-jobs.md",
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/supervised_jobs_self_test.py",
+        "skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/054-supervised-jobs.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/054-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/054-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/supervised_jobs_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/supervised_jobs_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/jobctl_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F025",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/054-supervised-jobs.md",
+      "research_sha256": "afc74660a81289d758742f7acfcf5febaad4d4d4b863fa1efe55f164a769c981",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md"
+      ]
+    },
+    {
+      "id": "055",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "054",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/054-supervised-jobs.md",
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/supervised_jobs_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/054-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/054-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/054-supervised-jobs.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/055-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/055-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/supervised_jobs_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/supervised_jobs_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/jobctl_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "056",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/056-watchdog-keepalive.md",
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "test/optimization/watchdog_keepalive_self_test.py",
+        "skill/plan-and-execute/references/WATCHDOG.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/056-watchdog-keepalive.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/056-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/056-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "test/optimization/watchdog_keepalive_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/watchdog_keepalive_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/keepalivectl_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F026",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/056-watchdog-keepalive.md",
+      "research_sha256": "2041d502051b9b314044823892524d7a4a80c8de619e5ded43f878691d5b4c1b",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "skill/plan-and-execute/references/WATCHDOG.md"
+      ]
+    },
+    {
+      "id": "057",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "056",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/056-watchdog-keepalive.md",
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "test/optimization/watchdog_keepalive_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/056-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/056-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/056-watchdog-keepalive.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/057-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/057-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "test/optimization/watchdog_keepalive_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/watchdog_keepalive_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/keepalivectl_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "058",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/058-log-lifecycle.md",
+        "skill/plan-and-execute/scripts/log_watch.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "test/optimization/log_lifecycle_self_test.py",
+        "skill/plan-and-execute/scripts/observer.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/058-log-lifecycle.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/058-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/058-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/log_watch.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "test/optimization/log_lifecycle_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/log_lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/log_watch_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F027",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/058-log-lifecycle.md",
+      "research_sha256": "c1aa07e1d2e0afed5964909945b7a4d2513574f897e5ae0c64b99afa2266be03",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/log_watch.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "skill/plan-and-execute/scripts/observer.py"
+      ]
+    },
+    {
+      "id": "059",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "058",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/058-log-lifecycle.md",
+        "skill/plan-and-execute/scripts/log_watch.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "test/optimization/log_lifecycle_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/058-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/058-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/058-log-lifecycle.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/059-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/059-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/log_watch.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "test/optimization/log_lifecycle_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/log_lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/log_watch_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "060",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/060-advisory-observer.md",
+        "skill/plan-and-execute/scripts/observer.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "test/optimization/advisory_observer_self_test.py",
+        "skill/plan-and-execute/references/ASSISTANTS.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/060-advisory-observer.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/060-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/060-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/observer.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "test/optimization/advisory_observer_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/advisory_observer_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/assistant_triage_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/observer_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F028",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/060-advisory-observer.md",
+      "research_sha256": "640fc93546f0c08796633def59ad04751efd9e879afbd2ef1f58a6d85e06ef40",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/observer.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/references/ASSISTANTS.md"
+      ]
+    },
+    {
+      "id": "061",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "060",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/060-advisory-observer.md",
+        "skill/plan-and-execute/scripts/observer.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "test/optimization/advisory_observer_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/060-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/060-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/060-advisory-observer.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/061-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/061-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/observer.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "test/optimization/advisory_observer_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/advisory_observer_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/assistant_triage_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/observer_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "062",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.md",
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/companion_validation_self_test.py",
+        "test/optimization/validate_or_fix_self_test.py",
+        "skill/plan-and-execute/scripts/companion_self_test.py",
+        "skill/validate-or-fix/SKILL.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/062-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/062-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/companion_validation_self_test.py",
+        "test/optimization/validate_or_fix_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/validate_or_fix_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F029",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.md",
+      "research_sha256": "260aa2148104c0d44af1c7975d06dc1c474b4babd32cd3572c83081655fa9665",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/companion_self_test.py",
+        "skill/validate-or-fix/SKILL.md"
+      ]
+    },
+    {
+      "id": "063",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "062",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.md",
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/companion_validation_self_test.py",
+        "test/optimization/validate_or_fix_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/062-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/062-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/063-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/063-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/companion_validation_self_test.py",
+        "test/optimization/validate_or_fix_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/validate_or_fix_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "064",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/064-economic-evaluation.md",
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/skill_benchmark.py",
+        "tools/routing_eval.py",
+        "test/optimization/economic_evaluation_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/064-economic-evaluation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/064-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/064-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/skill_benchmark.py",
+        "tools/routing_eval.py",
+        "test/optimization/economic_evaluation_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/economic_evaluation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/telemetry_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F030",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/064-economic-evaluation.md",
+      "research_sha256": "6ead4423e74c8352309aec06d2a9162cc753678ce1458fdd3dcd27dd69e10f2b",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/routing_eval.py",
+        "tools/skill_benchmark.py"
+      ]
+    },
+    {
+      "id": "065",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "064",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/064-economic-evaluation.md",
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/skill_benchmark.py",
+        "tools/routing_eval.py",
+        "test/optimization/economic_evaluation_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/064-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/064-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/064-economic-evaluation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/065-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/065-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/skill_benchmark.py",
+        "tools/routing_eval.py",
+        "test/optimization/economic_evaluation_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/economic_evaluation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/telemetry_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "066",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/066-distribution.md",
+        "lib/installer.js",
+        "tools/package-skills.js",
+        "tools/validate-skill.js",
+        "bin/plan-and-execute.js",
+        "skill/plan-and-execute/scripts/package.json",
+        "test/optimization/distribution_self_test.py",
+        "lib/skill-source.js",
+        "tools/clean-generated.js",
+        "skill/plan-and-execute/scripts/configure.py",
+        ".github/workflows/ci.yml",
+        "SECURITY.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/066-distribution.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/066-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/066-outcome.md",
+      "write_scope": [
+        "lib/installer.js",
+        "tools/package-skills.js",
+        "tools/validate-skill.js",
+        "bin/plan-and-execute.js",
+        "skill/plan-and-execute/scripts/package.json",
+        "test/optimization/distribution_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/distribution_self_test.py"
+        ],
+        [
+          "node",
+          "--test",
+          "test/installer.test.js"
+        ],
+        [
+          "node",
+          "tools/validate-skill.js"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "feature_id": "F031",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/066-distribution.md",
+      "research_sha256": "152a41c681f41747b0cd41b4f00f798c4dfe84a1b409e62e58f7fe61c4b3d5d5",
+      "source_paths": [
+        "bin/plan-and-execute.js",
+        "lib/installer.js",
+        "lib/skill-source.js",
+        "tools/package-skills.js",
+        "tools/validate-skill.js",
+        "tools/clean-generated.js",
+        "skill/plan-and-execute/scripts/configure.py",
+        ".github/workflows/ci.yml",
+        "SECURITY.md"
+      ]
+    },
+    {
+      "id": "067",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "066",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/066-distribution.md",
+        "lib/installer.js",
+        "tools/package-skills.js",
+        "tools/validate-skill.js",
+        "bin/plan-and-execute.js",
+        "skill/plan-and-execute/scripts/package.json",
+        "test/optimization/distribution_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/066-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/066-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/066-distribution.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/067-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/067-outcome.md",
+      "write_scope": [
+        "lib/installer.js",
+        "tools/package-skills.js",
+        "tools/validate-skill.js",
+        "bin/plan-and-execute.js",
+        "skill/plan-and-execute/scripts/package.json",
+        "test/optimization/distribution_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/distribution_self_test.py"
+        ],
+        [
+          "node",
+          "--test",
+          "test/installer.test.js"
+        ],
+        [
+          "node",
+          "tools/validate-skill.js"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "068",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "test/optimization/provider_switch_handoff_self_test.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/068-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/068-outcome.md",
+      "write_scope": [
+        "test/optimization/provider_switch_handoff_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04"
+      ],
+      "feature_id": "F032",
+      "former_kind": "research",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+      "research_sha256": "6c7de80d194713fb694ff5961e95dade8b898b7f9b3df6dee22f416adc88e96b",
+      "source_paths": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md"
+      ]
+    },
+    {
+      "id": "069",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "068",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "test/optimization/provider_switch_handoff_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/068-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/068-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/069-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/069-outcome.md",
+      "write_scope": [
+        "test/optimization/provider_switch_handoff_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "070",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "test/optimization/provider_switch_070_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/070-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/070-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "test/optimization/provider_switch_070_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_070_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "071",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "070",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "test/optimization/provider_switch_070_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/070-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/070-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/071-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/071-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "test/optimization/provider_switch_070_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_070_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02"
+      ]
+    },
+    {
+      "id": "072",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/provider_switch_072_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/072-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/072-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/provider_switch_072_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_072_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "073",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "072",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/provider_switch_072_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/072-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/072-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/073-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/073-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/provider_switch_072_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_072_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02"
+      ]
+    },
+    {
+      "id": "074",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/provider_switch_074_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/074-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/074-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/provider_switch_074_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_074_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "075",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "074",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/provider_switch_074_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/074-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/074-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/075-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/075-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/provider_switch_074_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_074_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02"
+      ]
+    },
+    {
+      "id": "076",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/provider_switch_076_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/076-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/076-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/provider_switch_076_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_076_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "077",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "076",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/provider_switch_076_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/076-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/076-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/077-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/077-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/provider_switch_076_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_076_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02"
+      ]
+    },
+    {
+      "id": "078",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "test/optimization/provider_switch_078_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/078-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/078-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "test/optimization/provider_switch_078_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_078_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "079",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "078",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "test/optimization/provider_switch_078_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/078-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/078-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/079-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/079-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "test/optimization/provider_switch_078_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_078_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02"
+      ]
+    },
+    {
+      "id": "080",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md",
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/skill_benchmark.py",
+        "test/optimization/provider_switch_080_self_test.py",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/080-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/080-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/skill_benchmark.py",
+        "test/optimization/provider_switch_080_self_test.py",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_080_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/telemetry_self_test.py"
+        ],
+        [
+          "python",
+          "tools/skill_benchmark_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "081",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "080",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/skill_benchmark.py",
+        "test/optimization/provider_switch_080_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/080-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/080-outcome.md",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/081-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/081-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/skill_benchmark.py",
+        "test/optimization/provider_switch_080_self_test.py",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_switch_080_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/telemetry_self_test.py"
+        ],
+        [
+          "python",
+          "tools/skill_benchmark_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02"
+      ]
+    },
+    {
+      "id": "082",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md",
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "tools/run-repo-checks.js"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/082-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/082-outcome.md",
+      "write_scope": [
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "tools/run-repo-checks.js"
+      ],
+      "required_checks": [
+        [
+          "npm",
+          "run",
+          "check"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "083",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "082",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md",
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "tools/run-repo-checks.js",
+        "docs/research/20261028-skill-optimization/implementation/082-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/082-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/083-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/083-outcome.md",
+      "write_scope": [
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "tools/run-repo-checks.js"
+      ],
+      "required_checks": [
+        [
+          "npm",
+          "run",
+          "check"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "084",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md",
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "tools/run-repo-checks.js"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/084-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/084-outcome.md",
+      "write_scope": [
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "tools/run-repo-checks.js"
+      ],
+      "required_checks": [
+        [
+          "npm",
+          "ci"
+        ],
+        [
+          "npm",
+          "run",
+          "check"
+        ],
+        [
+          "npm",
+          "pack",
+          "--dry-run",
+          "--json"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "085",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "084",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md",
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "tools/run-repo-checks.js",
+        "docs/research/20261028-skill-optimization/implementation/084-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/084-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/085-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/085-outcome.md",
+      "write_scope": [
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "tools/run-repo-checks.js"
+      ],
+      "required_checks": [
+        [
+          "npm",
+          "ci"
+        ],
+        [
+          "npm",
+          "run",
+          "check"
+        ],
+        [
+          "npm",
+          "pack",
+          "--dry-run",
+          "--json"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    },
+    {
+      "id": "086",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "085",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md",
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "tools/run-repo-checks.js",
+        "docs/research/20261028-skill-optimization/implementation/085-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/085-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+        "docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/086-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/086-outcome.md",
+      "write_scope": [
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "tools/run-repo-checks.js"
+      ],
+      "required_checks": [
+        [
+          "npm",
+          "run",
+          "check"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03"
+      ]
+    }
+  ]
+}

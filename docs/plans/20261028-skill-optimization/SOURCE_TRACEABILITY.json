@@ -1,321 +1,733 @@
 {
-  "source": "REQUEST.md (verbatim in the plan workspace)",
-  "display_citation": "turn292file0",
-  "requirements": [
+  "schema_version": 2,
+  "original_mapping": {
+    "source": "REQUEST.md (verbatim in the plan workspace)",
+    "display_citation": "turn292file0",
+    "requirements": [
+      {
+        "id": "R001",
+        "source_lines": [
+          1,
+          1
+        ]
+      },
+      {
+        "id": "R002",
+        "source_lines": [
+          3,
+          10
+        ]
+      },
+      {
+        "id": "R003",
+        "source_lines": [
+          11,
+          11
+        ]
+      },
+      {
+        "id": "R004",
+        "source_lines": [
+          12,
+          12
+        ]
+      },
+      {
+        "id": "R005",
+        "source_lines": [
+          11,
+          12
+        ]
+      },
+      {
+        "id": "R006",
+        "source_lines": [
+          17,
+          35
+        ]
+      },
+      {
+        "id": "R007",
+        "source_lines": [
+          20,
+          20
+        ]
+      },
+      {
+        "id": "R008",
+        "source_lines": [
+          37,
+          37
+        ]
+      },
+      {
+        "id": "R009",
+        "source_lines": [
+          39,
+          103
+        ]
+      },
+      {
+        "id": "R010",
+        "source_lines": [
+          169,
+          171
+        ]
+      },
+      {
+        "id": "R011",
+        "source_lines": [
+          204,
+          204
+        ]
+      },
+      {
+        "id": "R012",
+        "source_lines": [
+          157,
+          157
+        ]
+      },
+      {
+        "id": "R013",
+        "source_lines": [
+          147,
+          150
+        ]
+      },
+      {
+        "id": "R014",
+        "source_lines": [
+          163,
+          164
+        ]
+      },
+      {
+        "id": "R015",
+        "source_lines": [
+          151,
+          151
+        ]
+      },
+      {
+        "id": "R016",
+        "source_lines": [
+          148,
+          148
+        ]
+      },
+      {
+        "id": "R017",
+        "source_lines": [
+          127,
+          138
+        ]
+      },
+      {
+        "id": "R018",
+        "source_lines": [
+          139,
+          140
+        ]
+      },
+      {
+        "id": "R019",
+        "source_lines": [
+          142,
+          144
+        ]
+      },
+      {
+        "id": "R020",
+        "source_lines": [
+          143,
+          143
+        ]
+      },
+      {
+        "id": "R021",
+        "source_lines": [
+          141,
+          141
+        ]
+      },
+      {
+        "id": "R022",
+        "source_lines": [
+          144,
+          144
+        ]
+      },
+      {
+        "id": "R023",
+        "source_lines": [
+          80,
+          80
+        ]
+      },
+      {
+        "id": "R024",
+        "source_lines": [
+          159,
+          160
+        ]
+      },
+      {
+        "id": "R025",
+        "source_lines": [
+          159,
+          159
+        ]
+      },
+      {
+        "id": "R026",
+        "source_lines": [
+          158,
+          158
+        ]
+      },
+      {
+        "id": "R027",
+        "source_lines": [
+          165,
+          165
+        ]
+      },
+      {
+        "id": "R028",
+        "source_lines": [
+          157,
+          157
+        ]
+      },
+      {
+        "id": "R029",
+        "source_lines": [
+          145,
+          145
+        ]
+      },
+      {
+        "id": "R030",
+        "source_lines": [
+          163,
+          163
+        ]
+      },
+      {
+        "id": "R031",
+        "source_lines": [
+          176,
+          176
+        ]
+      },
+      {
+        "id": "R032",
+        "source_lines": [
+          111,
+          123
+        ]
+      },
+      {
+        "id": "R033",
+        "source_lines": [
+          167,
+          175
+        ]
+      },
+      {
+        "id": "R034",
+        "source_lines": [
+          181,
+          197
+        ]
+      },
+      {
+        "id": "R035",
+        "source_lines": [
+          197,
+          197
+        ]
+      },
+      {
+        "id": "R036",
+        "source_lines": [
+          177,
+          177
+        ]
+      },
+      {
+        "id": "R037",
+        "source_lines": [
+          125,
+          125
+        ]
+      },
+      {
+        "id": "R038",
+        "source_lines": [
+          111,
+          123
+        ]
+      },
+      {
+        "id": "R039",
+        "source_lines": [
+          161,
+          162
+        ]
+      },
+      {
+        "id": "R040",
+        "source_lines": [
+          179,
+          179
+        ]
+      },
+      {
+        "id": "R041",
+        "source_lines": [
+          1,
+          1
+        ]
+      },
+      {
+        "id": "R042",
+        "source_lines": [
+          35,
+          35
+        ]
+      },
+      {
+        "id": "R043",
+        "source_lines": [
+          1,
+          11
+        ]
+      },
+      {
+        "id": "R044",
+        "source_lines": [
+          10,
+          12
+        ]
+      },
+      {
+        "id": "R045",
+        "source_lines": [
+          205,
+          205
+        ]
+      }
+    ]
+  },
+  "current_amendment": "REQUEST_AMENDMENT.md",
+  "current_requirements": [
     {
       "id": "R001",
-      "source_lines": [
-        1,
-        1
+      "text": "Implement the prepared research recommendations in this one plan; do not create another plan.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P001"
       ]
     },
     {
       "id": "R002",
-      "source_lines": [
-        3,
-        10
+      "text": "Use the pinned source inventory and per-feature reports to implement traceable skill improvements.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P002"
       ]
     },
     {
       "id": "R003",
-      "source_lines": [
-        11,
-        11
+      "text": "Replace every research task and its internal checklist with implementation instructions linked to its prepared report.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P003"
       ]
     },
     {
       "id": "R004",
-      "source_lines": [
-        12,
-        12
+      "text": "Require independent maximum-available-capability code review after each implementation topic; do not fabricate reviewer execution.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P004"
       ]
     },
     {
       "id": "R005",
-      "source_lines": [
-        11,
-        12
+      "text": "Compare quality per validated cost, alternatives, risks and measurable regression criteria.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P005"
       ]
     },
     {
       "id": "R006",
-      "source_lines": [
-        17,
-        35
+      "text": "Implement the opt-in provider-top switching improvement within this single plan.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P006"
       ]
     },
     {
       "id": "R007",
-      "source_lines": [
-        20,
-        20
+      "text": "Reconfirm decisive source claims; distinguish verified facts, hypotheses and new inference.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P007"
       ]
     },
     {
       "id": "R008",
-      "source_lines": [
-        37,
-        37
+      "text": "Modify only the source checkout; preserve installed skills and user-global configuration.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P008"
       ]
     },
     {
       "id": "R009",
-      "source_lines": [
-        39,
-        103
+      "text": "Pin the actual source baseline, affected tests and historical evidence; do not represent old logs as fresh validation.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P009"
       ]
     },
     {
       "id": "R010",
-      "source_lines": [
-        169,
-        171
+      "text": "Continue in the existing checkpoint workstream without modifying main or publishing without permission.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P010"
       ]
     },
     {
       "id": "R011",
-      "source_lines": [
-        204,
-        204
+      "text": "Require confirmation before commit, push, PR, npm publication and authenticated provider execution.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P011"
       ]
     },
     {
       "id": "R012",
-      "source_lines": [
-        157,
-        157
+      "text": "Keep the new provider-switch behavior opt-in; disabled behavior and argv goldens stay unchanged.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P012"
       ]
     },
     {
       "id": "R013",
-      "source_lines": [
-        147,
-        150
+      "text": "Use one explicit provider-chain policy so the ladder matches the actual dispatched provider.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P013"
       ]
     },
     {
       "id": "R014",
-      "source_lines": [
-        163,
-        164
+      "text": "Derive useful top from resolved model and effective effort, including embedded slugs and snapshot/profile rules.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P014"
       ]
     },
     {
       "id": "R015",
-      "source_lines": [
-        151,
-        151
+      "text": "Make every eligible provider reachable within documented attempt budgeting; test third-provider access at budget eight.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P015"
       ]
     },
     {
       "id": "R016",
-      "source_lines": [
-        148,
-        148
+      "text": "Define mechanical/budget retry exceptions; environmental, plan_defect and timeout_ceiling never trigger capability switching.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P016"
       ]
     },
     {
       "id": "R017",
-      "source_lines": [
-        127,
-        138
+      "text": "Use the prepared comparison to implement deterministic handoff first; keep additional paid summary calls and native retention out of the default.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P017"
       ]
     },
     {
       "id": "R018",
-      "source_lines": [
-        139,
-        140
+      "text": "Redact secrets before truncation and bound the handoff; never capture environment or profile values.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P018"
       ]
     },
     {
       "id": "R019",
-      "source_lines": [
-        142,
-        144
+      "text": "Label handoff as unverified data after deterministic evidence; it cannot change route, class or status.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P019"
       ]
     },
     {
       "id": "R020",
-      "source_lines": [
-        143,
-        143
+      "text": "Validate handoff paths against diff, commands against evidence and subtask IDs against the manifest.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P020"
       ]
     },
     {
       "id": "R021",
-      "source_lines": [
-        141,
-        141
+      "text": "Produce deterministic handoff when the previous provider is unavailable or its report is missing or invalid.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P021"
       ]
     },
     {
       "id": "R022",
-      "source_lines": [
-        144,
-        144
+      "text": "Keep byte-stable prompt prefixes, add only the newest attempt-bound capsule and retain failure_context.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P022"
       ]
     },
     {
       "id": "R023",
-      "source_lines": [
-        80,
-        80
+      "text": "Preserve strict report-schema compatibility, including Codex required-nullable fields and Antigravity null adaptation.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P023"
       ]
     },
     {
       "id": "R024",
-      "source_lines": [
-        159,
-        160
+      "text": "Preserve manifest schemas 1-4, missing failure_classes, version-1 configuration snapshots and availability ledger compatibility.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P024"
       ]
     },
     {
       "id": "R025",
-      "source_lines": [
-        159,
-        159
+      "text": "Keep availability separate from functional evidence; preserve provider, quota_pool and model cooldowns and exit 75.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P025"
       ]
     },
     {
       "id": "R026",
-      "source_lines": [
-        158,
-        158
+      "text": "Honor fallback-disabled and existing provider override semantics; never widen a forbidden chain.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P026"
       ]
     },
     {
       "id": "R027",
-      "source_lines": [
-        165,
-        165
+      "text": "Define and test design-phase switching, shared counters, reset and resumability.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P027"
       ]
     },
     {
       "id": "R028",
-      "source_lines": [
-        157,
-        157
+      "text": "Validate new configuration subkeys, defaults, global/plan layers and routing fingerprints.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P028"
       ]
     },
     {
       "id": "R029",
-      "source_lines": [
-        145,
-        145
+      "text": "Record provider-switch and handoff cost telemetry without secrets; preserve rollup and benchmark contracts.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P029"
       ]
     },
     {
       "id": "R030",
-      "source_lines": [
-        163,
-        163
+      "text": "Resolve snapshot models and workload native effort before deciding whether a rung changes actual dispatch.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P030"
       ]
     },
     {
       "id": "R031",
-      "source_lines": [
-        176,
-        176
+      "text": "Fix or explicitly justify deferral of empty-tier dispatch and the omitted failure evidence-packet path.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P031"
       ]
     },
     {
       "id": "R032",
-      "source_lines": [
-        111,
-        123
+      "text": "Verify CLI capabilities from official docs and installed non-generative discovery; record divergences.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P032"
       ]
     },
     {
       "id": "R033",
-      "source_lines": [
-        167,
-        175
+      "text": "Keep English docs and Portuguese mirrors synchronized; respect entrypoint budgets and required phrases.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P033"
       ]
     },
     {
       "id": "R034",
-      "source_lines": [
-        181,
-        197
+      "text": "Reproduce all twelve acceptance cases and run affected self-tests plus npm ci, npm run check and npm pack --dry-run.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P034"
       ]
     },
     {
       "id": "R035",
-      "source_lines": [
-        197,
-        197
+      "text": "Reconcile the resource map without losing reusable inventory; report pre-existing validation failures separately.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P035"
       ]
     },
     {
       "id": "R036",
-      "source_lines": [
-        177,
-        177
+      "text": "Make final whole-skill maintenance and implementation acceptance the last task.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P036"
       ]
     },
     {
       "id": "R037",
-      "source_lines": [
-        125,
-        125
+      "text": "Consume the prepared reports with numbered sources, URL/access date and explicit evidence-versus-inference labels.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P037"
       ]
     },
     {
       "id": "R038",
-      "source_lines": [
-        111,
-        123
+      "text": "Use the completed provider, literature and public book-excerpt research; refresh only a material version-sensitive gap.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P038"
       ]
     },
     {
       "id": "R039",
-      "source_lines": [
-        161,
-        162
+      "text": "Keep each worker context task-local; share concise evidence instead of conversation transcripts.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P039"
       ]
     },
     {
       "id": "R040",
-      "source_lines": [
-        179,
-        179
+      "text": "Do not install into user copies or change the user-global routing config.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P040"
       ]
     },
     {
       "id": "R041",
-      "source_lines": [
-        1,
-        1
+      "text": "Keep prepared research outside disposable control state so all implementation tasks retain their source evidence.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P041"
       ]
     },
     {
       "id": "R042",
-      "source_lines": [
-        35,
-        35
+      "text": "Do not mark research, highest-model review or product implementation complete without actual evidence.",
+      "source": "inferred",
+      "priority": "must",
+      "request_part_ids": [
+        "P042"
       ]
     },
     {
       "id": "R043",
-      "source_lines": [
-        1,
-        11
+      "text": "Replace former second-plan tasks with integration, regression, packaging and final acceptance of this single implementation.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P043"
       ]
     },
     {
       "id": "R044",
-      "source_lines": [
-        10,
-        12
+      "text": "Record a newly discovered material gap with provenance and a bounded contract amendment; do not restart broad research by default.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P044"
       ]
     },
     {
       "id": "R045",
-      "source_lines": [
-        205,
-        205
+      "text": "Report decisions, changed files, actual validation, unverified platforms and risks in Brazilian Portuguese.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P045"
       ]
     }
-  ]
+  ],
+  "supersession_record": "REPLAN_TRACE.json"
 }

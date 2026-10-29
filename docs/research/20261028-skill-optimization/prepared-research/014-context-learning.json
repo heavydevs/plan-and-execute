@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "feature_id": "F005",
+  "former_research_task": "014",
+  "implementation_task": "014",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Compare global versus scoped context and validated directional learnings.",
+    "Measure repeated prefixes, assigned-read enforcement and anchoring from prior errors."
+  ],
+  "decision": "Use provenance-bearing task context and directional learnings with explicit trust and cache boundaries, not an accumulating transcript or universal memory.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "The current context system separates universal context, task-scoped context and directional learnings. The production worker prompt is built by runner_contract.",
+    "Useful worktree changes and completed subtasks survive a worker; transcripts are not the intended cross-task memory."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "c3cdf3064fa18b7271ea801c614e18b45a467b4c923b98fdb8fbd16ab00bffd4",
+      "line_count": 3792,
+      "symbols": [
+        {
+          "name": "render_task",
+          "line": 1784,
+          "end": 1933
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+      "sha256": "477646cf30634e334e5c704a6cbe86e9dea4712f7527f51501c43462cadc08f3",
+      "line_count": 1047,
+      "symbols": [
+        {
+          "name": "_error",
+          "line": 100,
+          "end": 101
+        },
+        {
+          "name": "concise_line",
+          "line": 104,
+          "end": 129
+        },
+        {
+          "name": "concise_list",
+          "line": 132,
+          "end": 162
+        },
+        {
+          "name": "_md",
+          "line": 165,
+          "end": 167
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "sha256": "74db8be9153d63c8accc1e3a650279fd54da0ea0b6405b0bfb4e470f183a97c6",
+      "line_count": 143,
+      "symbols": [
+        {
+          "name": "worker_prompt",
+          "line": 44,
+          "end": 80
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+      "sha256": "4ed0e09d146e6a228943f9607de92a3156e19ca5c5e19b77bdd78ffa5de82447",
+      "line_count": 112,
+      "symbols": [
+        {
+          "name": "# Execution context and validated learning",
+          "line": 1
+        },
+        {
+          "name": "## Omission is the default",
+          "line": 5
+        },
+        {
+          "name": "## Global `CONTEXT.md`",
+          "line": 18
+        },
+        {
+          "name": "## Scoped context files",
+          "line": 36
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+      "sha256": "72da10bd5e05fd08d213ed29ca649e83fbe23d4f082bf1c3159e87402cbef8cd",
+      "line_count": 89,
+      "symbols": [
+        {
+          "name": "# Token-efficiency contract",
+          "line": 1
+        },
+        {
+          "name": "## Objective",
+          "line": 5
+        },
+        {
+          "name": "## 1. Avoid the harness when the harness does not pay for itself",
+          "line": 9
+        },
+        {
+          "name": "## 2. Keep useful shared context while it is useful",
+          "line": 15
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E003",
+    "E011",
+    "E010",
+    "E021",
+    "W-CONTEXT",
+    "W-COST",
+    "W-LITM",
+    "W-RETRIEVAL",
+    "W-PERSISTENCE"
+  ],
+  "implementation_steps": [
+    "Attach a provenance hash, producing task, applicable consumers and expiry/invalidation rule to each reusable learning.",
+    "Load only universal constraints and the receiving task's assigned entries. Repeated conventions used by multiple tasks belong in a versioned pattern, not copied learning prose.",
+    "Require deterministic evidence before promoting a failed worker's hypothesis into a reusable fact. Keep disproven hypotheses clearly labeled and bounded.",
+    "Add a compact context accounting receipt: selected file IDs, byte counts and reason for inclusion, without retaining prompts or secrets.",
+    "Keep static prompt rules stable across tasks; append task-specific evidence afterward. Test cache structure but measure actual cache usage per host rather than assuming an exact hit.",
+    "Assign each learning a trust class, producer, consumer set and source/contract digest.",
+    "Keep failed-attempt hypotheses separate from normative shared facts; invalidate them when their evidence changes.",
+    "Measure stale-learning errors and task success as well as context bytes; cache reuse is an observed metric, not a structural assertion."
+  ],
+  "proposed_acceptance_tests": [
+    "An unrelated task cannot receive a learning merely because it ran later.",
+    "Changing a cited file invalidates or flags the learning before reuse.",
+    "A malicious or unsupported note cannot alter acceptance, permissions or provider policy.",
+    "The universal context contains only constraints needed by all tasks and remains within its existing budget.",
+    "Byte-stable prefixes and bounded task suffixes survive different task IDs and prior failure lengths.",
+    "A disproven hypothesis never appears as a validated shared fact.",
+    "A source-contract change invalidates its learning without deleting unrelated knowledge.",
+    "The static prefix remains stable while task-specific reports are loaded only for their assigned consumers."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Full transcript replay",
+      "benefit": "Maximum historical detail",
+      "risk": "Repeated cost, stale instructions and secrets",
+      "disposition": "Reject as default",
+      "tradeoff": "Maximum historical detail; Repeated cost, stale instructions and secrets. Reject as default"
+    },
+    {
+      "id": "A02",
+      "title": "One global summary",
+      "benefit": "Cheap to read",
+      "risk": "Scope leakage and anchoring",
+      "disposition": "Use only universal constraints",
+      "tradeoff": "Cheap to read; Scope leakage and anchoring. Use only universal constraints"
+    },
+    {
+      "id": "A03",
+      "title": "Scoped provenance records",
+      "benefit": "Selective and auditable",
+      "risk": "Requires invalidation ownership",
+      "disposition": "Recommended",
+      "tradeoff": "Selective and auditable; Requires invalidation ownership. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Vector memory for all learnings",
+      "benefit": "Flexible discovery",
+      "risk": "Approximate recall and index overhead",
+      "disposition": "Defer unless retrieval measurements justify it",
+      "tradeoff": "Flexible discovery; Approximate recall and index overhead. Defer unless retrieval measurements justify it"
+    }
+  ],
+  "cost_model": "Compare retained tokens and retrieval work against error-induced rework. The cheapest valid memory is often a checked path/symbol reference; semantic storage is justified only by demonstrated repeated retrieval benefit.",
+  "unverified": [
+    "Research on memory/context reports workload-specific gains, not proof for this repository. Independent implementation review remains necessary.",
+    "Actual cache behavior and long-context reliability vary by host/model. No universal percentage savings or model-independent context ceiling is claimed."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Use bounded assigned context and directional, evidence-backed learnings; keep hypotheses separate from normative contracts.",
+  "revision_delta": "The revision prevents unvalidated hypotheses from becoming shared rules and separates context relevance from provider-specific cache economics. Historical long-context weakness is no longer assumed universal.",
+  "decision_analysis": [
+    "Keep three classes distinct: mandatory cross-task contracts, scoped facts with provenance, and hypotheses from failed attempts. Only validated facts can become directional learnings. Hypotheses are optional next-attempt data and must not be upgraded into normative instructions by repeated summarization.",
+    "A useful learning entry needs a producing task, evidence reference, applicable consumers and an invalidation trigger. When the underlying file or contract changes, consumers should recheck the narrow fact. Do not copy every discovered implementation detail to a global CONTEXT.md merely because it might someday help.",
+    "Keep prompt rules stable and append task-specific context after them, but do not infer guaranteed cache savings from byte equality alone. Model, effort, tools, host, retention and cache-write rules can affect the result. Native CLI caching may not expose all API controls, so measure usage rather than changing flags speculatively.",
+    "Compare assigned-context retrieval with full-history replay and semantic memory on held-out tasks. Evaluate incorrect reuse and omitted dependencies alongside token count. A smaller prompt that silently loses a business invariant is not an optimization."
+  ],
+  "search_themes": [
+    "site.anthropic.com effective context engineering agents",
+    "site.research.google retrieval quality at context limit",
+    "site.docs.langchain.com persistence checkpointer store"
+  ],
+  "current_source_ids": [
+    "W-CONTEXT",
+    "W-COST",
+    "W-LITM",
+    "W-RETRIEVAL",
+    "W-PERSISTENCE"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

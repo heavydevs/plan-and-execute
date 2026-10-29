@@ -1,62 +1,64 @@
 # Study
 
-Prepare a resumable first plan for full-skill research, a bounded provider-switch improvement and creation of the remaining implementation plan.
+Implement the 32 twice-researched topic decisions and opt-in provider switching in one graph, with explicit compatibility, scoped writes, negative tests and independent acceptance reviews.
 
 ## Triage
 
 - complexity: **complex** — Cross-provider dispatch, durable state, context safety and full-skill discovery require independent research and review boundaries.
-- internal: **full_project** (user) — The full audit and complete feature inventory are separate pending tasks before any topic synthesis.
-- external: **broad** (user); required — Broad provider documentation and research are explicitly requested; this packet records initial reconnaissance only. Full topic research remains pending.
+- internal: **full_project** (user) — All32 reports were revised with competing approaches, scoped source evidence and counterexamples. Implementation and independent reviews remain pending.
+- external: **broad** (user); required — The user requested a second broad review. Revision2 records63 newly inspected primary-source entries and preserves58 historical records with explicit reading limits.
 
 ## Questions
 
-- **Q001** [high/resolved; I001] Does the first plan include implementation of the embedded provider-switch request? — The attachment expressly includes that improvement in Plan 1; Plan 2 contains other accepted remaining changes. -> Reserve a bounded implementation track after research, then generate Plan 2 without duplicate work.
-- **Q002** [high/resolved; I004] Can this host perform the requested real maximum-model reviews now? — No supported worker CLI is on PATH; authenticated execution also needs user confirmation. -> Keep autostart false and TODO 001 pending; never simulate external review.
+- **Q001** [high/resolved; I001] Does this request still produce a second plan? — No. Prepared research becomes input to one implementation plan with tests and code-review gates. -> Convert research tasks and repurpose all former second-plan deliverables.
+- **Q002** [high/resolved; I002] Can research preparation count as product or independent-review completion? — No. Every implementation task remains pending and reviews need actual external execution evidence. -> Separate prepared report hashes from future validation and reviewer receipts.
 
 ## Repository evidence
 
-- **I001** `Original attachment lines 1-17 and 169-205` — The request nests a study/plan workflow and an explicit provider-switch implementation track with confirmation requirements. -> Keep both scopes and preserve the original request bytes.
-- **I002** `skill/plan-and-execute/scripts/run_isolated.py:301-346; availability.py:116-168` — Logical escalation and availability dispatch use different tier-dependent provider chains. -> Make chain coherence a reviewed contract before editing either path.
-- **I003** `docs/research/20261028-skill-optimization/evidence/routing-baseline.json` — Offline fixture replay reproduces provider-top repetition, early exhaustion and empty-tier dispatch error. -> Preserve these as the disabled-mode compatibility baseline and new-mode acceptance scenarios.
-- **I004** `docs/research/20261028-skill-optimization/evidence/BASELINE.json` — Three focused routing checks pass; full npm check is inconclusive at the host timeout; worker CLIs are absent. -> Separate baseline recovery, real reviewer qualification and authenticated evaluation gates.
+- **I001** `docs/plans/20261028-skill-optimization/REQUEST_AMENDMENT.md` — The current user request replaces the two-plan workflow with one implementation graph. -> Use one implementation plan and preserve superseded source text in history.
+- **I002** `docs/research/20261028-skill-optimization/prepared-research/INDEX.json` — All 32 research topics now have prepared reports; all implementation and independent review tasks remain pending. -> Bind each transformed TODO and checklist to its specific report.
+- **I003** `skill/plan-and-execute/scripts/run_concise.py` — The production runner composes raw execution with artifact, model, runner and pattern contracts. -> Test the composed production entrypoint as well as pure helpers.
+- **I004** `skill/plan-and-execute/scripts/availability.py:116-168` — Declared-chain escalation and escalated-tier availability can select different providers in the baseline. -> Implement coherent dispatch with opt-in compatibility and explicit acceptance.
 
 ## External evidence
 
-- **E001** Anthropic, Effective harnesses for long-running agents (2025-11-26; accessed 2026-10-28) — Incremental tasks and durable progress artifacts address loss of context; the article does not prove this skill is complete. -> Separate audit, feature evidence and final-plan synthesis; preserve unfinished work. · https://www.anthropic.com/research/effective-harnesses-for-long-running-agents
-- **E002** Anthropic, Claude Code CLI reference (Live documentation accessed 2026-10-28) — Print mode and session controls have distinct contracts; nonpersistent execution cannot be assumed resumable. -> Compare a worker-provided summary and deterministic fallback before choosing native-session persistence. · https://code.claude.com/docs/en/cli-reference
-- **E003** OpenAI, Codex non-interactive mode (Redirects to learn.chatgpt.com; accessed 2026-10-28) — The documentation distinguishes ephemeral execution, structured output and explicit sandbox settings. -> Test adapter flags and schema against the installed CLI version; do not assume existing argv is current. · https://developers.openai.com/codex/noninteractive/
-- **E004** Google, Antigravity CLI commands (Live documentation accessed 2026-10-28) — Effort is model-dependent; --continue and --conversation are documented session controls. -> Resolve effective effort from both CLI and model list; preserve divergence as an explicit test input. · https://antigravity.google/docs/cli/reference/
-- **E005** Google, Antigravity model quotas (Live documentation accessed 2026-10-28) — The CLI exposes usage/quota inspection; this alone does not prove a selected account has a particular available quota. -> Plan per-profile and model-family checks without spending authenticated quota during preparation. · https://antigravity.google/docs/cli/commands/usage
-- **E006** OpenAI, Handoffs - OpenAI Agents SDK (Live documentation accessed 2026-10-28) — Structured handoff inputs and input filters are explicit SDK mechanisms. -> Use their separation of metadata and history as an alternative, not proof of cross-CLI session portability. · https://openai.github.io/openai-agents-python/handoffs/
-- **E007** NeurIPS / paper authors, AutoMix: Automatically Mixing Language Models (NeurIPS 2024; abstract accessed 2026-10-28) — The abstract reports model routing with noisy self-verification and cost/quality experiments. -> Compare against measured skill baselines; do not import the paper savings percentage into project claims. · https://papers.nips.cc/paper_files/paper/2024/hash/ecda225cb187b40ea8edc1f46b03ffda-Abstract-Conference.html
+- **E201** Anthropic, Optimizing for cost and intelligence (Retrieved 2026-10-28; record W-COST) — Reported delegation and effort experiments trade cost against accuracy; subagents were not a universal improvement over lower effort. Measurements depend on workload, model, cache and harness. -> Apply the assigned revision2 decision, negative tests and version/account capability checks. · https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+- **E202** OpenAI, Prompt caching (Retrieved 2026-10-28; record W-OPENAI-CACHE) — The current guide distinguishes model generations and charges cache writes on GPT-5.6 and later; explicit stable-prefix breakpoints and retention have separate economics. A historical no-write-charge assumption is not portable. -> Apply the assigned revision2 decision, negative tests and version/account capability checks. · https://developers.openai.com/api/docs/guides/prompt-caching
+- **E203** Google, Effort command (Retrieved 2026-10-28; record W-AGY-EFFORT) — Effort availability is model-variant dependent, including conditional xhigh/max. The headless effort query is read-only; the invocation flag differs from a persistent interactive default. -> Apply the assigned revision2 decision, negative tests and version/account capability checks. · https://antigravity.google/docs/cli/commands/effort
+- **E204** Google Cloud, Claude Opus and Sonnet in Antigravity (Retrieved 2026-10-28; record W-AGY-ENTERPRISE) — For the described enterprise setup, partner models use pay-as-you-go billing rather than pooled Gemini monthly tokens; first-party coordination can still consume first-party tokens. This does not establish identical accounting for individual plans. -> Apply the assigned revision2 decision, negative tests and version/account capability checks. · https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/
+- **E205** QwenLM, Headless mode (Retrieved 2026-10-28; record W-QWEN-HEADLESS) — Headless output and budgets are documented; safe-mode disables customization rather than establishing a read-only security boundary. Native goals and sessions can add their own control loops. -> Apply the assigned revision2 decision, negative tests and version/account capability checks. · https://qwenlm.github.io/qwen-code-docs/en/users/features/headless/
+- **E206** Moonshot AI, Kimi command reference (Retrieved 2026-10-28; record W-KIMI-CLI) — Current prompt-mode permission semantics differ from older combinations: prompt cannot be combined with auto, plan or yolo, and defaults to auto. Version-aware capability checks must prevent an implicit permission expansion. -> Apply the assigned revision2 decision, negative tests and version/account capability checks. · https://www.kimi.com/code/docs/en/kimi-code-cli/reference/kimi-command
+- **E207** SciPy, Bootstrap confidence intervals (Retrieved 2026-10-28; record W-BOOTSTRAP) — Paired resampling preserves the relationship between compared observations. The independent sampling unit must be defined before computing an interval. -> Apply the assigned revision2 decision, negative tests and version/account capability checks. · https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html
+- **E208** Python Software Foundation, Subprocess management (Retrieved 2026-10-28; record W-SUBPROCESS) — Unconsumed pipes can deadlock, communicate buffers output in memory, and timeout cleanup requires explicit process handling. Long-running output needs concurrent draining and bounded retention. -> Apply the assigned revision2 decision, negative tests and version/account capability checks. · https://docs.python.org/3/library/subprocess.html
+- **E209** Python Software Foundation, os.replace and filesystem interfaces (Retrieved 2026-10-28; record W-ATOMIC) — A successful same-filesystem replacement has atomic rename semantics; this is not a transaction covering multiple files or a promise of durable persistence after power loss. -> Apply the assigned revision2 decision, negative tests and version/account capability checks. · https://docs.python.org/3/library/os.html
+- **E210** OWASP, LLM Prompt Injection Prevention (Retrieved 2026-10-28; record W-INJECTION) — Untrusted retrieved data and tool outputs must not be treated as instructions. Structured separation and least privilege are defense layers, not a guarantee of immunity. -> Apply the assigned revision2 decision, negative tests and version/account capability checks. · https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html
 
 ## Constraints
 
-- Do not call authenticated workers or publish without confirmation.
-- Preserve installed copies, user-global config and original request bytes.
-- Use separate fresh max-capability review gates; no lower substitute.
+- Preserve original request bytes in REQUEST_ORIGINAL.md and the historical snapshot; the current amendment supersedes the two-plan workflow.
+- Use prepared reports as implementation inputs; never mark implementation complete because research exists.
 
 ## Derived requirements
 
-- Create one independently resumable broad-research task for each inventoried topic.
-- Include the provider-top switching improvement in Plan 1, not only in a later backlog.
-- Plan 2 contains only approved remaining improvements and references completed Plan 1 work as baseline, not new TODOs.
+- Implement the prepared research recommendations in this one plan; do not create another plan.
+- Replace every research task and its internal checklist with implementation instructions linked to its prepared report.
 
 ## Risks
 
-- Full-project semantic coverage is not yet complete.
-- No real external reviewer is available in this host.
-- The full-suite baseline has no completed exit result.
+- No authenticated CLI or independent external reviewer was exercised during research.
+- Current documentation can differ from installed versions; capability fixtures and bounded probes must reconcile a material mismatch.
+- Offline route replay is not a measurement of real model quality, quota consumption or dollar savings.
+- Prepared source hashes are baseline evidence; implementation deliberately changes them and must record the new validated state.
 
 ## Validation
 
-- Check native plan schema, requirements, dependencies and resource-map bindings.
-- Require actual reviewer route receipts and hashes before accepting results.
-- Run source fixture replay without user-global configuration.
+- Keep historical receipt integrity separate from current source/command/map validation.
+- Every changed implementation and correction gate needs actual acceptance evidence; prepared research never counts as a pass.
 
-Stop: The evidence resolves scope, task boundaries and authorization for plan creation; exhaustive per-feature study is the work to be executed by this plan.
+Stop: All32 topics have a concrete selected design, alternatives, primary sources, assigned write scope and negative tests. Material unknown account/version capabilities have explicit fail-closed checks.
 Ready: **yes**
 
-Review: `Host preliminary consistency pass; independent maximum review pending in TODO 001` — internal_coverage_sufficient, external_decision_justified, source_quality_sufficient, findings_translated_to_plan, contradictions_resolved
+Review: `Current-session research synthesis; no independent external review` — internal_coverage_sufficient, external_decision_justified, source_quality_sufficient, findings_translated_to_plan, contradictions_resolved
 
-- This approval covers plan creation only, not completion of broad research or maximum-model review.
+- All113 code anchors were hash-checked against the preserved baseline; this is not an independent line-by-line audit.
+- New material constraints were assigned to implementation owners; provider and Windows execution remain unverified.

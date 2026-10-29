@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "feature_id": "F022",
+  "former_research_task": "048",
+  "implementation_task": "048",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Trace report normalization, validation checkpoints and deterministic acceptance outside worker claims.",
+    "Check missing evidence-packet path in the concise prompt and stagnation fingerprints."
+  ],
+  "decision": "Bind validation evidence to exact code, task contract and executed argv; keep deterministic acceptance authoritative and make failure packets available to both production prompt paths.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "Production runner_contract.worker_prompt calls failure_context without the plan directory, so the inspected path does not include the available evidence-packet pointer.",
+    "Worker completion reports, runner validations and resumable validation checkpoints are distinct. Passing report schema checks alone is not product acceptance."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "failure_context",
+          "line": 776,
+          "end": 811
+        },
+        {
+          "name": "validation_checkpoint_fingerprint",
+          "line": 1489,
+          "end": 1494
+        },
+        {
+          "name": "finish_task_validation",
+          "line": 2045,
+          "end": 2149
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+      "sha256": "477646cf30634e334e5c704a6cbe86e9dea4712f7527f51501c43462cadc08f3",
+      "line_count": 1047,
+      "symbols": [
+        {
+          "name": "_error",
+          "line": 100,
+          "end": 101
+        },
+        {
+          "name": "concise_line",
+          "line": 104,
+          "end": 129
+        },
+        {
+          "name": "concise_list",
+          "line": 132,
+          "end": 162
+        },
+        {
+          "name": "_md",
+          "line": 165,
+          "end": 167
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "sha256": "74db8be9153d63c8accc1e3a650279fd54da0ea0b6405b0bfb4e470f183a97c6",
+      "line_count": 143,
+      "symbols": [
+        {
+          "name": "worker_prompt",
+          "line": 44,
+          "end": 80
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/WORKFLOW.md",
+      "sha256": "f95cc605684b7fe58d3c3ab2cd3a3aead456bad851f45746fe26ed771e19892c",
+      "line_count": 241,
+      "symbols": [
+        {
+          "name": "# Execution workflow",
+          "line": 1
+        },
+        {
+          "name": "## Roles",
+          "line": 5
+        },
+        {
+          "name": "## Native execution loop",
+          "line": 13
+        },
+        {
+          "name": "### 1. Select",
+          "line": 15
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E052",
+    "E053",
+    "E007",
+    "E044",
+    "W-HARNESS",
+    "W-EVALSKILLS",
+    "W-SELFCORRECT",
+    "W-INJECTION",
+    "W-SUBPROCESS"
+  ],
+  "implementation_steps": [
+    "Pass the correct plan directory through the composed prompt path and explicitly permit only the assigned evidence packet and bounded relevant diagnostic artifacts.",
+    "Pin validation receipts to command, source state, resource-map digest and attempt/job identity. Reuse a successful receipt only when the inputs are still current.",
+    "Keep failure classification deterministic where evidence is explicit. Record environmental faults and test time limits separately from semantic code failures.",
+    "Sanitize diagnostic data before truncation and preserve machine-readable evidence references so a new worker can inspect facts without the whole history.",
+    "Add negative tests where a worker claims success but output behavior, a negative case or an integration contract fails. The runner must keep the task incomplete.",
+    "Bind check receipts to task contract, executed argv, source inputs and map/toolchain evidence; distinguish historical validity from current applicability.",
+    "Add negative tests proving each behavioral criterion fails without its implementation.",
+    "Pass the evidence packet through both legacy and composed prompt paths without changing the static prefix."
+  ],
+  "proposed_acceptance_tests": [
+    "The composed prompt contains a valid evidence-packet pointer after a failed validation.",
+    "A changed source/map/command invalidates a previously successful receipt.",
+    "A valid success JSON with failing tests cannot complete the task.",
+    "A repeated failure fingerprint is stable under timestamps/PIDs but changes for a genuinely different failure.",
+    "A resumed completed worker checkpoint validates without unnecessary model redispatch.",
+    "A log from another code digest or substituted command cannot satisfy acceptance.",
+    "A forged completed report with no runner validation remains incomplete.",
+    "Both prompt builders include only the assigned current evidence packet.",
+    "A diagnostic suggestion cannot set failure class or completion state."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Accept worker self-report",
+      "benefit": "Lowest verification cost",
+      "risk": "False completion and unverified tests",
+      "disposition": "Reject",
+      "tradeoff": "Lowest verification cost; False completion and unverified tests. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Run the full suite after every edit",
+      "benefit": "Broad checks",
+      "risk": "High latency and redundant work",
+      "disposition": "Use at integration boundaries",
+      "tradeoff": "Broad checks; High latency and redundant work. Use at integration boundaries"
+    },
+    {
+      "id": "A03",
+      "title": "Scoped deterministic checks plus final regression",
+      "benefit": "Traceable quality and bounded cost",
+      "risk": "Requires precise acceptance mapping",
+      "disposition": "Recommended",
+      "tradeoff": "Traceable quality and bounded cost; Requires precise acceptance mapping. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "LLM judge replaces executable checks",
+      "benefit": "Flexible judgments",
+      "risk": "Anchoring and unverifiable success",
+      "disposition": "Supplement only for inherently qualitative criteria",
+      "tradeoff": "Flexible judgments; Anchoring and unverifiable success. Supplement only for inherently qualitative criteria"
+    }
+  ],
+  "cost_model": "Run cheap focused checks for fast feedback and full regression at integration milestones. Optimize validated outcome cost, including false-positive acceptance and later repair.",
+  "unverified": [
+    "A narrow unit suite does not prove end-user quality. Real integration/environment coverage must be declared rather than implied.",
+    "Neither structural receipt checks nor claimed reviewer metadata prove a real independent model ran. Orchestrator dispatch provenance must be checked outside worker-authored JSON."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Make acceptance depend on pinned deterministic validation evidence and ensure the production prompt exposes the allowed evidence packet.",
+  "revision_delta": "The revision distinguishes historical receipt integrity from current regression validity, adds negative acceptance cases and scopes the known missing evidence-packet argument to the composed production runner.",
+  "decision_analysis": [
+    "A worker report that says completed is a claim, not acceptance. The runner should bind its own test execution to the source revision or scoped content digest, task contract, argv, relevant map generation and toolchain. A stale test log can remain valid historical evidence while failing to demonstrate the current code still passes.",
+    "Different tests provide different strength. A parser unit test cannot prove user-visible workflow completion, and a visual snapshot cannot prove keyboard behavior. Map each acceptance case to the exact test boundary and add negative tests that fail before the fix. If a task changes the validation itself, preserve a baseline comparator and independent review of the test change.",
+    "The production path composes run_isolated with runner_contract and pattern handling. Fix the failure_context call so its assigned evidence packet is available in every actual prompt path. Put dynamic failure context after stable rules; references point to sanitized bounded evidence rather than embedding full logs or prior transcripts.",
+    "Automatic failure classification should prioritize explicit tool/environment evidence, not LLM confidence. A model can suggest a diagnosis but cannot change authoritative failure class, route, acceptance or completed status. Historical self-correction research supports this conservative design, while not implying current models cannot improve with reliable tests."
+  ],
+  "search_themes": [
+    "Anthropic long running harness externally verified feature completion",
+    "OpenAI skill evaluation outcome checks",
+    "ICLR self correction without external feedback",
+    "Python subprocess timeout output"
+  ],
+  "current_source_ids": [
+    "W-HARNESS",
+    "W-EVALSKILLS",
+    "W-SELFCORRECT",
+    "W-INJECTION",
+    "W-SUBPROCESS"
+  ],
+  "ownership": "TODO 048 owns independent-validation evidence and the missing evidence-packet prompt pointer. The optional cross-provider capsule itself belongs to 076/078.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

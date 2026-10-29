@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "feature_id": "F024",
+  "former_research_task": "052",
+  "implementation_task": "052",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Distinguish progress from heartbeat and fixed ceilings from per-command idle windows.",
+    "Check Windows/POSIX descendant cleanup, CPU false progress and quiet remote I/O."
+  ],
+  "decision": "Use separate liveness, semantic-progress and hard-limit clocks with bounded stream capture and owned process-tree cancellation on each supported operating system.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "progress_signal distinguishes PROGRESS, ERROR and HEARTBEAT. progress_watch and process_tree support output/metrics/file signals and descendant cleanup.",
+    "The configuration already separates task idle timeout, validation idle windows and hard ceilings. Zero values have documented disable/default behavior that must not be silently changed."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/progress_signal.py",
+      "sha256": "5d6feb7540126d4d6bf94cc454d8d7410e8fa89832b8b597be2bc491a9416b3d",
+      "line_count": 147,
+      "symbols": [
+        {
+          "name": "parse_signal",
+          "line": 59,
+          "end": 80
+        },
+        {
+          "name": "probe_file",
+          "line": 104,
+          "end": 129
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/progress_watch.py",
+      "sha256": "304401062eb2773ce91e25a38c01f9490f62fd1b2b97fbe4d184d27fb69f6798",
+      "line_count": 377,
+      "symbols": [
+        {
+          "name": "progress_line",
+          "line": 35,
+          "end": 42
+        },
+        {
+          "name": "safe_glob",
+          "line": 45,
+          "end": 50
+        },
+        {
+          "name": "validate_policy",
+          "line": 53,
+          "end": 95
+        },
+        {
+          "name": "ProgressState",
+          "line": 98,
+          "end": 168
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/process_tree.py",
+      "sha256": "dd7cf0e6c7706426b81301b4725c27863fe0f1e5483d3736413aecea09a3ffa4",
+      "line_count": 714,
+      "symbols": [
+        {
+          "name": "_remember_group_cpu",
+          "line": 22,
+          "end": 27
+        },
+        {
+          "name": "posix_session_processes",
+          "line": 30,
+          "end": 79
+        },
+        {
+          "name": "posix_group_metrics",
+          "line": 82,
+          "end": 121
+        },
+        {
+          "name": "_parse_cpu_time",
+          "line": 124,
+          "end": 140
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E041",
+    "E042",
+    "E043",
+    "E045",
+    "W-SUBPROCESS",
+    "W-WINDOWS-JOBS",
+    "W-SRE",
+    "W-OVERLOAD"
+  ],
+  "implementation_steps": [
+    "Prefer completed-work counters or pinned progress files/probes over arbitrary changing text. Heartbeats and watcher telemetry must not refresh semantic progress.",
+    "Treat CPU activity as supporting evidence, not proof that useful work advances; test busy loops and silent remote I/O separately.",
+    "Use monotonic clocks for durations and bounded read-only probes. Preserve expected quiet periods without extending an explicit hard ceiling.",
+    "On cancellation/timeout, terminate the owned tree and drain remaining output safely. Use Windows Job Objects and POSIX process ownership primitives through their tested platform adapters.",
+    "Record the exact timeout class and last meaningful progress evidence. A hard ceiling is blocked-for-review, not proof a stronger model is needed.",
+    "Observe owned execution from launch; use five-minute policy only for extra instrumentation or diagnosis, not delayed evidence collection.",
+    "Separate heartbeat, CPU liveness, semantic progress and dependency health; retain independent hard budgets.",
+    "Drain streams concurrently with bounded memory and verify owned descendant termination before replacement."
+  ],
+  "proposed_acceptance_tests": [
+    "Repeated heartbeat-only output does not keep a stalled command alive.",
+    "Increasing completed-work counters renew idle time while a fixed hard ceiling still wins.",
+    "Each command starts a new idle window; the validation set has no unintended aggregate timeout.",
+    "A child scheduled to write later cannot escape timeout cleanup on supported Windows/POSIX runs.",
+    "A CPU-busy infinite loop and a quiet but externally advancing operation produce distinct diagnostic evidence.",
+    "Repeated heartbeat and constant progress counters cannot keep a stalled command alive indefinitely.",
+    "A quiet but correctly progressing checkpointed job is not killed prematurely.",
+    "A grandchild cannot write a delayed file after confirmed tree termination.",
+    "Large stderr output cannot deadlock the reader or grow RAM without bound."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "One fixed timeout for whole suite",
+      "benefit": "Simple",
+      "risk": "Kills long productive work or waits too long on deadlock",
+      "disposition": "Reject",
+      "tradeoff": "Simple; Kills long productive work or waits too long on deadlock. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Any output/CPU resets idle forever",
+      "benefit": "Keeps active jobs alive",
+      "risk": "Busy-loop and heartbeat false progress",
+      "disposition": "Reject as sole signal",
+      "tradeoff": "Keeps active jobs alive; Busy-loop and heartbeat false progress. Reject as sole signal"
+    },
+    {
+      "id": "A03",
+      "title": "Semantic windows plus independent hard budgets",
+      "benefit": "Separates stalls from productive duration",
+      "risk": "Needs instrumentation and platform tests",
+      "disposition": "Recommended",
+      "tradeoff": "Separates stalls from productive duration; Needs instrumentation and platform tests. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "LLM watches raw logs continuously",
+      "benefit": "Flexible interpretation",
+      "risk": "High token cost and unreliable liveness authority",
+      "disposition": "Reject",
+      "tradeoff": "Flexible interpretation; High token cost and unreliable liveness authority. Reject"
+    }
+  ],
+  "cost_model": "Deterministic counters and bounded probes replace continuous model reads. Measure false stall cancellations, detection delay, observer overhead and peak memory, not only shorter runtime.",
+  "unverified": [
+    "Real descendant behavior, permissions and breakaway processes require platform CI. A fake process test only covers the configured contract.",
+    "Cross-platform cancellation guarantees require actual Windows and POSIX tests; current research is not evidence that both environments were exercised."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Keep per-command sliding progress windows distinct from hard ceilings and liveness; strengthen semantic progress and process-tree tests.",
+  "revision_delta": "The revision rejects CPU usage or repeated output as unconditional progress and adds process-identity, pipe-drain and post-cancellation side-effect cases. The five-minute threshold is an escalation policy, not a reason to miss earlier evidence.",
+  "decision_analysis": [
+    "The monitor should observe from command start while avoiding expensive diagnosis during normal work. A five-minute expected-duration threshold can request instrumentation or enable additional probes; it should not mean the first five minutes have no logs, process ownership or cancellation handle. Each validation command starts its own clocks.",
+    "Liveness means a process exists; progress means a declared monotonic work signal or a relevant completed stage; health means dependencies remain usable. A busy loop can consume CPU and a heartbeat can repeat forever. Use CPU/output heuristics only with explicit limitations, quiet-period allowances and independent hard budgets; do not claim they prove useful work.",
+    "Concurrent pipe draining prevents output backpressure from resembling a deadlock. Keep a bounded diagnostic tail and stream owned raw evidence to disk with a size policy. Parse progress records with sequence/counter checks, finite numeric values and bounded lines. An untrusted worker-emitted progress token alone cannot authorize completion.",
+    "Cancellation must target the owned process tree, not just the root PID or every process named python. Use platform mechanisms and process-start identity; test grandchildren and delayed side effects. Windows Job Objects and POSIX groups differ, so unsupported containment must be reported rather than simulated as tested."
+  ],
+  "search_themes": [
+    "Python subprocess communicate memory timeout process group",
+    "Windows Job Objects kill on close nested jobs",
+    "Google SRE monitoring synthetic test signals"
+  ],
+  "current_source_ids": [
+    "W-SUBPROCESS",
+    "W-WINDOWS-JOBS",
+    "W-SRE",
+    "W-OVERLOAD"
+  ],
+  "ownership": "TODO 052 owns progress/cancellation/output-buffer behavior, including the runner seam. TODO 054 builds supervised-job recovery on its accepted contract.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

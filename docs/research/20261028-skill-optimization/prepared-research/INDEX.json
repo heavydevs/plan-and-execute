@@ -1,0 +1,917 @@
+{
+  "schema_version": 1,
+  "research_status": "prepared",
+  "implementation_status": "pending",
+  "date": "2026-10-28",
+  "reports": [
+    {
+      "feature_id": "F001",
+      "task_id": "006",
+      "review_task": "007",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.json",
+      "report_sha256": "fad2e623f58bb20cf8975bd05524373cefae915b03fd4802b28305f43c5c3313",
+      "decision_sha256": "55ce62342d23047027bcc88e18585f260cc01960298af09fe02c7cafb21c17a0",
+      "source_ids": [
+        "E001",
+        "E002",
+        "E004",
+        "E005",
+        "W-SKILLS",
+        "W-EVALSKILLS",
+        "W-SIMPLE",
+        "W-COST"
+      ],
+      "decision": "Keep DIRECT as a zero-orchestration fast path, with explicit risk/promotion signals and evaluated activation; do not add a classifier call.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-SKILLS",
+        "W-EVALSKILLS",
+        "W-SIMPLE",
+        "W-COST"
+      ]
+    },
+    {
+      "feature_id": "F002",
+      "task_id": "008",
+      "review_task": "009",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.json",
+      "report_sha256": "0f302adf224cc940c7380e657af6d1acad781cba522a16c0acd04ff1f150766b",
+      "decision_sha256": "6c72a4229a3432a9b7b8434014111c723a65514dd0a2f8a137dbd453fcb931a7",
+      "source_ids": [
+        "E006",
+        "E003",
+        "E007",
+        "E008",
+        "W-DOCX",
+        "W-LITM",
+        "W-RETRIEVAL",
+        "W-CONTEXT",
+        "W-HARNESS"
+      ],
+      "decision": "Use content-addressed, lossless source fragments and obligation coverage; retain deterministic extraction and calibrate staging on working-set pressure.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-DOCX",
+        "W-LITM",
+        "W-RETRIEVAL",
+        "W-CONTEXT",
+        "W-HARNESS"
+      ]
+    },
+    {
+      "feature_id": "F003",
+      "task_id": "010",
+      "review_task": "011",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.json",
+      "report_sha256": "f837c59d2121e4ef4b7388cf7fc4f628a5276e67fddc6c8c7f4d2bb93bfbd399",
+      "decision_sha256": "12b88a2b35edc24be45b1f34d9ba6e501b1eb8c1c466379d2594fff377f1d26a",
+      "source_ids": [
+        "E008",
+        "E009",
+        "E003",
+        "E002",
+        "W-BOOK",
+        "W-CONTEXT",
+        "W-EVALSKILLS",
+        "W-COST"
+      ],
+      "decision": "Maintain a decision-oriented evidence ledger with explicit applicability and refresh triggers; stop research by unresolved decision risk, not source count.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-BOOK",
+        "W-CONTEXT",
+        "W-EVALSKILLS",
+        "W-COST"
+      ]
+    },
+    {
+      "feature_id": "F004",
+      "task_id": "012",
+      "review_task": "013",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.json",
+      "report_sha256": "75e9d987f0bef96d9085c561aa90c306b131869e5fe7bac2e6c32b425dfb65a9",
+      "decision_sha256": "6e38ce3a4e88accbc67abc12ee845768b08fc9dd1630a1d383c7f1ceb8f69075",
+      "source_ids": [
+        "E057",
+        "E056",
+        "E047",
+        "E058",
+        "W-ATOMIC",
+        "W-REPLAY",
+        "W-HARNESS",
+        "W-CAS"
+      ],
+      "decision": "Use staged plan generations, a single authoritative manifest and recoverable projection rebuilds; avoid claiming a multi-file transaction from atomic rename alone.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-ATOMIC",
+        "W-REPLAY",
+        "W-HARNESS",
+        "W-CAS"
+      ]
+    },
+    {
+      "feature_id": "F005",
+      "task_id": "014",
+      "review_task": "015",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.json",
+      "report_sha256": "29ed7ba03768a1f474f880bf649f270a88545af804fbc7abc3edb866f58548fe",
+      "decision_sha256": "f5ab1c1cc9b05bf03821da0a299630b70ae8fd0ceadde0429bb65cbeb9b3a200",
+      "source_ids": [
+        "E003",
+        "E011",
+        "E010",
+        "E021",
+        "W-CONTEXT",
+        "W-COST",
+        "W-LITM",
+        "W-RETRIEVAL",
+        "W-PERSISTENCE"
+      ],
+      "decision": "Use provenance-bearing task context and directional learnings with explicit trust and cache boundaries, not an accumulating transcript or universal memory.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-CONTEXT",
+        "W-COST",
+        "W-LITM",
+        "W-RETRIEVAL",
+        "W-PERSISTENCE"
+      ]
+    },
+    {
+      "feature_id": "F006",
+      "task_id": "016",
+      "review_task": "017",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/016-shared-patterns.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/016-shared-patterns.json",
+      "report_sha256": "8df870d8de064061b128287d18957a1d7e54140a7fdeb73a6cb4fb8a475578d1",
+      "decision_sha256": "ddbe9855e3fcbd97d188bf20866381931141c58782ff3d76311414e109fd55a4",
+      "source_ids": [
+        "E056",
+        "E047",
+        "E011",
+        "W-CAS",
+        "W-ATOMIC",
+        "W-PERSISTENCE"
+      ],
+      "decision": "Keep a small versioned pattern registry with conditional writes and precise consumer invalidation; distinguish semantic changes from formatting edits.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-CAS",
+        "W-ATOMIC",
+        "W-PERSISTENCE"
+      ]
+    },
+    {
+      "feature_id": "F007",
+      "task_id": "018",
+      "review_task": "019",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/018-lifecycle.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/018-lifecycle.json",
+      "report_sha256": "ae7b31c8a7f412c68ecec805e389b4619b270f33cdd95ea08cc0c5dd66ff4726",
+      "decision_sha256": "856d7cfbeb32e0dc3e4c85038ea63ad7597ad785681b3ef289f002046b0de828",
+      "source_ids": [
+        "E056",
+        "E047",
+        "E007",
+        "E040",
+        "W-ATOMIC",
+        "W-REPLAY",
+        "W-RETRY",
+        "W-HARNESS"
+      ],
+      "decision": "Use owned, generation-aware leases and scoped receipt validity for resume; keep cleanup local, guarded and independent of model judgment.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-ATOMIC",
+        "W-REPLAY",
+        "W-RETRY",
+        "W-HARNESS"
+      ]
+    },
+    {
+      "feature_id": "F008",
+      "task_id": "020",
+      "review_task": "021",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/020-escalation.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/020-escalation.json",
+      "report_sha256": "677442e280746ba3cc77095038ce6b9040c7cc8ac5cd3dda17c83bff83661034",
+      "decision_sha256": "cd38038f61e185db407f2bd03f09a1dc98a3aeefdc3b0cddaddfde3ffe57d549",
+      "source_ids": [
+        "E012",
+        "E013",
+        "E014",
+        "E040",
+        "W-AUTOMIX",
+        "W-ROUTELLM",
+        "W-RETRY",
+        "W-AGY-EFFORT",
+        "W-GLM"
+      ],
+      "decision": "Define a pure effective-dispatch ladder that removes no-op rungs, retains failure-specific retry semantics and leaves provider switching to its dedicated integration tasks.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-AUTOMIX",
+        "W-ROUTELLM",
+        "W-RETRY",
+        "W-AGY-EFFORT",
+        "W-GLM"
+      ]
+    },
+    {
+      "feature_id": "F009",
+      "task_id": "022",
+      "review_task": "023",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/022-availability.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/022-availability.json",
+      "report_sha256": "b42f5acc92afbd42502ef451fe1996afa8a8370dd1f52833f1d3ee8bab63284c",
+      "decision_sha256": "f0f6a59015254fcb7dbdc15138cd91e76cb53e959411e450e917b2547e0f9d8c",
+      "source_ids": [
+        "E038",
+        "E039",
+        "E040",
+        "E027",
+        "W-LITELLM",
+        "W-RETRY-LAYERS",
+        "W-OPENROUTER",
+        "W-OVERLOAD",
+        "W-AGY-USAGE"
+      ],
+      "decision": "Use one coherent allowed-provider chain and a bounded availability policy with explicit quota scopes, combined retry budgets and non-secret route fingerprints.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-LITELLM",
+        "W-RETRY-LAYERS",
+        "W-OPENROUTER",
+        "W-OVERLOAD",
+        "W-AGY-USAGE"
+      ]
+    },
+    {
+      "feature_id": "F010",
+      "task_id": "024",
+      "review_task": "025",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.json",
+      "report_sha256": "e2747d6c96173285b1d6d2ee50d71aa87756c7188934722d5e46843134022ddc",
+      "decision_sha256": "36cd59eb573eb370da716360ec14f227482cfd983d677dee40aefbb6ed70856f",
+      "source_ids": [
+        "E013",
+        "E025",
+        "E026",
+        "E050",
+        "E051",
+        "W-FRONTEND",
+        "W-VISUAL-TESTS",
+        "W-ACCESSIBILITY",
+        "W-COST",
+        "W-AGY-MODELS"
+      ],
+      "decision": "Route by measured workload capability and validation strength, with separate design, functional UI, monitoring and repair requirements rather than a universal model leaderboard.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-FRONTEND",
+        "W-VISUAL-TESTS",
+        "W-ACCESSIBILITY",
+        "W-COST",
+        "W-AGY-MODELS"
+      ]
+    },
+    {
+      "feature_id": "F011",
+      "task_id": "026",
+      "review_task": "027",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/026-catalog-snapshots.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/026-catalog-snapshots.json",
+      "report_sha256": "bfd027f508680eb995590ab784296a652fad0a69ab3fb97fa80f7fa305f7dcb2",
+      "decision_sha256": "3f4ad096cac00108dff8b1c11ad9ddf0a60035cecb28dd1aff116cbef8b644a1",
+      "source_ids": [
+        "E025",
+        "E022",
+        "E015",
+        "E019",
+        "E058",
+        "W-OPENAI-CACHE",
+        "W-DEEPSEEK-MODELS",
+        "W-GLM",
+        "W-AGY-EFFORT",
+        "W-CAS"
+      ],
+      "decision": "Keep provider-scoped catalog evidence with independently aged facets and immutable attempt bindings; treat aliases and pricing changes as observable model-resolution events.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-OPENAI-CACHE",
+        "W-DEEPSEEK-MODELS",
+        "W-GLM",
+        "W-AGY-EFFORT",
+        "W-CAS"
+      ]
+    },
+    {
+      "feature_id": "F012",
+      "task_id": "028",
+      "review_task": "029",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/028-delegation.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/028-delegation.json",
+      "report_sha256": "9b5d29e05968f7fad06595a6d49c8c3e84a6bbac85e0f78c2aa6ee216709b0f8",
+      "decision_sha256": "0f5ecc7a889b8a35c9a7b891f7664924944d5ef85ce79edf7cdb79ae1914dd0d",
+      "source_ids": [
+        "E016",
+        "E054",
+        "E021",
+        "E018",
+        "E041",
+        "W-COST",
+        "W-CLAUDE-SUBAGENTS",
+        "W-MUSE",
+        "W-SUBPROCESS",
+        "W-CONTEXT"
+      ],
+      "decision": "Use a measured delegation gate with explicit input revision and isolation boundaries; prefer one qualified context for sequential work and bounded fresh workers for independently useful tasks.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-COST",
+        "W-CLAUDE-SUBAGENTS",
+        "W-MUSE",
+        "W-SUBPROCESS",
+        "W-CONTEXT"
+      ]
+    },
+    {
+      "feature_id": "F013",
+      "task_id": "030",
+      "review_task": "031",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/030-claude.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/030-claude.json",
+      "report_sha256": "a9c2193b7404d9873a6b1decc51e45e76dcef60438d3bc7c1e4203746df92a46",
+      "decision_sha256": "25260911a37eb4bd8e80de171b4444e60419c0851a73b141a599ca07cff3106d",
+      "source_ids": [
+        "E015",
+        "E017",
+        "E054",
+        "E052",
+        "W-CLAUDE-CLI",
+        "W-CLAUDE-SUBAGENTS",
+        "W-CLAUDE-CACHE",
+        "W-COST"
+      ],
+      "decision": "Keep the Claude CLI adapter as the compatibility reference, add versioned capability fixtures and least-privilege role profiles, and evaluate SDK/native workflows only behind an explicit adapter boundary.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-CLAUDE-CLI",
+        "W-CLAUDE-SUBAGENTS",
+        "W-CLAUDE-CACHE",
+        "W-COST"
+      ]
+    },
+    {
+      "feature_id": "F014",
+      "task_id": "032",
+      "review_task": "033",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/032-codex.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/032-codex.json",
+      "report_sha256": "9f30b9ec843d3e9ddcef7eb3ba6a77877129c2d9631638d7e51fe0e1f076c017",
+      "decision_sha256": "b53dfd86643b8406ab9ada0d33e2a6b8c41ffcfeeffe9751a45523238fce33aa",
+      "source_ids": [
+        "E019",
+        "E020",
+        "E052",
+        "E021",
+        "W-CODEX-EXEC",
+        "W-CODEX-SECURITY",
+        "W-OPENAI-CACHE",
+        "W-EVALSKILLS"
+      ],
+      "decision": "Separate Codex event-stream parsing from final-schema validation, retain explicit sandbox/approval contracts and make session reuse an opt-in same-provider operation.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-CODEX-EXEC",
+        "W-CODEX-SECURITY",
+        "W-OPENAI-CACHE",
+        "W-EVALSKILLS"
+      ]
+    },
+    {
+      "feature_id": "F015",
+      "task_id": "034",
+      "review_task": "035",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/034-antigravity.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/034-antigravity.json",
+      "report_sha256": "bff334f0504929e0540fca4410888563316a5ca37fef2b134b859a5629f0462e",
+      "decision_sha256": "15d9431a53a36ed439305adf00623978fe45922125edfa6b4e00cd5e7cced11e",
+      "source_ids": [
+        "E022",
+        "E023",
+        "E024",
+        "E025",
+        "E026",
+        "E027",
+        "E028",
+        "W-AGY-EFFORT",
+        "W-AGY-HEADLESS",
+        "W-AGY-MODELS",
+        "W-AGY-PLANS",
+        "W-AGY-ENTERPRISE",
+        "W-AGY-PERMISSIONS"
+      ],
+      "decision": "Treat Antigravity as a versioned multi-backend harness with account-scoped quotas and billing; derive effort from actual model capabilities and keep unproven read-only observation disabled.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-AGY-EFFORT",
+        "W-AGY-HEADLESS",
+        "W-AGY-MODELS",
+        "W-AGY-PLANS",
+        "W-AGY-ENTERPRISE",
+        "W-AGY-PERMISSIONS"
+      ]
+    },
+    {
+      "feature_id": "F016",
+      "task_id": "036",
+      "review_task": "037",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/036-qwen.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/036-qwen.json",
+      "report_sha256": "7db26a9c742c8bd874ac2e522d4d4ad79ccf5cbb218741502230949b8f3dae68",
+      "decision_sha256": "6fb0d7feaeb1240b801af6de670f76f105f6919ccf7b57e0118cab093a9bc580",
+      "source_ids": [
+        "E029",
+        "E041",
+        "E044",
+        "W-QWEN-HEADLESS",
+        "W-QWEN-SETTINGS",
+        "W-SUBPROCESS",
+        "W-RETRY-LAYERS"
+      ],
+      "decision": "Add a versioned Qwen headless contract with explicit security and total-run budgets, and prevent native goal/retry loops from bypassing the orchestrator policy.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-QWEN-HEADLESS",
+        "W-QWEN-SETTINGS",
+        "W-SUBPROCESS",
+        "W-RETRY-LAYERS"
+      ]
+    },
+    {
+      "feature_id": "F017",
+      "task_id": "038",
+      "review_task": "039",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/038-kimi.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/038-kimi.json",
+      "report_sha256": "ef1a2d065f37ec94b56ce6d25b60858c4f6ccad97d94eacdf3aeb3c748d15010",
+      "decision_sha256": "c09ff51ea89b959188fbdd8f72215479ae53a31c8081e789f8fb321bce934400",
+      "source_ids": [
+        "E030",
+        "E031",
+        "E041",
+        "W-KIMI-CLI",
+        "W-INJECTION",
+        "W-SUBPROCESS",
+        "W-REPLAY"
+      ],
+      "decision": "Make Kimi prompt-mode permission behavior an explicit versioned compatibility decision; reject unsupported safe-role invocations instead of silently deleting flags.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-KIMI-CLI",
+        "W-INJECTION",
+        "W-SUBPROCESS",
+        "W-REPLAY"
+      ]
+    },
+    {
+      "feature_id": "F018",
+      "task_id": "040",
+      "review_task": "041",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/040-trae.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/040-trae.json",
+      "report_sha256": "62b6fd8d1c40fdd38a4be6e23b82804b91b3be0d071716e8e4c7d49e24729541",
+      "decision_sha256": "29c04f9cf4cc5904be4832ebf728f13f8b51fab975de9288dc3be60f9f5b2df6",
+      "source_ids": [
+        "E032",
+        "E044",
+        "E042",
+        "W-TRAE-README",
+        "W-TRAE-TRAJECTORY",
+        "W-LOGGING",
+        "W-SUBPROCESS"
+      ],
+      "decision": "Preserve TRAE Agent as a distinct adapter with pinned CLI/tool contracts and owned trajectory artifacts; do not interpret the trajectory or IDE identity as a completion guarantee.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-TRAE-README",
+        "W-TRAE-TRAJECTORY",
+        "W-LOGGING",
+        "W-SUBPROCESS"
+      ]
+    },
+    {
+      "feature_id": "F019",
+      "task_id": "042",
+      "review_task": "043",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/042-muse.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/042-muse.json",
+      "report_sha256": "ba611507f2f3ea2f2549fcf39e799d16e168907d2fb3d20edf1b31cf445a71fe",
+      "decision_sha256": "6b671ffa34da4c7ef7362b4f88d712e759846b290604b4214b0e9e675b90e887",
+      "source_ids": [
+        "E033",
+        "E034",
+        "E044",
+        "W-MUSE",
+        "W-MUSE-SESSIONS",
+        "W-REPLAY",
+        "W-LOGGING"
+      ],
+      "decision": "Use Muse explicit headless session/event contracts, enforce checkout isolation for parallel writers and reconcile cooperative cancellation before replacement workers.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-MUSE",
+        "W-MUSE-SESSIONS",
+        "W-REPLAY",
+        "W-LOGGING"
+      ]
+    },
+    {
+      "feature_id": "F020",
+      "task_id": "044",
+      "review_task": "045",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/044-glm.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/044-glm.json",
+      "report_sha256": "1ef9593ef1e0dfcaafe09b68447336222866eba840d53ca843dfe20ab352f0b8",
+      "decision_sha256": "6e11bb62f7f45a5f8ecfd83c718cb4915b0eea2174689f82b69fa4efa81babbc",
+      "source_ids": [
+        "E035",
+        "E015",
+        "E013",
+        "E017",
+        "W-GLM",
+        "W-GLM-PLAN",
+        "W-COST",
+        "W-OPENROUTER"
+      ],
+      "decision": "Resolve GLM backend identity independently of Claude role aliases, with isolated per-process profiles, explicit billing eligibility and measured workload capability.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-GLM",
+        "W-GLM-PLAN",
+        "W-COST",
+        "W-OPENROUTER"
+      ]
+    },
+    {
+      "feature_id": "F021",
+      "task_id": "046",
+      "review_task": "047",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/046-deepseek.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/046-deepseek.json",
+      "report_sha256": "d36607d5f0fd390d033e7cf96a322eb26882cca19315b07d7fe182f253818b73",
+      "decision_sha256": "671d82daa9101f181d454e5703d80c3093757d046a76ad158504b8bc717b714a",
+      "source_ids": [
+        "E036",
+        "E037",
+        "E044",
+        "E013",
+        "W-DEEPSEEK",
+        "W-DEEPSEEK-MODELS",
+        "W-OPENAI-CACHE",
+        "W-LOGGING"
+      ],
+      "decision": "Keep DeepSeek compatibility, resolved model identity and billing evidence explicit; validate unsupported or ignored fields rather than assuming full Anthropic equivalence.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-DEEPSEEK",
+        "W-DEEPSEEK-MODELS",
+        "W-OPENAI-CACHE",
+        "W-LOGGING"
+      ]
+    },
+    {
+      "feature_id": "F022",
+      "task_id": "048",
+      "review_task": "049",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/048-validation-evidence.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/048-validation-evidence.json",
+      "report_sha256": "e9a4848a3e7d7edef3be22250460287bde4e00abd6e56067946cf053b76adabb",
+      "decision_sha256": "dfb1e894a7ae9495d24be88e731622342ff60b6da4e294a96b1cd34c3b001b9d",
+      "source_ids": [
+        "E052",
+        "E053",
+        "E007",
+        "E044",
+        "W-HARNESS",
+        "W-EVALSKILLS",
+        "W-SELFCORRECT",
+        "W-INJECTION",
+        "W-SUBPROCESS"
+      ],
+      "decision": "Bind validation evidence to exact code, task contract and executed argv; keep deterministic acceptance authoritative and make failure packets available to both production prompt paths.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-HARNESS",
+        "W-EVALSKILLS",
+        "W-SELFCORRECT",
+        "W-INJECTION",
+        "W-SUBPROCESS"
+      ]
+    },
+    {
+      "feature_id": "F023",
+      "task_id": "050",
+      "review_task": "051",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/050-resource-map.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/050-resource-map.json",
+      "report_sha256": "074b53602823aa8cb777af19c449389dffbbcd8afde86d966c3663bed8517146",
+      "decision_sha256": "f7c20fb0aff53a9cc76cc800216b1ef38f1deb10306d76dabf6d6af3505d95f6",
+      "source_ids": [
+        "E043",
+        "E045",
+        "E040",
+        "W-COMPOSE",
+        "W-SRE",
+        "W-SUBPROCESS",
+        "W-LOGGING"
+      ],
+      "decision": "Maintain a content-fingerprinted, least-privilege resource map with explicit readiness, health and progress roles; reconcile only relevant inventory inputs and fail unknown observations conservatively.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-COMPOSE",
+        "W-SRE",
+        "W-SUBPROCESS",
+        "W-LOGGING"
+      ]
+    },
+    {
+      "feature_id": "F024",
+      "task_id": "052",
+      "review_task": "053",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/052-progress-processes.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/052-progress-processes.json",
+      "report_sha256": "a7326e679b7072e5fe7b5c11584d000757af279eaafaa4fd873eef3686c61004",
+      "decision_sha256": "263a5a673d5d9bfb5c6cc772870a92c967f3df7813c58d4e2dbb131912d9665f",
+      "source_ids": [
+        "E041",
+        "E042",
+        "E043",
+        "E045",
+        "W-SUBPROCESS",
+        "W-WINDOWS-JOBS",
+        "W-SRE",
+        "W-OVERLOAD"
+      ],
+      "decision": "Use separate liveness, semantic-progress and hard-limit clocks with bounded stream capture and owned process-tree cancellation on each supported operating system.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-SUBPROCESS",
+        "W-WINDOWS-JOBS",
+        "W-SRE",
+        "W-OVERLOAD"
+      ]
+    },
+    {
+      "feature_id": "F025",
+      "task_id": "054",
+      "review_task": "055",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/054-supervised-jobs.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/054-supervised-jobs.json",
+      "report_sha256": "8273d9544baf3d421d4765e0ea6c9e543745a49170b8dcc9f37b5b3810481107",
+      "decision_sha256": "f350fd808bb748e4fc9b266e62eaba384a4c0363d0c8d386da452e246172e554",
+      "source_ids": [
+        "E040",
+        "E047",
+        "E007",
+        "E042",
+        "W-PERSISTENCE",
+        "W-REPLAY",
+        "W-ATOMIC",
+        "W-WINDOWS-JOBS"
+      ],
+      "decision": "Make supervised validation jobs idempotent, generation-bound state machines that resume validation without redispatching the implementation model and reconcile uncertain job outcomes before restart.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-PERSISTENCE",
+        "W-REPLAY",
+        "W-ATOMIC",
+        "W-WINDOWS-JOBS"
+      ]
+    },
+    {
+      "feature_id": "F026",
+      "task_id": "056",
+      "review_task": "057",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/056-watchdog-keepalive.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/056-watchdog-keepalive.json",
+      "report_sha256": "e43192cfe3fa2aae3672daab4ac3106389fa0ad539e253c087adb65360085e0a",
+      "decision_sha256": "0625bfbad2f6967854bac41d52b7844ab1c8a8a4e27dd6dd9f7c03e570268b91",
+      "source_ids": [
+        "E043",
+        "E040",
+        "E056",
+        "W-SRE",
+        "W-RETRY",
+        "W-CAS",
+        "W-MUSE"
+      ],
+      "decision": "Keep watchdog observation separate from guarded restart actions, with generation-fenced leases, bounded restart budgets and deduplicated anomaly notifications.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-SRE",
+        "W-RETRY",
+        "W-CAS",
+        "W-MUSE"
+      ]
+    },
+    {
+      "feature_id": "F027",
+      "task_id": "058",
+      "review_task": "059",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/058-log-lifecycle.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/058-log-lifecycle.json",
+      "report_sha256": "9009162eedf9a0e0d6ea018cd3a09fed87989fb151a9c0c2f3d4d452db5b82ec",
+      "decision_sha256": "8ffbeaf431534f3bccc5a8cc81f055839b401de9773721386f668771791b5037",
+      "source_ids": [
+        "E046",
+        "E044",
+        "E045",
+        "E043",
+        "W-TAIL",
+        "W-LOGGING",
+        "W-SRE",
+        "W-SUBPROCESS"
+      ],
+      "decision": "Use identity-aware incremental log readers, provenance-preserving bounded digests and owner-scoped retention; never delete evidence merely because an agent has already read it.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-TAIL",
+        "W-LOGGING",
+        "W-SRE",
+        "W-SUBPROCESS"
+      ]
+    },
+    {
+      "feature_id": "F028",
+      "task_id": "060",
+      "review_task": "061",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/060-advisory-observer.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/060-advisory-observer.json",
+      "report_sha256": "aee5816bbdc04e7ca8da1e66b81e267593ef8ae31925048eb72d8f4d64c9b02e",
+      "decision_sha256": "bf288ac2de621204b103ef3cef4630181b27c2a28b407166a1ea0b170288373b",
+      "source_ids": [
+        "E044",
+        "E024",
+        "E020",
+        "E015",
+        "E043",
+        "W-INJECTION",
+        "W-LOGGING",
+        "W-SELFCORRECT",
+        "W-AGY-PERMISSIONS",
+        "W-QWEN-HEADLESS"
+      ],
+      "decision": "Keep observation deterministic by default and invoke one bounded, genuinely read-only advisory pass only for novel ambiguity; treat its output as expiring untrusted data.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-INJECTION",
+        "W-LOGGING",
+        "W-SELFCORRECT",
+        "W-AGY-PERMISSIONS",
+        "W-QWEN-HEADLESS"
+      ]
+    },
+    {
+      "feature_id": "F029",
+      "task_id": "062",
+      "review_task": "063",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.json",
+      "report_sha256": "2a291ab2f2c00f436b002288c6c791729690dd03ce7c49e1ae7c2bc5ac3554dd",
+      "decision_sha256": "3738869156c7ef355ef269c62f33c97a04f1d2b31c601638b0522d54a77dd564",
+      "source_ids": [
+        "E002",
+        "E009",
+        "E043",
+        "E001",
+        "W-SKILLS",
+        "W-SRE",
+        "W-REPLAY",
+        "W-INJECTION",
+        "W-COST"
+      ],
+      "decision": "Keep validate-or-fix as a thin plan-free entrypoint into the shared monitoring and evidence engine, with explicit repair authorization and no hidden second orchestration state.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-SKILLS",
+        "W-SRE",
+        "W-REPLAY",
+        "W-INJECTION",
+        "W-COST"
+      ]
+    },
+    {
+      "feature_id": "F030",
+      "task_id": "064",
+      "review_task": "065",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/064-economic-evaluation.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/064-economic-evaluation.json",
+      "report_sha256": "bded38a609dced26ea890eea74153458d4046a3130703c89aa56c4a9d3793bfc",
+      "decision_sha256": "18175069c83cd7904cbca278e4b3403a62713edfe181a222af1ffe90dd9cbfd0",
+      "source_ids": [
+        "E012",
+        "E013",
+        "E014",
+        "E053",
+        "E005",
+        "W-COST",
+        "W-BOOTSTRAP",
+        "W-OTEL",
+        "W-OPENAI-CACHE",
+        "W-CLAUDE-CACHE",
+        "W-ROUTELLM"
+      ],
+      "decision": "Evaluate quality-constrained cost with paired task-level experiments, versioned native usage and honest missing data; keep offline replay separate from evidence of real model performance.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-COST",
+        "W-BOOTSTRAP",
+        "W-OTEL",
+        "W-OPENAI-CACHE",
+        "W-CLAUDE-CACHE",
+        "W-ROUTELLM"
+      ]
+    },
+    {
+      "feature_id": "F031",
+      "task_id": "066",
+      "review_task": "067",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/066-distribution.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/066-distribution.json",
+      "report_sha256": "f56bd57f2a4391a70c1599eecee49e18a77a95d1e4ec22f0faf7cfa76a58f32f",
+      "decision_sha256": "3a5469e229a9edb13436af0d0bed09c287d4d8538873ca46e1e1358a2e929429",
+      "source_ids": [
+        "E048",
+        "E049",
+        "E055",
+        "E001",
+        "E058",
+        "W-NPM",
+        "W-ACTIONS",
+        "W-SKILLS",
+        "W-LOGGING"
+      ],
+      "decision": "Validate the actual distributable and installed dependency layout, preserve edited user installations, and separate metadata-only pack inspection from lifecycle/full-suite execution.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-NPM",
+        "W-ACTIONS",
+        "W-SKILLS",
+        "W-LOGGING"
+      ]
+    },
+    {
+      "feature_id": "F032",
+      "task_id": "068",
+      "review_task": "069",
+      "report": "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+      "decision_record": "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.json",
+      "report_sha256": "671eb8087a9f775c171eb82669361ac97a213949c6259c7dcf7458a35df0aab3",
+      "decision_sha256": "6c0786c046c7f44e187927155306b494bd893cd343bd503836280d0bac649978",
+      "source_ids": [
+        "E014",
+        "E012",
+        "E038",
+        "E039",
+        "E054",
+        "E010",
+        "E044",
+        "E018",
+        "E021",
+        "W-AUTOMIX",
+        "W-ROUTELLM",
+        "W-RETRY",
+        "W-REFLEXION",
+        "W-SELFCORRECT",
+        "W-OPENAI-CACHE",
+        "W-AGY-EFFORT",
+        "W-INJECTION"
+      ],
+      "decision": "Specify opt-in provider-top switching over distinct effective dispatches, with coherent chain ownership, per-provider/phase evidence and deterministic evidence-bounded handoff by default.",
+      "research_revision": 2,
+      "current_source_ids": [
+        "W-AUTOMIX",
+        "W-ROUTELLM",
+        "W-RETRY",
+        "W-REFLEXION",
+        "W-SELFCORRECT",
+        "W-OPENAI-CACHE",
+        "W-AGY-EFFORT",
+        "W-INJECTION"
+      ]
+    }
+  ],
+  "research_revision": 2,
+  "source_records": 121,
+  "new_source_records": 63,
+  "independent_review_status": "pending"
+}

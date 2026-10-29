@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "feature_id": "F028",
+  "former_research_task": "060",
+  "implementation_task": "060",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Verify least-privilege tool restrictions, schema validation and untrusted advice boundaries.",
+    "Compare deterministic monitoring with event-triggered model diagnosis and cheap fallback chains."
+  ],
+  "decision": "Use deterministic monitoring by default and event-triggered, read-only, untrusted diagnostic advice with bounded fallback.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "assistant_triage has a strict advice schema, eligibility triggers and a capsule that does not authoritatively change task state. observer adds a separate restricted diagnostic route.",
+    "assistant_triage.evidence slices command/head/tail before calling redact, despite the redactor's intended redact-before-truncate contract. Boundary-sensitive sanitation needs a regression test.",
+    "Tool restrictions and startup guards are code-level controls; a summary prompt alone cannot enforce read-only behavior."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/observer.py",
+      "sha256": "ad84f96624f85c860edd925ed5bf354dc805b726f943bf14a435f6ef5179b322",
+      "line_count": 440,
+      "symbols": [
+        {
+          "name": "native_invoke",
+          "line": 259,
+          "end": 304
+        },
+        {
+          "name": "diagnose",
+          "line": 337,
+          "end": 411
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/assistant_triage.py",
+      "sha256": "af9d5a1054aae9c747916a60f3f0c836209f878c1c31638909eedcd28d9109c2",
+      "line_count": 428,
+      "symbols": [
+        {
+          "name": "redact",
+          "line": 53,
+          "end": 62
+        },
+        {
+          "name": "evidence",
+          "line": 102,
+          "end": 124
+        },
+        {
+          "name": "validate_advice",
+          "line": 137,
+          "end": 151
+        },
+        {
+          "name": "hint",
+          "line": 412,
+          "end": 428
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/ASSISTANTS.md",
+      "sha256": "8a7e0edce46d96093a5c7e641a4fc093c1ee552da23af8aaee5abb41d4886b32",
+      "line_count": 43,
+      "symbols": [
+        {
+          "name": "# Bounded advisory validation triage",
+          "line": 1
+        },
+        {
+          "name": "## Activation and cost",
+          "line": 5
+        },
+        {
+          "name": "## Native profiles and the important limitation",
+          "line": 15
+        },
+        {
+          "name": "## Persistence and ownership",
+          "line": 25
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E044",
+    "E024",
+    "E020",
+    "E015",
+    "E043"
+  ],
+  "implementation_steps": [
+    "Move sanitation ahead of any truncation of model-facing data, including command strings, output windows and failure summaries. Test split credential/header cases.",
+    "Keep explicit diagnostics local: syntax/lint errors, known missing tools and clear health failures do not need a model. Trigger one bounded diagnosis only for ambiguous stagnation or repeated unclear evidence.",
+    "Qualify each observer fallback for true read-only/no-tool or restricted-tool execution. Missing confinement disables the candidate rather than escalating its permissions.",
+    "Validate advice schema, finite confidence, allowed evidence IDs and byte limits. Label hypotheses unverified and bind the capsule to the next eligible attempt only.",
+    "Record advisory invocation cost separately and never let advice complete tasks, edit files, choose authoritative failure classes or delete evidence."
+  ],
+  "proposed_acceptance_tests": [
+    "Clear deterministic errors invoke no advisory model.",
+    "A planted Authorization header or long secret split at a prior slice boundary is redacted before prompt construction.",
+    "Unknown evidence IDs, extra JSON fields, non-finite confidence and oversized hypotheses are rejected.",
+    "Unavailable cheap observer falls back only to another allowed restricted observer, otherwise skips.",
+    "Advice cannot mutate route/status and expires after its intended attempt."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Continuously ask a cheap LLM to inspect output",
+      "tradeoff": "Still costly at scale and duplicates deterministic checks."
+    },
+    {
+      "id": "recommended",
+      "title": "Event-gated bounded advisor behind a security boundary",
+      "tradeoff": "Pays only for ambiguous diagnosis and preserves deterministic authority."
+    },
+    {
+      "id": "rejected",
+      "title": "Let the observer repair code or clean arbitrary logs",
+      "tradeoff": "Violates role isolation and risks modifying evidence or the product without proper validation."
+    }
+  ],
+  "cost_model": "Measure avoided/used advisor calls, anomaly detection and subsequent validated repair. A low per-token price does not make a continuously polling model cheaper than deterministic tools.",
+  "unverified": [
+    "Actual sandbox enforcement and account-specific observer economics require authorized live qualification. This report does not certify any hosted model as universally read-only."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

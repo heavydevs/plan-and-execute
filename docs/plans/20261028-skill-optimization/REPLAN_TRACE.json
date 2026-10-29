@@ -1,0 +1,549 @@
+{
+  "schema_version": 1,
+  "amendment": "REQUEST_AMENDMENT.md",
+  "previous_spec_sha256": "0fa2e25c9a4676de22a847f40246ab10be25544c70932ca42e2ac9a5423b2e58",
+  "original_request_sha256": "81867f0f0a31a2fcf48c78bf7b548160924d1459ad3252fa4513fefd7de03e77",
+  "task_count": 86,
+  "research_tasks_converted": 32,
+  "tasks": [
+    {
+      "id": "001",
+      "previous_title": "Review Plan 1 and qualify execution routes",
+      "new_title": "Implement deterministic preflight and baseline fixtures",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "002",
+      "previous_title": "Audit every skill mechanism and baseline",
+      "new_title": "Implement source and contract coverage checks",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "003",
+      "previous_title": "Review Audit every skill mechanism and baseline",
+      "new_title": "Review and correct source coverage implementation",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "004",
+      "previous_title": "Complete the feature inventory and research coverage",
+      "new_title": "Implement shared acceptance fixtures and report-aware task inputs",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "005",
+      "previous_title": "Review Complete the feature inventory and research coverage",
+      "new_title": "Review and correct shared acceptance fixtures",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "006",
+      "previous_title": "Research Selective activation, intake and late promotion",
+      "new_title": "Implement selective activation, intake and late promotion",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "007",
+      "previous_title": "Review Research Selective activation, intake and late promotion",
+      "new_title": "Review and correct selective activation, intake and late promotion",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "008",
+      "previous_title": "Research Oversized request fragmentation and prepared packages",
+      "new_title": "Implement oversized request fragmentation and prepared packages",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "009",
+      "previous_title": "Review Research Oversized request fragmentation and prepared packages",
+      "new_title": "Review and correct oversized request fragmentation and prepared packages",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "010",
+      "previous_title": "Research Adaptive internal and external study",
+      "new_title": "Implement adaptive internal and external study",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "011",
+      "previous_title": "Review Research Adaptive internal and external study",
+      "new_title": "Review and correct adaptive internal and external study",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "012",
+      "previous_title": "Research Requirements, task decomposition and schema-v4 state",
+      "new_title": "Implement requirements, task decomposition and schema-v4 state",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "013",
+      "previous_title": "Review Research Requirements, task decomposition and schema-v4 state",
+      "new_title": "Review and correct requirements, task decomposition and schema-v4 state",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "014",
+      "previous_title": "Research Assigned context, learned facts and token budgets",
+      "new_title": "Implement assigned context, learned facts and token budgets",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "015",
+      "previous_title": "Review Research Assigned context, learned facts and token budgets",
+      "new_title": "Review and correct assigned context, learned facts and token budgets",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "016",
+      "previous_title": "Research Versioned shared contracts and selective invalidation",
+      "new_title": "Implement versioned shared contracts and selective invalidation",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "017",
+      "previous_title": "Review Research Versioned shared contracts and selective invalidation",
+      "new_title": "Review and correct versioned shared contracts and selective invalidation",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "018",
+      "previous_title": "Research Leases, resume, cancellation, reset and guarded cleanup",
+      "new_title": "Implement leases, resume, cancellation, reset and guarded cleanup",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "019",
+      "previous_title": "Review Research Leases, resume, cancellation, reset and guarded cleanup",
+      "new_title": "Review and correct leases, resume, cancellation, reset and guarded cleanup",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "020",
+      "previous_title": "Research Capability floors, evidence ladders and retry accounting",
+      "new_title": "Implement capability floors, evidence ladders and retry accounting",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "021",
+      "previous_title": "Review Research Capability floors, evidence ladders and retry accounting",
+      "new_title": "Review and correct capability floors, evidence ladders and retry accounting",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "022",
+      "previous_title": "Research Provider chains, cooldowns, quotas and availability ledgers",
+      "new_title": "Implement provider chains, cooldowns, quotas and availability ledgers",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "023",
+      "previous_title": "Review Research Provider chains, cooldowns, quotas and availability ledgers",
+      "new_title": "Review and correct provider chains, cooldowns, quotas and availability ledgers",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "024",
+      "previous_title": "Research Workload routing for frontend, repair and monitoring",
+      "new_title": "Implement workload routing for frontend, repair and monitoring",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "025",
+      "previous_title": "Review Research Workload routing for frontend, repair and monitoring",
+      "new_title": "Review and correct workload routing for frontend, repair and monitoring",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "026",
+      "previous_title": "Research Model catalog evidence, caches, snapshots and refresh",
+      "new_title": "Implement model catalog evidence, caches, snapshots and refresh",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "027",
+      "previous_title": "Review Research Model catalog evidence, caches, snapshots and refresh",
+      "new_title": "Review and correct model catalog evidence, caches, snapshots and refresh",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "028",
+      "previous_title": "Research Fresh workers, delegation gates and prompt-cache boundaries",
+      "new_title": "Implement fresh workers, delegation gates and prompt-cache boundaries",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "029",
+      "previous_title": "Review Research Fresh workers, delegation gates and prompt-cache boundaries",
+      "new_title": "Review and correct fresh workers, delegation gates and prompt-cache boundaries",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "030",
+      "previous_title": "Research Claude Code and Claude Agent SDK adapter",
+      "new_title": "Implement claude Code and Claude Agent SDK adapter",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "031",
+      "previous_title": "Review Research Claude Code and Claude Agent SDK adapter",
+      "new_title": "Review and correct claude Code and Claude Agent SDK adapter",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "032",
+      "previous_title": "Research Codex CLI, Agent SDK and schema adaptation",
+      "new_title": "Implement codex CLI, Agent SDK and schema adaptation",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "033",
+      "previous_title": "Review Research Codex CLI, Agent SDK and schema adaptation",
+      "new_title": "Review and correct codex CLI, Agent SDK and schema adaptation",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "034",
+      "previous_title": "Research Antigravity and legacy Gemini adapter",
+      "new_title": "Implement antigravity and legacy Gemini adapter",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "035",
+      "previous_title": "Review Research Antigravity and legacy Gemini adapter",
+      "new_title": "Review and correct antigravity and legacy Gemini adapter",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "036",
+      "previous_title": "Research Qwen Code headless adapter",
+      "new_title": "Implement qwen Code headless adapter",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "037",
+      "previous_title": "Review Research Qwen Code headless adapter",
+      "new_title": "Review and correct qwen Code headless adapter",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "038",
+      "previous_title": "Research Kimi Code CLI adapter",
+      "new_title": "Implement kimi Code CLI adapter",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "039",
+      "previous_title": "Review Research Kimi Code CLI adapter",
+      "new_title": "Review and correct kimi Code CLI adapter",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "040",
+      "previous_title": "Research Trae Agent adapter",
+      "new_title": "Implement trae Agent adapter",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "041",
+      "previous_title": "Review Research Trae Agent adapter",
+      "new_title": "Review and correct trae Agent adapter",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "042",
+      "previous_title": "Research Muse Code adapter and session protocol",
+      "new_title": "Implement muse Code adapter and session protocol",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "043",
+      "previous_title": "Review Research Muse Code adapter and session protocol",
+      "new_title": "Review and correct muse Code adapter and session protocol",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "044",
+      "previous_title": "Research GLM provider profiles",
+      "new_title": "Implement gLM provider profiles",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "045",
+      "previous_title": "Review Research GLM provider profiles",
+      "new_title": "Review and correct gLM provider profiles",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "046",
+      "previous_title": "Research DeepSeek provider profiles",
+      "new_title": "Implement deepSeek provider profiles",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "047",
+      "previous_title": "Review Research DeepSeek provider profiles",
+      "new_title": "Review and correct deepSeek provider profiles",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "048",
+      "previous_title": "Research Independent validation, evidence packets and failure classification",
+      "new_title": "Implement independent validation, evidence packets and failure classification",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "049",
+      "previous_title": "Review Research Independent validation, evidence packets and failure classification",
+      "new_title": "Review and correct independent validation, evidence packets and failure classification",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "050",
+      "previous_title": "Research Resource discovery, freshness and runtime health",
+      "new_title": "Implement resource discovery, freshness and runtime health",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "051",
+      "previous_title": "Review Research Resource discovery, freshness and runtime health",
+      "new_title": "Review and correct resource discovery, freshness and runtime health",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "052",
+      "previous_title": "Research Progress windows, cancellation and process-tree safety",
+      "new_title": "Implement progress windows, cancellation and process-tree safety",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "053",
+      "previous_title": "Review Research Progress windows, cancellation and process-tree safety",
+      "new_title": "Review and correct progress windows, cancellation and process-tree safety",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "054",
+      "previous_title": "Research Durable supervised jobs and validation handoff",
+      "new_title": "Implement durable supervised jobs and validation handoff",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "055",
+      "previous_title": "Review Research Durable supervised jobs and validation handoff",
+      "new_title": "Review and correct durable supervised jobs and validation handoff",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "056",
+      "previous_title": "Research Read-only watchdog and guarded runner recovery",
+      "new_title": "Implement read-only watchdog and guarded runner recovery",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "057",
+      "previous_title": "Review Research Read-only watchdog and guarded runner recovery",
+      "new_title": "Review and correct read-only watchdog and guarded runner recovery",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "058",
+      "previous_title": "Research Incremental log scanning, digest and artifact retention",
+      "new_title": "Implement incremental log scanning, digest and artifact retention",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "059",
+      "previous_title": "Review Research Incremental log scanning, digest and artifact retention",
+      "new_title": "Review and correct incremental log scanning, digest and artifact retention",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "060",
+      "previous_title": "Research Read-only observer and diagnostic assistant",
+      "new_title": "Implement read-only observer and diagnostic assistant",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "061",
+      "previous_title": "Review Research Read-only observer and diagnostic assistant",
+      "new_title": "Review and correct read-only observer and diagnostic assistant",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "062",
+      "previous_title": "Research Plan-free monitored validation and repair",
+      "new_title": "Implement plan-free monitored validation and repair",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "063",
+      "previous_title": "Review Research Plan-free monitored validation and repair",
+      "new_title": "Review and correct plan-free monitored validation and repair",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "064",
+      "previous_title": "Research Telemetry, shadow routing and non-inferiority benchmarks",
+      "new_title": "Implement telemetry, shadow routing and non-inferiority benchmarks",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "065",
+      "previous_title": "Review Research Telemetry, shadow routing and non-inferiority benchmarks",
+      "new_title": "Review and correct telemetry, shadow routing and non-inferiority benchmarks",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "066",
+      "previous_title": "Research Installer, configuration, packaging and cross-platform CI",
+      "new_title": "Implement installer, configuration, packaging and cross-platform CI",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "067",
+      "previous_title": "Review Research Installer, configuration, packaging and cross-platform CI",
+      "new_title": "Review and correct installer, configuration, packaging and cross-platform CI",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "068",
+      "previous_title": "Research Provider-top switching and evidence-bounded handoff design",
+      "new_title": "Implement provider-switch contract fixtures from the prepared decision",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "069",
+      "previous_title": "Review Research Provider-top switching and evidence-bounded handoff design",
+      "new_title": "Review and correct provider-top switching and evidence-bounded handoff design",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "070",
+      "previous_title": "Specify the opt-in provider-switch contract",
+      "new_title": "Implement opt-in provider-switch configuration and migration",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "071",
+      "previous_title": "Review Specify the opt-in provider-switch contract",
+      "new_title": "Review and correct opt-in provider-switch configuration and migration",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "072",
+      "previous_title": "Implement effective rungs and provider-top detection",
+      "new_title": "Implement distinct effective rungs and provider-phase state",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "073",
+      "previous_title": "Review Implement effective rungs and provider-top detection",
+      "new_title": "Review and correct distinct effective rungs and provider-phase state",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "074",
+      "previous_title": "Integrate coherent switching, budgets and availability",
+      "new_title": "Implement coherent switching, availability and attempt reservation",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "075",
+      "previous_title": "Review Integrate coherent switching, budgets and availability",
+      "new_title": "Review and correct coherent switching, availability and attempt reservation",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "076",
+      "previous_title": "Implement validated, redacted handoff generation",
+      "new_title": "Implement bounded deterministic handoff and sanitation",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "077",
+      "previous_title": "Review Implement validated, redacted handoff generation",
+      "new_title": "Review and correct bounded deterministic handoff and sanitation",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "078",
+      "previous_title": "Integrate handoff into both worker prompt paths",
+      "new_title": "Integrate attempt-bound handoff in both worker prompts",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "079",
+      "previous_title": "Review Integrate handoff into both worker prompt paths",
+      "new_title": "Review and correct provider-switch evidence",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "080",
+      "previous_title": "Document and measure switching and handoff behavior",
+      "new_title": "Complete provider-switch documentation, replay and cost evidence",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "081",
+      "previous_title": "Review Document and measure switching and handoff behavior",
+      "new_title": "Review and correct provider-switch evidence",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "082",
+      "previous_title": "Synthesize the reviewed optimization backlog",
+      "new_title": "Integrate all implemented contracts and close cross-feature gaps",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "083",
+      "previous_title": "Review Synthesize the reviewed optimization backlog",
+      "new_title": "Review and correct end-to-end integration",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "084",
+      "previous_title": "Generate and validate the implementation Plan 2",
+      "new_title": "Validate release contents, documentation and migration",
+      "disposition": "converted_to_implementation"
+    },
+    {
+      "id": "085",
+      "previous_title": "Review Generate and validate the implementation Plan 2",
+      "new_title": "Review and correct release-readiness evidence",
+      "disposition": "converted_to_code_review_and_fix"
+    },
+    {
+      "id": "086",
+      "previous_title": "Final whole-skill maintenance and handoff review",
+      "new_title": "Final whole-skill implementation review and handoff",
+      "disposition": "converted_to_code_review_and_fix"
+    }
+  ],
+  "superseded_requirement_text": {
+    "R001": "Implement the prepared research recommendations in this one plan; do not create another plan.",
+    "R002": "Use the pinned source inventory and per-feature reports to implement traceable skill improvements.",
+    "R003": "Replace every research task and its internal checklist with implementation instructions linked to its prepared report.",
+    "R004": "Require independent maximum-available-capability code review after each implementation topic; do not fabricate reviewer execution.",
+    "R006": "Implement the opt-in provider-top switching improvement within this single plan.",
+    "R009": "Pin the actual source baseline, affected tests and historical evidence; do not represent old logs as fresh validation.",
+    "R010": "Continue in the existing checkpoint workstream without modifying main or publishing without permission.",
+    "R017": "Use the prepared comparison to implement deterministic handoff first; keep additional paid summary calls and native retention out of the default.",
+    "R036": "Make final whole-skill maintenance and implementation acceptance the last task.",
+    "R037": "Consume the prepared reports with numbered sources, URL/access date and explicit evidence-versus-inference labels.",
+    "R038": "Use the completed provider, literature and public book-excerpt research; refresh only a material version-sensitive gap.",
+    "R041": "Keep prepared research outside disposable control state so all implementation tasks retain their source evidence.",
+    "R043": "Replace former second-plan tasks with integration, regression, packaging and final acceptance of this single implementation.",
+    "R044": "Record a newly discovered material gap with provenance and a bounded contract amendment; do not restart broad research by default."
+  },
+  "product_runtime_changed": false,
+  "new_plan_required": false,
+  "post_conversion_refinements": [
+    "Task068 implements fixture contracts only; tasks070-080 own provider-switch runtime changes.",
+    "Security, persistence and dispatch implementation leaves use strong/high; independent reviews use max/xhigh.",
+    "All active task definitions are native generated projections; no status is manually marked complete."
+  ]
+}

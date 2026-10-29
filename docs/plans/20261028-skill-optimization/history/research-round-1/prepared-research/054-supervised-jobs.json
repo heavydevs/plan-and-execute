@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "feature_id": "F025",
+  "former_research_task": "054",
+  "implementation_task": "054",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Trace job ownership, fingerprints, restart requests and terminal evidence pinning.",
+    "Measure resume without model redispatch and safe cancellation of tracked descendants."
+  ],
+  "decision": "Keep supervised jobs as durable owned executions with pinned results; distinguish resuming observation from launching the same side effect again.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "jobctl tracks job status, ownership, process identity, waiting and cancellation separately from model execution.",
+    "run_isolated can resume validation after a worker checkpoint, avoiding another model call when only a mapped job remains."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/jobctl.py",
+      "sha256": "63d30aea7a3e7b372078542556c1078e09af486f594c19a200f3f633609a64af",
+      "line_count": 714,
+      "symbols": [
+        {
+          "name": "status_job",
+          "line": 220,
+          "end": 244
+        },
+        {
+          "name": "start_job",
+          "line": 367,
+          "end": 449
+        },
+        {
+          "name": "wait_job",
+          "line": 452,
+          "end": 458
+        },
+        {
+          "name": "stop_job",
+          "line": 461,
+          "end": 477
+        },
+        {
+          "name": "supervise",
+          "line": 480,
+          "end": 614
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "validation_checkpoint_fingerprint",
+          "line": 1489,
+          "end": 1494
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md",
+      "sha256": "acf86af8b92d5faf5ed56364ff3aec56a1ab43cee445e961cbba9ab6576ce526",
+      "line_count": 118,
+      "symbols": [
+        {
+          "name": "# Progress windows and fixed ceilings",
+          "line": 1
+        },
+        {
+          "name": "## Timeout inventory",
+          "line": 5
+        },
+        {
+          "name": "## Portable progress and error contract",
+          "line": 25
+        },
+        {
+          "name": "## Refactor for progress",
+          "line": 48
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E040",
+    "E047",
+    "E007",
+    "E042"
+  ],
+  "implementation_steps": [
+    "Pin each job request to validation ID, source/map/command digest and execution identity. A stale succeeded job cannot satisfy a new acceptance state.",
+    "Make start/resume idempotent for an existing live matching job and refuse ambiguous ownership. Do not relaunch merely because a status wait returned75.",
+    "Persist bounded terminal receipts before releasing ownership, and define recovery after process loss between completion and receipt writing.",
+    "Preserve job evidence on ordinary interruption. Explicit cancellation/reset must stop owned descendants before removing controls.",
+    "Keep external side effects outside assumed exactly-once guarantees; expose an idempotency key or a reconciliation requirement for commands that cannot safely repeat."
+  ],
+  "proposed_acceptance_tests": [
+    "Two start requests for the same pinned live job create only one process.",
+    "A completed validation checkpoint resumes without redispatching the model.",
+    "A succeeded job with changed source/map/command is rejected as stale.",
+    "Wait timeout leaves the live job intact and returns its state, not a false failure.",
+    "Crash/cancel tests preserve receipts or explicitly report uncertainty rather than inventing completion."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Restart a validation process whenever observation is interrupted",
+      "tradeoff": "Simple but can duplicate side effects and discard useful progress."
+    },
+    {
+      "id": "recommended",
+      "title": "Idempotent start and pinned terminal receipts",
+      "tradeoff": "Uses the existing job controller and makes resume cheap and auditable."
+    },
+    {
+      "id": "rejected",
+      "title": "Add an external workflow service for every local test",
+      "tradeoff": "Introduces operational burden before local ownership/receipt defects are measured."
+    }
+  ],
+  "cost_model": "Avoid model redispatch and duplicate long test runs. Measure resumed jobs, prevented duplicate launches and stale result rejections; external costs are not inferred from local elapsed time.",
+  "unverified": [
+    "Arbitrary shell commands cannot be made exactly-once merely by saving a JSON job record. External services need their own idempotency/reconciliation contract."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

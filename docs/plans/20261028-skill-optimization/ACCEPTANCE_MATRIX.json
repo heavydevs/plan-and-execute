@@ -178,7 +178,7 @@
       "npm run check",
       "npm pack --dry-run"
     ],
-    "current_status": "not completed; preparation baseline full check was inconclusive"
+    "current_status": "Not executed for revised implementation; archived logs describe historical baseline runs only."
   },
   "whole_skill_review": "086"
 }

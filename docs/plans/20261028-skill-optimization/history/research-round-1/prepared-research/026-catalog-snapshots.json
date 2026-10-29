@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "feature_id": "F011",
+  "former_research_task": "026",
+  "implementation_task": "026",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Check TTL by facet, stale fallback, empty-tier lifting and immutable in-progress routes.",
+    "Measure refresh costs and verify model/effort against live discovery without inventing entries."
+  ],
+  "decision": "Keep provider-scoped cache and plan snapshots; add evidence-preserving capability reconciliation and make unknown tiers explicit.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "model_catalogctl manages per-provider cache files, independent facet freshness and plan-local model matrices. Snapshot refresh rebases pending tasks, not running attempts.",
+    "The catalog distinguishes capability, quality and economics. A provider model ID existing in a list does not prove its effort support, workload quality or price."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/model_catalog.py",
+      "sha256": "848e9b723845dc294bc39dc267357168dfc77f5ecdba67dd5f92f4556db88cbb",
+      "line_count": 501,
+      "symbols": [
+        {
+          "name": "validate",
+          "line": 212,
+          "end": 252
+        },
+        {
+          "name": "facet_freshness",
+          "line": 295,
+          "end": 308
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/model_catalogctl.py",
+      "sha256": "3406cf04a4a35aa3bdee9d69d3c9605410428c538c969994825ca0487464b69a",
+      "line_count": 844,
+      "symbols": [
+        {
+          "name": "plan_refresh",
+          "line": 230,
+          "end": 241
+        },
+        {
+          "name": "refresh",
+          "line": 288,
+          "end": 354
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_CATALOG.md",
+      "sha256": "c751d391d8ce957720f3e5bf056c5fbb33413c2d6e19deaa6504a7a5c800841e",
+      "line_count": 74,
+      "symbols": [
+        {
+          "name": "# Model catalog contract",
+          "line": 1
+        },
+        {
+          "name": "## Schema (`schema_version` 1)",
+          "line": 5
+        },
+        {
+          "name": "## Freshness policy (`2026-10-01-v1`)",
+          "line": 36
+        },
+        {
+          "name": "## Digest and versioning",
+          "line": 48
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E025",
+    "E022",
+    "E015",
+    "E019",
+    "E058"
+  ],
+  "implementation_steps": [
+    "Collect non-generative version/help/model-list observations through bounded adapter-specific probes and persist only normalized public capability metadata.",
+    "Key compatibility by CLI version and resolved model/profile. Invalidate capability facts on version changes without needlessly refreshing price and quality evidence.",
+    "Keep missing model/price/quality fields null and provide explicit reasons. Lift a missing tier upward when allowed; never synthesize a nonexistent model or silently lower the floor.",
+    "On an invalid-model response, allow one documented refresh/re-resolution path, then report a plan/configuration defect. Prevent indefinite refresh loops.",
+    "Pin the chosen effective model for an in-progress attempt and record catalog digest/provenance. Refreshing a shared cache must not rewrite an active worker route."
+  ],
+  "proposed_acceptance_tests": [
+    "Fresh facets produce no network/probe calls; expired or changed-version capability triggers only its required source.",
+    "A failing refresh retains the last valid cache with a visible stale warning.",
+    "Concurrent refreshes of different providers do not overwrite one another.",
+    "An empty advanced tier lifts to a configured stronger tier or yields an explicit ineligible candidate.",
+    "An in-progress task retains its model while pending tasks can rebase with an audit entry."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Embedded dated model map only",
+      "tradeoff": "Fast and offline, but cannot establish current availability or pricing."
+    },
+    {
+      "id": "recommended",
+      "title": "Scoped observed catalog plus pinned attempts",
+      "tradeoff": "Bounded discovery cost, reproducible execution and controlled refresh."
+    },
+    {
+      "id": "rejected",
+      "title": "Fetch all provider catalogs and prices on every task",
+      "tradeoff": "Wastes latency and can make identical retries choose unstable routes."
+    }
+  ],
+  "cost_model": "Count refresh/probe calls and cache age, not just token savings. Bootstrap is fallback evidence with a date; it is not authorization to claim current model economics.",
+  "unverified": [
+    "Specific model slugs and version probes remain environment-dependent. This session read documentation but did not query authenticated provider inventories."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

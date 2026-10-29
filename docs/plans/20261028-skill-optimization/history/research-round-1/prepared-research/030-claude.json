@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "feature_id": "F013",
+  "former_research_task": "030",
+  "implementation_task": "030",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Verify print mode, no-session-persistence, structured schema, tool restrictions and resume flags.",
+    "Measure subscription quota separately from API cash and cache write/read economics."
+  ],
+  "decision": "Keep the Claude CLI adapter thin and version-qualified, with explicit session, schema, permission and usage contracts.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "build_worker_command uses Claude print mode with disabled session persistence; a subsequent fresh process cannot be assumed to remember the previous attempt.",
+    "The runner has separate worker and summary command builders. A read-only summary must remain a restricted command path rather than a general implementation worker with a polite prompt."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "build_summary_command",
+          "line": 2319,
+          "end": 2455
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/provider_self_test.py",
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd",
+      "line_count": 596,
+      "symbols": [
+        {
+          "name": "test_codex_output_schema_is_api_compatible",
+          "line": 470,
+          "end": 536
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+      "sha256": "ba6e2fe3334f9204445aaf20ea28fa1675638029b7de568bfcb9068693af999a",
+      "line_count": 88,
+      "symbols": [
+        {
+          "name": "# Claude Code model routing",
+          "line": 1
+        },
+        {
+          "name": "## Current capability map",
+          "line": 5
+        },
+        {
+          "name": "## Elevation mechanics (how a route is actually obtained)",
+          "line": 22
+        },
+        {
+          "name": "## DIRECT mode",
+          "line": 38
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E015",
+    "E017",
+    "E054",
+    "E052"
+  ],
+  "implementation_steps": [
+    "Add recorded help/version fixtures and a capability map for the exact installed Claude CLI. Probe flags non-generatively and fail visibly on unsupported combinations.",
+    "Preserve fresh-context defaults. Separate optional resume/session-retention experiments from normal execution and document that conversation persistence does not snapshot source files.",
+    "Test structured report extraction, schema rejection, malformed envelopes and nonzero statuses separately. A valid JSON shape cannot replace deterministic product validation.",
+    "Qualify read-only paths with an actual tool allowlist/sandbox boundary and clean environment, including third-party endpoint profiles.",
+    "Capture available usage fields in native units, retaining null for absent values. Do not equate subscription tokens with API invoices or assume a universal cache rate."
+  ],
+  "proposed_acceptance_tests": [
+    "Default worker argv retains no-session-persistence and existing approved permission behavior.",
+    "Summary mode cannot write a planted repository file or execute an unapproved mutating tool in a supported test environment.",
+    "Invalid JSON, missing report fields, quota errors and semantic failures take different paths.",
+    "A model alias mapped through another endpoint is reported with host and backend identity.",
+    "Unknown usage is null and no secret environment values enter diagnostics."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Assume all Claude versions share flags and billing",
+      "tradeoff": "Minimal adapter maintenance but vulnerable to protocol and account changes."
+    },
+    {
+      "id": "recommended",
+      "title": "Small versioned contract fixtures and restrictive summary path",
+      "tradeoff": "Predictable upgrades without rewriting the harness in an SDK."
+    },
+    {
+      "id": "rejected",
+      "title": "Migrate everything to Agent SDK for this change",
+      "tradeoff": "Adds a new dependency/runtime surface without a demonstrated requirement; sessions can be evaluated later."
+    }
+  ],
+  "cost_model": "Avoid an extra model call for ordinary post-failure summaries. CLI contract tests should use fake processes; authenticated smoke tests require explicit permission and report real cost separately.",
+  "unverified": [
+    "Installed CLI version, current account authentication and maximum authorized model are not verified in this session."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

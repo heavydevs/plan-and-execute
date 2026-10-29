@@ -1,7 +1,7 @@
 {
   "audit": [
     {
-      "at": "2026-10-28T17:02:03Z",
+      "at": "2026-10-29T02:40:14Z",
       "new_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
       "old_digest": null,
       "op": "create",
@@ -95,7 +95,7 @@
       ]
     }
   ],
-  "captured_at": "2026-10-28T17:02:03Z",
+  "captured_at": "2026-10-29T02:40:14Z",
   "catalog": {
     "catalog_version": "claude:2026-10-09-bootstrap-v5+codex:2026-10-09-bootstrap-v5+deepseek:2026-10-09-bootstrap-v5+glm:2026-10-09-bootstrap-v5+muse:2026-10-09-bootstrap-v5",
     "providers": {
@@ -635,9 +635,9 @@
   },
   "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
   "catalog_version": "claude:2026-10-09-bootstrap-v5+codex:2026-10-09-bootstrap-v5+deepseek:2026-10-09-bootstrap-v5+glm:2026-10-09-bootstrap-v5+muse:2026-10-09-bootstrap-v5",
-  "created_at": "2026-10-28T17:02:03Z",
+  "created_at": "2026-10-29T02:40:14Z",
   "freshness_policy_version": "2026-10-01-v1",
-  "matrix_digest": "850b645550e10b067b201369c171b114c5b14af26eafb735ed69354b177fa2e0",
+  "matrix_digest": "1ced99b02d122794711e9904cc394a5b692c02d8d73b25367549372608e60b67",
   "matrix_version": 1,
   "plan_id": "20261028-skill-study-provider-switch",
   "sources": {
@@ -670,45 +670,75 @@
   "stale_after_days": 7,
   "tasks": {
     "001": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
-          "model": "claude-fable-5-1",
+          "model": "claude-sonnet-5-5",
           "provider": "claude",
-          "tier": "max"
+          "tier": "standard"
         },
         {
           "model": "gpt-6.1-sol",
           "provider": "codex",
-          "tier": "max"
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "xhigh",
-      "floor": "max",
+      "effort": "medium",
+      "floor": "standard",
       "provider": "auto"
     },
     "002": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
-          "model": "claude-opus-5-5",
+          "model": "claude-sonnet-5-5",
           "provider": "claude",
-          "tier": "strong"
+          "tier": "standard"
         },
         {
           "model": "gpt-6.1-sol",
           "provider": "codex",
-          "tier": "strong"
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "high",
-      "floor": "strong",
+      "effort": "medium",
+      "floor": "standard",
       "provider": "auto"
     },
     "003": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -727,26 +757,41 @@
       "provider": "auto"
     },
     "004": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
-          "model": "claude-opus-5-5",
+          "model": "claude-sonnet-5-5",
           "provider": "claude",
-          "tier": "strong"
+          "tier": "standard"
         },
         {
           "model": "gpt-6.1-sol",
           "provider": "codex",
-          "tier": "strong"
+          "tier": "standard"
+        },
+        {
+          "model": "deepseek-flash",
+          "provider": "deepseek",
+          "tier": "standard"
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "glm",
+          "tier": "standard"
+        },
+        {
+          "model": "muse-spark-1.3",
+          "provider": "muse",
+          "tier": "advanced"
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "high",
-      "floor": "strong",
+      "effort": "medium",
+      "floor": "standard",
       "provider": "auto"
     },
     "005": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -765,7 +810,7 @@
       "provider": "auto"
     },
     "006": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-sonnet-5-5",
@@ -794,12 +839,12 @@
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "medium",
+      "effort": "high",
       "floor": "standard",
       "provider": "auto"
     },
     "007": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -818,7 +863,7 @@
       "provider": "auto"
     },
     "008": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -837,7 +882,7 @@
       "provider": "auto"
     },
     "009": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -856,7 +901,7 @@
       "provider": "auto"
     },
     "010": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-sonnet-5-5",
@@ -885,12 +930,12 @@
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "medium",
+      "effort": "high",
       "floor": "standard",
       "provider": "auto"
     },
     "011": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -909,7 +954,7 @@
       "provider": "auto"
     },
     "012": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -928,7 +973,7 @@
       "provider": "auto"
     },
     "013": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -947,7 +992,7 @@
       "provider": "auto"
     },
     "014": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -966,7 +1011,7 @@
       "provider": "auto"
     },
     "015": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -985,7 +1030,7 @@
       "provider": "auto"
     },
     "016": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1004,7 +1049,7 @@
       "provider": "auto"
     },
     "017": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1023,7 +1068,7 @@
       "provider": "auto"
     },
     "018": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1042,7 +1087,7 @@
       "provider": "auto"
     },
     "019": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1061,7 +1106,7 @@
       "provider": "auto"
     },
     "020": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1080,7 +1125,7 @@
       "provider": "auto"
     },
     "021": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1099,7 +1144,7 @@
       "provider": "auto"
     },
     "022": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1118,7 +1163,7 @@
       "provider": "auto"
     },
     "023": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1137,7 +1182,7 @@
       "provider": "auto"
     },
     "024": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1156,7 +1201,7 @@
       "provider": "auto"
     },
     "025": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1175,7 +1220,7 @@
       "provider": "auto"
     },
     "026": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1194,7 +1239,7 @@
       "provider": "auto"
     },
     "027": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1213,7 +1258,7 @@
       "provider": "auto"
     },
     "028": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1232,7 +1277,7 @@
       "provider": "auto"
     },
     "029": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1251,7 +1296,7 @@
       "provider": "auto"
     },
     "030": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-sonnet-5-5",
@@ -1280,12 +1325,12 @@
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "medium",
+      "effort": "high",
       "floor": "standard",
       "provider": "auto"
     },
     "031": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1304,7 +1349,7 @@
       "provider": "auto"
     },
     "032": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-sonnet-5-5",
@@ -1333,12 +1378,12 @@
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "medium",
+      "effort": "high",
       "floor": "standard",
       "provider": "auto"
     },
     "033": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1357,7 +1402,7 @@
       "provider": "auto"
     },
     "034": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1376,7 +1421,7 @@
       "provider": "auto"
     },
     "035": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1395,7 +1440,7 @@
       "provider": "auto"
     },
     "036": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-sonnet-5-5",
@@ -1424,12 +1469,12 @@
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "medium",
+      "effort": "high",
       "floor": "standard",
       "provider": "auto"
     },
     "037": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1448,7 +1493,7 @@
       "provider": "auto"
     },
     "038": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-sonnet-5-5",
@@ -1477,12 +1522,12 @@
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "medium",
+      "effort": "high",
       "floor": "standard",
       "provider": "auto"
     },
     "039": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1501,7 +1546,7 @@
       "provider": "auto"
     },
     "040": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-sonnet-5-5",
@@ -1530,12 +1575,12 @@
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "medium",
+      "effort": "high",
       "floor": "standard",
       "provider": "auto"
     },
     "041": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1554,7 +1599,7 @@
       "provider": "auto"
     },
     "042": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-sonnet-5-5",
@@ -1583,12 +1628,12 @@
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "medium",
+      "effort": "high",
       "floor": "standard",
       "provider": "auto"
     },
     "043": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1607,7 +1652,7 @@
       "provider": "auto"
     },
     "044": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-sonnet-5-5",
@@ -1636,12 +1681,12 @@
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "medium",
+      "effort": "high",
       "floor": "standard",
       "provider": "auto"
     },
     "045": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1660,7 +1705,7 @@
       "provider": "auto"
     },
     "046": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-sonnet-5-5",
@@ -1689,12 +1734,12 @@
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
-      "effort": "medium",
+      "effort": "high",
       "floor": "standard",
       "provider": "auto"
     },
     "047": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1713,7 +1758,7 @@
       "provider": "auto"
     },
     "048": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1732,7 +1777,7 @@
       "provider": "auto"
     },
     "049": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1751,7 +1796,7 @@
       "provider": "auto"
     },
     "050": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1770,7 +1815,7 @@
       "provider": "auto"
     },
     "051": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1789,7 +1834,7 @@
       "provider": "auto"
     },
     "052": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1808,7 +1853,7 @@
       "provider": "auto"
     },
     "053": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1827,7 +1872,7 @@
       "provider": "auto"
     },
     "054": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1846,7 +1891,7 @@
       "provider": "auto"
     },
     "055": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1865,7 +1910,7 @@
       "provider": "auto"
     },
     "056": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1884,7 +1929,7 @@
       "provider": "auto"
     },
     "057": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1903,7 +1948,7 @@
       "provider": "auto"
     },
     "058": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1922,7 +1967,7 @@
       "provider": "auto"
     },
     "059": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1941,7 +1986,7 @@
       "provider": "auto"
     },
     "060": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1960,7 +2005,7 @@
       "provider": "auto"
     },
     "061": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -1979,7 +2024,7 @@
       "provider": "auto"
     },
     "062": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -1998,7 +2043,7 @@
       "provider": "auto"
     },
     "063": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2017,7 +2062,7 @@
       "provider": "auto"
     },
     "064": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2036,7 +2081,7 @@
       "provider": "auto"
     },
     "065": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2055,7 +2100,7 @@
       "provider": "auto"
     },
     "066": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2074,7 +2119,7 @@
       "provider": "auto"
     },
     "067": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2093,7 +2138,7 @@
       "provider": "auto"
     },
     "068": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2112,7 +2157,7 @@
       "provider": "auto"
     },
     "069": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2131,7 +2176,7 @@
       "provider": "auto"
     },
     "070": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2150,7 +2195,7 @@
       "provider": "auto"
     },
     "071": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2169,7 +2214,7 @@
       "provider": "auto"
     },
     "072": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2188,7 +2233,7 @@
       "provider": "auto"
     },
     "073": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2207,7 +2252,7 @@
       "provider": "auto"
     },
     "074": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2226,7 +2271,7 @@
       "provider": "auto"
     },
     "075": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2245,7 +2290,7 @@
       "provider": "auto"
     },
     "076": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2264,7 +2309,7 @@
       "provider": "auto"
     },
     "077": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2283,7 +2328,7 @@
       "provider": "auto"
     },
     "078": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2302,7 +2347,7 @@
       "provider": "auto"
     },
     "079": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2321,7 +2366,7 @@
       "provider": "auto"
     },
     "080": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2340,7 +2385,7 @@
       "provider": "auto"
     },
     "081": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2359,7 +2404,7 @@
       "provider": "auto"
     },
     "082": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2378,7 +2423,7 @@
       "provider": "auto"
     },
     "083": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2397,7 +2442,7 @@
       "provider": "auto"
     },
     "084": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-opus-5-5",
@@ -2416,7 +2461,7 @@
       "provider": "auto"
     },
     "085": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",
@@ -2435,7 +2480,7 @@
       "provider": "auto"
     },
     "086": {
-      "bound_at": "2026-10-28T17:02:03Z",
+      "bound_at": "2026-10-29T02:40:14Z",
       "candidates": [
         {
           "model": "claude-fable-5-1",

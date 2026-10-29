@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "feature_id": "F016",
+  "former_research_task": "036",
+  "implementation_task": "036",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Inspect Qwen headless JSON, approvals, safe read-only execution and session persistence.",
+    "Compare budget, cancellation and resume contracts without assuming Claude-compatible flags."
+  ],
+  "decision": "Treat Qwen headless JSON, budgets and permissions as its own tested protocol, not a Claude-compatible shell command.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "The Qwen adapter currently constructs a headless invocation with configured approval/safe-mode controls and a report schema.",
+    "Provider documentation distinguishes JSON/stream output, session persistence and budget exhaustion; those distinctions must survive normalization in the shared runner."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "run_process",
+          "line": 1214,
+          "end": 1317
+        },
+        {
+          "name": "parse_provider_report",
+          "line": 1412,
+          "end": 1425
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/provider_self_test.py",
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd",
+      "line_count": 596,
+      "symbols": [
+        {
+          "name": "sample_route",
+          "line": 20,
+          "end": 26
+        },
+        {
+          "name": "sample_report",
+          "line": 29,
+          "end": 43
+        },
+        {
+          "name": "test_default_provider_policy",
+          "line": 46,
+          "end": 60
+        },
+        {
+          "name": "test_worker_command_adapters",
+          "line": 63,
+          "end": 143
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E029",
+    "E041",
+    "E044"
+  ],
+  "implementation_steps": [
+    "Add version/help fixtures for supported Qwen CLI releases and explicit format selection. Keep JSON-array output and streaming JSONL parsing separate.",
+    "Normalize terminal result, tool activity, budget exhaustion, quota and transport errors without treating any intermediate assistant message as completion.",
+    "Qualify read-only operation with supported tool exclusions and sandbox controls. Yolo/approval automation alone must not authorize a supposedly read-only observer.",
+    "Capture resumable session identifiers only if explicitly enabled and retention is documented. Otherwise keep fresh-worker behavior and artifact handoff.",
+    "Apply the shared bounded output spool and process-tree cancellation contract rather than maintaining a second unbounded capture implementation."
+  ],
+  "proposed_acceptance_tests": [
+    "Replay JSON and JSONL fixtures with interleaved tool messages, malformed records and missing terminal results.",
+    "Budget/turn exhaustion is recorded separately from semantic failure and transient availability.",
+    "A read-only fake/qualified command cannot select shell/write/edit tools outside the allowlist.",
+    "Large output is drained without deadlock; cancellation stops owned descendants.",
+    "Unsupported schema or sandbox flags fail closed with an actionable version reason."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "One command template for all versions",
+      "tradeoff": "Low code volume but hides incompatible output and permission changes."
+    },
+    {
+      "id": "recommended",
+      "title": "Small Qwen-specific contract and shared safe process infrastructure",
+      "tradeoff": "Reuses common safety while respecting vendor semantics."
+    },
+    {
+      "id": "rejected",
+      "title": "Parse the last arbitrary JSON object as success",
+      "tradeoff": "May accept a tool event or partial output that never satisfied the task."
+    }
+  ],
+  "cost_model": "Use local fixtures for routine protocol regression and only bounded authorized live smoke tests for upgrades. No extra diagnostic model is needed for known exit/error classes.",
+  "unverified": [
+    "The installed Qwen release and its actual exit-code behavior were not exercised. Published budget codes must be pinned before becoming authoritative classifications."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

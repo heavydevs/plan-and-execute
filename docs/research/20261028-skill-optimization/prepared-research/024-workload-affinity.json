@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "feature_id": "F010",
+  "former_research_task": "024",
+  "implementation_task": "024",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Separate visual quality, code reasoning and cheap diagnostic workloads in evaluation.",
+    "Compare manager-quota preservation with capability floors and independent Antigravity model families."
+  ],
+  "decision": "Route by measured workload capability and validation strength, with separate design, functional UI, monitoring and repair requirements rather than a universal model leaderboard.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "workload_routing supports role/profile filtering and preferred pools without expanding the allowed provider chain.",
+    "The current user scenarios distinguish frontend design, routine code, repair and observation. These have different acceptance conditions, and preserving the manager's quota is a preference, not permission to lower a capability floor."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/workload_routing.py",
+      "sha256": "1a387675edbf3ef9e9b58dbc2fdcfa072173329ca864a4d1577ad7ca369147b1",
+      "line_count": 253,
+      "symbols": [
+        {
+          "name": "candidates",
+          "line": 121,
+          "end": 175
+        },
+        {
+          "name": "antigravity_preset",
+          "line": 193,
+          "end": 214
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/configure.py",
+      "sha256": "4e454ce5f6e141194bb5b2e95d5ba42e9b7a4f94d8bf4c957c2c1af3d003e8cd",
+      "line_count": 380,
+      "symbols": [
+        {
+          "name": "Cancelled",
+          "line": 24,
+          "end": 25
+        },
+        {
+          "name": "Question",
+          "line": 29,
+          "end": 35
+        },
+        {
+          "name": "terminal_ask",
+          "line": 38,
+          "end": 55
+        },
+        {
+          "name": "discover",
+          "line": 58,
+          "end": 76
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/VALIDATION_WORKLOADS.md",
+      "sha256": "a1c1e961444bc6d8f2537b17e6bfc8790d9a65b30a53a89de74432a2c654b081",
+      "line_count": 110,
+      "symbols": [
+        {
+          "name": "# Plan-free validation and workload-aware routing",
+          "line": 1
+        },
+        {
+          "name": "## DIRECT does not mean unmonitored",
+          "line": 5
+        },
+        {
+          "name": "## Four independent axes",
+          "line": 25
+        },
+        {
+          "name": "## Explicit profile configuration",
+          "line": 36
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E013",
+    "E025",
+    "E026",
+    "E050",
+    "E051",
+    "W-FRONTEND",
+    "W-VISUAL-TESTS",
+    "W-ACCESSIBILITY",
+    "W-COST",
+    "W-AGY-MODELS"
+  ],
+  "implementation_steps": [
+    "Create a small versioned workload evaluation set for frontend, implementation, repair and observer roles. Record criteria and observations per actual model/profile rather than hardcoding brand superiority.",
+    "For frontend, combine functional flows, controlled screenshot comparisons, accessibility checks and human/design review. A visually attractive screenshot does not certify behavior.",
+    "For observers, measure anomaly recall, false alarms, bounded output, latency and inability to write. Prefer deterministic classification first, then an eligible inexpensive model for ambiguous evidence.",
+    "Use account-scoped quota-pool metadata to prefer Antigravity alternatives only after confirming model/effort support and acceptable workload quality. Unknown data cannot establish equivalence to the highest native Claude route.",
+    "Record the selected role, floor, profile and exclusion reasons. Fall back deterministically to another allowed suitable profile, never to a cheaper but disallowed capability.",
+    "Separate visual design, UI behavior, accessibility, observation and repair capabilities in workload evidence.",
+    "Use deterministic monitoring first; route only bounded novel ambiguity to a permitted observer.",
+    "Treat manager-quota preference as secondary to capability, privacy and validation floors; never infer effective effort from a family label."
+  ],
+  "proposed_acceptance_tests": [
+    "A preferred intermediate profile is excluded from a maximum-capability task when its validated range is lower.",
+    "An observer profile cannot be selected for a source-writing task or gain write tools on fallback.",
+    "Frontend evaluation detects broken keyboard navigation even when screenshots match.",
+    "A depleted Gemini pool can use another configured pool without assuming all accounts have independent allocations.",
+    "Unknown economics remains unknown; ties use stable policy instead of invented prices.",
+    "A visual-only success cannot satisfy a task with keyboard and functional acceptance checks.",
+    "A cheap observer route is never selected to implement an architecture-sensitive repair.",
+    "A manager quota preference cannot lower the minimum effective capability.",
+    "Unknown quota or cost values do not become zero-cost priority."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "One global best model",
+      "benefit": "Easy settings",
+      "risk": "Ignores visual versus functional capability",
+      "disposition": "Reject",
+      "tradeoff": "Easy settings; Ignores visual versus functional capability. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Static brand affinity table",
+      "benefit": "Cheap routing",
+      "risk": "Stale or unsupported superiority claims",
+      "disposition": "Bootstrap only, with dated evidence",
+      "tradeoff": "Cheap routing; Stale or unsupported superiority claims. Bootstrap only, with dated evidence"
+    },
+    {
+      "id": "A03",
+      "title": "Workload capabilities plus task-specific validation",
+      "benefit": "Auditable quality floor",
+      "risk": "Needs representative examples",
+      "disposition": "Recommended",
+      "tradeoff": "Auditable quality floor; Needs representative examples. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Always use multimodal frontier for frontend",
+      "benefit": "Strong general baseline",
+      "risk": "Pays high cost for mechanical CSS edits",
+      "disposition": "Use only when risk and evidence justify",
+      "tradeoff": "Strong general baseline; Pays high cost for mechanical CSS edits. Use only when risk and evidence justify"
+    }
+  ],
+  "cost_model": "Compare quality-constrained cost per workload stratum; report visual acceptance, functional pass rate and accessibility defects separately. Monitor cost should approach zero model tokens on healthy runs.",
+  "unverified": [
+    "No authenticated model A/B trial or independent visual evaluation was run. The report defines how to obtain that evidence before enabling automatic selection.",
+    "No live cross-model frontend benchmark or account pricing test was performed. Public catalog presence is verified; comparative quality and marginal subscription cost remain hypotheses."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Route by task-specific quality evidence first, then cost and quota preference; never use one global intelligence rank as a frontend or observer score.",
+  "revision_delta": "The previous broad frontend affinity becomes a multi-axis acceptance contract. Gemini 3.8 Flash remains an observed available candidate, not an untested cheapest or universally best monitoring model.",
+  "decision_analysis": [
+    "Visual design, screenshot reproduction, interactive behavior and accessibility are different workloads. A model that scores well on general code may miss visual hierarchy; a visually attractive output may break keyboard navigation or API behavior. Represent workload requirements as capabilities and test obligations rather than a subjective brand preference.",
+    "Build a small repository-specific front-end corpus with responsive states, keyboard interactions, semantic structure and functional assertions. Visual baselines require a pinned browser/font/viewport environment. Keep a human or independently qualified visual review when acceptance includes aesthetics; automated image similarity cannot establish design quality by itself.",
+    "Monitoring is primarily parsing, counters and health probes. It should use no model during normal operation. Invoke a low-cost eligible observer only for a novel ambiguous diagnostic packet; a repair task is a separate workload and can require stronger reasoning. The observed model catalog can supply Flash candidates, but quota, capability and inference cost remain account- and harness-specific.",
+    "Manager quota preservation is a preference after safety and quality floors. An Antigravity-hosted Claude route must not inherit the maximum native Claude capability merely because the family name matches. Compare qualified routes at the required effort; when the highest effective route is unavailable, pause or use another qualified route rather than silently downgrade."
+  ],
+  "search_themes": [
+    "Design2Code front end benchmark limitations",
+    "Playwright visual comparisons stable screenshots",
+    "W3C accessibility evaluation automated testing",
+    "Anthropic cost intelligence subagents evaluation"
+  ],
+  "current_source_ids": [
+    "W-FRONTEND",
+    "W-VISUAL-TESTS",
+    "W-ACCESSIBILITY",
+    "W-COST",
+    "W-AGY-MODELS"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions.",
+  "identity_contract": "Keep capability identity separate from availability identity: changing only a quota pool, request ID, log path or credential reference cannot create a stronger rung. Resolve known aliases and native effort before deduplication; retain the harness/backend boundary rather than equating model-family names across hosts."
+}

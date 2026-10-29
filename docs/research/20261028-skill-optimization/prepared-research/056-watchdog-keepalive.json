@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "feature_id": "F026",
+  "former_research_task": "056",
+  "implementation_task": "056",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Separate passive observation from active restart permissions and live-lease checks.",
+    "Check restart-loop protection, scheduler portability and deduplicated alerts."
+  ],
+  "decision": "Keep watchdog observation separate from guarded restart actions, with generation-fenced leases, bounded restart budgets and deduplicated anomaly notifications.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "watchdogctl distinguishes status observation from a watch loop that writes a deduplication cache. keepalivectl is the separate active restart component.",
+    "The existing mechanisms inspect lease, runnable work and restart history; absence of a console message is not sufficient reason to start another runner."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/watchdogctl.py",
+      "sha256": "3fa923781fb9e87f0a2197cbb996fa92b6571edb41308ff004d278cd616dbb86",
+      "line_count": 391,
+      "symbols": [
+        {
+          "name": "collect_plan",
+          "line": 139,
+          "end": 211
+        },
+        {
+          "name": "classify",
+          "line": 222,
+          "end": 256
+        },
+        {
+          "name": "watch",
+          "line": 323,
+          "end": 342
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/keepalivectl.py",
+      "sha256": "8c19a0cf77c5a05947d89fa73409db0d5004ccae36bccd0cbb401a4637e802fe",
+      "line_count": 351,
+      "symbols": [
+        {
+          "name": "launch",
+          "line": 99,
+          "end": 111
+        },
+        {
+          "name": "check",
+          "line": 182,
+          "end": 193
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/WATCHDOG.md",
+      "sha256": "5f23918061bb3c7f72fddac6627210f648f69a132b9cc84b848ff32dc44fe1ac",
+      "line_count": 127,
+      "symbols": [
+        {
+          "name": "# Execution watchdog",
+          "line": 1
+        },
+        {
+          "name": "## Commands and output",
+          "line": 5
+        },
+        {
+          "name": "## Activity and deduplication",
+          "line": 30
+        },
+        {
+          "name": "## Host scheduling",
+          "line": 40
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E043",
+    "E040",
+    "E056",
+    "W-SRE",
+    "W-RETRY",
+    "W-CAS",
+    "W-MUSE"
+  ],
+  "implementation_steps": [
+    "Specify an observation record with anomaly class, evidence timestamp and suggested action; never mutate task status or restart from passive status.",
+    "Require an owned stale/dead local runner, runnable work and restart allowance before keepalive launches. Respect quota pauses, explicit pause and missing credentials.",
+    "Deduplicate repeated anomalies and bound observation-cache growth. Keep operational scheduling outside the semantic task prompt.",
+    "Add scheduler examples with explicit user opt-in and platform-specific quoting. Do not install cron/Task Scheduler entries during ordinary implementation.",
+    "Record restart reasons and outcomes without retaining provider transcripts or secrets. Failed environment probes do not trigger capability escalation.",
+    "Distinguish silence, death, stale lease and restart eligibility; unknown liveness cannot authorize recovery.",
+    "Fence keepalive actions by runner generation and preserve explicit user pause/cancel state.",
+    "Bound restart frequency and deduplicate anomalies without feeding healthy status loops to an LLM."
+  ],
+  "proposed_acceptance_tests": [
+    "Repeated status calls leave plan/job/process state unchanged.",
+    "A live lease prevents duplicate restart even if the job appears quiet.",
+    "Restart-loop limits and manual pause suppress repeated launches.",
+    "Quota-resume timing is observed without a busy loop or premature paid dispatch.",
+    "Windows/POSIX scheduler command generation is tested independently from actual registration.",
+    "A recycled PID cannot be killed or treated as the old runner.",
+    "Repeated failure reaches a restart-loop guard rather than consuming unlimited attempts.",
+    "User pause remains effective after watchdog and host restart.",
+    "A stale observer suggestion cannot restart a new runner generation."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Watchdog auto-repairs everything",
+      "benefit": "Convenient appearance",
+      "risk": "Unbounded side effects and restart loops",
+      "disposition": "Reject",
+      "tradeoff": "Convenient appearance; Unbounded side effects and restart loops. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Read-only watchdog only",
+      "benefit": "Safe diagnosis",
+      "risk": "Needs operator restart",
+      "disposition": "Keep as default observation",
+      "tradeoff": "Safe diagnosis; Needs operator restart. Keep as default observation"
+    },
+    {
+      "id": "A03",
+      "title": "Separate guarded keepalive",
+      "benefit": "Controlled recovery",
+      "risk": "Needs ownership and budgets",
+      "disposition": "Recommended opt-in action",
+      "tradeoff": "Controlled recovery; Needs ownership and budgets. Recommended opt-in action"
+    },
+    {
+      "id": "A04",
+      "title": "LLM decides liveness/restart",
+      "benefit": "Flexible",
+      "risk": "Cannot reliably prove process ownership",
+      "disposition": "Reject as authority",
+      "tradeoff": "Flexible; Cannot reliably prove process ownership. Reject as authority"
+    }
+  ],
+  "cost_model": "Measure recovery delay and false restarts against polling/probe overhead. Healthy watchkeeping has zero model cost; optional diagnosis is bounded per novel anomaly.",
+  "unverified": [
+    "No host scheduler was installed and no real provider was restarted in this research.",
+    "No operating-system scheduler was installed or run. The plan requires platform-specific deployment tests separately from pure state-machine fixtures."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Keep watchdog observation read-only and keepalive restart narrowly authorized, with bounded probes, leases and loop protection.",
+  "revision_delta": "The revision treats observed inactivity, confirmed death and safe-to-restart as different states and adds restart-storm, PID-reuse and cooperative-cancellation cases.",
+  "decision_analysis": [
+    "The watchdog should report a compact anomaly and evidence references without changing plan state. A cached observation cursor can support deduplication, but a status query must not resume work or rewrite completion state. Healthy checks should emit little or no data and never call a model.",
+    "A runner can be silent while blocked on I/O or waiting for a provider. Process death, stale lease, missing session output and no semantic progress are different evidence. Only an owned dead runner with runnable work and no live job conflict is a restart candidate. Unknown remote liveness is not safe-to-restart.",
+    "The keepalive action needs an exclusive generation-fenced lock, a sliding restart budget and backoff. Persist the reason for every refusal and restart attempt. Operator pause/cancel must survive recovery; otherwise a helpful watchdog can repeatedly resurrect work the user deliberately stopped.",
+    "An observer model may suggest a diagnostic after deterministic anomaly detection, but it must not become a second autonomous process controller. A stale recommendation must expire with the observed generation. Cancellation-acknowledgement rules of native agents also apply before replacing their workers."
+  ],
+  "search_themes": [
+    "Google SRE monitoring alert tests",
+    "retry backoff jitter restart storms",
+    "conditional lease generation stale writer"
+  ],
+  "current_source_ids": [
+    "W-SRE",
+    "W-RETRY",
+    "W-CAS",
+    "W-MUSE"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

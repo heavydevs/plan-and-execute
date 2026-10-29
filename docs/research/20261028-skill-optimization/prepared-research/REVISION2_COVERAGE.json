@@ -1,0 +1,429 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "research_revision": 2,
+  "topics": 32,
+  "fresh_source_records": 63,
+  "total_source_records": 121,
+  "baseline_code_anchors_checked": 113,
+  "reports": [
+    {
+      "task_id": "006",
+      "source_ids": [
+        "W-SKILLS",
+        "W-EVALSKILLS",
+        "W-SIMPLE",
+        "W-COST"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "008",
+      "source_ids": [
+        "W-DOCX",
+        "W-LITM",
+        "W-RETRIEVAL",
+        "W-CONTEXT",
+        "W-HARNESS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "010",
+      "source_ids": [
+        "W-BOOK",
+        "W-CONTEXT",
+        "W-EVALSKILLS",
+        "W-COST"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "012",
+      "source_ids": [
+        "W-ATOMIC",
+        "W-REPLAY",
+        "W-HARNESS",
+        "W-CAS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "014",
+      "source_ids": [
+        "W-CONTEXT",
+        "W-COST",
+        "W-LITM",
+        "W-RETRIEVAL",
+        "W-PERSISTENCE"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "016",
+      "source_ids": [
+        "W-CAS",
+        "W-ATOMIC",
+        "W-PERSISTENCE"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "018",
+      "source_ids": [
+        "W-ATOMIC",
+        "W-REPLAY",
+        "W-RETRY",
+        "W-HARNESS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "020",
+      "source_ids": [
+        "W-AUTOMIX",
+        "W-ROUTELLM",
+        "W-RETRY",
+        "W-AGY-EFFORT",
+        "W-GLM"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "022",
+      "source_ids": [
+        "W-LITELLM",
+        "W-RETRY-LAYERS",
+        "W-OPENROUTER",
+        "W-OVERLOAD",
+        "W-AGY-USAGE"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "024",
+      "source_ids": [
+        "W-FRONTEND",
+        "W-VISUAL-TESTS",
+        "W-ACCESSIBILITY",
+        "W-COST",
+        "W-AGY-MODELS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "026",
+      "source_ids": [
+        "W-OPENAI-CACHE",
+        "W-DEEPSEEK-MODELS",
+        "W-GLM",
+        "W-AGY-EFFORT",
+        "W-CAS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "028",
+      "source_ids": [
+        "W-COST",
+        "W-CLAUDE-SUBAGENTS",
+        "W-MUSE",
+        "W-SUBPROCESS",
+        "W-CONTEXT"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "030",
+      "source_ids": [
+        "W-CLAUDE-CLI",
+        "W-CLAUDE-SUBAGENTS",
+        "W-CLAUDE-CACHE",
+        "W-COST"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "032",
+      "source_ids": [
+        "W-CODEX-EXEC",
+        "W-CODEX-SECURITY",
+        "W-OPENAI-CACHE",
+        "W-EVALSKILLS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "034",
+      "source_ids": [
+        "W-AGY-EFFORT",
+        "W-AGY-HEADLESS",
+        "W-AGY-MODELS",
+        "W-AGY-PLANS",
+        "W-AGY-ENTERPRISE",
+        "W-AGY-PERMISSIONS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "036",
+      "source_ids": [
+        "W-QWEN-HEADLESS",
+        "W-QWEN-SETTINGS",
+        "W-SUBPROCESS",
+        "W-RETRY-LAYERS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "038",
+      "source_ids": [
+        "W-KIMI-CLI",
+        "W-INJECTION",
+        "W-SUBPROCESS",
+        "W-REPLAY"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "040",
+      "source_ids": [
+        "W-TRAE-README",
+        "W-TRAE-TRAJECTORY",
+        "W-LOGGING",
+        "W-SUBPROCESS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "042",
+      "source_ids": [
+        "W-MUSE",
+        "W-MUSE-SESSIONS",
+        "W-REPLAY",
+        "W-LOGGING"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "044",
+      "source_ids": [
+        "W-GLM",
+        "W-GLM-PLAN",
+        "W-COST",
+        "W-OPENROUTER"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "046",
+      "source_ids": [
+        "W-DEEPSEEK",
+        "W-DEEPSEEK-MODELS",
+        "W-OPENAI-CACHE",
+        "W-LOGGING"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "048",
+      "source_ids": [
+        "W-HARNESS",
+        "W-EVALSKILLS",
+        "W-SELFCORRECT",
+        "W-INJECTION",
+        "W-SUBPROCESS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "050",
+      "source_ids": [
+        "W-COMPOSE",
+        "W-SRE",
+        "W-SUBPROCESS",
+        "W-LOGGING"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "052",
+      "source_ids": [
+        "W-SUBPROCESS",
+        "W-WINDOWS-JOBS",
+        "W-SRE",
+        "W-OVERLOAD"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "054",
+      "source_ids": [
+        "W-PERSISTENCE",
+        "W-REPLAY",
+        "W-ATOMIC",
+        "W-WINDOWS-JOBS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "056",
+      "source_ids": [
+        "W-SRE",
+        "W-RETRY",
+        "W-CAS",
+        "W-MUSE"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "058",
+      "source_ids": [
+        "W-TAIL",
+        "W-LOGGING",
+        "W-SRE",
+        "W-SUBPROCESS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "060",
+      "source_ids": [
+        "W-INJECTION",
+        "W-LOGGING",
+        "W-SELFCORRECT",
+        "W-AGY-PERMISSIONS",
+        "W-QWEN-HEADLESS"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "062",
+      "source_ids": [
+        "W-SKILLS",
+        "W-SRE",
+        "W-REPLAY",
+        "W-INJECTION",
+        "W-COST"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "064",
+      "source_ids": [
+        "W-COST",
+        "W-BOOTSTRAP",
+        "W-OTEL",
+        "W-OPENAI-CACHE",
+        "W-CLAUDE-CACHE",
+        "W-ROUTELLM"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "066",
+      "source_ids": [
+        "W-NPM",
+        "W-ACTIONS",
+        "W-SKILLS",
+        "W-LOGGING"
+      ],
+      "alternatives": 4,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    },
+    {
+      "task_id": "068",
+      "source_ids": [
+        "W-AUTOMIX",
+        "W-ROUTELLM",
+        "W-RETRY",
+        "W-REFLEXION",
+        "W-SELFCORRECT",
+        "W-OPENAI-CACHE",
+        "W-AGY-EFFORT",
+        "W-INJECTION"
+      ],
+      "alternatives": 5,
+      "research_status": "prepared",
+      "independent_review": "pending"
+    }
+  ],
+  "added_write_dependencies": [
+    {
+      "task": "052",
+      "dependency": "049",
+      "reason": "Shared file must include the preceding implementation and correction review.",
+      "path": "skill/plan-and-execute/scripts/run_isolated.py"
+    },
+    {
+      "task": "072",
+      "dependency": "019",
+      "reason": "Shared file must include the preceding implementation and correction review.",
+      "path": "skill/plan-and-execute/scripts/planctl.py"
+    }
+  ],
+  "product_implementation_performed": false,
+  "cost_or_quality_benchmark_performed": false,
+  "external_reviewer_dispatched": false
+}

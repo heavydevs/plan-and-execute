@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "feature_id": "F002",
+  "former_research_task": "008",
+  "implementation_task": "008",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Trace source hashes, fragment coverage, digest loss and cross-fragment contradictions.",
+    "Compare deterministic grouping with bounded fan-out; measure re-read tokens and resume loss."
+  ],
+  "decision": "Keep deterministic immutable fragments, add integrity and coverage verification, and use bounded semantic batches only when preparation is justified.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "preplanctl.assess_source uses estimated working-set size plus breadth/dependency signals rather than raw file count.",
+    "validate_package checks that fragment files exist, then checks digest/coverage state; the inspected implementation does not recompute every fragment content hash at that final gate.",
+    "docx_blocks reads direct body paragraphs. A specification inside table cells is therefore a coverage risk that needs a fixture, not a claim that every Office input is already lossless."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/preplanctl.py",
+      "sha256": "71daeaf4fbdaa22120e45e9742cb267e537f618223ac047fca8c4ca55ecdeeb0",
+      "line_count": 877,
+      "symbols": [
+        {
+          "name": "docx_blocks",
+          "line": 92,
+          "end": 115
+        },
+        {
+          "name": "assess_source",
+          "line": 174,
+          "end": 218
+        },
+        {
+          "name": "validate_digest",
+          "line": 634,
+          "end": 655
+        },
+        {
+          "name": "validate_package",
+          "line": 704,
+          "end": 721
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+      "sha256": "246075b5098308f8e14b6c6004a4c37e1e9650bb6c96606e5c75b941a17c38c3",
+      "line_count": 190,
+      "symbols": [
+        {
+          "name": "# Primary planning for oversized requests",
+          "line": 1
+        },
+        {
+          "name": "## 1. Why this path exists",
+          "line": 9
+        },
+        {
+          "name": "## 2. Route by working-set pressure, not maximum context size",
+          "line": 28
+        },
+        {
+          "name": "## 3. Split deterministically before asking a model to summarize",
+          "line": 45
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md",
+      "sha256": "9407add1e9062e3bdfb65af9c391e0f232b9512c3dfec0fa5f7dbbc9269fc683",
+      "line_count": 66,
+      "symbols": [
+        {
+          "name": "# Planning input contract",
+          "line": 1
+        },
+        {
+          "name": "## Accepted final-planning inputs",
+          "line": 7
+        },
+        {
+          "name": "## Prepared package layout",
+          "line": 16
+        },
+        {
+          "name": "## Consumption rules",
+          "line": 45
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E006",
+    "E003",
+    "E007",
+    "E008"
+  ],
+  "implementation_steps": [
+    "Recompute source/fragment hashes before accepting a prepared package and before final planning consumes it. Reject missing, changed, duplicate or escaping fragment references.",
+    "Add extraction coverage for table cells and document ordering, either in host extraction or a documented deterministic OOXML walker. Preserve headings, stable source anchors and explicit unsupported-content warnings.",
+    "Keep digest facts traceable to fragment IDs; record contradictions without resolving them in cheap extraction workers. Audit unique source obligations, not just the existence of a digest file.",
+    "Batch by semantic section within bounded token limits. For a large repetitive source deduplicate only the routing estimate, never the authoritative fragments.",
+    "Retain thresholds as tunable operational estimates. Measure digest omission and repeated reads before changing defaults or introducing fan-out."
+  ],
+  "proposed_acceptance_tests": [
+    "Mutating one byte of a fragment after coverage approval invalidates the package.",
+    "A DOCX fixture with requirements in paragraphs and table cells preserves all obligations in source order.",
+    "Duplicates, missing IDs, contradictory clauses and symlinks are rejected or explicitly recorded.",
+    "An interrupted batch resumes from validated digests without processing completed raw fragments again.",
+    "Permuting a requirement between beginning, middle and end does not change final requirement coverage."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Existence and declared coverage checks",
+      "tradeoff": "Cheap but insufficient evidence that immutable inputs are unchanged."
+    },
+    {
+      "id": "recommended",
+      "title": "Hash-pinned fragments with selective retrieval",
+      "tradeoff": "Small deterministic I/O cost; retains provenance and bounded worker prompts."
+    },
+    {
+      "id": "rejected",
+      "title": "Feed the whole source to every worker or summarize summaries without originals",
+      "tradeoff": "Higher token cost and no reliable recovery of omitted constraints."
+    }
+  ],
+  "cost_model": "Hashing is linear deterministic work, preferable to repeating expensive source reads. Report estimated source/digest sizes separately from billed tokens; fan-out is optional and must not weaken coverage.",
+  "unverified": [
+    "Image-only or embedded-object requirements still require an explicit extraction path. No live model comparison of digest quality was performed."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

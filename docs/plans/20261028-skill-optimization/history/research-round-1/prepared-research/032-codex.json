@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "feature_id": "F014",
+  "former_research_task": "032",
+  "implementation_task": "032",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Verify ephemeral runs, exec resume/fork, required nullable fields and current sandbox flags.",
+    "Compare native compaction with short artifact handoffs using pinned CLI evidence."
+  ],
+  "decision": "Validate Codex as an ephemeral execution protocol with explicit schema and sandbox adaptation; do not infer supported flags from model names.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "The Codex worker uses exec and ephemeral mode. The completion schema adapter makes optional fields required-nullable for the supported structured-output contract.",
+    "run_concise modifies the effective worker prompt and therefore requires composed-entrypoint tests, not only a raw argv golden."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "codex_output_schema",
+          "line": 650,
+          "end": 676
+        },
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "parse_provider_report",
+          "line": 1412,
+          "end": 1425
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/provider_self_test.py",
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd",
+      "line_count": 596,
+      "symbols": [
+        {
+          "name": "sample_route",
+          "line": 20,
+          "end": 26
+        },
+        {
+          "name": "sample_report",
+          "line": 29,
+          "end": 43
+        },
+        {
+          "name": "test_default_provider_policy",
+          "line": 46,
+          "end": 60
+        },
+        {
+          "name": "test_worker_command_adapters",
+          "line": 63,
+          "end": 143
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+      "sha256": "3cde22d4a24a081052aebfd7d992c8d1c3e4577745aa6f8ea324a7460f280024",
+      "line_count": 89,
+      "symbols": [
+        {
+          "name": "# Codex model routing",
+          "line": 1
+        },
+        {
+          "name": "## Current capability map",
+          "line": 5
+        },
+        {
+          "name": "## Elevation mechanics (how a route is actually obtained)",
+          "line": 22
+        },
+        {
+          "name": "## DIRECT mode",
+          "line": 37
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E019",
+    "E020",
+    "E052",
+    "E021"
+  ],
+  "implementation_steps": [
+    "Record CLI version/help and model-discovery evidence without starting a paid task; select tested capability branches for exec, structured output and sandbox flags.",
+    "Maintain a schema transformation test for nested objects, required nullable fields, additionalProperties and invalid outputs. Refusal or incomplete output is not a passing task.",
+    "Keep ephemeral mode for normal cross-task isolation. Same-provider resume/fork is a separate opt-in contract, never a way to transfer private reasoning state to another provider.",
+    "Use read-only sandbox for observation/review where supported and verify that output/log paths can still be written only in owned locations.",
+    "Parse JSONL events incrementally and preserve the final report independently of progress text. Link deterministic validation evidence through the production prompt."
+  ],
+  "proposed_acceptance_tests": [
+    "Schema fixtures remain accepted by the adapter without weakening additionalProperties checks.",
+    "Ephemeral default argv and composed static prefix remain stable.",
+    "Malformed events, partial final JSON, a nonzero exit and a valid blocked report remain distinguishable.",
+    "An unsupported sandbox/effort flag fails preflight instead of falling back to unrestricted execution.",
+    "Cache and cost records distinguish reported usage from estimates and do not import outdated no-write-cost assumptions."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Trust a successful codex process and its narrative",
+      "tradeoff": "Low validation overhead but cannot prove user acceptance."
+    },
+    {
+      "id": "recommended",
+      "title": "Versioned CLI/schema fixtures plus independent checks",
+      "tradeoff": "Small maintenance cost and clear protocol boundaries."
+    },
+    {
+      "id": "rejected",
+      "title": "Implicit session continuation for every retry",
+      "tradeoff": "Changes retention/isolation and can reintroduce unrelated history without measured benefit."
+    }
+  ],
+  "cost_model": "Measure accepted outcomes and input/output/cache units. Do not copy API billing rules into subscription estimates without evidence for the actual host route.",
+  "unverified": [
+    "No real Codex invocation or sandbox escape test was executed; fake CLI contract tests cannot certify provider service behavior."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

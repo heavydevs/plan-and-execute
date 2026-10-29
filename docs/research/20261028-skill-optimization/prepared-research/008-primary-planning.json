@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "feature_id": "F002",
+  "former_research_task": "008",
+  "implementation_task": "008",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Trace source hashes, fragment coverage, digest loss and cross-fragment contradictions.",
+    "Compare deterministic grouping with bounded fan-out; measure re-read tokens and resume loss."
+  ],
+  "decision": "Use content-addressed, lossless source fragments and obligation coverage; retain deterministic extraction and calibrate staging on working-set pressure.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "preplanctl.assess_source uses estimated working-set size plus breadth/dependency signals rather than raw file count.",
+    "validate_package checks that fragment files exist, then checks digest/coverage state; the inspected implementation does not recompute every fragment content hash at that final gate.",
+    "docx_blocks reads direct body paragraphs. A specification inside table cells is therefore a coverage risk that needs a fixture, not a claim that every Office input is already lossless."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/preplanctl.py",
+      "sha256": "71daeaf4fbdaa22120e45e9742cb267e537f618223ac047fca8c4ca55ecdeeb0",
+      "line_count": 877,
+      "symbols": [
+        {
+          "name": "docx_blocks",
+          "line": 92,
+          "end": 115
+        },
+        {
+          "name": "assess_source",
+          "line": 174,
+          "end": 218
+        },
+        {
+          "name": "validate_digest",
+          "line": 634,
+          "end": 655
+        },
+        {
+          "name": "validate_package",
+          "line": 704,
+          "end": 721
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+      "sha256": "246075b5098308f8e14b6c6004a4c37e1e9650bb6c96606e5c75b941a17c38c3",
+      "line_count": 190,
+      "symbols": [
+        {
+          "name": "# Primary planning for oversized requests",
+          "line": 1
+        },
+        {
+          "name": "## 1. Why this path exists",
+          "line": 9
+        },
+        {
+          "name": "## 2. Route by working-set pressure, not maximum context size",
+          "line": 28
+        },
+        {
+          "name": "## 3. Split deterministically before asking a model to summarize",
+          "line": 45
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md",
+      "sha256": "9407add1e9062e3bdfb65af9c391e0f232b9512c3dfec0fa5f7dbbc9269fc683",
+      "line_count": 66,
+      "symbols": [
+        {
+          "name": "# Planning input contract",
+          "line": 1
+        },
+        {
+          "name": "## Accepted final-planning inputs",
+          "line": 7
+        },
+        {
+          "name": "## Prepared package layout",
+          "line": 16
+        },
+        {
+          "name": "## Consumption rules",
+          "line": 45
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E006",
+    "E003",
+    "E007",
+    "E008",
+    "W-DOCX",
+    "W-LITM",
+    "W-RETRIEVAL",
+    "W-CONTEXT",
+    "W-HARNESS"
+  ],
+  "implementation_steps": [
+    "Recompute source/fragment hashes before accepting a prepared package and before final planning consumes it. Reject missing, changed, duplicate or escaping fragment references.",
+    "Add extraction coverage for table cells and document ordering, either in host extraction or a documented deterministic OOXML walker. Preserve headings, stable source anchors and explicit unsupported-content warnings.",
+    "Keep digest facts traceable to fragment IDs; record contradictions without resolving them in cheap extraction workers. Audit unique source obligations, not just the existence of a digest file.",
+    "Batch by semantic section within bounded token limits. For a large repetitive source deduplicate only the routing estimate, never the authoritative fragments.",
+    "Retain thresholds as tunable operational estimates. Measure digest omission and repeated reads before changing defaults or introducing fan-out.",
+    "Hash raw source, extracted block stream and fragments; reject stale fragments at final consumption, not only during initial preparation.",
+    "Traverse nested tables in document order and bound ZIP/XML input; record unsupported source structures rather than silently omitting them.",
+    "Measure obligation recall and contradiction coverage against one-shot and staged baselines before changing token thresholds."
+  ],
+  "proposed_acceptance_tests": [
+    "Mutating one byte of a fragment after coverage approval invalidates the package.",
+    "A DOCX fixture with requirements in paragraphs and table cells preserves all obligations in source order.",
+    "Duplicates, missing IDs, contradictory clauses and symlinks are rejected or explicitly recorded.",
+    "An interrupted batch resumes from validated digests without processing completed raw fragments again.",
+    "Permuting a requirement between beginning, middle and end does not change final requirement coverage.",
+    "A same-size fragment rewrite with unchanged timestamp is rejected.",
+    "Nested and merged table cells produce ordered, nonduplicated source anchors.",
+    "A requirement appearing only in a table cannot disappear from the final coverage map.",
+    "Large repeated blocks change routing estimates without deletion from authoritative evidence."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "One-shot long context",
+      "benefit": "No intermediate summarization",
+      "risk": "Potential omissions and expensive rereads",
+      "disposition": "Keep as comparator below measured pressure",
+      "tradeoff": "No intermediate summarization; Potential omissions and expensive rereads. Keep as comparator below measured pressure"
+    },
+    {
+      "id": "A02",
+      "title": "Untraceable summary pyramid",
+      "benefit": "Very small downstream prompt",
+      "risk": "Silent requirement loss",
+      "disposition": "Reject",
+      "tradeoff": "Very small downstream prompt; Silent requirement loss. Reject"
+    },
+    {
+      "id": "A03",
+      "title": "Lossless fragments plus bounded digests",
+      "benefit": "Recoverable and traceable",
+      "risk": "Extraction and coverage overhead",
+      "disposition": "Recommended for staged route",
+      "tradeoff": "Recoverable and traceable; Extraction and coverage overhead. Recommended for staged route"
+    },
+    {
+      "id": "A04",
+      "title": "Vector database for every request",
+      "benefit": "Selective semantic retrieval",
+      "risk": "Index cost and approximate recall",
+      "disposition": "Defer until corpus reuse justifies it",
+      "tradeoff": "Selective semantic retrieval; Index cost and approximate recall. Defer until corpus reuse justifies it"
+    }
+  ],
+  "cost_model": "Preparation pays when C_extract+C_digest+C_review is lower than avoided rereads and recovery, while obligation recall meets the declared floor. Hashing is linear in input bytes and should not invoke an LLM.",
+  "unverified": [
+    "Image-only or embedded-object requirements still require an explicit extraction path. No live model comparison of digest quality was performed.",
+    "Simple retrieval results do not establish multi-hop specification synthesis quality. No paid-model comparison or full Office-format conformance test was run."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Keep deterministic immutable fragments, add integrity and coverage verification, and use bounded semantic batches only when preparation is justified.",
+  "revision_delta": "The original hash and table recommendations are retained, but the revision adds nested-table/merged-cell handling, extraction limits, consumption-time integrity, and evidence against a universal long-context failure assumption.",
+  "decision_analysis": [
+    "Do not replace a long specification with a summary before preserving authoritative text. The source index should bind raw bytes, extraction version, ordered blocks and fragment hashes. Deduplicating repeated text can inform routing economics, but may erase repeated obligations when used on the authoritative representation.",
+    "An ordered OOXML walker is less disruptive than adding a general document-processing stack if the existing extractor only needs paragraphs and tables. It must traverse nested cells, avoid emitting a merged cell multiple times and surface tracked changes, text boxes or unsupported structures as explicit coverage limitations. ZIP/XML input limits prevent the extractor from becoming a resource-exhaustion entrypoint.",
+    "A fragment file existing is not enough. Validate its digest at handoff and at consumption; checking only modification time misses same-size rewrites. For large sources, stream the hash and reuse it only within a verified immutable generation. Coverage must relate each source obligation to a digest and then to an implementation requirement, not count files.",
+    "Older long-context studies and newer position-robust simple retrieval findings do not justify one universal token threshold. Keep the current thresholds as operational defaults and measure omission, contradiction handling and repeated reading on this workload. Long-context one-shot planning remains a valid comparator for cohesive inputs that fit reliably."
+  ],
+  "search_themes": [
+    "site.python-docx.readthedocs.io iter_inner_content tables paragraphs document",
+    "site.arxiv.org Lost in the Middle long contexts",
+    "site.research.google retrieval quality context limit"
+  ],
+  "current_source_ids": [
+    "W-DOCX",
+    "W-LITM",
+    "W-RETRIEVAL",
+    "W-CONTEXT",
+    "W-HARNESS"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

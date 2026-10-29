@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "feature_id": "F031",
+  "former_research_task": "066",
+  "implementation_task": "066",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Check selective/explicit activation, companion packages, local-edit protection and uninstall safety.",
+    "Evaluate schema drift, versions, docs budgets, dependency/secret handling and actual platform test coverage."
+  ],
+  "decision": "Harden distribution around actual package manifests, managed-copy integrity and supported platform contracts, without modifying user installations during development.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "The installer distinguishes managed source and installed variants, supports selective/explicit activation and protects locally edited copies.",
+    "package.json includes docs in the distributable file set. Adding plan/research artifacts requires an explicit packaging exclusion and actual tarball-list test.",
+    "Two related skills are packaged with shared-resolution behavior. A companion archive alone is not proof of a working installed pair."
+  ],
+  "code_anchors": [
+    {
+      "path": "bin/plan-and-execute.js",
+      "sha256": "3899d498c10b91f03c657fbaf33885d7fc339e0c3f11cf95ad96936852afc15b",
+      "line_count": 447,
+      "symbols": [
+        {
+          "name": "#!/usr/bin/env node",
+          "line": 1
+        },
+        {
+          "name": "function fail(message, code = 1) {",
+          "line": 133
+        },
+        {
+          "name": "function requireValue(args, index, option) {",
+          "line": 138
+        },
+        {
+          "name": "export function parseArguments(argv) {",
+          "line": 144
+        }
+      ]
+    },
+    {
+      "path": "lib/installer.js",
+      "sha256": "9165b2cabb1c93858bda46c9f3aa69a6b19be5a15c240cc55952663dc3d3305b",
+      "line_count": 732,
+      "symbols": [
+        {
+          "name": "function lstatIfPresent(targetPath) {",
+          "line": 32
+        },
+        {
+          "name": "function readJsonIfPresent(filePath) {",
+          "line": 41
+        },
+        {
+          "name": "export function getPackageVersion() {",
+          "line": 50
+        },
+        {
+          "name": "export function readSkillName(skillDirectory) {",
+          "line": 54
+        }
+      ]
+    },
+    {
+      "path": "lib/skill-source.js",
+      "sha256": "6a47e8930f1e87a08c74e048d4065b2bb8b33bf8b809629f923a3c0537a6f2e7",
+      "line_count": 63,
+      "symbols": [
+        {
+          "name": "export function normalizeSkill(value = SKILLS[0], allowAll = false) {",
+          "line": 13
+        },
+        {
+          "name": "export function skillSource(name) {",
+          "line": 20
+        },
+        {
+          "name": "export function stageSkillSource(name, sourceDirectory = skillSource(name)) {",
+          "line": 24
+        }
+      ]
+    },
+    {
+      "path": "tools/package-skills.js",
+      "sha256": "aadaf4aa9e599d27f01aaf980e83d02085e998b1a461b42e504002f716e4faaa",
+      "line_count": 56,
+      "symbols": [
+        {
+          "name": "#!/usr/bin/env node",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "tools/validate-skill.js",
+      "sha256": "4d67bc446bf4a54d73263fb0a74f91f137c49c34fae71cddd6dd38550bb43f01",
+      "line_count": 299,
+      "symbols": [
+        {
+          "name": "#!/usr/bin/env node",
+          "line": 1
+        },
+        {
+          "name": "function fail(message) {",
+          "line": 14
+        },
+        {
+          "name": "function requireFile(relativePath) {",
+          "line": 18
+        },
+        {
+          "name": "function read(relativePath) {",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "path": "tools/clean-generated.js",
+      "sha256": "a518c4e51df9b00abdb0b3405924c1637d9f6b028dab971da6171e8f00316265",
+      "line_count": 38,
+      "symbols": [
+        {
+          "name": "#!/usr/bin/env node",
+          "line": 1
+        },
+        {
+          "name": "function clean(directory) {",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/configure.py",
+      "sha256": "4e454ce5f6e141194bb5b2e95d5ba42e9b7a4f94d8bf4c957c2c1af3d003e8cd",
+      "line_count": 380,
+      "symbols": [
+        {
+          "name": "Cancelled",
+          "line": 24,
+          "end": 25
+        },
+        {
+          "name": "Question",
+          "line": 29,
+          "end": 35
+        },
+        {
+          "name": "terminal_ask",
+          "line": 38,
+          "end": 55
+        },
+        {
+          "name": "discover",
+          "line": 58,
+          "end": 76
+        }
+      ]
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "e81d00384c47756cf0d95094c884d47851b731179f586e10a02767fb40f290b4",
+      "line_count": 68,
+      "symbols": []
+    },
+    {
+      "path": "SECURITY.md",
+      "sha256": "ace4f544568076007de2152ce8d61f3e448be91f7914b3a5accbc48455bca792",
+      "line_count": 7,
+      "symbols": [
+        {
+          "name": "# Security policy",
+          "line": 1
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E048",
+    "E049",
+    "E055",
+    "E001",
+    "E058"
+  ],
+  "implementation_steps": [
+    "Define the minimal intended npm/skill file manifest and exclude planning controls, research execution logs, credentials, caches and transfer artifacts.",
+    "Test npm pack --dry-run --json against that manifest, and test actual staged skill ZIP membership and size. A .gitignore alone is not the packaging contract.",
+    "Preserve source/installed hashes for activation transforms and refuse overwrite/uninstall of local edits unless explicitly authorized.",
+    "Add compatible version checks for companion resolution, including missing and mismatched installations, while preserving supported old layouts.",
+    "Keep CI permissions minimal and include supported Node/Python plus Windows/POSIX behavior. Report skips and unsupported platform cases rather than a single unqualified pass."
+  ],
+  "proposed_acceptance_tests": [
+    "No native plan, private log, .env, bytecode or node_modules entry appears in a distributable archive.",
+    "Selective-explicit-selective round trips retain correct hashes and policy metadata.",
+    "A locally edited installed file prevents automatic replacement/removal.",
+    "Companion packages resolve a matching shared runtime after a clean temporary install.",
+    "CLI/docs/version constraints and actual package contents are checked without publishing."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Ship the whole repository and trust ignore files",
+      "tradeoff": "Easy but can expose planning/log artifacts and grow context/package size."
+    },
+    {
+      "id": "recommended",
+      "title": "Manifest-based packages and integrity-aware installation",
+      "tradeoff": "Small deterministic tests protect both privacy and user edits."
+    },
+    {
+      "id": "rejected",
+      "title": "Auto-install or globally reconfigure the user while developing",
+      "tradeoff": "Unrequested side effects and risk of destroying local customizations."
+    }
+  ],
+  "cost_model": "Measure package bytes/file count and installation probe time. Keep runtime resources available on demand but leave maintainer research out of routine worker packages.",
+  "unverified": [
+    "No npm publication, account skill installation or global configuration modification is authorized or performed by this research task."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

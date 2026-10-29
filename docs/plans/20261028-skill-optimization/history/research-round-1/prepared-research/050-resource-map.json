@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "feature_id": "F023",
+  "former_research_task": "050",
+  "implementation_task": "050",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Trace change-only discovery, toolchain preflights, service dependencies and freshness fingerprints.",
+    "Test false unhealthy signals, deadlocks and environment versus semantic classification."
+  ],
+  "decision": "Retain the reusable project resource map with change-scoped freshness and bounded preflights; make missing or stale evidence visible.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "service_map supplies discovery/freshness and validation binding; resource_watch uses toolchain/resource checks and evidence packets.",
+    "The preserved map contains historical validations unrelated to active tasks. A map entry existing does not prove its command still targets a present file or supported version."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/service_map.py",
+      "sha256": "44477da68a3e9fa3f6afb13e77c753385b879d85ec02f16507fff6066923bf29",
+      "line_count": 724,
+      "symbols": [
+        {
+          "name": "scan_inputs",
+          "line": 149,
+          "end": 183
+        },
+        {
+          "name": "validate_data",
+          "line": 237,
+          "end": 382
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/resource_watch.py",
+      "sha256": "22ac707b846a428c832671c6cfc96d9e45b367f5b3a61963ac0258791a5c2184",
+      "line_count": 820,
+      "symbols": [
+        {
+          "name": "run_toolchain_check",
+          "line": 271,
+          "end": 319
+        },
+        {
+          "name": "evaluate_check",
+          "line": 322,
+          "end": 395
+        },
+        {
+          "name": "run_validation",
+          "line": 460,
+          "end": 783
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+      "sha256": "a1d0627faf24c2c97cfe4e3b12cbada151d5c849cb2eeb6006cfff5ffa7de79f",
+      "line_count": 169,
+      "symbols": [
+        {
+          "name": "# Test resource inventory and monitoring",
+          "line": 1
+        },
+        {
+          "name": "## 1. Reuse the project router",
+          "line": 5
+        },
+        {
+          "name": "## 2. Build a test-to-resource map",
+          "line": 84
+        },
+        {
+          "name": "## 3. Run mapped validations under the watcher",
+          "line": 122
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E043",
+    "E045",
+    "E040"
+  ],
+  "implementation_steps": [
+    "Audit every active validation reference against actual files/commands and the discovery snapshot. Replace stale version literals and removed-path checks with contract-based assertions.",
+    "Fingerprint only relevant discovery inputs and update the map when those inputs change. Do not repeatedly scan all historical logs or unrelated source trees.",
+    "Distinguish starting, healthy, unhealthy and unknown states; use startup grace and bounded repeated samples before declaring environment failure.",
+    "Correlate each validation with only its assigned resources, toolchains and logs. Missing privileges or metrics must be reported as unknown, not success or an automatic semantic escalation.",
+    "Keep the reusable map outside plan cleanup; avoid injecting all resource inventory into every implementation prompt."
+  ],
+  "proposed_acceptance_tests": [
+    "Removing a referenced test file or changing toolchain input makes the map stale/actionable.",
+    "A service inside startup grace is not misclassified as unhealthy.",
+    "An unresponsive health probe ends at its bounded timeout and does not stall the watcher.",
+    "A semantic failing test with healthy dependencies differs from a dependency outage.",
+    "Unrelated resources are not probed or read for a focused validation."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "One large inventory and full polling everywhere",
+      "tradeoff": "Useful visibility but unnecessary I/O and misleading stale bindings."
+    },
+    {
+      "id": "recommended",
+      "title": "Validation-scoped map with freshness and unknown states",
+      "tradeoff": "Reuses a valuable mechanism while bounding monitoring work."
+    },
+    {
+      "id": "rejected",
+      "title": "Replace the map with an LLM reading every log continuously",
+      "tradeoff": "Consumes tokens and makes operational detection less deterministic."
+    }
+  ],
+  "cost_model": "Measure discovery files scanned, probe count/duration and time-to-detect, plus false unhealthy reports. These deterministic costs are often more relevant than model price for the monitor.",
+  "unverified": [
+    "Container-local probes do not certify the user's actual databases, JVM deadlocks, networks or Windows services."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

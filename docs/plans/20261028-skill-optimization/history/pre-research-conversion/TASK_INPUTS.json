@@ -1,0 +1,1222 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "id": "001",
+      "kind": "review",
+      "slug": "plan-gate",
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/PLAN1_SPEC.json",
+        "docs/plans/20261028-skill-optimization/PROTOCOL.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/001-plan-gate.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/001-plan-gate.md",
+      "review_of": null
+    },
+    {
+      "id": "002",
+      "kind": "audit",
+      "slug": "whole-skill-audit",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/evidence/SOURCE_INDEX.json",
+        "docs/research/20261028-skill-optimization/evidence/BASELINE.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/002-whole-skill-audit.json",
+      "report": "docs/research/20261028-skill-optimization/topics/002-whole-skill-audit.md",
+      "review_of": null
+    },
+    {
+      "id": "003",
+      "kind": "review",
+      "slug": "whole-skill-audit-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/002-whole-skill-audit.json",
+        "docs/research/20261028-skill-optimization/topics/002-whole-skill-audit.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/003-whole-skill-audit-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/003-whole-skill-audit-review.md",
+      "review_of": "002"
+    },
+    {
+      "id": "004",
+      "kind": "inventory",
+      "slug": "complete-feature-inventory",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/002-whole-skill-audit.json",
+        "docs/plans/20261028-skill-optimization/FEATURE_SEED.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json",
+      "report": "docs/research/20261028-skill-optimization/topics/004-complete-feature-inventory.md",
+      "review_of": null
+    },
+    {
+      "id": "005",
+      "kind": "review",
+      "slug": "complete-feature-inventory-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json",
+        "docs/research/20261028-skill-optimization/topics/004-complete-feature-inventory.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/005-complete-feature-inventory-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/005-complete-feature-inventory-review.md",
+      "review_of": "004"
+    },
+    {
+      "id": "006",
+      "kind": "research",
+      "slug": "activation-intake",
+      "inputs": [
+        "skill/plan-and-execute/scripts/requestctl.py",
+        "skill/plan-and-execute/scripts/promotectl.py",
+        "skill/plan-and-execute/SKILL.md",
+        "skill/plan-and-execute/references/ROUTING.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/006-activation-intake.json",
+      "report": "docs/research/20261028-skill-optimization/topics/006-activation-intake.md",
+      "review_of": null,
+      "feature_id": "F001"
+    },
+    {
+      "id": "007",
+      "kind": "review",
+      "slug": "activation-intake-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/006-activation-intake.json",
+        "docs/research/20261028-skill-optimization/topics/006-activation-intake.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/007-activation-intake-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/007-activation-intake-review.md",
+      "review_of": "006"
+    },
+    {
+      "id": "008",
+      "kind": "research",
+      "slug": "primary-planning",
+      "inputs": [
+        "skill/plan-and-execute/scripts/preplanctl.py",
+        "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+        "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/008-primary-planning.json",
+      "report": "docs/research/20261028-skill-optimization/topics/008-primary-planning.md",
+      "review_of": null,
+      "feature_id": "F002"
+    },
+    {
+      "id": "009",
+      "kind": "review",
+      "slug": "primary-planning-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/008-primary-planning.json",
+        "docs/research/20261028-skill-optimization/topics/008-primary-planning.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/009-primary-planning-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/009-primary-planning-review.md",
+      "review_of": "008"
+    },
+    {
+      "id": "010",
+      "kind": "research",
+      "slug": "adaptive-study",
+      "inputs": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "skill/plan-and-execute/scripts/studyctl_concise.py",
+        "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+        "skill/plan-and-execute/references/STUDY_CHOICES.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/010-adaptive-study.json",
+      "report": "docs/research/20261028-skill-optimization/topics/010-adaptive-study.md",
+      "review_of": null,
+      "feature_id": "F003"
+    },
+    {
+      "id": "011",
+      "kind": "review",
+      "slug": "adaptive-study-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/010-adaptive-study.json",
+        "docs/research/20261028-skill-optimization/topics/010-adaptive-study.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/011-adaptive-study-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/011-adaptive-study-review.md",
+      "review_of": "010"
+    },
+    {
+      "id": "012",
+      "kind": "research",
+      "slug": "plan-contract",
+      "inputs": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/planctl_concise.py",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/012-plan-contract.json",
+      "report": "docs/research/20261028-skill-optimization/topics/012-plan-contract.md",
+      "review_of": null,
+      "feature_id": "F004"
+    },
+    {
+      "id": "013",
+      "kind": "review",
+      "slug": "plan-contract-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/012-plan-contract.json",
+        "docs/research/20261028-skill-optimization/topics/012-plan-contract.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/013-plan-contract-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/013-plan-contract-review.md",
+      "review_of": "012"
+    },
+    {
+      "id": "014",
+      "kind": "research",
+      "slug": "context-learning",
+      "inputs": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/014-context-learning.json",
+      "report": "docs/research/20261028-skill-optimization/topics/014-context-learning.md",
+      "review_of": null,
+      "feature_id": "F005"
+    },
+    {
+      "id": "015",
+      "kind": "review",
+      "slug": "context-learning-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/014-context-learning.json",
+        "docs/research/20261028-skill-optimization/topics/014-context-learning.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/015-context-learning-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/015-context-learning-review.md",
+      "review_of": "014"
+    },
+    {
+      "id": "016",
+      "kind": "research",
+      "slug": "shared-patterns",
+      "inputs": [
+        "skill/plan-and-execute/scripts/patternctl.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "skill/plan-and-execute/references/SHARED_PATTERNS.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/016-shared-patterns.json",
+      "report": "docs/research/20261028-skill-optimization/topics/016-shared-patterns.md",
+      "review_of": null,
+      "feature_id": "F006"
+    },
+    {
+      "id": "017",
+      "kind": "review",
+      "slug": "shared-patterns-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/016-shared-patterns.json",
+        "docs/research/20261028-skill-optimization/topics/016-shared-patterns.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/017-shared-patterns-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/017-shared-patterns-review.md",
+      "review_of": "016"
+    },
+    {
+      "id": "018",
+      "kind": "research",
+      "slug": "lifecycle",
+      "inputs": [
+        "skill/plan-and-execute/scripts/lifecyclectl.py",
+        "skill/plan-and-execute/scripts/lifecyclectl_concise.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/references/LIFECYCLE.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/018-lifecycle.json",
+      "report": "docs/research/20261028-skill-optimization/topics/018-lifecycle.md",
+      "review_of": null,
+      "feature_id": "F007"
+    },
+    {
+      "id": "019",
+      "kind": "review",
+      "slug": "lifecycle-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/018-lifecycle.json",
+        "docs/research/20261028-skill-optimization/topics/018-lifecycle.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/019-lifecycle-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/019-lifecycle-review.md",
+      "review_of": "018"
+    },
+    {
+      "id": "020",
+      "kind": "research",
+      "slug": "escalation",
+      "inputs": [
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/020-escalation.json",
+      "report": "docs/research/20261028-skill-optimization/topics/020-escalation.md",
+      "review_of": null,
+      "feature_id": "F008"
+    },
+    {
+      "id": "021",
+      "kind": "review",
+      "slug": "escalation-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/020-escalation.json",
+        "docs/research/20261028-skill-optimization/topics/020-escalation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/021-escalation-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/021-escalation-review.md",
+      "review_of": "020"
+    },
+    {
+      "id": "022",
+      "kind": "research",
+      "slug": "availability",
+      "inputs": [
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/022-availability.json",
+      "report": "docs/research/20261028-skill-optimization/topics/022-availability.md",
+      "review_of": null,
+      "feature_id": "F009"
+    },
+    {
+      "id": "023",
+      "kind": "review",
+      "slug": "availability-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/022-availability.json",
+        "docs/research/20261028-skill-optimization/topics/022-availability.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/023-availability-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/023-availability-review.md",
+      "review_of": "022"
+    },
+    {
+      "id": "024",
+      "kind": "research",
+      "slug": "workload-affinity",
+      "inputs": [
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "skill/plan-and-execute/references/VALIDATION_WORKLOADS.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/024-workload-affinity.json",
+      "report": "docs/research/20261028-skill-optimization/topics/024-workload-affinity.md",
+      "review_of": null,
+      "feature_id": "F010"
+    },
+    {
+      "id": "025",
+      "kind": "review",
+      "slug": "workload-affinity-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/024-workload-affinity.json",
+        "docs/research/20261028-skill-optimization/topics/024-workload-affinity.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/025-workload-affinity-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/025-workload-affinity-review.md",
+      "review_of": "024"
+    },
+    {
+      "id": "026",
+      "kind": "research",
+      "slug": "catalog-snapshots",
+      "inputs": [
+        "skill/plan-and-execute/scripts/model_catalog.py",
+        "skill/plan-and-execute/scripts/model_catalogctl.py",
+        "skill/plan-and-execute/references/MODEL_CATALOG.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/026-catalog-snapshots.json",
+      "report": "docs/research/20261028-skill-optimization/topics/026-catalog-snapshots.md",
+      "review_of": null,
+      "feature_id": "F011"
+    },
+    {
+      "id": "027",
+      "kind": "review",
+      "slug": "catalog-snapshots-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/026-catalog-snapshots.json",
+        "docs/research/20261028-skill-optimization/topics/026-catalog-snapshots.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/027-catalog-snapshots-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/027-catalog-snapshots-review.md",
+      "review_of": "026"
+    },
+    {
+      "id": "028",
+      "kind": "research",
+      "slug": "delegation",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_concise.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/DELEGATION.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/028-delegation.json",
+      "report": "docs/research/20261028-skill-optimization/topics/028-delegation.md",
+      "review_of": null,
+      "feature_id": "F012"
+    },
+    {
+      "id": "029",
+      "kind": "review",
+      "slug": "delegation-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/028-delegation.json",
+        "docs/research/20261028-skill-optimization/topics/028-delegation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/029-delegation-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/029-delegation-review.md",
+      "review_of": "028"
+    },
+    {
+      "id": "030",
+      "kind": "research",
+      "slug": "claude",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/030-claude.json",
+      "report": "docs/research/20261028-skill-optimization/topics/030-claude.md",
+      "review_of": null,
+      "feature_id": "F013"
+    },
+    {
+      "id": "031",
+      "kind": "review",
+      "slug": "claude-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/030-claude.json",
+        "docs/research/20261028-skill-optimization/topics/030-claude.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/031-claude-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/031-claude-review.md",
+      "review_of": "030"
+    },
+    {
+      "id": "032",
+      "kind": "research",
+      "slug": "codex",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/032-codex.json",
+      "report": "docs/research/20261028-skill-optimization/topics/032-codex.md",
+      "review_of": null,
+      "feature_id": "F014"
+    },
+    {
+      "id": "033",
+      "kind": "review",
+      "slug": "codex-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/032-codex.json",
+        "docs/research/20261028-skill-optimization/topics/032-codex.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/033-codex-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/033-codex-review.md",
+      "review_of": "032"
+    },
+    {
+      "id": "034",
+      "kind": "research",
+      "slug": "antigravity",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/references/INSTALLATION.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/034-antigravity.json",
+      "report": "docs/research/20261028-skill-optimization/topics/034-antigravity.md",
+      "review_of": null,
+      "feature_id": "F015"
+    },
+    {
+      "id": "035",
+      "kind": "review",
+      "slug": "antigravity-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/034-antigravity.json",
+        "docs/research/20261028-skill-optimization/topics/034-antigravity.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/035-antigravity-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/035-antigravity-review.md",
+      "review_of": "034"
+    },
+    {
+      "id": "036",
+      "kind": "research",
+      "slug": "qwen",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/036-qwen.json",
+      "report": "docs/research/20261028-skill-optimization/topics/036-qwen.md",
+      "review_of": null,
+      "feature_id": "F016"
+    },
+    {
+      "id": "037",
+      "kind": "review",
+      "slug": "qwen-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/036-qwen.json",
+        "docs/research/20261028-skill-optimization/topics/036-qwen.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/037-qwen-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/037-qwen-review.md",
+      "review_of": "036"
+    },
+    {
+      "id": "038",
+      "kind": "research",
+      "slug": "kimi",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/038-kimi.json",
+      "report": "docs/research/20261028-skill-optimization/topics/038-kimi.md",
+      "review_of": null,
+      "feature_id": "F017"
+    },
+    {
+      "id": "039",
+      "kind": "review",
+      "slug": "kimi-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/038-kimi.json",
+        "docs/research/20261028-skill-optimization/topics/038-kimi.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/039-kimi-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/039-kimi-review.md",
+      "review_of": "038"
+    },
+    {
+      "id": "040",
+      "kind": "research",
+      "slug": "trae",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/040-trae.json",
+      "report": "docs/research/20261028-skill-optimization/topics/040-trae.md",
+      "review_of": null,
+      "feature_id": "F018"
+    },
+    {
+      "id": "041",
+      "kind": "review",
+      "slug": "trae-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/040-trae.json",
+        "docs/research/20261028-skill-optimization/topics/040-trae.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/041-trae-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/041-trae-review.md",
+      "review_of": "040"
+    },
+    {
+      "id": "042",
+      "kind": "research",
+      "slug": "muse",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/muse_provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_MUSE.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/042-muse.json",
+      "report": "docs/research/20261028-skill-optimization/topics/042-muse.md",
+      "review_of": null,
+      "feature_id": "F019"
+    },
+    {
+      "id": "043",
+      "kind": "review",
+      "slug": "muse-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/042-muse.json",
+        "docs/research/20261028-skill-optimization/topics/042-muse.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/043-muse-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/043-muse-review.md",
+      "review_of": "042"
+    },
+    {
+      "id": "044",
+      "kind": "research",
+      "slug": "glm",
+      "inputs": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/glm_provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/044-glm.json",
+      "report": "docs/research/20261028-skill-optimization/topics/044-glm.md",
+      "review_of": null,
+      "feature_id": "F020"
+    },
+    {
+      "id": "045",
+      "kind": "review",
+      "slug": "glm-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/044-glm.json",
+        "docs/research/20261028-skill-optimization/topics/044-glm.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/045-glm-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/045-glm-review.md",
+      "review_of": "044"
+    },
+    {
+      "id": "046",
+      "kind": "research",
+      "slug": "deepseek",
+      "inputs": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/046-deepseek.json",
+      "report": "docs/research/20261028-skill-optimization/topics/046-deepseek.md",
+      "review_of": null,
+      "feature_id": "F021"
+    },
+    {
+      "id": "047",
+      "kind": "review",
+      "slug": "deepseek-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/046-deepseek.json",
+        "docs/research/20261028-skill-optimization/topics/046-deepseek.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/047-deepseek-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/047-deepseek-review.md",
+      "review_of": "046"
+    },
+    {
+      "id": "048",
+      "kind": "research",
+      "slug": "validation-evidence",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/048-validation-evidence.json",
+      "report": "docs/research/20261028-skill-optimization/topics/048-validation-evidence.md",
+      "review_of": null,
+      "feature_id": "F022"
+    },
+    {
+      "id": "049",
+      "kind": "review",
+      "slug": "validation-evidence-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/048-validation-evidence.json",
+        "docs/research/20261028-skill-optimization/topics/048-validation-evidence.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/049-validation-evidence-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/049-validation-evidence-review.md",
+      "review_of": "048"
+    },
+    {
+      "id": "050",
+      "kind": "research",
+      "slug": "resource-map",
+      "inputs": [
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/050-resource-map.json",
+      "report": "docs/research/20261028-skill-optimization/topics/050-resource-map.md",
+      "review_of": null,
+      "feature_id": "F023"
+    },
+    {
+      "id": "051",
+      "kind": "review",
+      "slug": "resource-map-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/050-resource-map.json",
+        "docs/research/20261028-skill-optimization/topics/050-resource-map.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/051-resource-map-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/051-resource-map-review.md",
+      "review_of": "050"
+    },
+    {
+      "id": "052",
+      "kind": "research",
+      "slug": "progress-processes",
+      "inputs": [
+        "skill/plan-and-execute/scripts/progress_signal.py",
+        "skill/plan-and-execute/scripts/progress_watch.py",
+        "skill/plan-and-execute/scripts/process_tree.py",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/052-progress-processes.json",
+      "report": "docs/research/20261028-skill-optimization/topics/052-progress-processes.md",
+      "review_of": null,
+      "feature_id": "F024"
+    },
+    {
+      "id": "053",
+      "kind": "review",
+      "slug": "progress-processes-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/052-progress-processes.json",
+        "docs/research/20261028-skill-optimization/topics/052-progress-processes.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/053-progress-processes-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/053-progress-processes-review.md",
+      "review_of": "052"
+    },
+    {
+      "id": "054",
+      "kind": "research",
+      "slug": "supervised-jobs",
+      "inputs": [
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/054-supervised-jobs.json",
+      "report": "docs/research/20261028-skill-optimization/topics/054-supervised-jobs.md",
+      "review_of": null,
+      "feature_id": "F025"
+    },
+    {
+      "id": "055",
+      "kind": "review",
+      "slug": "supervised-jobs-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/054-supervised-jobs.json",
+        "docs/research/20261028-skill-optimization/topics/054-supervised-jobs.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/055-supervised-jobs-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/055-supervised-jobs-review.md",
+      "review_of": "054"
+    },
+    {
+      "id": "056",
+      "kind": "research",
+      "slug": "watchdog-keepalive",
+      "inputs": [
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "skill/plan-and-execute/references/WATCHDOG.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/056-watchdog-keepalive.json",
+      "report": "docs/research/20261028-skill-optimization/topics/056-watchdog-keepalive.md",
+      "review_of": null,
+      "feature_id": "F026"
+    },
+    {
+      "id": "057",
+      "kind": "review",
+      "slug": "watchdog-keepalive-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/056-watchdog-keepalive.json",
+        "docs/research/20261028-skill-optimization/topics/056-watchdog-keepalive.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/057-watchdog-keepalive-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/057-watchdog-keepalive-review.md",
+      "review_of": "056"
+    },
+    {
+      "id": "058",
+      "kind": "research",
+      "slug": "log-lifecycle",
+      "inputs": [
+        "skill/plan-and-execute/scripts/log_watch.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "skill/plan-and-execute/scripts/observer.py",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/058-log-lifecycle.json",
+      "report": "docs/research/20261028-skill-optimization/topics/058-log-lifecycle.md",
+      "review_of": null,
+      "feature_id": "F027"
+    },
+    {
+      "id": "059",
+      "kind": "review",
+      "slug": "log-lifecycle-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/058-log-lifecycle.json",
+        "docs/research/20261028-skill-optimization/topics/058-log-lifecycle.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/059-log-lifecycle-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/059-log-lifecycle-review.md",
+      "review_of": "058"
+    },
+    {
+      "id": "060",
+      "kind": "research",
+      "slug": "advisory-observer",
+      "inputs": [
+        "skill/plan-and-execute/scripts/observer.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/references/ASSISTANTS.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/060-advisory-observer.json",
+      "report": "docs/research/20261028-skill-optimization/topics/060-advisory-observer.md",
+      "review_of": null,
+      "feature_id": "F028"
+    },
+    {
+      "id": "061",
+      "kind": "review",
+      "slug": "advisory-observer-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/060-advisory-observer.json",
+        "docs/research/20261028-skill-optimization/topics/060-advisory-observer.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/061-advisory-observer-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/061-advisory-observer-review.md",
+      "review_of": "060"
+    },
+    {
+      "id": "062",
+      "kind": "research",
+      "slug": "validate-or-fix",
+      "inputs": [
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/companion_self_test.py",
+        "skill/validate-or-fix/SKILL.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/062-validate-or-fix.json",
+      "report": "docs/research/20261028-skill-optimization/topics/062-validate-or-fix.md",
+      "review_of": null,
+      "feature_id": "F029"
+    },
+    {
+      "id": "063",
+      "kind": "review",
+      "slug": "validate-or-fix-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/062-validate-or-fix.json",
+        "docs/research/20261028-skill-optimization/topics/062-validate-or-fix.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/063-validate-or-fix-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/063-validate-or-fix-review.md",
+      "review_of": "062"
+    },
+    {
+      "id": "064",
+      "kind": "research",
+      "slug": "economic-evaluation",
+      "inputs": [
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "tools/routing_eval.py",
+        "tools/skill_benchmark.py",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/064-economic-evaluation.json",
+      "report": "docs/research/20261028-skill-optimization/topics/064-economic-evaluation.md",
+      "review_of": null,
+      "feature_id": "F030"
+    },
+    {
+      "id": "065",
+      "kind": "review",
+      "slug": "economic-evaluation-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/064-economic-evaluation.json",
+        "docs/research/20261028-skill-optimization/topics/064-economic-evaluation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/065-economic-evaluation-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/065-economic-evaluation-review.md",
+      "review_of": "064"
+    },
+    {
+      "id": "066",
+      "kind": "research",
+      "slug": "distribution",
+      "inputs": [
+        "bin/plan-and-execute.js",
+        "lib/installer.js",
+        "lib/skill-source.js",
+        "tools/package-skills.js",
+        "tools/validate-skill.js",
+        "tools/clean-generated.js",
+        "skill/plan-and-execute/scripts/configure.py",
+        ".github/workflows/ci.yml",
+        "SECURITY.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/066-distribution.json",
+      "report": "docs/research/20261028-skill-optimization/topics/066-distribution.md",
+      "review_of": null,
+      "feature_id": "F031"
+    },
+    {
+      "id": "067",
+      "kind": "review",
+      "slug": "distribution-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/066-distribution.json",
+        "docs/research/20261028-skill-optimization/topics/066-distribution.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/067-distribution-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/067-distribution-review.md",
+      "review_of": "066"
+    },
+    {
+      "id": "068",
+      "kind": "research",
+      "slug": "provider-switch-handoff",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+        "docs/research/20261028-skill-optimization/outputs/004-complete-feature-inventory.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/068-provider-switch-handoff.json",
+      "report": "docs/research/20261028-skill-optimization/topics/068-provider-switch-handoff.md",
+      "review_of": null,
+      "feature_id": "F032"
+    },
+    {
+      "id": "069",
+      "kind": "review",
+      "slug": "provider-switch-handoff-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/068-provider-switch-handoff.json",
+        "docs/research/20261028-skill-optimization/topics/068-provider-switch-handoff.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/069-provider-switch-handoff-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/069-provider-switch-handoff-review.md",
+      "review_of": "068"
+    },
+    {
+      "id": "070",
+      "kind": "implementation",
+      "slug": "switch-contract",
+      "inputs": [
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/070-switch-contract.json",
+      "report": "docs/research/20261028-skill-optimization/topics/070-switch-contract.md",
+      "review_of": null
+    },
+    {
+      "id": "071",
+      "kind": "review",
+      "slug": "switch-contract-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/070-switch-contract.json",
+        "docs/research/20261028-skill-optimization/topics/070-switch-contract.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/071-switch-contract-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/071-switch-contract-review.md",
+      "review_of": "070"
+    },
+    {
+      "id": "072",
+      "kind": "implementation",
+      "slug": "effective-provider-top",
+      "inputs": [
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.json",
+        "skill/plan-and-execute/scripts/model_routing_self_test.py",
+        "skill/plan-and-execute/scripts/workload_routing_self_test.py",
+        "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/072-effective-provider-top.json",
+      "report": "docs/research/20261028-skill-optimization/topics/072-effective-provider-top.md",
+      "review_of": null
+    },
+    {
+      "id": "073",
+      "kind": "review",
+      "slug": "effective-provider-top-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/072-effective-provider-top.json",
+        "docs/research/20261028-skill-optimization/topics/072-effective-provider-top.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/073-effective-provider-top-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/073-effective-provider-top-review.md",
+      "review_of": "072"
+    },
+    {
+      "id": "074",
+      "kind": "implementation",
+      "slug": "switch-dispatch-state",
+      "inputs": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/availability.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.json",
+        "skill/plan-and-execute/scripts/availability_self_test.py",
+        "skill/plan-and-execute/scripts/routing_config_self_test.py",
+        "skill/plan-and-execute/scripts/self_test.py",
+        "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/074-switch-dispatch-state.json",
+      "report": "docs/research/20261028-skill-optimization/topics/074-switch-dispatch-state.md",
+      "review_of": null
+    },
+    {
+      "id": "075",
+      "kind": "review",
+      "slug": "switch-dispatch-state-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/074-switch-dispatch-state.json",
+        "docs/research/20261028-skill-optimization/topics/074-switch-dispatch-state.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/075-switch-dispatch-state-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/075-switch-dispatch-state-review.md",
+      "review_of": "074"
+    },
+    {
+      "id": "076",
+      "kind": "implementation",
+      "slug": "handoff-generation",
+      "inputs": [
+        "skill/plan-and-execute/scripts/assistant_triage.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/references/completion-report.schema.json",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/076-handoff-generation.json",
+      "report": "docs/research/20261028-skill-optimization/topics/076-handoff-generation.md",
+      "review_of": null
+    },
+    {
+      "id": "077",
+      "kind": "review",
+      "slug": "handoff-generation-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/076-handoff-generation.json",
+        "docs/research/20261028-skill-optimization/topics/076-handoff-generation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/077-handoff-generation-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/077-handoff-generation-review.md",
+      "review_of": "076"
+    },
+    {
+      "id": "078",
+      "kind": "implementation",
+      "slug": "handoff-prompt-integration",
+      "inputs": [
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+        "skill/plan-and-execute/scripts/provider_self_test.py",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.json",
+        "skill/plan-and-execute/scripts/progress_runner_self_test.py",
+        "skill/plan-and-execute/scripts/artifact_concision_self_test.py",
+        "skill/plan-and-execute/references/completion-report.schema.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/078-handoff-prompt-integration.json",
+      "report": "docs/research/20261028-skill-optimization/topics/078-handoff-prompt-integration.md",
+      "review_of": null
+    },
+    {
+      "id": "079",
+      "kind": "review",
+      "slug": "handoff-prompt-integration-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/078-handoff-prompt-integration.json",
+        "docs/research/20261028-skill-optimization/topics/078-handoff-prompt-integration.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/079-handoff-prompt-integration-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/079-handoff-prompt-integration-review.md",
+      "review_of": "078"
+    },
+    {
+      "id": "080",
+      "kind": "implementation",
+      "slug": "switch-docs-telemetry",
+      "inputs": [
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "README.md",
+        "README.pt-BR.md",
+        "CHANGELOG.md",
+        "docs/RESEARCH_BASIS.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.json",
+        "skill/plan-and-execute/scripts/telemetry_self_test.py",
+        "skill/plan-and-execute/scripts/configure_self_test.py",
+        "tools/run-skill-self-test.js"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/080-switch-docs-telemetry.json",
+      "report": "docs/research/20261028-skill-optimization/topics/080-switch-docs-telemetry.md",
+      "review_of": null
+    },
+    {
+      "id": "081",
+      "kind": "review",
+      "slug": "switch-docs-telemetry-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/080-switch-docs-telemetry.json",
+        "docs/research/20261028-skill-optimization/topics/080-switch-docs-telemetry.md",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/081-switch-docs-telemetry-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/081-switch-docs-telemetry-review.md",
+      "review_of": "080"
+    },
+    {
+      "id": "082",
+      "kind": "synthesis",
+      "slug": "optimization-backlog",
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/FEATURE_SEED.json",
+        "docs/research/20261028-skill-optimization/outputs/007-activation-intake-review.json",
+        "docs/research/20261028-skill-optimization/outputs/009-primary-planning-review.json",
+        "docs/research/20261028-skill-optimization/outputs/011-adaptive-study-review.json",
+        "docs/research/20261028-skill-optimization/outputs/013-plan-contract-review.json",
+        "docs/research/20261028-skill-optimization/outputs/015-context-learning-review.json",
+        "docs/research/20261028-skill-optimization/outputs/017-shared-patterns-review.json",
+        "docs/research/20261028-skill-optimization/outputs/019-lifecycle-review.json",
+        "docs/research/20261028-skill-optimization/outputs/021-escalation-review.json",
+        "docs/research/20261028-skill-optimization/outputs/023-availability-review.json",
+        "docs/research/20261028-skill-optimization/outputs/025-workload-affinity-review.json",
+        "docs/research/20261028-skill-optimization/outputs/027-catalog-snapshots-review.json",
+        "docs/research/20261028-skill-optimization/outputs/029-delegation-review.json",
+        "docs/research/20261028-skill-optimization/outputs/031-claude-review.json",
+        "docs/research/20261028-skill-optimization/outputs/033-codex-review.json",
+        "docs/research/20261028-skill-optimization/outputs/035-antigravity-review.json",
+        "docs/research/20261028-skill-optimization/outputs/037-qwen-review.json",
+        "docs/research/20261028-skill-optimization/outputs/039-kimi-review.json",
+        "docs/research/20261028-skill-optimization/outputs/041-trae-review.json",
+        "docs/research/20261028-skill-optimization/outputs/043-muse-review.json",
+        "docs/research/20261028-skill-optimization/outputs/045-glm-review.json",
+        "docs/research/20261028-skill-optimization/outputs/047-deepseek-review.json",
+        "docs/research/20261028-skill-optimization/outputs/049-validation-evidence-review.json",
+        "docs/research/20261028-skill-optimization/outputs/051-resource-map-review.json",
+        "docs/research/20261028-skill-optimization/outputs/053-progress-processes-review.json",
+        "docs/research/20261028-skill-optimization/outputs/055-supervised-jobs-review.json",
+        "docs/research/20261028-skill-optimization/outputs/057-watchdog-keepalive-review.json",
+        "docs/research/20261028-skill-optimization/outputs/059-log-lifecycle-review.json",
+        "docs/research/20261028-skill-optimization/outputs/061-advisory-observer-review.json",
+        "docs/research/20261028-skill-optimization/outputs/063-validate-or-fix-review.json",
+        "docs/research/20261028-skill-optimization/outputs/065-economic-evaluation-review.json",
+        "docs/research/20261028-skill-optimization/outputs/067-distribution-review.json",
+        "docs/research/20261028-skill-optimization/outputs/069-provider-switch-handoff-review.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/082-optimization-backlog.json",
+      "report": "docs/research/20261028-skill-optimization/topics/082-optimization-backlog.md",
+      "review_of": null
+    },
+    {
+      "id": "083",
+      "kind": "review",
+      "slug": "optimization-backlog-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/082-optimization-backlog.json",
+        "docs/research/20261028-skill-optimization/topics/082-optimization-backlog.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/083-optimization-backlog-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/083-optimization-backlog-review.md",
+      "review_of": "082"
+    },
+    {
+      "id": "084",
+      "kind": "plan2",
+      "slug": "final-implementation-plan",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/082-optimization-backlog.json",
+        "docs/plans/20261028-skill-optimization/PLAN2_CONTRACT.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/084-final-implementation-plan.json",
+      "report": "docs/research/20261028-skill-optimization/topics/084-final-implementation-plan.md",
+      "review_of": null
+    },
+    {
+      "id": "085",
+      "kind": "review",
+      "slug": "final-implementation-plan-review",
+      "inputs": [
+        "docs/research/20261028-skill-optimization/outputs/084-final-implementation-plan.json",
+        "docs/research/20261028-skill-optimization/topics/084-final-implementation-plan.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/085-final-implementation-plan-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/085-final-implementation-plan-review.md",
+      "review_of": "084"
+    },
+    {
+      "id": "086",
+      "kind": "review",
+      "slug": "final-whole-skill-review",
+      "inputs": [
+        "skill/plan-and-execute/references/SKILL_MAINTENANCE_REVIEW.md",
+        "docs/research/20261028-skill-optimization/outputs/084-final-implementation-plan.json",
+        "docs/research/20261028-skill-optimization/outputs/080-switch-docs-telemetry.json",
+        "docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.json"
+      ],
+      "output": "docs/research/20261028-skill-optimization/outputs/086-final-whole-skill-review.json",
+      "report": "docs/research/20261028-skill-optimization/reviews/086-final-whole-skill-review.md",
+      "review_of": null
+    }
+  ]
+}

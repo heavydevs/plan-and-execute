@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "feature_id": "F012",
+  "former_research_task": "028",
+  "implementation_task": "028",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Compare isolation benefits with coordination, cache writes and repeated repository exploration.",
+    "Keep root route fixed; separate native session resume from cross-provider handoff."
+  ],
+  "decision": "Use a measured delegation gate with explicit input revision and isolation boundaries; prefer one qualified context for sequential work and bounded fresh workers for independently useful tasks.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "run_concise composes multiple runtime contracts, so tests of run_isolated alone do not cover the production prompt.",
+    "The current runner launches fresh workers and receives bounded task artifacts. Its run_process/pump_stream path accumulates captured output; large outputs require a bounded capture contract independent of the full disk log."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_concise.py",
+      "sha256": "495d986c1582ce5ed432fe304d995d244159e2168d2b4aafa6185b13ed79aba8",
+      "line_count": 19,
+      "symbols": []
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "worker_prompt",
+          "line": 711,
+          "end": 749
+        },
+        {
+          "name": "pump_stream",
+          "line": 1193,
+          "end": 1211
+        },
+        {
+          "name": "run_process",
+          "line": 1214,
+          "end": 1317
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "sha256": "74db8be9153d63c8accc1e3a650279fd54da0ea0b6405b0bfb4e470f183a97c6",
+      "line_count": 143,
+      "symbols": [
+        {
+          "name": "install_runner_contract",
+          "line": 36,
+          "end": 143
+        },
+        {
+          "name": "worker_prompt",
+          "line": 44,
+          "end": 80
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/DELEGATION.md",
+      "sha256": "40cd1984a718285408ab63a0fe97242d0c2eef675a90df3f9ef1b0109d28bb99",
+      "line_count": 53,
+      "symbols": [
+        {
+          "name": "# Delegation policy and role contracts",
+          "line": 1
+        },
+        {
+          "name": "## Request",
+          "line": 11
+        },
+        {
+          "name": "## Rules, in order",
+          "line": 15
+        },
+        {
+          "name": "## Token accounting",
+          "line": 24
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E016",
+    "E054",
+    "E021",
+    "E018",
+    "E041",
+    "W-COST",
+    "W-CLAUDE-SUBAGENTS",
+    "W-MUSE",
+    "W-SUBPROCESS",
+    "W-CONTEXT"
+  ],
+  "implementation_steps": [
+    "Add deterministic delegation receipts recording role, read/write scope, capability floor, estimated coordination cost and reason for keeping work at root.",
+    "Use fresh workers for independent contexts or capability gaps. Keep small cohesive work local and prevent concurrent writers with overlapping scopes unless an explicit integration strategy exists.",
+    "Implement a bounded stream spool that drains stdout and stderr concurrently, preserves full owned logs on disk, and retains only the final structured envelope and bounded diagnostic windows in memory.",
+    "Keep worker prompt static prefixes stable in both raw and composed entrypoints. Use referenced artifacts rather than historical chat messages for cross-provider continuity.",
+    "Treat same-provider session resume as an opt-in future experiment with retention and cache accounting, not a hidden fallback that changes fresh-context semantics.",
+    "Compare delegation with a single qualified model at lower effort on held-out tasks, including review and repair cost.",
+    "Pin worker base revision and uncommitted-input policy; verify isolated worktree starts from the intended source.",
+    "Bound in-memory output while preserving independently parsed final reports and owned diagnostic logs."
+  ],
+  "proposed_acceptance_tests": [
+    "A noisy fake CLI emits many megabytes without proportional memory growth or pipe deadlock.",
+    "A final structured report remains recoverable after long tool output; missing or truncated envelopes fail visibly.",
+    "Two delegated writers cannot silently claim the same source scope.",
+    "Above-floor work cannot be retained on an underqualified worker merely to avoid coordination cost.",
+    "Prefix hashes match across tasks for raw and production entrypoints.",
+    "A worker based on the default branch rather than the pinned working revision is rejected.",
+    "Concurrent writers never share an overlapping scope without serialization.",
+    "Multi-megabyte output does not grow the diagnostic buffer without bound.",
+    "Native fork support cannot silently claim fresh-context isolation."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "One qualified agent throughout",
+      "benefit": "Reuse coherent context",
+      "risk": "Context can grow across unrelated domains",
+      "disposition": "Preferred for sequential cohesive work",
+      "tradeoff": "Reuse coherent context; Context can grow across unrelated domains. Preferred for sequential cohesive work"
+    },
+    {
+      "id": "A02",
+      "title": "Fresh worker for every microstep",
+      "benefit": "Strong separation",
+      "risk": "Coordination and reread overhead",
+      "disposition": "Reject",
+      "tradeoff": "Strong separation; Coordination and reread overhead. Reject"
+    },
+    {
+      "id": "A03",
+      "title": "Bounded selective delegation",
+      "benefit": "Useful isolation and concurrency",
+      "risk": "Requires strict contracts and base pinning",
+      "disposition": "Recommended",
+      "tradeoff": "Useful isolation and concurrency; Requires strict contracts and base pinning. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Native fork/workflow replaces all workers",
+      "benefit": "Potential cache reuse",
+      "risk": "Host-specific semantics and stale checkout risk",
+      "disposition": "Opt-in adapter after equivalence tests",
+      "tradeoff": "Potential cache reuse; Host-specific semantics and stale checkout risk. Opt-in adapter after equivalence tests"
+    }
+  ],
+  "cost_model": "C_total=C_root+C_workers+C_review+C_merge+C_repairs; compare latency and non-inferior validated quality. Cache affinity is an observed benefit, not a reason to include unnecessary history.",
+  "unverified": [
+    "No native subagent dispatch exists in this environment; this report does not claim an independent worker or measured cache hit.",
+    "Vendor delegation results concern a specific harness and task set. No new authenticated model or native worktree experiment was performed here."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Make delegation evidence-based and context-bounded; retain fresh cross-provider workers and do not enable transcript resumption by default.",
+  "revision_delta": "The revision adds the empirically important single-agent/lower-effort comparator and worktree base-revision checks. It does not assume that a fresh context or a subagent is automatically cheaper.",
+  "decision_analysis": [
+    "Delegation has startup, context reconstruction, review and merge costs. A cheap worker may take more turns, omit constraints or induce repair work in the root agent. Evaluate the complete validated result, not the worker invoice in isolation. The new vendor experiment is evidence of a tradeoff, not proof of a universal delegation strategy.",
+    "Use read-only exploration workers only for independent search questions with bounded result contracts. Serialize writes to shared files or use real worktree isolation and merge validation. Pin the starting commit and include relevant uncommitted changes explicitly; a child created from a default branch can otherwise analyze an obsolete codebase while appearing isolated and correct.",
+    "Conversation forking and filesystem isolation are separate controls. A fork may reuse a large prompt cache but also inherits irrelevant or misleading reasoning. A fresh worker receives less context but may redo repository discovery. Preserve both as evaluated options where the host supports them; retain portable fresh-process execution as the reference behavior.",
+    "Do not accumulate an entire worker stream in RAM merely to retain the final report. Drain stdout and stderr concurrently, write raw output to bounded/rotated owned artifacts, retain a bounded diagnostic tail and parse structured completion separately. This deterministic optimization is independent of choosing an external agent framework."
+  ],
+  "search_themes": [
+    "Anthropic cost intelligence subagents experiments October 2026",
+    "Claude subagents worktree default branch context fork",
+    "Muse Code subagent worktree isolation",
+    "Python subprocess communicate memory buffering"
+  ],
+  "current_source_ids": [
+    "W-COST",
+    "W-CLAUDE-SUBAGENTS",
+    "W-MUSE",
+    "W-SUBPROCESS",
+    "W-CONTEXT"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

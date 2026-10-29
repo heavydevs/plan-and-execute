@@ -1,0 +1,46 @@
+[resource-watch] validation=P1_DELIVERY_GATE_TESTS report=.ai-work/resource-watch/20261029T024033-P1_DELIVERY_GATE_TESTS-3663-1793241633712422071.jsonl
+[resource-watch] toolchain=PYTHON state=healthy version='Python 3.13.5'
+[resource-watch] time=2026-10-29T02:40:34+00:00 validation=P1_DELIVERY_GATE_TESTS test_pid=3684 test_process=running
+[resource-watch] validation=P1_DELIVERY_GATE_TESTS resources=none (explicitly mapped)
+test_absolute_path (__main__.GateTests.test_absolute_path) ... ok
+test_acceptance_missing (__main__.GateTests.test_acceptance_missing) ... ok
+test_acceptance_unpassed (__main__.GateTests.test_acceptance_unpassed) ... ok
+test_bool_is_not_exit_code (__main__.GateTests.test_bool_is_not_exit_code) ... ok
+test_changed_code_invalidates_checks (__main__.GateTests.test_changed_code_invalidates_checks) ... ok
+test_declared_runner_executes_real_fixture (__main__.GateTests.test_declared_runner_executes_real_fixture) ... PROGRESS stage=declared_checks done=1 total=1
+ok
+test_declared_runner_records_failure (__main__.GateTests.test_declared_runner_records_failure) ... PROGRESS stage=declared_checks done=1 total=1
+ok
+test_duplicate_json (__main__.GateTests.test_duplicate_json) ... ok
+test_failed_check (__main__.GateTests.test_failed_check) ... ok
+test_fake_review_rejected (__main__.GateTests.test_fake_review_rejected) ... ok
+test_incomplete_receipt (__main__.GateTests.test_incomplete_receipt) ... ok
+test_justified_preservation (__main__.GateTests.test_justified_preservation) ... ok
+test_low_tier_review_rejected (__main__.GateTests.test_low_tier_review_rejected) ... ok
+test_missing_check (__main__.GateTests.test_missing_check) ... ok
+test_modified_log (__main__.GateTests.test_modified_log) ... ok
+test_nonfinite_json (__main__.GateTests.test_nonfinite_json) ... ok
+test_report_is_not_code (__main__.GateTests.test_report_is_not_code) ... ok
+test_report_without_receipt_rejected (__main__.GateTests.test_report_without_receipt_rejected) ... ok
+test_secret_rejected (__main__.GateTests.test_secret_rejected) ... ok
+test_stale_report (__main__.GateTests.test_stale_report) ... ok
+test_substituted_command (__main__.GateTests.test_substituted_command) ... ok
+test_symlink (__main__.GateTests.test_symlink) ... ok
+test_traversal (__main__.GateTests.test_traversal) ... ok
+test_unjustified_no_change_rejected (__main__.GateTests.test_unjustified_no_change_rejected) ... ok
+test_valid_synthetic_gate_fixture (__main__.GateTests.test_valid_synthetic_gate_fixture) ... ok
+test_actual_prepared_plan (__main__.StructureTests.test_actual_prepared_plan) ... ok
+test_autostart_rejected (__main__.StructureTests.test_autostart_rejected) ... ok
+test_dependency_cycle_rejected (__main__.StructureTests.test_dependency_cycle_rejected) ... ok
+test_no_second_plan_work (__main__.StructureTests.test_no_second_plan_work) ... ok
+test_removed_review_rejected (__main__.StructureTests.test_removed_review_rejected) ... ok
+test_research_kind_rejected (__main__.StructureTests.test_research_kind_rejected) ... ok
+test_stale_report_hash (__main__.StructureTests.test_stale_report_hash) ... ok
+test_unknown_source (__main__.StructureTests.test_unknown_source) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 1.649s
+
+OK
+[resource-watch] time=2026-10-29T02:40:36+00:00 validation=P1_DELIVERY_GATE_TESTS test_pid=3684 test_process=exited group_cpu_seconds=3.13 processes=[{"pid":3684,"state":"R","cpu_seconds":1.03}]
+[resource-watch] validation=P1_DELIVERY_GATE_TESTS test_exit=0 health=healthy

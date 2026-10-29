@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-28",
+  "prepared_at_utc": "2026-10-29T02:43:15.387114+00:00",
+  "input_archive": "plan-and-execute-plano-unico-pesquisado-20261028.zip",
+  "input_archive_sha256": "237cce4e2aa6a804e8511a0a0882ecf2385a159ded16ffa9361a00f204c26216",
+  "baseline_product_version": "0.11.0",
+  "baseline_product_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "baseline_product_files_verified": 135,
+  "product_files_modified": 0,
+  "research_revision": 2,
+  "counts": {
+    "topics": 32,
+    "tasks": 86,
+    "subtasks": 527,
+    "source_records": 121,
+    "fresh_source_records": 63,
+    "distinct_source_urls": 89,
+    "independent_reviews": 43,
+    "alternatives": 129
+  },
+  "task_status": "86 pending; no worker dispatched",
+  "external_review": "not performed",
+  "authenticated_models": "not invoked",
+  "publication": "no commit, push, install or release",
+  "git_metadata": "Older local Git metadata was restored only to run repository tools. It is excluded from this deliverable; remote checkpoint ancestry was not modified.",
+  "plan_spec_sha256": "69f17497144b20724996eef695744269253964ac1053e93dffa4d83f409b6531",
+  "task_catalog_sha256": "02776b8848c929065c0b4d65aa308f3cf71e8e0434b8ea4c733c8ae6f3d45589",
+  "native_manifest_sha256": "253464925969a4dee7b3eedef53504da9e91a1b8dc4f3601a7928488f3e632dd",
+  "research_index_sha256": "76c6047f04dd96151c560ad2a674a56e5414481d41d72039c4b4e8a04a7322ab",
+  "validation_results_sha256": "9872e8f3f34cb66956b4b31bc122c7aab5c5126eb68e7fee301fd3449169a626"
+}

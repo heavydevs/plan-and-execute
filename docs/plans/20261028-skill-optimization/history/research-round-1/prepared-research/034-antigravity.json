@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "feature_id": "F015",
+  "former_research_task": "034",
+  "implementation_task": "034",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Check agy models, embedded-effort slugs, conversation persistence and per-family quotas.",
+    "Distinguish current Antigravity behavior from legacy Gemini; document CLI/help/model-list discrepancies."
+  ],
+  "decision": "Make Antigravity model, effort, quota and permission discovery authoritative for that host; keep Gemini legacy compatibility explicitly separate.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "The adapter suppresses a separate effort argument for recognized embedded-effort model slugs. A logical effort increment can therefore leave the actual command unchanged.",
+    "The configuration and workload modules can represent different Antigravity profiles and quota pools. Current docs expose a wider effort vocabulary with model-dependent support, so a universal high-only statement is not reliable.",
+    "The runner uses a fresh prompt invocation without a continuation ID; the exact conversation retention behavior is a version-specific operational question."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routing_config.py",
+      "sha256": "4c21ed17b26062511023e151edd60f56eb68219129418303f17ddc2b26e9d4e4",
+      "line_count": 320,
+      "symbols": [
+        {
+          "name": "embedded_effort_model",
+          "line": 106,
+          "end": 109
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/workload_routing.py",
+      "sha256": "1a387675edbf3ef9e9b58dbc2fdcfa072173329ca864a4d1577ad7ca369147b1",
+      "line_count": 253,
+      "symbols": [
+        {
+          "name": "antigravity_preset",
+          "line": 193,
+          "end": 214
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/INSTALLATION.md",
+      "sha256": "679e881535934274a60615aaa36befbf30bc15ae6302dc66dceb6a7a8d45b2ff",
+      "line_count": 209,
+      "symbols": [
+        {
+          "name": "# Install Plan and Execute for Claude Code, Codex and Antigravity",
+          "line": 1
+        },
+        {
+          "name": "## Activation mode",
+          "line": 9
+        },
+        {
+          "name": "## Recommended: install with npx",
+          "line": 23
+        },
+        {
+          "name": "# Claude and Codex for every project; selective auto-routing",
+          "line": 63
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E022",
+    "E023",
+    "E024",
+    "E025",
+    "E026",
+    "E027",
+    "E028"
+  ],
+  "implementation_steps": [
+    "Persist normalized agy version/help/models/usage observations with timestamp. Intersect CLI-supported effort with each model's advertised capability; do not assume max in help applies to every slug.",
+    "Derive effective dispatch from resolved slug plus native effort. Collapse no-op transitions and preserve unsupported capability as an exclusion reason.",
+    "Map quota pools from explicit account evidence or configuration, not a universal Gemini-versus-Claude assumption. Prefer a suitable alternate pool only within the permitted chain.",
+    "Pin a verified read-only observer path. Approval skipping must not be mistaken for a sandbox; on unsupported versions disable advisory dispatch rather than widen authority.",
+    "Keep the legacy Gemini adapter behind its own contract and deprecation note. Do not auto-migrate user configuration or silently substitute a different CLI."
+  ],
+  "proposed_acceptance_tests": [
+    "An embedded high slug receives no redundant effort flag and is not retried as a supposedly stronger identical dispatch.",
+    "A model with lower effort support cannot satisfy a higher required route without explicit qualification.",
+    "Separate configured pools have separate cooldowns; shared pools remain shared.",
+    "Usage discovery failure leaves quota unknown and does not consume semantic attempts.",
+    "Headless parser, conversation metadata and read-only restrictions have version-pinned fixtures."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Hardcode current model names and a universal effort cap",
+      "tradeoff": "Cheap initially, but brittle and misleading across hosted models."
+    },
+    {
+      "id": "recommended",
+      "title": "Observed capability intersection and explicit pools",
+      "tradeoff": "Small probe/cache cost and accurate host-specific decisions."
+    },
+    {
+      "id": "rejected",
+      "title": "Always prefer hosted Opus or Flash irrespective of task",
+      "tradeoff": "Can under-route difficult work or spend a scarce pool without evidence."
+    }
+  ],
+  "cost_model": "Prefer deterministic monitoring; use the cheapest qualified observer according to actual account economics. This research does not establish a universal cheapest Flash model or identical native/hosted Opus capability.",
+  "unverified": [
+    "Actual quota independence, model availability, conversation persistence and highest effective effort require the user's installed CLI/account."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

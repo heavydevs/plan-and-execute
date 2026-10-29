@@ -9,8 +9,8 @@ This project-local router maps every automated validation to its toolchain prere
   "inventory_reviewed": true,
   "snapshot": {
     "algorithm": "sha256-path-content-v2-streamed",
-    "digest": "0ba30b69233488d427496a7b0d8bc579a5df18d8f633638de8798818926029ab",
-    "source_count": 56
+    "digest": "a9209e97f1b983c6c255db936c0987521a2b43ef1b041a1f32868af3f696ca00",
+    "source_count": 58
   },
   "toolchains": [
     {
@@ -736,7 +736,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_001",
-      "name": "Plan 1 001 evidence packet gate",
+      "name": "Implementation 001 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -753,7 +753,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_002",
-      "name": "Plan 1 002 evidence packet gate",
+      "name": "Implementation 002 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -770,7 +770,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_003",
-      "name": "Plan 1 003 evidence packet gate",
+      "name": "Implementation 003 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -787,7 +787,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_004",
-      "name": "Plan 1 004 evidence packet gate",
+      "name": "Implementation 004 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -804,7 +804,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_005",
-      "name": "Plan 1 005 evidence packet gate",
+      "name": "Implementation 005 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -821,7 +821,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_006",
-      "name": "Plan 1 006 evidence packet gate",
+      "name": "Implementation 006 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -838,7 +838,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_007",
-      "name": "Plan 1 007 evidence packet gate",
+      "name": "Implementation 007 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -855,7 +855,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_008",
-      "name": "Plan 1 008 evidence packet gate",
+      "name": "Implementation 008 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -872,7 +872,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_009",
-      "name": "Plan 1 009 evidence packet gate",
+      "name": "Implementation 009 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -889,7 +889,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_010",
-      "name": "Plan 1 010 evidence packet gate",
+      "name": "Implementation 010 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -906,7 +906,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_011",
-      "name": "Plan 1 011 evidence packet gate",
+      "name": "Implementation 011 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -923,7 +923,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_012",
-      "name": "Plan 1 012 evidence packet gate",
+      "name": "Implementation 012 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -940,7 +940,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_013",
-      "name": "Plan 1 013 evidence packet gate",
+      "name": "Implementation 013 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -957,7 +957,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_014",
-      "name": "Plan 1 014 evidence packet gate",
+      "name": "Implementation 014 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -974,7 +974,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_015",
-      "name": "Plan 1 015 evidence packet gate",
+      "name": "Implementation 015 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -991,7 +991,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_016",
-      "name": "Plan 1 016 evidence packet gate",
+      "name": "Implementation 016 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1008,7 +1008,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_017",
-      "name": "Plan 1 017 evidence packet gate",
+      "name": "Implementation 017 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1025,7 +1025,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_018",
-      "name": "Plan 1 018 evidence packet gate",
+      "name": "Implementation 018 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1042,7 +1042,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_019",
-      "name": "Plan 1 019 evidence packet gate",
+      "name": "Implementation 019 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1059,7 +1059,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_020",
-      "name": "Plan 1 020 evidence packet gate",
+      "name": "Implementation 020 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1076,7 +1076,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_021",
-      "name": "Plan 1 021 evidence packet gate",
+      "name": "Implementation 021 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1093,7 +1093,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_022",
-      "name": "Plan 1 022 evidence packet gate",
+      "name": "Implementation 022 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1110,7 +1110,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_023",
-      "name": "Plan 1 023 evidence packet gate",
+      "name": "Implementation 023 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1127,7 +1127,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_024",
-      "name": "Plan 1 024 evidence packet gate",
+      "name": "Implementation 024 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1144,7 +1144,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_025",
-      "name": "Plan 1 025 evidence packet gate",
+      "name": "Implementation 025 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1161,7 +1161,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_026",
-      "name": "Plan 1 026 evidence packet gate",
+      "name": "Implementation 026 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1178,7 +1178,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_027",
-      "name": "Plan 1 027 evidence packet gate",
+      "name": "Implementation 027 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1195,7 +1195,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_028",
-      "name": "Plan 1 028 evidence packet gate",
+      "name": "Implementation 028 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1212,7 +1212,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_029",
-      "name": "Plan 1 029 evidence packet gate",
+      "name": "Implementation 029 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1229,7 +1229,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_030",
-      "name": "Plan 1 030 evidence packet gate",
+      "name": "Implementation 030 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1246,7 +1246,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_031",
-      "name": "Plan 1 031 evidence packet gate",
+      "name": "Implementation 031 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1263,7 +1263,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_032",
-      "name": "Plan 1 032 evidence packet gate",
+      "name": "Implementation 032 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1280,7 +1280,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_033",
-      "name": "Plan 1 033 evidence packet gate",
+      "name": "Implementation 033 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1297,7 +1297,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_034",
-      "name": "Plan 1 034 evidence packet gate",
+      "name": "Implementation 034 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1314,7 +1314,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_035",
-      "name": "Plan 1 035 evidence packet gate",
+      "name": "Implementation 035 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1331,7 +1331,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_036",
-      "name": "Plan 1 036 evidence packet gate",
+      "name": "Implementation 036 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1348,7 +1348,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_037",
-      "name": "Plan 1 037 evidence packet gate",
+      "name": "Implementation 037 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1365,7 +1365,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_038",
-      "name": "Plan 1 038 evidence packet gate",
+      "name": "Implementation 038 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1382,7 +1382,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_039",
-      "name": "Plan 1 039 evidence packet gate",
+      "name": "Implementation 039 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1399,7 +1399,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_040",
-      "name": "Plan 1 040 evidence packet gate",
+      "name": "Implementation 040 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1416,7 +1416,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_041",
-      "name": "Plan 1 041 evidence packet gate",
+      "name": "Implementation 041 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1433,7 +1433,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_042",
-      "name": "Plan 1 042 evidence packet gate",
+      "name": "Implementation 042 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1450,7 +1450,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_043",
-      "name": "Plan 1 043 evidence packet gate",
+      "name": "Implementation 043 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1467,7 +1467,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_044",
-      "name": "Plan 1 044 evidence packet gate",
+      "name": "Implementation 044 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1484,7 +1484,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_045",
-      "name": "Plan 1 045 evidence packet gate",
+      "name": "Implementation 045 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1501,7 +1501,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_046",
-      "name": "Plan 1 046 evidence packet gate",
+      "name": "Implementation 046 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1518,7 +1518,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_047",
-      "name": "Plan 1 047 evidence packet gate",
+      "name": "Implementation 047 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1535,7 +1535,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_048",
-      "name": "Plan 1 048 evidence packet gate",
+      "name": "Implementation 048 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1552,7 +1552,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_049",
-      "name": "Plan 1 049 evidence packet gate",
+      "name": "Implementation 049 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1569,7 +1569,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_050",
-      "name": "Plan 1 050 evidence packet gate",
+      "name": "Implementation 050 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1586,7 +1586,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_051",
-      "name": "Plan 1 051 evidence packet gate",
+      "name": "Implementation 051 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1603,7 +1603,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_052",
-      "name": "Plan 1 052 evidence packet gate",
+      "name": "Implementation 052 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1620,7 +1620,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_053",
-      "name": "Plan 1 053 evidence packet gate",
+      "name": "Implementation 053 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1637,7 +1637,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_054",
-      "name": "Plan 1 054 evidence packet gate",
+      "name": "Implementation 054 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1654,7 +1654,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_055",
-      "name": "Plan 1 055 evidence packet gate",
+      "name": "Implementation 055 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1671,7 +1671,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_056",
-      "name": "Plan 1 056 evidence packet gate",
+      "name": "Implementation 056 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1688,7 +1688,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_057",
-      "name": "Plan 1 057 evidence packet gate",
+      "name": "Implementation 057 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1705,7 +1705,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_058",
-      "name": "Plan 1 058 evidence packet gate",
+      "name": "Implementation 058 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1722,7 +1722,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_059",
-      "name": "Plan 1 059 evidence packet gate",
+      "name": "Implementation 059 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1739,7 +1739,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_060",
-      "name": "Plan 1 060 evidence packet gate",
+      "name": "Implementation 060 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1756,7 +1756,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_061",
-      "name": "Plan 1 061 evidence packet gate",
+      "name": "Implementation 061 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1773,7 +1773,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_062",
-      "name": "Plan 1 062 evidence packet gate",
+      "name": "Implementation 062 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1790,7 +1790,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_063",
-      "name": "Plan 1 063 evidence packet gate",
+      "name": "Implementation 063 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1807,7 +1807,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_064",
-      "name": "Plan 1 064 evidence packet gate",
+      "name": "Implementation 064 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1824,7 +1824,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_065",
-      "name": "Plan 1 065 evidence packet gate",
+      "name": "Implementation 065 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1841,7 +1841,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_066",
-      "name": "Plan 1 066 evidence packet gate",
+      "name": "Implementation 066 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1858,7 +1858,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_067",
-      "name": "Plan 1 067 evidence packet gate",
+      "name": "Implementation 067 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1875,7 +1875,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_068",
-      "name": "Plan 1 068 evidence packet gate",
+      "name": "Implementation 068 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1892,7 +1892,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_069",
-      "name": "Plan 1 069 evidence packet gate",
+      "name": "Implementation 069 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1909,7 +1909,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_070",
-      "name": "Plan 1 070 evidence packet gate",
+      "name": "Implementation 070 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1926,7 +1926,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_071",
-      "name": "Plan 1 071 evidence packet gate",
+      "name": "Implementation 071 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1943,7 +1943,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_072",
-      "name": "Plan 1 072 evidence packet gate",
+      "name": "Implementation 072 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1960,7 +1960,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_073",
-      "name": "Plan 1 073 evidence packet gate",
+      "name": "Implementation 073 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1977,7 +1977,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_074",
-      "name": "Plan 1 074 evidence packet gate",
+      "name": "Implementation 074 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -1994,7 +1994,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_075",
-      "name": "Plan 1 075 evidence packet gate",
+      "name": "Implementation 075 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2011,7 +2011,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_076",
-      "name": "Plan 1 076 evidence packet gate",
+      "name": "Implementation 076 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2028,7 +2028,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_077",
-      "name": "Plan 1 077 evidence packet gate",
+      "name": "Implementation 077 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2045,7 +2045,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_078",
-      "name": "Plan 1 078 evidence packet gate",
+      "name": "Implementation 078 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2062,7 +2062,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_079",
-      "name": "Plan 1 079 evidence packet gate",
+      "name": "Implementation 079 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2079,7 +2079,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_080",
-      "name": "Plan 1 080 evidence packet gate",
+      "name": "Implementation 080 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2096,7 +2096,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_081",
-      "name": "Plan 1 081 evidence packet gate",
+      "name": "Implementation 081 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2113,7 +2113,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_082",
-      "name": "Plan 1 082 evidence packet gate",
+      "name": "Implementation 082 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2130,7 +2130,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_083",
-      "name": "Plan 1 083 evidence packet gate",
+      "name": "Implementation 083 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2147,7 +2147,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_084",
-      "name": "Plan 1 084 evidence packet gate",
+      "name": "Implementation 084 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2164,7 +2164,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_085",
-      "name": "Plan 1 085 evidence packet gate",
+      "name": "Implementation 085 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2181,7 +2181,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_086",
-      "name": "Plan 1 086 evidence packet gate",
+      "name": "Implementation 086 receipt gate",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2198,7 +2198,7 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_STRUCTURE",
-      "name": "Plan 1 structure and requirement coverage",
+      "name": "Single implementation plan and prepared-research structure",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/check_delivery.py",
@@ -2214,7 +2214,1594 @@ This project-local router maps every automated validation to its toolchain prere
     },
     {
       "id": "P1_GATE_TESTS",
-      "name": "Plan 1 evidence validator self-tests",
+      "name": "Plan-local receipt and research integrity regression tests",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_001",
+      "name": "Implementation 001 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "001"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_002",
+      "name": "Implementation 002 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "002"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_003",
+      "name": "Implementation 003 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "003"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_004",
+      "name": "Implementation 004 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "004"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_005",
+      "name": "Implementation 005 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "005"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_006",
+      "name": "Implementation 006 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "006"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_007",
+      "name": "Implementation 007 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "007"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_008",
+      "name": "Implementation 008 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "008"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_009",
+      "name": "Implementation 009 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "009"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_010",
+      "name": "Implementation 010 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "010"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_011",
+      "name": "Implementation 011 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "011"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_012",
+      "name": "Implementation 012 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "012"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_013",
+      "name": "Implementation 013 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "013"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_014",
+      "name": "Implementation 014 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "014"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_015",
+      "name": "Implementation 015 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "015"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_016",
+      "name": "Implementation 016 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "016"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_017",
+      "name": "Implementation 017 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "017"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_018",
+      "name": "Implementation 018 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "018"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_019",
+      "name": "Implementation 019 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "019"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_020",
+      "name": "Implementation 020 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "020"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_021",
+      "name": "Implementation 021 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "021"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_022",
+      "name": "Implementation 022 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "022"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_023",
+      "name": "Implementation 023 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "023"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_024",
+      "name": "Implementation 024 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "024"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_025",
+      "name": "Implementation 025 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "025"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_026",
+      "name": "Implementation 026 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "026"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_027",
+      "name": "Implementation 027 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "027"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_028",
+      "name": "Implementation 028 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "028"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_029",
+      "name": "Implementation 029 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "029"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_030",
+      "name": "Implementation 030 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "030"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_031",
+      "name": "Implementation 031 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "031"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_032",
+      "name": "Implementation 032 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "032"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_033",
+      "name": "Implementation 033 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "033"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_034",
+      "name": "Implementation 034 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "034"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_035",
+      "name": "Implementation 035 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "035"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_036",
+      "name": "Implementation 036 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "036"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_037",
+      "name": "Implementation 037 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "037"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_038",
+      "name": "Implementation 038 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "038"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_039",
+      "name": "Implementation 039 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "039"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_040",
+      "name": "Implementation 040 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "040"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_041",
+      "name": "Implementation 041 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "041"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_042",
+      "name": "Implementation 042 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "042"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_043",
+      "name": "Implementation 043 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "043"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_044",
+      "name": "Implementation 044 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "044"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_045",
+      "name": "Implementation 045 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "045"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_046",
+      "name": "Implementation 046 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "046"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_047",
+      "name": "Implementation 047 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "047"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_048",
+      "name": "Implementation 048 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "048"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_049",
+      "name": "Implementation 049 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "049"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_050",
+      "name": "Implementation 050 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "050"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_051",
+      "name": "Implementation 051 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "051"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_052",
+      "name": "Implementation 052 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "052"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_053",
+      "name": "Implementation 053 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "053"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_054",
+      "name": "Implementation 054 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "054"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_055",
+      "name": "Implementation 055 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "055"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_056",
+      "name": "Implementation 056 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "056"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_057",
+      "name": "Implementation 057 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "057"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_058",
+      "name": "Implementation 058 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "058"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_059",
+      "name": "Implementation 059 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "059"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_060",
+      "name": "Implementation 060 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "060"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_061",
+      "name": "Implementation 061 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "061"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_062",
+      "name": "Implementation 062 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "062"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_063",
+      "name": "Implementation 063 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "063"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_064",
+      "name": "Implementation 064 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "064"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_065",
+      "name": "Implementation 065 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "065"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_066",
+      "name": "Implementation 066 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "066"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_067",
+      "name": "Implementation 067 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "067"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_068",
+      "name": "Implementation 068 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "068"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_069",
+      "name": "Implementation 069 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "069"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_070",
+      "name": "Implementation 070 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "070"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_071",
+      "name": "Implementation 071 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "071"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_072",
+      "name": "Implementation 072 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "072"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_073",
+      "name": "Implementation 073 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "073"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_074",
+      "name": "Implementation 074 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "074"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_075",
+      "name": "Implementation 075 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "075"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_076",
+      "name": "Implementation 076 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "076"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_077",
+      "name": "Implementation 077 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "077"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_078",
+      "name": "Implementation 078 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "078"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_079",
+      "name": "Implementation 079 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "079"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_080",
+      "name": "Implementation 080 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "080"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_081",
+      "name": "Implementation 081 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "081"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_082",
+      "name": "Implementation 082 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "082"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 900
+    },
+    {
+      "id": "P1_TESTS_083",
+      "name": "Implementation 083 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "083"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 900
+    },
+    {
+      "id": "P1_TESTS_084",
+      "name": "Implementation 084 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "084"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 900
+    },
+    {
+      "id": "P1_TESTS_085",
+      "name": "Implementation 085 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "085"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 900
+    },
+    {
+      "id": "P1_TESTS_086",
+      "name": "Implementation 086 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "086"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 900
+    },
+    {
+      "id": "P1_RESEARCH_R2",
+      "name": "Read-only research revision2 preparation validation",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/research_readiness.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_RESEARCH_R2_TESTS",
+      "name": "Read-only research revision2 preparation validation",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/research_readiness_self_test.py"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_DELIVERY_GATE_TESTS",
+      "name": "Read-only research revision2 preparation validation",
       "command": [
         "python",
         "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py"

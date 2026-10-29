@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
-  "completeness": "pending full audit and feature-inventory tasks",
+  "completeness": "32 requested mechanism topics prepared; file classification and semantic inspection scope are explicit.",
   "features": [
     {
       "id": "F001",
@@ -18,9 +18,13 @@
         "Measure request validation, explicit invocation and promotion of remaining outcomes."
       ],
       "model_tier": "standard",
-      "status": "seed_not_exhaustive",
-      "research_task": "006",
-      "review_task": "007"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "007",
+      "implementation_task": "006",
+      "former_research_task": "006",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F002",
@@ -36,9 +40,13 @@
         "Compare deterministic grouping with bounded fan-out; measure re-read tokens and resume loss."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "008",
-      "review_task": "009"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "009",
+      "implementation_task": "008",
+      "former_research_task": "008",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F003",
@@ -55,9 +63,13 @@
         "Evaluate authoritative evidence retrieval, access dates and deduplication without silently omitting requirements."
       ],
       "model_tier": "standard",
-      "status": "seed_not_exhaustive",
-      "research_task": "010",
-      "review_task": "011"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "011",
+      "implementation_task": "010",
+      "former_research_task": "010",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F004",
@@ -75,9 +87,13 @@
         "Evaluate bounded subtasks, high-task splitting, review gates and legacy schema compatibility."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "012",
-      "review_task": "013"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "013",
+      "implementation_task": "012",
+      "former_research_task": "012",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F005",
@@ -95,9 +111,13 @@
         "Measure repeated prefixes, assigned-read enforcement and anchoring from prior errors."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "014",
-      "review_task": "015"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "015",
+      "implementation_task": "014",
+      "former_research_task": "014",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F006",
@@ -113,9 +133,13 @@
         "Bound registry loading and evidence required to reopen a consumer."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "016",
-      "review_task": "017"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "017",
+      "implementation_task": "016",
+      "former_research_task": "016",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/016-shared-patterns.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F007",
@@ -132,9 +156,13 @@
         "Preserve product files and Plan 2 inputs while deleting only verified control artifacts."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "018",
-      "review_task": "019"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "019",
+      "implementation_task": "018",
+      "former_research_task": "018",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/018-lifecycle.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F008",
@@ -151,9 +179,13 @@
         "Compare per-provider evidence with cumulative failure counts and reset semantics."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "020",
-      "review_task": "021"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "021",
+      "implementation_task": "020",
+      "former_research_task": "020",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/020-escalation.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F009",
@@ -169,9 +201,13 @@
         "Preserve exit 75 and zero functional-failure increments for availability faults."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "022",
-      "review_task": "023"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "023",
+      "implementation_task": "022",
+      "former_research_task": "022",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/022-availability.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F010",
@@ -187,9 +223,13 @@
         "Compare manager-quota preservation with capability floors and independent Antigravity model families."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "024",
-      "review_task": "025"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "025",
+      "implementation_task": "024",
+      "former_research_task": "024",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F011",
@@ -205,9 +245,13 @@
         "Measure refresh costs and verify model/effort against live discovery without inventing entries."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "026",
-      "review_task": "027"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "027",
+      "implementation_task": "026",
+      "former_research_task": "026",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/026-catalog-snapshots.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F012",
@@ -224,9 +268,13 @@
         "Keep root route fixed; separate native session resume from cross-provider handoff."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "028",
-      "review_task": "029"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "029",
+      "implementation_task": "028",
+      "former_research_task": "028",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/028-delegation.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F013",
@@ -242,9 +290,13 @@
         "Measure subscription quota separately from API cash and cache write/read economics."
       ],
       "model_tier": "standard",
-      "status": "seed_not_exhaustive",
-      "research_task": "030",
-      "review_task": "031"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "031",
+      "implementation_task": "030",
+      "former_research_task": "030",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/030-claude.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F014",
@@ -260,9 +312,13 @@
         "Compare native compaction with short artifact handoffs using pinned CLI evidence."
       ],
       "model_tier": "standard",
-      "status": "seed_not_exhaustive",
-      "research_task": "032",
-      "review_task": "033"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "033",
+      "implementation_task": "032",
+      "former_research_task": "032",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/032-codex.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F015",
@@ -279,9 +335,13 @@
         "Distinguish current Antigravity behavior from legacy Gemini; document CLI/help/model-list discrepancies."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "034",
-      "review_task": "035"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "035",
+      "implementation_task": "034",
+      "former_research_task": "034",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/034-antigravity.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F016",
@@ -296,9 +356,13 @@
         "Compare budget, cancellation and resume contracts without assuming Claude-compatible flags."
       ],
       "model_tier": "standard",
-      "status": "seed_not_exhaustive",
-      "research_task": "036",
-      "review_task": "037"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "037",
+      "implementation_task": "036",
+      "former_research_task": "036",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/036-qwen.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F017",
@@ -313,9 +377,13 @@
         "Check accounting, interruption and permission boundaries against pinned upstream code."
       ],
       "model_tier": "standard",
-      "status": "seed_not_exhaustive",
-      "research_task": "038",
-      "review_task": "039"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "039",
+      "implementation_task": "038",
+      "former_research_task": "038",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/038-kimi.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F018",
@@ -330,9 +398,13 @@
         "Verify trajectory handling, provider configuration, secret routing and failure reporting."
       ],
       "model_tier": "standard",
-      "status": "seed_not_exhaustive",
-      "research_task": "040",
-      "review_task": "041"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "041",
+      "implementation_task": "040",
+      "former_research_task": "040",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/040-trae.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F019",
@@ -348,9 +420,13 @@
         "Verify cancellation, summary mode and resumable state without assuming flags from unrelated Muse CLIs."
       ],
       "model_tier": "standard",
-      "status": "seed_not_exhaustive",
-      "research_task": "042",
-      "review_task": "043"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "043",
+      "implementation_task": "042",
+      "former_research_task": "042",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/042-muse.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F020",
@@ -366,9 +442,13 @@
         "Keep credit multipliers, cache pricing and secret environment references as separate evidence."
       ],
       "model_tier": "standard",
-      "status": "seed_not_exhaustive",
-      "research_task": "044",
-      "review_task": "045"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "045",
+      "implementation_task": "044",
+      "former_research_task": "044",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/044-glm.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F021",
@@ -384,9 +464,13 @@
         "Separate published prices, off-peak windows and unknown subscription costs."
       ],
       "model_tier": "standard",
-      "status": "seed_not_exhaustive",
-      "research_task": "046",
-      "review_task": "047"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "047",
+      "implementation_task": "046",
+      "former_research_task": "046",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/046-deepseek.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F022",
@@ -403,9 +487,13 @@
         "Check missing evidence-packet path in the concise prompt and stagnation fingerprints."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "048",
-      "review_task": "049"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "049",
+      "implementation_task": "048",
+      "former_research_task": "048",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/048-validation-evidence.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F023",
@@ -421,9 +509,13 @@
         "Test false unhealthy signals, deadlocks and environment versus semantic classification."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "050",
-      "review_task": "051"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "051",
+      "implementation_task": "050",
+      "former_research_task": "050",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/050-resource-map.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F024",
@@ -439,9 +531,13 @@
         "Check Windows/POSIX descendant cleanup, CPU false progress and quiet remote I/O."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "052",
-      "review_task": "053"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "053",
+      "implementation_task": "052",
+      "former_research_task": "052",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/052-progress-processes.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F025",
@@ -457,9 +553,13 @@
         "Measure resume without model redispatch and safe cancellation of tracked descendants."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "054",
-      "review_task": "055"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "055",
+      "implementation_task": "054",
+      "former_research_task": "054",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/054-supervised-jobs.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F026",
@@ -475,9 +575,13 @@
         "Check restart-loop protection, scheduler portability and deduplicated alerts."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "056",
-      "review_task": "057"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "057",
+      "implementation_task": "056",
+      "former_research_task": "056",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/056-watchdog-keepalive.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F027",
@@ -493,9 +597,13 @@
         "Prune owned stale artifacts without deleting active diagnostic evidence or rereading entire logs."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "058",
-      "review_task": "059"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "059",
+      "implementation_task": "058",
+      "former_research_task": "058",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/058-log-lifecycle.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F028",
@@ -511,9 +619,13 @@
         "Compare deterministic monitoring with event-triggered model diagnosis and cheap fallback chains."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "060",
-      "review_task": "061"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "061",
+      "implementation_task": "060",
+      "former_research_task": "060",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/060-advisory-observer.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F029",
@@ -529,9 +641,13 @@
         "Preserve fast DIRECT checks and measure observer activation costs for long validations."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "062",
-      "review_task": "063"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "063",
+      "implementation_task": "062",
+      "former_research_task": "062",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F030",
@@ -547,9 +663,13 @@
         "Separate replay estimates from real-run evidence; test unknown costs and failure censoring."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "064",
-      "review_task": "065"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "065",
+      "implementation_task": "064",
+      "former_research_task": "064",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/064-economic-evaluation.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F031",
@@ -571,9 +691,13 @@
         "Evaluate schema drift, versions, docs budgets, dependency/secret handling and actual platform test coverage."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "066",
-      "review_task": "067"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "067",
+      "implementation_task": "066",
+      "former_research_task": "066",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/066-distribution.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     },
     {
       "id": "F032",
@@ -592,9 +716,13 @@
         "Decide opt-in chain, entry rung, no-op identity, retry budget, phase state and handoff validation from evidence."
       ],
       "model_tier": "strong",
-      "status": "seed_not_exhaustive",
-      "research_task": "068",
-      "review_task": "069"
+      "status": "research_prepared_implementation_pending",
+      "review_task": "069",
+      "implementation_task": "068",
+      "former_research_task": "068",
+      "research_report": "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
+      "research_status": "prepared",
+      "implementation_status": "pending"
     }
   ]
 }

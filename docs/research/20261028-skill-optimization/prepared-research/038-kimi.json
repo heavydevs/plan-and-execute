@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "feature_id": "F017",
+  "former_research_task": "038",
+  "implementation_task": "038",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Verify print mode, sessions, automatic context compaction and schema/report extraction.",
+    "Check accounting, interruption and permission boundaries against pinned upstream code."
+  ],
+  "decision": "Make Kimi prompt-mode permission behavior an explicit versioned compatibility decision; reject unsupported safe-role invocations instead of silently deleting flags.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "The existing Kimi worker appends a configured permission flag and --prompt. The current official command reference says --prompt cannot be combined with --yolo, --auto or --plan.",
+    "The legacy reference instead documents --print and its own non-interactive semantics. This is a documentation/source incompatibility risk, not a reproduced failure of an installed CLI in this environment."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "parse_provider_report",
+          "line": 1412,
+          "end": 1425
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/provider_self_test.py",
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd",
+      "line_count": 596,
+      "symbols": [
+        {
+          "name": "sample_route",
+          "line": 20,
+          "end": 26
+        },
+        {
+          "name": "sample_report",
+          "line": 29,
+          "end": 43
+        },
+        {
+          "name": "test_default_provider_policy",
+          "line": 46,
+          "end": 60
+        },
+        {
+          "name": "test_worker_command_adapters",
+          "line": 63,
+          "end": 143
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E030",
+    "E031",
+    "E041",
+    "W-KIMI-CLI",
+    "W-INJECTION",
+    "W-SUBPROCESS",
+    "W-REPLAY"
+  ],
+  "implementation_steps": [
+    "Introduce bounded version/help discovery and explicit supported protocol variants. Never combine flags from the old and new references.",
+    "For a current variant, construct the documented non-interactive invocation and handle its permission boundary explicitly; for a legacy variant, retain only the tested compatible syntax.",
+    "Normalize stream-json messages into terminal outcome, bounded report and usage. Intermediate text, context-compaction events and tool output are not a completion artifact.",
+    "Treat session reuse as opt-in with documented storage/retention; default cross-provider continuation remains an evidence capsule and the worktree.",
+    "Add a diagnostic that identifies unknown versions without silently switching to unrestricted operation. Preserve user configuration and never run an automatic upgrade.",
+    "Version Kimi prompt and permission combinations; never repair an invocation by silently broadening permissions.",
+    "Bind any explicit resume to the exact task and repository, including saved permission state.",
+    "Disable advisory roles when a genuine read-only boundary cannot be established."
+  ],
+  "proposed_acceptance_tests": [
+    "Current fixtures reject --prompt combined with obsolete or mutually exclusive permission flags.",
+    "Legacy fixtures keep their documented print-mode syntax instead of receiving current-only flags.",
+    "A missing terminal report, malformed JSONL or interrupted stream cannot pass acceptance.",
+    "Budget, transient and permanent errors are normalized only when the version contract establishes their meaning.",
+    "Session identifiers and logs never introduce secrets into a shared handoff.",
+    "Prompt plus obsolete permission flags yields a compatibility failure before model work.",
+    "Fallback flag removal cannot change the authorized permission profile.",
+    "Resume cannot inherit another task saved permissions.",
+    "Native exit zero with missing completion schema is rejected."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Drop incompatible flags on failure",
+      "benefit": "Restores invocation",
+      "risk": "May widen permissions silently",
+      "disposition": "Reject",
+      "tradeoff": "Restores invocation; May widen permissions silently. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Pin one known Kimi version indefinitely",
+      "benefit": "Predictable argv",
+      "risk": "Maintenance and stale support",
+      "disposition": "Temporary supported fixture",
+      "tradeoff": "Predictable argv; Maintenance and stale support. Temporary supported fixture"
+    },
+    {
+      "id": "A03",
+      "title": "Versioned permissions/output/session contract",
+      "benefit": "Safe compatible execution",
+      "risk": "Needs explicit fail-closed cases",
+      "disposition": "Recommended",
+      "tradeoff": "Safe compatible execution; Needs explicit fail-closed cases. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Use plan prompt as enforcement",
+      "benefit": "Cheap apparent restriction",
+      "risk": "Only behavioral preference",
+      "disposition": "Reject for observer security",
+      "tradeoff": "Cheap apparent restriction; Only behavioral preference. Reject for observer security"
+    }
+  ],
+  "cost_model": "Fail fast on incompatible arguments rather than spending retries or escalating the model. Session reuse is an experiment with privacy/reconstruction costs, not the default optimization.",
+  "unverified": [
+    "No installed Kimi executable was run, so actual compatibility must be confirmed with its version/help and one bounded authorized test.",
+    "No Kimi executable or authenticated run was performed. The observed documentation describes current behavior and must be reconciled with the installed version."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Add version-aware Kimi command contracts before changing flags: the current and legacy documentation describe materially different non-interactive modes.",
+  "revision_delta": "The current official reference changes the meaning and permitted combinations of yolo/auto/plan with prompt. A mechanical removal of a rejected flag could accidentally broaden execution permissions.",
+  "decision_analysis": [
+    "The existing adapter should not treat yolo as a timeless synonym for auto-approval across versions. The inspected guide makes prompt mode incompatible with yolo, auto and plan flags and gives it an automatic permission mode. Probe or pin the contract; do not blindly retry a failed invocation with those flags removed.",
+    "For implementation workers, automatic permission may be allowed only inside the user-authorized filesystem/process boundary. For review and monitoring, a prompt-mode planner preference is not a proven read-only boundary. Reject the optional role when the installed Kimi configuration cannot enforce its restrictions.",
+    "Session reuse must bind a known session id to repository, task and provider. Resuming a latest session can import unrelated state, saved permissions or model selection. Keep fresh workers as the default and document persistence/cleanup implications separately from accepted model output.",
+    "Structured final report validation and runner-owned tests remain mandatory even if the native CLI exits successfully. Capture partial output and stderr without treating them as instructions or leaking credentials. Compatibility errors belong in a bounded preflight or environment path, not in a costly model escalation loop."
+  ],
+  "search_themes": [
+    "site.kimi.com/code/docs prompt yolo auto plan",
+    "Kimi command headless session output format",
+    "least privilege untrusted tool outputs"
+  ],
+  "current_source_ids": [
+    "W-KIMI-CLI",
+    "W-INJECTION",
+    "W-SUBPROCESS",
+    "W-REPLAY"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

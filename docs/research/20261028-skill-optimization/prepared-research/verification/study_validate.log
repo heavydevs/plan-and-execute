@@ -1,0 +1,16 @@
+{
+  "valid": true,
+  "schema_version": 2,
+  "json_file": "study.json",
+  "markdown_file": "STUDY.md",
+  "sha256": "6d8e6775e339fe772087aa557afd07d83ad6c4ed0a526fd423730312e07acb0b",
+  "attached_at": "2026-10-28T23:33:26+00:00",
+  "ready_for_planning": true,
+  "external_research_decision": "required",
+  "material_question_count": 2,
+  "internal_source_count": 4,
+  "external_source_count": 8,
+  "complexity_level": "complex",
+  "internal_study_depth": "full_project",
+  "external_study_depth": "broad"
+}

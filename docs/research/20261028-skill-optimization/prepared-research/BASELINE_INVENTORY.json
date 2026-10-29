@@ -1,0 +1,947 @@
+{
+  "schema_version": 1,
+  "base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "files": [
+    {
+      "path": ".ai-work/SERVICE_MAP.md",
+      "category": "project_metadata",
+      "sha256": "64178596b7daa9e50417e4df6c6b3351a2a2eb644fc38d361a193e9dec239810"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "category": "tests_and_tooling",
+      "sha256": "e81d00384c47756cf0d95094c884d47851b731179f586e10a02767fb40f290b4"
+    },
+    {
+      "path": ".github/workflows/publish.yml",
+      "category": "tests_and_tooling",
+      "sha256": "5936d1e782933b3dc5cd38fa2910142379b0b665e0f840d76de48f7774823828"
+    },
+    {
+      "path": ".gitignore",
+      "category": "project_metadata",
+      "sha256": "518465d0a3af822dc0075a164313602f46a5347dd11da1dd8ed567a6005903ac"
+    },
+    {
+      "path": ".npmignore",
+      "category": "project_metadata",
+      "sha256": "baa2b278d536464b3ac9a37e81f7d1dbfd4dc69e9c223b9e82afe15879687979"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "category": "project_metadata",
+      "sha256": "353d32a256f8e52f77a7707c21ad0ad86694f76a0f91c7e2efbfeae54360be71"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "category": "project_metadata",
+      "sha256": "a4b4995ddb3335c6e4a545ac2b0faf054c29b3691f972bfb33a979ca09044788"
+    },
+    {
+      "path": "LICENSE",
+      "category": "project_metadata",
+      "sha256": "f8b5eb58c3d1a1f668fd6cfa17c85d3badec4b00387a345520de814f340391c0"
+    },
+    {
+      "path": "README.md",
+      "category": "project_metadata",
+      "sha256": "e347e6268765dff21c4e5c6b25ae8134b447b413444d7cfecb06cab00e75d0ff"
+    },
+    {
+      "path": "README.pt-BR.md",
+      "category": "project_metadata",
+      "sha256": "bb0c89e78fe0a5442d2b3bf5be60034f269b1d46a1c54c41b93fab1ec54d5735"
+    },
+    {
+      "path": "SECURITY.md",
+      "category": "project_metadata",
+      "sha256": "ace4f544568076007de2152ce8d61f3e448be91f7914b3a5accbc48455bca792"
+    },
+    {
+      "path": "bin/plan-and-execute.js",
+      "category": "runtime",
+      "sha256": "3899d498c10b91f03c657fbaf33885d7fc339e0c3f11cf95ad96936852afc15b"
+    },
+    {
+      "path": "docs/PUBLISHING.md",
+      "category": "research_or_documentation",
+      "sha256": "09d2ac8494793aab9561a0439762ce63ad5e9246c8851e071f5860d60d591b00"
+    },
+    {
+      "path": "docs/PUBLISHING.pt-BR.md",
+      "category": "research_or_documentation",
+      "sha256": "a3a065c524a12d34a37a6a1d60971b61a03ca1a22b203f4f035c6112107885c4"
+    },
+    {
+      "path": "docs/RESEARCH_BASIS.md",
+      "category": "research_or_documentation",
+      "sha256": "8b974985266782c6f7c499b80c9841bf7c27bf13e796d84d1fd1a5ef4050a920"
+    },
+    {
+      "path": "docs/STAGED_PLANNING.pt-BR.md",
+      "category": "research_or_documentation",
+      "sha256": "a5779122bb14f882b10c1d3b3792c68faaf46cabbacdc2695c98401caf3d7c81"
+    },
+    {
+      "path": "docs/research/AUXILIARY_ROUTING.md",
+      "category": "research_or_documentation",
+      "sha256": "8aab1b2473678201ef4ffd6754179a521b7122883a08f20b102304f906ab1179"
+    },
+    {
+      "path": "docs/research/LOG_DIGEST.md",
+      "category": "research_or_documentation",
+      "sha256": "78233f33793fae317ba4323abc6c42253229a4626a69d3af758825877cfa2a2b"
+    },
+    {
+      "path": "docs/research/PORTABLE_ROUTING_REVIEW.md",
+      "category": "research_or_documentation",
+      "sha256": "bd5bfba368a4edc3e5370d8559a0b61dc601346b6cb219fd1d227a98302140ce"
+    },
+    {
+      "path": "docs/research/ROUTING_DOC_BASELINE.json",
+      "category": "research_or_documentation",
+      "sha256": "e74288d8c4e9ba5a79daeba4fd373f8f76f6d3371d8aa38e10a1f408ce851dac"
+    },
+    {
+      "path": "docs/research/ROUTING_DOC_BASELINE.md",
+      "category": "research_or_documentation",
+      "sha256": "ddc52d1df9c11a048bcb7b68d6e1383dc7329d3e3a4f34f12d80a9d136408ef8"
+    },
+    {
+      "path": "docs/research/SKILL_BENCHMARK.md",
+      "category": "research_or_documentation",
+      "sha256": "8d61e2a85120917a1146ca2e0197caed27dfb883fa35c6d6a070e02556d15d9f"
+    },
+    {
+      "path": "docs/research/VALIDATION_WORKLOAD_REVIEW.md",
+      "category": "research_or_documentation",
+      "sha256": "2b9e2fbd6781f24f661c3219d7990a416a179d936700694e6bc88c968e4b989d"
+    },
+    {
+      "path": "docs/research/VALIDATION_WORKLOAD_ROUTING.md",
+      "category": "research_or_documentation",
+      "sha256": "89aee75a2c3611cf233b60590b7e466177ab9a7f0550eb9d8f093e3ec07acc78"
+    },
+    {
+      "path": "docs/research/WATCHDOG_PROGRESS_REVIEW.md",
+      "category": "research_or_documentation",
+      "sha256": "633481b7b7292a4d40bb4f3634db1af84d700308f4b438465cc6239b3c3930fc"
+    },
+    {
+      "path": "docs/research/WORKTREE_AUDIT.json",
+      "category": "research_or_documentation",
+      "sha256": "d61d051fff774e285d2922b208f92f829d1bbb0401b627452c9331c3ef74343c"
+    },
+    {
+      "path": "docs/research/routing-eval/PREDECLARATION.md",
+      "category": "research_or_documentation",
+      "sha256": "251f2991e8a162acfc69ca82d8f52ba33a21e932271e7130b2648ff72af0709c"
+    },
+    {
+      "path": "docs/research/routing-eval/SHADOW_REPORT.md",
+      "category": "research_or_documentation",
+      "sha256": "62ed7fc98cc24ffa4c7b75932ad5549cbab222a8edc7cd677e70368dab9f442d"
+    },
+    {
+      "path": "docs/research/routing-eval/benchmark-corpus.json",
+      "category": "research_or_documentation",
+      "sha256": "a3744f29d8f3cb2f16aa322b9b712efc68a7162a51478eebc63e07165eb6561c"
+    },
+    {
+      "path": "docs/research/routing-eval/corpus-manifest.json",
+      "category": "research_or_documentation",
+      "sha256": "47acf546715a01acaf071796f819a8ad07e8a5a328f5eaf20847c3bb37d57cde"
+    },
+    {
+      "path": "docs/research/routing-eval/corpus/cases.json",
+      "category": "research_or_documentation",
+      "sha256": "c6e5e9e551f50dae589c95ea4912901cc13662183d6a1262091a3b0067152b38"
+    },
+    {
+      "path": "docs/research/routing-eval/corpus/telemetry/candidate.jsonl",
+      "category": "research_or_documentation",
+      "sha256": "ab43bb9fab8b37f2a044ec460f805b895138db44b7384304a294f70ba57c563a"
+    },
+    {
+      "path": "docs/research/routing-eval/corpus/telemetry/cold.jsonl",
+      "category": "research_or_documentation",
+      "sha256": "ca376abc37e6cdf986b1b35f0ff481ccd0d0baf07d24605dcdbc892a6a8cac82"
+    },
+    {
+      "path": "docs/research/routing-eval/corpus/telemetry/main.jsonl",
+      "category": "research_or_documentation",
+      "sha256": "9ef8f4ff2b182d4aca369f0f62bb2f95fd5774f1fe68ebcc0cc54d3bb868995c"
+    },
+    {
+      "path": "docs/research/routing-eval/corpus/telemetry/warm.jsonl",
+      "category": "research_or_documentation",
+      "sha256": "508d24a4b9f0cc53cb4df0561beb3f766e2d2a4147debf21338a6e2083945734"
+    },
+    {
+      "path": "docs/research/routing-eval/thresholds.json",
+      "category": "research_or_documentation",
+      "sha256": "5e98909bbfc8d8674f37c19a391111bc2317cc5922364f911816b374bc4257cd"
+    },
+    {
+      "path": "lib/installer.js",
+      "category": "runtime",
+      "sha256": "9165b2cabb1c93858bda46c9f3aa69a6b19be5a15c240cc55952663dc3d3305b"
+    },
+    {
+      "path": "lib/skill-source.js",
+      "category": "runtime",
+      "sha256": "6a47e8930f1e87a08c74e048d4065b2bb8b33bf8b809629f923a3c0537a6f2e7"
+    },
+    {
+      "path": "package-lock.json",
+      "category": "project_metadata",
+      "sha256": "12768a0133dead1653b4f9e6970798f6b13c33a670139a937eac6b4fb8619c3f"
+    },
+    {
+      "path": "package.json",
+      "category": "project_metadata",
+      "sha256": "2f4b06ec2c0a034f75f31c5adb39f524a0fb73e32802423e4c475e7bb4afe9da"
+    },
+    {
+      "path": "skill/plan-and-execute/LICENSE.txt",
+      "category": "runtime",
+      "sha256": "f8b5eb58c3d1a1f668fd6cfa17c85d3badec4b00387a345520de814f340391c0"
+    },
+    {
+      "path": "skill/plan-and-execute/SKILL.md",
+      "category": "runtime",
+      "sha256": "4af12fdfd1a7e7487e0cc96f67f924a548e6f541db1bb0b27221661edefab032"
+    },
+    {
+      "path": "skill/plan-and-execute/agents/openai.yaml",
+      "category": "runtime",
+      "sha256": "946bfc18fd1fe75d17647e2abd50eab9f6ca21f6549ba43753a1ffc5c04acff9"
+    },
+    {
+      "path": "skill/plan-and-execute/assets/icon.svg",
+      "category": "runtime",
+      "sha256": "51a6923974188748638a424aa59b42b6afad2d910f910a1d43bb13ee10f3ce26"
+    },
+    {
+      "path": "skill/plan-and-execute/assets/service-map-template.md",
+      "category": "runtime",
+      "sha256": "882a4a9cd50568c08f7a12fd06cc3c076dac7d37e2cfb8781a6e1431d6301c5b"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+      "category": "runtime",
+      "sha256": "349f06551e9fd94a33f437d814c4c116339b9a111cebfe506bb6a5f0b59f50a3"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ARTIFACT_WRITING.md",
+      "category": "runtime",
+      "sha256": "bccbc3b6b28ee34d900b399d9dfbd4b74638df7089e6717e854cef1bde9fdcec"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ASSISTANTS.md",
+      "category": "runtime",
+      "sha256": "8a7e0edce46d96093a5c7e641a4fc093c1ee552da23af8aaee5abb41d4886b32"
+    },
+    {
+      "path": "skill/plan-and-execute/references/DELEGATION.md",
+      "category": "runtime",
+      "sha256": "40cd1984a718285408ab63a0fe97242d0c2eef675a90df3f9ef1b0109d28bb99"
+    },
+    {
+      "path": "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+      "category": "runtime",
+      "sha256": "4ed0e09d146e6a228943f9607de92a3156e19ca5c5e19b77bdd78ffa5de82447"
+    },
+    {
+      "path": "skill/plan-and-execute/references/INSTALLATION.md",
+      "category": "runtime",
+      "sha256": "679e881535934274a60615aaa36befbf30bc15ae6302dc66dceb6a7a8d45b2ff"
+    },
+    {
+      "path": "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
+      "category": "runtime",
+      "sha256": "dccff0f9c04d56e118c8ba63d7556b46ad4a962b902825fb33d4456f33715311"
+    },
+    {
+      "path": "skill/plan-and-execute/references/INTAKE.md",
+      "category": "runtime",
+      "sha256": "c85793afb47d6201f5f91b8664494604018f34e81853f43dcdd0981e7e031145"
+    },
+    {
+      "path": "skill/plan-and-execute/references/LIFECYCLE.md",
+      "category": "runtime",
+      "sha256": "df87ef9b893228773a33b1490112f8ac5acbb541bf6691a9d58ba4f20b7c187b"
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_CATALOG.md",
+      "category": "runtime",
+      "sha256": "c751d391d8ce957720f3e5bf056c5fbb33413c2d6e19deaa6504a7a5c800841e"
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_MAPPING.md",
+      "category": "runtime",
+      "sha256": "2320ed6ab4334fb103646d0d8e3eb18fe37d4be56159b2b9b2b8da99d49c9f98"
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+      "category": "runtime",
+      "sha256": "886f53a8817d4a7eb9e93a24e715a57cce927ee1b673384e60cfe46c0814c7c9"
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+      "category": "runtime",
+      "sha256": "ba6e2fe3334f9204445aaf20ea28fa1675638029b7de568bfcb9068693af999a"
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+      "category": "runtime",
+      "sha256": "3cde22d4a24a081052aebfd7d992c8d1c3e4577745aa6f8ea324a7460f280024"
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md",
+      "category": "runtime",
+      "sha256": "7f13e72569bb294e560edb9df7cca73576b6a402cbc6f7b2e1e53ff731315fc4"
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md",
+      "category": "runtime",
+      "sha256": "29d008c040d66b64d903547d55d04f73099a138a741787d11631aa2791fa1fe8"
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_MUSE.md",
+      "category": "runtime",
+      "sha256": "648cec38d3ee0e61007208c01122e6095188e7b568ee82faa21aa1cf6a33804b"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ORCHESTRATION.md",
+      "category": "runtime",
+      "sha256": "c7e88fe9b14f012c4274f1a53a54c2c51863ce19c11ee1af2e7c82fcd4469958"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md",
+      "category": "runtime",
+      "sha256": "9407add1e9062e3bdfb65af9c391e0f232b9512c3dfec0fa5f7dbbc9269fc683"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+      "category": "runtime",
+      "sha256": "2c12e549fa7032ef1691ea8c87b805beab4732c6fb976164ed295faf0b266508"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_ROUTING.md",
+      "category": "runtime",
+      "sha256": "f94a32b80795d7700daf065f1fd6a5abc0b2129c1c6bc0d545b023a100cd19e5"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLAN_SPEC.md",
+      "category": "runtime",
+      "sha256": "6b1014618196c4e0f966751190eb5bb3104798da7ff10694f9944f27b99fc92d"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+      "category": "runtime",
+      "sha256": "246075b5098308f8e14b6c6004a4c37e1e9650bb6c96606e5c75b941a17c38c3"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md",
+      "category": "runtime",
+      "sha256": "acf86af8b92d5faf5ed56364ff3aec56a1ab43cee445e961cbba9ab6576ce526"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PROMOTION.md",
+      "category": "runtime",
+      "sha256": "b9a5a4c37abb2c04f1d56e7ec5f916ca0c882b01a707bd2c0d3f41f0fb561215"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ROUTING.md",
+      "category": "runtime",
+      "sha256": "a08fc73ed533dea0f73fcfa5e7516a27851d9ef0603c42072d5bc3fd4d2cb14c"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+      "category": "runtime",
+      "sha256": "91542cd6ebca487fe4f9931ae3d9bf725cb21465f795aa98b752a9d0fc67a343"
+    },
+    {
+      "path": "skill/plan-and-execute/references/SHARED_PATTERNS.md",
+      "category": "runtime",
+      "sha256": "d9f785d9acf44b667d6cc3301e2e1520a15a1b7af5460535d00e3c6676f1382f"
+    },
+    {
+      "path": "skill/plan-and-execute/references/SKILL_MAINTENANCE_REVIEW.md",
+      "category": "runtime",
+      "sha256": "6ad40c36185c9ce4e6c51161617110809000cd06ced4e5f572d74c1c71b310cc"
+    },
+    {
+      "path": "skill/plan-and-execute/references/STUDY_CHOICES.md",
+      "category": "runtime",
+      "sha256": "8c8adbcdc085eb181009926e3f6306fd99b5ff888de0cef6990e60e3843c4266"
+    },
+    {
+      "path": "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+      "category": "runtime",
+      "sha256": "a1d0627faf24c2c97cfe4e3b12cbada151d5c849cb2eeb6006cfff5ffa7de79f"
+    },
+    {
+      "path": "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+      "category": "runtime",
+      "sha256": "72da10bd5e05fd08d213ed29ca649e83fbe23d4f082bf1c3159e87402cbef8cd"
+    },
+    {
+      "path": "skill/plan-and-execute/references/VALIDATION_WORKLOADS.md",
+      "category": "runtime",
+      "sha256": "a1c1e961444bc6d8f2537b17e6bfc8790d9a65b30a53a89de74432a2c654b081"
+    },
+    {
+      "path": "skill/plan-and-execute/references/WATCHDOG.md",
+      "category": "runtime",
+      "sha256": "5f23918061bb3c7f72fddac6627210f648f69a132b9cc84b848ff32dc44fe1ac"
+    },
+    {
+      "path": "skill/plan-and-execute/references/WORKFLOW.md",
+      "category": "runtime",
+      "sha256": "f95cc605684b7fe58d3c3ab2cd3a3aead456bad851f45746fe26ed771e19892c"
+    },
+    {
+      "path": "skill/plan-and-execute/references/completion-report.schema.json",
+      "category": "runtime",
+      "sha256": "1f2c113085938d156aa7abca0e7b5a9768c6c19505eb5b443142f1f3ba673fb9"
+    },
+    {
+      "path": "skill/plan-and-execute/references/plan-spec.example.json",
+      "category": "runtime",
+      "sha256": "aa7da260f741effbd26693a7dbbbf6ddfd4233345e4688e1920d701f3f4a5959"
+    },
+    {
+      "path": "skill/plan-and-execute/references/routing-evals.json",
+      "category": "runtime",
+      "sha256": "1a6a6b87c9db0afdf8cd67b6379ee044d904ab773a6033f3c0a3d6fc21e031d8"
+    },
+    {
+      "path": "skill/plan-and-execute/references/study-spec.example.json",
+      "category": "runtime",
+      "sha256": "83d321988a4a77f63ca2f5281796d904b1784146457e9c8e485b8fc7f55ea66b"
+    },
+    {
+      "path": "skill/plan-and-execute/references/tier-evals.json",
+      "category": "runtime",
+      "sha256": "6f427952533780e2130a55f73eff86fa0797a14f39397744e1df4c1a99452d68"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_concision_self_test.py",
+      "category": "runtime",
+      "sha256": "dce6672e03e4756ab2dbc9c559333d97af81257149f7db2083433b4879c838ab"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+      "category": "runtime",
+      "sha256": "477646cf30634e334e5c704a6cbe86e9dea4712f7527f51501c43462cadc08f3"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_hygiene_self_test.py",
+      "category": "runtime",
+      "sha256": "333d8a09ead76c77558b60bea04bfd2550898e5b56e63a0e75b448fcd36d362c"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/assistant_triage.py",
+      "category": "runtime",
+      "sha256": "af9d5a1054aae9c747916a60f3f0c836209f878c1c31638909eedcd28d9109c2"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/assistant_triage_self_test.py",
+      "category": "runtime",
+      "sha256": "1d58a553651eeda8347bbdcaf13ac3adb581a697065e1ec17e50b38943b788f6"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/availability.py",
+      "category": "runtime",
+      "sha256": "39e4e02663a26a1a3d6324037fef96bbf7d5c28cc2511a89d0431b377fa97c0d"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/availability_self_test.py",
+      "category": "runtime",
+      "sha256": "33978e82145c00983172df57fa63d27d23352b51546f953145693daf9e4cbabb"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/companion_self_test.py",
+      "category": "runtime",
+      "sha256": "cd102c350a3e50e378c5b033badd13ea73324bd066d37c05e3de70e029f9c988"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/configure.py",
+      "category": "runtime",
+      "sha256": "4e454ce5f6e141194bb5b2e95d5ba42e9b7a4f94d8bf4c957c2c1af3d003e8cd"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/configure_self_test.py",
+      "category": "runtime",
+      "sha256": "42a154a290bb860724f5bed1c850e61addf04c12d92c32a4318c9dc5253db7da"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/context_self_test.py",
+      "category": "runtime",
+      "sha256": "ed71b7877e1e9e9bba20f5debb08d21b1223340c30af0ac7e310e2f8f50e5c82"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
+      "category": "runtime",
+      "sha256": "f28eb83e4c2c43cd31bdd8a9506385b7cd7ebc1eeb987c3ea7a998b2de346461"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/delegation_self_test.py",
+      "category": "runtime",
+      "sha256": "1fa898172c1aae5755cb0cba1249dac8bcdd2d7f14e214aeba41e8c6557135d7"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/failure_evidence_self_test.py",
+      "category": "runtime",
+      "sha256": "0fc1dcafc1561c6a58b6fe1f108c108681686b2587f6a64a68ccb286ef88d367"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/glm_provider_self_test.py",
+      "category": "runtime",
+      "sha256": "0ba70a34f7c4002e6858c88645df9e3bc6c51f713b8221e9011ca6a4953fb051"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/jobctl.py",
+      "category": "runtime",
+      "sha256": "63d30aea7a3e7b372078542556c1078e09af486f594c19a200f3f633609a64af"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/jobctl_self_test.py",
+      "category": "runtime",
+      "sha256": "efdba635f0d25951b2f93ba18c07a82bf699800be6b0343172f502c5a53e7a06"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/keepalivectl.py",
+      "category": "runtime",
+      "sha256": "8c19a0cf77c5a05947d89fa73409db0d5004ccae36bccd0cbb401a4637e802fe"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/keepalivectl_self_test.py",
+      "category": "runtime",
+      "sha256": "979da8b22ed3adcf8791d39b2bc9fd8fb1cfa91448f0ca70ee3a272f397d1913"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/lifecycle_self_test.py",
+      "category": "runtime",
+      "sha256": "1f76cf224e01009e7b9cb3610b3f3db38f1326f382d33179a21bf3a3cff1d5a7"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/lifecyclectl.py",
+      "category": "runtime",
+      "sha256": "f4a1b9fd2cbd413d073d3f6d14de85df2fabf5e2b6c873a67d258afac7ee6d33"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/lifecyclectl_concise.py",
+      "category": "runtime",
+      "sha256": "70dec1d0ec3973869993c505bca5906073c681ca5f24f824e376515da4f252d6"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/log_watch.py",
+      "category": "runtime",
+      "sha256": "114ea5c9c0ef6db6523e4fd7ea41faf2a8e9464968f3a8527738cec6321d3aaf"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/log_watch_self_test.py",
+      "category": "runtime",
+      "sha256": "fb9bc5051f96f8dd399325cca016652621ee7017f3723500ae9e3952a7f37a7c"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/model_catalog.py",
+      "category": "runtime",
+      "sha256": "848e9b723845dc294bc39dc267357168dfc77f5ecdba67dd5f92f4556db88cbb"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/model_catalog_self_test.py",
+      "category": "runtime",
+      "sha256": "b34fd0ebf311a9dc604a34b9c41cefd28d32480bde2e27fa29b78dc39d2bbad5"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/model_catalogctl.py",
+      "category": "runtime",
+      "sha256": "3406cf04a4a35aa3bdee9d69d3c9605410428c538c969994825ca0487464b69a"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/model_catalogctl_self_test.py",
+      "category": "runtime",
+      "sha256": "a9d920075f4b13b0a2a103c0263376e5dcbc03d41f7d5ccb8cac9aeb5b8f8aad"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/model_matrix_self_test.py",
+      "category": "runtime",
+      "sha256": "62ed5a4a188fdcc595309f7a76f3a42c356887c2a7e2c041b27e09d8a3d8cb02"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/model_routing_self_test.py",
+      "category": "runtime",
+      "sha256": "62076bc3b002b44d8e79bc7aa28dd24392f41d41f2d6e7c748f8b1102eebbc4d"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/muse_provider_self_test.py",
+      "category": "runtime",
+      "sha256": "9466b0aaa0bed367dd57339f5c991ccd0c2123b19f51140d6ece98549b50487a"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/observer.py",
+      "category": "runtime",
+      "sha256": "ad84f96624f85c860edd925ed5bf354dc805b726f943bf14a435f6ef5179b322"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/observer_self_test.py",
+      "category": "runtime",
+      "sha256": "9552d4145b1478cbe82cab67c756e479c144d7cb1d9438ad7304a399fd5863f8"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+      "category": "runtime",
+      "sha256": "c96b6c1696d57fd7d096ce06f58c78e168854783e6990c6cc5b0bc322b46a1c8"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/pattern_runner_self_test.py",
+      "category": "runtime",
+      "sha256": "826a1bec25f2e694b4a86363c97d9de1cd24c0bfa58afd6cc6adba85c61a4b40"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/pattern_self_test.py",
+      "category": "runtime",
+      "sha256": "1f56028e52f63c4dee894d110b2a2828a0aa7b4d71511d67602dd4234219d9b8"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/patternctl.py",
+      "category": "runtime",
+      "sha256": "d25665ba2ebe2a3464e0d3f83c8fe26bf683101af2a9c1cb1c347487b91fd62d"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "category": "runtime",
+      "sha256": "c3cdf3064fa18b7271ea801c614e18b45a467b4c923b98fdb8fbd16ab00bffd4"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl_concise.py",
+      "category": "runtime",
+      "sha256": "650baa02ebcb555acc9fe5874e5c94b4090720bc63f963c76b73f332dd3082e9"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/preplan_self_test.py",
+      "category": "runtime",
+      "sha256": "61b4f719976661794771b313ad7b36a3d689f30cd2589d5d375cb4a70d5f0900"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/preplanctl.py",
+      "category": "runtime",
+      "sha256": "71daeaf4fbdaa22120e45e9742cb267e537f618223ac047fca8c4ca55ecdeeb0"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/process_tree.py",
+      "category": "runtime",
+      "sha256": "dd7cf0e6c7706426b81301b4725c27863fe0f1e5483d3736413aecea09a3ffa4"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/progress_runner_self_test.py",
+      "category": "runtime",
+      "sha256": "008632206bdb4e88303a48b5b642d13f756298111e0dc19dc911039d1598b88f"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/progress_signal.py",
+      "category": "runtime",
+      "sha256": "5d6feb7540126d4d6bf94cc454d8d7410e8fa89832b8b597be2bc491a9416b3d"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/progress_signal_self_test.py",
+      "category": "runtime",
+      "sha256": "8557692f710ff18b74eb8f8610b082aece31fae79d11ef858e1e9af4b3619acf"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/progress_watch.py",
+      "category": "runtime",
+      "sha256": "304401062eb2773ce91e25a38c01f9490f62fd1b2b97fbe4d184d27fb69f6798"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/progress_watch_self_test.py",
+      "category": "runtime",
+      "sha256": "7d2d05e96255f8d4b05605b6f449e81c197c5c285e1bbaf1e76fd349157dda92"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/promotectl.py",
+      "category": "runtime",
+      "sha256": "0ef7b8cbb138f814990420dfc48e4cfb472879d369e7572e08e88ed1c6f96e82"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/promotion_self_test.py",
+      "category": "runtime",
+      "sha256": "63142b4da9b4e826e1abb4b68c74dea3be7be2a6bf8a66e825234112152c755b"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/provider_self_test.py",
+      "category": "runtime",
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/requestctl.py",
+      "category": "runtime",
+      "sha256": "1a5aab982d6fa2397a9ecc7df8a7d27a72dbb697e23e3185360632accedda052"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/resource_watch.py",
+      "category": "runtime",
+      "sha256": "22ac707b846a428c832671c6cfc96d9e45b367f5b3a61963ac0258791a5c2184"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/rollout_gate_self_test.py",
+      "category": "runtime",
+      "sha256": "ac6874c43a284b8a7951c8a1ad1a20cf3bc57e5c3c36229915b24f451274834d"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/route_selector_self_test.py",
+      "category": "runtime",
+      "sha256": "60421c682bef76de9efbd3745e3726a91c62d0b157d458e643c19c54d4761ace"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routing_config.py",
+      "category": "runtime",
+      "sha256": "4c21ed17b26062511023e151edd60f56eb68219129418303f17ddc2b26e9d4e4"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routing_config_self_test.py",
+      "category": "runtime",
+      "sha256": "64a703e5a0ad9c6b1af7fb0d1192e35fd7a97fe233c5edd4d2894d3bc6c55893"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routing_self_test.py",
+      "category": "runtime",
+      "sha256": "7e92a431f771ccc3fdedd19bd05296dca237b4f51204fb2ca4b0583a56105058"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routing_telemetry.py",
+      "category": "runtime",
+      "sha256": "a7d8cb8b3190a3a0177f2854fd1340abbbca6a253176eaaff6d692f365dc753a"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routingctl.py",
+      "category": "runtime",
+      "sha256": "f792363c783596aef972925edb9aad5d97b86da43e45a212a69c5a2355a78616"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/run_concise.py",
+      "category": "runtime",
+      "sha256": "495d986c1582ce5ed432fe304d995d244159e2168d2b4aafa6185b13ed79aba8"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "category": "runtime",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "category": "runtime",
+      "sha256": "74db8be9153d63c8accc1e3a650279fd54da0ea0b6405b0bfb4e470f183a97c6"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/self_test.py",
+      "category": "runtime",
+      "sha256": "90c3d0b57a3093e92d6378910aa183cc3ec47c23ff571c343b0ff995a56e25c1"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/service_map.py",
+      "category": "runtime",
+      "sha256": "44477da68a3e9fa3f6afb13e77c753385b879d85ec02f16507fff6066923bf29"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/snapshot_runner_self_test.py",
+      "category": "runtime",
+      "sha256": "05d8a3034eab59bb3e536d95ccea343c4681ac29362f53f962a7f4487b6f66b1"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/study_choice_interaction_self_test.py",
+      "category": "runtime",
+      "sha256": "9b50fd88cbecbd6faef28d52758f18d21d152db32d63e44611fa1e77bddf69e8"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/study_self_test.py",
+      "category": "runtime",
+      "sha256": "7287e74a81129899fd94cb50d8c46116472b25aa1c1e5af7eb28f5023e6e0129"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/studyctl.py",
+      "category": "runtime",
+      "sha256": "fefef4d70d93e92a2aaff124af727d26596de4a7935232c9b009df6269c94d82"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/studyctl_concise.py",
+      "category": "runtime",
+      "sha256": "7dc5480368dba06e5c5a14f91b4c41d896ec3b86c8864641929177a3f5d35735"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/task_memory_self_test.py",
+      "category": "runtime",
+      "sha256": "9005d1a394879131371c62f3a41e8ba8b580e20cd782f41b986ae7495c068763"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/telemetry_self_test.py",
+      "category": "runtime",
+      "sha256": "6d5abf5cd14c79fbf94f4e7234fe028ff0afb479c79d96de0554c0c296c73989"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/token_efficiency_self_test.py",
+      "category": "runtime",
+      "sha256": "d4f18e2e49f26762c523c72e99eaab312455a3da03d986b0fb76bc661297694f"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/validatectl.py",
+      "category": "runtime",
+      "sha256": "7e1c4e67fa5cc0bec9659bc7a22317877ab833b0d866166e5419e7423035c3e6"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/validatectl_self_test.py",
+      "category": "runtime",
+      "sha256": "05c48e6bb761694584498e2a092ae89b797d526d7ca1282470ccc17c73a77b3c"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/watchdogctl.py",
+      "category": "runtime",
+      "sha256": "3fa923781fb9e87f0a2197cbb996fa92b6571edb41308ff004d278cd616dbb86"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/watchdogctl_self_test.py",
+      "category": "runtime",
+      "sha256": "55fff744b2aae080a935857d7fab67fec596b76495c3f89cf4ec96daafd2f390"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/workload_routing.py",
+      "category": "runtime",
+      "sha256": "1a387675edbf3ef9e9b58dbc2fdcfa072173329ca864a4d1577ad7ca369147b1"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/workload_routing_self_test.py",
+      "category": "runtime",
+      "sha256": "a75055e5731827a6a672a04ff604baa15989c08f59245f27d8e0ac7116d2b503"
+    },
+    {
+      "path": "skill/validate-or-fix/LICENSE.txt",
+      "category": "runtime",
+      "sha256": "f8b5eb58c3d1a1f668fd6cfa17c85d3badec4b00387a345520de814f340391c0"
+    },
+    {
+      "path": "skill/validate-or-fix/SKILL.md",
+      "category": "runtime",
+      "sha256": "6ea99922906f1ac413dc63277fd26bc82605b571f0a43224e4f085cee5139e6f"
+    },
+    {
+      "path": "skill/validate-or-fix/agents/openai.yaml",
+      "category": "runtime",
+      "sha256": "48dfdfc9e3fbf31d07c7454334967ee2f3c54bd2a6e3483afa84168dce329b67"
+    },
+    {
+      "path": "skill/validate-or-fix/assets/icon.svg",
+      "category": "runtime",
+      "sha256": "51a6923974188748638a424aa59b42b6afad2d910f910a1d43bb13ee10f3ce26"
+    },
+    {
+      "path": "skill/validate-or-fix/references/OPERATIONS.md",
+      "category": "runtime",
+      "sha256": "b7d5ce5f16923b43aaa20ad3028701889d0cda9f8283e7c3a14a2e17be6718c9"
+    },
+    {
+      "path": "skill/validate-or-fix/references/ROUTING.md",
+      "category": "runtime",
+      "sha256": "249295851f5297ff71b21f183819796c0d18ee1564a78dec016bce4d54278885"
+    },
+    {
+      "path": "skill/validate-or-fix/scripts/service_map.py",
+      "category": "runtime",
+      "sha256": "bcdbc5a6fb0928ffbdfd94110dfe926f45e1c5a1fd0acea05c5a5574943fbeb7"
+    },
+    {
+      "path": "skill/validate-or-fix/scripts/validatectl.py",
+      "category": "runtime",
+      "sha256": "6f7de5711662b037fdef7a07a4a2727aa46c29a57982bfe34ca5e8b4b0e63f3f"
+    },
+    {
+      "path": "skill/validate-or-fix/scripts/workload_routing.py",
+      "category": "runtime",
+      "sha256": "dd137064f9a8eea613e5f7abc7bd33aeeceea3b398bcbafe132e495b0e93c682"
+    },
+    {
+      "path": "test/clean-generated.test.js",
+      "category": "tests_and_tooling",
+      "sha256": "2054570a6ad9322cc9367811b02e53a6cfd323b9070674465ea661216a583a2f"
+    },
+    {
+      "path": "test/cli.test.js",
+      "category": "tests_and_tooling",
+      "sha256": "839f1379d483c32408284d8b649b5fd647c3d15b9b9ccca446233625541c8c86"
+    },
+    {
+      "path": "test/companion.test.js",
+      "category": "tests_and_tooling",
+      "sha256": "f1f5e776f8bffcf1afd4bb14a45800b18c4212767be787f8d3b77e4ca098a074"
+    },
+    {
+      "path": "test/installer.test.js",
+      "category": "tests_and_tooling",
+      "sha256": "af2780ff3be6d60b46116d7aa2cec55735be5eec2db8844df99d69e947400633"
+    },
+    {
+      "path": "tools/clean-generated.js",
+      "category": "tests_and_tooling",
+      "sha256": "a518c4e51df9b00abdb0b3405924c1637d9f6b028dab971da6171e8f00316265"
+    },
+    {
+      "path": "tools/doc_baseline.py",
+      "category": "tests_and_tooling",
+      "sha256": "6340d5df88db71ce91563856670fed735908a5206d6519a9b5db477d21a93d31"
+    },
+    {
+      "path": "tools/package-skills.js",
+      "category": "tests_and_tooling",
+      "sha256": "aadaf4aa9e599d27f01aaf980e83d02085e998b1a461b42e504002f716e4faaa"
+    },
+    {
+      "path": "tools/routing_eval.py",
+      "category": "tests_and_tooling",
+      "sha256": "01c496f4284a60435b554e42ec1ec32ad11d55e47d993b4fe1184bd3d0a47469"
+    },
+    {
+      "path": "tools/routing_eval_predeclaration_self_test.py",
+      "category": "tests_and_tooling",
+      "sha256": "ebc83dc5644c4be77b1353b8862e0057a5f28bc3e37475d7489ccef3e74a0db1"
+    },
+    {
+      "path": "tools/routing_eval_self_test.py",
+      "category": "tests_and_tooling",
+      "sha256": "7058488008789eb207c136b8be67b3ed301f069a3ffe86415a8f483c00b9a755"
+    },
+    {
+      "path": "tools/run-repo-checks.js",
+      "category": "tests_and_tooling",
+      "sha256": "dc64c92dd449de267ff1cc98af33aacd01aa4e8d2b394a960dec79a455942845"
+    },
+    {
+      "path": "tools/run-skill-self-test.js",
+      "category": "tests_and_tooling",
+      "sha256": "f6a750c0239963c16e93720bf93d4b98cb9948bede6113e95053dbba20b4ef52"
+    },
+    {
+      "path": "tools/skill_benchmark.py",
+      "category": "tests_and_tooling",
+      "sha256": "d08520def6551a6db6db8194270c9cb55ca84832c87da95dd639c3af9d3f7c8b"
+    },
+    {
+      "path": "tools/skill_benchmark_self_test.py",
+      "category": "tests_and_tooling",
+      "sha256": "971ccb8e58ab27e1b04f943ccffb4f5695b18ada35899e82dc9b14e1f682486d"
+    },
+    {
+      "path": "tools/validate-skill.js",
+      "category": "tests_and_tooling",
+      "sha256": "4d67bc446bf4a54d73263fb0a74f91f137c49c34fae71cddd6dd38550bb43f01"
+    },
+    {
+      "path": "tools/worktree_audit.py",
+      "category": "tests_and_tooling",
+      "sha256": "0fed7366f7b332b91713df720c83812eec5f6af837668e7671a9b1f2ab7b72b0"
+    }
+  ],
+  "note": "Complete tracked-file classification; targeted semantic inspection, not a claim that every line was independently audited."
+}

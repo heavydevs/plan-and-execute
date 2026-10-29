@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "feature_id": "F019",
+  "former_research_task": "042",
+  "implementation_task": "042",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Resolve the exact Meta Muse Code product, exec JSON envelope and session protocol.",
+    "Verify cancellation, summary mode and resumable state without assuming flags from unrelated Muse CLIs."
+  ],
+  "decision": "Qualify the exact Meta Muse Code executable and make session persistence, output envelopes and workspace isolation explicit.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "The repository has a dedicated Muse adapter and tests, rather than a generic command named Muse. The worker uses headless execution with configured model/effort options.",
+    "Meta documentation provides session-log controls and notes that child execution does not itself create an isolated checkout."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "build_summary_command",
+          "line": 2319,
+          "end": 2455
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/muse_provider_self_test.py",
+      "sha256": "9466b0aaa0bed367dd57339f5c991ccd0c2123b19f51140d6ece98549b50487a",
+      "line_count": 242,
+      "symbols": [
+        {
+          "name": "sample_report",
+          "line": 25,
+          "end": 39
+        },
+        {
+          "name": "worker",
+          "line": 42,
+          "end": 43
+        },
+        {
+          "name": "summary",
+          "line": 46,
+          "end": 47
+        },
+        {
+          "name": "test_default_worker_argv_has_no_permission_flags",
+          "line": 50,
+          "end": 56
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_MUSE.md",
+      "sha256": "648cec38d3ee0e61007208c01122e6095188e7b568ee82faa21aa1cf6a33804b",
+      "line_count": 50,
+      "symbols": [
+        {
+          "name": "# Muse Code model routing",
+          "line": 1
+        },
+        {
+          "name": "## Status and evidence",
+          "line": 5
+        },
+        {
+          "name": "## Catalog mapping",
+          "line": 9
+        },
+        {
+          "name": "## Worker argv",
+          "line": 21
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E033",
+    "E034",
+    "E044"
+  ],
+  "implementation_steps": [
+    "Add version/help fixtures for Meta Muse Code and reject a same-named unrelated executable without the required command contract.",
+    "Separate JSONL progress/tool events from the final completion payload. Apply the shared bounded spool and schema validation.",
+    "Choose and document session-log retention for normal fresh workers; only add --no-session-log when supported and covered by a golden test.",
+    "Require explicit worktree/read-only controls for isolation. Never fall back from unsupported confinement to trust-workspace or approval bypass silently.",
+    "Normalize backend/usage identity and map failures through the same availability-versus-semantic distinction as other providers."
+  ],
+  "proposed_acceptance_tests": [
+    "A fixture for an unrelated muse executable is rejected before any task starts.",
+    "No-session-log and resume options are not combined incompatibly.",
+    "Two children sharing a checkout cannot be mistaken for isolated parallel writers.",
+    "Read-only summary and implementation command paths have different tested authority.",
+    "Large or malformed JSONL cannot cause unbounded memory or false completion."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Assume the command name establishes product and capabilities",
+      "tradeoff": "Low maintenance but unsafe when products share a name or versions drift."
+    },
+    {
+      "id": "recommended",
+      "title": "Identity/version-qualified protocol with explicit retention",
+      "tradeoff": "A small compatibility layer preserves the existing optional adapter."
+    },
+    {
+      "id": "rejected",
+      "title": "Borrow Codex/Claude flags based on superficial similarity",
+      "tradeoff": "Creates untested semantics, especially for sessions and permissions."
+    }
+  ],
+  "cost_model": "Keep Muse optional and discover only when selected. Do not load its guide or probe it for every Codex/Claude task.",
+  "unverified": [
+    "Live Meta account permissions, model list, usage accounting and actual read-only enforcement remain unverified."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

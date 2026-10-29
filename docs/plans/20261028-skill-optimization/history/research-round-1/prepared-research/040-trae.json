@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "feature_id": "F018",
+  "former_research_task": "040",
+  "implementation_task": "040",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Distinguish the configured Trae Agent CLI from the TRAE IDE or another CLI product.",
+    "Verify trajectory handling, provider configuration, secret routing and failure reporting."
+  ],
+  "decision": "Keep the ByteDance Trae Agent adapter distinct from the IDE, and make trajectories an owned, protected diagnostic artifact.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "The adapter invokes trae-cli run with a working directory and trajectory output path, plus optional underlying provider/model choices.",
+    "The official Trae Agent repository describes an open-source agent and provider configuration. It does not justify borrowing flags or session behavior from the TRAE IDE."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "parse_provider_report",
+          "line": 1412,
+          "end": 1425
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/provider_self_test.py",
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd",
+      "line_count": 596,
+      "symbols": [
+        {
+          "name": "sample_route",
+          "line": 20,
+          "end": 26
+        },
+        {
+          "name": "sample_report",
+          "line": 29,
+          "end": 43
+        },
+        {
+          "name": "test_default_provider_policy",
+          "line": 46,
+          "end": 60
+        },
+        {
+          "name": "test_worker_command_adapters",
+          "line": 63,
+          "end": 143
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E032",
+    "E044",
+    "E042"
+  ],
+  "implementation_steps": [
+    "Pin documented Trae Agent CLI/version fixtures and normalize its final output independently of provider-specific message formats.",
+    "Record both harness and actual model-provider identity so rate limits, capabilities and costs are attributed to the backend rather than the CLI name.",
+    "Register trajectory files under the task/job ownership and retention policy. Exclude them from packages and worker prompts unless a bounded sanitized excerpt is explicitly authorized.",
+    "Resolve secrets from allowed environment names at dispatch time; do not copy configuration values into manifests, evidence or model prompts.",
+    "Share cancellation and bounded process-output infrastructure with other adapters. Keep any Docker isolation choice explicit and version-qualified."
+  ],
+  "proposed_acceptance_tests": [
+    "Golden command fixtures distinguish Trae Agent from unrelated executables.",
+    "An invalid or missing terminal output cannot be replaced by a plausible trajectory message.",
+    "A seeded credential in a trajectory is not included in model-facing evidence or publication artifacts.",
+    "Quota failures are keyed to the configured backend/profile, not every Trae execution.",
+    "Cleanup preserves active trajectory evidence and removes only registered stale artifacts."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Treat trajectory files as ordinary harmless logs",
+      "tradeoff": "Low immediate effort, but interactions and configuration can contain sensitive data."
+    },
+    {
+      "id": "recommended",
+      "title": "Thin adapter plus owned redacted diagnostic lifecycle",
+      "tradeoff": "Uses existing resource registry and avoids copying entire trajectories."
+    },
+    {
+      "id": "rejected",
+      "title": "Replace all providers with the Trae runtime",
+      "tradeoff": "Unnecessary migration that increases dependencies and changes tested execution semantics."
+    }
+  ],
+  "cost_model": "Do not pay to summarize an entire trajectory by default. A bounded deterministic failure packet should be sufficient for known classes; ambiguous diagnosis remains opt-in.",
+  "unverified": [
+    "Underlying provider behavior, Docker confinement and installed Trae CLI version were not executed here."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

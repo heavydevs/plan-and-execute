@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "feature_id": "F021",
+  "former_research_task": "046",
+  "implementation_task": "046",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Verify model effort compatibility and host sandbox inherited by each profile.",
+    "Separate published prices, off-peak windows and unknown subscription costs."
+  ],
+  "decision": "Keep DeepSeek compatibility translation explicit and conservative; separate native thinking controls, harness security and dated economics.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "The repository includes DeepSeek profile tests and provider guidance while execution may still use a different host CLI.",
+    "DeepSeek documents an Anthropic-compatible interface and native thinking controls. API compatibility does not establish identical parameters, model capability or billing."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/routing_config.py",
+      "sha256": "4c21ed17b26062511023e151edd60f56eb68219129418303f17ddc2b26e9d4e4",
+      "line_count": 320,
+      "symbols": [
+        {
+          "name": "validate",
+          "line": 112,
+          "end": 213
+        },
+        {
+          "name": "load",
+          "line": 285,
+          "end": 302
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
+      "sha256": "f28eb83e4c2c43cd31bdd8a9506385b7cd7ebc1eeb987c3ea7a998b2de346461",
+      "line_count": 189,
+      "symbols": [
+        {
+          "name": "utc",
+          "line": 32,
+          "end": 33
+        },
+        {
+          "name": "argv",
+          "line": 36,
+          "end": 39
+        },
+        {
+          "name": "with_profile",
+          "line": 42,
+          "end": 46
+        },
+        {
+          "name": "test_profiles_resolve_on_both_harnesses",
+          "line": 49,
+          "end": 69
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md",
+      "sha256": "7f13e72569bb294e560edb9df7cca73576b6a402cbc6f7b2e1e53ff731315fc4",
+      "line_count": 29,
+      "symbols": [
+        {
+          "name": "# DeepSeek routing (lazy reference)",
+          "line": 1
+        },
+        {
+          "name": "## Profiles",
+          "line": 5
+        },
+        {
+          "name": "## Bootstrap catalog (dated 2026-10-01, evidence not placement)",
+          "line": 16
+        },
+        {
+          "name": "## Pricing",
+          "line": 27
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E036",
+    "E037",
+    "E044",
+    "E013"
+  ],
+  "implementation_steps": [
+    "Represent the backend model and native thinking/effort mapping as catalog evidence with a version/date, independent of the host's logical tier labels.",
+    "Test supported parameter translation for the chosen API/harness combination; omit unsupported options only through an explicit compatibility rule, not by silently lowering a requested capability.",
+    "Keep sandbox and tool permissions those of the actual harness; a different endpoint must not gain broader write/network authority.",
+    "Treat published prices, cache behavior and any off-peak window as dated metadata. Preserve unknown subscription economics and missing usage as null.",
+    "Use backend/pool identity for availability and telemetry and retain the same bounded failure/handoff contract."
+  ],
+  "proposed_acceptance_tests": [
+    "A compatible endpoint does not cause Claude-native effort values to be sent blindly.",
+    "A route with unverified high-effort support cannot satisfy a maximum task merely through a label.",
+    "Time-window price fixtures cover boundaries and timezone interpretation without assuming current discounts.",
+    "Endpoint/profile changes invalidate route intent and preserve unrelated cooldown state.",
+    "No endpoint credentials appear in process logs, manifests or economic reports."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Assume Anthropic-compatible means identical semantics",
+      "tradeoff": "Low setup cost but hides translation and capability mismatches."
+    },
+    {
+      "id": "recommended",
+      "title": "Qualified native mapping with separate economics",
+      "tradeoff": "Small explicit adapter contract and trustworthy cost comparisons."
+    },
+    {
+      "id": "rejected",
+      "title": "Automatically choose a cheap advertised model for all repairs",
+      "tradeoff": "Can increase retries or silently fail important validations."
+    }
+  ],
+  "cost_model": "Measure total accepted-task cost including retry and review, not only advertised input prices. No current discount, subscription price or universal saving is asserted here.",
+  "unverified": [
+    "No authenticated DeepSeek execution, price refresh experiment or host sandbox validation was performed."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

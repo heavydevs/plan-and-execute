@@ -1,3 +1,25 @@
+# Current user request (verbatim)
+
+Você pode me ajudar numa coisa? Nesse plano há tasks de pesquisa, certo? Você poderia adiantar o meu trabalho, e em ver de executar o plano, realizar a parte de pesquisa para cada task de pesquisa, e gerar um relatório da pesquisa de qual é o melhor caminho a seguir? Assim, depois, modifique o todo e a checklist interna dessa task para apontar para o relatório e dizer para implementar as orientações dessa pesquisa.
+
+Faça isso um por um, até acabar todas as tasks de pesquisa e virar apenas tasks de implementações.
+
+Por sim, modifique o plano. Ele não vai mais precisar outro plano. Será apenas um plano de implementação.
+
+# Planning interpretation and precedence
+
+# Current request amendment - one implementation plan
+
+Date: 2026-10-28. This amendment supersedes the older two-plan workflow.
+
+The user asks to perform the research now, outside execution of the saved plan; produce one report per research task recommending the best path; replace each research TODO and its internal checklist with implementation instructions pointing to that report; and remove the need to generate another plan. There is only one implementation plan, with tests, corrections and independent acceptance reviews.
+
+This authorization covers research and local plan/document changes. It does not claim product implementation, independent review, authenticated provider execution, commit, push, installation or publication. Prior source instructions remain effective where not contradicted, including secrets, backward compatibility and protected user configuration.
+
+Original request bytes are preserved in REQUEST_ORIGINAL.md and the historical snapshot. Prepared research is project evidence outside disposable plan control. The current specification is PLAN1_SPEC.json (the filename is retained for compatibility); its title and task contracts now describe a single implementation plan.
+
+# Historical original request (superseded only where stated above)
+
 Com a skill plan-and-execute quero que você crie um plano que o produto deste plano será a criação de outro plano para implementar inumeras melhorias. Pense que primeiro será um plano que fará estudo interno, separará tópicos para criar tasks para o plano 2 depois fazer um estudo externo e conseguir fazer as melhores melhorias possíveis.
 
 faça uma task para cada coisa abaixo:
@@ -203,3 +225,19 @@ Validação final: rode os autotestes afetados e `npm ci && npm run check && npm
 3. Implemente em passos pequenos, com teste a cada passo e a opção desligada por padrão.
 4. Peça confirmação antes de qualquer ação irreversível ou externa: commit, push, PR, publicação no npm e execução de ponta a ponta com fornecedores autenticados (gasta quota).
 5. Fale com o usuário em português do Brasil. No relatório final, liste arquivos alterados, decisões e porquês, o resultado real dos testes, o que não foi verificado (fornecedores reais, Windows, que só o CI cobre, persistência de conversa do `agy` etc.), riscos e próximos passos.
+
+---
+
+# Research revision 2 amendment
+
+Date: 2026-10-28. This extends the single implementation plan; no second plan is generated.
+
+## Current user request (verbatim)
+
+@Busca na web ativei o plugin busca web. Então, para cada task/relatório, você irá fazer novamente uma busca mais ampla e profunda  ainda, e ver se ainda consegue um jeito mais performático custo benefício solução ótima. Analise profundamente todas as opções. Faça esse ciclo longo e profundo para cada tópico ou task. Mova um por um e refaça o relatório.
+
+Depois, valide se o plano está pronto para ser implementado pela skill plan-and-execute.
+
+## Scope
+
+Revise the reports, implementation instructions and acceptance graph. Do not execute product tasks, fabricate independent reviews, install, change user-global settings, commit, push or publish in this turn. Keep all 86 implementation/review tasks pending.

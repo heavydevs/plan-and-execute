@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "feature_id": "F008",
+  "former_research_task": "020",
+  "implementation_task": "020",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Reproduce source section 2.8 and distinguish useful effective rungs from repeated dispatches.",
+    "Compare per-provider evidence with cumulative failure counts and reset semantics."
+  ],
+  "decision": "Define a pure effective-dispatch ladder that removes no-op rungs, retains failure-specific retry semantics and leaves provider switching to its dedicated integration tasks.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "choose_route derives a provider slot from total functional failures, whereas availability.select rebuilds a chain for the escalated tier. This can mismatch the ladder and dispatched provider.",
+    "The current exhaustion decision uses accumulated failure classes against a later provider's ladder, allowing that provider to be considered exhausted before its first attempt.",
+    "A logical tier/effort increase can resolve to the same model and native effort, especially with embedded effort slugs and equal strong/max models."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/routingctl.py",
+      "sha256": "f792363c783596aef972925edb9aad5d97b86da43e45a212a69c5a2355a78616",
+      "line_count": 1284,
+      "symbols": [
+        {
+          "name": "lift_tier",
+          "line": 214,
+          "end": 220
+        },
+        {
+          "name": "route_rungs",
+          "line": 230,
+          "end": 242
+        },
+        {
+          "name": "escalation_step",
+          "line": 245,
+          "end": 255
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "choose_route",
+          "line": 301,
+          "end": 346
+        },
+        {
+          "name": "ladder_exhausted",
+          "line": 2152,
+          "end": 2169
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "c3cdf3064fa18b7271ea801c614e18b45a467b4c923b98fdb8fbd16ab00bffd4",
+      "line_count": 3792,
+      "symbols": [
+        {
+          "name": "PlanError",
+          "line": 85,
+          "end": 86
+        },
+        {
+          "name": "review_checks_for_schema",
+          "line": 89,
+          "end": 99
+        },
+        {
+          "name": "now_utc",
+          "line": 102,
+          "end": 103
+        },
+        {
+          "name": "slugify",
+          "line": 106,
+          "end": 109
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+      "sha256": "886f53a8817d4a7eb9e93a24e715a57cce927ee1b673384e60cfe46c0814c7c9",
+      "line_count": 143,
+      "symbols": [
+        {
+          "name": "# Model and provider routing",
+          "line": 1
+        },
+        {
+          "name": "## Objective",
+          "line": 12
+        },
+        {
+          "name": "## 1. Classify the leaf, then look up the floor",
+          "line": 16
+        },
+        {
+          "name": "### Candidate selector (opt-in, pure)",
+          "line": 35
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E012",
+    "E013",
+    "E014",
+    "E040",
+    "W-AUTOMIX",
+    "W-ROUTELLM",
+    "W-RETRY",
+    "W-AGY-EFFORT",
+    "W-GLM"
+  ],
+  "implementation_steps": [
+    "Define a pure effective-dispatch identity after tier lifting, snapshot/profile resolution, effective effort and backend aliases, with no secrets.",
+    "Build useful ordered rungs by collapsing every known-equivalent effective dispatch, including non-adjacent aliases; preserve first occurrence and the requested capability floor.",
+    "Test pure classified transitions with provider/phase-local fixture evidence; do not persist new state or change runner dispatch in this task.",
+    "Retain the original legacy replay fixtures and disabled-mode argv assertions without weakening them.",
+    "Expose the primitives for 072 and 074; those tasks own durable counters, reset, availability integration and attempt reservation.",
+    "Build pure effective candidate identities after aliases, snapshots and native effort resolution; deduplicate equivalent rungs.",
+    "Test classified failure transitions per provider and phase without changing legacy-disabled behavior.",
+    "Keep full provider switching in TODOs 070-080; expose reusable ladder primitives and counterfactual dispatch fixtures here."
+  ],
+  "proposed_acceptance_tests": [
+    "Pure ladder fixtures deduplicate resolved model/native-effort identities while preserving capability floors.",
+    "Pure transitions distinguish provider-local functional evidence from quota and environmental outcomes.",
+    "Legacy-disabled argv and routing fixtures remain unchanged; runtime integration is deferred to 072-074.",
+    "Different tier labels resolving to the same model and effective effort produce one capability rung.",
+    "An ignored effort argument does not count as increased capability.",
+    "A quota or environment failure does not advance the functional ladder.",
+    "The default disabled option preserves existing argv and routing fixtures.",
+    "Changing only quota pool, request nonce or log path cannot create a new capability rung.",
+    "Non-adjacent aliases for the same effective dispatch do not recreate a failed top attempt."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Escalate by total retry count",
+      "benefit": "Small implementation",
+      "risk": "Repeats aliases and pollutes new-provider evidence",
+      "disposition": "Keep only as legacy-disabled comparator",
+      "tradeoff": "Small implementation; Repeats aliases and pollutes new-provider evidence. Keep only as legacy-disabled comparator"
+    },
+    {
+      "id": "A02",
+      "title": "Always jump to the strongest model",
+      "benefit": "May resolve hard failures",
+      "risk": "Expensive and still cannot repair environmental faults",
+      "disposition": "Reject as universal policy",
+      "tradeoff": "May resolve hard failures; Expensive and still cannot repair environmental faults. Reject as universal policy"
+    },
+    {
+      "id": "A03",
+      "title": "Effective candidate ladder plus classified evidence",
+      "benefit": "Eliminates no-op capability attempts",
+      "risk": "Requires resolved candidate identity",
+      "disposition": "Recommended",
+      "tradeoff": "Eliminates no-op capability attempts; Requires resolved candidate identity. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Learned router controls retries",
+      "benefit": "Potential workload adaptation",
+      "risk": "Distribution drift and opaque state changes",
+      "disposition": "Shadow experiment only",
+      "tradeoff": "Potential workload adaptation; Distribution drift and opaque state changes. Shadow experiment only"
+    }
+  ],
+  "cost_model": "Measure distinct useful attempts, repeated-top attempts and validated outcomes; expected benefit is avoided identical failed dispatches, not a claimed percentage of model-quality improvement.",
+  "unverified": [
+    "Quality equivalence across providers is not established by matching tier labels. Real-run calibration remains an authorized evaluation step.",
+    "Public ranking and accepted CLI flags cannot establish equivalent intelligence across harnesses. Live backend identity may require a permitted response field or account-side verification."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Introduce a pure effective-dispatch ladder model with provider-local evidence; keep the legacy path unchanged until the opt-in switch policy is integrated.",
+  "revision_delta": "The new research strengthens the distinction between logical tier and actual dispatch. It adds alias/backend identity, duplicate rungs with different nominal labels, and a counterfactual test for the claimed benefit of escalation.",
+  "decision_analysis": [
+    "The baseline applies one global failure sequence to a provider-specific ladder, then availability may dispatch elsewhere. A cost-efficient fix starts with a pure representation of the actual candidate: harness, backend endpoint identity, resolved model, effective effort and relevant execution options. A logical tier change that leaves this representation unchanged is not additional capability.",
+    "Deduplicate all known-equivalent candidates, preserving their first occurrence, after all overrides, snapshots and embedded-effort rules are applied. Do not use a hardcoded provider ranking. Some role aliases map to the same backend, while an accepted effort flag can be ignored by a compatible endpoint. Record requested and resolved values separately; an unknown resolution is an explicit capability gap, not a license to guess.",
+    "Retain one bounded same-rung retry for a reproducible mechanical or budget failure only when the declared policy allows it. Semantic failure advances to the next distinct credible capability. Environmental, permission, plan-defect and fixed-time-limit failures do not establish a stronger model will help. Counter state belongs to provider and phase, not an aggregate inherited by a provider that has never run.",
+    "Learned routers and self-verification cascades solve a related but different problem from stateful retry routing. Keep their learned score out of the acceptance path. First test deterministic invariants and dispatch uniqueness on the existing fixtures; evaluate learned selection in shadow mode only after there is representative labeled evidence."
+  ],
+  "search_themes": [
+    "AutoMix limitations self verification model routing",
+    "RouteLLM query distribution preference data",
+    "Antigravity effort model variant xhigh max",
+    "Z.ai Claude model alias mapping"
+  ],
+  "current_source_ids": [
+    "W-AUTOMIX",
+    "W-ROUTELLM",
+    "W-RETRY",
+    "W-AGY-EFFORT",
+    "W-GLM"
+  ],
+  "ownership": "TODO 020 implements pure ladder primitives and fixtures only. Persisted phase/provider counters and reset semantics belong to 072; actual dispatch, quota handling and attempt reservation belong to 074.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions.",
+  "identity_contract": "Keep capability identity separate from availability identity: changing only a quota pool, request ID, log path or credential reference cannot create a stronger rung. Resolve known aliases and native effort before deduplication; retain the harness/backend boundary rather than equating model-family names across hosts."
+}

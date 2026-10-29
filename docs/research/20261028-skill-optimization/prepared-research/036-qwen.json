@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "feature_id": "F016",
+  "former_research_task": "036",
+  "implementation_task": "036",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Inspect Qwen headless JSON, approvals, safe read-only execution and session persistence.",
+    "Compare budget, cancellation and resume contracts without assuming Claude-compatible flags."
+  ],
+  "decision": "Add a versioned Qwen headless contract with explicit security and total-run budgets, and prevent native goal/retry loops from bypassing the orchestrator policy.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "The Qwen adapter currently constructs a headless invocation with configured approval/safe-mode controls and a report schema.",
+    "Provider documentation distinguishes JSON/stream output, session persistence and budget exhaustion; those distinctions must survive normalization in the shared runner."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "run_process",
+          "line": 1214,
+          "end": 1317
+        },
+        {
+          "name": "parse_provider_report",
+          "line": 1412,
+          "end": 1425
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/provider_self_test.py",
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd",
+      "line_count": 596,
+      "symbols": [
+        {
+          "name": "sample_route",
+          "line": 20,
+          "end": 26
+        },
+        {
+          "name": "sample_report",
+          "line": 29,
+          "end": 43
+        },
+        {
+          "name": "test_default_provider_policy",
+          "line": 46,
+          "end": 60
+        },
+        {
+          "name": "test_worker_command_adapters",
+          "line": 63,
+          "end": 143
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E029",
+    "E041",
+    "E044",
+    "W-QWEN-HEADLESS",
+    "W-QWEN-SETTINGS",
+    "W-SUBPROCESS",
+    "W-RETRY-LAYERS"
+  ],
+  "implementation_steps": [
+    "Add version/help fixtures for supported Qwen CLI releases and explicit format selection. Keep JSON-array output and streaming JSONL parsing separate.",
+    "Normalize terminal result, tool activity, budget exhaustion, quota and transport errors without treating any intermediate assistant message as completion.",
+    "Qualify read-only operation with supported tool exclusions and sandbox controls. Yolo/approval automation alone must not authorize a supposedly read-only observer.",
+    "Capture resumable session identifiers only if explicitly enabled and retention is documented. Otherwise keep fresh-worker behavior and artifact handoff.",
+    "Apply the shared bounded output spool and process-tree cancellation contract rather than maintaining a second unbounded capture implementation.",
+    "Do not treat Qwen safe-mode or max-tool-calls zero as a read-only or schema-free mode.",
+    "Bound or disable inherited unattended retries and native goal continuation under the managed runner.",
+    "Classify native wall/tool/turn budget exits separately from semantic, permission and environment failures."
+  ],
+  "proposed_acceptance_tests": [
+    "Replay JSON and JSONL fixtures with interleaved tool messages, malformed records and missing terminal results.",
+    "Budget/turn exhaustion is recorded separately from semantic failure and transient availability.",
+    "A read-only fake/qualified command cannot select shell/write/edit tools outside the allowlist.",
+    "Large output is drained without deadlock; cancellation stops owned descendants.",
+    "Unsupported schema or sandbox flags fail closed with an actionable version reason.",
+    "Safe-mode cannot silently disable the required sandbox and still pass preflight.",
+    "An inherited indefinite-retry opt-in is removed or rejected under bounded runner policy.",
+    "Budget exit 55 and turn-cap exit 53 are fixture-versioned, not generic semantic failures.",
+    "Truncated streaming output cannot become a successful completion report."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Reuse old CLI args forever",
+      "benefit": "No new code",
+      "risk": "Flags and permission semantics drift",
+      "disposition": "Reject",
+      "tradeoff": "No new code; Flags and permission semantics drift. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Use safe-mode as read-only",
+      "benefit": "Easy-looking shortcut",
+      "risk": "Removes customization, not host privileges",
+      "disposition": "Reject",
+      "tradeoff": "Easy-looking shortcut; Removes customization, not host privileges. Reject"
+    },
+    {
+      "id": "A03",
+      "title": "Versioned headless fixtures and bounded loop ownership",
+      "benefit": "Predictable automation",
+      "risk": "Requires explicit environment filtering",
+      "disposition": "Recommended",
+      "tradeoff": "Predictable automation; Requires explicit environment filtering. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Delegate orchestration to native goals",
+      "benefit": "Fewer outer loops",
+      "risk": "Competing completion/retry controllers",
+      "disposition": "Defer behind a separate contract",
+      "tradeoff": "Fewer outer loops; Competing completion/retry controllers. Defer behind a separate contract"
+    }
+  ],
+  "cost_model": "Count complete serialized input and all nested requests, not only outer invocations. Bound hidden retry latency before comparing Qwen with other candidate routes.",
+  "unverified": [
+    "The installed Qwen release and its actual exit-code behavior were not exercised. Published budget codes must be pinned before becoming authoritative classifications.",
+    "Flags and exit codes are based on the inspected current guide, not a locally executed version. Old releases need their own golden fixtures."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Treat Qwen headless JSON, budgets and permissions as its own tested protocol, not a Claude-compatible shell command.",
+  "revision_delta": "The deeper guide reveals safe-mode is customization isolation, not a sandbox, and unattended retry can be unbounded. The adapter must not use either as a safe automatic fallback.",
+  "decision_analysis": [
+    "Qwen has separate output, approval, sandbox, tool-call and wall-clock controls. Express those capabilities in fixtures for supported versions rather than inferring them from one flag. A diagnostics-only safe-mode disables settings, including sandbox customization; it is not an enforcement boundary for a read-only assistant.",
+    "Headless output may use a complete JSON result or streaming events. Preserve final result parsing and event diagnostics separately. Zero allowed tool calls does not remove tool schemas from the serialized input, so it neither proves a minimal prompt cost nor prevents an oversized initial request.",
+    "Native goals and unattended retries can create another execution loop beneath the runner. Keep orchestration-owned retry and completion authoritative; explicitly unset inherited unattended retry for managed workers unless a documented bounded integration permits it. A native budget abort is a budget outcome, not a semantic failure or successful completion.",
+    "Use independent wall, tool and output limits appropriate to the work, but do not confuse a hard elapsed-time cap with the existing semantic progress window. Permission denial should preserve evidence and pause. Never switch to yolo merely to obtain machine-readable output or avoid an interactive question."
+  ],
+  "search_themes": [
+    "Qwen headless safe-mode sandbox permission rules",
+    "Qwen unattended retry max wall time settings",
+    "Python subprocess unbounded output"
+  ],
+  "current_source_ids": [
+    "W-QWEN-HEADLESS",
+    "W-QWEN-SETTINGS",
+    "W-SUBPROCESS",
+    "W-RETRY-LAYERS"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

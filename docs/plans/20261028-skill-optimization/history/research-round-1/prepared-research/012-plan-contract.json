@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "feature_id": "F004",
+  "former_research_task": "012",
+  "implementation_task": "012",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Trace request-part to requirement to task coverage and concise live projections.",
+    "Evaluate bounded subtasks, high-task splitting, review gates and legacy schema compatibility."
+  ],
+  "decision": "Preserve the manifest as authority and implement transactional, traceable replanning with regenerated task projections.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "planctl creates schema-v4 plans, validates requirement coverage and dependencies, and renders per-task files. artifact_contract supplies the concise projections used in production.",
+    "The existing plan has 86 tasks and an initial independent-review prerequisite inherited by the whole graph. The current user instruction removes research execution and the second-plan deliverable, so those assumptions must be revised explicitly."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "c3cdf3064fa18b7271ea801c614e18b45a467b4c923b98fdb8fbd16ab00bffd4",
+      "line_count": 3792,
+      "symbols": [
+        {
+          "name": "render_task",
+          "line": 1784,
+          "end": 1933
+        },
+        {
+          "name": "render_todo",
+          "line": 1935,
+          "end": 1953
+        },
+        {
+          "name": "save_manifest",
+          "line": 1981,
+          "end": 2008
+        },
+        {
+          "name": "create_plan",
+          "line": 2011,
+          "end": 2195
+        },
+        {
+          "name": "validate_plan",
+          "line": 2197,
+          "end": 2402
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+      "sha256": "477646cf30634e334e5c704a6cbe86e9dea4712f7527f51501c43462cadc08f3",
+      "line_count": 1047,
+      "symbols": [
+        {
+          "name": "install_plan_contract",
+          "line": 672,
+          "end": 810
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl_concise.py",
+      "sha256": "650baa02ebcb555acc9fe5874e5c94b4090720bc63f963c76b73f332dd3082e9",
+      "line_count": 11,
+      "symbols": []
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLAN_SPEC.md",
+      "sha256": "6b1014618196c4e0f966751190eb5bb3104798da7ff10694f9944f27b99fc92d",
+      "line_count": 234,
+      "symbols": [
+        {
+          "name": "# Plan spec contract — schema v4",
+          "line": 1
+        },
+        {
+          "name": "## Top level",
+          "line": 5
+        },
+        {
+          "name": "## `request_analysis`",
+          "line": 25
+        },
+        {
+          "name": "## `requirements`",
+          "line": 63
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+      "sha256": "2c12e549fa7032ef1691ea8c87b805beab4732c6fb976164ed295faf0b266508",
+      "line_count": 183,
+      "symbols": [
+        {
+          "name": "# Final planning protocol",
+          "line": 1
+        },
+        {
+          "name": "## 1. Preserve meaning, compress representation",
+          "line": 5
+        },
+        {
+          "name": "## 2. Route planning work explicitly",
+          "line": 21
+        },
+        {
+          "name": "## 3. Requirements",
+          "line": 31
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E057",
+    "E056",
+    "E047",
+    "E058"
+  ],
+  "implementation_steps": [
+    "Define a plan-revision record containing previous spec hash, amendment, task-ID mapping and changed acceptance/dependencies. Keep completed evidence immutable and invalidate only outputs whose contract changed.",
+    "Generate manifest, TODO and task files from one normalized specification in a staging directory; audit the staged graph before activation. Do not hand-edit a task projection to disagree with its manifest.",
+    "Preserve requirement IDs and attach supersession notes for the two-plan clauses. Separate research-prepared metadata from implementation status.",
+    "Reject cycles, missing requirements, orphan reviews and inconsistent subtask IDs. Use bounded outcome-oriented subtasks, not one TODO per arbitrary file.",
+    "Replace the initial global model gate with deterministic preflight and put independent review after each implementation. Missing review capability blocks acceptance, not report preparation."
+  ],
+  "proposed_acceptance_tests": [
+    "A failed revision leaves the previous manifest and task projections readable.",
+    "Every requirement has a consumer; every implementation has explicit acceptance and validation.",
+    "A transformed research task remains pending, with subtasks instructing implementation from its assigned report.",
+    "Legacy schema1-3 files are not silently rewritten using schema4 projection rules.",
+    "No active task creates a second plan or depends on a nonexistent research output."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Edit TODO text by hand",
+      "tradeoff": "Appears cheap but leaves manifest/projections and execution contracts inconsistent."
+    },
+    {
+      "id": "recommended",
+      "title": "Validated spec revision plus deterministic rendering",
+      "tradeoff": "More preparation checks, but one authoritative representation and safe recovery."
+    },
+    {
+      "id": "rejected",
+      "title": "Create a new unrelated plan and leave both actionable",
+      "tradeoff": "Ambiguous resumption, duplicate work and loss of original task traceability."
+    }
+  ],
+  "cost_model": "The revision machinery is deterministic. Keep the implementation package small; avoid a model-generated duplicate narrative for every projection.",
+  "unverified": [
+    "Multi-file durability needs fault-injection tests; os.replace alone is not a complete transaction or power-loss guarantee."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

@@ -1,0 +1,6838 @@
+{
+  "schema_version": 1,
+  "base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "inspection": "Targeted static code and contract review; indexing does not imply every line was semantically audited.",
+  "files": {
+    ".github/workflows/ci.yml": {
+      "sha256": "e81d00384c47756cf0d95094c884d47851b731179f586e10a02767fb40f290b4",
+      "lines": 68,
+      "symbols": []
+    },
+    "SECURITY.md": {
+      "sha256": "ace4f544568076007de2152ce8d61f3e448be91f7914b3a5accbc48455bca792",
+      "lines": 7,
+      "symbols": [
+        {
+          "name": "# Security policy",
+          "line": 1
+        }
+      ]
+    },
+    "bin/plan-and-execute.js": {
+      "sha256": "3899d498c10b91f03c657fbaf33885d7fc339e0c3f11cf95ad96936852afc15b",
+      "lines": 447,
+      "symbols": [
+        {
+          "name": "#!/usr/bin/env node",
+          "line": 1
+        },
+        {
+          "name": "function fail(message, code = 1) {",
+          "line": 133
+        },
+        {
+          "name": "function requireValue(args, index, option) {",
+          "line": 138
+        },
+        {
+          "name": "export function parseArguments(argv) {",
+          "line": 144
+        },
+        {
+          "name": "function printResults(results, json) {",
+          "line": 226
+        },
+        {
+          "name": "function executionDoctorReport(options) {",
+          "line": 248
+        },
+        {
+          "name": "function printDoctor(report, json) {",
+          "line": 260
+        },
+        {
+          "name": "function pythonCandidates(scriptArgs, script = lifecycleScript) {",
+          "line": 282
+        },
+        {
+          "name": "function runLifecycle(scriptArgs, options, { stream = false, script = lifecycleScript } = {}) {",
+          "line": 291
+        },
+        {
+          "name": "function capturePython(scriptArgs, options, script) {",
+          "line": 314
+        },
+        {
+          "name": "function routingProfilesReport(options) {",
+          "line": 329
+        },
+        {
+          "name": "function modelsCommand(options) {",
+          "line": 339
+        },
+        {
+          "name": "function lifecycleArguments(command, options) {",
+          "line": 379
+        },
+        {
+          "name": "function exitCodeForError(error) {",
+          "line": 393
+        }
+      ]
+    },
+    "lib/installer.js": {
+      "sha256": "9165b2cabb1c93858bda46c9f3aa69a6b19be5a15c240cc55952663dc3d3305b",
+      "lines": 732,
+      "symbols": [
+        {
+          "name": "function lstatIfPresent(targetPath) {",
+          "line": 32
+        },
+        {
+          "name": "function readJsonIfPresent(filePath) {",
+          "line": 41
+        },
+        {
+          "name": "export function getPackageVersion() {",
+          "line": 50
+        },
+        {
+          "name": "export function readSkillName(skillDirectory) {",
+          "line": 54
+        },
+        {
+          "name": "function shouldExcludeFromHash(relativePath) {",
+          "line": 64
+        },
+        {
+          "name": "function collectFiles(rootDirectory, currentDirectory = rootDirectory, output = []) {",
+          "line": 74
+        },
+        {
+          "name": "export function computeDirectoryHash(directory) {",
+          "line": 93
+        },
+        {
+          "name": "export function validateBundledSkill(sourceDirectory = SKILL_SOURCE, expectedName = SKILL_NAME) {",
+          "line": 110
+        },
+        {
+          "name": "function normalizeAgent(agent) {",
+          "line": 178
+        },
+        {
+          "name": "function normalizeScope(scope) {",
+          "line": 186
+        },
+        {
+          "name": "export function normalizeActivation(activation) {",
+          "line": 195
+        },
+        {
+          "name": "export function resolveTargets({",
+          "line": 204
+        },
+        {
+          "name": "function markerActivation(marker) {",
+          "line": 237
+        },
+        {
+          "name": "function inspectOwnership(destination, expectedName = SKILL_NAME) {",
+          "line": 245
+        },
+        {
+          "name": "function createUniqueSibling(destination, label) {",
+          "line": 308
+        },
+        {
+          "name": "function removeIfPresent(targetPath) {",
+          "line": 314
+        },
+        {
+          "name": "function makeError(code, message) {",
+          "line": 318
+        },
+        {
+          "name": "function setClaudeModelInvocation(skillFile, enabled) {",
+          "line": 324
+        },
+        {
+          "name": "function setCodexImplicitInvocation(metadataFile, enabled) {",
+          "line": 338
+        },
+        {
+          "name": "function prepareVariant(sourceDirectory, agent, activation, skill = SKILL_NAME) {",
+          "line": 354
+        },
+        {
+          "name": "function installOne({",
+          "line": 377
+        },
+        {
+          "name": "export function inspectTarget(target) {",
+          "line": 439
+        },
+        {
+          "name": "function planInstallAction(ownership, sourceHash, installedHash, activation, force) {",
+          "line": 458
+        },
+        {
+          "name": "export function installSkill(options = {}) {",
+          "line": 492
+        },
+        {
+          "name": "function installSingleSkill({",
+          "line": 505
+        },
+        {
+          "name": "export function uninstallSkill(options = {}) {",
+          "line": 577
+        },
+        {
+          "name": "function uninstallSingleSkill({",
+          "line": 586
+        },
+        {
+          "name": "export function getStatus(options = {}) {",
+          "line": 640
+        },
+        {
+          "name": "export function isMissingCommand(result) {",
+          "line": 669
+        },
+        {
+          "name": "function resolveWindowsCommand(command) {",
+          "line": 682
+        },
+        {
+          "name": "export function probeCommand(command, args = ['--version']) {",
+          "line": 688
+        },
+        {
+          "name": "export function runDoctor() {",
+          "line": 711
+        }
+      ]
+    },
+    "lib/skill-source.js": {
+      "sha256": "6a47e8930f1e87a08c74e048d4065b2bb8b33bf8b809629f923a3c0537a6f2e7",
+      "lines": 63,
+      "symbols": [
+        {
+          "name": "export function normalizeSkill(value = SKILLS[0], allowAll = false) {",
+          "line": 13
+        },
+        {
+          "name": "export function skillSource(name) {",
+          "line": 20
+        },
+        {
+          "name": "export function stageSkillSource(name, sourceDirectory = skillSource(name)) {",
+          "line": 24
+        }
+      ]
+    },
+    "skill/plan-and-execute/SKILL.md": {
+      "sha256": "4af12fdfd1a7e7487e0cc96f67f924a548e6f541db1bb0b27221661edefab032",
+      "lines": 84,
+      "symbols": [
+        {
+          "name": "# Plan and Execute",
+          "line": 6
+        },
+        {
+          "name": "## 1. Lifecycle and configuration",
+          "line": 10
+        },
+        {
+          "name": "## 2. Decide DIRECT vs ORCHESTRATED",
+          "line": 16
+        },
+        {
+          "name": "### DIRECT EXIT",
+          "line": 20
+        },
+        {
+          "name": "## 3. ORCHESTRATED input gate",
+          "line": 28
+        },
+        {
+          "name": "## 4. Always-on model economy",
+          "line": 45
+        },
+        {
+          "name": "## 5. Promote late",
+          "line": 68
+        },
+        {
+          "name": "## 6. Final-plan invariants",
+          "line": 72
+        },
+        {
+          "name": "## On-demand references",
+          "line": 82
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/ADAPTIVE_STUDY.md": {
+      "sha256": "349f06551e9fd94a33f437d814c4c116339b9a111cebfe506bb6a5f0b59f50a3",
+      "lines": 163,
+      "symbols": [
+        {
+          "name": "# Adaptive study protocol",
+          "line": 1
+        },
+        {
+          "name": "## 1. Classify before broad repository inspection",
+          "line": 5
+        },
+        {
+          "name": "### Simple",
+          "line": 9
+        },
+        {
+          "name": "### Medium",
+          "line": 13
+        },
+        {
+          "name": "### Complex",
+          "line": 22
+        },
+        {
+          "name": "## 2. Search first, read second",
+          "line": 28
+        },
+        {
+          "name": "## 3. Record evidence, not process",
+          "line": 46
+        },
+        {
+          "name": "## 4. Material questions",
+          "line": 81
+        },
+        {
+          "name": "## 5. Synthesis",
+          "line": 99
+        },
+        {
+          "name": "## 6. Review",
+          "line": 123
+        },
+        {
+          "name": "## 7. Commands",
+          "line": 136
+        },
+        {
+          "name": "## 8. Text budgets",
+          "line": 148
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/ASSISTANTS.md": {
+      "sha256": "8a7e0edce46d96093a5c7e641a4fc093c1ee552da23af8aaee5abb41d4886b32",
+      "lines": 43,
+      "symbols": [
+        {
+          "name": "# Bounded advisory validation triage",
+          "line": 1
+        },
+        {
+          "name": "## Activation and cost",
+          "line": 5
+        },
+        {
+          "name": "## Native profiles and the important limitation",
+          "line": 15
+        },
+        {
+          "name": "## Persistence and ownership",
+          "line": 25
+        },
+        {
+          "name": "## Separate observer chain (0.11)",
+          "line": 41
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/DELEGATION.md": {
+      "sha256": "40cd1984a718285408ab63a0fe97242d0c2eef675a90df3f9ef1b0109d28bb99",
+      "lines": 53,
+      "symbols": [
+        {
+          "name": "# Delegation policy and role contracts",
+          "line": 1
+        },
+        {
+          "name": "## Request",
+          "line": 11
+        },
+        {
+          "name": "## Rules, in order",
+          "line": 15
+        },
+        {
+          "name": "## Token accounting",
+          "line": 24
+        },
+        {
+          "name": "## Role contracts",
+          "line": 28
+        },
+        {
+          "name": "## Compact result schema",
+          "line": 42
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/EXECUTION_CONTEXT.md": {
+      "sha256": "4ed0e09d146e6a228943f9607de92a3156e19ca5c5e19b77bdd78ffa5de82447",
+      "lines": 112,
+      "symbols": [
+        {
+          "name": "# Execution context and validated learning",
+          "line": 1
+        },
+        {
+          "name": "## Omission is the default",
+          "line": 5
+        },
+        {
+          "name": "## Global `CONTEXT.md`",
+          "line": 18
+        },
+        {
+          "name": "## Scoped context files",
+          "line": 36
+        },
+        {
+          "name": "## Context budgets",
+          "line": 44
+        },
+        {
+          "name": "## Worker assignment",
+          "line": 57
+        },
+        {
+          "name": "## Validated execution learnings",
+          "line": 65
+        },
+        {
+          "name": "## Review checks",
+          "line": 94
+        },
+        {
+          "name": "## Design principle",
+          "line": 110
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/INSTALLATION.md": {
+      "sha256": "679e881535934274a60615aaa36befbf30bc15ae6302dc66dceb6a7a8d45b2ff",
+      "lines": 209,
+      "symbols": [
+        {
+          "name": "# Install Plan and Execute for Claude Code, Codex and Antigravity",
+          "line": 1
+        },
+        {
+          "name": "## Activation mode",
+          "line": 9
+        },
+        {
+          "name": "## Recommended: install with npx",
+          "line": 23
+        },
+        {
+          "name": "# Claude and Codex for every project; selective auto-routing",
+          "line": 63
+        },
+        {
+          "name": "# Never auto-invoke the harness",
+          "line": 66
+        },
+        {
+          "name": "# Return an untouched managed installation to selective mode",
+          "line": 69
+        },
+        {
+          "name": "# Claude only in the current workspace",
+          "line": 72
+        },
+        {
+          "name": "# Inspect and remove installations",
+          "line": 75
+        },
+        {
+          "name": "## Installation targets",
+          "line": 86
+        },
+        {
+          "name": "## Manual installation",
+          "line": 105
+        },
+        {
+          "name": "## Invocation behavior",
+          "line": 117
+        },
+        {
+          "name": "## Late promotion from direct work",
+          "line": 133
+        },
+        {
+          "name": "## Strict runner",
+          "line": 137
+        },
+        {
+          "name": "## Model mapping and provider fallback",
+          "line": 160
+        },
+        {
+          "name": "## Verify the installation",
+          "line": 166
+        },
+        {
+          "name": "## Lifecycle CLI",
+          "line": 194
+        },
+        {
+          "name": "## Companion skill",
+          "line": 205
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/LIFECYCLE.md": {
+      "sha256": "df87ef9b893228773a33b1490112f8ac5acbb541bf6691a9d58ba4f20b7c187b",
+      "lines": 119,
+      "symbols": [
+        {
+          "name": "# Lifecycle protocol",
+          "line": 1
+        },
+        {
+          "name": "## Current/status",
+          "line": 9
+        },
+        {
+          "name": "## Activate",
+          "line": 24
+        },
+        {
+          "name": "## Resume",
+          "line": 34
+        },
+        {
+          "name": "## Lease",
+          "line": 54
+        },
+        {
+          "name": "## Cancel",
+          "line": 65
+        },
+        {
+          "name": "## Reset",
+          "line": 77
+        },
+        {
+          "name": "## Successful completion cleanup",
+          "line": 87
+        },
+        {
+          "name": "## What belongs in lifecycle context",
+          "line": 106
+        },
+        {
+          "name": "## Standalone validation is outside plan lifecycle",
+          "line": 117
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/MODEL_CATALOG.md": {
+      "sha256": "c751d391d8ce957720f3e5bf056c5fbb33413c2d6e19deaa6504a7a5c800841e",
+      "lines": 74,
+      "symbols": [
+        {
+          "name": "# Model catalog contract",
+          "line": 1
+        },
+        {
+          "name": "## Schema (`schema_version` 1)",
+          "line": 5
+        },
+        {
+          "name": "## Freshness policy (`2026-10-01-v1`)",
+          "line": 36
+        },
+        {
+          "name": "## Digest and versioning",
+          "line": 48
+        },
+        {
+          "name": "## Bootstrap",
+          "line": 52
+        },
+        {
+          "name": "## Shared cache and refresh controller",
+          "line": 56
+        },
+        {
+          "name": "## Plan-local snapshot (`MODEL_MATRIX.json`)",
+          "line": 66
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/MODEL_ROUTING.md": {
+      "sha256": "886f53a8817d4a7eb9e93a24e715a57cce927ee1b673384e60cfe46c0814c7c9",
+      "lines": 143,
+      "symbols": [
+        {
+          "name": "# Model and provider routing",
+          "line": 1
+        },
+        {
+          "name": "## Objective",
+          "line": 12
+        },
+        {
+          "name": "## 1. Classify the leaf, then look up the floor",
+          "line": 16
+        },
+        {
+          "name": "### Candidate selector (opt-in, pure)",
+          "line": 35
+        },
+        {
+          "name": "## 2. Verifiability changes the cheapest safe route",
+          "line": 43
+        },
+        {
+          "name": "## 3. Elevate by delegation. Never switch the root session",
+          "line": 59
+        },
+        {
+          "name": "## 4. Logical tiers remain portable",
+          "line": 71
+        },
+        {
+          "name": "### Configured global provider preference",
+          "line": 83
+        },
+        {
+          "name": "## 5. Effort: thoroughness, not only thinking time",
+          "line": 91
+        },
+        {
+          "name": "## 6. Escalate from classified evidence",
+          "line": 103
+        },
+        {
+          "name": "### Validation stagnation: promote from missing progress",
+          "line": 123
+        },
+        {
+          "name": "## 7. Two-phase leaves (optional)",
+          "line": 129
+        },
+        {
+          "name": "## 8. Context economics are part of model economics",
+          "line": 133
+        },
+        {
+          "name": "## Workload-specific profiles",
+          "line": 141
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md": {
+      "sha256": "ba6e2fe3334f9204445aaf20ea28fa1675638029b7de568bfcb9068693af999a",
+      "lines": 88,
+      "symbols": [
+        {
+          "name": "# Claude Code model routing",
+          "line": 1
+        },
+        {
+          "name": "## Current capability map",
+          "line": 5
+        },
+        {
+          "name": "## Elevation mechanics (how a route is actually obtained)",
+          "line": 22
+        },
+        {
+          "name": "## DIRECT mode",
+          "line": 38
+        },
+        {
+          "name": "## ORCHESTRATED tasks",
+          "line": 53
+        },
+        {
+          "name": "## Exploration subagents",
+          "line": 64
+        },
+        {
+          "name": "## Escalation ladder (runner default)",
+          "line": 70
+        },
+        {
+          "name": "## Runner flags",
+          "line": 86
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md": {
+      "sha256": "3cde22d4a24a081052aebfd7d992c8d1c3e4577745aa6f8ea324a7460f280024",
+      "lines": 89,
+      "symbols": [
+        {
+          "name": "# Codex model routing",
+          "line": 1
+        },
+        {
+          "name": "## Current capability map",
+          "line": 5
+        },
+        {
+          "name": "## Elevation mechanics (how a route is actually obtained)",
+          "line": 22
+        },
+        {
+          "name": "## DIRECT mode",
+          "line": 37
+        },
+        {
+          "name": "## ORCHESTRATED tasks",
+          "line": 52
+        },
+        {
+          "name": "## Exploration subagents",
+          "line": 63
+        },
+        {
+          "name": "## Escalation ladder (runner default)",
+          "line": 67
+        },
+        {
+          "name": "## Older catalogs and quota",
+          "line": 81
+        },
+        {
+          "name": "## Runner flags",
+          "line": 85
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md": {
+      "sha256": "7f13e72569bb294e560edb9df7cca73576b6a402cbc6f7b2e1e53ff731315fc4",
+      "lines": 29,
+      "symbols": [
+        {
+          "name": "# DeepSeek routing (lazy reference)",
+          "line": 1
+        },
+        {
+          "name": "## Profiles",
+          "line": 5
+        },
+        {
+          "name": "## Bootstrap catalog (dated 2026-10-01, evidence not placement)",
+          "line": 16
+        },
+        {
+          "name": "## Pricing",
+          "line": 27
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md": {
+      "sha256": "29d008c040d66b64d903547d55d04f73099a138a741787d11631aa2791fa1fe8",
+      "lines": 39,
+      "symbols": [
+        {
+          "name": "# GLM / Z.AI model routing",
+          "line": 1
+        },
+        {
+          "name": "## Harness and profile",
+          "line": 5
+        },
+        {
+          "name": "## Catalog mapping (bootstrap evidence, not placement)",
+          "line": 15
+        },
+        {
+          "name": "## Effort",
+          "line": 26
+        },
+        {
+          "name": "## Economics",
+          "line": 30
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/MODEL_ROUTING_MUSE.md": {
+      "sha256": "648cec38d3ee0e61007208c01122e6095188e7b568ee82faa21aa1cf6a33804b",
+      "lines": 50,
+      "symbols": [
+        {
+          "name": "# Muse Code model routing",
+          "line": 1
+        },
+        {
+          "name": "## Status and evidence",
+          "line": 5
+        },
+        {
+          "name": "## Catalog mapping",
+          "line": 9
+        },
+        {
+          "name": "## Worker argv",
+          "line": 21
+        },
+        {
+          "name": "## Summary argv (read-only)",
+          "line": 36
+        },
+        {
+          "name": "## Output envelope",
+          "line": 44
+        },
+        {
+          "name": "## Credentials",
+          "line": 48
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md": {
+      "sha256": "9407add1e9062e3bdfb65af9c391e0f232b9512c3dfec0fa5f7dbbc9269fc683",
+      "lines": 66,
+      "symbols": [
+        {
+          "name": "# Planning input contract",
+          "line": 1
+        },
+        {
+          "name": "## Accepted final-planning inputs",
+          "line": 7
+        },
+        {
+          "name": "## Prepared package layout",
+          "line": 16
+        },
+        {
+          "name": "## Consumption rules",
+          "line": 45
+        },
+        {
+          "name": "## Cross-cutting patterns",
+          "line": 56
+        },
+        {
+          "name": "## Why this boundary is intentionally small",
+          "line": 64
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/PLANNING_PROTOCOL.md": {
+      "sha256": "2c12e549fa7032ef1691ea8c87b805beab4732c6fb976164ed295faf0b266508",
+      "lines": 183,
+      "symbols": [
+        {
+          "name": "# Final planning protocol",
+          "line": 1
+        },
+        {
+          "name": "## 1. Preserve meaning, compress representation",
+          "line": 5
+        },
+        {
+          "name": "## 2. Route planning work explicitly",
+          "line": 21
+        },
+        {
+          "name": "## 3. Requirements",
+          "line": 31
+        },
+        {
+          "name": "## 4. Recursive TODO decomposition",
+          "line": 44
+        },
+        {
+          "name": "## 5. Context boundary per TODO",
+          "line": 64
+        },
+        {
+          "name": "## 6. Resumable subtasks",
+          "line": 74
+        },
+        {
+          "name": "## 7. Detect cross-cutting pattern contracts",
+          "line": 82
+        },
+        {
+          "name": "## 8. Directional validated learning",
+          "line": 98
+        },
+        {
+          "name": "## 9. Progressive execution context",
+          "line": 106
+        },
+        {
+          "name": "## 10. Implementation model routing",
+          "line": 118
+        },
+        {
+          "name": "## 11. Acceptance and validation",
+          "line": 129
+        },
+        {
+          "name": "## 12. Fresh plan review",
+          "line": 146
+        },
+        {
+          "name": "## 13. Deterministic quality gates",
+          "line": 166
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/PLAN_SPEC.md": {
+      "sha256": "6b1014618196c4e0f966751190eb5bb3104798da7ff10694f9944f27b99fc92d",
+      "lines": 234,
+      "symbols": [
+        {
+          "name": "# Plan spec contract \u2014 schema v4",
+          "line": 1
+        },
+        {
+          "name": "## Top level",
+          "line": 5
+        },
+        {
+          "name": "## `request_analysis`",
+          "line": 25
+        },
+        {
+          "name": "## `requirements`",
+          "line": 63
+        },
+        {
+          "name": "## `execution_context`",
+          "line": 80
+        },
+        {
+          "name": "## `tasks[]`",
+          "line": 121
+        },
+        {
+          "name": "### Task rules",
+          "line": 160
+        },
+        {
+          "name": "### `learning_targets`",
+          "line": 177
+        },
+        {
+          "name": "## `plan_review`",
+          "line": 189
+        },
+        {
+          "name": "## Derived-text budgets",
+          "line": 209
+        },
+        {
+          "name": "## Create and validate",
+          "line": 222
+        },
+        {
+          "name": "## Optional workload affinity",
+          "line": 232
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/PRIMARY_PLANNING.md": {
+      "sha256": "246075b5098308f8e14b6c6004a4c37e1e9650bb6c96606e5c75b941a17c38c3",
+      "lines": 190,
+      "symbols": [
+        {
+          "name": "# Primary planning for oversized requests",
+          "line": 1
+        },
+        {
+          "name": "## 1. Why this path exists",
+          "line": 9
+        },
+        {
+          "name": "## 2. Route by working-set pressure, not maximum context size",
+          "line": 28
+        },
+        {
+          "name": "## 3. Split deterministically before asking a model to summarize",
+          "line": 45
+        },
+        {
+          "name": "## 4. Create the primary plan",
+          "line": 60
+        },
+        {
+          "name": "### A. Fragment digest tasks",
+          "line": 66
+        },
+        {
+          "name": "### B. Cross-fragment synthesis task",
+          "line": 82
+        },
+        {
+          "name": "### C. Coverage and consistency review",
+          "line": 95
+        },
+        {
+          "name": "### D. Final-package handoff",
+          "line": 110
+        },
+        {
+          "name": "## 5. Primary-plan model routing is independent",
+          "line": 116
+        },
+        {
+          "name": "## 6. Prepared package is outside the disposable primary plan",
+          "line": 134
+        },
+        {
+          "name": "## 7. Cross-cutting pattern seeds",
+          "line": 140
+        },
+        {
+          "name": "## 8. Do not create a summary pyramid that loses requirements",
+          "line": 154
+        },
+        {
+          "name": "## 9. Resume and provider switching",
+          "line": 167
+        },
+        {
+          "name": "## 10. Host-native fan-out (optional dispatch path)",
+          "line": 178
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md": {
+      "sha256": "acf86af8b92d5faf5ed56364ff3aec56a1ab43cee445e961cbba9ab6576ce526",
+      "lines": 118,
+      "symbols": [
+        {
+          "name": "# Progress windows and fixed ceilings",
+          "line": 1
+        },
+        {
+          "name": "## Timeout inventory",
+          "line": 5
+        },
+        {
+          "name": "## Portable progress and error contract",
+          "line": 25
+        },
+        {
+          "name": "## Refactor for progress",
+          "line": 48
+        },
+        {
+          "name": "## Evidence that renews the clock",
+          "line": 57
+        },
+        {
+          "name": "## Return waiting to the deterministic runner",
+          "line": 97
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/ROUTING.md": {
+      "sha256": "a08fc73ed533dea0f73fcfa5e7516a27851d9ef0603c42072d5bc3fd4d2cb14c",
+      "lines": 72,
+      "symbols": [
+        {
+          "name": "# Selective activation routing",
+          "line": 1
+        },
+        {
+          "name": "## Objective",
+          "line": 5
+        },
+        {
+          "name": "## Strong orchestration signals",
+          "line": 11
+        },
+        {
+          "name": "## Negative triggers",
+          "line": 21
+        },
+        {
+          "name": "## File-count rule",
+          "line": 45
+        },
+        {
+          "name": "## Context-pressure rule",
+          "line": 49
+        },
+        {
+          "name": "## Evaluation corpus",
+          "line": 57
+        },
+        {
+          "name": "## Plan-free validation is not promotion",
+          "line": 70
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/SHARED_PATTERNS.md": {
+      "sha256": "d9f785d9acf44b667d6cc3301e2e1520a15a1b7af5460535d00e3c6676f1382f",
+      "lines": 171,
+      "symbols": [
+        {
+          "name": "# Versioned shared-pattern contracts",
+          "line": 1
+        },
+        {
+          "name": "## 1. Promote only real cross-cutting contracts",
+          "line": 13
+        },
+        {
+          "name": "## 2. Pattern artifacts",
+          "line": 24
+        },
+        {
+          "name": "## 3. Plan-time creation",
+          "line": 53
+        },
+        {
+          "name": "## 4. Worker dispatch",
+          "line": 88
+        },
+        {
+          "name": "## 5. Adoption/signature",
+          "line": 99
+        },
+        {
+          "name": "## 6. Evolving a pattern",
+          "line": 112
+        },
+        {
+          "name": "## 7. Avoid oscillation",
+          "line": 137
+        },
+        {
+          "name": "## 8. Pattern validation and completion",
+          "line": 151
+        },
+        {
+          "name": "## 9. Why this resembles incremental build systems",
+          "line": 165
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/STUDY_CHOICES.md": {
+      "sha256": "8c8adbcdc085eb181009926e3f6306fd99b5ff888de0cef6990e60e3843c4266",
+      "lines": 86,
+      "symbols": [
+        {
+          "name": "# Complex-study choices",
+          "line": 1
+        },
+        {
+          "name": "## Recommendation marker",
+          "line": 7
+        },
+        {
+          "name": "## Interactive choice UI",
+          "line": 31
+        },
+        {
+          "name": "## Choice 1 \u2014 internal study",
+          "line": 45
+        },
+        {
+          "name": "## Choice 2 \u2014 external study",
+          "line": 61
+        },
+        {
+          "name": "## Already-specified choices",
+          "line": 77
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md": {
+      "sha256": "a1d0627faf24c2c97cfe4e3b12cbada151d5c849cb2eeb6006cfff5ffa7de79f",
+      "lines": 169,
+      "symbols": [
+        {
+          "name": "# Test resource inventory and monitoring",
+          "line": 1
+        },
+        {
+          "name": "## 1. Reuse the project router",
+          "line": 5
+        },
+        {
+          "name": "## 2. Build a test-to-resource map",
+          "line": 84
+        },
+        {
+          "name": "## 3. Run mapped validations under the watcher",
+          "line": 122
+        },
+        {
+          "name": "### FailureEvidencePacket and advisory diagnosis",
+          "line": 135
+        },
+        {
+          "name": "### Monitor artifact registry and cleanup",
+          "line": 159
+        },
+        {
+          "name": "## 4. Research notes",
+          "line": 163
+        },
+        {
+          "name": "## Reuse without a plan",
+          "line": 167
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md": {
+      "sha256": "72da10bd5e05fd08d213ed29ca649e83fbe23d4f082bf1c3159e87402cbef8cd",
+      "lines": 89,
+      "symbols": [
+        {
+          "name": "# Token-efficiency contract",
+          "line": 1
+        },
+        {
+          "name": "## Objective",
+          "line": 5
+        },
+        {
+          "name": "## 1. Avoid the harness when the harness does not pay for itself",
+          "line": 9
+        },
+        {
+          "name": "## 2. Keep useful shared context while it is useful",
+          "line": 15
+        },
+        {
+          "name": "## 3. Exploration and routing are defined once",
+          "line": 21
+        },
+        {
+          "name": "## 4. Elevation is delegation, not a root switch",
+          "line": 27
+        },
+        {
+          "name": "## 5. Promote instead of restarting",
+          "line": 31
+        },
+        {
+          "name": "## 6. Spend model tokens only on judgment",
+          "line": 35
+        },
+        {
+          "name": "## 7. Progressive disclosure",
+          "line": 41
+        },
+        {
+          "name": "## 8. Preserve request evidence; compress derived state",
+          "line": 47
+        },
+        {
+          "name": "## 9. Search first, read second",
+          "line": 51
+        },
+        {
+          "name": "## 10. Minimize shared orchestrated context",
+          "line": 55
+        },
+        {
+          "name": "## 11. Preserve stable provider prefixes and logical routing",
+          "line": 59
+        },
+        {
+          "name": "## 12. Route by verified task cost, not price per token",
+          "line": 65
+        },
+        {
+          "name": "## 13. Compact superseded validation evidence",
+          "line": 69
+        },
+        {
+          "name": "## 14. Bound tool/report output",
+          "line": 75
+        },
+        {
+          "name": "## 15. Final summary uses compact authoritative state",
+          "line": 79
+        },
+        {
+          "name": "## 16. Never optimize away quality anchors",
+          "line": 83
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/VALIDATION_WORKLOADS.md": {
+      "sha256": "a1c1e961444bc6d8f2537b17e6bfc8790d9a65b30a53a89de74432a2c654b081",
+      "lines": 110,
+      "symbols": [
+        {
+          "name": "# Plan-free validation and workload-aware routing",
+          "line": 1
+        },
+        {
+          "name": "## DIRECT does not mean unmonitored",
+          "line": 5
+        },
+        {
+          "name": "## Four independent axes",
+          "line": 25
+        },
+        {
+          "name": "## Explicit profile configuration",
+          "line": 36
+        },
+        {
+          "name": "## Inventory and explanation commands",
+          "line": 79
+        },
+        {
+          "name": "## Quota identity and recovery",
+          "line": 92
+        },
+        {
+          "name": "## Optional observer",
+          "line": 96
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/WATCHDOG.md": {
+      "sha256": "5f23918061bb3c7f72fddac6627210f648f69a132b9cc84b848ff32dc44fe1ac",
+      "lines": 127,
+      "symbols": [
+        {
+          "name": "# Execution watchdog",
+          "line": 1
+        },
+        {
+          "name": "## Commands and output",
+          "line": 5
+        },
+        {
+          "name": "## Activity and deduplication",
+          "line": 30
+        },
+        {
+          "name": "## Host scheduling",
+          "line": 40
+        },
+        {
+          "name": "## Keepalive: relaunch a dead runner",
+          "line": 77
+        },
+        {
+          "name": "## Watcher routing and provider policy",
+          "line": 102
+        },
+        {
+          "name": "## Watchkeeper prompt",
+          "line": 113
+        }
+      ]
+    },
+    "skill/plan-and-execute/references/WORKFLOW.md": {
+      "sha256": "f95cc605684b7fe58d3c3ab2cd3a3aead456bad851f45746fe26ed771e19892c",
+      "lines": 241,
+      "symbols": [
+        {
+          "name": "# Execution workflow",
+          "line": 1
+        },
+        {
+          "name": "## Roles",
+          "line": 5
+        },
+        {
+          "name": "## Native execution loop",
+          "line": 13
+        },
+        {
+          "name": "### 1. Select",
+          "line": 15
+        },
+        {
+          "name": "### 2. Claim",
+          "line": 30
+        },
+        {
+          "name": "### 2b. Design phase (only when the TODO declares `design_route`)",
+          "line": 41
+        },
+        {
+          "name": "### 3. Dispatch one fresh worker",
+          "line": 45
+        },
+        {
+          "name": "### 4. Checkpoint",
+          "line": 61
+        },
+        {
+          "name": "### 5. Handle shared-pattern evidence",
+          "line": 75
+        },
+        {
+          "name": "### 6. Validate independently",
+          "line": 97
+        },
+        {
+          "name": "### 7. Complete, then record pattern adoption",
+          "line": 109
+        },
+        {
+          "name": "## Strict external runner",
+          "line": 163
+        },
+        {
+          "name": "## State commands",
+          "line": 177
+        },
+        {
+          "name": "## Failure and escalation",
+          "line": 190
+        },
+        {
+          "name": "## Validated learning",
+          "line": 207
+        },
+        {
+          "name": "## Final handoff",
+          "line": 219
+        },
+        {
+          "name": "## Safety",
+          "line": 231
+        },
+        {
+          "name": "## Shared validation and optional observers",
+          "line": 239
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/artifact_contract.py": {
+      "sha256": "477646cf30634e334e5c704a6cbe86e9dea4712f7527f51501c43462cadc08f3",
+      "lines": 1047,
+      "symbols": [
+        {
+          "name": "_error",
+          "line": 100,
+          "end": 101
+        },
+        {
+          "name": "concise_line",
+          "line": 104,
+          "end": 129
+        },
+        {
+          "name": "concise_list",
+          "line": 132,
+          "end": 162
+        },
+        {
+          "name": "_md",
+          "line": 165,
+          "end": 167
+        },
+        {
+          "name": "_validate_plan_text",
+          "line": 170,
+          "end": 375
+        },
+        {
+          "name": "_validate_completion_report",
+          "line": 378,
+          "end": 423
+        },
+        {
+          "name": "_compact_plan_renderers",
+          "line": 426,
+          "end": 669
+        },
+        {
+          "name": "install_plan_contract",
+          "line": 672,
+          "end": 810
+        },
+        {
+          "name": "_validate_study",
+          "line": 813,
+          "end": 964
+        },
+        {
+          "name": "_compact_study_renderer",
+          "line": 967,
+          "end": 1029
+        },
+        {
+          "name": "install_study_contract",
+          "line": 1032,
+          "end": 1047
+        },
+        {
+          "name": "check",
+          "line": 173,
+          "end": 177
+        },
+        {
+          "name": "render_global_context",
+          "line": 427,
+          "end": 431
+        },
+        {
+          "name": "render_scoped_context",
+          "line": 433,
+          "end": 437
+        },
+        {
+          "name": "render_execution_context_strategy",
+          "line": 439,
+          "end": 451
+        },
+        {
+          "name": "render_analysis",
+          "line": 453,
+          "end": 484
+        },
+        {
+          "name": "render_plan_review",
+          "line": 486,
+          "end": 496
+        },
+        {
+          "name": "render_plan",
+          "line": 498,
+          "end": 540
+        },
+        {
+          "name": "render_task",
+          "line": 542,
+          "end": 635
+        },
+        {
+          "name": "render_learning_artifact",
+          "line": 637,
+          "end": 660
+        },
+        {
+          "name": "preflight_spec",
+          "line": 696,
+          "end": 719
+        },
+        {
+          "name": "create_plan",
+          "line": 721,
+          "end": 726
+        },
+        {
+          "name": "validate_plan",
+          "line": 728,
+          "end": 736
+        },
+        {
+          "name": "complete_task",
+          "line": 738,
+          "end": 753
+        },
+        {
+          "name": "reset_task",
+          "line": 755,
+          "end": 761
+        },
+        {
+          "name": "fail_task",
+          "line": 763,
+          "end": 788
+        },
+        {
+          "name": "deterministic_summary",
+          "line": 790,
+          "end": 800
+        },
+        {
+          "name": "normalize_study",
+          "line": 1039,
+          "end": 1042
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/assistant_triage.py": {
+      "sha256": "af9d5a1054aae9c747916a60f3f0c836209f878c1c31638909eedcd28d9109c2",
+      "lines": 428,
+      "symbols": [
+        {
+          "name": "Skip",
+          "line": 33,
+          "end": 34
+        },
+        {
+          "name": "dumps",
+          "line": 37,
+          "end": 38
+        },
+        {
+          "name": "strict_json",
+          "line": 41,
+          "end": 50
+        },
+        {
+          "name": "redact",
+          "line": 53,
+          "end": 62
+        },
+        {
+          "name": "observations",
+          "line": 65,
+          "end": 77
+        },
+        {
+          "name": "trigger",
+          "line": 80,
+          "end": 99
+        },
+        {
+          "name": "evidence",
+          "line": 102,
+          "end": 124
+        },
+        {
+          "name": "schema",
+          "line": 127,
+          "end": 134
+        },
+        {
+          "name": "validate_advice",
+          "line": 137,
+          "end": 151
+        },
+        {
+          "name": "kill_tree",
+          "line": 154,
+          "end": 166
+        },
+        {
+          "name": "bounded_process",
+          "line": 169,
+          "end": 239
+        },
+        {
+          "name": "native_profile",
+          "line": 242,
+          "end": 284
+        },
+        {
+          "name": "native_invoke",
+          "line": 287,
+          "end": 300
+        },
+        {
+          "name": "state_path",
+          "line": 303,
+          "end": 312
+        },
+        {
+          "name": "read_state",
+          "line": 315,
+          "end": 329
+        },
+        {
+          "name": "write_state",
+          "line": 332,
+          "end": 346
+        },
+        {
+          "name": "triage",
+          "line": 349,
+          "end": 409
+        },
+        {
+          "name": "hint",
+          "line": 412,
+          "end": 428
+        },
+        {
+          "name": "pairs",
+          "line": 42,
+          "end": 48
+        },
+        {
+          "name": "reader",
+          "line": 184,
+          "end": 199
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/availability.py": {
+      "sha256": "39e4e02663a26a1a3d6324037fef96bbf7d5c28cc2511a89d0431b377fa97c0d",
+      "lines": 168,
+      "symbols": [
+        {
+          "name": "AvailabilityError",
+          "line": 31,
+          "end": 32
+        },
+        {
+          "name": "AvailabilityPaused",
+          "line": 35,
+          "end": 36
+        },
+        {
+          "name": "classify",
+          "line": 39,
+          "end": 51
+        },
+        {
+          "name": "_path",
+          "line": 54,
+          "end": 60
+        },
+        {
+          "name": "read",
+          "line": 63,
+          "end": 87
+        },
+        {
+          "name": "_save",
+          "line": 90,
+          "end": 92
+        },
+        {
+          "name": "unavailable",
+          "line": 95,
+          "end": 113
+        },
+        {
+          "name": "select",
+          "line": 116,
+          "end": 168
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/companion_self_test.py": {
+      "sha256": "cd102c350a3e50e378c5b033badd13ea73324bd066d37c05e3de70e029f9c988",
+      "lines": 61,
+      "symbols": [
+        {
+          "name": "CompanionTests",
+          "line": 16,
+          "end": 58
+        },
+        {
+          "name": "test_router_is_narrow_and_bounded",
+          "line": 17,
+          "end": 23
+        },
+        {
+          "name": "test_source_contains_wrappers_not_a_duplicate_runtime",
+          "line": 25,
+          "end": 30
+        },
+        {
+          "name": "test_read_only_cli_entrypoints_do_not_create_planning_state",
+          "line": 32,
+          "end": 40
+        },
+        {
+          "name": "test_legacy_and_concise_projection_keep_optional_workload",
+          "line": 42,
+          "end": 50
+        },
+        {
+          "name": "test_main_routes_to_companion_without_requiring_orchestration",
+          "line": 52,
+          "end": 58
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/configure.py": {
+      "sha256": "4e454ce5f6e141194bb5b2e95d5ba42e9b7a4f94d8bf4c957c2c1af3d003e8cd",
+      "lines": 380,
+      "symbols": [
+        {
+          "name": "Cancelled",
+          "line": 24,
+          "end": 25
+        },
+        {
+          "name": "Question",
+          "line": 29,
+          "end": 35
+        },
+        {
+          "name": "terminal_ask",
+          "line": 38,
+          "end": 55
+        },
+        {
+          "name": "discover",
+          "line": 58,
+          "end": 76
+        },
+        {
+          "name": "_ask",
+          "line": 79,
+          "end": 84
+        },
+        {
+          "name": "wizard",
+          "line": 87,
+          "end": 156
+        },
+        {
+          "name": "safe_path",
+          "line": 159,
+          "end": 167
+        },
+        {
+          "name": "snapshot",
+          "line": 170,
+          "end": 179
+        },
+        {
+          "name": "save",
+          "line": 182,
+          "end": 214
+        },
+        {
+          "name": "summary",
+          "line": 217,
+          "end": 239
+        },
+        {
+          "name": "profile_preset",
+          "line": 247,
+          "end": 254
+        },
+        {
+          "name": "set_profile",
+          "line": 257,
+          "end": 268
+        },
+        {
+          "name": "doctor",
+          "line": 271,
+          "end": 307
+        },
+        {
+          "name": "configure",
+          "line": 310,
+          "end": 343
+        },
+        {
+          "name": "main",
+          "line": 346,
+          "end": 376
+        },
+        {
+          "name": "as_dict",
+          "line": 34,
+          "end": 35
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/deepseek_provider_self_test.py": {
+      "sha256": "f28eb83e4c2c43cd31bdd8a9506385b7cd7ebc1eeb987c3ea7a998b2de346461",
+      "lines": 189,
+      "symbols": [
+        {
+          "name": "utc",
+          "line": 32,
+          "end": 33
+        },
+        {
+          "name": "argv",
+          "line": 36,
+          "end": 39
+        },
+        {
+          "name": "with_profile",
+          "line": 42,
+          "end": 46
+        },
+        {
+          "name": "test_profiles_resolve_on_both_harnesses",
+          "line": 49,
+          "end": 69
+        },
+        {
+          "name": "test_profile_does_not_change_native_argv",
+          "line": 72,
+          "end": 82
+        },
+        {
+          "name": "test_credentials_reach_child_env_only",
+          "line": 85,
+          "end": 95
+        },
+        {
+          "name": "test_effort_map_and_capability_difference",
+          "line": 98,
+          "end": 105
+        },
+        {
+          "name": "test_off_peak_window_boundaries",
+          "line": 108,
+          "end": 119
+        },
+        {
+          "name": "test_prices_on_both_sides_of_each_boundary",
+          "line": 122,
+          "end": 130
+        },
+        {
+          "name": "test_cache_hit_vs_miss_matches_pricing_table",
+          "line": 133,
+          "end": 146
+        },
+        {
+          "name": "test_catalog_validates_and_eligibility_by_capability",
+          "line": 149,
+          "end": 156
+        },
+        {
+          "name": "test_schema_rejects_bad_off_peak",
+          "line": 159,
+          "end": 174
+        },
+        {
+          "name": "test_thinking_is_optional",
+          "line": 177,
+          "end": 178
+        },
+        {
+          "name": "main",
+          "line": 181,
+          "end": 185
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/glm_provider_self_test.py": {
+      "sha256": "0ba70a34f7c4002e6858c88645df9e3bc6c51f713b8221e9011ca6a4953fb051",
+      "lines": 127,
+      "symbols": [
+        {
+          "name": "test_profile_reuses_claude_harness_with_env_names_only",
+          "line": 23,
+          "end": 38
+        },
+        {
+          "name": "test_default_profile_resolution_unchanged",
+          "line": 41,
+          "end": 42
+        },
+        {
+          "name": "test_effort_map_covers_every_skill_effort",
+          "line": 45,
+          "end": 50
+        },
+        {
+          "name": "test_thinking_disabled_rejected",
+          "line": 53,
+          "end": 61
+        },
+        {
+          "name": "test_credit_formula_matches_documented_multipliers",
+          "line": 64,
+          "end": 74
+        },
+        {
+          "name": "test_off_peak_halves_credits_and_cache_is_cheaper",
+          "line": 77,
+          "end": 80
+        },
+        {
+          "name": "test_api_pricing_and_invalid_tokens",
+          "line": 83,
+          "end": 91
+        },
+        {
+          "name": "test_catalog_validates_and_tiers_fall_upward",
+          "line": 94,
+          "end": 99
+        },
+        {
+          "name": "test_schema_rejects_bad_glm_metadata",
+          "line": 102,
+          "end": 116
+        },
+        {
+          "name": "main",
+          "line": 119,
+          "end": 123
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/jobctl.py": {
+      "sha256": "63d30aea7a3e7b372078542556c1078e09af486f594c19a200f3f633609a64af",
+      "lines": 714,
+      "symbols": [
+        {
+          "name": "JobError",
+          "line": 42,
+          "end": 43
+        },
+        {
+          "name": "now",
+          "line": 46,
+          "end": 47
+        },
+        {
+          "name": "safe_id",
+          "line": 50,
+          "end": 55
+        },
+        {
+          "name": "checked_path",
+          "line": 58,
+          "end": 65
+        },
+        {
+          "name": "job_dir",
+          "line": 68,
+          "end": 72
+        },
+        {
+          "name": "read_record",
+          "line": 75,
+          "end": 99
+        },
+        {
+          "name": "write_record",
+          "line": 102,
+          "end": 121
+        },
+        {
+          "name": "pid_identity",
+          "line": 124,
+          "end": 149
+        },
+        {
+          "name": "posix_pid_identity",
+          "line": 152,
+          "end": 164
+        },
+        {
+          "name": "owner_live",
+          "line": 167,
+          "end": 169
+        },
+        {
+          "name": "job_lock",
+          "line": 173,
+          "end": 209
+        },
+        {
+          "name": "current_run",
+          "line": 212,
+          "end": 217
+        },
+        {
+          "name": "status_job",
+          "line": 220,
+          "end": 244
+        },
+        {
+          "name": "exit_code",
+          "line": 247,
+          "end": 257
+        },
+        {
+          "name": "compact_status",
+          "line": 260,
+          "end": 270
+        },
+        {
+          "name": "seconds",
+          "line": 273,
+          "end": 276
+        },
+        {
+          "name": "command_argv",
+          "line": 279,
+          "end": 284
+        },
+        {
+          "name": "probe_config",
+          "line": 287,
+          "end": 300
+        },
+        {
+          "name": "dispatcher_owner",
+          "line": 303,
+          "end": 318
+        },
+        {
+          "name": "launch_supervisor",
+          "line": 321,
+          "end": 335
+        },
+        {
+          "name": "dispatch_jobs",
+          "line": 338,
+          "end": 364
+        },
+        {
+          "name": "start_job",
+          "line": 367,
+          "end": 449
+        },
+        {
+          "name": "wait_job",
+          "line": 452,
+          "end": 458
+        },
+        {
+          "name": "stop_job",
+          "line": 461,
+          "end": 477
+        },
+        {
+          "name": "supervise",
+          "line": 480,
+          "end": 614
+        },
+        {
+          "name": "mapped_start",
+          "line": 617,
+          "end": 650
+        },
+        {
+          "name": "parser",
+          "line": 653,
+          "end": 675
+        },
+        {
+          "name": "main",
+          "line": 678,
+          "end": 710
+        },
+        {
+          "name": "save",
+          "line": 495,
+          "end": 502
+        },
+        {
+          "name": "stopped",
+          "line": 504,
+          "end": 505
+        },
+        {
+          "name": "output_reader",
+          "line": 527,
+          "end": 554
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/keepalivectl.py": {
+      "sha256": "8c19a0cf77c5a05947d89fa73409db0d5004ccae36bccd0cbb401a4637e802fe",
+      "lines": 351,
+      "symbols": [
+        {
+          "name": "console_python",
+          "line": 40,
+          "end": 47
+        },
+        {
+          "name": "plan_key",
+          "line": 50,
+          "end": 51
+        },
+        {
+          "name": "keepalive_directory",
+          "line": 54,
+          "end": 55
+        },
+        {
+          "name": "read_state",
+          "line": 58,
+          "end": 62
+        },
+        {
+          "name": "write_state",
+          "line": 65,
+          "end": 67
+        },
+        {
+          "name": "exclusive",
+          "line": 71,
+          "end": 96
+        },
+        {
+          "name": "launch",
+          "line": 99,
+          "end": 111
+        },
+        {
+          "name": "runner_argv",
+          "line": 114,
+          "end": 116
+        },
+        {
+          "name": "check_plan",
+          "line": 119,
+          "end": 179
+        },
+        {
+          "name": "check",
+          "line": 182,
+          "end": 193
+        },
+        {
+          "name": "pause",
+          "line": 196,
+          "end": 205
+        },
+        {
+          "name": "task_name",
+          "line": 210,
+          "end": 211
+        },
+        {
+          "name": "scheduled_arguments",
+          "line": 214,
+          "end": 218
+        },
+        {
+          "name": "task_xml",
+          "line": 221,
+          "end": 248
+        },
+        {
+          "name": "cron_line",
+          "line": 251,
+          "end": 253
+        },
+        {
+          "name": "windowless_python",
+          "line": 256,
+          "end": 260
+        },
+        {
+          "name": "schtasks",
+          "line": 263,
+          "end": 265
+        },
+        {
+          "name": "schedule",
+          "line": 268,
+          "end": 301
+        },
+        {
+          "name": "build_parser",
+          "line": 304,
+          "end": 329
+        },
+        {
+          "name": "main",
+          "line": 332,
+          "end": 347
+        },
+        {
+          "name": "common",
+          "line": 308,
+          "end": 313
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/lifecyclectl.py": {
+      "sha256": "f4a1b9fd2cbd413d073d3f6d14de85df2fabf5e2b6c873a67d258afac7ee6d33",
+      "lines": 753,
+      "symbols": [
+        {
+          "name": "LifecycleError",
+          "line": 39,
+          "end": 40
+        },
+        {
+          "name": "utc_now",
+          "line": 43,
+          "end": 44
+        },
+        {
+          "name": "parse_time",
+          "line": 47,
+          "end": 56
+        },
+        {
+          "name": "resolve_repo_root",
+          "line": 59,
+          "end": 63
+        },
+        {
+          "name": "checked_work_root",
+          "line": 66,
+          "end": 70
+        },
+        {
+          "name": "work_directory",
+          "line": 73,
+          "end": 80
+        },
+        {
+          "name": "active_path",
+          "line": 83,
+          "end": 84
+        },
+        {
+          "name": "lease_path",
+          "line": 87,
+          "end": 88
+        },
+        {
+          "name": "plan_requires_attention",
+          "line": 91,
+          "end": 94
+        },
+        {
+          "name": "task_counts",
+          "line": 97,
+          "end": 103
+        },
+        {
+          "name": "read_json_file",
+          "line": 106,
+          "end": 111
+        },
+        {
+          "name": "unlink_if_present",
+          "line": 114,
+          "end": 118
+        },
+        {
+          "name": "relative_plan_path",
+          "line": 121,
+          "end": 125
+        },
+        {
+          "name": "active_record",
+          "line": 128,
+          "end": 137
+        },
+        {
+          "name": "write_active",
+          "line": 140,
+          "end": 145
+        },
+        {
+          "name": "clear_active",
+          "line": 148,
+          "end": 173
+        },
+        {
+          "name": "load_plan_candidate",
+          "line": 176,
+          "end": 187
+        },
+        {
+          "name": "scan_actionable_plans",
+          "line": 190,
+          "end": 201
+        },
+        {
+          "name": "_record_plan_path",
+          "line": 204,
+          "end": 215
+        },
+        {
+          "name": "discover_active",
+          "line": 218,
+          "end": 246
+        },
+        {
+          "name": "activate_plan",
+          "line": 249,
+          "end": 267
+        },
+        {
+          "name": "_windows_pid_is_alive",
+          "line": 270,
+          "end": 289
+        },
+        {
+          "name": "pid_is_alive",
+          "line": 292,
+          "end": 324
+        },
+        {
+          "name": "read_lease",
+          "line": 327,
+          "end": 331
+        },
+        {
+          "name": "lease_is_live",
+          "line": 334,
+          "end": 344
+        },
+        {
+          "name": "acquire_lease",
+          "line": 347,
+          "end": 377
+        },
+        {
+          "name": "release_lease",
+          "line": 380,
+          "end": 389
+        },
+        {
+          "name": "runner_lease",
+          "line": 393,
+          "end": 399
+        },
+        {
+          "name": "recover_interrupted_tasks",
+          "line": 402,
+          "end": 436
+        },
+        {
+          "name": "status_payload",
+          "line": 439,
+          "end": 463
+        },
+        {
+          "name": "terminate_live_runner",
+          "line": 466,
+          "end": 503
+        },
+        {
+          "name": "stop_plan_jobs",
+          "line": 506,
+          "end": 533
+        },
+        {
+          "name": "remove_plan_workspace",
+          "line": 536,
+          "end": 553
+        },
+        {
+          "name": "all_recognized_plans",
+          "line": 556,
+          "end": 567
+        },
+        {
+          "name": "remove_intake",
+          "line": 570,
+          "end": 577
+        },
+        {
+          "name": "cancel_workspace",
+          "line": 580,
+          "end": 607
+        },
+        {
+          "name": "resume_workspace",
+          "line": 610,
+          "end": 634
+        },
+        {
+          "name": "emit",
+          "line": 637,
+          "end": 652
+        },
+        {
+          "name": "build_parser",
+          "line": 655,
+          "end": 699
+        },
+        {
+          "name": "main",
+          "line": 702,
+          "end": 749
+        },
+        {
+          "name": "common",
+          "line": 659,
+          "end": 662
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/lifecyclectl_concise.py": {
+      "sha256": "70dec1d0ec3973869993c505bca5906073c681ca5f24f824e376515da4f252d6",
+      "lines": 11,
+      "symbols": []
+    },
+    "skill/plan-and-execute/scripts/log_watch.py": {
+      "sha256": "114ea5c9c0ef6db6523e4fd7ea41faf2a8e9464968f3a8527738cec6321d3aaf",
+      "lines": 259,
+      "symbols": [
+        {
+          "name": "cursor_for",
+          "line": 22,
+          "end": 27
+        },
+        {
+          "name": "load_cursor",
+          "line": 30,
+          "end": 39
+        },
+        {
+          "name": "save_cursor",
+          "line": 42,
+          "end": 55
+        },
+        {
+          "name": "scan",
+          "line": 58,
+          "end": 132
+        },
+        {
+          "name": "digest",
+          "line": 135,
+          "end": 211
+        },
+        {
+          "name": "parser",
+          "line": 214,
+          "end": 234
+        },
+        {
+          "name": "main",
+          "line": 237,
+          "end": 255
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/model_catalog.py": {
+      "sha256": "848e9b723845dc294bc39dc267357168dfc77f5ecdba67dd5f92f4556db88cbb",
+      "lines": 501,
+      "symbols": [
+        {
+          "name": "CatalogError",
+          "line": 44,
+          "end": 49
+        },
+        {
+          "name": "_parse_time",
+          "line": 52,
+          "end": 59
+        },
+        {
+          "name": "_is_number",
+          "line": 62,
+          "end": 63
+        },
+        {
+          "name": "_check_keys",
+          "line": 66,
+          "end": 68
+        },
+        {
+          "name": "_check_facet_common",
+          "line": 71,
+          "end": 85
+        },
+        {
+          "name": "_check_capability",
+          "line": 88,
+          "end": 125
+        },
+        {
+          "name": "_check_plan_credits",
+          "line": 128,
+          "end": 141
+        },
+        {
+          "name": "_clock_minutes",
+          "line": 144,
+          "end": 147
+        },
+        {
+          "name": "_check_off_peak",
+          "line": 150,
+          "end": 169
+        },
+        {
+          "name": "_check_economics",
+          "line": 172,
+          "end": 192
+        },
+        {
+          "name": "_check_quality",
+          "line": 195,
+          "end": 206
+        },
+        {
+          "name": "validate",
+          "line": 212,
+          "end": 252
+        },
+        {
+          "name": "canonical_json",
+          "line": 255,
+          "end": 256
+        },
+        {
+          "name": "digest",
+          "line": 259,
+          "end": 261
+        },
+        {
+          "name": "freshness_policy",
+          "line": 264,
+          "end": 292
+        },
+        {
+          "name": "facet_freshness",
+          "line": 295,
+          "end": 308
+        },
+        {
+          "name": "catalog_freshness",
+          "line": 311,
+          "end": 320
+        },
+        {
+          "name": "_bootstrap_entry",
+          "line": 323,
+          "end": 333
+        },
+        {
+          "name": "_glm_entry",
+          "line": 336,
+          "end": 346
+        },
+        {
+          "name": "_deepseek_entry",
+          "line": 364,
+          "end": 375
+        },
+        {
+          "name": "credits",
+          "line": 414,
+          "end": 424
+        },
+        {
+          "name": "is_off_peak",
+          "line": 427,
+          "end": 435
+        },
+        {
+          "name": "api_cost_usd",
+          "line": 438,
+          "end": 448
+        },
+        {
+          "name": "native_effort",
+          "line": 451,
+          "end": 458
+        },
+        {
+          "name": "require_thinking",
+          "line": 461,
+          "end": 467
+        },
+        {
+          "name": "bootstrap_catalog",
+          "line": 470,
+          "end": 471
+        },
+        {
+          "name": "provider_config_mapping",
+          "line": 474,
+          "end": 501
+        },
+        {
+          "name": "__init__",
+          "line": 47,
+          "end": 49
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/model_catalogctl.py": {
+      "sha256": "3406cf04a4a35aa3bdee9d69d3c9605410428c538c969994825ca0487464b69a",
+      "lines": 844,
+      "symbols": [
+        {
+          "name": "CacheError",
+          "line": 51,
+          "end": 52
+        },
+        {
+          "name": "LockTimeout",
+          "line": 55,
+          "end": 56
+        },
+        {
+          "name": "_utc_now",
+          "line": 59,
+          "end": 60
+        },
+        {
+          "name": "_iso",
+          "line": 63,
+          "end": 64
+        },
+        {
+          "name": "default_cache_root",
+          "line": 67,
+          "end": 77
+        },
+        {
+          "name": "check_provider",
+          "line": 80,
+          "end": 83
+        },
+        {
+          "name": "_provider_catalog",
+          "line": 86,
+          "end": 88
+        },
+        {
+          "name": "validate_record",
+          "line": 91,
+          "end": 115
+        },
+        {
+          "name": "bootstrap_record",
+          "line": 118,
+          "end": 127
+        },
+        {
+          "name": "CatalogStore",
+          "line": 130,
+          "end": 213
+        },
+        {
+          "name": "facet_states",
+          "line": 216,
+          "end": 227
+        },
+        {
+          "name": "plan_refresh",
+          "line": 230,
+          "end": 241
+        },
+        {
+          "name": "_placeholder",
+          "line": 244,
+          "end": 249
+        },
+        {
+          "name": "_stamp",
+          "line": 252,
+          "end": 256
+        },
+        {
+          "name": "_apply_facet",
+          "line": 259,
+          "end": 281
+        },
+        {
+          "name": "_mapping",
+          "line": 284,
+          "end": 285
+        },
+        {
+          "name": "refresh",
+          "line": 288,
+          "end": 354
+        },
+        {
+          "name": "_result",
+          "line": 357,
+          "end": 361
+        },
+        {
+          "name": "effective_record",
+          "line": 364,
+          "end": 374
+        },
+        {
+          "name": "_providers",
+          "line": 377,
+          "end": 380
+        },
+        {
+          "name": "status",
+          "line": 383,
+          "end": 399
+        },
+        {
+          "name": "merged_catalog",
+          "line": 402,
+          "end": 415
+        },
+        {
+          "name": "validate_cache",
+          "line": 418,
+          "end": 427
+        },
+        {
+          "name": "snapshot",
+          "line": 430,
+          "end": 433
+        },
+        {
+          "name": "MatrixError",
+          "line": 451,
+          "end": 452
+        },
+        {
+          "name": "_matrix_digest",
+          "line": 455,
+          "end": 457
+        },
+        {
+          "name": "_tier_table",
+          "line": 460,
+          "end": 465
+        },
+        {
+          "name": "_bind_task",
+          "line": 468,
+          "end": 480
+        },
+        {
+          "name": "_catalog_state",
+          "line": 483,
+          "end": 489
+        },
+        {
+          "name": "build_matrix",
+          "line": 492,
+          "end": 523
+        },
+        {
+          "name": "_audit",
+          "line": 526,
+          "end": 528
+        },
+        {
+          "name": "render_matrix",
+          "line": 531,
+          "end": 559
+        },
+        {
+          "name": "_atomic_write",
+          "line": 562,
+          "end": 572
+        },
+        {
+          "name": "write_matrix",
+          "line": 575,
+          "end": 579
+        },
+        {
+          "name": "load_matrix",
+          "line": 582,
+          "end": 600
+        },
+        {
+          "name": "create_plan_matrix",
+          "line": 603,
+          "end": 611
+        },
+        {
+          "name": "_load_manifest",
+          "line": 614,
+          "end": 619
+        },
+        {
+          "name": "matrix_status",
+          "line": 622,
+          "end": 645
+        },
+        {
+          "name": "matrix_diff",
+          "line": 648,
+          "end": 669
+        },
+        {
+          "name": "matrix_refresh",
+          "line": 672,
+          "end": 683
+        },
+        {
+          "name": "matrix_reclassify",
+          "line": 686,
+          "end": 723
+        },
+        {
+          "name": "file_sources",
+          "line": 726,
+          "end": 738
+        },
+        {
+          "name": "probe_cli_version",
+          "line": 741,
+          "end": 750
+        },
+        {
+          "name": "_emit",
+          "line": 753,
+          "end": 765
+        },
+        {
+          "name": "main",
+          "line": 768,
+          "end": 840
+        },
+        {
+          "name": "__init__",
+          "line": 133,
+          "end": 139
+        },
+        {
+          "name": "path",
+          "line": 141,
+          "end": 142
+        },
+        {
+          "name": "cached_providers",
+          "line": 144,
+          "end": 147
+        },
+        {
+          "name": "load",
+          "line": 149,
+          "end": 161
+        },
+        {
+          "name": "write",
+          "line": 163,
+          "end": 185
+        },
+        {
+          "name": "lock",
+          "line": 188,
+          "end": 213
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/muse_provider_self_test.py": {
+      "sha256": "9466b0aaa0bed367dd57339f5c991ccd0c2123b19f51140d6ece98549b50487a",
+      "lines": 242,
+      "symbols": [
+        {
+          "name": "sample_report",
+          "line": 25,
+          "end": 39
+        },
+        {
+          "name": "worker",
+          "line": 42,
+          "end": 43
+        },
+        {
+          "name": "summary",
+          "line": 46,
+          "end": 47
+        },
+        {
+          "name": "test_default_worker_argv_has_no_permission_flags",
+          "line": 50,
+          "end": 56
+        },
+        {
+          "name": "test_opt_in_keys_add_flags_independently",
+          "line": 59,
+          "end": 73
+        },
+        {
+          "name": "test_opt_in_keys_must_be_booleans",
+          "line": 76,
+          "end": 86
+        },
+        {
+          "name": "test_catalog_drives_model_and_effort_mapping",
+          "line": 89,
+          "end": 107
+        },
+        {
+          "name": "test_unconfigured_muse_is_never_a_candidate",
+          "line": 110,
+          "end": 117
+        },
+        {
+          "name": "test_configured_muse_routes_to_catalog_model_with_capped_effort",
+          "line": 120,
+          "end": 130
+        },
+        {
+          "name": "test_worker_envelopes_yield_valid_report",
+          "line": 133,
+          "end": 160
+        },
+        {
+          "name": "test_summary_argv_is_read_only",
+          "line": 163,
+          "end": 168
+        },
+        {
+          "name": "test_summary_fails_closed_without_provable_read_only",
+          "line": 171,
+          "end": 188
+        },
+        {
+          "name": "final_summary_fixture",
+          "line": 191,
+          "end": 197
+        },
+        {
+          "name": "test_final_summary_does_not_spawn_when_unprovable",
+          "line": 200,
+          "end": 212
+        },
+        {
+          "name": "test_final_summary_runs_read_only_and_reads_jsonl",
+          "line": 215,
+          "end": 230
+        },
+        {
+          "name": "main",
+          "line": 233,
+          "end": 238
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/observer.py": {
+      "sha256": "ad84f96624f85c860edd925ed5bf354dc805b726f943bf14a435f6ef5179b322",
+      "lines": 440,
+      "symbols": [
+        {
+          "name": "ObserverError",
+          "line": 37,
+          "end": 38
+        },
+        {
+          "name": "Unavailable",
+          "line": 41,
+          "end": 44
+        },
+        {
+          "name": "validate",
+          "line": 47,
+          "end": 55
+        },
+        {
+          "name": "options",
+          "line": 58,
+          "end": 61
+        },
+        {
+          "name": "routes",
+          "line": 64,
+          "end": 82
+        },
+        {
+          "name": "clean_environment",
+          "line": 85,
+          "end": 93
+        },
+        {
+          "name": "agy_startup_guard",
+          "line": 96,
+          "end": 126
+        },
+        {
+          "name": "agy_stream",
+          "line": 129,
+          "end": 256
+        },
+        {
+          "name": "native_invoke",
+          "line": 259,
+          "end": 304
+        },
+        {
+          "name": "load_state",
+          "line": 307,
+          "end": 334
+        },
+        {
+          "name": "diagnose",
+          "line": 337,
+          "end": 411
+        },
+        {
+          "name": "plan_path",
+          "line": 414,
+          "end": 415
+        },
+        {
+          "name": "triage_plan",
+          "line": 418,
+          "end": 426
+        },
+        {
+          "name": "hint",
+          "line": 429,
+          "end": 440
+        },
+        {
+          "name": "__init__",
+          "line": 42,
+          "end": 44
+        },
+        {
+          "name": "drain",
+          "line": 147,
+          "end": 181
+        },
+        {
+          "name": "submit",
+          "line": 187,
+          "end": 196
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/pattern_runner_contract.py": {
+      "sha256": "c96b6c1696d57fd7d096ce06f58c78e168854783e6990c6cc5b0bc322b46a1c8",
+      "lines": 165,
+      "symbols": [
+        {
+          "name": "install_pattern_runner_contract",
+          "line": 12,
+          "end": 165
+        },
+        {
+          "name": "has_patterns",
+          "line": 22,
+          "end": 23
+        },
+        {
+          "name": "assigned_pattern_files",
+          "line": 25,
+          "end": 32
+        },
+        {
+          "name": "worker_prompt",
+          "line": 34,
+          "end": 57
+        },
+        {
+          "name": "execute_one_task",
+          "line": 59,
+          "end": 105
+        },
+        {
+          "name": "compose_summary_input",
+          "line": 107,
+          "end": 125
+        },
+        {
+          "name": "generate_final_summary",
+          "line": 127,
+          "end": 137
+        },
+        {
+          "name": "design_prompt",
+          "line": 142,
+          "end": 156
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/patternctl.py": {
+      "sha256": "d25665ba2ebe2a3464e0d3f83c8fe26bf683101af2a9c1cb1c347487b91fd62d",
+      "lines": 544,
+      "symbols": [
+        {
+          "name": "PatternError",
+          "line": 23,
+          "end": 24
+        },
+        {
+          "name": "now_utc",
+          "line": 27,
+          "end": 28
+        },
+        {
+          "name": "read_json",
+          "line": 31,
+          "end": 35
+        },
+        {
+          "name": "write_json",
+          "line": 38,
+          "end": 40
+        },
+        {
+          "name": "slugify",
+          "line": 43,
+          "end": 45
+        },
+        {
+          "name": "normalize_pattern_id",
+          "line": 48,
+          "end": 52
+        },
+        {
+          "name": "normalize_contract",
+          "line": 55,
+          "end": 66
+        },
+        {
+          "name": "pattern_digest",
+          "line": 69,
+          "end": 76
+        },
+        {
+          "name": "pattern_filename",
+          "line": 79,
+          "end": 80
+        },
+        {
+          "name": "registry_path",
+          "line": 83,
+          "end": 84
+        },
+        {
+          "name": "load_registry",
+          "line": 87,
+          "end": 96
+        },
+        {
+          "name": "known_tasks",
+          "line": 99,
+          "end": 100
+        },
+        {
+          "name": "normalize_initial_pattern",
+          "line": 103,
+          "end": 150
+        },
+        {
+          "name": "render_pattern",
+          "line": 153,
+          "end": 184
+        },
+        {
+          "name": "patterns_for_task",
+          "line": 187,
+          "end": 192
+        },
+        {
+          "name": "render_assignment",
+          "line": 195,
+          "end": 213
+        },
+        {
+          "name": "write_projections",
+          "line": 216,
+          "end": 238
+        },
+        {
+          "name": "validate_registry",
+          "line": 241,
+          "end": 305
+        },
+        {
+          "name": "command_init",
+          "line": 308,
+          "end": 334
+        },
+        {
+          "name": "command_assignment",
+          "line": 337,
+          "end": 357
+        },
+        {
+          "name": "command_adopt",
+          "line": 360,
+          "end": 380
+        },
+        {
+          "name": "load_contract_file",
+          "line": 383,
+          "end": 389
+        },
+        {
+          "name": "command_update",
+          "line": 392,
+          "end": 459
+        },
+        {
+          "name": "command_validate",
+          "line": 462,
+          "end": 470
+        },
+        {
+          "name": "command_status",
+          "line": 473,
+          "end": 487
+        },
+        {
+          "name": "build_parser",
+          "line": 490,
+          "end": 524
+        },
+        {
+          "name": "main",
+          "line": 527,
+          "end": 535
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/planctl.py": {
+      "sha256": "c3cdf3064fa18b7271ea801c614e18b45a467b4c923b98fdb8fbd16ab00bffd4",
+      "lines": 3792,
+      "symbols": [
+        {
+          "name": "PlanError",
+          "line": 85,
+          "end": 86
+        },
+        {
+          "name": "review_checks_for_schema",
+          "line": 89,
+          "end": 99
+        },
+        {
+          "name": "now_utc",
+          "line": 102,
+          "end": 103
+        },
+        {
+          "name": "slugify",
+          "line": 106,
+          "end": 109
+        },
+        {
+          "name": "normalize_task_id",
+          "line": 112,
+          "end": 118
+        },
+        {
+          "name": "normalize_subtask_id",
+          "line": 121,
+          "end": 133
+        },
+        {
+          "name": "normalize_request_part_id",
+          "line": 136,
+          "end": 148
+        },
+        {
+          "name": "normalize_requirement_id",
+          "line": 151,
+          "end": 163
+        },
+        {
+          "name": "ensure_text",
+          "line": 166,
+          "end": 170
+        },
+        {
+          "name": "normalize_request_parts",
+          "line": 173,
+          "end": 205
+        },
+        {
+          "name": "normalize_requirements",
+          "line": 208,
+          "end": 275
+        },
+        {
+          "name": "normalize_hard_decisions",
+          "line": 278,
+          "end": 317
+        },
+        {
+          "name": "normalize_request_analysis",
+          "line": 320,
+          "end": 349
+        },
+        {
+          "name": "normalize_plan_review",
+          "line": 351,
+          "end": 381
+        },
+        {
+          "name": "ensure_list",
+          "line": 383,
+          "end": 388
+        },
+        {
+          "name": "ensure_str_list",
+          "line": 391,
+          "end": 398
+        },
+        {
+          "name": "ensure_context_line",
+          "line": 401,
+          "end": 417
+        },
+        {
+          "name": "normalize_context_item_id",
+          "line": 420,
+          "end": 424
+        },
+        {
+          "name": "normalize_context_item",
+          "line": 427,
+          "end": 480
+        },
+        {
+          "name": "normalize_execution_context",
+          "line": 483,
+          "end": 666
+        },
+        {
+          "name": "expected_task_context_files",
+          "line": 669,
+          "end": 679
+        },
+        {
+          "name": "assign_context_files",
+          "line": 682,
+          "end": 687
+        },
+        {
+          "name": "context_reference",
+          "line": 690,
+          "end": 691
+        },
+        {
+          "name": "render_context_item",
+          "line": 694,
+          "end": 700
+        },
+        {
+          "name": "render_global_context",
+          "line": 703,
+          "end": 711
+        },
+        {
+          "name": "render_scoped_context",
+          "line": 714,
+          "end": 721
+        },
+        {
+          "name": "render_execution_context_strategy",
+          "line": 724,
+          "end": 745
+        },
+        {
+          "name": "write_context_artifacts",
+          "line": 748,
+          "end": 755
+        },
+        {
+          "name": "validate_context_artifacts",
+          "line": 758,
+          "end": 849
+        },
+        {
+          "name": "atomic_write_text",
+          "line": 852,
+          "end": 863
+        },
+        {
+          "name": "replace_with_retry",
+          "line": 866,
+          "end": 878
+        },
+        {
+          "name": "atomic_write_json",
+          "line": 881,
+          "end": 882
+        },
+        {
+          "name": "read_json",
+          "line": 885,
+          "end": 891
+        },
+        {
+          "name": "markdown_list",
+          "line": 894,
+          "end": 896
+        },
+        {
+          "name": "absolute_lexical",
+          "line": 899,
+          "end": 900
+        },
+        {
+          "name": "reject_symlink_components",
+          "line": 903,
+          "end": 908
+        },
+        {
+          "name": "checked_relative_path",
+          "line": 911,
+          "end": 915
+        },
+        {
+          "name": "ensure_git_exclude",
+          "line": 918,
+          "end": 978
+        },
+        {
+          "name": "remove_git_exclude_entry",
+          "line": 981,
+          "end": 1003
+        },
+        {
+          "name": "default_config",
+          "line": 1006,
+          "end": 1171
+        },
+        {
+          "name": "normalize_scope",
+          "line": 1174,
+          "end": 1186
+        },
+        {
+          "name": "normalize_design_route",
+          "line": 1189,
+          "end": 1213
+        },
+        {
+          "name": "normalize_context_boundary",
+          "line": 1216,
+          "end": 1257
+        },
+        {
+          "name": "normalize_subtasks",
+          "line": 1260,
+          "end": 1307
+        },
+        {
+          "name": "normalize_learning_targets",
+          "line": 1310,
+          "end": 1348
+        },
+        {
+          "name": "valid_validation_job_id",
+          "line": 1351,
+          "end": 1356
+        },
+        {
+          "name": "normalize_task",
+          "line": 1359,
+          "end": 1501
+        },
+        {
+          "name": "detect_cycles",
+          "line": 1504,
+          "end": 1521
+        },
+        {
+          "name": "validate_task_graph",
+          "line": 1524,
+          "end": 1552
+        },
+        {
+          "name": "request_part_coverage",
+          "line": 1555,
+          "end": 1579
+        },
+        {
+          "name": "requirement_coverage",
+          "line": 1582,
+          "end": 1604
+        },
+        {
+          "name": "render_request_part_list",
+          "line": 1607,
+          "end": 1610
+        },
+        {
+          "name": "render_requirement_list",
+          "line": 1613,
+          "end": 1621
+        },
+        {
+          "name": "render_analysis",
+          "line": 1623,
+          "end": 1675
+        },
+        {
+          "name": "render_hard_decisions",
+          "line": 1678,
+          "end": 1686
+        },
+        {
+          "name": "render_plan_review",
+          "line": 1689,
+          "end": 1712
+        },
+        {
+          "name": "render_plan",
+          "line": 1714,
+          "end": 1782
+        },
+        {
+          "name": "render_task",
+          "line": 1784,
+          "end": 1933
+        },
+        {
+          "name": "render_todo",
+          "line": 1935,
+          "end": 1953
+        },
+        {
+          "name": "load_plan",
+          "line": 1956,
+          "end": 1978
+        },
+        {
+          "name": "save_manifest",
+          "line": 1981,
+          "end": 2008
+        },
+        {
+          "name": "create_plan",
+          "line": 2011,
+          "end": 2195
+        },
+        {
+          "name": "validate_plan",
+          "line": 2197,
+          "end": 2402
+        },
+        {
+          "name": "render_audit",
+          "line": 2404,
+          "end": 2496
+        },
+        {
+          "name": "require_valid",
+          "line": 2498,
+          "end": 2501
+        },
+        {
+          "name": "find_task",
+          "line": 2504,
+          "end": 2509
+        },
+        {
+          "name": "learning_source_ids",
+          "line": 2512,
+          "end": 2521
+        },
+        {
+          "name": "next_runnable_task",
+          "line": 2524,
+          "end": 2534
+        },
+        {
+          "name": "append_event",
+          "line": 2537,
+          "end": 2538
+        },
+        {
+          "name": "find_subtask",
+          "line": 2541,
+          "end": 2546
+        },
+        {
+          "name": "completed_subtask_ids",
+          "line": 2549,
+          "end": 2554
+        },
+        {
+          "name": "recover_in_progress_subtasks",
+          "line": 2557,
+          "end": 2568
+        },
+        {
+          "name": "set_subtask_state",
+          "line": 2571,
+          "end": 2640
+        },
+        {
+          "name": "reconcile_reported_subtasks",
+          "line": 2643,
+          "end": 2682
+        },
+        {
+          "name": "declared_learning_target",
+          "line": 2685,
+          "end": 2689
+        },
+        {
+          "name": "normalize_learning_reference",
+          "line": 2692,
+          "end": 2701
+        },
+        {
+          "name": "normalize_reusable_learnings",
+          "line": 2704,
+          "end": 2761
+        },
+        {
+          "name": "learning_artifact_path",
+          "line": 2764,
+          "end": 2765
+        },
+        {
+          "name": "render_learning_artifact",
+          "line": 2768,
+          "end": 2807
+        },
+        {
+          "name": "materialize_learning_artifacts",
+          "line": 2810,
+          "end": 2922
+        },
+        {
+          "name": "validate_learning_artifacts",
+          "line": 2925,
+          "end": 3065
+        },
+        {
+          "name": "remove_learning_artifacts_from_source",
+          "line": 3068,
+          "end": 3128
+        },
+        {
+          "name": "claim_task",
+          "line": 3131,
+          "end": 3156
+        },
+        {
+          "name": "complete_task",
+          "line": 3159,
+          "end": 3209
+        },
+        {
+          "name": "normalize_failure_class",
+          "line": 3212,
+          "end": 3218
+        },
+        {
+          "name": "bounded_failure_reason",
+          "line": 3221,
+          "end": 3227
+        },
+        {
+          "name": "fail_task",
+          "line": 3230,
+          "end": 3321
+        },
+        {
+          "name": "block_task",
+          "line": 3324,
+          "end": 3336
+        },
+        {
+          "name": "release_design_claim",
+          "line": 3339,
+          "end": 3349
+        },
+        {
+          "name": "complete_design_phase",
+          "line": 3352,
+          "end": 3374
+        },
+        {
+          "name": "reset_task",
+          "line": 3377,
+          "end": 3429
+        },
+        {
+          "name": "mark_summary",
+          "line": 3432,
+          "end": 3439
+        },
+        {
+          "name": "deterministic_summary",
+          "line": 3442,
+          "end": 3457
+        },
+        {
+          "name": "cleanup_plan",
+          "line": 3460,
+          "end": 3509
+        },
+        {
+          "name": "parse_json_arg",
+          "line": 3512,
+          "end": 3521
+        },
+        {
+          "name": "command_create",
+          "line": 3524,
+          "end": 3536
+        },
+        {
+          "name": "command_validate",
+          "line": 3539,
+          "end": 3546
+        },
+        {
+          "name": "command_audit",
+          "line": 3549,
+          "end": 3552
+        },
+        {
+          "name": "command_status",
+          "line": 3555,
+          "end": 3561
+        },
+        {
+          "name": "command_next",
+          "line": 3564,
+          "end": 3574
+        },
+        {
+          "name": "command_claim",
+          "line": 3577,
+          "end": 3581
+        },
+        {
+          "name": "command_subtask_start",
+          "line": 3584,
+          "end": 3593
+        },
+        {
+          "name": "command_subtask_complete",
+          "line": 3596,
+          "end": 3605
+        },
+        {
+          "name": "command_subtask_reset",
+          "line": 3608,
+          "end": 3617
+        },
+        {
+          "name": "command_complete",
+          "line": 3620,
+          "end": 3627
+        },
+        {
+          "name": "command_fail",
+          "line": 3630,
+          "end": 3640
+        },
+        {
+          "name": "command_reset",
+          "line": 3643,
+          "end": 3646
+        },
+        {
+          "name": "command_summary",
+          "line": 3649,
+          "end": 3651
+        },
+        {
+          "name": "command_mark_summary",
+          "line": 3654,
+          "end": 3657
+        },
+        {
+          "name": "command_cleanup",
+          "line": 3660,
+          "end": 3663
+        },
+        {
+          "name": "build_parser",
+          "line": 3666,
+          "end": 3777
+        },
+        {
+          "name": "main",
+          "line": 3780,
+          "end": 3788
+        },
+        {
+          "name": "visit",
+          "line": 1509,
+          "end": 1518
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/planctl_concise.py": {
+      "sha256": "650baa02ebcb555acc9fe5874e5c94b4090720bc63f963c76b73f332dd3082e9",
+      "lines": 11,
+      "symbols": []
+    },
+    "skill/plan-and-execute/scripts/preplanctl.py": {
+      "sha256": "71daeaf4fbdaa22120e45e9742cb267e537f618223ac047fca8c4ca55ecdeeb0",
+      "lines": 877,
+      "symbols": [
+        {
+          "name": "PreplanError",
+          "line": 35,
+          "end": 36
+        },
+        {
+          "name": "now_utc",
+          "line": 39,
+          "end": 40
+        },
+        {
+          "name": "write_json",
+          "line": 43,
+          "end": 45
+        },
+        {
+          "name": "read_json",
+          "line": 48,
+          "end": 52
+        },
+        {
+          "name": "slugify",
+          "line": 55,
+          "end": 56
+        },
+        {
+          "name": "estimate_tokens",
+          "line": 59,
+          "end": 61
+        },
+        {
+          "name": "safe_source",
+          "line": 64,
+          "end": 68
+        },
+        {
+          "name": "sha256_bytes",
+          "line": 71,
+          "end": 72
+        },
+        {
+          "name": "sha256_text",
+          "line": 75,
+          "end": 76
+        },
+        {
+          "name": "detect_heading",
+          "line": 79,
+          "end": 89
+        },
+        {
+          "name": "docx_blocks",
+          "line": 92,
+          "end": 115
+        },
+        {
+          "name": "text_blocks",
+          "line": 118,
+          "end": 153
+        },
+        {
+          "name": "extract_blocks",
+          "line": 156,
+          "end": 157
+        },
+        {
+          "name": "working_set_tokens",
+          "line": 163,
+          "end": 171
+        },
+        {
+          "name": "assess_source",
+          "line": 174,
+          "end": 218
+        },
+        {
+          "name": "split_long_text",
+          "line": 221,
+          "end": 243
+        },
+        {
+          "name": "make_fragments",
+          "line": 246,
+          "end": 305
+        },
+        {
+          "name": "package_id_for",
+          "line": 308,
+          "end": 309
+        },
+        {
+          "name": "create_package",
+          "line": 312,
+          "end": 380
+        },
+        {
+          "name": "batch_fragments",
+          "line": 383,
+          "end": 398
+        },
+        {
+          "name": "boundary",
+          "line": 401,
+          "end": 406
+        },
+        {
+          "name": "make_primary_spec",
+          "line": 409,
+          "end": 631
+        },
+        {
+          "name": "validate_digest",
+          "line": 634,
+          "end": 655
+        },
+        {
+          "name": "all_digests",
+          "line": 658,
+          "end": 662
+        },
+        {
+          "name": "validate_synthesis",
+          "line": 665,
+          "end": 682
+        },
+        {
+          "name": "validate_coverage",
+          "line": 685,
+          "end": 701
+        },
+        {
+          "name": "validate_package",
+          "line": 704,
+          "end": 721
+        },
+        {
+          "name": "command_assess",
+          "line": 724,
+          "end": 725
+        },
+        {
+          "name": "create_from_args",
+          "line": 728,
+          "end": 733
+        },
+        {
+          "name": "command_split",
+          "line": 736,
+          "end": 738
+        },
+        {
+          "name": "create_primary_plan",
+          "line": 741,
+          "end": 773
+        },
+        {
+          "name": "command_prepare",
+          "line": 776,
+          "end": 793
+        },
+        {
+          "name": "command_validate_digest",
+          "line": 796,
+          "end": 798
+        },
+        {
+          "name": "command_validate_synthesis",
+          "line": 801,
+          "end": 803
+        },
+        {
+          "name": "command_validate_coverage",
+          "line": 806,
+          "end": 808
+        },
+        {
+          "name": "command_validate_package",
+          "line": 811,
+          "end": 813
+        },
+        {
+          "name": "add_thresholds",
+          "line": 816,
+          "end": 820
+        },
+        {
+          "name": "add_split_options",
+          "line": 823,
+          "end": 826
+        },
+        {
+          "name": "build_parser",
+          "line": 829,
+          "end": 863
+        },
+        {
+          "name": "main",
+          "line": 866,
+          "end": 873
+        },
+        {
+          "name": "append",
+          "line": 128,
+          "end": 133
+        },
+        {
+          "name": "flush",
+          "line": 135,
+          "end": 138
+        },
+        {
+          "name": "flush",
+          "line": 267,
+          "end": 285
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/process_tree.py": {
+      "sha256": "dd7cf0e6c7706426b81301b4725c27863fe0f1e5483d3736413aecea09a3ffa4",
+      "lines": 714,
+      "symbols": [
+        {
+          "name": "_remember_group_cpu",
+          "line": 22,
+          "end": 27
+        },
+        {
+          "name": "posix_session_processes",
+          "line": 30,
+          "end": 79
+        },
+        {
+          "name": "posix_group_metrics",
+          "line": 82,
+          "end": 121
+        },
+        {
+          "name": "_parse_cpu_time",
+          "line": 124,
+          "end": 140
+        },
+        {
+          "name": "_proc_group_metrics",
+          "line": 143,
+          "end": 175
+        },
+        {
+          "name": "_windows_api",
+          "line": 181,
+          "end": 246
+        },
+        {
+          "name": "_windows_pid_time",
+          "line": 249,
+          "end": 261
+        },
+        {
+          "name": "_windows_processes",
+          "line": 264,
+          "end": 279
+        },
+        {
+          "name": "launch",
+          "line": 282,
+          "end": 359
+        },
+        {
+          "name": "_windows_tree_metrics",
+          "line": 362,
+          "end": 405
+        },
+        {
+          "name": "metrics",
+          "line": 408,
+          "end": 417
+        },
+        {
+          "name": "_posix_snapshot",
+          "line": 420,
+          "end": 473
+        },
+        {
+          "name": "_posix_tree_metrics",
+          "line": 476,
+          "end": 529
+        },
+        {
+          "name": "_posix_pid_identities",
+          "line": 532,
+          "end": 566
+        },
+        {
+          "name": "_terminate_posix",
+          "line": 569,
+          "end": 609
+        },
+        {
+          "name": "terminate",
+          "line": 612,
+          "end": 647
+        },
+        {
+          "name": "close",
+          "line": 650,
+          "end": 669
+        },
+        {
+          "name": "_windows_guard",
+          "line": 672,
+          "end": 692
+        },
+        {
+          "name": "_posix_guard",
+          "line": 695,
+          "end": 708
+        },
+        {
+          "name": "BasicLimits",
+          "line": 190,
+          "end": 195
+        },
+        {
+          "name": "IoCounters",
+          "line": 197,
+          "end": 199
+        },
+        {
+          "name": "ExtendedLimits",
+          "line": 201,
+          "end": 204
+        },
+        {
+          "name": "Accounting",
+          "line": 206,
+          "end": 210
+        },
+        {
+          "name": "ProcessEntry",
+          "line": 212,
+          "end": 217
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/progress_signal.py": {
+      "sha256": "5d6feb7540126d4d6bf94cc454d8d7410e8fa89832b8b597be2bc491a9416b3d",
+      "lines": 147,
+      "symbols": [
+        {
+          "name": "_validate",
+          "line": 22,
+          "end": 44
+        },
+        {
+          "name": "format_signal",
+          "line": 47,
+          "end": 56
+        },
+        {
+          "name": "parse_signal",
+          "line": 59,
+          "end": 80
+        },
+        {
+          "name": "emit_signal",
+          "line": 83,
+          "end": 88
+        },
+        {
+          "name": "fingerprint_error",
+          "line": 91,
+          "end": 101
+        },
+        {
+          "name": "probe_file",
+          "line": 104,
+          "end": 129
+        },
+        {
+          "name": "main",
+          "line": 132,
+          "end": 143
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/progress_watch.py": {
+      "sha256": "304401062eb2773ce91e25a38c01f9490f62fd1b2b97fbe4d184d27fb69f6798",
+      "lines": 377,
+      "symbols": [
+        {
+          "name": "progress_line",
+          "line": 35,
+          "end": 42
+        },
+        {
+          "name": "safe_glob",
+          "line": 45,
+          "end": 50
+        },
+        {
+          "name": "validate_policy",
+          "line": 53,
+          "end": 95
+        },
+        {
+          "name": "ProgressState",
+          "line": 98,
+          "end": 168
+        },
+        {
+          "name": "ProgressMonitor",
+          "line": 171,
+          "end": 363
+        },
+        {
+          "name": "supervise",
+          "line": 366,
+          "end": 377
+        },
+        {
+          "name": "__init__",
+          "line": 99,
+          "end": 117
+        },
+        {
+          "name": "progress",
+          "line": 119,
+          "end": 124
+        },
+        {
+          "name": "observe_output",
+          "line": 126,
+          "end": 147
+        },
+        {
+          "name": "reason",
+          "line": 149,
+          "end": 157
+        },
+        {
+          "name": "snapshot",
+          "line": 159,
+          "end": 168
+        },
+        {
+          "name": "__init__",
+          "line": 173,
+          "end": 194
+        },
+        {
+          "name": "start",
+          "line": 196,
+          "end": 203
+        },
+        {
+          "name": "tick",
+          "line": 205,
+          "end": 216
+        },
+        {
+          "name": "_watch",
+          "line": 218,
+          "end": 221
+        },
+        {
+          "name": "_collect",
+          "line": 223,
+          "end": 242
+        },
+        {
+          "name": "_file_snapshot",
+          "line": 244,
+          "end": 272
+        },
+        {
+          "name": "_walk_files",
+          "line": 274,
+          "end": 279
+        },
+        {
+          "name": "_observe_files",
+          "line": 281,
+          "end": 294
+        },
+        {
+          "name": "_run_probe",
+          "line": 296,
+          "end": 323
+        },
+        {
+          "name": "_observe_probe",
+          "line": 325,
+          "end": 344
+        },
+        {
+          "name": "_probe",
+          "line": 346,
+          "end": 354
+        },
+        {
+          "name": "close",
+          "line": 356,
+          "end": 363
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/promotectl.py": {
+      "sha256": "0ef7b8cbb138f814990420dfc48e4cfb472879d369e7572e08e88ed1c6f96e82",
+      "lines": 302,
+      "symbols": [
+        {
+          "name": "PromotionError",
+          "line": 26,
+          "end": 27
+        },
+        {
+          "name": "_text",
+          "line": 30,
+          "end": 36
+        },
+        {
+          "name": "_list",
+          "line": 39,
+          "end": 51
+        },
+        {
+          "name": "normalize_spec",
+          "line": 54,
+          "end": 101
+        },
+        {
+          "name": "load_spec",
+          "line": 104,
+          "end": 111
+        },
+        {
+          "name": "_bounded",
+          "line": 114,
+          "end": 119
+        },
+        {
+          "name": "_git",
+          "line": 122,
+          "end": 136
+        },
+        {
+          "name": "git_snapshot",
+          "line": 139,
+          "end": 146
+        },
+        {
+          "name": "_section",
+          "line": 149,
+          "end": 152
+        },
+        {
+          "name": "render_markdown",
+          "line": 155,
+          "end": 211
+        },
+        {
+          "name": "write_atomic",
+          "line": 214,
+          "end": 226
+        },
+        {
+          "name": "command_validate",
+          "line": 229,
+          "end": 235
+        },
+        {
+          "name": "command_render",
+          "line": 238,
+          "end": 257
+        },
+        {
+          "name": "build_parser",
+          "line": 260,
+          "end": 274
+        },
+        {
+          "name": "main",
+          "line": 277,
+          "end": 298
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/provider_self_test.py": {
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd",
+      "lines": 596,
+      "symbols": [
+        {
+          "name": "sample_route",
+          "line": 20,
+          "end": 26
+        },
+        {
+          "name": "sample_report",
+          "line": 29,
+          "end": 43
+        },
+        {
+          "name": "test_default_provider_policy",
+          "line": 46,
+          "end": 60
+        },
+        {
+          "name": "test_worker_command_adapters",
+          "line": 63,
+          "end": 143
+        },
+        {
+          "name": "golden_configs",
+          "line": 181,
+          "end": 195
+        },
+        {
+          "name": "golden_argv",
+          "line": 198,
+          "end": 226
+        },
+        {
+          "name": "test_golden_argv_unchanged",
+          "line": 229,
+          "end": 233
+        },
+        {
+          "name": "test_profile_composes_existing_adapter",
+          "line": 236,
+          "end": 277
+        },
+        {
+          "name": "test_profile_secrets_reach_child_env_only",
+          "line": 280,
+          "end": 310
+        },
+        {
+          "name": "test_configured_models_are_forwarded",
+          "line": 313,
+          "end": 325
+        },
+        {
+          "name": "test_provider_report_envelopes",
+          "line": 328,
+          "end": 376
+        },
+        {
+          "name": "test_summary_envelopes_and_retry_codes",
+          "line": 379,
+          "end": 414
+        },
+        {
+          "name": "test_kimi_prompt_contract_and_redaction",
+          "line": 417,
+          "end": 467
+        },
+        {
+          "name": "test_codex_output_schema_is_api_compatible",
+          "line": 470,
+          "end": 536
+        },
+        {
+          "name": "test_context_report_ignores_extra_repository_reads",
+          "line": 539,
+          "end": 561
+        },
+        {
+          "name": "test_refresh_manifest_keeps_external_edits",
+          "line": 564,
+          "end": 573
+        },
+        {
+          "name": "main",
+          "line": 576,
+          "end": 592
+        },
+        {
+          "name": "assert_strict",
+          "line": 480,
+          "end": 491
+        },
+        {
+          "name": "check",
+          "line": 544,
+          "end": 545
+        },
+        {
+          "name": "normalize",
+          "line": 211,
+          "end": 215
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/requestctl.py": {
+      "sha256": "1a5aab982d6fa2397a9ecc7df8a7d27a72dbb697e23e3185360632accedda052",
+      "lines": 446,
+      "symbols": [
+        {
+          "name": "RequestError",
+          "line": 80,
+          "end": 81
+        },
+        {
+          "name": "now_stamp",
+          "line": 84,
+          "end": 85
+        },
+        {
+          "name": "atomic_write_text",
+          "line": 88,
+          "end": 95
+        },
+        {
+          "name": "normalize_language",
+          "line": 98,
+          "end": 110
+        },
+        {
+          "name": "render_template",
+          "line": 113,
+          "end": 130
+        },
+        {
+          "name": "resolve_request_path",
+          "line": 133,
+          "end": 142
+        },
+        {
+          "name": "extract_request_text",
+          "line": 145,
+          "end": 153
+        },
+        {
+          "name": "meaningful_request_text",
+          "line": 156,
+          "end": 161
+        },
+        {
+          "name": "inspect_request_file",
+          "line": 164,
+          "end": 178
+        },
+        {
+          "name": "_candidate_exists",
+          "line": 181,
+          "end": 185
+        },
+        {
+          "name": "choose_editor_command",
+          "line": 188,
+          "end": 230
+        },
+        {
+          "name": "launch_editor",
+          "line": 233,
+          "end": 257
+        },
+        {
+          "name": "_ensure_safe_work_root",
+          "line": 260,
+          "end": 269
+        },
+        {
+          "name": "create_request_file",
+          "line": 272,
+          "end": 301
+        },
+        {
+          "name": "latest_request_file",
+          "line": 304,
+          "end": 316
+        },
+        {
+          "name": "command_create",
+          "line": 319,
+          "end": 344
+        },
+        {
+          "name": "command_validate",
+          "line": 347,
+          "end": 355
+        },
+        {
+          "name": "command_extract",
+          "line": 358,
+          "end": 364
+        },
+        {
+          "name": "command_latest",
+          "line": 367,
+          "end": 374
+        },
+        {
+          "name": "command_reopen",
+          "line": 377,
+          "end": 393
+        },
+        {
+          "name": "build_parser",
+          "line": 396,
+          "end": 431
+        },
+        {
+          "name": "main",
+          "line": 434,
+          "end": 442
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/resource_watch.py": {
+      "sha256": "22ac707b846a428c832671c6cfc96d9e45b367f5b3a61963ac0258791a5c2184",
+      "lines": 820,
+      "symbols": [
+        {
+          "name": "stamp",
+          "line": 28,
+          "end": 29
+        },
+        {
+          "name": "spawnable",
+          "line": 32,
+          "end": 38
+        },
+        {
+          "name": "artifact_owner_from_env",
+          "line": 46,
+          "end": 51
+        },
+        {
+          "name": "_inside",
+          "line": 54,
+          "end": 59
+        },
+        {
+          "name": "register_artifact",
+          "line": 62,
+          "end": 81
+        },
+        {
+          "name": "cleanup_artifacts",
+          "line": 84,
+          "end": 122
+        },
+        {
+          "name": "cleanup_command",
+          "line": 125,
+          "end": 128
+        },
+        {
+          "name": "excerpt",
+          "line": 131,
+          "end": 133
+        },
+        {
+          "name": "progress_line",
+          "line": 144,
+          "end": 149
+        },
+        {
+          "name": "_line_key",
+          "line": 159,
+          "end": 160
+        },
+        {
+          "name": "_read_window",
+          "line": 163,
+          "end": 171
+        },
+        {
+          "name": "build_failure_packet",
+          "line": 174,
+          "end": 248
+        },
+        {
+          "name": "stall_decision",
+          "line": 251,
+          "end": 268
+        },
+        {
+          "name": "run_toolchain_check",
+          "line": 271,
+          "end": 319
+        },
+        {
+          "name": "evaluate_check",
+          "line": 322,
+          "end": 395
+        },
+        {
+          "name": "_terminate_process_group",
+          "line": 398,
+          "end": 435
+        },
+        {
+          "name": "exec_in_group",
+          "line": 438,
+          "end": 451
+        },
+        {
+          "name": "service_map_decode",
+          "line": 454,
+          "end": 457
+        },
+        {
+          "name": "run_validation",
+          "line": 460,
+          "end": 783
+        },
+        {
+          "name": "parser",
+          "line": 786,
+          "end": 800
+        },
+        {
+          "name": "main",
+          "line": 803,
+          "end": 814
+        },
+        {
+          "name": "size",
+          "line": 236,
+          "end": 237
+        },
+        {
+          "name": "sample",
+          "line": 525,
+          "end": 582
+        },
+        {
+          "name": "record_test_process",
+          "line": 584,
+          "end": 610
+        },
+        {
+          "name": "read_test_output",
+          "line": 664,
+          "end": 678
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/routing_config.py": {
+      "sha256": "4c21ed17b26062511023e151edd60f56eb68219129418303f17ddc2b26e9d4e4",
+      "lines": 320,
+      "symbols": [
+        {
+          "name": "ConfigError",
+          "line": 45,
+          "end": 46
+        },
+        {
+          "name": "merge",
+          "line": 49,
+          "end": 53
+        },
+        {
+          "name": "global_path",
+          "line": 56,
+          "end": 63
+        },
+        {
+          "name": "read",
+          "line": 66,
+          "end": 81
+        },
+        {
+          "name": "_object",
+          "line": 84,
+          "end": 87
+        },
+        {
+          "name": "_integer",
+          "line": 90,
+          "end": 92
+        },
+        {
+          "name": "_boolean",
+          "line": 95,
+          "end": 97
+        },
+        {
+          "name": "_names",
+          "line": 100,
+          "end": 103
+        },
+        {
+          "name": "embedded_effort_model",
+          "line": 106,
+          "end": 109
+        },
+        {
+          "name": "validate",
+          "line": 112,
+          "end": 213
+        },
+        {
+          "name": "_command",
+          "line": 216,
+          "end": 218
+        },
+        {
+          "name": "_profile",
+          "line": 221,
+          "end": 234
+        },
+        {
+          "name": "glm_profile",
+          "line": 240,
+          "end": 244
+        },
+        {
+          "name": "deepseek_profile",
+          "line": 253,
+          "end": 257
+        },
+        {
+          "name": "resolve_profile",
+          "line": 260,
+          "end": 276
+        },
+        {
+          "name": "_names_codes",
+          "line": 279,
+          "end": 282
+        },
+        {
+          "name": "load",
+          "line": 285,
+          "end": 302
+        },
+        {
+          "name": "plan_overlay",
+          "line": 305,
+          "end": 307
+        },
+        {
+          "name": "provider_chain",
+          "line": 310,
+          "end": 320
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/routing_telemetry.py": {
+      "sha256": "a7d8cb8b3190a3a0177f2854fd1340abbbca6a253176eaaff6d692f365dc753a",
+      "lines": 221,
+      "symbols": [
+        {
+          "name": "_number",
+          "line": 35,
+          "end": 38
+        },
+        {
+          "name": "_pick",
+          "line": 41,
+          "end": 46
+        },
+        {
+          "name": "_scan",
+          "line": 49,
+          "end": 67
+        },
+        {
+          "name": "extract_usage",
+          "line": 70,
+          "end": 92
+        },
+        {
+          "name": "build_record",
+          "line": 95,
+          "end": 119
+        },
+        {
+          "name": "telemetry_path",
+          "line": 122,
+          "end": 123
+        },
+        {
+          "name": "append_record",
+          "line": 126,
+          "end": 139
+        },
+        {
+          "name": "read_records",
+          "line": 142,
+          "end": 153
+        },
+        {
+          "name": "_sum",
+          "line": 156,
+          "end": 158
+        },
+        {
+          "name": "_totals",
+          "line": 161,
+          "end": 166
+        },
+        {
+          "name": "_per_validated",
+          "line": 169,
+          "end": 175
+        },
+        {
+          "name": "rollup",
+          "line": 178,
+          "end": 202
+        },
+        {
+          "name": "rollup_json",
+          "line": 205,
+          "end": 206
+        },
+        {
+          "name": "main",
+          "line": 209,
+          "end": 217
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/routingctl.py": {
+      "sha256": "f792363c783596aef972925edb9aad5d97b86da43e45a212a69c5a2355a78616",
+      "lines": 1284,
+      "symbols": [
+        {
+          "name": "normalize_tier",
+          "line": 33,
+          "end": 36
+        },
+        {
+          "name": "RoutingError",
+          "line": 134,
+          "end": 135
+        },
+        {
+          "name": "_index",
+          "line": 138,
+          "end": 142
+        },
+        {
+          "name": "configure_config",
+          "line": 145,
+          "end": 174
+        },
+        {
+          "name": "model_supports_effort",
+          "line": 177,
+          "end": 187
+        },
+        {
+          "name": "provider_ladder",
+          "line": 190,
+          "end": 199
+        },
+        {
+          "name": "tier_has_candidate",
+          "line": 202,
+          "end": 211
+        },
+        {
+          "name": "lift_tier",
+          "line": 214,
+          "end": 220
+        },
+        {
+          "name": "_above",
+          "line": 223,
+          "end": 227
+        },
+        {
+          "name": "route_rungs",
+          "line": 230,
+          "end": 242
+        },
+        {
+          "name": "escalation_step",
+          "line": 245,
+          "end": 255
+        },
+        {
+          "name": "escalation_exhausted",
+          "line": 258,
+          "end": 264
+        },
+        {
+          "name": "_uncapped_step",
+          "line": 267,
+          "end": 292
+        },
+        {
+          "name": "minimum_route",
+          "line": 321,
+          "end": 360
+        },
+        {
+          "name": "_round",
+          "line": 381,
+          "end": 382
+        },
+        {
+          "name": "_number",
+          "line": 385,
+          "end": 388
+        },
+        {
+          "name": "_select_floor",
+          "line": 391,
+          "end": 405
+        },
+        {
+          "name": "_select_request",
+          "line": 408,
+          "end": 474
+        },
+        {
+          "name": "_api_cost",
+          "line": 477,
+          "end": 489
+        },
+        {
+          "name": "_effective_cost",
+          "line": 492,
+          "end": 524
+        },
+        {
+          "name": "_candidate_id",
+          "line": 527,
+          "end": 528
+        },
+        {
+          "name": "_rank_key",
+          "line": 531,
+          "end": 536
+        },
+        {
+          "name": "_stage",
+          "line": 539,
+          "end": 547
+        },
+        {
+          "name": "select_route",
+          "line": 550,
+          "end": 690
+        },
+        {
+          "name": "select_json",
+          "line": 693,
+          "end": 695
+        },
+        {
+          "name": "_select_cli",
+          "line": 698,
+          "end": 710
+        },
+        {
+          "name": "_int_field",
+          "line": 745,
+          "end": 751
+        },
+        {
+          "name": "_scopes_overlap",
+          "line": 754,
+          "end": 759
+        },
+        {
+          "name": "_derive_role",
+          "line": 762,
+          "end": 766
+        },
+        {
+          "name": "_delegate_request",
+          "line": 769,
+          "end": 808
+        },
+        {
+          "name": "delegation_accounting",
+          "line": 811,
+          "end": 841
+        },
+        {
+          "name": "delegate_decision",
+          "line": 844,
+          "end": 924
+        },
+        {
+          "name": "check_worker_result",
+          "line": 927,
+          "end": 953
+        },
+        {
+          "name": "delegate_json",
+          "line": 956,
+          "end": 957
+        },
+        {
+          "name": "_delegate_cli",
+          "line": 960,
+          "end": 971
+        },
+        {
+          "name": "GateError",
+          "line": 999,
+          "end": 1000
+        },
+        {
+          "name": "canonical_sha256",
+          "line": 1003,
+          "end": 1005
+        },
+        {
+          "name": "_cell_number",
+          "line": 1008,
+          "end": 1018
+        },
+        {
+          "name": "_required",
+          "line": 1021,
+          "end": 1025
+        },
+        {
+          "name": "parse_shadow_report",
+          "line": 1028,
+          "end": 1080
+        },
+        {
+          "name": "_wilson",
+          "line": 1083,
+          "end": 1090
+        },
+        {
+          "name": "newcombe_lower",
+          "line": 1093,
+          "end": 1098
+        },
+        {
+          "name": "_rise",
+          "line": 1101,
+          "end": 1106
+        },
+        {
+          "name": "_verdict",
+          "line": 1109,
+          "end": 1110
+        },
+        {
+          "name": "_segment_gates",
+          "line": 1113,
+          "end": 1174
+        },
+        {
+          "name": "evaluate_gate",
+          "line": 1177,
+          "end": 1201
+        },
+        {
+          "name": "load_gate",
+          "line": 1204,
+          "end": 1215
+        },
+        {
+          "name": "effective_allowlist",
+          "line": 1218,
+          "end": 1221
+        },
+        {
+          "name": "_gate_cli",
+          "line": 1224,
+          "end": 1226
+        },
+        {
+          "name": "_cli",
+          "line": 1229,
+          "end": 1255
+        },
+        {
+          "name": "install_current_model_catalog",
+          "line": 1258,
+          "end": 1269
+        },
+        {
+          "name": "install_runtime_model_catalog",
+          "line": 1272,
+          "end": 1280
+        },
+        {
+          "name": "effort_reason",
+          "line": 596,
+          "end": 601
+        },
+        {
+          "name": "capability_reason",
+          "line": 603,
+          "end": 608
+        },
+        {
+          "name": "availability_reason",
+          "line": 610,
+          "end": 617
+        },
+        {
+          "name": "quality_reason",
+          "line": 619,
+          "end": 626
+        },
+        {
+          "name": "charged",
+          "line": 821,
+          "end": 823
+        },
+        {
+          "name": "keep",
+          "line": 866,
+          "end": 869
+        },
+        {
+          "name": "block",
+          "line": 871,
+          "end": 874
+        },
+        {
+          "name": "current_default_config",
+          "line": 1264,
+          "end": 1265
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/run_concise.py": {
+      "sha256": "495d986c1582ce5ed432fe304d995d244159e2168d2b4aafa6185b13ed79aba8",
+      "lines": 19,
+      "symbols": []
+    },
+    "skill/plan-and-execute/scripts/run_isolated.py": {
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "lines": 2766,
+      "symbols": [
+        {
+          "name": "RunnerError",
+          "line": 89,
+          "end": 90
+        },
+        {
+          "name": "claude_bare_flags",
+          "line": 93,
+          "end": 95
+        },
+        {
+          "name": "_plan_relative_files",
+          "line": 98,
+          "end": 108
+        },
+        {
+          "name": "_plan_context_files",
+          "line": 111,
+          "end": 128
+        },
+        {
+          "name": "refresh_manifest",
+          "line": 131,
+          "end": 151
+        },
+        {
+          "name": "deep_merge",
+          "line": 154,
+          "end": 168
+        },
+        {
+          "name": "load_config",
+          "line": 171,
+          "end": 175
+        },
+        {
+          "name": "resolve_windows_shim",
+          "line": 178,
+          "end": 189
+        },
+        {
+          "name": "command_prefix",
+          "line": 192,
+          "end": 208
+        },
+        {
+          "name": "provider_profile",
+          "line": 211,
+          "end": 215
+        },
+        {
+          "name": "provider_prefix",
+          "line": 218,
+          "end": 219
+        },
+        {
+          "name": "spawn_env",
+          "line": 222,
+          "end": 244
+        },
+        {
+          "name": "antigravity_print_timeout",
+          "line": 247,
+          "end": 258
+        },
+        {
+          "name": "executable_available",
+          "line": 261,
+          "end": 265
+        },
+        {
+          "name": "clamp_index",
+          "line": 268,
+          "end": 272
+        },
+        {
+          "name": "clamp_effort",
+          "line": 275,
+          "end": 280
+        },
+        {
+          "name": "candidate_providers",
+          "line": 283,
+          "end": 298
+        },
+        {
+          "name": "choose_route",
+          "line": 301,
+          "end": 346
+        },
+        {
+          "name": "snapshot_resolution",
+          "line": 359,
+          "end": 360
+        },
+        {
+          "name": "resolve_snapshot_route",
+          "line": 363,
+          "end": 388
+        },
+        {
+          "name": "auto_select_mode",
+          "line": 401,
+          "end": 404
+        },
+        {
+          "name": "shadow_enabled",
+          "line": 407,
+          "end": 408
+        },
+        {
+          "name": "shadow_catalog_providers",
+          "line": 411,
+          "end": 422
+        },
+        {
+          "name": "shadow_candidate",
+          "line": 425,
+          "end": 471
+        },
+        {
+          "name": "record_shadow",
+          "line": 474,
+          "end": 487
+        },
+        {
+          "name": "auto_route",
+          "line": 499,
+          "end": 552
+        },
+        {
+          "name": "resume_provider_models",
+          "line": 555,
+          "end": 588
+        },
+        {
+          "name": "stale_snapshot_warning",
+          "line": 591,
+          "end": 601
+        },
+        {
+          "name": "refresh_model_snapshot",
+          "line": 604,
+          "end": 611
+        },
+        {
+          "name": "release_for_model_refresh",
+          "line": 614,
+          "end": 624
+        },
+        {
+          "name": "completion_schema_path",
+          "line": 627,
+          "end": 631
+        },
+        {
+          "name": "codex_output_schema",
+          "line": 650,
+          "end": 676
+        },
+        {
+          "name": "write_codex_output_schema",
+          "line": 679,
+          "end": 683
+        },
+        {
+          "name": "unique_strings",
+          "line": 686,
+          "end": 689
+        },
+        {
+          "name": "normalize_report",
+          "line": 692,
+          "end": 708
+        },
+        {
+          "name": "worker_prompt",
+          "line": 711,
+          "end": 749
+        },
+        {
+          "name": "evidence_packet_path",
+          "line": 752,
+          "end": 756
+        },
+        {
+          "name": "load_evidence_packet",
+          "line": 759,
+          "end": 766
+        },
+        {
+          "name": "previous_evidence_path",
+          "line": 769,
+          "end": 773
+        },
+        {
+          "name": "failure_context",
+          "line": 776,
+          "end": 811
+        },
+        {
+          "name": "validation_failure_fingerprint",
+          "line": 823,
+          "end": 842
+        },
+        {
+          "name": "diagnostic_results",
+          "line": 851,
+          "end": 863
+        },
+        {
+          "name": "validation_failure_class",
+          "line": 866,
+          "end": 876
+        },
+        {
+          "name": "advisory_only",
+          "line": 879,
+          "end": 884
+        },
+        {
+          "name": "design_note_relative",
+          "line": 887,
+          "end": 888
+        },
+        {
+          "name": "design_prompt",
+          "line": 891,
+          "end": 909
+        },
+        {
+          "name": "append_design_note",
+          "line": 912,
+          "end": 921
+        },
+        {
+          "name": "design_route_task",
+          "line": 924,
+          "end": 931
+        },
+        {
+          "name": "configured_model_args",
+          "line": 934,
+          "end": 935
+        },
+        {
+          "name": "effort_args",
+          "line": 938,
+          "end": 948
+        },
+        {
+          "name": "budget_args",
+          "line": 951,
+          "end": 971
+        },
+        {
+          "name": "is_budget_exhausted",
+          "line": 974,
+          "end": 975
+        },
+        {
+          "name": "classify_report_failure",
+          "line": 978,
+          "end": 990
+        },
+        {
+          "name": "redact_command",
+          "line": 993,
+          "end": 1006
+        },
+        {
+          "name": "antigravity_schema_text",
+          "line": 1009,
+          "end": 1031
+        },
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "pump_stream",
+          "line": 1193,
+          "end": 1211
+        },
+        {
+          "name": "run_process",
+          "line": 1214,
+          "end": 1317
+        },
+        {
+          "name": "decode_json_candidates",
+          "line": 1320,
+          "end": 1369
+        },
+        {
+          "name": "extract_report",
+          "line": 1372,
+          "end": 1409
+        },
+        {
+          "name": "parse_provider_report",
+          "line": 1412,
+          "end": 1425
+        },
+        {
+          "name": "is_rate_limited",
+          "line": 1428,
+          "end": 1429
+        },
+        {
+          "name": "configured_retry_exit_codes",
+          "line": 1432,
+          "end": 1437
+        },
+        {
+          "name": "is_provider_availability_failure",
+          "line": 1440,
+          "end": 1446
+        },
+        {
+          "name": "output_tail",
+          "line": 1449,
+          "end": 1451
+        },
+        {
+          "name": "read_log_tail_since",
+          "line": 1454,
+          "end": 1463
+        },
+        {
+          "name": "validation_timeout_seconds",
+          "line": 1466,
+          "end": 1468
+        },
+        {
+          "name": "timeout_decision_line",
+          "line": 1471,
+          "end": 1477
+        },
+        {
+          "name": "validation_hard_timeout_seconds",
+          "line": 1480,
+          "end": 1482
+        },
+        {
+          "name": "validation_checkpoint_path",
+          "line": 1485,
+          "end": 1486
+        },
+        {
+          "name": "validation_checkpoint_fingerprint",
+          "line": 1489,
+          "end": 1494
+        },
+        {
+          "name": "job_evidence_current",
+          "line": 1497,
+          "end": 1506
+        },
+        {
+          "name": "run_validation_jobs",
+          "line": 1509,
+          "end": 1561
+        },
+        {
+          "name": "observe_validation_log",
+          "line": 1564,
+          "end": 1577
+        },
+        {
+          "name": "terminate_validation_tree",
+          "line": 1580,
+          "end": 1626
+        },
+        {
+          "name": "run_validation_commands",
+          "line": 1629,
+          "end": 1751
+        },
+        {
+          "name": "git_changed_files",
+          "line": 1754,
+          "end": 1777
+        },
+        {
+          "name": "release_interrupted_task",
+          "line": 1780,
+          "end": 1801
+        },
+        {
+          "name": "wait_after_rate_limit",
+          "line": 1804,
+          "end": 1815
+        },
+        {
+          "name": "normalized_result_file",
+          "line": 1818,
+          "end": 1820
+        },
+        {
+          "name": "execute_one_task",
+          "line": 1823,
+          "end": 2042
+        },
+        {
+          "name": "finish_task_validation",
+          "line": 2045,
+          "end": 2149
+        },
+        {
+          "name": "ladder_exhausted",
+          "line": 2152,
+          "end": 2169
+        },
+        {
+          "name": "needs_design_phase",
+          "line": 2172,
+          "end": 2176
+        },
+        {
+          "name": "run_design_phase",
+          "line": 2179,
+          "end": 2255
+        },
+        {
+          "name": "result_excerpt",
+          "line": 2258,
+          "end": 2263
+        },
+        {
+          "name": "compose_summary_input",
+          "line": 2266,
+          "end": 2291
+        },
+        {
+          "name": "summary_prompt",
+          "line": 2294,
+          "end": 2316
+        },
+        {
+          "name": "build_summary_command",
+          "line": 2319,
+          "end": 2455
+        },
+        {
+          "name": "extract_text_output",
+          "line": 2458,
+          "end": 2497
+        },
+        {
+          "name": "muse_summary_text",
+          "line": 2503,
+          "end": 2526
+        },
+        {
+          "name": "summary_stdout_text",
+          "line": 2529,
+          "end": 2549
+        },
+        {
+          "name": "summary_route",
+          "line": 2552,
+          "end": 2561
+        },
+        {
+          "name": "generate_final_summary",
+          "line": 2564,
+          "end": 2618
+        },
+        {
+          "name": "_run_plan",
+          "line": 2621,
+          "end": 2703
+        },
+        {
+          "name": "run_plan",
+          "line": 2707,
+          "end": 2722
+        },
+        {
+          "name": "_interrupt_on_signal",
+          "line": 2725,
+          "end": 2727
+        },
+        {
+          "name": "install_signal_handlers",
+          "line": 2730,
+          "end": 2735
+        },
+        {
+          "name": "build_parser",
+          "line": 2737,
+          "end": 2749
+        },
+        {
+          "name": "main",
+          "line": 2752,
+          "end": 2762
+        },
+        {
+          "name": "convert",
+          "line": 659,
+          "end": 674
+        },
+        {
+          "name": "convert",
+          "line": 1013,
+          "end": 1029
+        },
+        {
+          "name": "add",
+          "line": 1328,
+          "end": 1335
+        },
+        {
+          "name": "record_attempt",
+          "line": 1939,
+          "end": 1949
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/runner_contract.py": {
+      "sha256": "74db8be9153d63c8accc1e3a650279fd54da0ea0b6405b0bfb4e470f183a97c6",
+      "lines": 143,
+      "symbols": [
+        {
+          "name": "_git_change_summary",
+          "line": 10,
+          "end": 33
+        },
+        {
+          "name": "install_runner_contract",
+          "line": 36,
+          "end": 143
+        },
+        {
+          "name": "worker_prompt",
+          "line": 44,
+          "end": 80
+        },
+        {
+          "name": "run_validation_commands",
+          "line": 84,
+          "end": 92
+        },
+        {
+          "name": "compose_summary_input",
+          "line": 94,
+          "end": 127
+        },
+        {
+          "name": "summary_prompt",
+          "line": 129,
+          "end": 136
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/service_map.py": {
+      "sha256": "44477da68a3e9fa3f6afb13e77c753385b879d85ec02f16507fff6066923bf29",
+      "lines": 724,
+      "symbols": [
+        {
+          "name": "MapError",
+          "line": 61,
+          "end": 62
+        },
+        {
+          "name": "current_platform",
+          "line": 65,
+          "end": 66
+        },
+        {
+          "name": "repo_path",
+          "line": 69,
+          "end": 87
+        },
+        {
+          "name": "is_candidate",
+          "line": 90,
+          "end": 118
+        },
+        {
+          "name": "discover_paths",
+          "line": 121,
+          "end": 146
+        },
+        {
+          "name": "scan_inputs",
+          "line": 149,
+          "end": 183
+        },
+        {
+          "name": "aggregate",
+          "line": 186,
+          "end": 188
+        },
+        {
+          "name": "index_path",
+          "line": 191,
+          "end": 192
+        },
+        {
+          "name": "load_map",
+          "line": 195,
+          "end": 208
+        },
+        {
+          "name": "validation_fingerprint",
+          "line": 211,
+          "end": 227
+        },
+        {
+          "name": "replace_map_data",
+          "line": 230,
+          "end": 234
+        },
+        {
+          "name": "validate_data",
+          "line": 237,
+          "end": 382
+        },
+        {
+          "name": "current_status",
+          "line": 385,
+          "end": 402
+        },
+        {
+          "name": "write_index",
+          "line": 405,
+          "end": 411
+        },
+        {
+          "name": "cmd_check",
+          "line": 414,
+          "end": 447
+        },
+        {
+          "name": "cmd_init",
+          "line": 450,
+          "end": 472
+        },
+        {
+          "name": "cmd_stamp",
+          "line": 475,
+          "end": 491
+        },
+        {
+          "name": "parse_watcher_command",
+          "line": 494,
+          "end": 567
+        },
+        {
+          "name": "progress_gap_reason",
+          "line": 570,
+          "end": 576
+        },
+        {
+          "name": "cmd_audit_plan",
+          "line": 579,
+          "end": 649
+        },
+        {
+          "name": "cmd_list",
+          "line": 652,
+          "end": 682
+        },
+        {
+          "name": "parser",
+          "line": 685,
+          "end": 711
+        },
+        {
+          "name": "main",
+          "line": 714,
+          "end": 720
+        },
+        {
+          "name": "basename",
+          "line": 514,
+          "end": 515
+        },
+        {
+          "name": "warn_progress_gap",
+          "line": 613,
+          "end": 617
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/studyctl.py": {
+      "sha256": "fefef4d70d93e92a2aaff124af727d26596de4a7935232c9b009df6269c94d82",
+      "lines": 1190,
+      "symbols": [
+        {
+          "name": "StudyError",
+          "line": 85,
+          "end": 86
+        },
+        {
+          "name": "now_utc",
+          "line": 89,
+          "end": 90
+        },
+        {
+          "name": "ensure_text",
+          "line": 93,
+          "end": 99
+        },
+        {
+          "name": "ensure_list",
+          "line": 102,
+          "end": 107
+        },
+        {
+          "name": "ensure_str_list",
+          "line": 110,
+          "end": 114
+        },
+        {
+          "name": "ensure_object",
+          "line": 117,
+          "end": 120
+        },
+        {
+          "name": "normalize_id",
+          "line": 123,
+          "end": 128
+        },
+        {
+          "name": "require_unique",
+          "line": 131,
+          "end": 137
+        },
+        {
+          "name": "normalize_internal_sources",
+          "line": 140,
+          "end": 173
+        },
+        {
+          "name": "normalize_complexity_assessment",
+          "line": 176,
+          "end": 194
+        },
+        {
+          "name": "normalize_internal_study",
+          "line": 197,
+          "end": 243
+        },
+        {
+          "name": "normalize_external_sources",
+          "line": 246,
+          "end": 302
+        },
+        {
+          "name": "normalize_trigger_assessment",
+          "line": 305,
+          "end": 327
+        },
+        {
+          "name": "normalize_external_research_v1",
+          "line": 330,
+          "end": 372
+        },
+        {
+          "name": "normalize_external_research_v2",
+          "line": 375,
+          "end": 461
+        },
+        {
+          "name": "normalize_questions",
+          "line": 464,
+          "end": 533
+        },
+        {
+          "name": "normalize_synthesis",
+          "line": 536,
+          "end": 558
+        },
+        {
+          "name": "normalize_review",
+          "line": 561,
+          "end": 575
+        },
+        {
+          "name": "validate_ready_state",
+          "line": 578,
+          "end": 627
+        },
+        {
+          "name": "normalize_study_v1",
+          "line": 630,
+          "end": 653
+        },
+        {
+          "name": "normalize_study_v2",
+          "line": 656,
+          "end": 703
+        },
+        {
+          "name": "normalize_study",
+          "line": 706,
+          "end": 715
+        },
+        {
+          "name": "read_json",
+          "line": 718,
+          "end": 728
+        },
+        {
+          "name": "atomic_write_text",
+          "line": 731,
+          "end": 738
+        },
+        {
+          "name": "canonical_json_bytes",
+          "line": 741,
+          "end": 742
+        },
+        {
+          "name": "markdown_list",
+          "line": 745,
+          "end": 749
+        },
+        {
+          "name": "render_study",
+          "line": 752,
+          "end": 870
+        },
+        {
+          "name": "load_plan",
+          "line": 873,
+          "end": 885
+        },
+        {
+          "name": "find_exact_strings",
+          "line": 888,
+          "end": 891
+        },
+        {
+          "name": "verify_plan_integration",
+          "line": 894,
+          "end": 998
+        },
+        {
+          "name": "attach_study",
+          "line": 1001,
+          "end": 1043
+        },
+        {
+          "name": "validate_plan_study",
+          "line": 1046,
+          "end": 1096
+        },
+        {
+          "name": "print_result",
+          "line": 1099,
+          "end": 1106
+        },
+        {
+          "name": "build_parser",
+          "line": 1109,
+          "end": 1135
+        },
+        {
+          "name": "main",
+          "line": 1138,
+          "end": 1186
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/studyctl_concise.py": {
+      "sha256": "7dc5480368dba06e5c5a14f91b4c41d896ec3b86c8864641929177a3f5d35735",
+      "lines": 10,
+      "symbols": []
+    },
+    "skill/plan-and-execute/scripts/validatectl.py": {
+      "sha256": "7e1c4e67fa5cc0bec9659bc7a22317877ab833b0d866166e5419e7423035c3e6",
+      "lines": 494,
+      "symbols": [
+        {
+          "name": "ValidationError",
+          "line": 41,
+          "end": 42
+        },
+        {
+          "name": "safe_id",
+          "line": 45,
+          "end": 48
+        },
+        {
+          "name": "guarded",
+          "line": 51,
+          "end": 63
+        },
+        {
+          "name": "atomic",
+          "line": 66,
+          "end": 79
+        },
+        {
+          "name": "read_json",
+          "line": 82,
+          "end": 97
+        },
+        {
+          "name": "directory",
+          "line": 100,
+          "end": 110
+        },
+        {
+          "name": "local_alive",
+          "line": 113,
+          "end": 119
+        },
+        {
+          "name": "lock",
+          "line": 123,
+          "end": 134
+        },
+        {
+          "name": "contract",
+          "line": 137,
+          "end": 145
+        },
+        {
+          "name": "report_tail",
+          "line": 148,
+          "end": 160
+        },
+        {
+          "name": "classification",
+          "line": 163,
+          "end": 183
+        },
+        {
+          "name": "repair_route",
+          "line": 186,
+          "end": 200
+        },
+        {
+          "name": "Spool",
+          "line": 203,
+          "end": 246
+        },
+        {
+          "name": "packet",
+          "line": 249,
+          "end": 284
+        },
+        {
+          "name": "run",
+          "line": 287,
+          "end": 350
+        },
+        {
+          "name": "status",
+          "line": 353,
+          "end": 369
+        },
+        {
+          "name": "recover",
+          "line": 372,
+          "end": 393
+        },
+        {
+          "name": "cleanup",
+          "line": 396,
+          "end": 416
+        },
+        {
+          "name": "advise",
+          "line": 420,
+          "end": 458
+        },
+        {
+          "name": "parser",
+          "line": 461,
+          "end": 472
+        },
+        {
+          "name": "main",
+          "line": 475,
+          "end": 491
+        },
+        {
+          "name": "__init__",
+          "line": 205,
+          "end": 206
+        },
+        {
+          "name": "flush_tail",
+          "line": 207,
+          "end": 217
+        },
+        {
+          "name": "drain",
+          "line": 219,
+          "end": 243
+        },
+        {
+          "name": "metadata",
+          "line": 244,
+          "end": 246
+        },
+        {
+          "name": "redact_value",
+          "line": 272,
+          "end": 276
+        },
+        {
+          "name": "interrupted",
+          "line": 480,
+          "end": 481
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/watchdogctl.py": {
+      "sha256": "3fa923781fb9e87f0a2197cbb996fa92b6571edb41308ff004d278cd616dbb86",
+      "lines": 391,
+      "symbols": [
+        {
+          "name": "timestamp",
+          "line": 40,
+          "end": 42
+        },
+        {
+          "name": "positive_seconds",
+          "line": 45,
+          "end": 52
+        },
+        {
+          "name": "token",
+          "line": 55,
+          "end": 57
+        },
+        {
+          "name": "log_evidence",
+          "line": 60,
+          "end": 68
+        },
+        {
+          "name": "session_metadata",
+          "line": 71,
+          "end": 101
+        },
+        {
+          "name": "provider_evidence",
+          "line": 104,
+          "end": 126
+        },
+        {
+          "name": "task_start",
+          "line": 129,
+          "end": 136
+        },
+        {
+          "name": "collect_plan",
+          "line": 139,
+          "end": 211
+        },
+        {
+          "name": "collect",
+          "line": 214,
+          "end": 219
+        },
+        {
+          "name": "classify",
+          "line": 222,
+          "end": 256
+        },
+        {
+          "name": "render",
+          "line": 259,
+          "end": 270
+        },
+        {
+          "name": "status",
+          "line": 273,
+          "end": 281
+        },
+        {
+          "name": "observe",
+          "line": 284,
+          "end": 309
+        },
+        {
+          "name": "cache_path",
+          "line": 312,
+          "end": 320
+        },
+        {
+          "name": "watch",
+          "line": 323,
+          "end": 342
+        },
+        {
+          "name": "interval",
+          "line": 345,
+          "end": 349
+        },
+        {
+          "name": "build_parser",
+          "line": 352,
+          "end": 371
+        },
+        {
+          "name": "main",
+          "line": 374,
+          "end": 387
+        }
+      ]
+    },
+    "skill/plan-and-execute/scripts/workload_routing.py": {
+      "sha256": "1a387675edbf3ef9e9b58dbc2fdcfa072173329ca864a4d1577ad7ca369147b1",
+      "lines": 253,
+      "symbols": [
+        {
+          "name": "WorkloadError",
+          "line": 25,
+          "end": 26
+        },
+        {
+          "name": "validate",
+          "line": 29,
+          "end": 83
+        },
+        {
+          "name": "identity",
+          "line": 86,
+          "end": 88
+        },
+        {
+          "name": "model_key",
+          "line": 91,
+          "end": 93
+        },
+        {
+          "name": "cooldown_key",
+          "line": 96,
+          "end": 103
+        },
+        {
+          "name": "cooldown_keys",
+          "line": 106,
+          "end": 109
+        },
+        {
+          "name": "valid_cooldown_key",
+          "line": 112,
+          "end": 118
+        },
+        {
+          "name": "candidates",
+          "line": 121,
+          "end": 175
+        },
+        {
+          "name": "inventory_models",
+          "line": 178,
+          "end": 190
+        },
+        {
+          "name": "antigravity_preset",
+          "line": 193,
+          "end": 214
+        },
+        {
+          "name": "main",
+          "line": 217,
+          "end": 249
+        },
+        {
+          "name": "clamp",
+          "line": 240,
+          "end": 242
+        }
+      ]
+    },
+    "skill/validate-or-fix/SKILL.md": {
+      "sha256": "6ea99922906f1ac413dc63277fd26bc82605b571f0a43224e4f085cee5139e6f",
+      "lines": 43,
+      "symbols": [
+        {
+          "name": "# Validate or Fix",
+          "line": 6
+        },
+        {
+          "name": "## 1. Choose the smallest useful validation",
+          "line": 10
+        },
+        {
+          "name": "## 2. Run one owned supervisor",
+          "line": 16
+        },
+        {
+          "name": "## 3. Inspect, repair and rerun",
+          "line": 26
+        },
+        {
+          "name": "## 4. Preserve recoverable evidence",
+          "line": 39
+        }
+      ]
+    },
+    "tools/clean-generated.js": {
+      "sha256": "a518c4e51df9b00abdb0b3405924c1637d9f6b028dab971da6171e8f00316265",
+      "lines": 38,
+      "symbols": [
+        {
+          "name": "#!/usr/bin/env node",
+          "line": 1
+        },
+        {
+          "name": "function clean(directory) {",
+          "line": 7
+        }
+      ]
+    },
+    "tools/package-skills.js": {
+      "sha256": "aadaf4aa9e599d27f01aaf980e83d02085e998b1a461b42e504002f716e4faaa",
+      "lines": 56,
+      "symbols": [
+        {
+          "name": "#!/usr/bin/env node",
+          "line": 1
+        }
+      ]
+    },
+    "tools/routing_eval.py": {
+      "sha256": "01c496f4284a60435b554e42ec1ec32ad11d55e47d993b4fe1184bd3d0a47469",
+      "lines": 605,
+      "symbols": [
+        {
+          "name": "PredeclarationError",
+          "line": 54,
+          "end": 55
+        },
+        {
+          "name": "_scripts",
+          "line": 58,
+          "end": 63
+        },
+        {
+          "name": "canonical_digest",
+          "line": 66,
+          "end": 68
+        },
+        {
+          "name": "_load",
+          "line": 71,
+          "end": 77
+        },
+        {
+          "name": "read_ledger",
+          "line": 80,
+          "end": 94
+        },
+        {
+          "name": "_text",
+          "line": 97,
+          "end": 99
+        },
+        {
+          "name": "_number",
+          "line": 102,
+          "end": 103
+        },
+        {
+          "name": "check_manifest",
+          "line": 106,
+          "end": 152
+        },
+        {
+          "name": "_bound",
+          "line": 155,
+          "end": 157
+        },
+        {
+          "name": "check_thresholds",
+          "line": 160,
+          "end": 228
+        },
+        {
+          "name": "evaluate",
+          "line": 231,
+          "end": 250
+        },
+        {
+          "name": "_directory",
+          "line": 253,
+          "end": 254
+        },
+        {
+          "name": "cmd_validate",
+          "line": 257,
+          "end": 266
+        },
+        {
+          "name": "cmd_digest",
+          "line": 269,
+          "end": 273
+        },
+        {
+          "name": "cmd_seal",
+          "line": 276,
+          "end": 289
+        },
+        {
+          "name": "cmd_record",
+          "line": 292,
+          "end": 311
+        },
+        {
+          "name": "_runner",
+          "line": 326,
+          "end": 332
+        },
+        {
+          "name": "route_verdict",
+          "line": 335,
+          "end": 346
+        },
+        {
+          "name": "case_config",
+          "line": 349,
+          "end": 354
+        },
+        {
+          "name": "evaluate_shadow_case",
+          "line": 357,
+          "end": 379
+        },
+        {
+          "name": "_read_arm",
+          "line": 382,
+          "end": 391
+        },
+        {
+          "name": "_fmt",
+          "line": 394,
+          "end": 399
+        },
+        {
+          "name": "_route_text",
+          "line": 402,
+          "end": 403
+        },
+        {
+          "name": "_final_pass",
+          "line": 406,
+          "end": 409
+        },
+        {
+          "name": "shadow_report",
+          "line": 412,
+          "end": 562
+        },
+        {
+          "name": "cmd_shadow",
+          "line": 565,
+          "end": 578
+        },
+        {
+          "name": "main",
+          "line": 581,
+          "end": 601
+        },
+        {
+          "name": "arm_records",
+          "line": 432,
+          "end": 433
+        },
+        {
+          "name": "rank",
+          "line": 494,
+          "end": 497
+        },
+        {
+          "name": "cost_rows",
+          "line": 513,
+          "end": 525
+        }
+      ]
+    },
+    "tools/skill_benchmark.py": {
+      "sha256": "d08520def6551a6db6db8194270c9cb55ca84832c87da95dd639c3af9d3f7c8b",
+      "lines": 455,
+      "symbols": [
+        {
+          "name": "_scripts",
+          "line": 39,
+          "end": 44
+        },
+        {
+          "name": "_load",
+          "line": 47,
+          "end": 48
+        },
+        {
+          "name": "digest",
+          "line": 51,
+          "end": 52
+        },
+        {
+          "name": "_num",
+          "line": 55,
+          "end": 56
+        },
+        {
+          "name": "validate_corpus",
+          "line": 61,
+          "end": 88
+        },
+        {
+          "name": "_record",
+          "line": 91,
+          "end": 101
+        },
+        {
+          "name": "_recorded_runs",
+          "line": 104,
+          "end": 115
+        },
+        {
+          "name": "run_corpus",
+          "line": 118,
+          "end": 135
+        },
+        {
+          "name": "_final",
+          "line": 140,
+          "end": 145
+        },
+        {
+          "name": "run_validated",
+          "line": 148,
+          "end": 150
+        },
+        {
+          "name": "run_first_validated",
+          "line": 153,
+          "end": 155
+        },
+        {
+          "name": "under_routed",
+          "line": 158,
+          "end": 167
+        },
+        {
+          "name": "p95",
+          "line": 170,
+          "end": 174
+        },
+        {
+          "name": "_ratio",
+          "line": 177,
+          "end": 178
+        },
+        {
+          "name": "metrics",
+          "line": 181,
+          "end": 209
+        },
+        {
+          "name": "wilson",
+          "line": 214,
+          "end": 221
+        },
+        {
+          "name": "newcombe_lower",
+          "line": 224,
+          "end": 229
+        },
+        {
+          "name": "_rise",
+          "line": 232,
+          "end": 235
+        },
+        {
+          "name": "gate_segment",
+          "line": 238,
+          "end": 291
+        },
+        {
+          "name": "scorecard",
+          "line": 294,
+          "end": 328
+        },
+        {
+          "name": "_f",
+          "line": 333,
+          "end": 338
+        },
+        {
+          "name": "render",
+          "line": 341,
+          "end": 390
+        },
+        {
+          "name": "splice",
+          "line": 393,
+          "end": 398
+        },
+        {
+          "name": "_inputs",
+          "line": 403,
+          "end": 417
+        },
+        {
+          "name": "main",
+          "line": 420,
+          "end": 451
+        }
+      ]
+    },
+    "tools/validate-skill.js": {
+      "sha256": "4d67bc446bf4a54d73263fb0a74f91f137c49c34fae71cddd6dd38550bb43f01",
+      "lines": 299,
+      "symbols": [
+        {
+          "name": "#!/usr/bin/env node",
+          "line": 1
+        },
+        {
+          "name": "function fail(message) {",
+          "line": 14
+        },
+        {
+          "name": "function requireFile(relativePath) {",
+          "line": 18
+        },
+        {
+          "name": "function read(relativePath) {",
+          "line": 25
+        },
+        {
+          "name": "function requireText(text, needles, label) {",
+          "line": 29
+        },
+        {
+          "name": "function requireMax(text, maximum, label) {",
+          "line": 34
+        },
+        {
+          "name": "function walk(directory, output) {",
+          "line": 48
+        }
+      ]
+    }
+  }
+}

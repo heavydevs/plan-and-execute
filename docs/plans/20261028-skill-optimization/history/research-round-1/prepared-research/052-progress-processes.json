@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "feature_id": "F024",
+  "former_research_task": "052",
+  "implementation_task": "052",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Distinguish progress from heartbeat and fixed ceilings from per-command idle windows.",
+    "Check Windows/POSIX descendant cleanup, CPU false progress and quiet remote I/O."
+  ],
+  "decision": "Keep per-command sliding progress windows distinct from hard ceilings and liveness; strengthen semantic progress and process-tree tests.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "progress_signal distinguishes PROGRESS, ERROR and HEARTBEAT. progress_watch and process_tree support output/metrics/file signals and descendant cleanup.",
+    "The configuration already separates task idle timeout, validation idle windows and hard ceilings. Zero values have documented disable/default behavior that must not be silently changed."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/progress_signal.py",
+      "sha256": "5d6feb7540126d4d6bf94cc454d8d7410e8fa89832b8b597be2bc491a9416b3d",
+      "line_count": 147,
+      "symbols": [
+        {
+          "name": "parse_signal",
+          "line": 59,
+          "end": 80
+        },
+        {
+          "name": "probe_file",
+          "line": 104,
+          "end": 129
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/progress_watch.py",
+      "sha256": "304401062eb2773ce91e25a38c01f9490f62fd1b2b97fbe4d184d27fb69f6798",
+      "line_count": 377,
+      "symbols": [
+        {
+          "name": "progress_line",
+          "line": 35,
+          "end": 42
+        },
+        {
+          "name": "safe_glob",
+          "line": 45,
+          "end": 50
+        },
+        {
+          "name": "validate_policy",
+          "line": 53,
+          "end": 95
+        },
+        {
+          "name": "ProgressState",
+          "line": 98,
+          "end": 168
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/process_tree.py",
+      "sha256": "dd7cf0e6c7706426b81301b4725c27863fe0f1e5483d3736413aecea09a3ffa4",
+      "line_count": 714,
+      "symbols": [
+        {
+          "name": "_remember_group_cpu",
+          "line": 22,
+          "end": 27
+        },
+        {
+          "name": "posix_session_processes",
+          "line": 30,
+          "end": 79
+        },
+        {
+          "name": "posix_group_metrics",
+          "line": 82,
+          "end": 121
+        },
+        {
+          "name": "_parse_cpu_time",
+          "line": 124,
+          "end": 140
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E041",
+    "E042",
+    "E043",
+    "E045"
+  ],
+  "implementation_steps": [
+    "Prefer completed-work counters or pinned progress files/probes over arbitrary changing text. Heartbeats and watcher telemetry must not refresh semantic progress.",
+    "Treat CPU activity as supporting evidence, not proof that useful work advances; test busy loops and silent remote I/O separately.",
+    "Use monotonic clocks for durations and bounded read-only probes. Preserve expected quiet periods without extending an explicit hard ceiling.",
+    "On cancellation/timeout, terminate the owned tree and drain remaining output safely. Use Windows Job Objects and POSIX process ownership primitives through their tested platform adapters.",
+    "Record the exact timeout class and last meaningful progress evidence. A hard ceiling is blocked-for-review, not proof a stronger model is needed."
+  ],
+  "proposed_acceptance_tests": [
+    "Repeated heartbeat-only output does not keep a stalled command alive.",
+    "Increasing completed-work counters renew idle time while a fixed hard ceiling still wins.",
+    "Each command starts a new idle window; the validation set has no unintended aggregate timeout.",
+    "A child scheduled to write later cannot escape timeout cleanup on supported Windows/POSIX runs.",
+    "A CPU-busy infinite loop and a quiet but externally advancing operation produce distinct diagnostic evidence."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Raise every timeout after a stall",
+      "tradeoff": "Quick workaround but hides deadlocks and spends quota/time without evidence."
+    },
+    {
+      "id": "recommended",
+      "title": "Semantic progress plus separate ceilings and owned cleanup",
+      "tradeoff": "More precise failure diagnosis with bounded monitoring overhead."
+    },
+    {
+      "id": "rejected",
+      "title": "Treat any log line or CPU increment as progress",
+      "tradeoff": "Allows infinite noisy loops and confuses liveness with useful work."
+    }
+  ],
+  "cost_model": "Measure false-stall and missed-stall rates, cancellation latency and probe overhead. Do not activate an expensive model merely because five minutes elapsed.",
+  "unverified": [
+    "Real descendant behavior, permissions and breakaway processes require platform CI. A fake process test only covers the configured contract."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

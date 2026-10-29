@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "feature_id": "F008",
+  "former_research_task": "020",
+  "implementation_task": "020",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Reproduce source section 2.8 and distinguish useful effective rungs from repeated dispatches.",
+    "Compare per-provider evidence with cumulative failure counts and reset semantics."
+  ],
+  "decision": "Introduce a pure effective-dispatch ladder model with provider-local evidence; keep the legacy path unchanged until the opt-in switch policy is integrated.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "choose_route derives a provider slot from total functional failures, whereas availability.select rebuilds a chain for the escalated tier. This can mismatch the ladder and dispatched provider.",
+    "The current exhaustion decision uses accumulated failure classes against a later provider's ladder, allowing that provider to be considered exhausted before its first attempt.",
+    "A logical tier/effort increase can resolve to the same model and native effort, especially with embedded effort slugs and equal strong/max models."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/routingctl.py",
+      "sha256": "f792363c783596aef972925edb9aad5d97b86da43e45a212a69c5a2355a78616",
+      "line_count": 1284,
+      "symbols": [
+        {
+          "name": "lift_tier",
+          "line": 214,
+          "end": 220
+        },
+        {
+          "name": "route_rungs",
+          "line": 230,
+          "end": 242
+        },
+        {
+          "name": "escalation_step",
+          "line": 245,
+          "end": 255
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "choose_route",
+          "line": 301,
+          "end": 346
+        },
+        {
+          "name": "ladder_exhausted",
+          "line": 2152,
+          "end": 2169
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "c3cdf3064fa18b7271ea801c614e18b45a467b4c923b98fdb8fbd16ab00bffd4",
+      "line_count": 3792,
+      "symbols": [
+        {
+          "name": "PlanError",
+          "line": 85,
+          "end": 86
+        },
+        {
+          "name": "review_checks_for_schema",
+          "line": 89,
+          "end": 99
+        },
+        {
+          "name": "now_utc",
+          "line": 102,
+          "end": 103
+        },
+        {
+          "name": "slugify",
+          "line": 106,
+          "end": 109
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+      "sha256": "886f53a8817d4a7eb9e93a24e715a57cce927ee1b673384e60cfe46c0814c7c9",
+      "line_count": 143,
+      "symbols": [
+        {
+          "name": "# Model and provider routing",
+          "line": 1
+        },
+        {
+          "name": "## Objective",
+          "line": 12
+        },
+        {
+          "name": "## 1. Classify the leaf, then look up the floor",
+          "line": 16
+        },
+        {
+          "name": "### Candidate selector (opt-in, pure)",
+          "line": 35
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E012",
+    "E013",
+    "E014",
+    "E040"
+  ],
+  "implementation_steps": [
+    "Define an effective route identity after tier lifting, effort clamping, snapshot resolution and workload-profile resolution. Include the actual backend/quota identity but never secret values.",
+    "Build distinct useful rungs with their originating logical tiers. Collapse no-op effective dispatches without reordering different models.",
+    "Evaluate failure evidence per provider and phase; retain a task-wide attempt budget as a separate invariant. Define an explicit one-repeat exception for mechanical/budget failures, not arbitrary repeated top attempts.",
+    "Add pure legacy replay fixtures reproducing the original section2.8 sequences. New behavior must be gated; do not change existing disabled-mode assertions to make tests pass.",
+    "Limit this task to primitives and tests. Tasks070-081 own configuration, state migration, runner integration and handoff so the same feature is not implemented twice."
+  ],
+  "proposed_acceptance_tests": [
+    "Equal resolved model/native effort produces one useful rung.",
+    "An empty logical tier lifts upward without lowering the requested capability floor.",
+    "Evidence from providerA cannot exhaust providerB before B executes.",
+    "Environmental, plan_defect and timeout_ceiling failures do not drive capability switching.",
+    "Reset behavior and design-phase accounting are explicit, tested and separate from quota cooldowns."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Fixed four-failure provider slots",
+      "tradeoff": "Cheap but repeats no-op tops and can skip eligible providers."
+    },
+    {
+      "id": "recommended",
+      "title": "Distinct dispatch ladder with local evidence",
+      "tradeoff": "Deterministic and explainable; integration is guarded by an opt-in contract."
+    },
+    {
+      "id": "rejected",
+      "title": "Always jump to the most expensive model after any error",
+      "tradeoff": "Confuses environment faults with capability and wastes attempts/cost."
+    }
+  ],
+  "cost_model": "Evaluate avoided identical dispatches, provider reachability and success per total attempt cost. Offline replay proves route properties only, not real task success or monetary savings.",
+  "unverified": [
+    "Quality equivalence across providers is not established by matching tier labels. Real-run calibration remains an authorized evaluation step."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

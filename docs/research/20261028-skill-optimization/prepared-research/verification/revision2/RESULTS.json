@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-10-29T02:40:37.818179+00:00",
+  "research_revision": 2,
+  "checks": [
+    {
+      "check": "study_spec",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/studyctl_concise.py",
+        "validate",
+        "--spec",
+        "docs/plans/20261028-skill-optimization/PREPARATION_STUDY.json",
+        "--json"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/study_spec.log",
+      "log_sha256": "2d90d2a4a0f49062a23cabac672c1d59cf914b067297d683b4620598b72db7c2"
+    },
+    {
+      "check": "native_plan",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/planctl_concise.py",
+        "validate",
+        "--plan",
+        ".ai-work/20261028-skill-study-provider-switch"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/native_plan.log",
+      "log_sha256": "064bfb41caf1a785928b2bc696a00d01027bc54171b44f7872d9d5655bc1f147"
+    },
+    {
+      "check": "native_audit",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/planctl_concise.py",
+        "audit",
+        "--plan",
+        ".ai-work/20261028-skill-study-provider-switch"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/native_audit.log",
+      "log_sha256": "f8057f5f0319ff1a2ff7b259cfcbc27a87eb3265c7f92be310f175b2f446033e"
+    },
+    {
+      "check": "attached_study",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/studyctl_concise.py",
+        "validate-plan",
+        "--plan",
+        ".ai-work/20261028-skill-study-provider-switch",
+        "--json"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/attached_study.log",
+      "log_sha256": "d8b3359da3f44481d22419f44e85c4785105187883803f83025707ce6a75cc3c"
+    },
+    {
+      "check": "resource_freshness",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/service_map.py",
+        "check",
+        "--repo-root",
+        "."
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/resource_freshness.log",
+      "log_sha256": "e1f22d5dc141837975a065dd6d92bea549ac3e57eabcb37082aab15cd275ed29"
+    },
+    {
+      "check": "mapped_plan",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/service_map.py",
+        "audit-plan",
+        "--repo-root",
+        ".",
+        "--plan",
+        ".ai-work/20261028-skill-study-provider-switch"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/mapped_plan.log",
+      "log_sha256": "117aaf57e2518f9d6449c85a9584a6fe39dacf2572a46e1f898e9602c1e61efa"
+    },
+    {
+      "check": "report_task_structure",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "run",
+        "--repo-root",
+        ".",
+        "--map",
+        ".ai-work/SERVICE_MAP.md",
+        "--validation",
+        "P1_STRUCTURE"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/report_task_structure.log",
+      "log_sha256": "ffa7898cede0741585689e856c4b85088dccc1bb55734dc41a3471515bbd95f4"
+    },
+    {
+      "check": "research_readiness",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "run",
+        "--repo-root",
+        ".",
+        "--map",
+        ".ai-work/SERVICE_MAP.md",
+        "--validation",
+        "P1_RESEARCH_R2"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/research_readiness.log",
+      "log_sha256": "d5f0b75fe407bcc852b22a6369ce594158af3e540d10635a921ed887b66c5407"
+    },
+    {
+      "check": "readiness_gate_tests",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "run",
+        "--repo-root",
+        ".",
+        "--map",
+        ".ai-work/SERVICE_MAP.md",
+        "--validation",
+        "P1_RESEARCH_R2_TESTS"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/readiness_gate_tests.log",
+      "log_sha256": "073b6ec04fcd3f38cc5714e76810e09d8f838f5f15fc34c55466d7c2e59d067c"
+    },
+    {
+      "check": "delivery_gate_tests",
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "run",
+        "--repo-root",
+        ".",
+        "--map",
+        ".ai-work/SERVICE_MAP.md",
+        "--validation",
+        "P1_DELIVERY_GATE_TESTS"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/delivery_gate_tests.log",
+      "log_sha256": "b412e789c04396e650dda4ddd860caa19ff7b28646e58c875e5d74b954f9a655"
+    },
+    {
+      "check": "missing_implementation_rejected",
+      "argv": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "001"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/missing_implementation_rejected.log",
+      "log_sha256": "6b6fd482316e7b5d52cca3dd445020908ea52bdbed719c376ec2d951ffae85c0"
+    },
+    {
+      "check": "unchanged_skill_structure",
+      "argv": [
+        "npm",
+        "run",
+        "validate:skill"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/unchanged_skill_structure.log",
+      "log_sha256": "7030b853af8fff53084abc4742cda3d5cf064ccff2e460c864e3c175eeca8550"
+    },
+    {
+      "check": "git_whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "log": "docs/research/20261028-skill-optimization/prepared-research/verification/revision2/git_whitespace.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "passed": true,
+  "product_baseline_files_checked": 135,
+  "changed_product_files": [],
+  "product_implementation": "not performed",
+  "authenticated_models": "not invoked",
+  "independent_reviews": "not performed",
+  "full_product_suite": "Not rerun in this research-only revision; baseline logs elsewhere are historical evidence."
+}

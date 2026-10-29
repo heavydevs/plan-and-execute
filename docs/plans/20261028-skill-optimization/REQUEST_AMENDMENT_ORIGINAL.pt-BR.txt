@@ -1,0 +1,5 @@
+Você pode me ajudar numa coisa? Nesse plano há tasks de pesquisa, certo? Você poderia adiantar o meu trabalho, e em ver de executar o plano, realizar a parte de pesquisa para cada task de pesquisa, e gerar um relatório da pesquisa de qual é o melhor caminho a seguir? Assim, depois, modifique o todo e a checklist interna dessa task para apontar para o relatório e dizer para implementar as orientações dessa pesquisa.
+
+Faça isso um por um, até acabar todas as tasks de pesquisa e virar apenas tasks de implementações.
+
+Por sim, modifique o plano. Ele não vai mais precisar outro plano. Será apenas um plano de implementação.

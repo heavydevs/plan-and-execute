@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "feature_id": "F029",
+  "former_research_task": "062",
+  "implementation_task": "062",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Check companion resolution, no-plan receipts, escalation and reuse of the shared resource map.",
+    "Preserve fast DIRECT checks and measure observer activation costs for long validations."
+  ],
+  "decision": "Keep validate-or-fix as a lightweight companion using shared monitoring primitives, with no plan creation and explicit repair acceptance.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "validatectl has a guarded standalone validation path, receipts, classification and repair-route selection. The companion skill resolves the shared implementation rather than duplicating all runner logic.",
+    "DIRECT can opt into monitored validation without creating a plan, but must still preserve the user's fast path for short deterministic checks."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/validatectl.py",
+      "sha256": "7e1c4e67fa5cc0bec9659bc7a22317877ab833b0d866166e5419e7423035c3e6",
+      "line_count": 494,
+      "symbols": [
+        {
+          "name": "repair_route",
+          "line": 186,
+          "end": 200
+        },
+        {
+          "name": "packet",
+          "line": 249,
+          "end": 284
+        },
+        {
+          "name": "run",
+          "line": 287,
+          "end": 350
+        },
+        {
+          "name": "cleanup",
+          "line": 396,
+          "end": 416
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/companion_self_test.py",
+      "sha256": "cd102c350a3e50e378c5b033badd13ea73324bd066d37c05e3de70e029f9c988",
+      "line_count": 61,
+      "symbols": [
+        {
+          "name": "CompanionTests",
+          "line": 16,
+          "end": 58
+        },
+        {
+          "name": "test_router_is_narrow_and_bounded",
+          "line": 17,
+          "end": 23
+        },
+        {
+          "name": "test_source_contains_wrappers_not_a_duplicate_runtime",
+          "line": 25,
+          "end": 30
+        },
+        {
+          "name": "test_read_only_cli_entrypoints_do_not_create_planning_state",
+          "line": 32,
+          "end": 40
+        }
+      ]
+    },
+    {
+      "path": "skill/validate-or-fix/SKILL.md",
+      "sha256": "6ea99922906f1ac413dc63277fd26bc82605b571f0a43224e4f085cee5139e6f",
+      "line_count": 43,
+      "symbols": [
+        {
+          "name": "# Validate or Fix",
+          "line": 6
+        },
+        {
+          "name": "## 1. Choose the smallest useful validation",
+          "line": 10
+        },
+        {
+          "name": "## 2. Run one owned supervisor",
+          "line": 16
+        },
+        {
+          "name": "## 3. Inspect, repair and rerun",
+          "line": 26
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E002",
+    "E009",
+    "E043",
+    "E001"
+  ],
+  "implementation_steps": [
+    "Use a small trigger contract: plain build/lint/unit checks run directly; long, stateful or repeatedly ambiguous checks can request mapped monitoring without a TODO plan.",
+    "Pin standalone receipts to command, map and relevant source state, and give every runtime artifact an owned location outside product files.",
+    "Keep monitoring deterministic until an eligible ambiguity event; elapsed time alone does not force a paid observer.",
+    "Separate repair proposal, authorized edit execution and independent deterministic validation. The observer cannot approve its own repair.",
+    "Test companion discovery, missing/mismatched shared version and installation/uninstall boundaries. Fail clearly rather than importing a random similarly named module."
+  ],
+  "proposed_acceptance_tests": [
+    "A short passing command leaves no manifest, TODO or orchestration directory.",
+    "A long mapped validation records progress and can diagnose a stall without creating a plan.",
+    "A successful old receipt is rejected after source or command changes.",
+    "A missing companion/shared implementation produces an actionable version error.",
+    "A failed repair never overwrites a successful receipt or claims completion from a model narrative."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Require a full plan just to monitor tests",
+      "tradeoff": "Reuses orchestration but imposes unnecessary artifacts and tokens on cohesive work."
+    },
+    {
+      "id": "recommended",
+      "title": "Shared deterministic monitor with standalone receipts",
+      "tradeoff": "Preserves fast DIRECT and avoids duplicating process/log logic."
+    },
+    {
+      "id": "rejected",
+      "title": "Fork the monitor into a second independent implementation",
+      "tradeoff": "Creates drift in cancellation, redaction and acceptance behavior."
+    }
+  ],
+  "cost_model": "Measure startup/files created, observed CPU/I/O overhead, model calls and validated repair outcomes. Monitoring should earn its cost; do not universally enable it for every tiny test.",
+  "unverified": [
+    "Actual user service maps and real repair-model execution remain untested. The task must retain explicit permission requirements."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "feature_id": "F032",
+  "former_research_task": "068",
+  "implementation_task": "068",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Compare worker field, native session resume, extra read-only summary and deterministic capsule (source section 4).",
+    "Decide opt-in chain, entry rung, no-op identity, retry budget, phase state and handoff validation from evidence."
+  ],
+  "decision": "Specify opt-in provider-top switching over distinct effective dispatches, with coherent chain ownership, per-provider/phase evidence and deterministic evidence-bounded handoff by default.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "The verified baseline has different chain selection in choose_route and availability.select, repeated effective tops and early last-provider exhaustion. The original ten-case fixture replay is preserved as historical baseline evidence.",
+    "Workers are fresh/ephemeral in the normal paths. Starting a new process of the prior provider cannot recover its vanished conversation without deliberately changing persistence policy.",
+    "The concise prompt omits plan_dir in failure_context and excludes prior reports by default. A permitted evidence capsule therefore needs a small explicit isolation-rule amendment, not a hidden transcript injection."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "choose_route",
+          "line": 301,
+          "end": 346
+        },
+        {
+          "name": "failure_context",
+          "line": 776,
+          "end": 811
+        },
+        {
+          "name": "design_route_task",
+          "line": 924,
+          "end": 931
+        },
+        {
+          "name": "ladder_exhausted",
+          "line": 2152,
+          "end": 2169
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/availability.py",
+      "sha256": "39e4e02663a26a1a3d6324037fef96bbf7d5c28cc2511a89d0431b377fa97c0d",
+      "line_count": 168,
+      "symbols": [
+        {
+          "name": "select",
+          "line": 116,
+          "end": 168
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routingctl.py",
+      "sha256": "f792363c783596aef972925edb9aad5d97b86da43e45a212a69c5a2355a78616",
+      "line_count": 1284,
+      "symbols": [
+        {
+          "name": "lift_tier",
+          "line": 214,
+          "end": 220
+        },
+        {
+          "name": "route_rungs",
+          "line": 230,
+          "end": 242
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "sha256": "74db8be9153d63c8accc1e3a650279fd54da0ea0b6405b0bfb4e470f183a97c6",
+      "line_count": 143,
+      "symbols": [
+        {
+          "name": "worker_prompt",
+          "line": 44,
+          "end": 80
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/assistant_triage.py",
+      "sha256": "af9d5a1054aae9c747916a60f3f0c836209f878c1c31638909eedcd28d9109c2",
+      "line_count": 428,
+      "symbols": [
+        {
+          "name": "Skip",
+          "line": 33,
+          "end": 34
+        },
+        {
+          "name": "dumps",
+          "line": 37,
+          "end": 38
+        },
+        {
+          "name": "strict_json",
+          "line": 41,
+          "end": 50
+        },
+        {
+          "name": "redact",
+          "line": 53,
+          "end": 62
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+      "sha256": "72da10bd5e05fd08d213ed29ca649e83fbe23d4f082bf1c3159e87402cbef8cd",
+      "line_count": 89,
+      "symbols": [
+        {
+          "name": "# Token-efficiency contract",
+          "line": 1
+        },
+        {
+          "name": "## Objective",
+          "line": 5
+        },
+        {
+          "name": "## 1. Avoid the harness when the harness does not pay for itself",
+          "line": 9
+        },
+        {
+          "name": "## 2. Keep useful shared context while it is useful",
+          "line": 15
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E014",
+    "E012",
+    "E038",
+    "E039",
+    "E054",
+    "E010",
+    "E044",
+    "E018",
+    "E021",
+    "W-AUTOMIX",
+    "W-ROUTELLM",
+    "W-RETRY",
+    "W-REFLEXION",
+    "W-SELFCORRECT",
+    "W-OPENAI-CACHE",
+    "W-AGY-EFFORT",
+    "W-INJECTION"
+  ],
+  "implementation_steps": [
+    "Encode the twelve original acceptance cases as reusable fake-provider fixtures with explicit legacy and opt-in expected behavior.",
+    "Include alias/no-op rungs, unavailable destinations, fixed provider, missing tiers, snapshot resolution and separate design/implementation evidence.",
+    "Add deterministic fixtures for next-attempt capsule expiry, secret redaction, receipt identity and a remaining-attempt budget too small for all providers.",
+    "Map each runtime expectation to its implementing owner in 070-080; do not modify the runner or mark future behavior implemented here."
+  ],
+  "proposed_acceptance_tests": [
+    "All twelve provider-switch acceptance cases have explicit inputs and expected outputs.",
+    "Fixtures distinguish provider/phase identity, unavailable candidates, duplicate dispatches and bounded attempt reservation.",
+    "Legacy replay remains separate from expected opt-in behavior; no runtime implementation is claimed by this fixture task."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Continue repeating the top until a fixed failure count",
+      "benefit": "Legacy compatibility",
+      "risk": "Wasted identical attempts and unreachable providers",
+      "disposition": "Retain only when new mode is disabled",
+      "tradeoff": "Legacy compatibility; Wasted identical attempts and unreachable providers. Retain only when new mode is disabled"
+    },
+    {
+      "id": "A02",
+      "title": "Switch immediately to next provider maximum",
+      "benefit": "Simple diversity",
+      "risk": "Unnecessary cost and ignores equivalent entry floor",
+      "disposition": "Reject as default",
+      "tradeoff": "Simple diversity; Unnecessary cost and ignores equivalent entry floor. Reject as default"
+    },
+    {
+      "id": "A03",
+      "title": "Effective-top switching plus deterministic capsule",
+      "benefit": "Bounded cost and recoverable evidence",
+      "risk": "Requires per-provider state and coherent chain",
+      "disposition": "Recommended opt-in",
+      "tradeoff": "Bounded cost and recoverable evidence; Requires per-provider state and coherent chain. Recommended opt-in"
+    },
+    {
+      "id": "A04",
+      "title": "Worker-authored nullable hypotheses plus deterministic fallback",
+      "benefit": "Little incremental output cost",
+      "risk": "May anchor next worker and require schema changes",
+      "disposition": "Optional measured follow-up, not required default",
+      "tradeoff": "Little incremental output cost; May anchor next worker and require schema changes. Optional measured follow-up, not required default"
+    },
+    {
+      "id": "A05",
+      "title": "Resume previous session or call extra summarizer",
+      "benefit": "Can recover richer context",
+      "risk": "Persistence, privacy, calls and false certainty",
+      "disposition": "Defer unless measured improvement pays",
+      "tradeoff": "Can recover richer context; Persistence, privacy, calls and false certainty. Defer unless measured improvement pays"
+    }
+  ],
+  "cost_model": "For deterministic handoff, extra model-call cost is zero; prompt-token cost and validation overhead still count. Compare against no handoff and worker-authored summaries under paired quality gates before expanding context.",
+  "unverified": [
+    "Equivalent logical tiers do not prove equal quality across providers. No live model superiority, quota independence, token saving or independent maximum-model review is claimed.",
+    "No cross-provider session, paid handoff or live capability comparison was executed. Effective intelligence is not proven by matching model-family names; the strongest admissible route must be observed, not invented."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Adopt an opt-in effective-dispatch switch controller with provider-local evidence and a deterministic, evidence-bounded handoff by default.",
+  "revision_delta": "The revision formalizes entry rung, no-op detection, attempt reservation, uncertain outcomes and the cost/anchoring alternative matrix. It retains the twelve required acceptance scenarios and does not add an extra summarizer call by default.",
+  "decision_analysis": [
+    "Use a disabled-by-default provider_switch section with strict subkeys and explicit modes. In the new mode, choose one allowed chain from the declared task policy and retain it through ladder selection and availability. Every effective dispatch binds the selected provider, resolved model/effort/profile and phase. A new provider starts from the task capability floor lifted to its available equivalent, not from the accumulated failures of another provider.",
+    "Advance after classified evidence exhausts distinct useful rungs, including aliases or embedded-effort variants that produce no new dispatch. Permit at most the documented same-rung mechanical/budget repeat; never use environmental, permission, plan-defect or hard-limit failures as capability evidence. Reserve remaining attempt budget for still-eligible providers or reject/warn on an impossible budget before execution; record every skip reason.",
+    "Treat availability substitution and capability switching as different events. Quota can pause or select another eligible pool without adding functional failure. If a worker may already have produced side effects, reconcile its terminal/ownership state before replacement. Design and implementation need separate provider histories while retaining an explicit shared task budget and a reset contract that clears only the intended epoch.",
+    "The cheapest safe handoff is deterministic evidence: current diff references, completed subtask ids, failure class, sanitized error fingerprint and current validation packet. Put one bounded capsule after the static prefix, label hypotheses unverified and expire it after the next attempt. An optional worker-authored hypothesis field can be evaluated later; resuming an old session or adding a summary model has persistence, billing and anchoring costs. Independent tests, not the summary, decide success."
+  ],
+  "search_themes": [
+    "AutoMix limitations model switching verification",
+    "RouteLLM learned routing distribution",
+    "Reflexion external feedback memory",
+    "LLM self correction external feedback",
+    "provider cache boundary effective effort"
+  ],
+  "current_source_ids": [
+    "W-AUTOMIX",
+    "W-ROUTELLM",
+    "W-RETRY",
+    "W-REFLEXION",
+    "W-SELFCORRECT",
+    "W-OPENAI-CACHE",
+    "W-AGY-EFFORT",
+    "W-INJECTION"
+  ],
+  "ownership": "TODO 068 encodes the decision below as twelve-case fixtures and compatibility expectations only. Runtime/config/state/prompt changes are owned by 070, 072, 074, 076, 078 and 080, each with its following independent review.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions.",
+  "runtime_design_steps": [
+    "Keep provider_switch.mode=legacy by default; expose an explicit effective_top mode with strict subkey validation and routing-fingerprint coverage. Version1 full config snapshots must not inherit a new global policy.",
+    "Freeze the allowed chain for a task phase from the declared policy and override rules. Resolve each candidate through tier lifting, profile/native effort and snapshot before building distinct dispatches. The selected provider is authoritative for both ladder and command.",
+    "Persist phase/provider-local evidence and an actual-dispatch receipt before recording outcomes. Keep global functional failures/max_attempts separate. No eligible provider is exhausted until it was attempted or excluded with a reason.",
+    "On semantic or unknown top failure, move to the next qualified provider. Permit at most one documented identical retry for mechanical/budget cases. Environmental, plan_defect and timeout_ceiling never cause capability switching.",
+    "Reserve enough remaining attempts for at least one dispatch of each remaining eligible provider when the configured budget can do so; otherwise emit a preflight budget warning and explicit budget_exhausted outcome. Never silently increase the user budget.",
+    "Build a deterministic capsule from pinned subtask state, changed-path summary and validation/evidence references. Sanitize before truncation, mark hypotheses unverified, append after static rules and deterministic evidence, bind it to the next dispatch only.",
+    "Keep the optional previous-worker summary field as a later measured enhancement behind its own flag. Do not add a paid summary call or native transcript retention by default. Tasks070-081 implement and review the detailed contract.",
+    "Keep TODO068 fixture-only; TODOs070-080 own config, state, selection, handoff and integration changes.",
+    "Reserve or preflight the remaining provider-attempt budget and record skips, entry-rung choice and reset epoch explicitly.",
+    "Use one next-attempt-only deterministic capsule after stable rules; do not let it change route, failure class or task status."
+  ],
+  "identity_contract": "Keep capability identity separate from availability identity: changing only a quota pool, request ID, log path or credential reference cannot create a stronger rung. Resolve known aliases and native effort before deduplication; retain the harness/backend boundary rather than equating model-family names across hosts.",
+  "normative_blueprint": {
+    "config": {
+      "mode": "legacy",
+      "handoff": "deterministic",
+      "handoff_max_bytes": 4000,
+      "repeat_mechanical_once": true,
+      "repeat_budget_once": true
+    },
+    "byte_range": [
+      512,
+      16000
+    ],
+    "entry_rung": "declared_task_floor_lifted_upward",
+    "budget": "shared existing functional-failure budget; reserve untried eligible providers; never raise it",
+    "reference": "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md#normative-implementation-blueprint-for-todos-070-080"
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "feature_id": "F001",
+  "former_research_task": "006",
+  "implementation_task": "006",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Preserve DIRECT without planning overhead; distinguish size from semantic coupling.",
+    "Measure request validation, explicit invocation and promotion of remaining outcomes."
+  ],
+  "decision": "Keep DIRECT as a zero-orchestration fast path, with explicit risk/promotion signals and evaluated activation; do not add a classifier call.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "The entrypoint already distinguishes DIRECT, FINAL_PLAN and PRIMARY_PLAN. DIRECT is an early exit, not the removal of model-capability or optional validation safeguards.",
+    "requestctl and promotectl separate intake from promotion. The latter preserves completed outcomes so promotion need not manufacture retrospective TODOs."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/requestctl.py",
+      "sha256": "1a5aab982d6fa2397a9ecc7df8a7d27a72dbb697e23e3185360632accedda052",
+      "line_count": 446,
+      "symbols": [
+        {
+          "name": "RequestError",
+          "line": 80,
+          "end": 81
+        },
+        {
+          "name": "now_stamp",
+          "line": 84,
+          "end": 85
+        },
+        {
+          "name": "atomic_write_text",
+          "line": 88,
+          "end": 95
+        },
+        {
+          "name": "normalize_language",
+          "line": 98,
+          "end": 110
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/promotectl.py",
+      "sha256": "0ef7b8cbb138f814990420dfc48e4cfb472879d369e7572e08e88ed1c6f96e82",
+      "line_count": 302,
+      "symbols": [
+        {
+          "name": "PromotionError",
+          "line": 26,
+          "end": 27
+        },
+        {
+          "name": "_text",
+          "line": 30,
+          "end": 36
+        },
+        {
+          "name": "_list",
+          "line": 39,
+          "end": 51
+        },
+        {
+          "name": "normalize_spec",
+          "line": 54,
+          "end": 101
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/SKILL.md",
+      "sha256": "4af12fdfd1a7e7487e0cc96f67f924a548e6f541db1bb0b27221661edefab032",
+      "line_count": 84,
+      "symbols": [
+        {
+          "name": "# Plan and Execute",
+          "line": 6
+        },
+        {
+          "name": "## 1. Lifecycle and configuration",
+          "line": 10
+        },
+        {
+          "name": "## 2. Decide DIRECT vs ORCHESTRATED",
+          "line": 16
+        },
+        {
+          "name": "### DIRECT EXIT",
+          "line": 20
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/ROUTING.md",
+      "sha256": "a08fc73ed533dea0f73fcfa5e7516a27851d9ef0603c42072d5bc3fd4d2cb14c",
+      "line_count": 72,
+      "symbols": [
+        {
+          "name": "# Selective activation routing",
+          "line": 1
+        },
+        {
+          "name": "## Objective",
+          "line": 5
+        },
+        {
+          "name": "## Strong orchestration signals",
+          "line": 11
+        },
+        {
+          "name": "## Negative triggers",
+          "line": 21
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E001",
+    "E002",
+    "E004",
+    "E005",
+    "W-SKILLS",
+    "W-EVALSKILLS",
+    "W-SIMPLE",
+    "W-COST"
+  ],
+  "implementation_steps": [
+    "Extend the existing routing corpus with short high-risk changes, long repetitive logs, medium cohesive CRUDs, unrelated workstreams and nearly finished tasks under context pressure. Preserve explicit invocation behavior.",
+    "Represent a route decision with bounded reason codes, estimated working set and remaining outcomes. Do not persist a plan or load orchestration references on a negative implicit match.",
+    "Add a promotion regression that retains edits and completed tests while creating TODOs only for outstanding deliverables. Keep source evidence pointers rather than copied conversation history.",
+    "Keep exact lifecycle/configuration commands outside semantic routing. Document the optional validate-or-fix exit in one short pointer, not an eagerly loaded monitoring manual.",
+    "Record bounded reason codes only in the selected workflow; a rejected implicit match creates no plan, ledger or study files.",
+    "Evaluate activation false positives, false negatives, extra tokens, latency and final correctness on distinct held-out prompts.",
+    "Separate routing mode from capability tier so a small risky fix can stay DIRECT with a qualified implementation route."
+  ],
+  "proposed_acceptance_tests": [
+    "A one-module feature touching seven files remains DIRECT and leaves no plan artifacts.",
+    "A short security-sensitive fix remains direct when cohesive, but its model floor is not lowered.",
+    "A promoted task includes only remaining outcomes and preserves the original worktree.",
+    "Measure entrypoint bytes, referenced files actually loaded and routing false-positive/false-negative cases against baseline.",
+    "A near-finished high-context task stays DIRECT without creating control files.",
+    "A tiny security-sensitive edit can select a strong worker without forcing an orchestration plan.",
+    "Promotion preserves changed files and validated outcomes and schedules only remaining work."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Keep all requests direct",
+      "benefit": "Lowest setup cost",
+      "risk": "No durable recovery for genuinely long work",
+      "disposition": "Retain only for cohesive bounded work",
+      "tradeoff": "Lowest setup cost; No durable recovery for genuinely long work. Retain only for cohesive bounded work"
+    },
+    {
+      "id": "A02",
+      "title": "Always orchestrate",
+      "benefit": "Uniform tracking",
+      "risk": "Fixed token/latency tax and unnecessary artifacts",
+      "disposition": "Reject as default",
+      "tradeoff": "Uniform tracking; Fixed token/latency tax and unnecessary artifacts. Reject as default"
+    },
+    {
+      "id": "A03",
+      "title": "Selective metadata plus deterministic guards",
+      "benefit": "No added routing model call",
+      "risk": "Needs host activation evaluation",
+      "disposition": "Recommended",
+      "tradeoff": "No added routing model call; Needs host activation evaluation. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Paid classifier before every request",
+      "benefit": "Learnable decision boundary",
+      "risk": "Extra call, privacy boundary and classification errors",
+      "disposition": "Defer until measured net gain",
+      "tradeoff": "Learnable decision boundary; Extra call, privacy boundary and classification errors. Defer until measured net gain"
+    }
+  ],
+  "cost_model": "Compare E[C]=C_select+P(false_positive)*C_unneeded_plan+P(false_negative)*C_recovery using measured task strata; include final validation quality as a constraint, not a weighted excuse for unsafe routing.",
+  "unverified": [
+    "Natural-language route choice still needs host evaluation; passing string checks alone does not prove correct semantic routing.",
+    "Automatic skill selection is host/model-dependent; structural metadata tests cannot measure it. No new model-call experiment was conducted."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Keep a small selective router; add measured near-miss and promotion contracts instead of a second classifier model.",
+  "revision_delta": "The first report favored a lightweight router but did not price activation errors. The revision adds a false-positive/false-negative decision test and explicitly compares one qualified agent at lower effort with delegated execution. Length is not a proxy for risk or independence.",
+  "decision_analysis": [
+    "The cheapest routing decision is often the one already available from the request and repository metadata. A separate paid classifier has a fixed per-request charge and can still misclassify a tiny security edit or a large repetitive log. Keep explicit invocation and exact lifecycle commands deterministic; let implicit activation require evidence of durable coordination value.",
+    "Use a two-stage contract: cheap selection from purpose, interruption risk and independence, followed only after selection by context preparation. A cohesive CRUD with several files should not pay a planning tax. Conversely, a two-line authorization change can need strong implementation capability without needing durable orchestration. These are separate dimensions.",
+    "The new evaluation must compare four complete outcomes: no orchestration, explicit-only, selective metadata routing, and a paid classifier. Count unrequested planning files as a false-positive side effect. Evaluate late promotion after useful work has already occurred; promotion must not restart accepted work.",
+    "Research supports testing simple alternatives, not assuming the smallest instruction file will select correctly. Keep a small negative/near-miss corpus and a separate held-out activation sample. Metadata lint and phrase-presence tests are necessary structural checks but cannot establish actual host selection behavior."
+  ],
+  "search_themes": [
+    "site.agentskills.io specification progressive disclosure",
+    "site.anthropic.com engineering effective harnesses long running agents",
+    "site.platform.claude.com docs optimizing cost intelligence October 2026 multiagent"
+  ],
+  "current_source_ids": [
+    "W-SKILLS",
+    "W-EVALSKILLS",
+    "W-SIMPLE",
+    "W-COST"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

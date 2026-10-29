@@ -1,29 +1,46 @@
-# Plan 1 preparation package
+# One implementation plan - prepared research
 
-Date: 2026-10-28. Source baseline: 0.11.0, remote commit 193fefd,
-local archive commit 6e6ba53, identical tree f4b5a2285b7f2b1089d974c9e60814e46db858f4.
+Date: 2026-10-28. Product baseline: 0.11.0. Remote checkpoint before this revision:
+`checkpoint/plano1-estudo-provider-switch-20261028` at `d4fc2ae44fd502ac59340fce8e24ce8a55673ebe`.
 
-Plan creation is complete; all 86 execution tasks are pending. Full research,
-maximum-model reviews, provider-switch implementation and Plan 2 generation have
-not been performed. See README.pt-BR.md for the detailed user-facing status.
+**Research prepared: 32 topic reports, 58 primary-source records. Product implementation has not started.**
+The current user amendment replaces research execution and second-plan generation with one implementation graph. `PLAN1_SPEC.json` keeps its filename for compatibility, not because a second plan remains.
 
-- PLAN1_SPEC.json: native input; 45 source requirements and 86 resumable tasks.
-- FEATURE_SEED.json: 32 initial topics, each with a separate maximum-model review.
-- TASK_INPUTS.json: task-local input/output paths; read only the selected entry.
-- PROTOCOL.md: research, review, evidence, authorization and context contracts.
-- ACCEPTANCE_MATRIX.json/.md: the original twelve provider-switch acceptance cases.
-- PREPARATION_STUDY.json: initial evidence sufficient for decomposition only.
-- REQUEST_ORIGINAL.md: unmodified original request.
-- SOURCE_TRACEABILITY.json: original-line to requirement mapping.
-- PLAN2_CONTRACT.md: the future second-plan acceptance contract.
-- PORTABILITY.md: recreate this unstarted plan safely on another host.
+## Entry points
 
-The native control workspace is .ai-work/20261028-skill-study-provider-switch.
-No task has been claimed or completed, and no active runner is installed.
-Research evidence and real preparation-check logs live in
-`docs/research/20261028-skill-optimization/evidence/`.
+- [Prepared research index](../../research/20261028-skill-optimization/prepared-research/INDEX.md): one decision report per former research task.
+- [Current protocol](PROTOCOL.md): scoped context, real acceptance and protection boundaries.
+- [Native TODO checklist](../../../.ai-work/20261028-skill-study-provider-switch/TODO.md): 86 implementation, correction and review tasks, all pending.
+- [Request amendment](REQUEST_AMENDMENT.md) and [traceability](REPLAN_TRACE.json): explicit supersession of the former two-plan request.
+- [Original provider-switch acceptance matrix](ACCEPTANCE_MATRIX.md): all twelve cases remain obligations.
+- [Portability](PORTABILITY.md): native recreation on another host; no status editing.
 
-The only tracked edit is the additive service-map preparation bindings. No runtime
-source changes, commit, push, publication, user-skill install or live-provider call
-were made. Full npm run check baseline is inconclusive at the host 200-second limit;
-passing preparation checks must not be described as a passing complete product suite.
+## Task layout
+
+| IDs | Implementation outcome |
+|---|---|
+| 001-005 | Offline preflight, source coverage and common acceptance fixtures, with correction gates. |
+| 006-069 | 32 topic implementations, each followed by independent code review and correction. |
+| 070-081 | Provider-switch configuration, effective dispatch, availability/budget, handoff and integration, each reviewed. |
+| 082-085 | Cross-topic integration, regression, package contents and release-readiness correction. |
+| 086 | Final whole-skill maintenance review and evidence-based handoff. |
+
+There are 43 real independent review requirements and 571 internal checkpoints. They have not been executed. The former maximum-model review before all other work has been replaced by deterministic preflight; maximum-capability reviews now accept concrete implementations instead of blocking all preparation.
+
+## Efficient task loading
+
+Run from the repository root:
+
+```bash
+python docs/plans/20261028-skill-optimization/support/check_delivery.py --inputs 006
+```
+
+Read only this task's assigned report, applicable source symbols, dependencies and current tests. Do not load all 32 reports or the historical snapshot. Every former research task starts with a link to its report and has numbered implementation subtasks and proposed acceptance tests. Source URLs, access dates, reading scope and uncertainty are preserved in the source register.
+
+## Evidence boundary
+
+The research recommends changes; it does not prove that code implements them. No paid model calls, live provider experiment, Windows run or independent maximum-model review was performed in research preparation. Public author book excerpts and open chapters are explicitly scoped; full-book reading is not claimed. No universal cheapest/strongest model or measured savings percentage is asserted.
+
+The product directories `skill/`, `bin/` and `lib/` remain unchanged from 0.11.0. The modified Python support scripts under this document directory validate the plan and future receipts; they are not implementations of the proposed runtime improvements.
+
+The former specification, protocol and native control state are preserved in `history/pre-research-conversion/` as inactive historical evidence. No historical plan is activated. Do not resume that snapshot. All new implementation tasks remain pending, and autostart stays false.

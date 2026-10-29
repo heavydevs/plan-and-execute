@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "feature_id": "F018",
+  "former_research_task": "040",
+  "implementation_task": "040",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Distinguish the configured Trae Agent CLI from the TRAE IDE or another CLI product.",
+    "Verify trajectory handling, provider configuration, secret routing and failure reporting."
+  ],
+  "decision": "Preserve TRAE Agent as a distinct adapter with pinned CLI/tool contracts and owned trajectory artifacts; do not interpret the trajectory or IDE identity as a completion guarantee.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "The adapter invokes trae-cli run with a working directory and trajectory output path, plus optional underlying provider/model choices.",
+    "The official Trae Agent repository describes an open-source agent and provider configuration. It does not justify borrowing flags or session behavior from the TRAE IDE."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "parse_provider_report",
+          "line": 1412,
+          "end": 1425
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/provider_self_test.py",
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd",
+      "line_count": 596,
+      "symbols": [
+        {
+          "name": "sample_route",
+          "line": 20,
+          "end": 26
+        },
+        {
+          "name": "sample_report",
+          "line": 29,
+          "end": 43
+        },
+        {
+          "name": "test_default_provider_policy",
+          "line": 46,
+          "end": 60
+        },
+        {
+          "name": "test_worker_command_adapters",
+          "line": 63,
+          "end": 143
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E032",
+    "E044",
+    "E042",
+    "W-TRAE-README",
+    "W-TRAE-TRAJECTORY",
+    "W-LOGGING",
+    "W-SUBPROCESS"
+  ],
+  "implementation_steps": [
+    "Pin documented Trae Agent CLI/version fixtures and normalize its final output independently of provider-specific message formats.",
+    "Record both harness and actual model-provider identity so rate limits, capabilities and costs are attributed to the backend rather than the CLI name.",
+    "Register trajectory files under the task/job ownership and retention policy. Exclude them from packages and worker prompts unless a bounded sanitized excerpt is explicitly authorized.",
+    "Resolve secrets from allowed environment names at dispatch time; do not copy configuration values into manifests, evidence or model prompts.",
+    "Share cancellation and bounded process-output infrastructure with other adapters. Keep any Docker isolation choice explicit and version-qualified.",
+    "Pin TRAE Agent identity and version separately from IDE products and backend model configuration.",
+    "Allocate owned per-attempt trajectory paths; redact before export and never scan unrelated user sessions.",
+    "Distinguish runner-created containers from attached user containers before cancellation or cleanup."
+  ],
+  "proposed_acceptance_tests": [
+    "Golden command fixtures distinguish Trae Agent from unrelated executables.",
+    "An invalid or missing terminal output cannot be replaced by a plausible trajectory message.",
+    "A seeded credential in a trajectory is not included in model-facing evidence or publication artifacts.",
+    "Quota failures are keyed to the configured backend/profile, not every Trae execution.",
+    "Cleanup preserves active trajectory evidence and removes only registered stale artifacts.",
+    "A stale trajectory from another attempt cannot satisfy completion.",
+    "Cleanup refuses to destroy an attached user-owned container.",
+    "Credential-like text in trajectory snippets is redacted before truncation.",
+    "Missing backend configuration fails preflight without a semantic escalation."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Treat all TRAE products identically",
+      "benefit": "Less adapter metadata",
+      "risk": "Wrong CLI and tool assumptions",
+      "disposition": "Reject",
+      "tradeoff": "Less adapter metadata; Wrong CLI and tool assumptions. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Read full trajectory on every retry",
+      "benefit": "Rich history",
+      "risk": "Large tokens, secrets and anchoring",
+      "disposition": "Reject",
+      "tradeoff": "Rich history; Large tokens, secrets and anchoring. Reject"
+    },
+    {
+      "id": "A03",
+      "title": "Versioned CLI plus owned bounded diagnostics",
+      "benefit": "Traceable and portable",
+      "risk": "Requires artifact ownership",
+      "disposition": "Recommended",
+      "tradeoff": "Traceable and portable; Requires artifact ownership. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Replace CLI with internal Python agent API",
+      "benefit": "Direct control",
+      "risk": "Unstable internal coupling",
+      "disposition": "Defer unless a supported public API pays off",
+      "tradeoff": "Direct control; Unstable internal coupling. Defer unless a supported public API pays off"
+    }
+  ],
+  "cost_model": "Retain compact failure references instead of feeding full trajectories; benchmark API integration only against measured CLI startup and maintenance costs.",
+  "unverified": [
+    "Underlying provider behavior, Docker confinement and installed Trae CLI version were not executed here.",
+    "No TRAE CLI or container execution was tested. The public documentation and baseline adapter define the intended compatibility tests."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Keep the ByteDance Trae Agent adapter distinct from the IDE, and make trajectories an owned, protected diagnostic artifact.",
+  "revision_delta": "The revision clarifies adapter identity, generated trajectory paths, container lifetime and diagnostic ownership, avoiding assumptions imported from the TRAE IDE.",
+  "decision_analysis": [
+    "The supported backend is the ByteDance TRAE Agent CLI, not every product carrying a similar name. Bind executable and version, configured model backend, tool set and working directory. A wrapper returning plausible prose is not proof that the expected agent or model performed the work.",
+    "Trajectories can include prompts, responses, tool commands and file contents. Allocate explicit per-attempt paths in the plan-owned diagnostics directory and apply redaction/retention controls before they become model context or exported evidence. Do not search arbitrary user trajectories to reconstruct context.",
+    "If a container is used, the runner must know whether it created it or attached to an existing one. Termination and cleanup of an attached container cannot be inferred from task failure. Use bounded child-process/container operations with ownership receipts, and preserve user-managed environments.",
+    "The final completion contract is the same independently validated report as other providers. Use the trajectory only to locate evidence for a failure. Native step budgets, execution errors and unavailable backend credentials should be classified without consuming capability retries."
+  ],
+  "search_themes": [
+    "bytedance trae-agent README CLI trajectory",
+    "TRAE Agent trajectory recording agent steps tools",
+    "OWASP sensitive logs retention"
+  ],
+  "current_source_ids": [
+    "W-TRAE-README",
+    "W-TRAE-TRAJECTORY",
+    "W-LOGGING",
+    "W-SUBPROCESS"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "feature_id": "F027",
+  "former_research_task": "058",
+  "implementation_task": "058",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Measure cursor gaps, rotation/truncation, bounded summaries and missed-error risk.",
+    "Prune owned stale artifacts without deleting active diagnostic evidence or rereading entire logs."
+  ],
+  "decision": "Use identity-aware incremental log readers, provenance-preserving bounded digests and owner-scoped retention; never delete evidence merely because an agent has already read it.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "log_watch.scan tracks file device/inode and byte offset, keeps incomplete trailing lines for the next sample and reports skipped bytes with exit2.",
+    "digest reads a bounded prefix and reports truncation/omission. A small digest is not evidence that the entire source log was inspected.",
+    "The scan output truncates matching lines before any shared secret redactor is applied in that function; model-facing consumers need a defined sanitation boundary."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/log_watch.py",
+      "sha256": "114ea5c9c0ef6db6523e4fd7ea41faf2a8e9464968f3a8527738cec6321d3aaf",
+      "line_count": 259,
+      "symbols": [
+        {
+          "name": "scan",
+          "line": 58,
+          "end": 132
+        },
+        {
+          "name": "digest",
+          "line": 135,
+          "end": 211
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/resource_watch.py",
+      "sha256": "22ac707b846a428c832671c6cfc96d9e45b367f5b3a61963ac0258791a5c2184",
+      "line_count": 820,
+      "symbols": [
+        {
+          "name": "register_artifact",
+          "line": 62,
+          "end": 81
+        },
+        {
+          "name": "cleanup_artifacts",
+          "line": 84,
+          "end": 122
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/observer.py",
+      "sha256": "ad84f96624f85c860edd925ed5bf354dc805b726f943bf14a435f6ef5179b322",
+      "line_count": 440,
+      "symbols": [
+        {
+          "name": "ObserverError",
+          "line": 37,
+          "end": 38
+        },
+        {
+          "name": "Unavailable",
+          "line": 41,
+          "end": 44
+        },
+        {
+          "name": "validate",
+          "line": 47,
+          "end": 55
+        },
+        {
+          "name": "options",
+          "line": 58,
+          "end": 61
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E046",
+    "E044",
+    "E045",
+    "E043",
+    "W-TAIL",
+    "W-LOGGING",
+    "W-SRE",
+    "W-SUBPROCESS"
+  ],
+  "implementation_steps": [
+    "Represent read coverage with start/end offsets, file identity, truncation/rotation events and omitted ranges. Do not convert a partial scan into a healthy result.",
+    "Test move/create and copytruncate rotation, same-size replacement, partial UTF-8 and very long lines. Choose explicit replay/deduplication policy for each case.",
+    "Apply sanitation before model-facing truncation and preserve bounded safe error signatures. Keep full raw logs only in owned access-controlled storage, not in prompts or packages.",
+    "Resume from cursor/digest checkpoints instead of rereading entire logs. Cursor corruption or uncertain identity should produce visible uncertainty and a bounded recovery path.",
+    "Prune only registered stale artifacts after acceptance and retention checks. Never let an observer delete active application logs or erase evidence needed by an unresolved failure.",
+    "Bind log cursors to file identity/generation and handle rotation, truncation, split UTF-8 and partial lines explicitly.",
+    "Expose incomplete coverage, dropped groups and unreadable inputs; no-error is not healthy when coverage is incomplete.",
+    "Retain only owner-approved cleanup rules; never delete a user log because it was already read by an agent."
+  ],
+  "proposed_acceptance_tests": [
+    "An error split across two writes is detected once the line completes.",
+    "An omitted interval yields a coverage-gap status, never a claim of no errors.",
+    "Rotation/replacement does not inherit an unrelated offset silently.",
+    "A planted credential at a truncation boundary is absent from model-facing excerpts.",
+    "Cleanup preserves active/unresolved evidence and rejects unregistered paths and symlinks.",
+    "Rename rotation and copy-truncate do not silently skip or duplicate complete records.",
+    "A secret split across read chunks is removed before digest truncation.",
+    "A truncated log with no observed error reports incomplete coverage.",
+    "Cleanup refuses arbitrary external logs and preserves failure evidence."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Reread full logs every poll",
+      "benefit": "Simple",
+      "risk": "Repeated I/O, tokens and secrets",
+      "disposition": "Reject",
+      "tradeoff": "Simple; Repeated I/O, tokens and secrets. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Delete logs after reading",
+      "benefit": "Small next prompt",
+      "risk": "Destroys evidence and user data",
+      "disposition": "Reject",
+      "tradeoff": "Small next prompt; Destroys evidence and user data. Reject"
+    },
+    {
+      "id": "A03",
+      "title": "Incremental cursor plus bounded digest",
+      "benefit": "Low repeated work and traceability",
+      "risk": "Needs rotation/coverage contracts",
+      "disposition": "Recommended",
+      "tradeoff": "Low repeated work and traceability; Needs rotation/coverage contracts. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "LLM-only summarization",
+      "benefit": "Handles free text",
+      "risk": "Cost, omissions and anchoring",
+      "disposition": "Optional on sanitized novel ambiguity",
+      "tradeoff": "Handles free text; Cost, omissions and anchoring. Optional on sanitized novel ambiguity"
+    }
+  ],
+  "cost_model": "Aim for O(new bytes) repeated reads with bounded memory and model input. Measure detection recall and coverage alongside compression ratio; a smaller wrong digest is not a gain.",
+  "unverified": [
+    "Secret redaction is best effort, not a proof that arbitrary raw application output is safe to disclose. Sensitive logs may require stronger policy or no model access.",
+    "No real production log corpus was supplied. Synthetic compression results cannot predict token savings or diagnostic recall for every service."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Preserve incremental cursors and explicit coverage gaps; add rotation recovery and owned retention rather than deleting logs to save prompt tokens.",
+  "revision_delta": "The revision specifies rotation and partial-record semantics and rejects read-based deletion. It adds a tri-state coverage result so truncated or unreadable logs cannot become a false healthy verdict.",
+  "decision_analysis": [
+    "An offset alone is not enough to resume reading a log. Bind the cursor to file identity and observed generation, detect truncation, and choose whether to follow the descriptor or the pathname after rotation. Carry incomplete UTF-8 sequences and partial lines without double-counting or discarding evidence.",
+    "Summaries should preserve event counts, first/last timestamps, representative redacted signatures and references to the underlying byte ranges. A bounded digest must report dropped groups, omitted records and incomplete coverage. Absence of a recognized error in a truncated input is unknown, not proof of a healthy process.",
+    "Redact before truncating, hashing diagnostic excerpts or exporting them to a model. A token split across chunks can defeat a naive per-chunk pattern; retain a bounded overlap or classify safe structured fields at the source. Escape control characters in rendered summaries to avoid log injection. Hash identifiers are not automatically anonymous if the original domain is small.",
+    "Retention is an ownership and incident-policy decision, not a token-optimization command. Keep raw evidence outside routine prompts, rotate owned temporary logs under documented limits, and retain failures until acceptance or explicit user policy allows cleanup. Never purge user service logs or unknown files to avoid rereading them."
+  ],
+  "search_themes": [
+    "GNU tail follow descriptor name log rotation truncation",
+    "OWASP logging sensitive data retention log injection",
+    "streaming logs partial utf8 bounded buffers"
+  ],
+  "current_source_ids": [
+    "W-TAIL",
+    "W-LOGGING",
+    "W-SRE",
+    "W-SUBPROCESS"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

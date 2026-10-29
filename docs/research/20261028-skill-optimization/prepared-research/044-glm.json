@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "feature_id": "F020",
+  "former_research_task": "044",
+  "implementation_task": "044",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Verify host versus model-provider identity, native thinking/effort and allowed capability tiers.",
+    "Keep credit multipliers, cache pricing and secret environment references as separate evidence."
+  ],
+  "decision": "Resolve GLM backend identity independently of Claude role aliases, with isolated per-process profiles, explicit billing eligibility and measured workload capability.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "The repository separates GLM provider guidance/tests from the general harness and has profile/environment routing infrastructure.",
+    "Z.AI's official integration maps Claude Code aliases to GLM models and endpoints. Therefore a Claude executable or Opus alias cannot identify the underlying model intelligence or quota pool."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/routing_config.py",
+      "sha256": "4c21ed17b26062511023e151edd60f56eb68219129418303f17ddc2b26e9d4e4",
+      "line_count": 320,
+      "symbols": [
+        {
+          "name": "validate",
+          "line": 112,
+          "end": 213
+        },
+        {
+          "name": "load",
+          "line": 285,
+          "end": 302
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/glm_provider_self_test.py",
+      "sha256": "0ba70a34f7c4002e6858c88645df9e3bc6c51f713b8221e9011ca6a4953fb051",
+      "line_count": 127,
+      "symbols": [
+        {
+          "name": "test_profile_reuses_claude_harness_with_env_names_only",
+          "line": 23,
+          "end": 38
+        },
+        {
+          "name": "test_default_profile_resolution_unchanged",
+          "line": 41,
+          "end": 42
+        },
+        {
+          "name": "test_effort_map_covers_every_skill_effort",
+          "line": 45,
+          "end": 50
+        },
+        {
+          "name": "test_thinking_disabled_rejected",
+          "line": 53,
+          "end": 61
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md",
+      "sha256": "29d008c040d66b64d903547d55d04f73099a138a741787d11631aa2791fa1fe8",
+      "line_count": 39,
+      "symbols": [
+        {
+          "name": "# GLM / Z.AI model routing",
+          "line": 1
+        },
+        {
+          "name": "## Harness and profile",
+          "line": 5
+        },
+        {
+          "name": "## Catalog mapping (bootstrap evidence, not placement)",
+          "line": 15
+        },
+        {
+          "name": "## Effort",
+          "line": 26
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E035",
+    "E015",
+    "E013",
+    "E017",
+    "W-GLM",
+    "W-GLM-PLAN",
+    "W-COST",
+    "W-OPENROUTER"
+  ],
+  "implementation_steps": [
+    "Persist normalized host, backend, endpoint profile name, actual model ID and quota-pool identity without secret values.",
+    "Make thinking/effort translation conditional on the supported GLM model and harness version. Unknown native controls must not be treated as a higher capability tier.",
+    "Keep workload qualification separate from generic tier mapping; do not inherit maximum Claude capability for a GLM profile.",
+    "Store API rates, subscription credit multipliers and cache economics in separate dated fields with null for unknowns. Refresh metadata without changing in-progress routes.",
+    "Inject configured environment references per child process and avoid editing the user's global Claude settings as an installation side effect.",
+    "Include endpoint/profile and resolved backend model in GLM route identity; collapse duplicate alias rungs.",
+    "Apply profile environment overlays only to child processes and never modify user-global settings.",
+    "Keep Coding Plan eligibility, quota and PAYG billing as separate explicit capabilities."
+  ],
+  "proposed_acceptance_tests": [
+    "An Opus alias mapped to GLM retains backend=GLM in route, telemetry and cooldown identity.",
+    "Unknown/unsupported effort is rejected or mapped by an explicit tested rule, never silently upgraded.",
+    "Two profiles using the same host but different quota pools do not contaminate one another.",
+    "Secret values are absent from show/config receipts, logs and handoff packets.",
+    "Version1 configuration snapshots preserve their original behavior.",
+    "Opus and Sonnet aliases mapped to one GLM model do not count as a capability increase.",
+    "Child profile settings cannot leak into another provider process.",
+    "Coding Plan quota exhaustion cannot enable an API-paid route implicitly.",
+    "Unknown native effort support causes an explicit skip rather than guessed equivalence."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Use Claude alias as capability tier",
+      "benefit": "Simple UI",
+      "risk": "Same backend can occupy every rung",
+      "disposition": "Reject",
+      "tradeoff": "Simple UI; Same backend can occupy every rung. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Modify global Claude settings",
+      "benefit": "Matches vendor quickstart",
+      "risk": "Overwrites unrelated user behavior",
+      "disposition": "Reject in this task",
+      "tradeoff": "Matches vendor quickstart; Overwrites unrelated user behavior. Reject in this task"
+    },
+    {
+      "id": "A03",
+      "title": "Isolated explicit backend profiles",
+      "benefit": "Auditable and reversible",
+      "risk": "Needs mapping evidence",
+      "disposition": "Recommended",
+      "tradeoff": "Auditable and reversible; Needs mapping evidence. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Auto-fallback to PAYG endpoint",
+      "benefit": "Availability",
+      "risk": "Unapproved spending and data boundary",
+      "disposition": "Reject without explicit permission",
+      "tradeoff": "Availability; Unapproved spending and data boundary. Reject without explicit permission"
+    }
+  ],
+  "cost_model": "Optimize using measured validated quality and actual plan/API units. Alias similarity gives no cost or intelligence evidence.",
+  "unverified": [
+    "No GLM live task or credit measurement was made. Current website mappings are documentation evidence, not proof of this user's account settings.",
+    "Current vendor mapping examples are not this user configuration. No GLM account entitlement or live model comparison was queried."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Model GLM as a backend profile behind a qualified harness, not as native Claude capability inferred from the Opus/Sonnet alias.",
+  "revision_delta": "Official examples map several Claude aliases to one GLM model, strengthening the need to deduplicate effective routes and reject intelligence assumptions based on alias names.",
+  "decision_analysis": [
+    "Claude Code is the harness while GLM is the backend. The route identity must include the configured endpoint/profile and actual model mapping. An opus alias that resolves to the same GLM backend as sonnet is not a stronger retry. Preserve role labels for user readability, but do not use them as capability evidence.",
+    "Per-process environment overlays are safer than editing the user global Claude configuration. Reference environment variable names, validate allowed endpoints and strip unrelated credentials from diagnostic exports. Separate authentication failures, endpoint incompatibility and quota exhaustion from coding-quality failures.",
+    "Coding-plan eligibility is a product contract, not interchangeable with pay-as-you-go API access. Do not silently switch billing modes when a plan quota ends. Quality, native effort and tool/schema compatibility need workload-specific evidence; marketing benchmark claims do not assign a reliable floor in this repository.",
+    "Use opt-in profile fixtures and a minimal negative test corpus to make support maintainable. When a profile cannot express the required effort or read-only role, skip it with a reason. Avoid a broad alias rewrite that changes every existing plan snapshot."
+  ],
+  "search_themes": [
+    "Z.ai GLM Claude Code default opus sonnet haiku mapping",
+    "GLM Coding Plan overview allowed integrations",
+    "routing provider data policy compatibility"
+  ],
+  "current_source_ids": [
+    "W-GLM",
+    "W-GLM-PLAN",
+    "W-COST",
+    "W-OPENROUTER"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

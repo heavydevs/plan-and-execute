@@ -1,0 +1,28 @@
+[resource-watch] validation=P1_RESEARCH_R2_TESTS report=.ai-work/resource-watch/20261029T024027-P1_RESEARCH_R2_TESTS-3583-1793241627490736023.jsonl
+[resource-watch] toolchain=PYTHON state=healthy version='Python 3.13.5'
+[resource-watch] time=2026-10-29T02:40:28+00:00 validation=P1_RESEARCH_R2_TESTS test_pid=3604 test_process=running
+[resource-watch] validation=P1_RESEARCH_R2_TESTS resources=none (explicitly mapped)
+test_analysis_missing_rejected (__main__.ReadinessTests.test_analysis_missing_rejected) ... ok
+test_changed_baseline_anchor_rejected (__main__.ReadinessTests.test_changed_baseline_anchor_rejected) ... ok
+test_dag_cycle_rejected (__main__.ReadinessTests.test_dag_cycle_rejected) ... ok
+test_dag_transitive_dependencies (__main__.ReadinessTests.test_dag_transitive_dependencies) ... ok
+test_fresh_source_without_provenance_rejected (__main__.ReadinessTests.test_fresh_source_without_provenance_rejected) ... ok
+test_missing_current_sources_rejected (__main__.ReadinessTests.test_missing_current_sources_rejected) ... ok
+test_missing_future_check_rejected (__main__.ReadinessTests.test_missing_future_check_rejected) ... ok
+test_missing_input_contract_rejected (__main__.ReadinessTests.test_missing_input_contract_rejected) ... ok
+test_missing_uncertainty_rejected (__main__.ReadinessTests.test_missing_uncertainty_rejected) ... ok
+test_old_revision_rejected (__main__.ReadinessTests.test_old_revision_rejected) ... ok
+test_one_alternative_rejected (__main__.ReadinessTests.test_one_alternative_rejected) ... ok
+test_plan_does_not_claim_product_acceptance (__main__.ReadinessTests.test_plan_does_not_claim_product_acceptance) ... ok
+test_real_prepared_plan (__main__.ReadinessTests.test_real_prepared_plan) ... ok
+test_review_checks_cannot_differ (__main__.ReadinessTests.test_review_checks_cannot_differ) ... ok
+test_scope_catalog_disagreement_rejected (__main__.ReadinessTests.test_scope_catalog_disagreement_rejected) ... ok
+test_undeclared_input_producer_rejected (__main__.ReadinessTests.test_undeclared_input_producer_rejected) ... ok
+test_unknown_current_source_rejected (__main__.ReadinessTests.test_unknown_current_source_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 4.100s
+
+OK
+[resource-watch] time=2026-10-29T02:40:32+00:00 validation=P1_RESEARCH_R2_TESTS test_pid=3604 test_process=exited group_cpu_seconds=5.4399999999999995 processes=[{"pid":3604,"state":"S","cpu_seconds":1.8},{"pid":3648,"state":"R","cpu_seconds":0.31}]
+[resource-watch] validation=P1_RESEARCH_R2_TESTS test_exit=0 health=healthy

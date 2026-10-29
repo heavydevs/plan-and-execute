@@ -1,88 +1,88 @@
-# TODO — Plan 1 - whole-skill study, provider-top switching and Plan 2 handoff
+# TODO — Single implementation plan - evidence-backed skill optimization
 
-- [ ] **001** — Review Plan 1 and qualify execution routes
-- [ ] **002** — Audit every skill mechanism and baseline
-- [ ] **003** — Review Audit every skill mechanism and baseline
-- [ ] **004** — Complete the feature inventory and research coverage
-- [ ] **005** — Review Complete the feature inventory and research coverage
-- [ ] **006** — Research Selective activation, intake and late promotion
-- [ ] **007** — Review Research Selective activation, intake and late promotion
-- [ ] **008** — Research Oversized request fragmentation and prepared packages
-- [ ] **009** — Review Research Oversized request fragmentation and prepared packages
-- [ ] **010** — Research Adaptive internal and external study
-- [ ] **011** — Review Research Adaptive internal and external study
-- [ ] **012** — Research Requirements, task decomposition and schema-v4 state
-- [ ] **013** — Review Research Requirements, task decomposition and schema-v4 state
-- [ ] **014** — Research Assigned context, learned facts and token budgets
-- [ ] **015** — Review Research Assigned context, learned facts and token budgets
-- [ ] **016** — Research Versioned shared contracts and selective invalidation
-- [ ] **017** — Review Research Versioned shared contracts and selective invalidation
-- [ ] **018** — Research Leases, resume, cancellation, reset and guarded cleanup
-- [ ] **019** — Review Research Leases, resume, cancellation, reset and guarded cleanup
-- [ ] **020** — Research Capability floors, evidence ladders and retry accounting
-- [ ] **021** — Review Research Capability floors, evidence ladders and retry accounting
-- [ ] **022** — Research Provider chains, cooldowns, quotas and availability ledgers
-- [ ] **023** — Review Research Provider chains, cooldowns, quotas and availability ledgers
-- [ ] **024** — Research Workload routing for frontend, repair and monitoring
-- [ ] **025** — Review Research Workload routing for frontend, repair and monitoring
-- [ ] **026** — Research Model catalog evidence, caches, snapshots and refresh
-- [ ] **027** — Review Research Model catalog evidence, caches, snapshots and refresh
-- [ ] **028** — Research Fresh workers, delegation gates and prompt-cache boundaries
-- [ ] **029** — Review Research Fresh workers, delegation gates and prompt-cache boundaries
-- [ ] **030** — Research Claude Code and Claude Agent SDK adapter
-- [ ] **031** — Review Research Claude Code and Claude Agent SDK adapter
-- [ ] **032** — Research Codex CLI, Agent SDK and schema adaptation
-- [ ] **033** — Review Research Codex CLI, Agent SDK and schema adaptation
-- [ ] **034** — Research Antigravity and legacy Gemini adapter
-- [ ] **035** — Review Research Antigravity and legacy Gemini adapter
-- [ ] **036** — Research Qwen Code headless adapter
-- [ ] **037** — Review Research Qwen Code headless adapter
-- [ ] **038** — Research Kimi Code CLI adapter
-- [ ] **039** — Review Research Kimi Code CLI adapter
-- [ ] **040** — Research Trae Agent adapter
-- [ ] **041** — Review Research Trae Agent adapter
-- [ ] **042** — Research Muse Code adapter and session protocol
-- [ ] **043** — Review Research Muse Code adapter and session protocol
-- [ ] **044** — Research GLM provider profiles
-- [ ] **045** — Review Research GLM provider profiles
-- [ ] **046** — Research DeepSeek provider profiles
-- [ ] **047** — Review Research DeepSeek provider profiles
-- [ ] **048** — Research Independent validation, evidence packets and failure classification
-- [ ] **049** — Review Research Independent validation, evidence packets and failure classification
-- [ ] **050** — Research Resource discovery, freshness and runtime health
-- [ ] **051** — Review Research Resource discovery, freshness and runtime health
-- [ ] **052** — Research Progress windows, cancellation and process-tree safety
-- [ ] **053** — Review Research Progress windows, cancellation and process-tree safety
-- [ ] **054** — Research Durable supervised jobs and validation handoff
-- [ ] **055** — Review Research Durable supervised jobs and validation handoff
-- [ ] **056** — Research Read-only watchdog and guarded runner recovery
-- [ ] **057** — Review Research Read-only watchdog and guarded runner recovery
-- [ ] **058** — Research Incremental log scanning, digest and artifact retention
-- [ ] **059** — Review Research Incremental log scanning, digest and artifact retention
-- [ ] **060** — Research Read-only observer and diagnostic assistant
-- [ ] **061** — Review Research Read-only observer and diagnostic assistant
-- [ ] **062** — Research Plan-free monitored validation and repair
-- [ ] **063** — Review Research Plan-free monitored validation and repair
-- [ ] **064** — Research Telemetry, shadow routing and non-inferiority benchmarks
-- [ ] **065** — Review Research Telemetry, shadow routing and non-inferiority benchmarks
-- [ ] **066** — Research Installer, configuration, packaging and cross-platform CI
-- [ ] **067** — Review Research Installer, configuration, packaging and cross-platform CI
-- [ ] **068** — Research Provider-top switching and evidence-bounded handoff design
-- [ ] **069** — Review Research Provider-top switching and evidence-bounded handoff design
-- [ ] **070** — Specify the opt-in provider-switch contract
-- [ ] **071** — Review Specify the opt-in provider-switch contract
-- [ ] **072** — Implement effective rungs and provider-top detection
-- [ ] **073** — Review Implement effective rungs and provider-top detection
-- [ ] **074** — Integrate coherent switching, budgets and availability
-- [ ] **075** — Review Integrate coherent switching, budgets and availability
-- [ ] **076** — Implement validated, redacted handoff generation
-- [ ] **077** — Review Implement validated, redacted handoff generation
-- [ ] **078** — Integrate handoff into both worker prompt paths
-- [ ] **079** — Review Integrate handoff into both worker prompt paths
-- [ ] **080** — Document and measure switching and handoff behavior
-- [ ] **081** — Review Document and measure switching and handoff behavior
-- [ ] **082** — Synthesize the reviewed optimization backlog
-- [ ] **083** — Review Synthesize the reviewed optimization backlog
-- [ ] **084** — Generate and validate the implementation Plan 2
-- [ ] **085** — Review Generate and validate the implementation Plan 2
-- [ ] **086** — Final whole-skill maintenance and handoff review
+- [ ] **001** — Implement deterministic preflight and baseline fixtures
+- [ ] **002** — Implement source and contract coverage checks
+- [ ] **003** — Review and correct source coverage implementation
+- [ ] **004** — Implement shared acceptance fixtures and report-aware task inputs
+- [ ] **005** — Review and correct shared acceptance fixtures
+- [ ] **006** — Implement selective activation, intake and late promotion
+- [ ] **007** — Review and correct selective activation, intake and late promotion
+- [ ] **008** — Implement oversized request fragmentation and prepared packages
+- [ ] **009** — Review and correct oversized request fragmentation and prepared packages
+- [ ] **010** — Implement adaptive internal and external study
+- [ ] **011** — Review and correct adaptive internal and external study
+- [ ] **012** — Implement requirements, task decomposition and schema-v4 state
+- [ ] **013** — Review and correct requirements, task decomposition and schema-v4 state
+- [ ] **014** — Implement assigned context, learned facts and token budgets
+- [ ] **015** — Review and correct assigned context, learned facts and token budgets
+- [ ] **016** — Implement versioned shared contracts and selective invalidation
+- [ ] **017** — Review and correct versioned shared contracts and selective invalidation
+- [ ] **018** — Implement leases, resume, cancellation, reset and guarded cleanup
+- [ ] **019** — Review and correct leases, resume, cancellation, reset and guarded cleanup
+- [ ] **020** — Implement capability floors, evidence ladders and retry accounting
+- [ ] **021** — Review and correct capability floors, evidence ladders and retry accounting
+- [ ] **022** — Implement provider chains, cooldowns, quotas and availability ledgers
+- [ ] **023** — Review and correct provider chains, cooldowns, quotas and availability ledgers
+- [ ] **024** — Implement workload routing for frontend, repair and monitoring
+- [ ] **025** — Review and correct workload routing for frontend, repair and monitoring
+- [ ] **026** — Implement model catalog evidence, caches, snapshots and refresh
+- [ ] **027** — Review and correct model catalog evidence, caches, snapshots and refresh
+- [ ] **028** — Implement fresh workers, delegation gates and prompt-cache boundaries
+- [ ] **029** — Review and correct fresh workers, delegation gates and prompt-cache boundaries
+- [ ] **030** — Implement claude Code and Claude Agent SDK adapter
+- [ ] **031** — Review and correct claude Code and Claude Agent SDK adapter
+- [ ] **032** — Implement codex CLI, Agent SDK and schema adaptation
+- [ ] **033** — Review and correct codex CLI, Agent SDK and schema adaptation
+- [ ] **034** — Implement antigravity and legacy Gemini adapter
+- [ ] **035** — Review and correct antigravity and legacy Gemini adapter
+- [ ] **036** — Implement qwen Code headless adapter
+- [ ] **037** — Review and correct qwen Code headless adapter
+- [ ] **038** — Implement kimi Code CLI adapter
+- [ ] **039** — Review and correct kimi Code CLI adapter
+- [ ] **040** — Implement trae Agent adapter
+- [ ] **041** — Review and correct trae Agent adapter
+- [ ] **042** — Implement muse Code adapter and session protocol
+- [ ] **043** — Review and correct muse Code adapter and session protocol
+- [ ] **044** — Implement gLM provider profiles
+- [ ] **045** — Review and correct gLM provider profiles
+- [ ] **046** — Implement deepSeek provider profiles
+- [ ] **047** — Review and correct deepSeek provider profiles
+- [ ] **048** — Implement independent validation, evidence packets and failure classification
+- [ ] **049** — Review and correct independent validation, evidence packets and failure classification
+- [ ] **050** — Implement resource discovery, freshness and runtime health
+- [ ] **051** — Review and correct resource discovery, freshness and runtime health
+- [ ] **052** — Implement progress windows, cancellation and process-tree safety
+- [ ] **053** — Review and correct progress windows, cancellation and process-tree safety
+- [ ] **054** — Implement durable supervised jobs and validation handoff
+- [ ] **055** — Review and correct durable supervised jobs and validation handoff
+- [ ] **056** — Implement read-only watchdog and guarded runner recovery
+- [ ] **057** — Review and correct read-only watchdog and guarded runner recovery
+- [ ] **058** — Implement incremental log scanning, digest and artifact retention
+- [ ] **059** — Review and correct incremental log scanning, digest and artifact retention
+- [ ] **060** — Implement read-only observer and diagnostic assistant
+- [ ] **061** — Review and correct read-only observer and diagnostic assistant
+- [ ] **062** — Implement plan-free monitored validation and repair
+- [ ] **063** — Review and correct plan-free monitored validation and repair
+- [ ] **064** — Implement telemetry, shadow routing and non-inferiority benchmarks
+- [ ] **065** — Review and correct telemetry, shadow routing and non-inferiority benchmarks
+- [ ] **066** — Implement installer, configuration, packaging and cross-platform CI
+- [ ] **067** — Review and correct installer, configuration, packaging and cross-platform CI
+- [ ] **068** — Implement provider-switch contract fixtures from the prepared decision
+- [ ] **069** — Review and correct provider-top switching and evidence-bounded handoff design
+- [ ] **070** — Implement opt-in provider-switch configuration and migration
+- [ ] **071** — Review and correct opt-in provider-switch configuration and migration
+- [ ] **072** — Implement distinct effective rungs and provider-phase state
+- [ ] **073** — Review and correct distinct effective rungs and provider-phase state
+- [ ] **074** — Implement coherent switching, availability and attempt reservation
+- [ ] **075** — Review and correct coherent switching, availability and attempt reservation
+- [ ] **076** — Implement bounded deterministic handoff and sanitation
+- [ ] **077** — Review and correct bounded deterministic handoff and sanitation
+- [ ] **078** — Integrate attempt-bound handoff in both worker prompts
+- [ ] **079** — Review and correct provider-switch evidence
+- [ ] **080** — Complete provider-switch documentation, replay and cost evidence
+- [ ] **081** — Review and correct provider-switch evidence
+- [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
+- [ ] **083** — Review and correct end-to-end integration
+- [ ] **084** — Validate release contents, documentation and migration
+- [ ] **085** — Review and correct release-readiness evidence
+- [ ] **086** — Final whole-skill implementation review and handoff

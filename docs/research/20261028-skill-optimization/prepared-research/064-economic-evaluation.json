@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "feature_id": "F030",
+  "former_research_task": "064",
+  "implementation_task": "064",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Measure success per validated cost, first-pass success, latency, retries and handoff overhead.",
+    "Separate replay estimates from real-run evidence; test unknown costs and failure censoring."
+  ],
+  "decision": "Evaluate quality-constrained cost with paired task-level experiments, versioned native usage and honest missing data; keep offline replay separate from evidence of real model performance.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "routing_telemetry whitelists fields and represents absent usage as null. Its inspected _number helper rejects negative/non-numeric values but does not explicitly reject positive infinity.",
+    "The benchmark replays a fixed corpus and can repeat its records. Deterministic repetitions are not independent new real-world samples.",
+    "Existing routing evaluation has separate acceptance gates and shadow/candidate concepts; preserve them rather than enabling learned selection from one synthetic success."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/routing_telemetry.py",
+      "sha256": "a7d8cb8b3190a3a0177f2854fd1340abbbca6a253176eaaff6d692f365dc753a",
+      "line_count": 221,
+      "symbols": [
+        {
+          "name": "_number",
+          "line": 35,
+          "end": 38
+        },
+        {
+          "name": "extract_usage",
+          "line": 70,
+          "end": 92
+        },
+        {
+          "name": "rollup",
+          "line": 178,
+          "end": 202
+        }
+      ]
+    },
+    {
+      "path": "tools/routing_eval.py",
+      "sha256": "01c496f4284a60435b554e42ec1ec32ad11d55e47d993b4fe1184bd3d0a47469",
+      "line_count": 605,
+      "symbols": [
+        {
+          "name": "PredeclarationError",
+          "line": 54,
+          "end": 55
+        },
+        {
+          "name": "_scripts",
+          "line": 58,
+          "end": 63
+        },
+        {
+          "name": "canonical_digest",
+          "line": 66,
+          "end": 68
+        },
+        {
+          "name": "_load",
+          "line": 71,
+          "end": 77
+        }
+      ]
+    },
+    {
+      "path": "tools/skill_benchmark.py",
+      "sha256": "d08520def6551a6db6db8194270c9cb55ca84832c87da95dd639c3af9d3f7c8b",
+      "line_count": 455,
+      "symbols": [
+        {
+          "name": "run_corpus",
+          "line": 118,
+          "end": 135
+        },
+        {
+          "name": "metrics",
+          "line": 181,
+          "end": 209
+        },
+        {
+          "name": "gate_segment",
+          "line": 238,
+          "end": 291
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E012",
+    "E013",
+    "E014",
+    "E053",
+    "E005",
+    "W-COST",
+    "W-BOOTSTRAP",
+    "W-OTEL",
+    "W-OPENAI-CACHE",
+    "W-CLAUDE-CACHE",
+    "W-ROUTELLM"
+  ],
+  "implementation_steps": [
+    "Reject NaN/infinite usage, latency and prices at all ingestion/aggregation seams; serialize strict JSON and retain unknown as null, not zero.",
+    "Attribute costs by actual backend/profile, worker kind and attempt. Include failed attempts, reviewers, handoffs and advisory calls in the denominator calculation.",
+    "Report unique tasks/cases separately from replay repetitions and real authenticated attempts. Do not use repeated identical fixture rows to narrow confidence intervals as though new evidence existed.",
+    "Predeclare acceptance, regression margins, workload strata, warm/cold cache conditions and abort criteria before collecting candidate results.",
+    "Enable automatic selection only after representative held-out outcome evaluation. Keep shadow evaluation and deterministic fallback available on sparse or stale evidence.",
+    "Resample by unique task or repository cluster and preserve pairing; repeated fixture replay cannot increase empirical sample size.",
+    "Predeclare quality/cost/latency gates and count failed, timed-out and auxiliary calls without favorable censoring.",
+    "Version billing units and reject non-finite usage; unknown cost and zero-success ratios cannot become apparent savings."
+  ],
+  "proposed_acceptance_tests": [
+    "Non-finite numbers cannot produce a successful numeric rollup or invalid JSON.",
+    "Missing cost remains unknown and is not silently compared as free.",
+    "Failed attempts and diagnostic/handoff costs are included in cost per validated result.",
+    "Repeating a fixed corpus changes replay count but not the claimed independent sample count.",
+    "A candidate with lower apparent cost but worse critical acceptance cannot pass the quality gate.",
+    "Duplicating deterministic replay rows does not narrow empirical confidence intervals.",
+    "NaN, infinity and negative usage are rejected; missing values remain null.",
+    "A zero-success arm cannot report zero cost per validated result.",
+    "Cold/warm cache and subscription/API modes remain distinct in rollups."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Token count alone",
+      "benefit": "Easy metric",
+      "risk": "Can reward poor quality and hidden retries",
+      "disposition": "Reject",
+      "tradeoff": "Easy metric; Can reward poor quality and hidden retries. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Average success/cost without pairing",
+      "benefit": "Compact report",
+      "risk": "Confounding and false precision",
+      "disposition": "Reject for acceptance",
+      "tradeoff": "Compact report; Confounding and false precision. Reject for acceptance"
+    },
+    {
+      "id": "A03",
+      "title": "Paired held-out quality-constrained evaluation",
+      "benefit": "Decision-relevant and auditable",
+      "risk": "Needs representative data and uncertainty",
+      "disposition": "Recommended",
+      "tradeoff": "Decision-relevant and auditable; Needs representative data and uncertainty. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Online learning immediately",
+      "benefit": "Adaptive policy",
+      "risk": "Exploration spend and unsafe regressions",
+      "disposition": "Shadow/offline calibration first",
+      "tradeoff": "Adaptive policy; Exploration spend and unsafe regressions. Shadow/offline calibration first"
+    }
+  ],
+  "cost_model": "Report total cash, credits, tokens, latency and validated success with paired intervals; minimize cost only among policies meeting the predeclared quality and safety constraints.",
+  "unverified": [
+    "No new paid model benchmark was performed. Literature improvements are not transferable percentages and current account pricing was not measured.",
+    "No paid comparative model evaluation was conducted. Public vendor experiments motivate the evaluation design but do not establish this repository benefit."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Strengthen telemetry and evaluation so savings mean lower total cost per validated outcome, not prettier replay statistics.",
+  "revision_delta": "The revision adds the correct independent sampling unit, no-success/unknown-cost handling, failure censoring and price-version binding. Repeating deterministic fixtures no longer inflates claimed statistical evidence.",
+  "decision_analysis": [
+    "The target is not the smallest token count. Predeclare a quality floor, security invariants, material cost gain and acceptable latency before looking at results. Compare baseline, deterministic optimization, lower effort, selective delegation and switching on the same held-out tasks. Separate task strata so average improvement cannot hide security or frontend regressions.",
+    "Repeated attempts on one task are correlated. Use paired resampling at the independent task/repository level and report unique tasks, attempts and runs separately. Replaying one deterministic scenario many times proves reproducibility, not a larger empirical sample. Keep route-training or calibration data disjoint from evaluation tasks.",
+    "Count all root, worker, retry, diagnosis, summary and coordination costs, including failures and timeouts. Missing usage or an unobservable provider bill remains unknown. Reject NaN, infinity, negative usage and incompatible currency/unit aggregation. With no validated results, cost per validated result is undefined or explicitly unbounded, never zero.",
+    "Billed and consumed tokens, cache writes/reads, plan credits and cash require separate fields and dated price evidence. Vendor APIs and CLIs may report different units. Compare observed invoice-compatible cost where available; clearly label modeled scenarios and do not claim that an offline routing replay measured real model intelligence or savings."
+  ],
+  "search_themes": [
+    "Anthropic cost intelligence paired coding experiments bootstrap tasks",
+    "SciPy bootstrap paired confidence interval",
+    "OpenTelemetry GenAI cache write input output token metrics",
+    "RouteLLM query distribution"
+  ],
+  "current_source_ids": [
+    "W-COST",
+    "W-BOOTSTRAP",
+    "W-OTEL",
+    "W-OPENAI-CACHE",
+    "W-CLAUDE-CACHE",
+    "W-ROUTELLM"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

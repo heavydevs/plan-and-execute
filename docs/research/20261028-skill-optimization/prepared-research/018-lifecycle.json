@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "feature_id": "F007",
+  "former_research_task": "018",
+  "implementation_task": "018",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Trace durable state under power loss, quota pauses, stale leases and cancellation.",
+    "Preserve product files and Plan 2 inputs while deleting only verified control artifacts."
+  ],
+  "decision": "Use owned, generation-aware leases and scoped receipt validity for resume; keep cleanup local, guarded and independent of model judgment.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "lifecyclectl uses an active pointer and runner lease to prevent duplicate execution, recover interrupted tasks and guard cleanup.",
+    "The reusable project resource map is outside disposable plan directories. The former Plan2-input exception is no longer needed, but prepared research is still a retained project artifact."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/lifecyclectl.py",
+      "sha256": "f4a1b9fd2cbd413d073d3f6d14de85df2fabf5e2b6c873a67d258afac7ee6d33",
+      "line_count": 753,
+      "symbols": [
+        {
+          "name": "lease_is_live",
+          "line": 334,
+          "end": 344
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/lifecyclectl_concise.py",
+      "sha256": "70dec1d0ec3973869993c505bca5906073c681ca5f24f824e376515da4f252d6",
+      "line_count": 11,
+      "symbols": []
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "c3cdf3064fa18b7271ea801c614e18b45a467b4c923b98fdb8fbd16ab00bffd4",
+      "line_count": 3792,
+      "symbols": [
+        {
+          "name": "cleanup_plan",
+          "line": 3460,
+          "end": 3509
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/LIFECYCLE.md",
+      "sha256": "df87ef9b893228773a33b1490112f8ac5acbb541bf6691a9d58ba4f20b7c187b",
+      "line_count": 119,
+      "symbols": [
+        {
+          "name": "# Lifecycle protocol",
+          "line": 1
+        },
+        {
+          "name": "## Current/status",
+          "line": 9
+        },
+        {
+          "name": "## Activate",
+          "line": 24
+        },
+        {
+          "name": "## Resume",
+          "line": 34
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E056",
+    "E047",
+    "E007",
+    "E040",
+    "W-ATOMIC",
+    "W-REPLAY",
+    "W-RETRY",
+    "W-HARNESS"
+  ],
+  "implementation_steps": [
+    "Use PID plus process-start identity and host identity when deciding whether a local lease is live. Treat uncertain remote leases conservatively.",
+    "Add fault-injection tests around claim, checkpoint, atomic replacement and lease release; ensure recovery never fabricates validation or completion.",
+    "Keep cancel/reset scoped to recognized plan roots and registered jobs. Never run an indiscriminate git clean/reset or remove product source/tests.",
+    "Pin successful validation receipts to the source/command/map state that produced them; reuse a receipt only if those inputs still match.",
+    "Preserve prepared reports outside disposable controls and retain incomplete plan state on failure. Document portable relocation rather than asking users to edit task status manually.",
+    "Fence task completion by lease generation and verify process-start identity before process actions.",
+    "Represent ambiguous post-crash effects as uncertain and require reconciliation before replay.",
+    "Use scoped contract/input fingerprints for task receipts and reserve whole-repository fingerprints for integration checks."
+  ],
+  "proposed_acceptance_tests": [
+    "A reused PID does not authorize killing an unrelated process.",
+    "Interruptions after each state-write boundary retain completed subtasks and recover only in-progress state.",
+    "Symlinks, parent paths and directories without the plan sentinel cannot be cleaned.",
+    "Cancelled jobs are stopped before their control directory is removed.",
+    "Successful cleanup preserves implementation, tests, shared resource inventory and research reports.",
+    "A reused PID cannot satisfy an old lease or be killed by a stale controller.",
+    "A runner that lost its lease cannot publish task completion.",
+    "An unrelated file change does not invalidate a task receipt while its actual dependency change does."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "PID-only liveness",
+      "benefit": "Cheap",
+      "risk": "PID reuse and stale writers",
+      "disposition": "Reject",
+      "tradeoff": "Cheap; PID reuse and stale writers. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Blind replay after interruption",
+      "benefit": "Simple recovery",
+      "risk": "Duplicate side effects and paid calls",
+      "disposition": "Reject",
+      "tradeoff": "Simple recovery; Duplicate side effects and paid calls. Reject"
+    },
+    {
+      "id": "A03",
+      "title": "Owned lease plus reconciliation",
+      "benefit": "Auditable local recovery",
+      "risk": "Explicit uncertain-state handling",
+      "disposition": "Recommended",
+      "tradeoff": "Auditable local recovery; Explicit uncertain-state handling. Recommended"
+    },
+    {
+      "id": "A04",
+      "title": "Distributed workflow migration",
+      "benefit": "Cross-host coordination",
+      "risk": "Too large a migration for current need",
+      "disposition": "Defer",
+      "tradeoff": "Cross-host coordination; Too large a migration for current need. Defer"
+    }
+  ],
+  "cost_model": "Saved valid work avoids model redispatch. Count duplicated attempts and recovery reads; correctness takes priority when the prior execution may have produced side effects.",
+  "unverified": [
+    "Power loss, network filesystems and Windows locks require actual platform tests; POSIX mocks are not proof of those guarantees.",
+    "Cross-host filesystems, power-loss durability and platform process behavior require dedicated integration tests; a local lease design does not prove distributed exactly-once execution."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Harden crash recovery and cleanup around ownership, process identity and durable receipts; retain the file-backed lifecycle instead of introducing a distributed workflow service.",
+  "revision_delta": "The revision adds fencing against stale runners, an explicit uncertain-execution outcome and scoped fingerprints; PID existence and whole-repository hash equality are not enough.",
+  "decision_analysis": [
+    "PID reuse can make a dead runner look alive or make a stale controller target a different process. Lease ownership should include host, PID, process start identity and generation. A runner that loses ownership must not complete a task afterward. Remote-host uncertainty should pause with a diagnosable reason instead of killing or launching processes speculatively.",
+    "Crash recovery must separate a task that never started, one whose worker exited, and one whose external side effect may have occurred without a saved result. The last state is uncertain, not automatically retryable. Reconcile outputs or use operation-specific idempotency before reexecuting migrations or paid requests.",
+    "A valid receipt depends on the tested command, acceptance contract, environment and relevant source/dependency digests. Hashing the whole evolving repository for every task can make legitimate earlier receipts stale after unrelated work. Prefer scoped fingerprints plus a final composed integration run; retain global receipts for genuinely global validation only.",
+    "Cleanup removes owned control artifacts after acceptance, not source, live application logs or prepared research. Resolve roots, reject symlinks and require sentinel ownership. Preserve failed-plan evidence. Relocation should use a guarded controller operation or recreation from the specification, not hand editing status fields."
+  ],
+  "search_themes": [
+    "site.docs.langchain.com durable execution idempotency",
+    "site.aws.amazon.com builders-library timeouts retries backoff jitter",
+    "site.docs.python.org os.replace"
+  ],
+  "current_source_ids": [
+    "W-ATOMIC",
+    "W-REPLAY",
+    "W-RETRY",
+    "W-HARNESS"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

@@ -1,0 +1,213 @@
+{
+  "schema_version": 2,
+  "request_summary": "Implement the 32 prepared topic decisions and the opt-in provider-switch track in one validated graph. Research is supplied; tests, corrections and independent code review remain pending. No second plan is created.",
+  "complexity_assessment": {
+    "level": "complex",
+    "rationale": "Cross-provider dispatch, durable state, context safety and full-skill discovery require independent research and review boundaries.",
+    "signals": [
+      "Multiple independently verifiable mechanisms and adapters.",
+      "A provider-state change touches availability, schemas, prompts and replay compatibility."
+    ]
+  },
+  "internal_study": {
+    "selection_source": "user",
+    "depth": "full_project",
+    "rationale": "Targeted review covered all 32 mechanism read sets, supported by a complete tracked-file classification; no independent line-by-line audit is claimed.",
+    "plan_finding": "All 32 research topics now have prepared reports; all implementation and independent review tasks remain pending."
+  },
+  "material_questions": [
+    {
+      "id": "Q001",
+      "question": "Does this request still produce a second plan?",
+      "importance": "high",
+      "status": "resolved",
+      "resolution": "No. Prepared research becomes input to one implementation plan with tests and code-review gates.",
+      "evidence_ids": [
+        "I001"
+      ],
+      "planning_impact": "Convert research tasks and repurpose all former second-plan deliverables."
+    },
+    {
+      "id": "Q002",
+      "question": "Can research preparation count as product or independent-review completion?",
+      "importance": "high",
+      "status": "resolved",
+      "resolution": "No. Every implementation task remains pending and reviews need actual external execution evidence.",
+      "evidence_ids": [
+        "I002"
+      ],
+      "planning_impact": "Separate prepared report hashes from future validation and reviewer receipts."
+    }
+  ],
+  "internal_sources": [
+    {
+      "id": "I001",
+      "kind": "instructions",
+      "location": "docs/plans/20261028-skill-optimization/REQUEST_AMENDMENT.md",
+      "finding": "The current user request replaces the two-plan workflow with one implementation graph.",
+      "planning_impact": "Use one implementation plan and preserve superseded source text in history."
+    },
+    {
+      "id": "I002",
+      "kind": "architecture",
+      "location": "docs/research/20261028-skill-optimization/prepared-research/INDEX.json",
+      "finding": "All 32 research topics now have prepared reports; all implementation and independent review tasks remain pending.",
+      "planning_impact": "Bind each transformed TODO and checklist to its specific report."
+    },
+    {
+      "id": "I003",
+      "kind": "implementation",
+      "location": "skill/plan-and-execute/scripts/run_concise.py",
+      "finding": "The production runner composes raw execution with artifact, model, runner and pattern contracts.",
+      "planning_impact": "Test the composed production entrypoint as well as pure helpers."
+    },
+    {
+      "id": "I004",
+      "kind": "implementation",
+      "location": "skill/plan-and-execute/scripts/availability.py:116-168",
+      "finding": "Declared-chain escalation and escalated-tier availability can select different providers in the baseline.",
+      "planning_impact": "Implement coherent dispatch with opt-in compatibility and explicit acceptance."
+    }
+  ],
+  "external_research": {
+    "decision": "required",
+    "selection_source": "user",
+    "depth": "broad",
+    "rationale": "The user requested broad research in advance. Full topic-specific decisions and 58 source records are preserved in the prepared-research directory.",
+    "trigger_assessment": {
+      "user_requested": true,
+      "unfamiliar_domain": false,
+      "version_sensitive": true,
+      "security_sensitive": true,
+      "current_behavior": true,
+      "repository_gap": true,
+      "conflicting_evidence": true,
+      "technology_selection": true,
+      "high_risk": true
+    },
+    "sources": [
+      {
+        "id": "E003",
+        "source_type": "official_documentation",
+        "title": "Effective context engineering for AI agents",
+        "publisher": "Anthropic",
+        "url": "https://www.anthropic.com/research/effective-context-engineering-for-ai-agents",
+        "version_or_date": "Retrieved 2026-10-28",
+        "finding": "Context selection, compact summaries and retrieval are engineering choices; more accumulated material is not automatically better.",
+        "planning_impact": "Apply the linked report decision and version-specific regression tests.",
+        "why_authoritative": "Original author or first-party documentation; scope and limitations are recorded in SOURCES.json."
+      },
+      {
+        "id": "E007",
+        "source_type": "official_documentation",
+        "title": "Effective harnesses for long-running agents",
+        "publisher": "Anthropic",
+        "url": "https://www.anthropic.com/research/effective-harnesses-for-long-running-agents",
+        "version_or_date": "Retrieved 2026-10-28",
+        "finding": "Durable progress artifacts, incremental changes and explicit tests support work that crosses context windows.",
+        "planning_impact": "Apply the linked report decision and version-specific regression tests.",
+        "why_authoritative": "Original author or first-party documentation; scope and limitations are recorded in SOURCES.json."
+      },
+      {
+        "id": "E013",
+        "source_type": "research_paper",
+        "title": "RouteLLM: Learning to Route LLMs from Preference Data",
+        "publisher": "Ong et al. / arXiv",
+        "url": "https://arxiv.org/abs/2406.18665",
+        "version_or_date": "Retrieved 2026-10-28",
+        "finding": "Learned routing uses workload evidence; preference labels and software acceptance are different targets.",
+        "planning_impact": "Apply the linked report decision and version-specific regression tests.",
+        "why_authoritative": "Original author or first-party documentation; scope and limitations are recorded in SOURCES.json."
+      },
+      {
+        "id": "E022",
+        "source_type": "official_documentation",
+        "title": "Antigravity CLI reference",
+        "publisher": "Google",
+        "url": "https://antigravity.google/docs/cli/reference/",
+        "version_or_date": "Retrieved 2026-10-28",
+        "finding": "The CLI documents model discovery, conversation controls and model-dependent effort. A listed effort value is not proof every model accepts it.",
+        "planning_impact": "Apply the linked report decision and version-specific regression tests.",
+        "why_authoritative": "Original author or first-party documentation; scope and limitations are recorded in SOURCES.json."
+      },
+      {
+        "id": "E030",
+        "source_type": "official_documentation",
+        "title": "kimi command, current documentation",
+        "publisher": "Moonshot AI",
+        "url": "https://moonshotai.github.io/kimi-code/en/reference/kimi-command",
+        "version_or_date": "Retrieved 2026-10-28",
+        "finding": "Current documentation makes --prompt non-interactive and rejects combining it with --yolo, --auto or --plan. Adapter selection must be version-aware.",
+        "planning_impact": "Apply the linked report decision and version-specific regression tests.",
+        "why_authoritative": "Original author or first-party documentation; scope and limitations are recorded in SOURCES.json."
+      },
+      {
+        "id": "E044",
+        "source_type": "official_documentation",
+        "title": "Logging Cheat Sheet",
+        "publisher": "OWASP",
+        "url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html",
+        "version_or_date": "Retrieved 2026-10-28",
+        "finding": "Logs should exclude or protect secrets, sanitize untrusted data, restrict access and follow an explicit retention policy.",
+        "planning_impact": "Apply the linked report decision and version-specific regression tests.",
+        "why_authoritative": "Original author or first-party documentation; scope and limitations are recorded in SOURCES.json."
+      },
+      {
+        "id": "E048",
+        "source_type": "official_documentation",
+        "title": "package.json files field",
+        "publisher": "npm",
+        "url": "https://docs.npmjs.com/cli/v11/configuring-npm/package-json/",
+        "version_or_date": "Retrieved 2026-10-28",
+        "finding": "The files allowlist and ignore rules determine tarball membership; some entries have special inclusion rules.",
+        "planning_impact": "Apply the linked report decision and version-specific regression tests.",
+        "why_authoritative": "Original author or first-party documentation; scope and limitations are recorded in SOURCES.json."
+      },
+      {
+        "id": "E054",
+        "source_type": "official_documentation",
+        "title": "Work with sessions, Agent SDK",
+        "publisher": "Anthropic",
+        "url": "https://code.claude.com/docs/en/agent-sdk/sessions",
+        "version_or_date": "Retrieved 2026-10-28",
+        "finding": "Sessions persist conversation history, not filesystem state; replay/resume and source changes must be handled independently.",
+        "planning_impact": "Apply the linked report decision and version-specific regression tests.",
+        "why_authoritative": "Original author or first-party documentation; scope and limitations are recorded in SOURCES.json."
+      }
+    ]
+  },
+  "synthesis": {
+    "planning_constraints": [
+      "Preserve original request bytes in REQUEST_ORIGINAL.md and the historical snapshot; the current amendment supersedes the two-plan workflow.",
+      "Use prepared reports as implementation inputs; never mark implementation complete because research exists."
+    ],
+    "derived_requirements": [
+      "Implement the prepared research recommendations in this one plan; do not create another plan.",
+      "Replace every research task and its internal checklist with implementation instructions linked to its prepared report."
+    ],
+    "risks": [
+      "No authenticated CLI or independent external reviewer was exercised during research.",
+      "Current documentation can differ from installed versions; capability fixtures and bounded probes must reconcile a material mismatch.",
+      "Offline route replay is not a measurement of real model quality, quota consumption or dollar savings.",
+      "Prepared source hashes are baseline evidence; implementation deliberately changes them and must record the new validated state."
+    ],
+    "validation_implications": [
+      "All implementation acceptance cases and required independent code reviews have current evidence."
+    ],
+    "unresolved_questions": [],
+    "stopping_reason": "Each requested topic has a bounded recommendation, alternatives, source anchors, acceptance tests and explicit live-verification limits. Further broad search would not change the current task split.",
+    "ready_for_planning": true
+  },
+  "review": {
+    "reviewer": "Host research synthesis and structural consistency check, not an external model review",
+    "internal_coverage_sufficient": true,
+    "external_decision_justified": true,
+    "source_quality_sufficient": true,
+    "findings_translated_to_plan": true,
+    "contradictions_resolved": true,
+    "notes": [
+      "Material documentation differences are explicit version-probe obligations, not hidden assumptions.",
+      "No independent reviewer execution, live quota or real model benchmark is claimed."
+    ]
+  }
+}

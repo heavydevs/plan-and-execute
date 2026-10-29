@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "feature_id": "F017",
+  "former_research_task": "038",
+  "implementation_task": "038",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Verify print mode, sessions, automatic context compaction and schema/report extraction.",
+    "Check accounting, interruption and permission boundaries against pinned upstream code."
+  ],
+  "decision": "Add version-aware Kimi command contracts before changing flags: the current and legacy documentation describe materially different non-interactive modes.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "The existing Kimi worker appends a configured permission flag and --prompt. The current official command reference says --prompt cannot be combined with --yolo, --auto or --plan.",
+    "The legacy reference instead documents --print and its own non-interactive semantics. This is a documentation/source incompatibility risk, not a reproduced failure of an installed CLI in this environment."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "parse_provider_report",
+          "line": 1412,
+          "end": 1425
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/provider_self_test.py",
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd",
+      "line_count": 596,
+      "symbols": [
+        {
+          "name": "sample_route",
+          "line": 20,
+          "end": 26
+        },
+        {
+          "name": "sample_report",
+          "line": 29,
+          "end": 43
+        },
+        {
+          "name": "test_default_provider_policy",
+          "line": 46,
+          "end": 60
+        },
+        {
+          "name": "test_worker_command_adapters",
+          "line": 63,
+          "end": 143
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E030",
+    "E031",
+    "E041"
+  ],
+  "implementation_steps": [
+    "Introduce bounded version/help discovery and explicit supported protocol variants. Never combine flags from the old and new references.",
+    "For a current variant, construct the documented non-interactive invocation and handle its permission boundary explicitly; for a legacy variant, retain only the tested compatible syntax.",
+    "Normalize stream-json messages into terminal outcome, bounded report and usage. Intermediate text, context-compaction events and tool output are not a completion artifact.",
+    "Treat session reuse as opt-in with documented storage/retention; default cross-provider continuation remains an evidence capsule and the worktree.",
+    "Add a diagnostic that identifies unknown versions without silently switching to unrestricted operation. Preserve user configuration and never run an automatic upgrade."
+  ],
+  "proposed_acceptance_tests": [
+    "Current fixtures reject --prompt combined with obsolete or mutually exclusive permission flags.",
+    "Legacy fixtures keep their documented print-mode syntax instead of receiving current-only flags.",
+    "A missing terminal report, malformed JSONL or interrupted stream cannot pass acceptance.",
+    "Budget, transient and permanent errors are normalized only when the version contract establishes their meaning.",
+    "Session identifiers and logs never introduce secrets into a shared handoff."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Reuse one permission/prompt combination",
+      "tradeoff": "May work on a pinned release but is not portable across documented protocol changes."
+    },
+    {
+      "id": "recommended",
+      "title": "Version-qualified minimal adapter variants",
+      "tradeoff": "Small targeted maintenance cost and an explicit unsupported-version result."
+    },
+    {
+      "id": "rejected",
+      "title": "Blindly add --print because an older page mentions it",
+      "tradeoff": "Can fix one version while breaking another; unsupported changes are not evidence-based."
+    }
+  ],
+  "cost_model": "Version/help probes are deterministic and cached. Avoid paid calls to discover a syntax error; use fixtures before an explicitly authorized live smoke test.",
+  "unverified": [
+    "No installed Kimi executable was run, so actual compatibility must be confirmed with its version/help and one bounded authorized test."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

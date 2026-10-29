@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "feature_id": "F012",
+  "former_research_task": "028",
+  "implementation_task": "028",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Compare isolation benefits with coordination, cache writes and repeated repository exploration.",
+    "Keep root route fixed; separate native session resume from cross-provider handoff."
+  ],
+  "decision": "Make delegation evidence-based and context-bounded; retain fresh cross-provider workers and do not enable transcript resumption by default.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "run_concise composes multiple runtime contracts, so tests of run_isolated alone do not cover the production prompt.",
+    "The current runner launches fresh workers and receives bounded task artifacts. Its run_process/pump_stream path accumulates captured output; large outputs require a bounded capture contract independent of the full disk log."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_concise.py",
+      "sha256": "495d986c1582ce5ed432fe304d995d244159e2168d2b4aafa6185b13ed79aba8",
+      "line_count": 19,
+      "symbols": []
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "worker_prompt",
+          "line": 711,
+          "end": 749
+        },
+        {
+          "name": "pump_stream",
+          "line": 1193,
+          "end": 1211
+        },
+        {
+          "name": "run_process",
+          "line": 1214,
+          "end": 1317
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "sha256": "74db8be9153d63c8accc1e3a650279fd54da0ea0b6405b0bfb4e470f183a97c6",
+      "line_count": 143,
+      "symbols": [
+        {
+          "name": "install_runner_contract",
+          "line": 36,
+          "end": 143
+        },
+        {
+          "name": "worker_prompt",
+          "line": 44,
+          "end": 80
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/DELEGATION.md",
+      "sha256": "40cd1984a718285408ab63a0fe97242d0c2eef675a90df3f9ef1b0109d28bb99",
+      "line_count": 53,
+      "symbols": [
+        {
+          "name": "# Delegation policy and role contracts",
+          "line": 1
+        },
+        {
+          "name": "## Request",
+          "line": 11
+        },
+        {
+          "name": "## Rules, in order",
+          "line": 15
+        },
+        {
+          "name": "## Token accounting",
+          "line": 24
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E016",
+    "E054",
+    "E021",
+    "E018",
+    "E041"
+  ],
+  "implementation_steps": [
+    "Add deterministic delegation receipts recording role, read/write scope, capability floor, estimated coordination cost and reason for keeping work at root.",
+    "Use fresh workers for independent contexts or capability gaps. Keep small cohesive work local and prevent concurrent writers with overlapping scopes unless an explicit integration strategy exists.",
+    "Implement a bounded stream spool that drains stdout and stderr concurrently, preserves full owned logs on disk, and retains only the final structured envelope and bounded diagnostic windows in memory.",
+    "Keep worker prompt static prefixes stable in both raw and composed entrypoints. Use referenced artifacts rather than historical chat messages for cross-provider continuity.",
+    "Treat same-provider session resume as an opt-in future experiment with retention and cache accounting, not a hidden fallback that changes fresh-context semantics."
+  ],
+  "proposed_acceptance_tests": [
+    "A noisy fake CLI emits many megabytes without proportional memory growth or pipe deadlock.",
+    "A final structured report remains recoverable after long tool output; missing or truncated envelopes fail visibly.",
+    "Two delegated writers cannot silently claim the same source scope.",
+    "Above-floor work cannot be retained on an underqualified worker merely to avoid coordination cost.",
+    "Prefix hashes match across tasks for raw and production entrypoints."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Fresh worker for every small step",
+      "tradeoff": "Strong separation but needless startup, repeated reads and coordination."
+    },
+    {
+      "id": "recommended",
+      "title": "Selective isolation plus bounded output and artifact handoff",
+      "tradeoff": "Preserves resumability and reduces unrelated context with measurable overhead."
+    },
+    {
+      "id": "rejected",
+      "title": "Automatically resume all old sessions across retries",
+      "tradeoff": "Retains stale/incorrect context and transcripts, and cannot transparently cross providers."
+    }
+  ],
+  "cost_model": "Account for startup, input, output, cache writes/reads and reviewer calls. Stable prompt text improves eligibility but is not proof of a cache hit or lower subscription usage.",
+  "unverified": [
+    "No native subagent dispatch exists in this environment; this report does not claim an independent worker or measured cache hit."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

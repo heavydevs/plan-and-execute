@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "feature_id": "F022",
+  "former_research_task": "048",
+  "implementation_task": "048",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Trace report normalization, validation checkpoints and deterministic acceptance outside worker claims.",
+    "Check missing evidence-packet path in the concise prompt and stagnation fingerprints."
+  ],
+  "decision": "Make acceptance depend on pinned deterministic validation evidence and ensure the production prompt exposes the allowed evidence packet.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "Production runner_contract.worker_prompt calls failure_context without the plan directory, so the inspected path does not include the available evidence-packet pointer.",
+    "Worker completion reports, runner validations and resumable validation checkpoints are distinct. Passing report schema checks alone is not product acceptance."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "failure_context",
+          "line": 776,
+          "end": 811
+        },
+        {
+          "name": "validation_checkpoint_fingerprint",
+          "line": 1489,
+          "end": 1494
+        },
+        {
+          "name": "finish_task_validation",
+          "line": 2045,
+          "end": 2149
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+      "sha256": "477646cf30634e334e5c704a6cbe86e9dea4712f7527f51501c43462cadc08f3",
+      "line_count": 1047,
+      "symbols": [
+        {
+          "name": "_error",
+          "line": 100,
+          "end": 101
+        },
+        {
+          "name": "concise_line",
+          "line": 104,
+          "end": 129
+        },
+        {
+          "name": "concise_list",
+          "line": 132,
+          "end": 162
+        },
+        {
+          "name": "_md",
+          "line": 165,
+          "end": 167
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "sha256": "74db8be9153d63c8accc1e3a650279fd54da0ea0b6405b0bfb4e470f183a97c6",
+      "line_count": 143,
+      "symbols": [
+        {
+          "name": "worker_prompt",
+          "line": 44,
+          "end": 80
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/WORKFLOW.md",
+      "sha256": "f95cc605684b7fe58d3c3ab2cd3a3aead456bad851f45746fe26ed771e19892c",
+      "line_count": 241,
+      "symbols": [
+        {
+          "name": "# Execution workflow",
+          "line": 1
+        },
+        {
+          "name": "## Roles",
+          "line": 5
+        },
+        {
+          "name": "## Native execution loop",
+          "line": 13
+        },
+        {
+          "name": "### 1. Select",
+          "line": 15
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E052",
+    "E053",
+    "E007",
+    "E044"
+  ],
+  "implementation_steps": [
+    "Pass the correct plan directory through the composed prompt path and explicitly permit only the assigned evidence packet and bounded relevant diagnostic artifacts.",
+    "Pin validation receipts to command, source state, resource-map digest and attempt/job identity. Reuse a successful receipt only when the inputs are still current.",
+    "Keep failure classification deterministic where evidence is explicit. Record environmental faults and test time limits separately from semantic code failures.",
+    "Sanitize diagnostic data before truncation and preserve machine-readable evidence references so a new worker can inspect facts without the whole history.",
+    "Add negative tests where a worker claims success but output behavior, a negative case or an integration contract fails. The runner must keep the task incomplete."
+  ],
+  "proposed_acceptance_tests": [
+    "The composed prompt contains a valid evidence-packet pointer after a failed validation.",
+    "A changed source/map/command invalidates a previously successful receipt.",
+    "A valid success JSON with failing tests cannot complete the task.",
+    "A repeated failure fingerprint is stable under timestamps/PIDs but changes for a genuinely different failure.",
+    "A resumed completed worker checkpoint validates without unnecessary model redispatch."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Trust worker validation declarations",
+      "tradeoff": "Cheapest apparent path, but it can accept unobserved or stale success."
+    },
+    {
+      "id": "recommended",
+      "title": "Pinned independent receipts and task-local evidence pointers",
+      "tradeoff": "Low token overhead with falsifiable acceptance."
+    },
+    {
+      "id": "rejected",
+      "title": "Paste every historical report/log into each retry",
+      "tradeoff": "Expensive, privacy-sensitive and likely to anchor the next worker on stale diagnosis."
+    }
+  ],
+  "cost_model": "Avoid repeating model implementation when only validation remains. Measure tests rerun, stale receipts rejected and incorrect completion prevented; do not treat fewer tests as an optimization by itself.",
+  "unverified": [
+    "A narrow unit suite does not prove end-user quality. Real integration/environment coverage must be declared rather than implied."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

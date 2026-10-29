@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "feature_id": "F014",
+  "former_research_task": "032",
+  "implementation_task": "032",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Verify ephemeral runs, exec resume/fork, required nullable fields and current sandbox flags.",
+    "Compare native compaction with short artifact handoffs using pinned CLI evidence."
+  ],
+  "decision": "Separate Codex event-stream parsing from final-schema validation, retain explicit sandbox/approval contracts and make session reuse an opt-in same-provider operation.",
+  "decision_classification": "engineering_recommendation_not_a_measured_optimum",
+  "code_observations": [
+    "The Codex worker uses exec and ephemeral mode. The completion schema adapter makes optional fields required-nullable for the supported structured-output contract.",
+    "run_concise modifies the effective worker prompt and therefore requires composed-entrypoint tests, not only a raw argv golden."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/run_isolated.py",
+      "sha256": "00ffc3bce6093d63198b910eaad7e8a76f739dd226eb6399c2e6fa54301908df",
+      "line_count": 2766,
+      "symbols": [
+        {
+          "name": "codex_output_schema",
+          "line": 650,
+          "end": 676
+        },
+        {
+          "name": "build_worker_command",
+          "line": 1034,
+          "end": 1190
+        },
+        {
+          "name": "parse_provider_report",
+          "line": 1412,
+          "end": 1425
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/provider_self_test.py",
+      "sha256": "a38f2da1c85a09e431c67333a2a29ed2cef8dc5bf27d5ac62d4fa0c82268e1dd",
+      "line_count": 596,
+      "symbols": [
+        {
+          "name": "sample_route",
+          "line": 20,
+          "end": 26
+        },
+        {
+          "name": "sample_report",
+          "line": 29,
+          "end": 43
+        },
+        {
+          "name": "test_default_provider_policy",
+          "line": 46,
+          "end": 60
+        },
+        {
+          "name": "test_worker_command_adapters",
+          "line": 63,
+          "end": 143
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+      "sha256": "3cde22d4a24a081052aebfd7d992c8d1c3e4577745aa6f8ea324a7460f280024",
+      "line_count": 89,
+      "symbols": [
+        {
+          "name": "# Codex model routing",
+          "line": 1
+        },
+        {
+          "name": "## Current capability map",
+          "line": 5
+        },
+        {
+          "name": "## Elevation mechanics (how a route is actually obtained)",
+          "line": 22
+        },
+        {
+          "name": "## DIRECT mode",
+          "line": 37
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E019",
+    "E020",
+    "E052",
+    "E021",
+    "W-CODEX-EXEC",
+    "W-CODEX-SECURITY",
+    "W-OPENAI-CACHE",
+    "W-EVALSKILLS"
+  ],
+  "implementation_steps": [
+    "Record CLI version/help and model-discovery evidence without starting a paid task; select tested capability branches for exec, structured output and sandbox flags.",
+    "Maintain a schema transformation test for nested objects, required nullable fields, additionalProperties and invalid outputs. Refusal or incomplete output is not a passing task.",
+    "Keep ephemeral mode for normal cross-task isolation. Same-provider resume/fork is a separate opt-in contract, never a way to transfer private reasoning state to another provider.",
+    "Use read-only sandbox for observation/review where supported and verify that output/log paths can still be written only in owned locations.",
+    "Parse JSONL events incrementally and preserve the final report independently of progress text. Link deterministic validation evidence through the production prompt.",
+    "Parse bounded JSONL events independently from the final completion schema; reject truncated or missing terminal reports.",
+    "Bind optional session reuse to exact provider, repository and task identity; preserve ephemeral default.",
+    "Remove universal no-cache-write-cost assumptions from planned economics and use model-versioned reported usage."
+  ],
+  "proposed_acceptance_tests": [
+    "Schema fixtures remain accepted by the adapter without weakening additionalProperties checks.",
+    "Ephemeral default argv and composed static prefix remain stable.",
+    "Malformed events, partial final JSON, a nonzero exit and a valid blocked report remain distinguishable.",
+    "An unsupported sandbox/effort flag fails preflight instead of falling back to unrestricted execution.",
+    "Cache and cost records distinguish reported usage from estimates and do not import outdated no-write-cost assumptions.",
+    "A successful progress event followed by malformed final JSON cannot complete a task.",
+    "A resume request cannot attach another repository session.",
+    "Sandbox mismatch is an environmental or policy block, not a model capability escalation.",
+    "Cache-write usage remains distinct from uncached input and cache reads."
+  ],
+  "alternatives": [
+    {
+      "id": "A01",
+      "title": "Parse last stdout line as success",
+      "benefit": "Simple",
+      "risk": "Can accept an event or truncated report",
+      "disposition": "Reject",
+      "tradeoff": "Simple; Can accept an event or truncated report. Reject"
+    },
+    {
+      "id": "A02",
+      "title": "Incremental events plus separate final schema",
+      "benefit": "Bounded memory and clear semantics",
+      "risk": "Needs malformed-stream fixtures",
+      "disposition": "Recommended",
+      "tradeoff": "Bounded memory and clear semantics; Needs malformed-stream fixtures. Recommended"
+    },
+    {
+      "id": "A03",
+      "title": "Resume any recent session",
+      "benefit": "Potential reuse",
+      "risk": "Cross-task contamination",
+      "disposition": "Reject",
+      "tradeoff": "Potential reuse; Cross-task contamination. Reject"
+    },
+    {
+      "id": "A04",
+      "title": "Opt-in exact-session resume",
+      "benefit": "Preserves provider-local history",
+      "risk": "Storage/privacy and replay cost",
+      "disposition": "Evaluate only for same-provider recovery",
+      "tradeoff": "Preserves provider-local history; Storage/privacy and replay cost. Evaluate only for same-provider recovery"
+    }
+  ],
+  "cost_model": "Avoid repeated reconstruction only when exact-session reuse is permitted and measured; include retained context, cache writes, reads and output in total cost.",
+  "unverified": [
+    "No real Codex invocation or sandbox escape test was executed; fake CLI contract tests cannot certify provider service behavior.",
+    "No Codex executable, account or billing record was tested. Current docs do not establish all supported versions or account-level model access."
+  ],
+  "runtime_experiments": "No authenticated provider invocation, live quota/cost benchmark, independent model review, or Windows runtime test was performed in this research revision.",
+  "research_revision": 2,
+  "previous_decision": "Validate Codex as an ephemeral execution protocol with explicit schema and sandbox adaptation; do not infer supported flags from model names.",
+  "revision_delta": "The revision corrects the stale assumption of universally free OpenAI cache writes and adds event-order, partial-output and session-binding failure cases.",
+  "decision_analysis": [
+    "JSONL progress events are not the task completion document. A stream can contain tool starts, transient errors, usage and a terminal event; the final structured output still has to meet the completion schema and pass runner validation. Parse incrementally with maximum event size and explicit handling of truncated final records.",
+    "Ephemeral execution supports the fresh-context contract but cannot promise same-session recovery. An optional exec-resume path must bind to one saved session, provider, repository and task attempt. Never use the most recent unrelated session as a recovery shortcut. Cross-provider handoff should remain artifact-based rather than pretending a provider session can migrate.",
+    "Sandbox and approval policy are different: one constrains where effects can occur, the other decides when approval is requested. Compatibility tests must cover both and reject permissive fallback when a read-only reviewer cannot be established. Keep machine-readable errors out of the capability-failure ladder when the cause is permission or environment.",
+    "A stable prompt prefix is useful, but cache prices and retention are model-generation specific. Let the cost ledger consume reported usage and versioned billing evidence. Existing no-write-cost comments and estimates must be scoped to their historical source rather than copied into new economics."
+  ],
+  "search_themes": [
+    "Codex non interactive exec json ephemeral output schema",
+    "Codex security sandbox approval policy",
+    "OpenAI prompt caching cache writes pricing"
+  ],
+  "current_source_ids": [
+    "W-CODEX-EXEC",
+    "W-CODEX-SECURITY",
+    "W-OPENAI-CACHE",
+    "W-EVALSKILLS"
+  ],
+  "ownership": "This implementation owns its declared write scope and acceptance tests. Its following review checks the actual changed code; prepared research is not acceptance evidence.",
+  "baseline_anchor_check": "All listed file hashes matched the preserved 0.11.0 source in this revision. This is integrity checking, not a second full code audit.",
+  "applicability_rule": "Refresh only evidence contradicted by the installed CLI, selected account/billing plan or changed code contract. Unknown required capability blocks that candidate; it does not justify widening permissions."
+}

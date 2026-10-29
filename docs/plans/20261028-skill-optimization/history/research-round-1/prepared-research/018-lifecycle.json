@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "feature_id": "F007",
+  "former_research_task": "018",
+  "implementation_task": "018",
+  "research_status": "prepared_in_this_session",
+  "implementation_status": "pending",
+  "independent_review_status": "pending",
+  "accessed_at": "2026-10-28",
+  "product_base_tree": "f4b5a2285b7f2b1089d974c9e60814e46db858f4",
+  "questions": [
+    "Trace durable state under power loss, quota pauses, stale leases and cancellation.",
+    "Preserve product files and Plan 2 inputs while deleting only verified control artifacts."
+  ],
+  "decision": "Harden crash recovery and cleanup around ownership, process identity and durable receipts; retain the file-backed lifecycle instead of introducing a distributed workflow service.",
+  "decision_classification": "engineering_recommendation",
+  "code_observations": [
+    "lifecyclectl uses an active pointer and runner lease to prevent duplicate execution, recover interrupted tasks and guard cleanup.",
+    "The reusable project resource map is outside disposable plan directories. The former Plan2-input exception is no longer needed, but prepared research is still a retained project artifact."
+  ],
+  "code_anchors": [
+    {
+      "path": "skill/plan-and-execute/scripts/lifecyclectl.py",
+      "sha256": "f4a1b9fd2cbd413d073d3f6d14de85df2fabf5e2b6c873a67d258afac7ee6d33",
+      "line_count": 753,
+      "symbols": [
+        {
+          "name": "lease_is_live",
+          "line": 334,
+          "end": 344
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/lifecyclectl_concise.py",
+      "sha256": "70dec1d0ec3973869993c505bca5906073c681ca5f24f824e376515da4f252d6",
+      "line_count": 11,
+      "symbols": []
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "c3cdf3064fa18b7271ea801c614e18b45a467b4c923b98fdb8fbd16ab00bffd4",
+      "line_count": 3792,
+      "symbols": [
+        {
+          "name": "cleanup_plan",
+          "line": 3460,
+          "end": 3509
+        }
+      ]
+    },
+    {
+      "path": "skill/plan-and-execute/references/LIFECYCLE.md",
+      "sha256": "df87ef9b893228773a33b1490112f8ac5acbb541bf6691a9d58ba4f20b7c187b",
+      "line_count": 119,
+      "symbols": [
+        {
+          "name": "# Lifecycle protocol",
+          "line": 1
+        },
+        {
+          "name": "## Current/status",
+          "line": 9
+        },
+        {
+          "name": "## Activate",
+          "line": 24
+        },
+        {
+          "name": "## Resume",
+          "line": 34
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "E056",
+    "E047",
+    "E007",
+    "E040"
+  ],
+  "implementation_steps": [
+    "Use PID plus process-start identity and host identity when deciding whether a local lease is live. Treat uncertain remote leases conservatively.",
+    "Add fault-injection tests around claim, checkpoint, atomic replacement and lease release; ensure recovery never fabricates validation or completion.",
+    "Keep cancel/reset scoped to recognized plan roots and registered jobs. Never run an indiscriminate git clean/reset or remove product source/tests.",
+    "Pin successful validation receipts to the source/command/map state that produced them; reuse a receipt only if those inputs still match.",
+    "Preserve prepared reports outside disposable controls and retain incomplete plan state on failure. Document portable relocation rather than asking users to edit task status manually."
+  ],
+  "proposed_acceptance_tests": [
+    "A reused PID does not authorize killing an unrelated process.",
+    "Interruptions after each state-write boundary retain completed subtasks and recover only in-progress state.",
+    "Symlinks, parent paths and directories without the plan sentinel cannot be cleaned.",
+    "Cancelled jobs are stopped before their control directory is removed.",
+    "Successful cleanup preserves implementation, tests, shared resource inventory and research reports."
+  ],
+  "alternatives": [
+    {
+      "id": "current_baseline",
+      "title": "Trust a PID or delete the whole work root",
+      "tradeoff": "Low code cost, unacceptable risk to unrelated work and ambiguous recovery."
+    },
+    {
+      "id": "recommended",
+      "title": "Owned leases and pinned receipts with fault injection",
+      "tradeoff": "Uses existing architecture and buys verifiable recovery at low runtime cost."
+    },
+    {
+      "id": "rejected",
+      "title": "Replace the runner with Temporal/LangGraph now",
+      "tradeoff": "Durability concepts are useful, but framework migration adds services/dependencies without demonstrated need."
+    }
+  ],
+  "cost_model": "Favor deterministic checkpoint reuse over new worker calls. Measure recovery work repeated and duplicate-run prevention, not merely how quickly a lease file disappears.",
+  "unverified": [
+    "Power loss, network filesystems and Windows locks require actual platform tests; POSIX mocks are not proof of those guarantees."
+  ],
+  "runtime_experiments": "No authenticated model calls; tests listed here are implementation obligations, not claimed passes."
+}

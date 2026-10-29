@@ -1,0 +1,12 @@
+{
+  "valid": true,
+  "schema_version": 2,
+  "ready_for_planning": true,
+  "complexity_level": "complex",
+  "internal_study_depth": "full_project",
+  "external_study_depth": "broad",
+  "external_research_decision": "required",
+  "material_questions": 2,
+  "internal_sources": 4,
+  "external_sources": 10
+}
