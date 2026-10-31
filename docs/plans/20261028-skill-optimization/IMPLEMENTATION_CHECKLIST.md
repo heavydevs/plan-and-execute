@@ -1,6 +1,6 @@
 # Single implementation checklist - research revision 2
 
-All86 tasks are pending. Checkboxes represent future implementation/review, not completed research.
+All98 tasks are pending. Checkboxes represent future implementation/review, not completed research.
 
 | TODO | Implementation or correction outcome | Prerequisites | Assigned research |
 |---|---|---|---|
@@ -85,6 +85,18 @@ All86 tasks are pending. Checkboxes represent future implementation/review, not 
 | [ ] 079 | Review and correct provider-switch evidence | 078 | [068-provider-switch-handoff.md](../../../docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md) |
 | [ ] 080 | Complete provider-switch documentation, replay and cost evidence | 065, 079 | [068-provider-switch-handoff.md](../../../docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md); [ACCEPTANCE_MATRIX.md](../../../docs/plans/20261028-skill-optimization/ACCEPTANCE_MATRIX.md) |
 | [ ] 081 | Review and correct provider-switch evidence | 080 | [068-provider-switch-handoff.md](../../../docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md) |
+| [ ] 087 | Implement direct architecture delegation with economical implementation | 007, 025, 029, 051, 061, 063 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 088 | Review and correct direct architecture delegation with economical implementation | 087 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 089 | Implement avoid skill loading for routine commands and trivial changes | 007, 063 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 090 | Review and correct avoid skill loading for routine commands and trivial changes | 089 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 091 | Implement create bounded repair tasks for complex active-plan blockers | 019, 021, 049, 053, 057 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 092 | Review and correct create bounded repair tasks for complex active-plan blockers | 091 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 093 | Implement verify authorized unsandboxed access for implementing agents | 029, 031, 033, 035, 037, 039, 041, 043, 045, 047, 061 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 094 | Review and correct verify authorized unsandboxed access for implementing agents | 093 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 095 | Implement offer other-provider setup and login before creating a plan | 007, 009, 023, 027, 031, 033, 035, 037, 039, 041, 043, 045, 047 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 096 | Review and correct offer other-provider setup and login before creating a plan | 095 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 097 | Implement make console, progress and end-user docs concise and precise | 007, 029, 061, 063, 067 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
+| [ ] 098 | Review and correct make console, progress and end-user docs concise and precise | 097 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
 | [ ] 082 | Integrate all implemented contracts and close cross-feature gaps | 003, 005, 007, 009, 011, 013, 015, 017, 019, 021, 023, 025, 027, 029, 031, 033, 035, 037, 039, 041, 043, 045, 047, 049, 051, 053, 055, 057, 059, 061, 063, 065, 067, 069, 071, 073, 075, 077, 079, 081 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
 | [ ] 083 | Review and correct end-to-end integration | 082 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
 | [ ] 084 | Validate release contents, documentation and migration | 083 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |

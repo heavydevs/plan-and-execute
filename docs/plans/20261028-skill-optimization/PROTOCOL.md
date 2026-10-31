@@ -4,7 +4,7 @@ Date: 2026-10-28. This replaces the former research-then-Plan2 execution workflo
 
 ## Authority and honest state
 
-`PLAN1_SPEC.json` is the current portable specification. The native `manifest.json` is authoritative during execution; task Markdown and `TODO.md` are generated projections. All 86 tasks start pending. Research readiness is recorded separately in the prepared report index; report existence cannot complete an implementation task. Autostart is false. No authenticated model has been dispatched in this preparation.
+`PLAN1_SPEC.json` is the current portable specification. The native `manifest.json` is authoritative during execution; task Markdown and `TODO.md` are generated projections. All 98 tasks remain pending after the 2026-10-31 bounded amendment. Research readiness is recorded separately in the prepared report index; report existence cannot complete an implementation task. Autostart is false. No authenticated model has been dispatched in this preparation.
 
 The native `plan_review` records a host structural/synthesis check, not an independent model review. The current amendment authorizes research and local replanning; it does not authorize changing installed copies, user-global configuration, committing, pushing, opening PRs, publishing or paid model experiments. Those actions retain the original explicit-consent boundary. Never print environment/profile secrets.
 

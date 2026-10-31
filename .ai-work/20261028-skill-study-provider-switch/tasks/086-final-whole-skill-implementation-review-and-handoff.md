@@ -1,7 +1,7 @@
 ---
 task_id: "086"
 status: "pending"
-requirements: "R001,R003,R004,R006,R008,R011,R012,R033,R034,R035,R036,R039,R040,R041,R042,R043,R044,R045"
+requirements: "R001,R003,R004,R006,R008,R011,R012,R033,R034,R035,R036,R039,R040,R041,R042,R043,R044,R045,R046,R047,R048,R049,R050,R051"
 dependencies: "085"
 allowed_related_task_reads: "none"
 ---

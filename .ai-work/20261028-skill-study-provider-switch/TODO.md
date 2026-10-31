@@ -81,6 +81,18 @@
 - [ ] **079** — Review and correct provider-switch evidence
 - [ ] **080** — Complete provider-switch documentation, replay and cost evidence
 - [ ] **081** — Review and correct provider-switch evidence
+- [ ] **087** — Implement direct architecture delegation with economical implementation
+- [ ] **088** — Review and correct direct architecture delegation with economical implementation
+- [ ] **089** — Implement avoid skill loading for routine commands and trivial changes
+- [ ] **090** — Review and correct avoid skill loading for routine commands and trivial changes
+- [ ] **091** — Implement create bounded repair tasks for complex active-plan blockers
+- [ ] **092** — Review and correct create bounded repair tasks for complex active-plan blockers
+- [ ] **093** — Implement verify authorized unsandboxed access for implementing agents
+- [ ] **094** — Review and correct verify authorized unsandboxed access for implementing agents
+- [ ] **095** — Implement offer other-provider setup and login before creating a plan
+- [ ] **096** — Review and correct offer other-provider setup and login before creating a plan
+- [ ] **097** — Implement make console, progress and end-user docs concise and precise
+- [ ] **098** — Review and correct make console, progress and end-user docs concise and precise
 - [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
 - [ ] **083** — Review and correct end-to-end integration
 - [ ] **084** — Validate release contents, documentation and migration

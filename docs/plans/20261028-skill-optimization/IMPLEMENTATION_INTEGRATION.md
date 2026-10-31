@@ -1,6 +1,6 @@
 # Single-plan integration and acceptance - revision 2
 
-Tasks082-086 integrate the implemented topic contracts and provider-switch track. They do not generate another plan.
+Tasks087-098 add six implementation and review pairs; tasks082-086 integrate the implemented topic contracts and provider-switch track. They do not generate another plan.
 
 1. Verify every historical implementation/review receipt against the exact recorded inputs and artifacts. A later unrelated edit does not turn an old pass into a current-tree pass; preserve that history without rewriting it.
 2. Use current source, command, resource-map and contract hashes for new integration runs. Revalidate affected contract owners; do not require all historical receipts to pretend they describe the final tree.
@@ -13,3 +13,5 @@ Tasks082-086 integrate the implemented topic contracts and provider-switch track
 9. Keep source, tests and research. Do not install, change global configuration or commit/push/publish without separate permission.
 
 Independent maximum-qualified reviews remain real execution requirements. Host research preparation and structural review do not satisfy them. A missing qualified reviewer pauses acceptance; no fake provider/session record is permitted.
+
+10. Before TODO 082, require real independent reviews 088/090/092/094/096/098, source hashes and mapped validations. Check DIRECT architecture delegation, skill activation negatives, blocked-task replanning, authorized localhost/full-access, per-agent setup/login only at new plan creation, and precise concise user-facing outputs. Keep A01–A12 unchanged.

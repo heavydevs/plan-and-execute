@@ -1,6 +1,6 @@
 {
   "title": "Single implementation plan - evidence-backed skill optimization",
-  "summary": "Implement the 32 twice-researched topic decisions and opt-in provider switching in one graph, with explicit compatibility, scoped writes, negative tests and independent acceptance reviews.",
+  "summary": "Implement the 32 twice-researched topic decisions and opt-in provider switching in one graph, with explicit compatibility, scoped writes, negative tests and independent acceptance reviews. The 2026-10-31 extension adds six implementation/review feature pairs.",
   "language": "English",
   "autostart": false,
   "cleanup_on_success": false,
@@ -185,6 +185,30 @@
       {
         "id": "P045",
         "text": "Report decisions, changed files, actual validation, unverified platforms and risks in Brazilian Portuguese."
+      },
+      {
+        "id": "P046",
+        "text": "For cohesive multi-file DIRECT work, inspect relevant files cheaply, delegate difficult architecture to a stronger model only when justified, then choose a qualified economical executor and monitored tests."
+      },
+      {
+        "id": "P047",
+        "text": "Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests."
+      },
+      {
+        "id": "P048",
+        "text": "When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints."
+      },
+      {
+        "id": "P049",
+        "text": "For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it."
+      },
+      {
+        "id": "P050",
+        "text": "Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution."
+      },
+      {
+        "id": "P051",
+        "text": "Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth."
       }
     ],
     "repository_findings": [
@@ -192,7 +216,8 @@
       "Declared-chain escalation and escalated-tier availability can select different providers in the baseline.",
       "All 32 research topics now have prepared reports; all implementation and independent review tasks remain pending.",
       "The current user request replaces the two-plan workflow with one implementation graph.",
-      "All32 reports were revised with competing approaches, scoped source evidence and counterexamples. Implementation and independent reviews remain pending."
+      "All32 reports were revised with competing approaches, scoped source evidence and counterexamples. Implementation and independent reviews remain pending.",
+      "2026-10-31: six unimplemented end-to-end contracts supplement 86 originally pending tasks."
     ],
     "research_decision": "Revision 2 evaluates primary-source alternatives for all 32 reports; workers consume the selected decision and refresh only material version or account conflicts.",
     "research_findings": [
@@ -223,7 +248,8 @@
       "Offline route replay is not a measurement of real model quality, quota consumption or dollar savings.",
       "Prepared source hashes are baseline evidence; implementation deliberately changes them and must record the new validated state.",
       "Public vendor cost and quality experiments are not a measurement of this repository; live model validation remains a separate authorized activity.",
-      "Historical task receipts retain their recorded revision; final acceptance needs current integration evidence and affected-contract revalidation."
+      "Historical task receipts retain their recorded revision; final acceptance needs current integration evidence and affected-contract revalidation.",
+      "Host-level skill activation, access enforcement and neuroinclusive comprehension still need real tests."
     ],
     "open_questions": [
       "Authenticated execution and independent maximum-qualified review require an available authorized provider at implementation time."
@@ -636,6 +662,60 @@
       "request_part_ids": [
         "P045"
       ]
+    },
+    {
+      "id": "R046",
+      "text": "For cohesive multi-file DIRECT work, inspect relevant files cheaply, delegate difficult architecture to a stronger model only when justified, then choose a qualified economical executor and monitored tests.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P046"
+      ]
+    },
+    {
+      "id": "R047",
+      "text": "Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P047"
+      ]
+    },
+    {
+      "id": "R048",
+      "text": "When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P048"
+      ]
+    },
+    {
+      "id": "R049",
+      "text": "For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P049"
+      ]
+    },
+    {
+      "id": "R050",
+      "text": "Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P050"
+      ]
+    },
+    {
+      "id": "R051",
+      "text": "Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P051"
+      ]
     }
   ],
   "global_constraints": [
@@ -706,7 +786,8 @@
       "All implementation tasks remain pending; autostart is disabled.",
       "Revision2 adds current primary sources, competing approaches, counterexamples and explicit unmeasured assumptions for all32 topics.",
       "Shared-file writes wait for preceding correction reviews; primitive020 and fixture068 exclude later runtime implementation.",
-      "This approval covers the plan specification only; actual implementation and independent review remain pending."
+      "This approval covers the plan specification only; actual implementation and independent review remain pending.",
+      "2026-10-31: twelve additional tasks are pending, not independently implemented or reviewed."
     ]
   },
   "tasks": [
@@ -9713,6 +9794,1243 @@
       "related_task_reads": []
     },
     {
+      "id": 87,
+      "title": "Implement direct architecture delegation with economical implementation",
+      "objective": "For cohesive multi-file DIRECT work, inspect relevant files cheaply, delegate difficult architecture to a stronger model only when justified, then choose a qualified economical executor and monitored tests.",
+      "requirement_ids": [
+        "R046"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "007",
+        "025",
+        "029",
+        "051",
+        "061",
+        "063"
+      ],
+      "scope": {
+        "in": [
+          "DIRECT architecture handoff: economical file study, qualified strong design, economical implementation and mapped tests."
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/direct_route.py",
+          "skill/plan-and-execute/scripts/validatectl.py",
+          "skill/plan-and-execute/scripts/workload_routing.py",
+          "skill/plan-and-execute/references/ROUTING.md",
+          "skill/plan-and-execute/references/DELEGATION.md",
+          "skill/plan-and-execute/references/MODEL_ROUTING.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "test/optimization/direct_architecture_handoff_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/087-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/087-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 087 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Refresh only materially changed facts from assigned prepared reports 006, 028, 060, 062.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/087-receipt.json and docs/research/20261028-skill-optimization/implementation/087-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "A cohesive seven-file task stays DIRECT even when one difficult design decision needs a stronger architect.",
+        "The inexpensive stage reads all relevant files; the architecture worker receives a precise evidence packet, not a duplicated source dump.",
+        "The architect outputs a durable design; implementation can return to a lower qualified tier with acceptance checks.",
+        "Stateful DIRECT validations use project resource mapping and log monitoring without creating a TODO plan.",
+        "Compare complete validated cost (read, design, implementation, retries, reviews) to a single qualified model; preserve security floors.",
+        "Implementation and review remain pending until actual execution evidence exists."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_087",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_087"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read evidence",
+          "objective": "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md, assigned prepared research and materially affected source files."
+        },
+        {
+          "id": "S002",
+          "title": "Implement contract 1",
+          "objective": "Inventory and read all materially relevant files with the current affordable model; forward only decision-relevant evidence to stronger context."
+        },
+        {
+          "id": "S003",
+          "title": "Implement contract 2",
+          "objective": "Classify architecture complexity independently of plan need; delegate high-risk architecture to a qualified stronger tier with durable design."
+        },
+        {
+          "id": "S004",
+          "title": "Implement contract 3",
+          "objective": "Return bounded implementation to the current or intermediate tier when testability and capability floors justify it; reroute expensive silent-failure work upward."
+        },
+        {
+          "id": "S005",
+          "title": "Implement contract 4",
+          "objective": "Run meaningful DIRECT tests through shared resource/log/progress watchers, optionally using a cheap, read-only event-triggered observer."
+        },
+        {
+          "id": "S006",
+          "title": "Run tests",
+          "objective": "Implement test/optimization/direct_architecture_handoff_self_test.py and run mapped validation plus feature negative cases."
+        },
+        {
+          "id": "S007",
+          "title": "Record implementation",
+          "objective": "Record real implementation and test evidence in docs/research/20261028-skill-optimization/implementation/087-receipt.json and docs/research/20261028-skill-optimization/implementation/087-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 88,
+      "title": "Review and correct direct architecture delegation with economical implementation",
+      "objective": "Independently review and correct direct architecture delegation with economical implementation using actual implementation and validation evidence.",
+      "requirement_ids": [
+        "R046"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "087"
+      ],
+      "scope": {
+        "in": [
+          "Review and correct direct architecture delegation with economical implementation"
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/direct_route.py",
+          "skill/plan-and-execute/scripts/validatectl.py",
+          "skill/plan-and-execute/scripts/workload_routing.py",
+          "skill/plan-and-execute/references/ROUTING.md",
+          "skill/plan-and-execute/references/DELEGATION.md",
+          "skill/plan-and-execute/references/MODEL_ROUTING.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "test/optimization/direct_architecture_handoff_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/088-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/088-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 088 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Use an actual fresh independent maximum-qualified reviewer; never fabricate model execution.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/088-receipt.json and docs/research/20261028-skill-optimization/implementation/088-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "Record a real fresh independent reviewer route and exact reviewed input hashes.",
+        "Verify: A cohesive seven-file task stays DIRECT even when one difficult design decision needs a stronger architect.",
+        "Verify: The inexpensive stage reads all relevant files; the architecture worker receives a precise evidence packet, not a duplicated source dump.",
+        "Verify: The architect outputs a durable design; implementation can return to a lower qualified tier with acceptance checks.",
+        "Verify: Stateful DIRECT validations use project resource mapping and log monitoring without creating a TODO plan.",
+        "Verify: Compare complete validated cost (read, design, implementation, retries, reviews) to a single qualified model; preserve security floors.",
+        "No unresolved critical/high finding or missing required reviewer may be marked complete."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_088",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_088"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read implementation",
+          "objective": "Review the actual code, test results and receipt from task 087, not a previous conversation."
+        },
+        {
+          "id": "S002",
+          "title": "Independent review",
+          "objective": "Dispatch a real fresh maximum-qualified reviewer and preserve provider, model, effort and reviewed hashes."
+        },
+        {
+          "id": "S003",
+          "title": "Correct high-risk defects",
+          "objective": "Correct critical/high findings or leave the task pending with evidence."
+        },
+        {
+          "id": "S004",
+          "title": "Rerun regressions",
+          "objective": "Run test/optimization/direct_architecture_handoff_self_test.py and all feature acceptance and negative cases through mapped validation."
+        },
+        {
+          "id": "S005",
+          "title": "Record review",
+          "objective": "Record actual review/validation results in docs/research/20261028-skill-optimization/implementation/088-receipt.json and docs/research/20261028-skill-optimization/implementation/088-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 89,
+      "title": "Implement avoid skill loading for routine commands and trivial changes",
+      "objective": "Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests.",
+      "requirement_ids": [
+        "R047"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "007",
+        "063"
+      ],
+      "scope": {
+        "in": [
+          "Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests."
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/SKILL.md",
+          "skill/plan-and-execute/agents/openai.yaml",
+          "skill/plan-and-execute/references/ROUTING.md",
+          "skill/validate-or-fix/SKILL.md",
+          "skill/plan-and-execute/references/routing-evals.json",
+          "test/optimization/skill_activation_negatives_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/089-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/089-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 089 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Refresh only materially changed facts from assigned prepared reports 006, 028, 060, 062.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/089-receipt.json and docs/research/20261028-skill-optimization/implementation/089-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "Simple shell commands, one-file reads and trivial edits do not implicitly load the full skill.",
+        "Explicit plan/lifecycle commands and genuine multi-workstream jobs still activate.",
+        "Tiny discoverable metadata cost is acknowledged; there is no claim of zero skill-related tokens.",
+        "Held-out host evaluations measure false positives/negatives and token impact, not keyword assertions alone.",
+        "Implementation and review remain pending until actual execution evidence exists."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_089",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_089"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read evidence",
+          "objective": "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md, assigned prepared research and materially affected source files."
+        },
+        {
+          "id": "S002",
+          "title": "Implement contract 1",
+          "objective": "Narrow host-visible skill description/trigger language without requiring the full instruction body for a negative decision."
+        },
+        {
+          "id": "S003",
+          "title": "Implement contract 2",
+          "objective": "Test negative activation for git status, one-file read, short shell commands and trivial edits, plus positive explicit plan invocations."
+        },
+        {
+          "id": "S004",
+          "title": "Implement contract 3",
+          "objective": "Measure false activation, missed activation and prompt bytes on real host traces; do not add a paid classifier."
+        },
+        {
+          "id": "S005",
+          "title": "Run tests",
+          "objective": "Implement test/optimization/skill_activation_negatives_self_test.py and run mapped validation plus feature negative cases."
+        },
+        {
+          "id": "S006",
+          "title": "Record implementation",
+          "objective": "Record real implementation and test evidence in docs/research/20261028-skill-optimization/implementation/089-receipt.json and docs/research/20261028-skill-optimization/implementation/089-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 90,
+      "title": "Review and correct avoid skill loading for routine commands and trivial changes",
+      "objective": "Independently review and correct avoid skill loading for routine commands and trivial changes using actual implementation and validation evidence.",
+      "requirement_ids": [
+        "R047"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "089"
+      ],
+      "scope": {
+        "in": [
+          "Review and correct avoid skill loading for routine commands and trivial changes"
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/SKILL.md",
+          "skill/plan-and-execute/agents/openai.yaml",
+          "skill/plan-and-execute/references/ROUTING.md",
+          "skill/validate-or-fix/SKILL.md",
+          "skill/plan-and-execute/references/routing-evals.json",
+          "test/optimization/skill_activation_negatives_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/090-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/090-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 090 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Use an actual fresh independent maximum-qualified reviewer; never fabricate model execution.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/090-receipt.json and docs/research/20261028-skill-optimization/implementation/090-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "Record a real fresh independent reviewer route and exact reviewed input hashes.",
+        "Verify: Simple shell commands, one-file reads and trivial edits do not implicitly load the full skill.",
+        "Verify: Explicit plan/lifecycle commands and genuine multi-workstream jobs still activate.",
+        "Verify: Tiny discoverable metadata cost is acknowledged; there is no claim of zero skill-related tokens.",
+        "Verify: Held-out host evaluations measure false positives/negatives and token impact, not keyword assertions alone.",
+        "No unresolved critical/high finding or missing required reviewer may be marked complete."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_090",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_090"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read implementation",
+          "objective": "Review the actual code, test results and receipt from task 089, not a previous conversation."
+        },
+        {
+          "id": "S002",
+          "title": "Independent review",
+          "objective": "Dispatch a real fresh maximum-qualified reviewer and preserve provider, model, effort and reviewed hashes."
+        },
+        {
+          "id": "S003",
+          "title": "Correct high-risk defects",
+          "objective": "Correct critical/high findings or leave the task pending with evidence."
+        },
+        {
+          "id": "S004",
+          "title": "Rerun regressions",
+          "objective": "Run test/optimization/skill_activation_negatives_self_test.py and all feature acceptance and negative cases through mapped validation."
+        },
+        {
+          "id": "S005",
+          "title": "Record review",
+          "objective": "Record actual review/validation results in docs/research/20261028-skill-optimization/implementation/090-receipt.json and docs/research/20261028-skill-optimization/implementation/090-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 91,
+      "title": "Implement create bounded repair tasks for complex active-plan blockers",
+      "objective": "When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints.",
+      "requirement_ids": [
+        "R048"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "019",
+        "021",
+        "049",
+        "053",
+        "057"
+      ],
+      "scope": {
+        "in": [
+          "When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints."
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/lifecyclectl.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/references/WORKFLOW.md",
+          "skill/plan-and-execute/references/PLAN_SPEC.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "test/optimization/blocked_task_split_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/091-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/091-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 091 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Refresh only materially changed facts from assigned prepared reports 006, 028, 060, 062.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/091-receipt.json and docs/research/20261028-skill-optimization/implementation/091-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "A complex reproducible blocker creates scoped repair/design TODOs and suspends the original task.",
+        "A temporary outage, quota limit or simple patch does not add tasks or escalate architecture reasoning.",
+        "Idempotency prevents recursive task explosion; leases, cycles and interrupted writes are handled.",
+        "Original validated subtasks survive, and newly created tests must pass before unblocking.",
+        "Implementation and review remain pending until actual execution evidence exists."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_091",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_091"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read evidence",
+          "objective": "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md, assigned prepared research and materially affected source files."
+        },
+        {
+          "id": "S002",
+          "title": "Implement contract 1",
+          "objective": "Distinguish a reproducible complex architectural/product defect from resource outages, quotas, flakiness or a cheap local fix."
+        },
+        {
+          "id": "S003",
+          "title": "Implement contract 2",
+          "objective": "Insert one or more independent design, repair and validation TODOs using lease-safe replayable graph mutation."
+        },
+        {
+          "id": "S004",
+          "title": "Implement contract 3",
+          "objective": "Deduplicate blocker fingerprints, keep DAG and bounded expansion budgets, and preserve original task status."
+        },
+        {
+          "id": "S005",
+          "title": "Implement contract 4",
+          "objective": "Validate fixes with mapped health, resource and log monitoring before resuming blocked work."
+        },
+        {
+          "id": "S006",
+          "title": "Run tests",
+          "objective": "Implement test/optimization/blocked_task_split_self_test.py and run mapped validation plus feature negative cases."
+        },
+        {
+          "id": "S007",
+          "title": "Record implementation",
+          "objective": "Record real implementation and test evidence in docs/research/20261028-skill-optimization/implementation/091-receipt.json and docs/research/20261028-skill-optimization/implementation/091-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 92,
+      "title": "Review and correct create bounded repair tasks for complex active-plan blockers",
+      "objective": "Independently review and correct create bounded repair tasks for complex active-plan blockers using actual implementation and validation evidence.",
+      "requirement_ids": [
+        "R048"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "091"
+      ],
+      "scope": {
+        "in": [
+          "Review and correct create bounded repair tasks for complex active-plan blockers"
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/lifecyclectl.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/references/WORKFLOW.md",
+          "skill/plan-and-execute/references/PLAN_SPEC.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "test/optimization/blocked_task_split_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/092-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/092-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 092 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Use an actual fresh independent maximum-qualified reviewer; never fabricate model execution.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/092-receipt.json and docs/research/20261028-skill-optimization/implementation/092-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "Record a real fresh independent reviewer route and exact reviewed input hashes.",
+        "Verify: A complex reproducible blocker creates scoped repair/design TODOs and suspends the original task.",
+        "Verify: A temporary outage, quota limit or simple patch does not add tasks or escalate architecture reasoning.",
+        "Verify: Idempotency prevents recursive task explosion; leases, cycles and interrupted writes are handled.",
+        "Verify: Original validated subtasks survive, and newly created tests must pass before unblocking.",
+        "No unresolved critical/high finding or missing required reviewer may be marked complete."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_092",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_092"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read implementation",
+          "objective": "Review the actual code, test results and receipt from task 091, not a previous conversation."
+        },
+        {
+          "id": "S002",
+          "title": "Independent review",
+          "objective": "Dispatch a real fresh maximum-qualified reviewer and preserve provider, model, effort and reviewed hashes."
+        },
+        {
+          "id": "S003",
+          "title": "Correct high-risk defects",
+          "objective": "Correct critical/high findings or leave the task pending with evidence."
+        },
+        {
+          "id": "S004",
+          "title": "Rerun regressions",
+          "objective": "Run test/optimization/blocked_task_split_self_test.py and all feature acceptance and negative cases through mapped validation."
+        },
+        {
+          "id": "S005",
+          "title": "Record review",
+          "objective": "Record actual review/validation results in docs/research/20261028-skill-optimization/implementation/092-receipt.json and docs/research/20261028-skill-optimization/implementation/092-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 93,
+      "title": "Implement verify authorized unsandboxed access for implementing agents",
+      "objective": "For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it.",
+      "requirement_ids": [
+        "R049"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "029",
+        "031",
+        "033",
+        "035",
+        "037",
+        "039",
+        "041",
+        "043",
+        "045",
+        "047",
+        "061"
+      ],
+      "scope": {
+        "in": [
+          "For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it."
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/configure.py",
+          "skill/plan-and-execute/scripts/routingctl.py",
+          "skill/plan-and-execute/references/DELEGATION.md",
+          "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+          "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+          "skill/plan-and-execute/references/ASSISTANTS.md",
+          "test/optimization/full_access_delegation_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/093-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/093-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 093 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Refresh only materially changed facts from assigned prepared reports 006, 028, 060, 062.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/093-receipt.json and docs/research/20261028-skill-optimization/implementation/093-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "An authorized delegated implementer can access permitted loopback services and required paths.",
+        "Provider flags are version-qualified, and effective permission is actually verified.",
+        "Host-enforced restrictions cause an actionable pause, not an unsafe bypass or false success.",
+        "Observers remain genuinely read-only or tool-less, rather than gaining source writes.",
+        "Threats from unrestricted commands are documented, with consent and no credential leakage.",
+        "Implementation and review remain pending until actual execution evidence exists."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_093",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_093"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read evidence",
+          "objective": "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md, assigned prepared research and materially affected source files."
+        },
+        {
+          "id": "S002",
+          "title": "Implement contract 1",
+          "objective": "Specify explicit trusted-workspace/user authorization for unsandboxed source-writing delegates."
+        },
+        {
+          "id": "S003",
+          "title": "Implement contract 2",
+          "objective": "Map verified native provider version/CLI permission flags, then actively test localhost and required workspace access."
+        },
+        {
+          "id": "S004",
+          "title": "Implement contract 3",
+          "objective": "Report unsupported or prohibited full access instead of silently falling back to a sandbox or modifying global settings."
+        },
+        {
+          "id": "S005",
+          "title": "Implement contract 4",
+          "objective": "Keep non-implementing observers restricted and test host denial, wrong flags, resume and unsafe inputs."
+        },
+        {
+          "id": "S006",
+          "title": "Run tests",
+          "objective": "Implement test/optimization/full_access_delegation_self_test.py and run mapped validation plus feature negative cases."
+        },
+        {
+          "id": "S007",
+          "title": "Record implementation",
+          "objective": "Record real implementation and test evidence in docs/research/20261028-skill-optimization/implementation/093-receipt.json and docs/research/20261028-skill-optimization/implementation/093-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 94,
+      "title": "Review and correct verify authorized unsandboxed access for implementing agents",
+      "objective": "Independently review and correct verify authorized unsandboxed access for implementing agents using actual implementation and validation evidence.",
+      "requirement_ids": [
+        "R049"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "093"
+      ],
+      "scope": {
+        "in": [
+          "Review and correct verify authorized unsandboxed access for implementing agents"
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/configure.py",
+          "skill/plan-and-execute/scripts/routingctl.py",
+          "skill/plan-and-execute/references/DELEGATION.md",
+          "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+          "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+          "skill/plan-and-execute/references/ASSISTANTS.md",
+          "test/optimization/full_access_delegation_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/094-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/094-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 094 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Use an actual fresh independent maximum-qualified reviewer; never fabricate model execution.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/094-receipt.json and docs/research/20261028-skill-optimization/implementation/094-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "Record a real fresh independent reviewer route and exact reviewed input hashes.",
+        "Verify: An authorized delegated implementer can access permitted loopback services and required paths.",
+        "Verify: Provider flags are version-qualified, and effective permission is actually verified.",
+        "Verify: Host-enforced restrictions cause an actionable pause, not an unsafe bypass or false success.",
+        "Verify: Observers remain genuinely read-only or tool-less, rather than gaining source writes.",
+        "Verify: Threats from unrestricted commands are documented, with consent and no credential leakage.",
+        "No unresolved critical/high finding or missing required reviewer may be marked complete."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_094",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_094"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read implementation",
+          "objective": "Review the actual code, test results and receipt from task 093, not a previous conversation."
+        },
+        {
+          "id": "S002",
+          "title": "Independent review",
+          "objective": "Dispatch a real fresh maximum-qualified reviewer and preserve provider, model, effort and reviewed hashes."
+        },
+        {
+          "id": "S003",
+          "title": "Correct high-risk defects",
+          "objective": "Correct critical/high findings or leave the task pending with evidence."
+        },
+        {
+          "id": "S004",
+          "title": "Rerun regressions",
+          "objective": "Run test/optimization/full_access_delegation_self_test.py and all feature acceptance and negative cases through mapped validation."
+        },
+        {
+          "id": "S005",
+          "title": "Record review",
+          "objective": "Record actual review/validation results in docs/research/20261028-skill-optimization/implementation/094-receipt.json and docs/research/20261028-skill-optimization/implementation/094-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 95,
+      "title": "Implement offer other-provider setup and login before creating a plan",
+      "objective": "Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.",
+      "requirement_ids": [
+        "R050"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "007",
+        "009",
+        "023",
+        "027",
+        "031",
+        "033",
+        "035",
+        "037",
+        "039",
+        "041",
+        "043",
+        "045",
+        "047"
+      ],
+      "scope": {
+        "in": [
+          "Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution."
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/preplanctl.py",
+          "skill/plan-and-execute/scripts/configure.py",
+          "skill/plan-and-execute/scripts/model_catalogctl.py",
+          "skill/plan-and-execute/scripts/routingctl.py",
+          "skill/plan-and-execute/references/INTAKE.md",
+          "skill/plan-and-execute/references/ORCHESTRATION.md",
+          "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+          "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+          "test/optimization/provider_readiness_gate_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/095-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/095-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 095 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Refresh only materially changed facts from assigned prepared reports 006, 028, 060, 062.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/095-receipt.json and docs/research/20261028-skill-optimization/implementation/095-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "Each discovered agent needing setup/login gets a separate named consent question only during new-plan preparation.",
+        "Without consent no login, config mutation, token exposure or paid model call occurs.",
+        "Ready agents are not re-prompted; declined and unsupported agents have explicit reasons.",
+        "Existing-plan resume, running TODOs, DIRECT changes and shell commands never run this questionnaire.",
+        "Unknown availability cannot silently widen a forbidden provider chain or lower capability.",
+        "Implementation and review remain pending until actual execution evidence exists."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_095",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_095"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read evidence",
+          "objective": "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md, assigned prepared research and materially affected source files."
+        },
+        {
+          "id": "S002",
+          "title": "Implement contract 1",
+          "objective": "Discover alternate provider agents, installed versions, config and auth readiness with bounded non-generative probes."
+        },
+        {
+          "id": "S003",
+          "title": "Implement contract 2",
+          "objective": "Classify ready, needs_config, needs_login, unsupported and unknown without exposing secrets."
+        },
+        {
+          "id": "S004",
+          "title": "Implement contract 3",
+          "objective": "Ask separately for each discovered agent needing setup/login before new-plan tasks are created; persist choices."
+        },
+        {
+          "id": "S005",
+          "title": "Implement contract 4",
+          "objective": "Exclude unavailable providers without capability downgrade; do not ask again on resume, task runs or simple requests."
+        },
+        {
+          "id": "S006",
+          "title": "Run tests",
+          "objective": "Implement test/optimization/provider_readiness_gate_self_test.py and run mapped validation plus feature negative cases."
+        },
+        {
+          "id": "S007",
+          "title": "Record implementation",
+          "objective": "Record real implementation and test evidence in docs/research/20261028-skill-optimization/implementation/095-receipt.json and docs/research/20261028-skill-optimization/implementation/095-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 96,
+      "title": "Review and correct offer other-provider setup and login before creating a plan",
+      "objective": "Independently review and correct offer other-provider setup and login before creating a plan using actual implementation and validation evidence.",
+      "requirement_ids": [
+        "R050"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "095"
+      ],
+      "scope": {
+        "in": [
+          "Review and correct offer other-provider setup and login before creating a plan"
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/preplanctl.py",
+          "skill/plan-and-execute/scripts/configure.py",
+          "skill/plan-and-execute/scripts/model_catalogctl.py",
+          "skill/plan-and-execute/scripts/routingctl.py",
+          "skill/plan-and-execute/references/INTAKE.md",
+          "skill/plan-and-execute/references/ORCHESTRATION.md",
+          "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+          "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+          "test/optimization/provider_readiness_gate_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/096-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/096-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 096 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Use an actual fresh independent maximum-qualified reviewer; never fabricate model execution.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/096-receipt.json and docs/research/20261028-skill-optimization/implementation/096-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "Record a real fresh independent reviewer route and exact reviewed input hashes.",
+        "Verify: Each discovered agent needing setup/login gets a separate named consent question only during new-plan preparation.",
+        "Verify: Without consent no login, config mutation, token exposure or paid model call occurs.",
+        "Verify: Ready agents are not re-prompted; declined and unsupported agents have explicit reasons.",
+        "Verify: Existing-plan resume, running TODOs, DIRECT changes and shell commands never run this questionnaire.",
+        "Verify: Unknown availability cannot silently widen a forbidden provider chain or lower capability.",
+        "No unresolved critical/high finding or missing required reviewer may be marked complete."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_096",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_096"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read implementation",
+          "objective": "Review the actual code, test results and receipt from task 095, not a previous conversation."
+        },
+        {
+          "id": "S002",
+          "title": "Independent review",
+          "objective": "Dispatch a real fresh maximum-qualified reviewer and preserve provider, model, effort and reviewed hashes."
+        },
+        {
+          "id": "S003",
+          "title": "Correct high-risk defects",
+          "objective": "Correct critical/high findings or leave the task pending with evidence."
+        },
+        {
+          "id": "S004",
+          "title": "Rerun regressions",
+          "objective": "Run test/optimization/provider_readiness_gate_self_test.py and all feature acceptance and negative cases through mapped validation."
+        },
+        {
+          "id": "S005",
+          "title": "Record review",
+          "objective": "Record actual review/validation results in docs/research/20261028-skill-optimization/implementation/096-receipt.json and docs/research/20261028-skill-optimization/implementation/096-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 97,
+      "title": "Implement make console, progress and end-user docs concise and precise",
+      "objective": "Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.",
+      "requirement_ids": [
+        "R051"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "007",
+        "029",
+        "061",
+        "063",
+        "067"
+      ],
+      "scope": {
+        "in": [
+          "Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth."
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/references/USER_COMMUNICATION.md",
+          "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+          "skill/plan-and-execute/references/ARTIFACT_WRITING.md",
+          "skill/plan-and-execute/scripts/process_io.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/references/INSTALLATION.md",
+          "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
+          "skill/validate-or-fix/references/OPERATIONS.md",
+          "test/optimization/concise_communication_self_test.py",
+          "test/optimization/concise_communication_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/097-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/097-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 097 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Refresh only materially changed facts from assigned prepared reports 006, 028, 060, 062.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/097-receipt.json and docs/research/20261028-skill-optimization/implementation/097-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "A one-step command returns the result and necessary next action, not a verbose status essay.",
+        "Technical answers lead with a precise answer and retain commands, constraints, risk and error explanation when material.",
+        "Do not restate earlier concepts unless necessary for the present decision, apparent confusion or explicit user request.",
+        "User-facing bytes/tokens fall without losing correct steps, safety warnings, machine output or diagnostic evidence.",
+        "The tone respects adult autistic users, avoids overgeneralization and supports individual preference and detail expansion.",
+        "Independent test and human feedback verify non-inferior comprehension, accuracy and completeness, not word count alone.",
+        "Implementation and review remain pending until actual execution evidence exists."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_097",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_097"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read evidence",
+          "objective": "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md, assigned prepared research and materially affected source files."
+        },
+        {
+          "id": "S002",
+          "title": "Implement contract 1",
+          "objective": "Define answer-first, literal, specific adult-professional language; do not confuse autism with reduced intelligence or uniform preferences."
+        },
+        {
+          "id": "S003",
+          "title": "Implement contract 2",
+          "objective": "Cut greetings, repeated recaps, filler, generic praise, unasked tangents and redundant progress without omitting important decisions."
+        },
+        {
+          "id": "S004",
+          "title": "Implement contract 3",
+          "objective": "Separate concise human output from full machine-readable JSON, diagnostics and logs; expose details/verbose on request."
+        },
+        {
+          "id": "S005",
+          "title": "Implement contract 4",
+          "objective": "Measure output tokens and repeated-text rate together with accuracy, necessary caveats, actionability, accessibility and actual human comprehension."
+        },
+        {
+          "id": "S006",
+          "title": "Run tests",
+          "objective": "Implement test/optimization/concise_communication_self_test.py and run mapped validation plus feature negative cases."
+        },
+        {
+          "id": "S007",
+          "title": "Record implementation",
+          "objective": "Record real implementation and test evidence in docs/research/20261028-skill-optimization/implementation/097-receipt.json and docs/research/20261028-skill-optimization/implementation/097-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 98,
+      "title": "Review and correct make console, progress and end-user docs concise and precise",
+      "objective": "Independently review and correct make console, progress and end-user docs concise and precise using actual implementation and validation evidence.",
+      "requirement_ids": [
+        "R051"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent outcome, focused tests and an independent review boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned contract and actual code evidence."
+        ],
+        "why_one_todo": "Steps share one observable implementation or review outcome.",
+        "separate_from": [
+          "Unrelated TODOs and old transcripts are excluded."
+        ]
+      },
+      "dependencies": [
+        "097"
+      ],
+      "scope": {
+        "in": [
+          "Review and correct make console, progress and end-user docs concise and precise"
+        ],
+        "out": [
+          "No second plan or unrelated changes.",
+          "No installation, provider login, publishing or user-global configuration changes without permission."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/references/USER_COMMUNICATION.md",
+          "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+          "skill/plan-and-execute/references/ARTIFACT_WRITING.md",
+          "skill/plan-and-execute/scripts/process_io.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/references/INSTALLATION.md",
+          "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
+          "skill/validate-or-fix/references/OPERATIONS.md",
+          "test/optimization/concise_communication_self_test.py",
+          "test/optimization/concise_communication_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/098-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/098-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.",
+        "Follow task 098 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.",
+        "Preserve exact user intent, bounded context, security floors and real deterministic tests.",
+        "Use an actual fresh independent maximum-qualified reviewer; never fabricate model execution.",
+        "Preserve evidence in docs/research/20261028-skill-optimization/implementation/098-receipt.json and docs/research/20261028-skill-optimization/implementation/098-outcome.md; do not mark a pending task done without validation."
+      ],
+      "acceptance_criteria": [
+        "Record a real fresh independent reviewer route and exact reviewed input hashes.",
+        "Verify: A one-step command returns the result and necessary next action, not a verbose status essay.",
+        "Verify: Technical answers lead with a precise answer and retain commands, constraints, risk and error explanation when material.",
+        "Verify: Do not restate earlier concepts unless necessary for the present decision, apparent confusion or explicit user request.",
+        "Verify: User-facing bytes/tokens fall without losing correct steps, safety warnings, machine output or diagnostic evidence.",
+        "Verify: The tone respects adult autistic users, avoids overgeneralization and supports individual preference and detail expansion.",
+        "Verify: Independent test and human feedback verify non-inferior comprehension, accuracy and completeness, not word count alone.",
+        "No unresolved critical/high finding or missing required reviewer may be marked complete."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_098",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_098"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read implementation",
+          "objective": "Review the actual code, test results and receipt from task 097, not a previous conversation."
+        },
+        {
+          "id": "S002",
+          "title": "Independent review",
+          "objective": "Dispatch a real fresh maximum-qualified reviewer and preserve provider, model, effort and reviewed hashes."
+        },
+        {
+          "id": "S003",
+          "title": "Correct high-risk defects",
+          "objective": "Correct critical/high findings or leave the task pending with evidence."
+        },
+        {
+          "id": "S004",
+          "title": "Rerun regressions",
+          "objective": "Run test/optimization/concise_communication_self_test.py and all feature acceptance and negative cases through mapped validation."
+        },
+        {
+          "id": "S005",
+          "title": "Record review",
+          "objective": "Record actual review/validation results in docs/research/20261028-skill-optimization/implementation/098-receipt.json and docs/research/20261028-skill-optimization/implementation/098-outcome.md."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
       "id": 82,
       "title": "Integrate all implemented contracts and close cross-feature gaps",
       "objective": "Integrate the implemented recommendations into one coherent product; create no further plan.",
@@ -9724,7 +11042,13 @@
         "R041",
         "R042",
         "R043",
-        "R044"
+        "R044",
+        "R046",
+        "R047",
+        "R048",
+        "R049",
+        "R050",
+        "R051"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -9777,7 +11101,13 @@
         "075",
         "077",
         "079",
-        "081"
+        "081",
+        "088",
+        "090",
+        "092",
+        "094",
+        "096",
+        "098"
       ],
       "scope": {
         "in": [
@@ -9807,14 +11137,16 @@
         "Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.",
         "If integration exposes a defect outside this write scope, reopen its owning TODO and correction review with native controllers; do not silently expand scope.",
         "Keep historical receipt integrity separate from current source/command/map validation.",
-        "Every changed implementation and correction gate needs actual acceptance evidence; prepared research never counts as a pass."
+        "Every changed implementation and correction gate needs actual acceptance evidence; prepared research never counts as a pass.",
+        "Integrate all six feature pairs from docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md; require actual independent review receipts."
       ],
       "acceptance_criteria": [
         "All implementation acceptance cases and required independent code reviews have current evidence.",
         "Final npm checks and actual package file lists pass or the task remains incomplete.",
         "The Portuguese final report distinguishes verified behavior, untested platforms and live-provider limitations.",
         "The prepared report is input evidence, not proof that this implementation or its independent review has passed.",
-        "Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions."
+        "Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.",
+        "All six added feature contracts have independently reviewed current-tree evidence."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_082",
@@ -10214,7 +11546,13 @@
         "R042",
         "R043",
         "R044",
-        "R045"
+        "R045",
+        "R046",
+        "R047",
+        "R048",
+        "R049",
+        "R050",
+        "R051"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",

@@ -50,6 +50,13 @@ Request: `REQUEST.md`
 - **P044** Record a newly discovered material gap with provenance and a bounded contract amendment; do not restart broad research by default.
 - **P045** Report decisions, changed files, actual validation, unverified platforms and risks in Brazilian Portuguese.
 
+- **P046** For cohesive multi-file DIRECT work, inspect relevant files cheaply, delegate difficult architecture to a stronger model only when justified, then choose a qualified economical executor and monitored tests.
+- **P047** Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests.
+- **P048** When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints.
+- **P049** For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it.
+- **P050** Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.
+- **P051** Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
+
 ## Repository
 
 - The production runner composes raw execution with artifact, model, runner and pattern contracts.
@@ -92,6 +99,8 @@ Research: Revision 2 evaluates primary-source alternatives for all 32 reports; w
 - Prepared source hashes are baseline evidence; implementation deliberately changes them and must record the new validated state.
 - Public vendor cost and quality experiments are not a measurement of this repository; live model validation remains a separate authorized activity.
 - Historical task receipts retain their recorded revision; final acceptance needs current integration evidence and affected-contract revalidation.
+
+- Six supplementary contracts are pending implementation and real review; no new agents or tests were run in this amendment.
 
 ## Open questions
 

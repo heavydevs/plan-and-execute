@@ -10,7 +10,7 @@ The current user amendment replaces research execution and second-plan generatio
 
 - [Prepared research index](../../research/20261028-skill-optimization/prepared-research/INDEX.md): one decision report per former research task.
 - [Current protocol](PROTOCOL.md): scoped context, real acceptance and protection boundaries.
-- [Native TODO checklist](../../../.ai-work/20261028-skill-study-provider-switch/TODO.md): 86 implementation, correction and review tasks, all pending.
+- [Native TODO checklist](../../../.ai-work/20261028-skill-study-provider-switch/TODO.md): 98 implementation, correction and review tasks, all pending.
 - [Request amendment](REQUEST_AMENDMENT.md) and [traceability](REPLAN_TRACE.json): explicit supersession of the former two-plan request.
 - [Original provider-switch acceptance matrix](ACCEPTANCE_MATRIX.md): all twelve cases remain obligations.
 - [Portability](PORTABILITY.md): native recreation on another host; no status editing.

@@ -11,7 +11,7 @@ Data: 28/10/2026. Base do código: versão 0.11.0.
 | Relatórios individuais | 32, cada um em Markdown e JSON. |
 | Fontes registradas | 58, com URL, data, achado e limite de consulta. |
 | Tarefas de pesquisa restantes | 0. |
-| TODOs do plano único | 86, todos pendentes de implementação, correção ou revisão. |
+| TODOs do plano único | 98, todos pendentes de implementação, correção ou revisão. |
 | Subtarefas internas | 571, regeneradas pelo controlador nativo. |
 | Revisões independentes | 43 exigências preservadas; nenhuma simulada. |
 | Criação do Plano 2 | Removida do fluxo. |

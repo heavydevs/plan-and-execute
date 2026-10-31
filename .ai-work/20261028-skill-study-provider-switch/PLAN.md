@@ -50,6 +50,13 @@ Implement the 32 twice-researched topic decisions and opt-in provider switching 
 - **R044** [must; user; P044 -> 004,005,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069,082,083,084,085,086] Record a newly discovered material gap with provenance and a bounded contract amendment; do not restart broad research by default.
 - **R045** [must; user; P045 -> 080,081,086] Report decisions, changed files, actual validation, unverified platforms and risks in Brazilian Portuguese.
 
+- **R046** [must; user; P046 -> 087,088,082,086] For cohesive multi-file DIRECT work, inspect relevant files cheaply, delegate difficult architecture to a stronger model only when justified, then choose a qualified economical executor and monitored tests.
+- **R047** [must; user; P047 -> 089,090,082,086] Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests.
+- **R048** [must; user; P048 -> 091,092,082,086] When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints.
+- **R049** [must; user; P049 -> 093,094,082,086] For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it.
+- **R050** [must; user; P050 -> 095,096,082,086] Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.
+- **R051** [must; user; P051 -> 097,098,082,086] Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
+
 ## Constraints
 
 - Preserve original request bytes in REQUEST_ORIGINAL.md and the historical snapshot; the current amendment supersedes the two-plan workflow.
@@ -59,6 +66,8 @@ Implement the 32 twice-researched topic decisions and opt-in provider switching 
 - Keep new provider-switch behavior opt-in and preserve disabled-mode and legacy contracts.
 - Keep real independent code reviews before acceptance; missing reviewers are not simulated.
 - Load only assigned reports and source paths; preserve source evidence outside disposable plan controls.
+
+- Additional approved execution contract: `docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md`. Implement 087–098 before integrating 082; final review 086 remains last.
 
 ## Context
 

@@ -93,6 +93,115 @@
         "085",
         "086"
       ]
+    },
+    {
+      "at": "2026-10-31T23:30:00Z",
+      "op": "refresh",
+      "old_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "new_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "rebased": [
+        "087",
+        "088",
+        "089",
+        "090",
+        "091",
+        "092",
+        "093",
+        "094",
+        "095",
+        "096",
+        "097",
+        "098"
+      ],
+      "kept": [
+        "001",
+        "002",
+        "003",
+        "004",
+        "005",
+        "006",
+        "007",
+        "008",
+        "009",
+        "010",
+        "011",
+        "012",
+        "013",
+        "014",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019",
+        "020",
+        "021",
+        "022",
+        "023",
+        "024",
+        "025",
+        "026",
+        "027",
+        "028",
+        "029",
+        "030",
+        "031",
+        "032",
+        "033",
+        "034",
+        "035",
+        "036",
+        "037",
+        "038",
+        "039",
+        "040",
+        "041",
+        "042",
+        "043",
+        "044",
+        "045",
+        "046",
+        "047",
+        "048",
+        "049",
+        "050",
+        "051",
+        "052",
+        "053",
+        "054",
+        "055",
+        "056",
+        "057",
+        "058",
+        "059",
+        "060",
+        "061",
+        "062",
+        "063",
+        "064",
+        "065",
+        "066",
+        "067",
+        "068",
+        "069",
+        "070",
+        "071",
+        "072",
+        "073",
+        "074",
+        "075",
+        "076",
+        "077",
+        "078",
+        "079",
+        "080",
+        "081",
+        "082",
+        "083",
+        "084",
+        "085",
+        "086"
+      ],
+      "unbound": []
     }
   ],
   "captured_at": "2026-10-29T02:40:14Z",
@@ -637,7 +746,7 @@
   "catalog_version": "claude:2026-10-09-bootstrap-v5+codex:2026-10-09-bootstrap-v5+deepseek:2026-10-09-bootstrap-v5+glm:2026-10-09-bootstrap-v5+muse:2026-10-09-bootstrap-v5",
   "created_at": "2026-10-29T02:40:14Z",
   "freshness_policy_version": "2026-10-01-v1",
-  "matrix_digest": "1ced99b02d122794711e9904cc394a5b692c02d8d73b25367549372608e60b67",
+  "matrix_digest": "fa383c3933978d64d111f346292fd700f9aec8b0c807eeb9186e59f709c62380",
   "matrix_version": 1,
   "plan_id": "20261028-skill-study-provider-switch",
   "sources": {
@@ -2491,6 +2600,234 @@
           "model": "gpt-6.1-sol",
           "provider": "codex",
           "tier": "max"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "087": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "strong",
+          "model": "claude-opus-5-5"
+        },
+        {
+          "provider": "codex",
+          "tier": "strong",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "088": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1"
+        },
+        {
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "089": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "strong",
+          "model": "claude-opus-5-5"
+        },
+        {
+          "provider": "codex",
+          "tier": "strong",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "090": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1"
+        },
+        {
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "091": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "strong",
+          "model": "claude-opus-5-5"
+        },
+        {
+          "provider": "codex",
+          "tier": "strong",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "092": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1"
+        },
+        {
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "093": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "strong",
+          "model": "claude-opus-5-5"
+        },
+        {
+          "provider": "codex",
+          "tier": "strong",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "094": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1"
+        },
+        {
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "095": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "strong",
+          "model": "claude-opus-5-5"
+        },
+        {
+          "provider": "codex",
+          "tier": "strong",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "096": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1"
+        },
+        {
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "xhigh",
+      "floor": "max",
+      "provider": "auto"
+    },
+    "097": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "strong",
+          "model": "claude-opus-5-5"
+        },
+        {
+          "provider": "codex",
+          "tier": "strong",
+          "model": "gpt-6.1-sol"
+        }
+      ],
+      "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",
+      "effort": "high",
+      "floor": "strong",
+      "provider": "auto"
+    },
+    "098": {
+      "bound_at": "2026-10-31T23:30:00Z",
+      "candidates": [
+        {
+          "provider": "claude",
+          "tier": "max",
+          "model": "claude-fable-5-1"
+        },
+        {
+          "provider": "codex",
+          "tier": "max",
+          "model": "gpt-6.1-sol"
         }
       ],
       "catalog_digest": "1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15",

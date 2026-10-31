@@ -3811,6 +3811,426 @@ This project-local router maps every automated validation to its toolchain prere
         "PYTHON"
       ],
       "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_087",
+      "name": "Extension 087 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "087"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_087",
+      "name": "Extension 087 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "087"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_088",
+      "name": "Extension 088 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "088"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_088",
+      "name": "Extension 088 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "088"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_089",
+      "name": "Extension 089 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "089"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_089",
+      "name": "Extension 089 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "089"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_090",
+      "name": "Extension 090 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "090"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_090",
+      "name": "Extension 090 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "090"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_091",
+      "name": "Extension 091 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "091"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_091",
+      "name": "Extension 091 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "091"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_092",
+      "name": "Extension 092 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "092"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_092",
+      "name": "Extension 092 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "092"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_093",
+      "name": "Extension 093 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "093"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_093",
+      "name": "Extension 093 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "093"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_094",
+      "name": "Extension 094 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "094"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_094",
+      "name": "Extension 094 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "094"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_095",
+      "name": "Extension 095 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "095"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_095",
+      "name": "Extension 095 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "095"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_096",
+      "name": "Extension 096 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "096"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_096",
+      "name": "Extension 096 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "096"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_097",
+      "name": "Extension 097 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "097"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_097",
+      "name": "Extension 097 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "097"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_098",
+      "name": "Extension 098 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "098"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_098",
+      "name": "Extension 098 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "098"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
     }
   ],
   "resources": [

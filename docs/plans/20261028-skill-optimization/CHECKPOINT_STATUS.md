@@ -3,7 +3,7 @@
 Date: 2026-10-28. Product baseline remains 0.11.0.
 
 - Thirty-two research reports were rewritten with primary-source comparisons and scoped implementation contracts.
-- One implementation plan remains: 86 tasks, all pending;527 checkpoints;43 future independent reviews.
+- One implementation plan remains: 98 tasks, all pending; new extension checkpoints; 49 future independent reviews.
 - Native plan/study validation, map audit, report linkage and 50 preparation-gate tests pass.
 - Prepared research is not implemented functionality or independent code-review evidence.
 - All 135 baseline files under skill/, bin/ and lib/ are unchanged.

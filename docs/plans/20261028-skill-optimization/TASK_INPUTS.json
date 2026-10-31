@@ -6643,6 +6643,774 @@
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
     },
     {
+      "id": "087",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/direct_architecture_handoff_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/087-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/087-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/direct_route.py",
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/references/ROUTING.md",
+        "skill/plan-and-execute/references/DELEGATION.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+        "test/optimization/direct_architecture_handoff_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/direct_architecture_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06"
+      ],
+      "planned_new_files": [
+        "test/optimization/direct_architecture_handoff_self_test.py"
+      ],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/direct_architecture_handoff_self_test.py",
+          "availability": "create_in_this_task"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "088",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "087",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/direct_architecture_handoff_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/087-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/087-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/088-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/088-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/direct_route.py",
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/workload_routing.py",
+        "skill/plan-and-execute/references/ROUTING.md",
+        "skill/plan-and-execute/references/DELEGATION.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+        "test/optimization/direct_architecture_handoff_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/direct_architecture_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07"
+      ],
+      "planned_new_files": [],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/direct_architecture_handoff_self_test.py",
+          "availability": "prerequisite_output",
+          "producer_task": "087"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/087-receipt.json",
+          "availability": "prerequisite_output",
+          "producer_task": "087"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/087-outcome.md",
+          "availability": "prerequisite_output",
+          "producer_task": "087"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "089",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/skill_activation_negatives_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/089-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/089-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/SKILL.md",
+        "skill/plan-and-execute/agents/openai.yaml",
+        "skill/plan-and-execute/references/ROUTING.md",
+        "skill/validate-or-fix/SKILL.md",
+        "skill/plan-and-execute/references/routing-evals.json",
+        "test/optimization/skill_activation_negatives_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/skill_activation_negatives_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "planned_new_files": [
+        "test/optimization/skill_activation_negatives_self_test.py"
+      ],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/skill_activation_negatives_self_test.py",
+          "availability": "create_in_this_task"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "090",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "089",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/skill_activation_negatives_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/089-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/089-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/090-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/090-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/SKILL.md",
+        "skill/plan-and-execute/agents/openai.yaml",
+        "skill/plan-and-execute/references/ROUTING.md",
+        "skill/validate-or-fix/SKILL.md",
+        "skill/plan-and-execute/references/routing-evals.json",
+        "test/optimization/skill_activation_negatives_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/skill_activation_negatives_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06"
+      ],
+      "planned_new_files": [],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/skill_activation_negatives_self_test.py",
+          "availability": "prerequisite_output",
+          "producer_task": "089"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/089-receipt.json",
+          "availability": "prerequisite_output",
+          "producer_task": "089"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/089-outcome.md",
+          "availability": "prerequisite_output",
+          "producer_task": "089"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "091",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/blocked_task_split_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/091-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/091-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/lifecyclectl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+        "test/optimization/blocked_task_split_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/blocked_task_split_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "planned_new_files": [
+        "test/optimization/blocked_task_split_self_test.py"
+      ],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/blocked_task_split_self_test.py",
+          "availability": "create_in_this_task"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "092",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "091",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/blocked_task_split_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/091-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/091-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/092-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/092-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/lifecyclectl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+        "test/optimization/blocked_task_split_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/blocked_task_split_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06"
+      ],
+      "planned_new_files": [],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/blocked_task_split_self_test.py",
+          "availability": "prerequisite_output",
+          "producer_task": "091"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/091-receipt.json",
+          "availability": "prerequisite_output",
+          "producer_task": "091"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/091-outcome.md",
+          "availability": "prerequisite_output",
+          "producer_task": "091"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "093",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/full_access_delegation_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/093-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/093-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/references/DELEGATION.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+        "skill/plan-and-execute/references/ASSISTANTS.md",
+        "test/optimization/full_access_delegation_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/full_access_delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06"
+      ],
+      "planned_new_files": [
+        "test/optimization/full_access_delegation_self_test.py"
+      ],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/full_access_delegation_self_test.py",
+          "availability": "create_in_this_task"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "094",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "093",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/full_access_delegation_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/093-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/093-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/094-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/094-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/references/DELEGATION.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+        "skill/plan-and-execute/references/ASSISTANTS.md",
+        "test/optimization/full_access_delegation_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/full_access_delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07"
+      ],
+      "planned_new_files": [],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/full_access_delegation_self_test.py",
+          "availability": "prerequisite_output",
+          "producer_task": "093"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/093-receipt.json",
+          "availability": "prerequisite_output",
+          "producer_task": "093"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/093-outcome.md",
+          "availability": "prerequisite_output",
+          "producer_task": "093"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "095",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/provider_readiness_gate_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/095-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/095-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/preplanctl.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "skill/plan-and-execute/scripts/model_catalogctl.py",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/references/INTAKE.md",
+        "skill/plan-and-execute/references/ORCHESTRATION.md",
+        "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "test/optimization/provider_readiness_gate_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_readiness_gate_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06"
+      ],
+      "planned_new_files": [
+        "test/optimization/provider_readiness_gate_self_test.py"
+      ],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/provider_readiness_gate_self_test.py",
+          "availability": "create_in_this_task"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "096",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "095",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/provider_readiness_gate_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/095-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/095-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/096-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/096-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/preplanctl.py",
+        "skill/plan-and-execute/scripts/configure.py",
+        "skill/plan-and-execute/scripts/model_catalogctl.py",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/references/INTAKE.md",
+        "skill/plan-and-execute/references/ORCHESTRATION.md",
+        "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "test/optimization/provider_readiness_gate_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/provider_readiness_gate_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07"
+      ],
+      "planned_new_files": [],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/provider_readiness_gate_self_test.py",
+          "availability": "prerequisite_output",
+          "producer_task": "095"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/095-receipt.json",
+          "availability": "prerequisite_output",
+          "producer_task": "095"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/095-outcome.md",
+          "availability": "prerequisite_output",
+          "producer_task": "095"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "097",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/concise_communication_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/097-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/097-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/references/USER_COMMUNICATION.md",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+        "skill/plan-and-execute/references/ARTIFACT_WRITING.md",
+        "skill/plan-and-execute/scripts/process_io.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/references/INSTALLATION.md",
+        "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
+        "skill/validate-or-fix/references/OPERATIONS.md",
+        "test/optimization/concise_communication_self_test.py",
+        "test/optimization/concise_communication_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/concise_communication_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07"
+      ],
+      "planned_new_files": [
+        "test/optimization/concise_communication_self_test.py"
+      ],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/concise_communication_self_test.py",
+          "availability": "create_in_this_task"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
+      "id": "098",
+      "kind": "implementation",
+      "work_type": "review_and_fix",
+      "review_of": "097",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "test/optimization/concise_communication_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/097-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/097-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/098-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/098-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/references/USER_COMMUNICATION.md",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+        "skill/plan-and-execute/references/ARTIFACT_WRITING.md",
+        "skill/plan-and-execute/scripts/process_io.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/references/INSTALLATION.md",
+        "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
+        "skill/validate-or-fix/references/OPERATIONS.md",
+        "test/optimization/concise_communication_self_test.py",
+        "test/optimization/concise_communication_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/concise_communication_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07",
+        "AC08"
+      ],
+      "planned_new_files": [],
+      "input_contract": [
+        {
+          "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/concise_communication_self_test.py",
+          "availability": "prerequisite_output",
+          "producer_task": "097"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/097-receipt.json",
+          "availability": "prerequisite_output",
+          "producer_task": "097"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/097-outcome.md",
+          "availability": "prerequisite_output",
+          "producer_task": "097"
+        }
+      ],
+      "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
+    },
+    {
       "id": "082",
       "kind": "implementation",
       "work_type": "implementation",

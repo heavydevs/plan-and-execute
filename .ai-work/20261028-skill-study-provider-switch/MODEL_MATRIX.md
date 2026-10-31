@@ -5,7 +5,7 @@ Generated from MODEL_MATRIX.json (authoritative); do not edit by hand.
 - Captured: 2026-10-29T02:40:14Z (stale after 7 days)
 - Catalog: `claude:2026-10-09-bootstrap-v5+codex:2026-10-09-bootstrap-v5+deepseek:2026-10-09-bootstrap-v5+glm:2026-10-09-bootstrap-v5+muse:2026-10-09-bootstrap-v5`
 - Catalog digest: `1e4c88ba5f57b3e4a799598ca08be22b16f807516951ed39f3e6b9c137319b15`
-- Matrix digest: `1ced99b02d122794711e9904cc394a5b692c02d8d73b25367549372608e60b67`
+- Matrix digest: `fa383c3933978d64d111f346292fd700f9aec8b0c807eeb9186e59f709c62380`
 - Freshness policy: `2026-10-01-v1`
 
 ## Sources
@@ -119,9 +119,23 @@ Generated from MODEL_MATRIX.json (authoritative); do not edit by hand.
 | 085 | max | auto | xhigh | claude:claude-fable-5-1 (max), codex:gpt-6.1-sol (max) | `1e4c88ba5f57` |
 | 086 | max | auto | xhigh | claude:claude-fable-5-1 (max), codex:gpt-6.1-sol (max) | `1e4c88ba5f57` |
 
+| 087 | strong | auto | high | claude:claude-opus-5-5 (strong), codex:gpt-6.1-sol (strong) | `1e4c88ba5f57` |
+| 088 | max | auto | xhigh | claude:claude-fable-5-1 (max), codex:gpt-6.1-sol (max) | `1e4c88ba5f57` |
+| 089 | strong | auto | high | claude:claude-opus-5-5 (strong), codex:gpt-6.1-sol (strong) | `1e4c88ba5f57` |
+| 090 | max | auto | xhigh | claude:claude-fable-5-1 (max), codex:gpt-6.1-sol (max) | `1e4c88ba5f57` |
+| 091 | strong | auto | high | claude:claude-opus-5-5 (strong), codex:gpt-6.1-sol (strong) | `1e4c88ba5f57` |
+| 092 | max | auto | xhigh | claude:claude-fable-5-1 (max), codex:gpt-6.1-sol (max) | `1e4c88ba5f57` |
+| 093 | strong | auto | high | claude:claude-opus-5-5 (strong), codex:gpt-6.1-sol (strong) | `1e4c88ba5f57` |
+| 094 | max | auto | xhigh | claude:claude-fable-5-1 (max), codex:gpt-6.1-sol (max) | `1e4c88ba5f57` |
+| 095 | strong | auto | high | claude:claude-opus-5-5 (strong), codex:gpt-6.1-sol (strong) | `1e4c88ba5f57` |
+| 096 | max | auto | xhigh | claude:claude-fable-5-1 (max), codex:gpt-6.1-sol (max) | `1e4c88ba5f57` |
+| 097 | strong | auto | high | claude:claude-opus-5-5 (strong), codex:gpt-6.1-sol (strong) | `1e4c88ba5f57` |
+| 098 | max | auto | xhigh | claude:claude-fable-5-1 (max), codex:gpt-6.1-sol (max) | `1e4c88ba5f57` |
+
 ## Audit trail
 
 - 2026-10-29T02:40:14Z `create` none -> 1e4c88ba5f57 rebased 001, 002, 003, 004, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069, 070, 071, 072, 073, 074, 075, 076, 077, 078, 079, 080, 081, 082, 083, 084, 085, 086
+- 2026-10-31T23:30:00Z `refresh` 1e4c88ba5f57 -> 1e4c88ba5f57 rebased 087, 088, 089, 090, 091, 092, 093, 094, 095, 096, 097, 098
 - warning: claude: no valid cache; using bootstrap catalog
 - warning: codex: no valid cache; using bootstrap catalog
 - warning: deepseek: no valid cache; using bootstrap catalog
