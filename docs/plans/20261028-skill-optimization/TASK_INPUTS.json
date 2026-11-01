@@ -6650,10 +6650,12 @@
       "requires_independent_review": false,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/direct_architecture_handoff_self_test.py"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/087-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/087-outcome.md",
@@ -6694,6 +6696,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/direct_architecture_handoff_self_test.py",
           "availability": "create_in_this_task"
         }
@@ -6708,12 +6714,14 @@
       "requires_independent_review": true,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/direct_architecture_handoff_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/087-receipt.json",
         "docs/research/20261028-skill-optimization/implementation/087-outcome.md"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/088-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/088-outcome.md",
@@ -6753,6 +6761,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/direct_architecture_handoff_self_test.py",
           "availability": "prerequisite_output",
           "producer_task": "087"
@@ -6778,10 +6790,12 @@
       "requires_independent_review": false,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/skill_activation_negatives_self_test.py"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/089-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/089-outcome.md",
@@ -6819,6 +6833,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/skill_activation_negatives_self_test.py",
           "availability": "create_in_this_task"
         }
@@ -6833,12 +6851,14 @@
       "requires_independent_review": true,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/skill_activation_negatives_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/089-receipt.json",
         "docs/research/20261028-skill-optimization/implementation/089-outcome.md"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/090-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/090-outcome.md",
@@ -6875,6 +6895,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/skill_activation_negatives_self_test.py",
           "availability": "prerequisite_output",
           "producer_task": "089"
@@ -6900,10 +6924,12 @@
       "requires_independent_review": false,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/blocked_task_split_self_test.py"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/091-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/091-outcome.md",
@@ -6943,6 +6969,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/blocked_task_split_self_test.py",
           "availability": "create_in_this_task"
         }
@@ -6957,12 +6987,14 @@
       "requires_independent_review": true,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/blocked_task_split_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/091-receipt.json",
         "docs/research/20261028-skill-optimization/implementation/091-outcome.md"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/092-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/092-outcome.md",
@@ -7001,6 +7033,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/blocked_task_split_self_test.py",
           "availability": "prerequisite_output",
           "producer_task": "091"
@@ -7026,10 +7062,12 @@
       "requires_independent_review": false,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/full_access_delegation_self_test.py"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/093-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/093-outcome.md",
@@ -7070,6 +7108,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/full_access_delegation_self_test.py",
           "availability": "create_in_this_task"
         }
@@ -7084,12 +7126,14 @@
       "requires_independent_review": true,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/full_access_delegation_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/093-receipt.json",
         "docs/research/20261028-skill-optimization/implementation/093-outcome.md"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/094-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/094-outcome.md",
@@ -7129,6 +7173,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/full_access_delegation_self_test.py",
           "availability": "prerequisite_output",
           "producer_task": "093"
@@ -7154,10 +7202,12 @@
       "requires_independent_review": false,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/provider_readiness_gate_self_test.py"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/095-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/095-outcome.md",
@@ -7199,6 +7249,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/provider_readiness_gate_self_test.py",
           "availability": "create_in_this_task"
         }
@@ -7213,12 +7267,14 @@
       "requires_independent_review": true,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/provider_readiness_gate_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/095-receipt.json",
         "docs/research/20261028-skill-optimization/implementation/095-outcome.md"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/096-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/096-outcome.md",
@@ -7259,6 +7315,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/provider_readiness_gate_self_test.py",
           "availability": "prerequisite_output",
           "producer_task": "095"
@@ -7284,10 +7344,12 @@
       "requires_independent_review": false,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/concise_communication_self_test.py"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/097-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/097-outcome.md",
@@ -7331,6 +7393,10 @@
           "availability": "existing_baseline_or_current_file"
         },
         {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
           "path": "test/optimization/concise_communication_self_test.py",
           "availability": "create_in_this_task"
         }
@@ -7345,12 +7411,14 @@
       "requires_independent_review": true,
       "inputs": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/concise_communication_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/097-receipt.json",
         "docs/research/20261028-skill-optimization/implementation/097-outcome.md"
       ],
       "prepared_reports": [
-        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md"
+        "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+        "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md"
       ],
       "output": "docs/research/20261028-skill-optimization/implementation/098-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/098-outcome.md",
@@ -7390,6 +7458,10 @@
       "input_contract": [
         {
           "path": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
           "availability": "existing_baseline_or_current_file"
         },
         {

@@ -14,6 +14,8 @@ This is an amendment of a single existing plan, not a second plan or evidence of
 
 Existing TODOs 006–029 and 048–063 partially address these areas. They do not cover the six requested end-to-end behaviors or their complete acceptance cases. Preserve the prior 86 task IDs and provider-switch cases A01–A12.
 
+**New execution-guidance research (2026-10-31):** `docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md`. Every TODO 087-098 must read its own numbered section **and** the cross-feature contract/test notes before implementing or reviewing. The report is a prepared research input, not proof of implementation, independent review, provider access, or test success.
+
 ## Implementation contracts
 
 ### 087/088: DIRECT architecture delegation with economical implementation
