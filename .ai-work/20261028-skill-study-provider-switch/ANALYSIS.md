@@ -56,6 +56,7 @@ Request: `REQUEST.md`
 - **P049** For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it.
 - **P050** Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.
 - **P051** Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
+- **P052** For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
 
 ## Repository
 
@@ -64,6 +65,8 @@ Request: `REQUEST.md`
 - All 32 research topics now have prepared reports; all implementation and independent review tasks remain pending.
 - The current user request replaces the two-plan workflow with one implementation graph.
 - All32 reports were revised with competing approaches, scoped source evidence and counterexamples. Implementation and independent reviews remain pending.
+
+- Current progress_watch renews on distinct arbitrary stdout and CPU, while PROGRESS counters lack enforced stage/denominator monotonicity; long-running work already has 300-second idle monitoring and semantic escalation in the runner.
 
 Research: Revision 2 evaluates primary-source alternatives for all 32 reports; workers consume the selected decision and refresh only material version or account conflicts.
 
@@ -86,6 +89,8 @@ Research: Revision 2 evaluates primary-source alternatives for all 32 reports; w
 - Whole-process cancellation and multi-file state publication need ownership and crash-recovery tests, not only atomic single-file writes.
 - Fixture replay proves dispatch contracts, not empirical savings; repeated identical cases do not create independent benchmark samples.
 
+- Focused P052 study: docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md; existing 052/054/062 contracts partially cover the request but not the complete semantic-percent-and-repair seam.
+
 ## Assumptions
 
 - The user requested a deeper research revision and implementation-readiness validation, not product execution or publication in this turn.
@@ -102,10 +107,12 @@ Research: Revision 2 evaluates primary-source alternatives for all 32 reports; w
 
 - Six supplementary contracts are pending implementation and real review; no new agents or tests were run in this amendment.
 
+- A busy-loop or changing log can resemble work; automatic escalation on ambiguous/environmental stalls can waste models or destroy useful checkpoints. P052 requires trustworthy semantic evidence and authorized repair.
+
 ## Open questions
 
 - Authenticated execution and independent maximum-qualified review require an available authorized provider at implementation time.
 
 ## Decomposition
 
-Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan.
+Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan. P052 adds TODO 099 and genuinely independent review 100 before integration 082, without duplicating the existing watcher.

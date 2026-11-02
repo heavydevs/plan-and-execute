@@ -93,6 +93,8 @@
 - [ ] **096** — Review and correct offer other-provider setup and login before creating a plan
 - [ ] **097** — Implement make console, progress and end-user docs concise and precise
 - [ ] **098** — Review and correct make console, progress and end-user docs concise and precise
+- [ ] **099** — Implement semantic progress and safe five-minute stall recovery
+- [ ] **100** — Review and correct semantic progress and stall recovery
 - [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
 - [ ] **083** — Review and correct end-to-end integration
 - [ ] **084** — Validate release contents, documentation and migration

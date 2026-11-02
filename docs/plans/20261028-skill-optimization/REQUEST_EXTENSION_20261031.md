@@ -132,3 +132,7 @@ Prepared repository reports (revision 2): 006-activation-intake, 028-delegation,
 ## Integration and evidence status
 
 Add TODOs 087–098 before integration 082; reviews 088/090/092/094/096/098 are mandatory dependencies of 082. Final whole-skill task 086 remains last. All added tasks start pending. No actual implementation, authenticated provider run, login, host selection experiment or independent reviewer is claimed by this amendment.
+
+## Subsequent focused extension — 2026-11-02 (P052/R052)
+
+The existing tasks 052–063 already cover sliding idle windows, progress event syntax, supervised jobs, resource health and some escalation. They do not provide one verified end-to-end guarantee for productive-work counters and truthful percent, confirmed 300-second semantic stall diagnosis, authorized stronger-code repair and fresh validation. New TODO 099 implements only that missing seam; TODO 100 independently reviews it. The mandatory integration gate 082 depends on 100. See `docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md`. Unknown/environmental stalls do not blindly escalate. All new work remains pending.

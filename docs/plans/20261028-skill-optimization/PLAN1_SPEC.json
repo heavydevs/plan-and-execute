@@ -1,6 +1,6 @@
 {
   "title": "Single implementation plan - evidence-backed skill optimization",
-  "summary": "Implement the 32 twice-researched topic decisions and opt-in provider switching in one graph, with explicit compatibility, scoped writes, negative tests and independent acceptance reviews. The 2026-10-31 extension adds six implementation/review feature pairs.",
+  "summary": "Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions.",
   "language": "English",
   "autostart": false,
   "cleanup_on_success": false,
@@ -209,6 +209,10 @@
       {
         "id": "P051",
         "text": "Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth."
+      },
+      {
+        "id": "P052",
+        "text": "For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort."
       }
     ],
     "repository_findings": [
@@ -217,7 +221,8 @@
       "All 32 research topics now have prepared reports; all implementation and independent review tasks remain pending.",
       "The current user request replaces the two-plan workflow with one implementation graph.",
       "All32 reports were revised with competing approaches, scoped source evidence and counterexamples. Implementation and independent reviews remain pending.",
-      "2026-10-31: six unimplemented end-to-end contracts supplement 86 originally pending tasks."
+      "2026-10-31: six unimplemented end-to-end contracts supplement 86 originally pending tasks.",
+      "Current progress_watch renews on distinct arbitrary stdout and CPU, while PROGRESS counters lack enforced stage/denominator monotonicity; long-running work already has 300-second idle monitoring and semantic escalation in the runner."
     ],
     "research_decision": "Revision 2 evaluates primary-source alternatives for all 32 reports; workers consume the selected decision and refresh only material version or account conflicts.",
     "research_findings": [
@@ -236,7 +241,8 @@
       "API cache-write economics vary by generation and retention; subscription quota and cash cost must remain separate accounting units.",
       "Qwen safe-mode is not a sandbox; Kimi prompt-mode flag compatibility is version-specific.",
       "Whole-process cancellation and multi-file state publication need ownership and crash-recovery tests, not only atomic single-file writes.",
-      "Fixture replay proves dispatch contracts, not empirical savings; repeated identical cases do not create independent benchmark samples."
+      "Fixture replay proves dispatch contracts, not empirical savings; repeated identical cases do not create independent benchmark samples.",
+      "Focused P052 study: docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md; existing 052/054/062 contracts partially cover the request but not the complete semantic-percent-and-repair seam."
     ],
     "assumptions": [
       "The user requested a deeper research revision and implementation-readiness validation, not product execution or publication in this turn.",
@@ -249,13 +255,14 @@
       "Prepared source hashes are baseline evidence; implementation deliberately changes them and must record the new validated state.",
       "Public vendor cost and quality experiments are not a measurement of this repository; live model validation remains a separate authorized activity.",
       "Historical task receipts retain their recorded revision; final acceptance needs current integration evidence and affected-contract revalidation.",
-      "Host-level skill activation, access enforcement and neuroinclusive comprehension still need real tests."
+      "Host-level skill activation, access enforcement and neuroinclusive comprehension still need real tests.",
+      "A busy-loop or changing log can resemble work; automatic escalation on ambiguous/environmental stalls can waste models or destroy useful checkpoints. P052 requires trustworthy semantic evidence and authorized repair."
     ],
     "open_questions": [
       "Authenticated execution and independent maximum-qualified review require an available authorized provider at implementation time."
     ],
     "hard_decisions": [],
-    "decomposition_strategy": "Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan."
+    "decomposition_strategy": "Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan. P052 adds TODO 099 and genuinely independent review 100 before integration 082, without duplicating the existing watcher."
   },
   "requirements": [
     {
@@ -716,6 +723,15 @@
       "request_part_ids": [
         "P051"
       ]
+    },
+    {
+      "id": "R052",
+      "text": "For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P052"
+      ]
     }
   ],
   "global_constraints": [
@@ -787,7 +803,8 @@
       "Revision2 adds current primary sources, competing approaches, counterexamples and explicit unmeasured assumptions for all32 topics.",
       "Shared-file writes wait for preceding correction reviews; primitive020 and fixture068 exclude later runtime implementation.",
       "This approval covers the plan specification only; actual implementation and independent review remain pending.",
-      "2026-10-31: twelve additional tasks are pending, not independently implemented or reviewed."
+      "2026-10-31: twelve additional tasks are pending, not independently implemented or reviewed.",
+      "2026-11-02 P052 amendment: 099/100 specify semantic progress, truthful percentages and guarded stall recovery; structure-only assessment, not completed implementation, provider review or runtime validation."
     ]
   },
   "tasks": [
@@ -11031,6 +11048,230 @@
       "related_task_reads": []
     },
     {
+      "id": 99,
+      "title": "Implement semantic progress and safe five-minute stall recovery",
+      "objective": "For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.",
+      "requirement_ids": [
+        "R052"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coupled observable contract: instrumentation, semantic stall classification and authorized repair/validated retry.",
+      "context_boundary": {
+        "shared_context": [
+          "Only the P052 contract, current source and relevant validated evidence."
+        ],
+        "why_one_todo": "One vertical end-to-end progress-and-repair outcome, followed by independently verified correction.",
+        "separate_from": [
+          "Do not duplicate preceding monitoring work or import past unrelated task transcripts."
+        ]
+      },
+      "dependencies": [
+        "053",
+        "055",
+        "057",
+        "061",
+        "063",
+        "075",
+        "088",
+        "092"
+      ],
+      "scope": {
+        "in": [
+          "Architectural and runtime long-validation instrumentation, honest completed-work percentages, semantic-stall classification, guarded stronger repair and monitored rerun."
+        ],
+        "out": [
+          "No second planning engine, duplicate watcher or every-tick LLM calls.",
+          "No unauthorized writes, provider login, destructive restart or ignoring host policy."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/progress_signal.py",
+          "skill/plan-and-execute/scripts/progress_watch.py",
+          "skill/plan-and-execute/scripts/resource_watch.py",
+          "skill/plan-and-execute/scripts/service_map.py",
+          "skill/plan-and-execute/scripts/jobctl.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/validatectl.py",
+          "skill/plan-and-execute/scripts/routingctl.py",
+          "skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "skill/plan-and-execute/references/VALIDATION_WORKLOADS.md",
+          "test/optimization/semantic_progress_recovery_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/099-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/099-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md; follow the task 099 catalog contract and current impacted code.",
+        "Reuse existing progress_signal/progress_watch/resource_watch, service-map, run_isolated and routing ladders; don't add a second monitor.",
+        "Diagnose a five-minute stall before escalating: silence or CPU alone is insufficient evidence of defective implementation; require authorized repairs.",
+        "Record actual execution, checks, changed-file hashes and limits in docs/research/20261028-skill-optimization/implementation/099-receipt.json and docs/research/20261028-skill-optimization/implementation/099-outcome.md."
+      ],
+      "acceptance_criteria": [
+        "Design-anticipated validation >300s reuses an existing reliable counter/probe or adds minimal instrumentation before starting; short checks remain fast and untouched.",
+        "Unexpected validation >300s without reliable progress raises a bounded instrumentation-gap diagnostic, never fabricated retrospective progress or uncontrolled edits to the running process.",
+        "Semantic progress advances only for trusted increasing completed-work/stage checkpoints; timestamps, changing generic output, constant heartbeat, CPU busy loops and unrelated file activity cannot perpetually renew it.",
+        "A valid long-running validation with increasing verified units/checkpoints continues beyond five minutes, limited only by a separate explicit hard ceiling or user cancellation.",
+        "With a known stable per-stage total, percentage is correct and labeled to that stage; unknown totals remain indeterminate and a global percentage is never guessed or reaches 100 before success.",
+        "At 300 seconds since last trusted semantic advancement, capture bounded redacted process/dependency/diagnostic evidence and distinguish semantic defect, environmental fault, explicit quiet window and unknown cause.",
+        "A confirmed semantic code stall routes an authorized stronger eligible implementer, stops only owned processes, preserves completed checkpoints, changes code and reruns fresh mapped validation.",
+        "Environmental, quota, auth, permission, unknown-owner, unknown-cause and configured hard-ceiling failures do not trigger stronger model execution or duplicate a live job.",
+        "DIRECT validate-only remains read-only and plan-free; authorized DIRECT repair and ORCHESTRATED retries share the monitoring engine, attempts, source hashes, budgets and cancellation guards.",
+        "Tests cover simulated 299/300/301-second boundaries, stage resets/replayed counters, process descendants, crash/restart, dependency health, safe probes, and no per-tick LLM cost.",
+        "No existing task or independent review is considered complete until its own runtime and source-hash evidence exists."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_099",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_099"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read contract and actual code",
+          "objective": "Read the focused 099 study, existing 052/054/056/060/062/087/091 decisions and affected code; use fresh source evidence."
+        },
+        {
+          "id": "S002",
+          "title": "Choose economical truthful instrumentation",
+          "objective": "Use existing source-owned counters/checkpoints; add minimal validated PROGRESS units for predicted >300-second work and flag runtime instrumentation gaps."
+        },
+        {
+          "id": "S003",
+          "title": "Separate semantic progress from activity",
+          "objective": "Implement monotonic verified completed-work clock distinct from CPU/output/heartbeats and resource health; preserve independent explicit hard ceilings."
+        },
+        {
+          "id": "S004",
+          "title": "Compute honest stage-local percentages",
+          "objective": "Validate done/total/seq, phase/retry identity, missing totals and weights; report stage percentages only when justified, never fabricated global completion."
+        },
+        {
+          "id": "S005",
+          "title": "Diagnose and safely reroute confirmed stalls",
+          "objective": "At 300 seconds without trustworthy semantic progress classify cause, preserve evidence, use existing eligible stronger repair route only when authorized, clean owned processes and rerun validated code."
+        },
+        {
+          "id": "S006",
+          "title": "Run targeted and adversarial tests",
+          "objective": "Implement and run semantic_progress_recovery_self_test.py, all mapped checks and regressions for DIRECT/ORCHESTRATED, quiet work, noisy logs and failures."
+        },
+        {
+          "id": "S007",
+          "title": "Record reproducible implementation evidence",
+          "objective": "Write task 099 receipt/outcome with actual changed-file hashes, diagnostics, executed checks, limitations and costs; never fabricate an independent review."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
+      "id": 100,
+      "title": "Review and correct semantic progress and stall recovery",
+      "objective": "Independently review and correct semantic-progress instrumentation, honest percentage reporting and safe evidence-based stall recovery using actual runtime evidence.",
+      "requirement_ids": [
+        "R052"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "Independent acceptance and correction for one end-to-end implementation seam.",
+      "context_boundary": {
+        "shared_context": [
+          "Only the P052 contract, current source and relevant validated evidence."
+        ],
+        "why_one_todo": "One vertical end-to-end progress-and-repair outcome, followed by independently verified correction.",
+        "separate_from": [
+          "Do not duplicate preceding monitoring work or import past unrelated task transcripts."
+        ]
+      },
+      "dependencies": [
+        "099"
+      ],
+      "scope": {
+        "in": [
+          "Independent review and correction of semantic progress/recovery and documented acceptance evidence."
+        ],
+        "out": [
+          "No second planning engine, duplicate watcher or every-tick LLM calls.",
+          "No unauthorized writes, provider login, destructive restart or ignoring host policy."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/progress_signal.py",
+          "skill/plan-and-execute/scripts/progress_watch.py",
+          "skill/plan-and-execute/scripts/resource_watch.py",
+          "skill/plan-and-execute/scripts/service_map.py",
+          "skill/plan-and-execute/scripts/jobctl.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/validatectl.py",
+          "skill/plan-and-execute/scripts/routingctl.py",
+          "skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "skill/plan-and-execute/references/VALIDATION_WORKLOADS.md",
+          "test/optimization/semantic_progress_recovery_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/100-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/100-outcome.md"
+        ]
+      },
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md and task 099's actual code/test receipts; never treat this prepared research as runtime evidence.",
+        "Follow task 100 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json; dispatch a genuinely independent qualified reviewer and pin reviewed hashes.",
+        "Validate semantic-vs-liveness behavior, truthful percentages, safe ownership and authorized provider routing; correct critical/high findings.",
+        "Record actual review and tests in docs/research/20261028-skill-optimization/implementation/100-receipt.json and docs/research/20261028-skill-optimization/implementation/100-outcome.md; pending unless verified."
+      ],
+      "acceptance_criteria": [
+        "Record a fresh independent maximum-qualified reviewer, effort/provider and exact reviewed source hashes.",
+        "Verify: Design-anticipated validation >300s reuses an existing reliable counter/probe or adds minimal instrumentation before starting; short checks remain fast and untouched.",
+        "Verify: Unexpected validation >300s without reliable progress raises a bounded instrumentation-gap diagnostic, never fabricated retrospective progress or uncontrolled edits to the running process.",
+        "Verify: Semantic progress advances only for trusted increasing completed-work/stage checkpoints; timestamps, changing generic output, constant heartbeat, CPU busy loops and unrelated file activity cannot perpetually renew it.",
+        "Verify: A valid long-running validation with increasing verified units/checkpoints continues beyond five minutes, limited only by a separate explicit hard ceiling or user cancellation.",
+        "Verify: With a known stable per-stage total, percentage is correct and labeled to that stage; unknown totals remain indeterminate and a global percentage is never guessed or reaches 100 before success.",
+        "Verify: At 300 seconds since last trusted semantic advancement, capture bounded redacted process/dependency/diagnostic evidence and distinguish semantic defect, environmental fault, explicit quiet window and unknown cause.",
+        "Verify: A confirmed semantic code stall routes an authorized stronger eligible implementer, stops only owned processes, preserves completed checkpoints, changes code and reruns fresh mapped validation.",
+        "Verify: Environmental, quota, auth, permission, unknown-owner, unknown-cause and configured hard-ceiling failures do not trigger stronger model execution or duplicate a live job.",
+        "Verify: DIRECT validate-only remains read-only and plan-free; authorized DIRECT repair and ORCHESTRATED retries share the monitoring engine, attempts, source hashes, budgets and cancellation guards.",
+        "Verify: Tests cover simulated 299/300/301-second boundaries, stage resets/replayed counters, process descendants, crash/restart, dependency health, safe probes, and no per-tick LLM cost.",
+        "No unresolved critical/high finding or missing mapped test evidence may be marked complete."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_100",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_100"
+      ],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read actual implementation and evidence",
+          "objective": "Inspect task 099 code, test receipts, source hashes and limitations; never reuse unverified research as test evidence."
+        },
+        {
+          "id": "S002",
+          "title": "Run independent maximum-qualified review",
+          "objective": "Have a genuine fresh qualified reviewer check semantics, percent math, route/permission guards and negative cases; record exact reviewed hashes."
+        },
+        {
+          "id": "S003",
+          "title": "Fix critical and high defects",
+          "objective": "Correct confirmed findings inside the authorized scope or leave the review pending with a recorded blocker."
+        },
+        {
+          "id": "S004",
+          "title": "Rerun mapped acceptance",
+          "objective": "Independently rerun the complete new test and affected progress/job/validate/routing regressions through resource monitoring."
+        },
+        {
+          "id": "S005",
+          "title": "Record independent review evidence",
+          "objective": "Write task 100 review receipt/outcome with provider/model/effort, hashes, actual checks and unresolved findings."
+        }
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "max_attempts": 8,
+      "learning_targets": [],
+      "related_task_reads": []
+    },
+    {
       "id": 82,
       "title": "Integrate all implemented contracts and close cross-feature gaps",
       "objective": "Integrate the implemented recommendations into one coherent product; create no further plan.",
@@ -11048,7 +11289,8 @@
         "R048",
         "R049",
         "R050",
-        "R051"
+        "R051",
+        "R052"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -11107,7 +11349,8 @@
         "092",
         "094",
         "096",
-        "098"
+        "098",
+        "100"
       ],
       "scope": {
         "in": [
@@ -11146,7 +11389,8 @@
         "The Portuguese final report distinguishes verified behavior, untested platforms and live-provider limitations.",
         "The prepared report is input evidence, not proof that this implementation or its independent review has passed.",
         "Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.",
-        "All six added feature contracts have independently reviewed current-tree evidence."
+        "All six added feature contracts have independently reviewed current-tree evidence.",
+        "P052 semantic five-minute stall diagnosis, reliable progress percentages and authorized higher-capability repair have actual independently reviewed mapped integration evidence."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_082",
@@ -11552,7 +11796,8 @@
         "R048",
         "R049",
         "R050",
-        "R051"
+        "R051",
+        "R052"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",

@@ -4,7 +4,7 @@ Date: 2026-10-28. This replaces the former research-then-Plan2 execution workflo
 
 ## Authority and honest state
 
-`PLAN1_SPEC.json` is the current portable specification. The native `manifest.json` is authoritative during execution; task Markdown and `TODO.md` are generated projections. All 98 tasks remain pending after the 2026-10-31 bounded amendment. Research readiness is recorded separately in the prepared report index; report existence cannot complete an implementation task. Autostart is false. No authenticated model has been dispatched in this preparation.
+`PLAN1_SPEC.json` is the current portable specification. The native `manifest.json` is authoritative during execution; task Markdown and `TODO.md` are generated projections. All 100 tasks remain pending after the 2026-11-02 P052 amendment. Research readiness is recorded separately in the prepared report index; report existence cannot complete an implementation task. Autostart is false. No authenticated model has been dispatched in this preparation.
 
 The native `plan_review` records a host structural/synthesis check, not an independent model review. The current amendment authorizes research and local replanning; it does not authorize changing installed copies, user-global configuration, committing, pushing, opening PRs, publishing or paid model experiments. Those actions retain the original explicit-consent boundary. Never print environment/profile secrets.
 
@@ -53,3 +53,7 @@ Keep capability identity separate from availability/quota identity. Do not class
 Receipt applicability: a historical receipt proves only its recorded revision. Current acceptance requires current input fingerprints and affected-contract/integration revalidation. Preserve history, never edit old receipts to look fresh.
 
 The initial 4000-byte deterministic handoff and other operational limits are engineering defaults to test, not measured universal optima. Research selects a bounded recommendation; implementation must preserve security/capability floors and demonstrate the assigned counterexamples.
+
+## P052 semantic progress and five-minute stall contract
+
+TODO 099 implements the research in `prepared-research/099-semantic-progress-recovery.md`, and genuinely independent correction review 100 is required before 082. Long-running work uses verified completed-unit progress rather than CPU/log activity; percentages require a known denominator, and 300-second semantic stalls trigger diagnosis before any authorized higher-capability code repair. Both tasks remain pending, as do their mapped tests.

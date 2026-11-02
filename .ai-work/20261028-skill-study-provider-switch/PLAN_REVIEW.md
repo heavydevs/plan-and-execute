@@ -18,3 +18,9 @@ Checks: coverage_complete, tasks_atomic, dependencies_valid, validations_suffici
 - Six implementation tasks and six future independent reviews were added to the same plan, pending real execution.
 - Task 082 depends on reviews 088/090/092/094/096/098. Task 086 remains the final whole-skill acceptance gate.
 - Structural coverage and graph order are planned; authenticated providers and human comprehensibility have not been tested.
+
+## Amendment — 2026-11-02
+
+- Current progress windows and escalation in tasks 052–063 partially cover the request, but verified semantic work, truthful percentage and guarded reimplementation remain unintegrated.
+- TODO 099 adds this vertical implementation; TODO 100 requires independent actual review before integration 082 and final review 086.
+- All remain pending; research is not proof of tests, provider calls or implementation.

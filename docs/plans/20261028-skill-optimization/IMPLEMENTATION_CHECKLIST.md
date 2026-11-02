@@ -1,6 +1,6 @@
 # Single implementation checklist - research revision 2
 
-All98 tasks are pending. Checkboxes represent future implementation/review, not completed research.
+All 100 tasks are pending. Checkboxes represent future implementation/review, not completed research.
 
 | TODO | Implementation or correction outcome | Prerequisites | Assigned research |
 |---|---|---|---|
@@ -97,7 +97,9 @@ All98 tasks are pending. Checkboxes represent future implementation/review, not 
 | [ ] 096 | Review and correct offer other-provider setup and login before creating a plan | 095 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
 | [ ] 097 | Implement make console, progress and end-user docs concise and precise | 007, 029, 061, 063, 067 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
 | [ ] 098 | Review and correct make console, progress and end-user docs concise and precise | 097 | [REQUEST_EXTENSION_20261031.md](../../../docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md) |
-| [ ] 082 | Integrate all implemented contracts and close cross-feature gaps | 003, 005, 007, 009, 011, 013, 015, 017, 019, 021, 023, 025, 027, 029, 031, 033, 035, 037, 039, 041, 043, 045, 047, 049, 051, 053, 055, 057, 059, 061, 063, 065, 067, 069, 071, 073, 075, 077, 079, 081 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
+| [ ] 099 | Implement semantic progress and safe five-minute stall recovery | 053, 055, 057, 061, 063, 075, 088, 092 | [099-semantic-progress-recovery.md](../../../docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md) |
+| [ ] 100 | Review and correct semantic progress and stall recovery | 099 | [099-semantic-progress-recovery.md](../../../docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md) |
+| [ ] 082 | Integrate all implemented contracts and close cross-feature gaps | 003, 005, 007, 009, 011, 013, 015, 017, 019, 021, 023, 025, 027, 029, 031, 033, 035, 037, 039, 041, 043, 045, 047, 049, 051, 053, 055, 057, 059, 061, 063, 065, 067, 069, 071, 073, 075, 077, 079, 081, 088, 090, 092, 094, 096, 098, 100 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
 | [ ] 083 | Review and correct end-to-end integration | 082 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
 | [ ] 084 | Validate release contents, documentation and migration | 083 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
 | [ ] 085 | Review and correct release-readiness evidence | 084 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |

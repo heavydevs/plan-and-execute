@@ -1,8 +1,8 @@
 ---
 task_id: "082"
 status: "pending"
-requirements: "R001,R003,R004,R005,R041,R042,R043,R044,R046,R047,R048,R049,R050,R051"
-dependencies: "003,005,007,009,011,013,015,017,019,021,023,025,027,029,031,033,035,037,039,041,043,045,047,049,051,053,055,057,059,061,063,065,067,069,071,073,075,077,079,081,088,090,092,094,096,098"
+requirements: "R001,R003,R004,R005,R041,R042,R043,R044,R046,R047,R048,R049,R050,R051,R052"
+dependencies: "003,005,007,009,011,013,015,017,019,021,023,025,027,029,031,033,035,037,039,041,043,045,047,049,051,053,055,057,059,061,063,065,067,069,071,073,075,077,079,081,088,090,092,094,096,098,100"
 allowed_related_task_reads: "none"
 ---
 
@@ -55,6 +55,7 @@ Files: `README.md`, `README.pt-BR.md`, `CHANGELOG.md`, `tools/run-repo-checks.js
 - The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 - Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.
 - All six added feature contracts have independently reviewed current-tree evidence.
+- P052 semantic five-minute stall diagnosis, reliable progress percentages and authorized higher-capability repair have actual independently reviewed mapped integration evidence.
 
 ## Validate
 

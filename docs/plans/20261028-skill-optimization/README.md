@@ -10,7 +10,7 @@ The current user amendment replaces research execution and second-plan generatio
 
 - [Prepared research index](../../research/20261028-skill-optimization/prepared-research/INDEX.md): one decision report per former research task.
 - [Current protocol](PROTOCOL.md): scoped context, real acceptance and protection boundaries.
-- [Native TODO checklist](../../../.ai-work/20261028-skill-study-provider-switch/TODO.md): 98 implementation, correction and review tasks, all pending.
+- [Native TODO checklist](../../../.ai-work/20261028-skill-study-provider-switch/TODO.md): 100 implementation, correction and review tasks, all pending.
 - [Request amendment](REQUEST_AMENDMENT.md) and [traceability](REPLAN_TRACE.json): explicit supersession of the former two-plan request.
 - [Original provider-switch acceptance matrix](ACCEPTANCE_MATRIX.md): all twelve cases remain obligations.
 - [Portability](PORTABILITY.md): native recreation on another host; no status editing.
@@ -44,3 +44,7 @@ The research recommends changes; it does not prove that code implements them. No
 The product directories `skill/`, `bin/` and `lib/` remain unchanged from 0.11.0. The modified Python support scripts under this document directory validate the plan and future receipts; they are not implementations of the proposed runtime improvements.
 
 The former specification, protocol and native control state are preserved in `history/pre-research-conversion/` as inactive historical evidence. No historical plan is activated. Do not resume that snapshot. All new implementation tasks remain pending, and autostart stays false.
+
+## Focused long-validation extension (2026-11-02)
+
+TODO 099 implements trustworthy long-validation progress/percentages and evidence-based safe repair after a five-minute semantic stall, with mandatory independent correction review 100. Read [the focused research](../../../docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md). This prepared study does not count as implementation or validated review.

@@ -1,6 +1,6 @@
 # Single implementation plan - evidence-backed skill optimization
 
-Implement the 32 twice-researched topic decisions and opt-in provider switching in one graph, with explicit compatibility, scoped writes, negative tests and independent acceptance reviews.
+Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions.
 
 ## Requirements -> TODOs
 
@@ -56,6 +56,7 @@ Implement the 32 twice-researched topic decisions and opt-in provider switching 
 - **R049** [must; user; P049 -> 093,094,082,086] For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it.
 - **R050** [must; user; P050 -> 095,096,082,086] Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.
 - **R051** [must; user; P051 -> 097,098,082,086] Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
+- **R052** [must; user; P052 -> 099,100,082,086] For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
 
 ## Constraints
 
@@ -68,6 +69,8 @@ Implement the 32 twice-researched topic decisions and opt-in provider switching 
 - Load only assigned reports and source paths; preserve source evidence outside disposable plan controls.
 
 - Additional approved execution contract: `docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md`. Implement 087–098 before integrating 082; final review 086 remains last.
+
+- P052: `docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md` supplies task 099/100; integrate via 082 and review via 086. The new tasks remain pending.
 
 ## Context
 

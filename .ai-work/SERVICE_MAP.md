@@ -4231,6 +4231,76 @@ This project-local router maps every automated validation to its toolchain prere
       ],
       "resources": [],
       "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_099",
+      "name": "Extension 099 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "099"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_099",
+      "name": "Extension 099 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "099"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_100",
+      "name": "Extension 100 declared regression checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "100"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_100",
+      "name": "Extension 100 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "100"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
     }
   ],
   "resources": [
