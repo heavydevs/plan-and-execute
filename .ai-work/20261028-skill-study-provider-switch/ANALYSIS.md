@@ -58,6 +58,8 @@ Request: `REQUEST.md`
 - **P051** Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
 - **P052** For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
 
+- **P053/R053** Prevent automatic idle sleep/hibernation of the actual local host during an entire RUNNING ORCHESTRATED plan through one verified OS-native lease spanning all task/provider gaps and validations, release on stop/pause/cancel, offer opt-out and strict overnight readiness, without overriding OS power policy or safety.
+
 ## Repository
 
 - The production runner composes raw execution with artifact, model, runner and pattern contracts.
@@ -108,6 +110,8 @@ Research: Revision 2 evaluates primary-source alternatives for all 32 reports; w
 - Six supplementary contracts are pending implementation and real review; no new agents or tests were run in this amendment.
 
 - A busy-loop or changing log can resemble work; automatic escalation on ambiguous/environmental stalls can waste models or destroy useful checkpoints. P052 requires trustworthy semantic evidence and authorized repair.
+
+- P053: studied documented Windows, Apple, logind and all nine plan-supported agent paths; proposed host-owned OS lease, not physical-host guarantee. Report: `docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md`.
 
 ## Open questions
 

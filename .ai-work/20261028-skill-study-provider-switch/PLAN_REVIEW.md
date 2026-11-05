@@ -24,3 +24,8 @@ Checks: coverage_complete, tasks_atomic, dependencies_valid, validations_suffici
 - Current progress windows and escalation in tasks 052–063 partially cover the request, but verified semantic work, truthful percentage and guarded reimplementation remain unintegrated.
 - TODO 099 adds this vertical implementation; TODO 100 requires independent actual review before integration 082 and final review 086.
 - All remain pending; research is not proof of tests, provider calls or implementation.
+
+## Amendment — 2026-11-05
+
+- P053/R053 adds pending whole-plan host sleep inhibitor 101 and independent correction review 102 before 082; 086 remains last.
+- OS idle protection cannot guarantee lid/manual sleep, Modern Standby DC, power loss, enterprise policy or quota/auth. No product/OS tests or real independent reviewer executed by this amendment.

@@ -4301,6 +4301,76 @@ This project-local router maps every automated validation to its toolchain prere
       ],
       "resources": [],
       "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_101",
+      "name": "Sleep-inhibitor extension 101 mapped tests",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "101"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_101",
+      "name": "Sleep-inhibitor extension 101 receipt check",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "101"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_102",
+      "name": "Sleep-inhibitor extension 102 mapped tests",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "102"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_102",
+      "name": "Sleep-inhibitor extension 102 receipt check",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "102"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
     }
   ],
   "resources": [

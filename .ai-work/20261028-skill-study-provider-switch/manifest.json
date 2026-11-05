@@ -2,7 +2,7 @@
   "schema_version": 4,
   "plan_id": "20261028-skill-study-provider-switch",
   "title": "Single implementation plan - evidence-backed skill optimization",
-  "summary": "Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions.",
+  "summary": "Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions. P053 host sleep protection added to pending implementation/review graph.",
   "request_analysis": {
     "request_parts": [
       {
@@ -212,6 +212,10 @@
       {
         "id": "P052",
         "text": "For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort."
+      },
+      {
+        "id": "P053",
+        "text": "Prevent automatic idle sleep/hibernation of the actual local host during an entire RUNNING ORCHESTRATED plan through one verified OS-native lease spanning all task/provider gaps and validations, release on stop/pause/cancel, offer opt-out and strict overnight readiness, without overriding OS power policy or safety."
       }
     ],
     "repository_findings": [
@@ -221,7 +225,8 @@
       "The current user request replaces the two-plan workflow with one implementation graph.",
       "All32 reports were revised with competing approaches, scoped source evidence and counterexamples. Implementation and independent reviews remain pending.",
       "2026-10-31: six unimplemented end-to-end contracts supplement 86 originally pending tasks.",
-      "Current progress_watch renews on distinct arbitrary stdout and CPU, while PROGRESS counters lack enforced stage/denominator monotonicity; long-running work already has 300-second idle monitoring and semantic escalation in the runner."
+      "Current progress_watch renews on distinct arbitrary stdout and CPU, while PROGRESS counters lack enforced stage/denominator monotonicity; long-running work already has 300-second idle monitoring and semantic escalation in the runner.",
+      "P053: host OS sleep lease is absent across whole-plan gaps; progress/resume alone do not block idle suspend."
     ],
     "research_decision": "Revision 2 evaluates primary-source alternatives for all 32 reports; workers consume the selected decision and refresh only material version or account conflicts.",
     "research_findings": [
@@ -241,7 +246,8 @@
       "Qwen safe-mode is not a sandbox; Kimi prompt-mode flag compatibility is version-specific.",
       "Whole-process cancellation and multi-file state publication need ownership and crash-recovery tests, not only atomic single-file writes.",
       "Fixture replay proves dispatch contracts, not empirical savings; repeated identical cases do not create independent benchmark samples.",
-      "Focused P052 study: docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md; existing 052/054/062 contracts partially cover the request but not the complete semantic-percent-and-repair seam."
+      "Focused P052 study: docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md; existing 052/054/062 contracts partially cover the request but not the complete semantic-percent-and-repair seam.",
+      "P053 official OS and provider report: docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md"
     ],
     "assumptions": [
       "The user requested a deeper research revision and implementation-readiness validation, not product execution or publication in this turn.",
@@ -255,12 +261,13 @@
       "Public vendor cost and quality experiments are not a measurement of this repository; live model validation remains a separate authorized activity.",
       "Historical task receipts retain their recorded revision; final acceptance needs current integration evidence and affected-contract revalidation.",
       "Host-level skill activation, access enforcement and neuroinclusive comprehension still need real tests.",
-      "A busy-loop or changing log can resemble work; automatic escalation on ambiguous/environmental stalls can waste models or destroy useful checkpoints. P052 requires trustworthy semantic evidence and authorized repair."
+      "A busy-loop or changing log can resemble work; automatic escalation on ambiguous/environmental stalls can waste models or destroy useful checkpoints. P052 requires trustworthy semantic evidence and authorized repair.",
+      "No idle inhibitor guarantees manual/lid/battery/thermal/policy/Modern Standby/host network/quotas and noninteractive approval."
     ],
     "open_questions": [
       "Authenticated execution and independent maximum-qualified review require an available authorized provider at implementation time."
     ],
-    "decomposition_strategy": "Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan. P052 adds TODO 099 and genuinely independent review 100 before integration 082, without duplicating the existing watcher.",
+    "decomposition_strategy": "Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan. P052 adds TODO 099 and genuinely independent review 100 before integration 082, without duplicating the existing watcher. P053 adds task 101 and independent task 102 before integration 082.",
     "hard_decisions": []
   },
   "requirements": [
@@ -731,6 +738,15 @@
       "request_part_ids": [
         "P052"
       ]
+    },
+    {
+      "id": "R053",
+      "text": "Prevent automatic idle sleep/hibernation of the actual local host during an entire RUNNING ORCHESTRATED plan through one verified OS-native lease spanning all task/provider gaps and validations, release on stop/pause/cancel, offer opt-out and strict overnight readiness, without overriding OS power policy or safety.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P053"
+      ]
     }
   ],
   "global_constraints": [
@@ -815,7 +831,7 @@
   "language": "English",
   "summary_status": "pending",
   "created_at": "2026-10-29T02:40:14+00:00",
-  "updated_at": "2026-11-02T22:27:58.082Z",
+  "updated_at": "2026-11-05T18:18:00Z",
   "tasks": [
     {
       "id": "001",
@@ -16451,6 +16467,306 @@
       "related_task_files": []
     },
     {
+      "id": "101",
+      "slug": "implement-plan-scoped-cross-platform-sleep-inhibition",
+      "title": "Implement plan-scoped cross-platform sleep inhibition",
+      "objective": "Implement a host-owned OS-native sleep inhibitor for the complete local RUNNING ORCHESTRATED plan.",
+      "requirement_ids": [
+        "R053"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One verifiable continuous power-lease contract across many workers and tests.",
+      "context_boundary": {
+        "shared_context": [
+          "P053 research, relevant current host/coordinator code and actual prerequisite receipts."
+        ],
+        "why_one_todo": "One continuous host lease is the feature boundary.",
+        "separate_from": [
+          "No unrelated task transcripts, global power configs or second plan."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Native host power guard, supervisor lifecycle, strict unattended preflight, docs and CI."
+        ],
+        "out": [
+          "No global OS power edits, fake input, hidden lid override, privilege escalation, sandbox bypass or unbounded model calls."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/power_inhibit.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/run_concise.py",
+          "skill/plan-and-execute/scripts/lifecyclectl.py",
+          "skill/plan-and-execute/scripts/jobctl.py",
+          "skill/plan-and-execute/scripts/process_tree.py",
+          "skill/plan-and-execute/references/LIFECYCLE.md",
+          "skill/plan-and-execute/references/INSTALLATION.md",
+          "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
+          "test/optimization/plan_sleep_inhibition_self_test.py",
+          ".github/workflows/ci.yml",
+          "tools/run-repo-checks.js",
+          "docs/research/20261028-skill-optimization/implementation/101-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/101-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "019",
+        "055",
+        "057",
+        "067",
+        "094",
+        "100"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md, reuse lifecycle/job/watchdog/progress features already planned; do not duplicate them.",
+        "Implement one native host-owned lease across the entire local RUNNING plan; keep display sleep and OS safety.",
+        "Offer auto-on, opt-out, strict overnight require-awake and honest unsupported/policy/status diagnostics.",
+        "Implement safe platform/CI tests and record real source/test hashes in task 101 receipt/outcome."
+      ],
+      "acceptance_criteria": [
+        "Verified host-owned OS-native idle-sleep inhibitor is acquired before first RUNNING worker and stays active gaplessly across multiple TODOs/providers/reviews/validations over 300 seconds.",
+        "Windows checked native thread or handle requests with correct lifetime, cleanup and screen-off allowance; account for Modern Standby DC and system policy.",
+        "macOS caffeinate/IOKit assertion with correct release and documented lid/manual/battery limits.",
+        "Linux logind/systemd inhibitor acquired/held/released; DBus absence and LidSwitchIgnoreInhibited default handled with no hidden lid override.",
+        "WSL guest-only inhibitor never represents Windows-host protection; container/remote host ownership and sandbox restrictions reported accurately.",
+        "Cancellation, reset, SIGTERM, SIGINT, success, failure, explicit pause and forced death release owned request; concurrent plans cannot cross-release.",
+        "Resume after crash/reboot verifies fresh host and lease before dispatch and ignores stale PID/orphan status.",
+        "Local ORCHESTRATED default-on and explicit opt-out; strict require-awake blocks before paid provider when unsupported and normal auto mode warns.",
+        "No persistent OS power-setting changes, fake input, admin elevation, screen forcing, sandbox bypass or battery/thermal policy override.",
+        "Preflight treats power, runner session survival, credentials, approvals, quota, network and durable resume as distinct readiness checks.",
+        "Deterministic OS mocks, two-provider 310-second semantic validation, lifecycle regression and safe available CI/native smoke tests record actual hashes; no per-tick model calls.",
+        "Real independent qualified reviewer corrects high/critical issues before 082; no invented execution evidence."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_101",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_101"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect baseline",
+          "objective": "Read P053 and only relevant current lifecycle/job/runner code and 099/100 interfaces.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement native lease",
+          "objective": "Add host-owned Windows/macOS/Linux inhibitor and WSL/container boundary with checked acquire/status/release.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Own full plan lifecycle",
+          "objective": "Hold across worker/provider changes, and release on all terminal/pause paths; resume with new lease.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Implement night-readiness",
+          "objective": "Local auto-on, opt-out, strict require-awake, honest battery/permissions/credential warnings.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Test and document",
+          "objective": "Run mapped mocks/safe platform probes, update bilingual docs and record source hashes/real outcomes.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/101-implement-plan-scoped-cross-platform-sleep-inhibition.md",
+      "related_task_files": []
+    },
+    {
+      "id": "102",
+      "slug": "review-and-correct-plan-scoped-sleep-inhibition",
+      "title": "Review and correct plan-scoped sleep inhibition",
+      "objective": "Independently review/correct the complete host power lease, OS limits and overnight readiness.",
+      "requirement_ids": [
+        "R053"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "Independent acceptance boundary for one OS lifecycle feature.",
+      "context_boundary": {
+        "shared_context": [
+          "P053 research, relevant current host/coordinator code and actual prerequisite receipts."
+        ],
+        "why_one_todo": "One continuous host lease is the feature boundary.",
+        "separate_from": [
+          "No unrelated task transcripts, global power configs or second plan."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independent review/correction, real OS tests and safety evidence."
+        ],
+        "out": [
+          "No global OS power edits, fake input, hidden lid override, privilege escalation, sandbox bypass or unbounded model calls."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/power_inhibit.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/run_concise.py",
+          "skill/plan-and-execute/scripts/lifecyclectl.py",
+          "skill/plan-and-execute/scripts/jobctl.py",
+          "skill/plan-and-execute/scripts/process_tree.py",
+          "skill/plan-and-execute/references/LIFECYCLE.md",
+          "skill/plan-and-execute/references/INSTALLATION.md",
+          "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
+          "test/optimization/plan_sleep_inhibition_self_test.py",
+          ".github/workflows/ci.yml",
+          "tools/run-repo-checks.js",
+          "docs/research/20261028-skill-optimization/implementation/102-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/102-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "101"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md and actual task101 code/receipts; never count research as implementation.",
+        "Use docs/plans/20261028-skill-optimization/TASK_INPUTS.json and real max-qualified reviewer; preserve reviewed hashes.",
+        "Verify Windows/macOS/Linux/WSL, concurrent leases, release, 310s validation and readiness; correct blocking issues.",
+        "Write real task 102 review receipt/outcome and leave incomplete if unavailable."
+      ],
+      "acceptance_criteria": [
+        "Record genuine independent reviewer/provider/model/effort and reviewed hashes.",
+        "Verify: Verified host-owned OS-native idle-sleep inhibitor is acquired before first RUNNING worker and stays active gaplessly across multiple TODOs/providers/reviews/validations over 300 seconds.",
+        "Verify: Windows checked native thread or handle requests with correct lifetime, cleanup and screen-off allowance; account for Modern Standby DC and system policy.",
+        "Verify: macOS caffeinate/IOKit assertion with correct release and documented lid/manual/battery limits.",
+        "Verify: Linux logind/systemd inhibitor acquired/held/released; DBus absence and LidSwitchIgnoreInhibited default handled with no hidden lid override.",
+        "Verify: WSL guest-only inhibitor never represents Windows-host protection; container/remote host ownership and sandbox restrictions reported accurately.",
+        "Verify: Cancellation, reset, SIGTERM, SIGINT, success, failure, explicit pause and forced death release owned request; concurrent plans cannot cross-release.",
+        "Verify: Resume after crash/reboot verifies fresh host and lease before dispatch and ignores stale PID/orphan status.",
+        "Verify: Local ORCHESTRATED default-on and explicit opt-out; strict require-awake blocks before paid provider when unsupported and normal auto mode warns.",
+        "Verify: No persistent OS power-setting changes, fake input, admin elevation, screen forcing, sandbox bypass or battery/thermal policy override.",
+        "Verify: Preflight treats power, runner session survival, credentials, approvals, quota, network and durable resume as distinct readiness checks.",
+        "Verify: Deterministic OS mocks, two-provider 310-second semantic validation, lifecycle regression and safe available CI/native smoke tests record actual hashes; no per-tick model calls.",
+        "Verify: Real independent qualified reviewer corrects high/critical issues before 082; no invented execution evidence."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_102",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_102"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read actual evidence",
+          "objective": "Pin task 101 code, hashes, tests and platform limitations.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Independent high-capability review",
+          "objective": "Use real fresh qualified reviewer with provider/model/effort and reviewed hashes.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Correct defects",
+          "objective": "Fix critical/high native lifecycle, leak, concurrency, policy or cross-host defects.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Retest and record",
+          "objective": "Rerun mapped tests and record real independent review outcomes and unknown cases.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/102-review-and-correct-plan-scoped-sleep-inhibition.md",
+      "related_task_files": []
+    },
+    {
       "id": "082",
       "slug": "integrate-all-implemented-contracts-and-close-cross-feature-gaps",
       "title": "Integrate all implemented contracts and close cross-feature gaps",
@@ -16470,7 +16786,8 @@
         "R049",
         "R050",
         "R051",
-        "R052"
+        "R052",
+        "R053"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -16549,7 +16866,8 @@
         "094",
         "096",
         "098",
-        "100"
+        "100",
+        "102"
       ],
       "implementation_guidance": [
         "Read docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md.",
@@ -16561,7 +16879,8 @@
         "If integration exposes a defect outside this write scope, reopen its owning TODO and correction review with native controllers; do not silently expand scope.",
         "Keep historical receipt integrity separate from current source/command/map validation.",
         "Every changed implementation and correction gate needs actual acceptance evidence; prepared research never counts as a pass.",
-        "Integrate all six feature pairs from docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md; require actual independent review receipts."
+        "Integrate all six feature pairs from docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md; require actual independent review receipts.",
+        "Integrate verified P053 101/102 host sleep guard and tests across providers, OS backends, WSL, long validation and strict preflight."
       ],
       "acceptance_criteria": [
         "All implementation acceptance cases and required independent code reviews have current evidence.",
@@ -16570,7 +16889,8 @@
         "The prepared report is input evidence, not proof that this implementation or its independent review has passed.",
         "Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.",
         "All six added feature contracts have independently reviewed current-tree evidence.",
-        "P052 semantic five-minute stall diagnosis, reliable progress percentages and authorized higher-capability repair have actual independently reviewed mapped integration evidence."
+        "P052 semantic five-minute stall diagnosis, reliable progress percentages and authorized higher-capability repair have actual independently reviewed mapped integration evidence.",
+        "P053 OS lease and release tests, accurate supported-host caveats and independent acceptance are evidenced."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_082",
@@ -16856,7 +17176,8 @@
         "R041",
         "R042",
         "R043",
-        "R044"
+        "R044",
+        "R053"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -16896,7 +17217,8 @@
         "Implement the assigned recommendations, preserving already-satisfied invariants with regression tests rather than duplicate code.",
         "Write actual changed-file, test and acceptance evidence to docs/research/20261028-skill-optimization/implementation/084-receipt.json.",
         "Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.",
-        "If integration exposes a defect outside this write scope, reopen its owning TODO and correction review with native controllers; do not silently expand scope."
+        "If integration exposes a defect outside this write scope, reopen its owning TODO and correction review with native controllers; do not silently expand scope.",
+        "Document opt-out, require-awake and OS/host physical sleep limits."
       ],
       "acceptance_criteria": [
         "All implementation acceptance cases and required independent code reviews have current evidence.",
@@ -17203,7 +17525,8 @@
         "R049",
         "R050",
         "R051",
-        "R052"
+        "R052",
+        "R053"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -17251,7 +17574,8 @@
         "Final npm checks and actual package file lists pass or the task remains incomplete.",
         "The Portuguese final report distinguishes verified behavior, untested platforms and live-provider limitations.",
         "The prepared report is input evidence, not proof that this implementation or its independent review has passed.",
-        "Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions."
+        "Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.",
+        "P053 final whole-skill review examines actual 101/102 validation/reviewer hashes and unsupported overnight conditions."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_086",
@@ -17391,6 +17715,17 @@
         "098"
       ],
       "previous_count": 86,
+      "implementation_complete": false
+    },
+    {
+      "at": "2026-11-05T18:18:00Z",
+      "type": "contract_amendment",
+      "reference": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261105.md",
+      "added_task_ids": [
+        "101",
+        "102"
+      ],
+      "previous_count": 100,
       "implementation_complete": false
     }
   ],

@@ -58,6 +58,8 @@ Implement 32 researched optimization topics and provider switching in one resuma
 - **R051** [must; user; P051 -> 097,098,082,086] Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
 - **R052** [must; user; P052 -> 099,100,082,086] For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
 
+- **R053** [must; user; P053 -> 101,102,082,084,086] Prevent automatic idle sleep/hibernation of the actual local host during an entire RUNNING ORCHESTRATED plan through one verified OS-native lease spanning all task/provider gaps and validations, release on stop/pause/cancel, offer opt-out and strict overnight readiness, without overriding OS power policy or safety.
+
 ## Constraints
 
 - Preserve original request bytes in REQUEST_ORIGINAL.md and the historical snapshot; the current amendment supersedes the two-plan workflow.
@@ -71,6 +73,8 @@ Implement 32 researched optimization topics and provider switching in one resuma
 - Additional approved execution contract: `docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md`. Implement 087–098 before integrating 082; final review 086 remains last.
 
 - P052: `docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md` supplies task 099/100; integrate via 082 and review via 086. The new tasks remain pending.
+
+- P053: `docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md` describes new 101 OS sleep inhibitor and independent review 102 before 082. Both remain pending; overnight host limitations apply.
 
 ## Context
 

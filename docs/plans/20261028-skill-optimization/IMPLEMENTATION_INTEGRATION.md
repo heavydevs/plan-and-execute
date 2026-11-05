@@ -1,6 +1,6 @@
 # Single-plan integration and acceptance - revision 2
 
-Tasks087-098 add six implementation/review pairs. Tasks099-100 add semantic progress and safe stall recovery; tasks082-086 integrate the implemented topic contracts and provider-switch track. They do not generate another plan.
+Tasks087-098 add six implementation/review pairs. Tasks099-100 add semantic progress and safe stall recovery; tasks101-102 add host OS sleep guard and overnight readiness; tasks082-086 integrate the implemented topic contracts and provider-switch track. They do not generate another plan.
 
 1. Verify every historical implementation/review receipt against the exact recorded inputs and artifacts. A later unrelated edit does not turn an old pass into a current-tree pass; preserve that history without rewriting it.
 2. Use current source, command, resource-map and contract hashes for new integration runs. Revalidate affected contract owners; do not require all historical receipts to pretend they describe the final tree.
@@ -17,3 +17,5 @@ Independent maximum-qualified reviews remain real execution requirements. Host r
 10. Before TODO 082, require real independent reviews 088/090/092/094/096/098, source hashes and mapped validations. Check DIRECT architecture delegation, skill activation negatives, blocked-task replanning, authorized localhost/full-access, per-agent setup/login only at new plan creation, and precise concise user-facing outputs. Keep A01–A12 unchanged.
 
 11. P052: Before TODO 082, require actual 099 implementation plus genuine independent 100 review. Validate trustworthy work-unit counters, honest stage-local percentages and 300-second semantic stall diagnosis; only authorized confirmed code defects may escalate models and trigger corrected reruns. Keep monitoring plan-free in DIRECT, protect owned processes and distinguish environment failures.
+
+12. P053: integration 082 depends on actual 101 native Windows/macOS/Linux host power lease and real independent 102 review. Test gapless 2-provider/long validation, safe acquire/release and crash-resume, WSL host scope, Modern Standby DC, lid/policy and strict unattended preflight; record safe CI/native tests and explicitly unknown physical-host behavior.

@@ -95,6 +95,8 @@
 - [ ] **098** — Review and correct make console, progress and end-user docs concise and precise
 - [ ] **099** — Implement semantic progress and safe five-minute stall recovery
 - [ ] **100** — Review and correct semantic progress and stall recovery
+- [ ] **101** — Implement plan-scoped cross-platform sleep inhibition
+- [ ] **102** — Review and correct plan-scoped sleep inhibition
 - [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
 - [ ] **083** — Review and correct end-to-end integration
 - [ ] **084** — Validate release contents, documentation and migration
