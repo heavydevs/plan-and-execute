@@ -76,6 +76,12 @@ Implement 32 researched optimization topics and provider switching in one resuma
 
 - P053: `docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md` describes new 101 OS sleep inhibitor and independent review 102 before 082. Both remain pending; overnight host limitations apply.
 
+## Amendment — 2026-11-12: P054/P055
+
+- R054 / P054 → TODO 103/104: Opt-in 20-minute per-plan scheduler only for six or more executable pending tasks, owned host scheduler, lease-safe dead-runner resume, terminal self-cleanup; keep existing sleep inhibitor 101/102 as independent continuous host lease.
+- R055 / P055 → TODO 105/106: Update the 2026-11-12 catalog across all supported providers and add opt-in frontier tier L6/F6 above max with qualified Fable 5.2, GPT-6 Astra, Gemini 4 Carbon and other verified variants; preserve L1–L5 legacy routing and billing guardrails.
+- Before 082 require genuine independent reviews 104 and 106; integrate with 101/102 and 091/092 without duplicate monitors. No feature or model runtime test is marked completed by research.
+
 ## Context
 
 - global: `CONTEXT.md`; 3 item(s); All tasks share a single implementation boundary and the same protected-action and evidence rules.
