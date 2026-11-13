@@ -1,6 +1,6 @@
 # Single implementation checklist - research revision 2
 
-All 102 tasks are pending. Checkboxes represent future implementation/review, not completed research.
+All 106 tasks are pending. Checkboxes represent future implementation/review, not completed research.
 
 | TODO | Implementation or correction outcome | Prerequisites | Assigned research |
 |---|---|---|---|
@@ -101,7 +101,11 @@ All 102 tasks are pending. Checkboxes represent future implementation/review, no
 | [ ] 100 | Review and correct semantic progress and stall recovery | 099 | [099-semantic-progress-recovery.md](../../../docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md) |
 | [ ] 101 | Implement plan-scoped cross-platform sleep inhibition | 019, 055, 057, 067, 094, 100 | [P053 study](../../../docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md) |
 | [ ] 102 | Review and correct plan-scoped sleep inhibition | 101 | [P053 study](../../../docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md) |
-| [ ] 082 | Integrate all implemented contracts and close cross-feature gaps | 003, 005, 007, 009, 011, 013, 015, 017, 019, 021, 023, 025, 027, 029, 031, 033, 035, 037, 039, 041, 043, 045, 047, 049, 051, 053, 055, 057, 059, 061, 063, 065, 067, 069, 071, 073, 075, 077, 079, 081, 088, 090, 092, 094, 096, 098, 100 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
+| [ ] 103 | Implement opt-in 20-minute plan scheduler; gated at >=6 executable pending tasks, owned OS timer and cleanup | 019, 057, 092, 100, 102 | [103 timer research](../../../docs/research/20261028-skill-optimization/prepared-research/103-opt-in-keepalive-scheduler.md) |
+| [ ] 104 | Review and correct conditional keepalive, OS scheduling and terminal removal | 103 | [103 timer research](../../../docs/research/20261028-skill-optimization/prepared-research/103-opt-in-keepalive-scheduler.md) |
+| [ ] 105 | Update all providers/models and implement optional L6 frontier tier | 021, 025, 027, 047, 081 | [105 frontier research](../../../docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md) |
+| [ ] 106 | Review and correct frontier routing, compatibility, costs and effort | 105 | [105 frontier research](../../../docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md) |
+| [ ] 082 | Integrate all implemented contracts and close cross-feature gaps | 003, 005, 007, 009, 011, 013, 015, 017, 019, 021, 023, 025, 027, 029, 031, 033, 035, 037, 039, 041, 043, 045, 047, 049, 051, 053, 055, 057, 059, 061, 063, 065, 067, 069, 071, 073, 075, 077, 079, 081, 088, 090, 092, 094, 096, 098, 100 |[ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md), 104, 106 |
 | [ ] 083 | Review and correct end-to-end integration | 082 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
 | [ ] 084 | Validate release contents, documentation and migration | 083 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
 | [ ] 085 | Review and correct release-readiness evidence | 084 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
