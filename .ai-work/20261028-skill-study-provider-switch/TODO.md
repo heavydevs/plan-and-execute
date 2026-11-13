@@ -97,6 +97,10 @@
 - [ ] **100** — Review and correct semantic progress and stall recovery
 - [ ] **101** — Implement plan-scoped cross-platform sleep inhibition
 - [ ] **102** — Review and correct plan-scoped sleep inhibition
+- [ ] **103** — Implement opt-in plan-scoped 20-minute recovery scheduler
+- [ ] **104** — Review and correct opt-in plan-scoped keepalive scheduler
+- [ ] **105** — Implement updated provider model catalog and sixth frontier tier
+- [ ] **106** — Review and correct updated model catalog and frontier routing
 - [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
 - [ ] **083** — Review and correct end-to-end integration
 - [ ] **084** — Validate release contents, documentation and migration
