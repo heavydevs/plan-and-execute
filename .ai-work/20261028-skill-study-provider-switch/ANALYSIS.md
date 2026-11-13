@@ -120,3 +120,10 @@ Research: Revision 2 evaluates primary-source alternatives for all 32 reports; w
 ## Decomposition
 
 Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan. P052 adds TODO 099 and genuinely independent review 100 before integration 082, without duplicating the existing watcher.
+
+## P054 / P055 — 2026-11-12
+
+- P054: Existing `watchdogctl.py` and `keepalivectl.py` already distinguish runner death from silent/blocked workers and can poll at 20 minutes, but conditional opt-in, host scheduler life-cycle, Linux/macOS native registration and terminal removal are not integrated. Research: `docs/research/20261028-skill-optimization/prepared-research/103-opt-in-keepalive-scheduler.md`; implementation/review: 103/104.
+- P055: Five existing capability tiers are insufficient to distinguish current premium frontier model family. The current official catalogs include Fable 5.2, GPT-6 Astra and Gemini 4 Carbon, subject to observed CLI account model IDs and permissions; do not equate unbenchmarked providers or credit units. Research: `docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md`; implementation/review: 105/106.
+- Tasks 091/092 already cover creating focused repair TODOs for complex active-plan blockers; do not re-create this mechanism.
+- Threshold 6 is a deliberately configurable starting heuristic, not an independently measured optimum; acceptance must test 5/6 boundaries and report total validated cost.
