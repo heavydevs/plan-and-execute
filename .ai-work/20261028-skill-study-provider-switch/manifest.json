@@ -2,7 +2,7 @@
   "schema_version": 4,
   "plan_id": "20261028-skill-study-provider-switch",
   "title": "Single implementation plan - evidence-backed skill optimization",
-  "summary": "Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions. P053 host sleep protection added to pending implementation/review graph.",
+  "summary": "Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions. P053 host sleep protection added to pending implementation/review graph. Adds pending P054/P055 tasks 103–106.",
   "request_analysis": {
     "request_parts": [
       {
@@ -216,6 +216,14 @@
       {
         "id": "P053",
         "text": "Prevent automatic idle sleep/hibernation of the actual local host during an entire RUNNING ORCHESTRATED plan through one verified OS-native lease spanning all task/provider gaps and validations, release on stop/pause/cancel, offer opt-out and strict overnight readiness, without overriding OS power policy or safety."
+      },
+      {
+        "id": "P054",
+        "text": "Offer an opt-in 20-minute OS scheduler for ORCHESTRATED plans with >=6 executable pending tasks and auto-unregister it at plan termination; preserve native continuous power inhibitor separately."
+      },
+      {
+        "id": "P055",
+        "text": "Refresh 2026 provider model mapping and add opt-in frontier tier L6/F6 above max, including only actually available Fable, Astra, Carbon and other eligible frontier models."
       }
     ],
     "repository_findings": [
@@ -747,6 +755,24 @@
       "request_part_ids": [
         "P053"
       ]
+    },
+    {
+      "id": "R054",
+      "text": "Offer an opt-in 20-minute OS scheduler for ORCHESTRATED plans with >=6 executable pending tasks and auto-unregister it at plan termination; preserve native continuous power inhibitor separately.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P054"
+      ]
+    },
+    {
+      "id": "R055",
+      "text": "Refresh 2026 provider model mapping and add opt-in frontier tier L6/F6 above max, including only actually available Fable, Astra, Carbon and other eligible frontier models.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P055"
+      ]
     }
   ],
   "global_constraints": [
@@ -820,7 +846,8 @@
       "Shared-file writes wait for preceding correction reviews; primitive020 and fixture068 exclude later runtime implementation.",
       "This approval covers the plan specification only; actual implementation and independent review remain pending.",
       "2026-10-31: twelve additional tasks are pending, not independently implemented or reviewed.",
-      "2026-11-02 P052 amendment: 099/100 specify semantic progress, truthful percentages and guarded stall recovery; structure-only assessment, not completed implementation, provider review or runtime validation."
+      "2026-11-02 P052 amendment: 099/100 specify semantic progress, truthful percentages and guarded stall recovery; structure-only assessment, not completed implementation, provider review or runtime validation.",
+      "2026-11-12: P054/P055 are planning amendments only; no production feature or independent review has run."
     ]
   },
   "repo_root": "/mnt/data/workspaces/plan-and-execute",
@@ -16767,6 +16794,542 @@
       "related_task_files": []
     },
     {
+      "id": "103",
+      "slug": "implement-opt-in-plan-keepalive-timer",
+      "title": "Implement opt-in plan-scoped 20-minute recovery scheduler",
+      "objective": "Implement opt-in plan-scoped 20-minute recovery scheduler",
+      "requirement_ids": [
+        "R054"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One feature or independent correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Assigned P054/P055 research and task-specific evidence only."
+        ],
+        "why_one_todo": "One verifiable feature boundary",
+        "separate_from": [
+          "No unrelated transcript or duplicated orchestration"
+        ]
+      },
+      "scope": {
+        "in": [
+          "Implement opt-in plan-scoped 20-minute recovery scheduler"
+        ],
+        "out": [
+          "No second plan, OS policy changes or unauthorised provider charges"
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/keepalivectl.py",
+          "skill/plan-and-execute/scripts/keepalive_schedule.py",
+          "skill/plan-and-execute/scripts/lifecyclectl.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/run_concise.py",
+          "skill/plan-and-execute/references/WATCHDOG.md",
+          "skill/plan-and-execute/references/LIFECYCLE.md",
+          "skill/plan-and-execute/references/INSTALLATION.md",
+          "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
+          "test/optimization/keepalive_schedule_lifecycle_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/103-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/103-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "019",
+        "057",
+        "092",
+        "100",
+        "102"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/103-opt-in-keepalive-scheduler.md",
+        "Follow tasks/103-implement-opt-in-plan-keepalive-timer.md and TASK_INPUTS.json",
+        "Implement scoped behavior and run native/mocked deterministic tests",
+        "Record actual receipts and outcomes, leave pending until verified."
+      ],
+      "acceptance_criteria": [
+        "Offer once with consent iff >=6 executable unfinished TODOs; no offer for 5 or fewer; non-interactive off.",
+        "Check every 20 minutes with zero model calls when healthy; only safely resume dead runnable workers, never duplicate active work.",
+        "Windows Task Scheduler, Linux systemd-user/cron and macOS launchd adapters scope registration by plan ID.",
+        "On success, cancel, reset or no-longer-existing plan, safely uninstall the exact timer without affecting another plan.",
+        "Timer and whole-plan power lease are independent; never claim a sleeping computer can be woken by a poller.",
+        "Regression checks cover ownership, races, restart budget, no-permission and physical-host limitations."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_103",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_103"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read research",
+          "objective": "Read research",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement",
+          "objective": "Implement",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Test negatives",
+          "objective": "Test negatives",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Record outcomes",
+          "objective": "Record outcomes",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/103-implement-opt-in-plan-keepalive-timer.md",
+      "related_task_files": []
+    },
+    {
+      "id": "104",
+      "slug": "review-and-correct-plan-keepalive-timer",
+      "title": "Review and correct opt-in plan-scoped keepalive scheduler",
+      "objective": "Review and correct opt-in plan-scoped keepalive scheduler",
+      "requirement_ids": [
+        "R054"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One feature or independent correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Assigned P054/P055 research and task-specific evidence only."
+        ],
+        "why_one_todo": "One verifiable feature boundary",
+        "separate_from": [
+          "No unrelated transcript or duplicated orchestration"
+        ]
+      },
+      "scope": {
+        "in": [
+          "Review and correct opt-in plan-scoped keepalive scheduler"
+        ],
+        "out": [
+          "No second plan, OS policy changes or unauthorised provider charges"
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/keepalivectl.py",
+          "skill/plan-and-execute/scripts/keepalive_schedule.py",
+          "skill/plan-and-execute/scripts/lifecyclectl.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/references/WATCHDOG.md",
+          "skill/plan-and-execute/references/LIFECYCLE.md",
+          "test/optimization/keepalive_schedule_lifecycle_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/104-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/104-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "103"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/103-opt-in-keepalive-scheduler.md",
+        "Follow tasks/104-review-and-correct-plan-keepalive-timer.md and TASK_INPUTS.json",
+        "Run actual independent maximum-qualified review and correct all critical/high issues",
+        "Record actual receipts and outcomes, leave pending until verified."
+      ],
+      "acceptance_criteria": [
+        "True independent review and validated corrections of 103 with hash-pinned evidence.",
+        "Test scheduler thresholds, leases, no model-tick cost and terminal cleanup on each supported OS."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_104",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_104"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Study receipt",
+          "objective": "Study receipt",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Independent review",
+          "objective": "Independent review",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Correct blockers",
+          "objective": "Correct blockers",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Retest",
+          "objective": "Retest",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/104-review-and-correct-plan-keepalive-timer.md",
+      "related_task_files": []
+    },
+    {
+      "id": "105",
+      "slug": "implement-current-models-and-frontier-tier",
+      "title": "Implement updated provider model catalog and sixth frontier tier",
+      "objective": "Implement updated provider model catalog and sixth frontier tier",
+      "requirement_ids": [
+        "R055"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One feature or independent correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Assigned P054/P055 research and task-specific evidence only."
+        ],
+        "why_one_todo": "One verifiable feature boundary",
+        "separate_from": [
+          "No unrelated transcript or duplicated orchestration"
+        ]
+      },
+      "scope": {
+        "in": [
+          "Implement updated provider model catalog and sixth frontier tier"
+        ],
+        "out": [
+          "No second plan, OS policy changes or unauthorised provider charges"
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/routingctl.py",
+          "skill/plan-and-execute/scripts/model_catalog.py",
+          "skill/plan-and-execute/scripts/model_catalogctl.py",
+          "skill/plan-and-execute/scripts/workload_routing.py",
+          "skill/plan-and-execute/scripts/routing_config.py",
+          "skill/plan-and-execute/scripts/availability.py",
+          "skill/plan-and-execute/references/MODEL_ROUTING.md",
+          "skill/plan-and-execute/references/MODEL_MAPPING.md",
+          "skill/plan-and-execute/references/MODEL_CATALOG.md",
+          "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+          "skill/plan-and-execute/references/PLAN_SPEC.md",
+          "test/optimization/frontier_model_tier_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/105-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/105-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "021",
+        "025",
+        "027",
+        "047",
+        "081"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md",
+        "Follow tasks/105-implement-current-models-and-frontier-tier.md and TASK_INPUTS.json",
+        "Implement scoped behavior and run native/mocked deterministic tests",
+        "Record actual receipts and outcomes, leave pending until verified."
+      ],
+      "acceptance_criteria": [
+        "L6/F6 frontier exists above L5 max; L1–L5 old behavior stays unchanged by default.",
+        "Use exact verified current model IDs, effort and provider/catalog permissions; Fable 5.2, Astra and Gemini 4 Carbon are conditional candidates.",
+        "Audit every supported provider with current mapping, credit/cash economics, availability and optional models.",
+        "Escalate to frontier only from confirmed model insufficiency or explicit authorized request, never environment/quota/silence.",
+        "Test invalid model, unset prices, effort-embedded IDs, legacy snapshots, task types, and independently measured cost/quality."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_105",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_105"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read research",
+          "objective": "Read research",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement",
+          "objective": "Implement",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Test negatives",
+          "objective": "Test negatives",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Record outcomes",
+          "objective": "Record outcomes",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/105-implement-current-models-and-frontier-tier.md",
+      "related_task_files": []
+    },
+    {
+      "id": "106",
+      "slug": "review-and-correct-current-models-and-frontier-tier",
+      "title": "Review and correct updated model catalog and frontier routing",
+      "objective": "Review and correct updated model catalog and frontier routing",
+      "requirement_ids": [
+        "R055"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One feature or independent correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Assigned P054/P055 research and task-specific evidence only."
+        ],
+        "why_one_todo": "One verifiable feature boundary",
+        "separate_from": [
+          "No unrelated transcript or duplicated orchestration"
+        ]
+      },
+      "scope": {
+        "in": [
+          "Review and correct updated model catalog and frontier routing"
+        ],
+        "out": [
+          "No second plan, OS policy changes or unauthorised provider charges"
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/routingctl.py",
+          "skill/plan-and-execute/scripts/model_catalog.py",
+          "skill/plan-and-execute/scripts/model_catalogctl.py",
+          "skill/plan-and-execute/scripts/workload_routing.py",
+          "skill/plan-and-execute/scripts/routing_config.py",
+          "skill/plan-and-execute/scripts/availability.py",
+          "skill/plan-and-execute/references/MODEL_ROUTING.md",
+          "skill/plan-and-execute/references/MODEL_MAPPING.md",
+          "skill/plan-and-execute/references/MODEL_CATALOG.md",
+          "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+          "skill/plan-and-execute/references/PLAN_SPEC.md",
+          "test/optimization/frontier_model_tier_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/106-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/106-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "105"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md",
+        "Follow tasks/106-review-and-correct-current-models-and-frontier-tier.md and TASK_INPUTS.json",
+        "Run actual independent maximum-qualified review and correct all critical/high issues",
+        "Record actual receipts and outcomes, leave pending until verified."
+      ],
+      "acceptance_criteria": [
+        "Genuine maximum-qualified independent reviewer pinning code/model evidence, correcting critical/high issues.",
+        "Retest six-tier gating, account eligibility, credits, no fabricated model IDs, legacy compatibility."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_106",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_106"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Study receipt",
+          "objective": "Study receipt",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Independent review",
+          "objective": "Independent review",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Correct blockers",
+          "objective": "Correct blockers",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Retest",
+          "objective": "Retest",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/106-review-and-correct-current-models-and-frontier-tier.md",
+      "related_task_files": []
+    },
+    {
       "id": "082",
       "slug": "integrate-all-implemented-contracts-and-close-cross-feature-gaps",
       "title": "Integrate all implemented contracts and close cross-feature gaps",
@@ -16787,7 +17350,9 @@
         "R050",
         "R051",
         "R052",
-        "R053"
+        "R053",
+        "R054",
+        "R055"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -16867,7 +17432,9 @@
         "096",
         "098",
         "100",
-        "102"
+        "102",
+        "104",
+        "106"
       ],
       "implementation_guidance": [
         "Read docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md.",
@@ -16880,7 +17447,8 @@
         "Keep historical receipt integrity separate from current source/command/map validation.",
         "Every changed implementation and correction gate needs actual acceptance evidence; prepared research never counts as a pass.",
         "Integrate all six feature pairs from docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md; require actual independent review receipts.",
-        "Integrate verified P053 101/102 host sleep guard and tests across providers, OS backends, WSL, long validation and strict preflight."
+        "Integrate verified P053 101/102 host sleep guard and tests across providers, OS backends, WSL, long validation and strict preflight.",
+        "Integrate P054 timer cleanup and P055 L6 model routing after genuine independent reviews 104/106."
       ],
       "acceptance_criteria": [
         "All implementation acceptance cases and required independent code reviews have current evidence.",
@@ -16890,7 +17458,8 @@
         "Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.",
         "All six added feature contracts have independently reviewed current-tree evidence.",
         "P052 semantic five-minute stall diagnosis, reliable progress percentages and authorized higher-capability repair have actual independently reviewed mapped integration evidence.",
-        "P053 OS lease and release tests, accurate supported-host caveats and independent acceptance are evidenced."
+        "P053 OS lease and release tests, accurate supported-host caveats and independent acceptance are evidenced.",
+        "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_082",
@@ -17526,7 +18095,9 @@
         "R050",
         "R051",
         "R052",
-        "R053"
+        "R053",
+        "R054",
+        "R055"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -17575,7 +18146,8 @@
         "The Portuguese final report distinguishes verified behavior, untested platforms and live-provider limitations.",
         "The prepared report is input evidence, not proof that this implementation or its independent review has passed.",
         "Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.",
-        "P053 final whole-skill review examines actual 101/102 validation/reviewer hashes and unsupported overnight conditions."
+        "P053 final whole-skill review examines actual 101/102 validation/reviewer hashes and unsupported overnight conditions.",
+        "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_086",
@@ -17726,6 +18298,19 @@
         "102"
       ],
       "previous_count": 100,
+      "implementation_complete": false
+    },
+    {
+      "at": "2026-11-13T02:46:00Z",
+      "type": "contract_amendment",
+      "reference": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261112.md",
+      "added_task_ids": [
+        "103",
+        "104",
+        "105",
+        "106"
+      ],
+      "previous_count": 102,
       "implementation_complete": false
     }
   ],
