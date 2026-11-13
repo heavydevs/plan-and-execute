@@ -29,3 +29,9 @@ Checks: coverage_complete, tasks_atomic, dependencies_valid, validations_suffici
 
 - P053/R053 adds pending whole-plan host sleep inhibitor 101 and independent correction review 102 before 082; 086 remains last.
 - OS idle protection cannot guarantee lid/manual sleep, Modern Standby DC, power loss, enterprise policy or quota/auth. No product/OS tests or real independent reviewer executed by this amendment.
+
+## Amendment — 2026-11-12
+
+- P054/R054: researched opt-in host 20-minute keepalive on >=6 pending tasks, register/unregister ownership and reliable cleanup, reviewed later by task 104.
+- P055/R055: researched 2026-11-12 official model evidence and optional frontier L6; independent review task 106 required.
+- Structural addition only. No native scheduling, live provider model trials, physical sleep tests or independent reviewers executed. Task 082 now depends on reviews 104 and 106, preserving final review 086.
