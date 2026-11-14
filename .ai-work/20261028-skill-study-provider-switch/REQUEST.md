@@ -248,3 +248,10 @@ Revise the reports, implementation instructions and acceptance graph. Do not exe
 
 User asks to add review of security and performance to material design/architecture before coding, and to final independent code review. Do not require automated performance tests unless explicitly requested. Research books, articles, agent documentation and current code before defining implementation instructions.
 Research `docs/research/20261028-skill-optimization/prepared-research/107-architecture-security-performance-review.md`; pending implementation 107 and independent correction 108; 108 gates 082, final 086 remains last.
+
+---
+
+## P057 — 2026-11-14 efficient automated test-failure repair
+
+Execute all safely runnable tests once to inventory failures, with per-test stack/log and E2E screenshot/trace evidence. Fix by rerunning only failed/impacted tests, then run the entire required suite on the final source; repeat until fully green. Fatal build/infra/dependency failures must stop safely. Research source, docs, books and agents before creating tasks.
+Detailed research: `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md`; pending 109 implementation and 110 independent review; 110 gates 082, final 086 remains last.

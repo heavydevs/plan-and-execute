@@ -4,7 +4,7 @@ Date: 2026-10-28. This replaces the former research-then-Plan2 execution workflo
 
 ## Authority and honest state
 
-`PLAN1_SPEC.json` is the current portable specification. The native `manifest.json` is authoritative during execution; task Markdown and `TODO.md` are generated projections. All 108 tasks remain pending after the 2026-11-14 P056 plan extension. Research readiness is recorded separately in the prepared report index; report existence cannot complete an implementation task. Autostart is false. No authenticated model has been dispatched in this preparation.
+`PLAN1_SPEC.json` is the current portable specification. The native `manifest.json` is authoritative during execution; task Markdown and `TODO.md` are generated projections. All 110 tasks remain pending after the 2026-11-14 P057 plan extension. Research readiness is recorded separately in the prepared report index; report existence cannot complete an implementation task. Autostart is false. No authenticated model has been dispatched in this preparation.
 
 The native `plan_review` records a host structural/synthesis check, not an independent model review. The current amendment authorizes research and local replanning; it does not authorize changing installed copies, user-global configuration, committing, pushing, opening PRs, publishing or paid model experiments. Those actions retain the original explicit-consent boundary. Never print environment/profile secrets.
 
@@ -61,3 +61,10 @@ TODO 099 implements the research in `prepared-research/099-semantic-progress-rec
 ## P056 two-lens architecture and code review
 
 For material formal design, require genuine read-only independent, current-hash security/performance review before coding; unresolved high/critical risk blocks. The existing final independent code reviewer reports both lenses as well as correctness; no routine duplicate specialists. Never require automated performance/load/stress/benchmark tests without an explicit request. Tasks 107/108 pending; 108 must precede 082.
+
+## P057 complete failures, focused repairs, final full gate
+
+- Collect all safely runnable test failures with structured per-case evidence; preserve compile/dependency/environment hard blocks.
+- Fix by native exact selectors of failed/impacted tests, not repeated full suites after each issue; never treat 0 selected or stale successes as green.
+- After focused repairs all original mapped validations/jobs must fully pass on final current source; regressions start bounded cycles.
+- Pending 109 implementation and real independent 110 review; 110 precedes 082 and final 086 remains last.

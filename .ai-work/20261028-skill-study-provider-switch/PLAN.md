@@ -62,6 +62,8 @@ Implement 32 researched optimization topics and provider switching in one resuma
 
 - **R056** [must; user; P056 -> 107,108,082,086] Independent material architecture security/performance review before coding and both lenses in final code review; no mandatory performance benchmarks.
 
+- **R057** [must; user; P057 -> 109,110,082,086] Collect all safe test failures first, preserve per-test evidence, rerun failed/affected tests during fixes and recheck the whole suite on final code.
+
 ## Constraints
 
 - Preserve original request bytes in REQUEST_ORIGINAL.md and the historical snapshot; the current amendment supersedes the two-plan workflow.
@@ -95,3 +97,7 @@ Autostart: no · cleanup: no
 ## Amendment P056 — 2026-11-14
 
 Research `docs/research/20261028-skill-optimization/prepared-research/107-architecture-security-performance-review.md`. New pending task 107 implementation and 108 independent review gate before 082 integration; final 086 last. Risk-based distinct read-only design reviewer before coding; existing independent end-of-task code reviewer covers both security and performance alongside correctness. Never require automated application performance/load/stress benchmarks without explicit user request. Planning is not real reviewer execution.
+
+## P057 — 2026-11-14 batch failure discovery
+
+Study `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md`, pending 109 implementation and genuine independent 110 review. Continue independent safe tests to collect all failures, preserving stacks, logs and E2E artifacts; stop unsafe infra/build chains. After focused fixes, full current-code validation is mandatory. 110 gates 082; 086 last. No product/runtime/reviewer evidence yet.

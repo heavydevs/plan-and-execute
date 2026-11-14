@@ -1,6 +1,6 @@
 # Single implementation checklist - research revision 2
 
-All 108 tasks are pending. Checkboxes represent future implementation/review, not completed research.
+All 110 tasks are pending. Checkboxes represent future implementation/review, not completed research.
 
 | TODO | Implementation or correction outcome | Prerequisites | Assigned research |
 |---|---|---|---|
@@ -107,6 +107,8 @@ All 108 tasks are pending. Checkboxes represent future implementation/review, no
 | [ ] 106 | Review and correct frontier routing, compatibility, costs and effort | 105 | [105 frontier research](../../../docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md) |
 | [ ] 107 | Implement risk-based security/performance architecture review and code-review lenses | 013, 029, 049, 088, 092, 098, 100, 104, 106 | [P056 research](../../../docs/research/20261028-skill-optimization/prepared-research/107-architecture-security-performance-review.md) |
 | [ ] 108 | Independently review and correct architecture security/performance gates | 107 | [P056 research](../../../docs/research/20261028-skill-optimization/prepared-research/107-architecture-security-performance-review.md) |
+| [ ] 109 | Implement complete test-failure inventory, focused repair and final full-suite gate | 055, 059, 063, 098, 100, 108 | [P057 research](../../../docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md) |
+| [ ] 110 | Independently review and correct batched failure-repair validation | 109 | [P057 research](../../../docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md) |
 | [ ] 082 | Integrate all implemented contracts and close cross-feature gaps | 003, 005, 007, 009, 011, 013, 015, 017, 019, 021, 023, 025, 027, 029, 031, 033, 035, 037, 039, 041, 043, 045, 047, 049, 051, 053, 055, 057, 059, 061, 063, 065, 067, 069, 071, 073, 075, 077, 079, 081, 088, 090, 092, 094, 096, 098, 100 |[ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md), 104, 106 |
 | [ ] 083 | Review and correct end-to-end integration | 082 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |
 | [ ] 084 | Validate release contents, documentation and migration | 083 | [ARCHITECTURE_AND_SCOPE.md](../../../docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md); [IMPLEMENTATION_INTEGRATION.md](../../../docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md) |

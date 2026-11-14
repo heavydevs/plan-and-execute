@@ -9044,6 +9044,289 @@
         }
       ],
       "input_rule": "Read only real assigned existing files and accepted prerequisite outputs, never future tests or fake reviewer receipts."
+    },
+    {
+      "id": "109",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md",
+        "skill/plan-and-execute/scripts/test_failure_cycle.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "test/optimization/batch_test_failure_cycle_self_test.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/109-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/109-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/test_failure_cycle.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "test/optimization/batch_test_failure_cycle_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/batch_test_failure_cycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/jobctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07",
+        "AC08",
+        "AC09",
+        "AC10"
+      ],
+      "planned_new_files": [
+        "skill/plan-and-execute/scripts/test_failure_cycle.py",
+        "test/optimization/batch_test_failure_cycle_self_test.py"
+      ],
+      "input_contract": [
+        {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/test_failure_cycle.py",
+          "availability": "create_in_this_task"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/run_isolated.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/planctl.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/runner_contract.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/validatectl.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/jobctl.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/resource_watch.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/service_map.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/WORKFLOW.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/PLAN_SPEC.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/batch_test_failure_cycle_self_test.py",
+          "availability": "create_in_this_task"
+        }
+      ],
+      "input_rule": "Read only current existing files and completed prerequisite outputs. Future files are created by 109 and never fabricated in preparation."
+    },
+    {
+      "id": "110",
+      "kind": "review",
+      "work_type": "review",
+      "review_of": "109",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md",
+        "skill/plan-and-execute/scripts/test_failure_cycle.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "test/optimization/batch_test_failure_cycle_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/109-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/109-outcome.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/110-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/110-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/test_failure_cycle.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/validatectl.py",
+        "skill/plan-and-execute/scripts/jobctl.py",
+        "skill/plan-and-execute/scripts/resource_watch.py",
+        "skill/plan-and-execute/scripts/service_map.py",
+        "skill/plan-and-execute/references/WORKFLOW.md",
+        "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+        "skill/plan-and-execute/references/PLAN_SPEC.md",
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "test/optimization/batch_test_failure_cycle_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/batch_test_failure_cycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/jobctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06"
+      ],
+      "planned_new_files": [],
+      "input_contract": [
+        {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/test_failure_cycle.py",
+          "availability": "prerequisite_output",
+          "producer_task": "109"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/run_isolated.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/planctl.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/runner_contract.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/validatectl.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/jobctl.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/resource_watch.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/service_map.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/WORKFLOW.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/PLAN_SPEC.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/batch_test_failure_cycle_self_test.py",
+          "availability": "prerequisite_output",
+          "producer_task": "109"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/109-receipt.json",
+          "availability": "prerequisite_output",
+          "producer_task": "109"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/109-outcome.md",
+          "availability": "prerequisite_output",
+          "producer_task": "109"
+        }
+      ],
+      "input_rule": "Read only current existing files and completed prerequisite outputs. Future files are created by 109 and never fabricated in preparation."
     }
   ],
   "research_revision": 2

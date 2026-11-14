@@ -2,7 +2,7 @@
   "schema_version": 4,
   "plan_id": "20261028-skill-study-provider-switch",
   "title": "Single implementation plan - evidence-backed skill optimization",
-  "summary": "Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions. P053 host sleep protection added to pending implementation/review graph. Adds pending P054/P055 tasks 103–106. P056 pending implementation/review 107/108 added.",
+  "summary": "Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions. P053 host sleep protection added to pending implementation/review graph. Adds pending P054/P055 tasks 103–106. P056 pending implementation/review 107/108 added. Adds pending P057 tasks 109/110 for test failure batching.",
   "request_analysis": {
     "request_parts": [
       {
@@ -228,6 +228,10 @@
       {
         "id": "P056",
         "text": "Add risk-based independent architecture security/performance review, final review two lenses and user-opt-in-only application performance testing."
+      },
+      {
+        "id": "P057",
+        "text": "Save time and tokens by completing safe failure collection once, grouping per-case failures and doing selective repairs before mandatory final full regression."
       }
     ],
     "repository_findings": [
@@ -239,7 +243,8 @@
       "2026-10-31: six unimplemented end-to-end contracts supplement 86 originally pending tasks.",
       "Current progress_watch renews on distinct arbitrary stdout and CPU, while PROGRESS counters lack enforced stage/denominator monotonicity; long-running work already has 300-second idle monitoring and semantic escalation in the runner.",
       "P053: host OS sleep lease is absent across whole-plan gaps; progress/resume alone do not block idle suspend.",
-      "Design phase accepts nonempty architecture note without separate security/performance reviewer; existing independent final code-review path can be reused."
+      "Design phase accepts nonempty architecture note without separate security/performance reviewer; existing independent final code-review path can be reused.",
+      "run_isolated.run_validation_commands returns after first failed mapped command, and plan-specific run_task_checks stops at first nonzero check."
     ],
     "research_decision": "Revision 2 evaluates primary-source alternatives for all 32 reports; workers consume the selected decision and refresh only material version or account conflicts.",
     "research_findings": [
@@ -276,7 +281,8 @@
       "Host-level skill activation, access enforcement and neuroinclusive comprehension still need real tests.",
       "A busy-loop or changing log can resemble work; automatic escalation on ambiguous/environmental stalls can waste models or destroy useful checkpoints. P052 requires trustworthy semantic evidence and authorized repair.",
       "No idle inhibitor guarantees manual/lid/battery/thermal/policy/Modern Standby/host network/quotas and noninteractive approval.",
-      "Review duplication wastes model credits; require extra reviewer only for material architecture and reuse existing final code-review worker."
+      "Review duplication wastes model credits; require extra reviewer only for material architecture and reuse existing final code-review worker.",
+      "Continue only independent safe tests; missing reports, environment faults, flaky tests and focused green cannot satisfy final acceptance."
     ],
     "open_questions": [
       "Authenticated execution and independent maximum-qualified review require an available authorized provider at implementation time."
@@ -788,6 +794,15 @@
       "request_part_ids": [
         "P056"
       ]
+    },
+    {
+      "id": "R057",
+      "text": "Collect all safe automated test failures with case-specific evidence, repair only failed/affected cases during iteration, and require complete final full-suite passing validation.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P057"
+      ]
     }
   ],
   "global_constraints": [
@@ -863,7 +878,8 @@
       "2026-10-31: twelve additional tasks are pending, not independently implemented or reviewed.",
       "2026-11-02 P052 amendment: 099/100 specify semantic progress, truthful percentages and guarded stall recovery; structure-only assessment, not completed implementation, provider review or runtime validation.",
       "2026-11-12: P054/P055 are planning amendments only; no production feature or independent review has run.",
-      "P056 pending 107/108: research/planning only, no code implementation or genuine independent reviewer."
+      "P056 pending 107/108: research/planning only, no code implementation or genuine independent reviewer.",
+      "P057 109/110 pending research-backed batch failure fix cycle; no implementation/reviewer/test execution."
     ]
   },
   "repo_root": "/mnt/data/workspaces/plan-and-execute",
@@ -874,7 +890,7 @@
   "language": "English",
   "summary_status": "pending",
   "created_at": "2026-10-29T02:40:14+00:00",
-  "updated_at": "2026-11-14T05:25:00Z",
+  "updated_at": "2026-11-14T06:13:00Z",
   "tasks": [
     {
       "id": "001",
@@ -17667,6 +17683,345 @@
       "related_task_files": []
     },
     {
+      "id": "109",
+      "slug": "implement-batched-test-failures",
+      "title": "Implement complete test-failure inventory, focused repair and final full-suite gate",
+      "objective": "Collect all safely runnable test failures with per-test stack/log/E2E evidence, rerun failures and impacted tests during repair, then require a full final current-source regression pass.",
+      "requirement_ids": [
+        "R057"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent validation cycle feature or independent correction boundary with shared source/manifest/report contract.",
+      "context_boundary": {
+        "shared_context": [
+          "Current P057 report, affected validation sources and accepted prior receipts only."
+        ],
+        "why_one_todo": "Failure collection, rerun selectors and final acceptance depend on a single coherent state machine.",
+        "separate_from": [
+          "Do not preload unrelated task studies, old logs, user conversations or provider guides."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Collect all safely runnable test failures with per-test stack/log/E2E evidence, rerun failures and impacted tests during repair, then require a full final current-source regression pass."
+        ],
+        "out": [
+          "No parallel testing orchestrator, unsafe continuation, skipped failed tests, benchmark default or unapproved provider/global configuration changes."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/test_failure_cycle.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/validatectl.py",
+          "skill/plan-and-execute/scripts/jobctl.py",
+          "skill/plan-and-execute/scripts/resource_watch.py",
+          "skill/plan-and-execute/scripts/service_map.py",
+          "skill/plan-and-execute/references/WORKFLOW.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "skill/plan-and-execute/references/PLAN_SPEC.md",
+          "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+          "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+          "test/optimization/batch_test_failure_cycle_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/109-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/109-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "055",
+        "059",
+        "063",
+        "098",
+        "100",
+        "108"
+      ],
+      "implementation_guidance": [
+        "Read `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md` and `docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261114_TEST_FAILURE_BATCH.md` before code; inspect source exactly, don't infer newer features are already implemented.",
+        "Inspect run_isolated.run_validation_commands, run_validation_jobs, finish_task_validation, validatectl.run, runner_contract.install_runner_contract and active plan run_task_checks.",
+        "Reuse resource_watch, jobctl, service_map and native reporter results; record versioned per-test failures and artifacts securely, continue only safe independent tests, prefer case IDs to console text.",
+        "Implement targeted rerun only for verified supported framework selectors, with impacted neighbors; never treat incomplete/0-selected/current-code mismatch as success; final full regression must run again.",
+        "Preserve process ownership, model routing/cost and progress, platform/CI behavior and bounded prompts; do not fabricate full-book, test or reviewer evidence.",
+        "Write tests for this feature's functional correctness and failures; do not add application load/benchmark tests unless independently asked."
+      ],
+      "acceptance_criteria": [
+        "First ordinary failed test does not prevent independent safe mapped suites collecting all failures; compilation, unhealthy resources, dependent/unsafe jobs stop or mark not_run, never green.",
+        "Versioned source/map/command-scoped inventory uses valid native JSON/JUnit formats, stable test and parameter/browser/shard identities, accurate counts and complete-collection status; unknown/runner failure differs from passing.",
+        "Every attributable failing case includes real stack/message, bounded logs and safe evidence paths; supported E2E screenshots/traces are associated when available and redacted/size-bounded before any agent input.",
+        "Targeted repair reexecutes only known failed cases/root-cause clusters plus demonstrably impacted neighbors; source changes make prior passes diagnostic-only, selectors must be exact and nonempty or fall back safely.",
+        "No task is accepted from focused-only passing results; all required original mapped commands and supervised jobs must pass together on the same current final source/config/resource fingerprint; new failures cause bounded further cycles.",
+        "Flaky/retry, fixture/shared state, test order, parametrized/project, skipped/not-run, missing reporters/shards, crash and environment errors are recorded without silencing or false completion.",
+        "Owned process/job lifecycle, concurrent plans, crash/resume, budget/cancellation, real progress and existing qualified routing work without a second orchestrator or model-per-test polling.",
+        "100-case/7-failure fixture proves no unrelated passing tests in focused loop, final all-case rerun and real nonzero failure propagation; test reports/secret/selector injection negatives are covered.",
+        "Targeted framework adapters and fallback work for supported pytest, Playwright, Jest/Vitest and Gradle/JUnit/Maven; unsupported runners remain safe and honest.",
+        "Actual implementation and functional validation receipts/hashes prove behavior, with unmeasured real-world cost saving identified as unknown."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_109",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_109"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read source and research",
+          "objective": "Inspect P057 study, run_validation_commands/run_validation_jobs, validatectl, runner_contract, resource_watch, service map and run_task_checks's current fail-fast semantics.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement safe full discovery",
+          "objective": "Separate fatal build/infra/dependency faults from ordinary test failure; continue independent safe test commands, preserve original nonzero exits, map and progress/timeout contracts.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Build per-test failure manifest",
+          "objective": "Parse verified official JSON/JUnit reporters with stable case identity, root-cause grouping, per-test stack/log evidence and optional failure-only browser screenshots/traces under guarded paths.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Implement bounded focused repair cycle",
+          "objective": "Persist current-source failure backlog; select exact failing tests and affected neighbors, avoid repeated passing unrelated tests, classify flaky/setup/environment and reject zero-selected false green.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Require complete final green run",
+          "objective": "Once focused failures are fixed rerun every originally required mapped suite/job on final source; new failures restart bounded cycle, incomplete/stale reports cannot complete.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S006",
+          "title": "Wire existing runtimes and docs",
+          "objective": "Integrate ORCHESTRATED and DIRECT/validate-or-fix, runner_contract and plan helper; document framework adapters and quotas without duplicate supervisor.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S007",
+          "title": "Run adversarial functional checks",
+          "objective": "Create test/optimization/batch_test_failure_cycle_self_test.py; verify 100/7, multi-suite, compilation fail, E2E evidence, unknown selector, stale hash, crash, flaky and new regression.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S008",
+          "title": "Record real receipt",
+          "objective": "Write 109 receipt/outcome with actual code/test hashes and check logs; leave pending without genuine success evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/109-implement-batched-test-failures.md",
+      "related_task_files": []
+    },
+    {
+      "id": "110",
+      "slug": "review-and-correct-batched-test-failures",
+      "title": "Independently review and correct batched failure-repair validation",
+      "objective": "Independently review task 109's complete discovery, per-test artifacts, targeted reruns, final full gate and negative/failure safety.",
+      "requirement_ids": [
+        "R057"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent validation cycle feature or independent correction boundary with shared source/manifest/report contract.",
+      "context_boundary": {
+        "shared_context": [
+          "Current P057 report, affected validation sources and accepted prior receipts only."
+        ],
+        "why_one_todo": "Failure collection, rerun selectors and final acceptance depend on a single coherent state machine.",
+        "separate_from": [
+          "Do not preload unrelated task studies, old logs, user conversations or provider guides."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independently review task 109's complete discovery, per-test artifacts, targeted reruns, final full gate and negative/failure safety."
+        ],
+        "out": [
+          "No parallel testing orchestrator, unsafe continuation, skipped failed tests, benchmark default or unapproved provider/global configuration changes."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/test_failure_cycle.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/validatectl.py",
+          "skill/plan-and-execute/scripts/jobctl.py",
+          "skill/plan-and-execute/scripts/resource_watch.py",
+          "skill/plan-and-execute/scripts/service_map.py",
+          "skill/plan-and-execute/references/WORKFLOW.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "skill/plan-and-execute/references/PLAN_SPEC.md",
+          "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+          "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+          "test/optimization/batch_test_failure_cycle_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/110-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/110-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "109"
+      ],
+      "implementation_guidance": [
+        "Read `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md` and `docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261114_TEST_FAILURE_BATCH.md` before code; inspect source exactly, don't infer newer features are already implemented.",
+        "Inspect run_isolated.run_validation_commands, run_validation_jobs, finish_task_validation, validatectl.run, runner_contract.install_runner_contract and active plan run_task_checks.",
+        "Reuse resource_watch, jobctl, service_map and native reporter results; record versioned per-test failures and artifacts securely, continue only safe independent tests, prefer case IDs to console text.",
+        "Implement targeted rerun only for verified supported framework selectors, with impacted neighbors; never treat incomplete/0-selected/current-code mismatch as success; final full regression must run again.",
+        "Preserve process ownership, model routing/cost and progress, platform/CI behavior and bounded prompts; do not fabricate full-book, test or reviewer evidence.",
+        "Write tests for this feature's functional correctness and failures; do not add application load/benchmark tests unless independently asked."
+      ],
+      "acceptance_criteria": [
+        "Actual independent fresh maximum-qualified reviewer and dispatch provenance pin exact final 109 code/test and receipt hashes.",
+        "Review confirms all safely runnable suites collected after ordinary test failure, with valid per-test status/stack/log/E2E attribution and no false counts or hidden failed exit.",
+        "Review verifies focused-only passes never bypass full required current-source regression, zero-selector and incomplete/old reporter outcomes are never green and new regressions restart bounded cycle.",
+        "Unsafe continuation after compile/environment failure, flaky/order state, missing browser shards, concurrent owner, secret-bearing artifacts and prompt/selector injection are tested and blocked.",
+        "No duplicate test supervisors, unauthorized provider/model charges, per-case AI polling or backward-compatibility regressions; genuine critical/high findings corrected and current-hash tests rerun.",
+        "Reviewer evidence and mapped tests pass; otherwise 110 remains pending and cannot unlock 082."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_110",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_110"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read actual 109 implementation",
+          "objective": "Inspect source, tests, P057 report and real 109 receipt/outcome hashes, not previous conversation.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Dispatch actual fresh reviewer",
+          "objective": "Use authorized maximum-qualified independent reviewer; retain provider/model/effort/session, dispatch and reviewed source hashes.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Audit correctness and safety",
+          "objective": "Challenge false-green partial/full, missing shards, stale success, flaky/unknown, skipped tests, unsafe continuation, log/attachment privacy and shell selectors.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Correct high/critical and retest",
+          "objective": "Fix within scope, rerun mapped functional regressions, require a fresh review on final hashes or keep pending.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record genuine review evidence",
+          "objective": "Write 110 receipt/outcome with real findings/corrections, unsupported frameworks and cost limits.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/110-review-and-correct-batched-test-failures.md",
+      "related_task_files": []
+    },
+    {
       "id": "082",
       "slug": "integrate-all-implemented-contracts-and-close-cross-feature-gaps",
       "title": "Integrate all implemented contracts and close cross-feature gaps",
@@ -17690,7 +18045,8 @@
         "R053",
         "R054",
         "R055",
-        "R056"
+        "R056",
+        "R057"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -17773,7 +18129,8 @@
         "102",
         "104",
         "106",
-        "108"
+        "108",
+        "110"
       ],
       "implementation_guidance": [
         "Read docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md.",
@@ -17799,7 +18156,8 @@
         "P052 semantic five-minute stall diagnosis, reliable progress percentages and authorized higher-capability repair have actual independently reviewed mapped integration evidence.",
         "P053 OS lease and release tests, accurate supported-host caveats and independent acceptance are evidenced.",
         "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence.",
-        "Task 107 design-security/performance and final-code-review lenses are implemented and independently reviewed by 108 with no default benchmarks."
+        "Task 107 design-security/performance and final-code-review lenses are implemented and independently reviewed by 108 with no default benchmarks.",
+        "P057 109/110 real implementation and independent review prove full-safe failure inventory, targeted fix cycles and mandatory final full-suite gate."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_082",
@@ -18438,7 +18796,8 @@
         "R053",
         "R054",
         "R055",
-        "R056"
+        "R056",
+        "R057"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -18489,7 +18848,8 @@
         "Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.",
         "P053 final whole-skill review examines actual 101/102 validation/reviewer hashes and unsupported overnight conditions.",
         "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence.",
-        "Final P056 review checks real 107/108 evidence, current design gate and two review lenses, without mandatory automated performance tests."
+        "Final P056 review checks real 107/108 evidence, current design gate and two review lenses, without mandatory automated performance tests.",
+        "P057 final whole-skill review validates actual 109/110 source hashes, all-failure reporting, focused rechecks and full current-source green suite."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_086",
@@ -18664,6 +19024,17 @@
         "108"
       ],
       "previous_count": 106,
+      "implementation_complete": false
+    },
+    {
+      "at": "2026-11-14T06:13:00Z",
+      "type": "contract_amendment",
+      "reference": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261114_TEST_FAILURE_BATCH.md",
+      "added_task_ids": [
+        "109",
+        "110"
+      ],
+      "previous_count": 108,
       "implementation_complete": false
     }
   ],

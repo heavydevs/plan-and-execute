@@ -40,3 +40,8 @@ Checks: coverage_complete, tasks_atomic, dependencies_valid, validations_suffici
 
 - Added researched, implementation-ready security/performance architecture and code review TODOs 107/108; 108 gates 082; 086 remains final.
 - Plan-only structural amendment: no authenticated agent, real independent review, code change, load benchmark or product acceptance was performed. All 108 tasks pending.
+
+## P057 — 2026-11-14 structural amendment
+
+- Add pending 109 + independently reviewed 110, research-based architecture and functional regression fixtures; task 082 depends on 110, 086 remains final.
+- This is plan-only analysis, not implementation, independent reviewer dispatch, test execution or measured cost saving.

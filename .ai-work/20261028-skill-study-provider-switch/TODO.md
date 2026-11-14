@@ -103,6 +103,8 @@
 - [ ] **106** — Review and correct updated model catalog and frontier routing
 - [ ] **107** — Implement risk-based security/performance architecture review and code-review lenses
 - [ ] **108** — Independently review and correct architecture security/performance gates
+- [ ] **109** — Implement complete test-failure inventory, focused repair and final full-suite gate
+- [ ] **110** — Independently review and correct batched failure-repair validation
 - [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
 - [ ] **083** — Review and correct end-to-end integration
 - [ ] **084** — Validate release contents, documentation and migration
