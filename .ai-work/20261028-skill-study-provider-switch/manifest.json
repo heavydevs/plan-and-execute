@@ -2,7 +2,7 @@
   "schema_version": 4,
   "plan_id": "20261028-skill-study-provider-switch",
   "title": "Single implementation plan - evidence-backed skill optimization",
-  "summary": "Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions. P053 host sleep protection added to pending implementation/review graph. Adds pending P054/P055 tasks 103–106.",
+  "summary": "Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions. P053 host sleep protection added to pending implementation/review graph. Adds pending P054/P055 tasks 103–106. P056 pending implementation/review 107/108 added.",
   "request_analysis": {
     "request_parts": [
       {
@@ -224,6 +224,10 @@
       {
         "id": "P055",
         "text": "Refresh 2026 provider model mapping and add opt-in frontier tier L6/F6 above max, including only actually available Fable, Astra, Carbon and other eligible frontier models."
+      },
+      {
+        "id": "P056",
+        "text": "Add risk-based independent architecture security/performance review, final review two lenses and user-opt-in-only application performance testing."
       }
     ],
     "repository_findings": [
@@ -234,7 +238,8 @@
       "All32 reports were revised with competing approaches, scoped source evidence and counterexamples. Implementation and independent reviews remain pending.",
       "2026-10-31: six unimplemented end-to-end contracts supplement 86 originally pending tasks.",
       "Current progress_watch renews on distinct arbitrary stdout and CPU, while PROGRESS counters lack enforced stage/denominator monotonicity; long-running work already has 300-second idle monitoring and semantic escalation in the runner.",
-      "P053: host OS sleep lease is absent across whole-plan gaps; progress/resume alone do not block idle suspend."
+      "P053: host OS sleep lease is absent across whole-plan gaps; progress/resume alone do not block idle suspend.",
+      "Design phase accepts nonempty architecture note without separate security/performance reviewer; existing independent final code-review path can be reused."
     ],
     "research_decision": "Revision 2 evaluates primary-source alternatives for all 32 reports; workers consume the selected decision and refresh only material version or account conflicts.",
     "research_findings": [
@@ -270,7 +275,8 @@
       "Historical task receipts retain their recorded revision; final acceptance needs current integration evidence and affected-contract revalidation.",
       "Host-level skill activation, access enforcement and neuroinclusive comprehension still need real tests.",
       "A busy-loop or changing log can resemble work; automatic escalation on ambiguous/environmental stalls can waste models or destroy useful checkpoints. P052 requires trustworthy semantic evidence and authorized repair.",
-      "No idle inhibitor guarantees manual/lid/battery/thermal/policy/Modern Standby/host network/quotas and noninteractive approval."
+      "No idle inhibitor guarantees manual/lid/battery/thermal/policy/Modern Standby/host network/quotas and noninteractive approval.",
+      "Review duplication wastes model credits; require extra reviewer only for material architecture and reuse existing final code-review worker."
     ],
     "open_questions": [
       "Authenticated execution and independent maximum-qualified review require an available authorized provider at implementation time."
@@ -773,6 +779,15 @@
       "request_part_ids": [
         "P055"
       ]
+    },
+    {
+      "id": "R056",
+      "text": "Review material architecture/design for security and performance before implementation and again in final independent code review; no automated performance tests unless requested.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P056"
+      ]
     }
   ],
   "global_constraints": [
@@ -847,7 +862,8 @@
       "This approval covers the plan specification only; actual implementation and independent review remain pending.",
       "2026-10-31: twelve additional tasks are pending, not independently implemented or reviewed.",
       "2026-11-02 P052 amendment: 099/100 specify semantic progress, truthful percentages and guarded stall recovery; structure-only assessment, not completed implementation, provider review or runtime validation.",
-      "2026-11-12: P054/P055 are planning amendments only; no production feature or independent review has run."
+      "2026-11-12: P054/P055 are planning amendments only; no production feature or independent review has run.",
+      "P056 pending 107/108: research/planning only, no code implementation or genuine independent reviewer."
     ]
   },
   "repo_root": "/mnt/data/workspaces/plan-and-execute",
@@ -858,7 +874,7 @@
   "language": "English",
   "summary_status": "pending",
   "created_at": "2026-10-29T02:40:14+00:00",
-  "updated_at": "2026-11-05T18:18:00Z",
+  "updated_at": "2026-11-14T05:25:00Z",
   "tasks": [
     {
       "id": "001",
@@ -17330,6 +17346,327 @@
       "related_task_files": []
     },
     {
+      "id": "107",
+      "slug": "implement-architecture-security-performance-review",
+      "title": "Implement risk-based security/performance architecture review and code-review lenses",
+      "objective": "Add independent security and performance design review before implementation on material architecture, and both lenses to existing final code review, without default performance benchmarks.",
+      "requirement_ids": [
+        "R056"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "A single context-cohesive implementation or genuinely independent correction boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "P056 research and current task-relevant source."
+        ],
+        "why_one_todo": "One review lifecycle contract and one validation boundary.",
+        "separate_from": [
+          "Do not load unrelated plans, chats, historical logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Add independent security and performance design review before implementation on material architecture, and both lenses to existing final code review, without default performance benchmarks."
+        ],
+        "out": [
+          "No second orchestrator, forced benchmark, unauthorized model/permission changes."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/artifact_contract.py",
+          "skill/plan-and-execute/scripts/direct_route.py",
+          "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+          "skill/plan-and-execute/references/WORKFLOW.md",
+          "skill/plan-and-execute/references/PLAN_SPEC.md",
+          "skill/plan-and-execute/references/DELEGATION.md",
+          "skill/plan-and-execute/references/MODEL_ROUTING.md",
+          "skill/plan-and-execute/references/SKILL_MAINTENANCE_REVIEW.md",
+          "test/optimization/architecture_security_performance_review_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/107-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/107-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "013",
+        "029",
+        "049",
+        "088",
+        "092",
+        "098",
+        "100",
+        "104",
+        "106"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/107-architecture-security-performance-review.md and docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261112_ARCH_SECURITY_PERFORMANCE.md first.",
+        "Inspect run_isolated.py design_prompt/run_design_phase and planctl.py design/reset plus artifact_contract.py and DIRECT 087/088.",
+        "Reuse native orchestration/reviewer with distinct read-only approved hash-bound architecture gate; integrate security/performance in the existing final code review alongside correctness.",
+        "Do not create automated application performance/load/stress/benchmark tests unless the task user explicitly asks; functional tests of review mechanics required.",
+        "Run mapped functional regressions and record real receipts and current source hashes, not fabricated independent reviews."
+      ],
+      "acceptance_criteria": [
+        "Material formal design cannot launch implementation without a distinct genuine independent read-only security/performance design approval of current source/note fingerprints.",
+        "Review checks applicable threats/trust boundaries and realistic scale/hot path/cost plus alternative mitigations and security-performance tradeoffs; justified N/A and unmeasured assumptions explicit.",
+        "Unresolved critical/high architecture defects, absent reviewer, fake provider evidence or stale hashes block implementation; retry/resume require fresh bounded review.",
+        "Existing final independent code-review pass evaluates security and performance separately, with severity/evidence or justified N/A, while preserving correctness and tests.",
+        "Critical/high security/performance findings block final task acceptance until fixed and re-reviewed on current hashes; no fabricated performance impact.",
+        "No automated performance/load/stress/benchmark tests required or generated absent explicit user request; functional tests of review mechanism remain mandatory.",
+        "Legacy schemas1–4, DIRECT, permissions, routing/economics, distinct reviewer and compact context remain compatible.",
+        "Mapped functional tests and negative fixtures pass with real implementation hashes/receipts; missing evidence leaves task pending."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_107",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_107"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Study baseline",
+          "objective": "Read P056 study, current run_isolated/planctl/artifact_contract and relevant 087/088 DIRECT code; pin expected behavior.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Classify material architecture",
+          "objective": "Define deterministic risk-based design admission, lightweight security/performance quality-attribute scenarios and justified N/A.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Implement pre-coding independent design gate",
+          "objective": "Reuse existing design lifecycle, distinct read-only qualified reviewer, actual hash-bound evidence, high/critical blocker, re-review and crash/resume safety.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Extend end-of-task code review",
+          "objective": "Include both security and performance with actionable findings in the existing fresh independent review and receipt; preserve correctness, no extra routine specialist calls.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Preserve permissions and compatibility",
+          "objective": "Maintain schemas1–4, DIRECT, provider/cost constraints, terse prompts and user-only opt-in for app performance/load/benchmark tests.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S006",
+          "title": "Implement functional tests",
+          "objective": "Test design/no-design, false reviewer, N/A, missing/stale hashes, high/critical, resume, final re-review, legacy and opt-in performance cases.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S007",
+          "title": "Record real outcomes",
+          "objective": "Run mapped validation; record source hashes, actual receipts and limitations without claiming any model review now.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/107-implement-architecture-security-performance-review.md",
+      "related_task_files": []
+    },
+    {
+      "id": "108",
+      "slug": "review-and-correct-architecture-security-performance",
+      "title": "Independently review and correct architecture security/performance gates",
+      "objective": "Independently audit and correct the actual design security/performance gate and final review lenses, source-hash/provenance controls, cost and compatibility.",
+      "requirement_ids": [
+        "R056"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "A single context-cohesive implementation or genuinely independent correction boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "P056 research and current task-relevant source."
+        ],
+        "why_one_todo": "One review lifecycle contract and one validation boundary.",
+        "separate_from": [
+          "Do not load unrelated plans, chats, historical logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independently audit and correct the actual design security/performance gate and final review lenses, source-hash/provenance controls, cost and compatibility."
+        ],
+        "out": [
+          "No second orchestrator, forced benchmark, unauthorized model/permission changes."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/artifact_contract.py",
+          "skill/plan-and-execute/scripts/direct_route.py",
+          "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+          "skill/plan-and-execute/references/WORKFLOW.md",
+          "skill/plan-and-execute/references/PLAN_SPEC.md",
+          "skill/plan-and-execute/references/DELEGATION.md",
+          "skill/plan-and-execute/references/MODEL_ROUTING.md",
+          "skill/plan-and-execute/references/SKILL_MAINTENANCE_REVIEW.md",
+          "test/optimization/architecture_security_performance_review_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/108-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/108-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "107"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/107-architecture-security-performance-review.md and docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261112_ARCH_SECURITY_PERFORMANCE.md first.",
+        "Inspect run_isolated.py design_prompt/run_design_phase and planctl.py design/reset plus artifact_contract.py and DIRECT 087/088.",
+        "Reuse native orchestration/reviewer with distinct read-only approved hash-bound architecture gate; integrate security/performance in the existing final code review alongside correctness.",
+        "Do not create automated application performance/load/stress/benchmark tests unless the task user explicitly asks; functional tests of review mechanics required.",
+        "Run mapped functional regressions and record real receipts and current source hashes, not fabricated independent reviews."
+      ],
+      "acceptance_criteria": [
+        "Genuine fresh independent maximum-qualified reviewer evidence includes provider/model/effort/session, dispatch and pinned final 107 code/test/receipt hashes.",
+        "Both security and performance are audited before implementation for material design and in the existing final code review alongside correctness.",
+        "Critical/high bypass, stale/replayed review, fake provenance, permission expansion, legacy and DIRECT issues are corrected or block acceptance.",
+        "No default automated performance/load/stress/benchmark tests; functional workflow tests remain, and ordinary final reviewer does not spawn two routine specialists.",
+        "Actual mapped regressions and final-hash re-review pass with no unresolved critical/high; if not, task remains pending."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_108",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_108"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Read actual implementation",
+          "objective": "Inspect latest 107 code/tests and real source hashes, outcome/receipt and prepared research.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Dispatch genuine independent reviewer",
+          "objective": "Use fresh authorized max-qualified reviewer; record provider/model/effort/session and exact reviewed hashes/provenance.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Audit security/performance and bypass risks",
+          "objective": "Challenge architecture assumptions, stale approval, crash/resume, forged reviewer, read-only limits, DIRECT/legacy, false positives, provider budget and benchmark-default ban.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Fix blockers and revalidate",
+          "objective": "Correct critical/high defects, rerun mapped checks and re-review final changed hashes; otherwise stay pending.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record review receipt",
+          "objective": "Write genuine 108 receipt/outcome and precise limitations/unknown costs, no invented benchmarks.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/108-review-and-correct-architecture-security-performance.md",
+      "related_task_files": []
+    },
+    {
       "id": "082",
       "slug": "integrate-all-implemented-contracts-and-close-cross-feature-gaps",
       "title": "Integrate all implemented contracts and close cross-feature gaps",
@@ -17352,7 +17689,8 @@
         "R052",
         "R053",
         "R054",
-        "R055"
+        "R055",
+        "R056"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -17434,7 +17772,8 @@
         "100",
         "102",
         "104",
-        "106"
+        "106",
+        "108"
       ],
       "implementation_guidance": [
         "Read docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md.",
@@ -17459,7 +17798,8 @@
         "All six added feature contracts have independently reviewed current-tree evidence.",
         "P052 semantic five-minute stall diagnosis, reliable progress percentages and authorized higher-capability repair have actual independently reviewed mapped integration evidence.",
         "P053 OS lease and release tests, accurate supported-host caveats and independent acceptance are evidenced.",
-        "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence."
+        "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence.",
+        "Task 107 design-security/performance and final-code-review lenses are implemented and independently reviewed by 108 with no default benchmarks."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_082",
@@ -18097,7 +18437,8 @@
         "R052",
         "R053",
         "R054",
-        "R055"
+        "R055",
+        "R056"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -18147,7 +18488,8 @@
         "The prepared report is input evidence, not proof that this implementation or its independent review has passed.",
         "Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.",
         "P053 final whole-skill review examines actual 101/102 validation/reviewer hashes and unsupported overnight conditions.",
-        "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence."
+        "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence.",
+        "Final P056 review checks real 107/108 evidence, current design gate and two review lenses, without mandatory automated performance tests."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_086",
@@ -18311,6 +18653,17 @@
         "106"
       ],
       "previous_count": 102,
+      "implementation_complete": false
+    },
+    {
+      "at": "2026-11-14T05:25:00Z",
+      "type": "contract_amendment",
+      "reference": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261112_ARCH_SECURITY_PERFORMANCE.md",
+      "added_task_ids": [
+        "107",
+        "108"
+      ],
+      "previous_count": 106,
       "implementation_complete": false
     }
   ],

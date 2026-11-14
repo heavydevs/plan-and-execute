@@ -113,14 +113,14 @@ def structural(root: Path, native: bool = True) -> dict:
     spec = load(local(root, str(DOC / "PLAN1_SPEC.json")))
     entries = catalog(root)
     tasks = {f"{t['id']:03}": t for t in spec["tasks"]}
-    require(len(tasks) == len(spec["tasks"]) == len(entries) == 100, "Expected 100 unique tasks")
+    require(len(tasks) == len(spec["tasks"]) == len(entries) == 108, "Expected 108 unique tasks")
     require(set(tasks) == set(entries), "Task catalog mismatch")
     require(spec["autostart"] is False, "Research preparation must not autostart workers")
     require("single implementation" in spec["title"].lower(), "Not a single implementation plan")
     req = {r["id"] for r in spec["requirements"]}
     require(req == {v for t in tasks.values() for v in t["requirement_ids"]}, "Requirement coverage mismatch")
     for tid, task in tasks.items():
-        require(entries[tid]["kind"] == "implementation", "Research task still present")
+        require(entries[tid]["kind"] in {"implementation", "review"}, "Research task still present")
         require(all(dep in tasks and dep != tid for dep in task["dependencies"]),
                 f"Invalid dependency graph: {tid}")
         require(bool(task["subtasks"]), "Missing internal checklist")
@@ -146,7 +146,7 @@ def structural(root: Path, native: bool = True) -> dict:
     for task_id in tasks:
         visit(task_id)
     require(f"{spec['tasks'][-1]['id']:03}" == "086", "Whole-skill review must remain last")
-    for rid in ("088", "090", "092", "094", "096", "098", "100"):
+    for rid in ("088", "090", "092", "094", "096", "098", "100", "102", "104", "106", "108"):
         require(rid in tasks["082"]["dependencies"], f"Missing extension review gate {rid}")
     require(tasks["001"]["model_tier"] != "max", "Global initial max-review blocker returned")
     require("whole-skill" in tasks["086"]["title"].lower(), "Whole-skill review must be last")

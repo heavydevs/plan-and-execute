@@ -35,3 +35,8 @@ Checks: coverage_complete, tasks_atomic, dependencies_valid, validations_suffici
 - P054/R054: researched opt-in host 20-minute keepalive on >=6 pending tasks, register/unregister ownership and reliable cleanup, reviewed later by task 104.
 - P055/R055: researched 2026-11-12 official model evidence and optional frontier L6; independent review task 106 required.
 - Structural addition only. No native scheduling, live provider model trials, physical sleep tests or independent reviewers executed. Task 082 now depends on reviews 104 and 106, preserving final review 086.
+
+## Amendment P056 — 2026-11-14
+
+- Added researched, implementation-ready security/performance architecture and code review TODOs 107/108; 108 gates 082; 086 remains final.
+- Plan-only structural amendment: no authenticated agent, real independent review, code change, load benchmark or product acceptance was performed. All 108 tasks pending.

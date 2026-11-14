@@ -241,3 +241,10 @@ Depois, valide se o plano está pronto para ser implementado pela skill plan-and
 ## Scope
 
 Revise the reports, implementation instructions and acceptance graph. Do not execute product tasks, fabricate independent reviews, install, change user-global settings, commit, push or publish in this turn. Keep all 86 implementation/review tasks pending.
+
+---
+
+## Request amendment P056 — 2026-11-14
+
+User asks to add review of security and performance to material design/architecture before coding, and to final independent code review. Do not require automated performance tests unless explicitly requested. Research books, articles, agent documentation and current code before defining implementation instructions.
+Research `docs/research/20261028-skill-optimization/prepared-research/107-architecture-security-performance-review.md`; pending implementation 107 and independent correction 108; 108 gates 082, final 086 remains last.

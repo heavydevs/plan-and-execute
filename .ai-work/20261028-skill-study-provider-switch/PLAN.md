@@ -60,6 +60,8 @@ Implement 32 researched optimization topics and provider switching in one resuma
 
 - **R053** [must; user; P053 -> 101,102,082,084,086] Prevent automatic idle sleep/hibernation of the actual local host during an entire RUNNING ORCHESTRATED plan through one verified OS-native lease spanning all task/provider gaps and validations, release on stop/pause/cancel, offer opt-out and strict overnight readiness, without overriding OS power policy or safety.
 
+- **R056** [must; user; P056 -> 107,108,082,086] Independent material architecture security/performance review before coding and both lenses in final code review; no mandatory performance benchmarks.
+
 ## Constraints
 
 - Preserve original request bytes in REQUEST_ORIGINAL.md and the historical snapshot; the current amendment supersedes the two-plan workflow.
@@ -89,3 +91,7 @@ Implement 32 researched optimization topics and provider switching in one resuma
 Evidence: `ANALYSIS.md` · `PLAN_REVIEW.md` · attached study when present
 
 Autostart: no · cleanup: no
+
+## Amendment P056 — 2026-11-14
+
+Research `docs/research/20261028-skill-optimization/prepared-research/107-architecture-security-performance-review.md`. New pending task 107 implementation and 108 independent review gate before 082 integration; final 086 last. Risk-based distinct read-only design reviewer before coding; existing independent end-of-task code reviewer covers both security and performance alongside correctness. Never require automated application performance/load/stress benchmarks without explicit user request. Planning is not real reviewer execution.

@@ -4,7 +4,7 @@ Date: 2026-10-28. This replaces the former research-then-Plan2 execution workflo
 
 ## Authority and honest state
 
-`PLAN1_SPEC.json` is the current portable specification. The native `manifest.json` is authoritative during execution; task Markdown and `TODO.md` are generated projections. All 100 tasks remain pending after the 2026-11-02 P052 amendment. Research readiness is recorded separately in the prepared report index; report existence cannot complete an implementation task. Autostart is false. No authenticated model has been dispatched in this preparation.
+`PLAN1_SPEC.json` is the current portable specification. The native `manifest.json` is authoritative during execution; task Markdown and `TODO.md` are generated projections. All 108 tasks remain pending after the 2026-11-14 P056 plan extension. Research readiness is recorded separately in the prepared report index; report existence cannot complete an implementation task. Autostart is false. No authenticated model has been dispatched in this preparation.
 
 The native `plan_review` records a host structural/synthesis check, not an independent model review. The current amendment authorizes research and local replanning; it does not authorize changing installed copies, user-global configuration, committing, pushing, opening PRs, publishing or paid model experiments. Those actions retain the original explicit-consent boundary. Never print environment/profile secrets.
 
@@ -57,3 +57,7 @@ The initial 4000-byte deterministic handoff and other operational limits are eng
 ## P052 semantic progress and five-minute stall contract
 
 TODO 099 implements the research in `prepared-research/099-semantic-progress-recovery.md`, and genuinely independent correction review 100 is required before 082. Long-running work uses verified completed-unit progress rather than CPU/log activity; percentages require a known denominator, and 300-second semantic stalls trigger diagnosis before any authorized higher-capability code repair. Both tasks remain pending, as do their mapped tests.
+
+## P056 two-lens architecture and code review
+
+For material formal design, require genuine read-only independent, current-hash security/performance review before coding; unresolved high/critical risk blocks. The existing final independent code reviewer reports both lenses as well as correctness; no routine duplicate specialists. Never require automated performance/load/stress/benchmark tests without an explicit request. Tasks 107/108 pending; 108 must precede 082.
