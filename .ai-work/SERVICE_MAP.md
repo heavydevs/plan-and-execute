@@ -4791,6 +4791,216 @@ This project-local router maps every automated validation to its toolchain prere
       ],
       "resources": [],
       "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_115",
+      "name": "Task 115 test-check receipt",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "115"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_115",
+      "name": "Task 115 acceptance gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "115"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_116",
+      "name": "Task 116 test-check receipt",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "116"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_116",
+      "name": "Task 116 acceptance gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "116"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_117",
+      "name": "Task 117 test-check receipt",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "117"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_117",
+      "name": "Task 117 acceptance gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "117"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_118",
+      "name": "Task 118 test-check receipt",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "118"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_118",
+      "name": "Task 118 acceptance gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "118"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_119",
+      "name": "Task 119 test-check receipt",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "119"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_119",
+      "name": "Task 119 acceptance gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "119"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_120",
+      "name": "Task 120 test-check receipt",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "120"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_120",
+      "name": "Task 120 acceptance gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "120"
+      ],
+      "resources": [],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "no_progress_timeout_seconds": 300
     }
   ],
   "resources": [

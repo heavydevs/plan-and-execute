@@ -244,6 +244,22 @@
       {
         "id": "P060",
         "text": "Add explicit user-triggered review/refactor of legacy suites or just current-plan-developed tests; default review-only and separate edits."
+      },
+      {
+        "id": "P061",
+        "text": "After provider quota recovery, next safe dispatch selects highest-priority configured eligible agent, respecting pins, capability and security."
+      },
+      {
+        "id": "P062",
+        "text": "When all allowed providers run out of quota, persist plan pause and one durable bounded automatic recheck/resume, without paid polling or duplicate workers."
+      },
+      {
+        "id": "P063",
+        "text": "AI-generated tests must have independent contract-grounded oracles, meaningful defect-detection checks and risk-proportional unit/contract/integration/E2E."
+      },
+      {
+        "id": "P064",
+        "text": "All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics."
       }
     ],
     "repository_findings": [
@@ -302,8 +318,8 @@
     "open_questions": [
       "Authenticated execution and independent maximum-qualified review require an available authorized provider at implementation time."
     ],
-    "decomposition_strategy": "Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan. P052 adds TODO 099 and genuinely independent review 100 before integration 082, without duplicating the existing watcher. P053 adds task 101 and independent task 102 before integration 082.",
-    "hard_decisions": []
+    "hard_decisions": [],
+    "decomposition_strategy": "Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan. P052 adds TODO 099 and genuinely independent review 100 before integration 082, without duplicating the existing watcher. P053 adds task 101 and independent task 102 before integration 082."
   },
   "requirements": [
     {
@@ -845,6 +861,42 @@
       "request_part_ids": [
         "P060"
       ]
+    },
+    {
+      "id": "R061",
+      "text": "After provider quota recovery, next safe dispatch selects highest-priority configured eligible agent, respecting pins, capability and security.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P061"
+      ]
+    },
+    {
+      "id": "R062",
+      "text": "When all allowed providers run out of quota, persist plan pause and one durable bounded automatic recheck/resume, without paid polling or duplicate workers.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P062"
+      ]
+    },
+    {
+      "id": "R063",
+      "text": "AI-generated tests must have independent contract-grounded oracles, meaningful defect-detection checks and risk-proportional unit/contract/integration/E2E.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P063"
+      ]
+    },
+    {
+      "id": "R064",
+      "text": "All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P064"
+      ]
     }
   ],
   "global_constraints": [
@@ -855,7 +907,8 @@
     "Keep new provider-switch behavior opt-in and preserve disabled-mode and legacy contracts.",
     "Keep real independent code reviews before acceptance; missing reviewers are not simulated.",
     "Load only assigned reports and source paths; preserve source evidence outside disposable plan controls.",
-    "Do not automatically refactor preexisting application tests; obtain explicit test-case scope and user edit authorization."
+    "Do not automatically refactor preexisting application tests; obtain explicit test-case scope and user edit authorization.",
+    "Enforce task-specific phase routing, provider capability floors and lazy indexed context on every task; never preload unrelated research/TODOs/logs."
   ],
   "execution_context": {
     "global": {
@@ -920,10 +973,10 @@
       "This approval covers the plan specification only; actual implementation and independent review remain pending.",
       "2026-10-31: twelve additional tasks are pending, not independently implemented or reviewed.",
       "2026-11-02 P052 amendment: 099/100 specify semantic progress, truthful percentages and guarded stall recovery; structure-only assessment, not completed implementation, provider review or runtime validation.",
-      "2026-11-12: P054/P055 are planning amendments only; no production feature or independent review has run.",
-      "P056 pending 107/108: research/planning only, no code implementation or genuine independent reviewer.",
-      "P057 109/110 pending research-backed batch failure fix cycle; no implementation/reviewer/test execution.",
-      "2026-11-19 P058–P060: added pending 111–114 with implementation-ready research; only structural review, not actual models/tests."
+      "P056 tasks pending: no dispatched reviewer or tests accepted.",
+      "P057 planning-only addition: real independent reviewer remains future task 110.",
+      "2026-11-19 P058–P060: added pending 111–114 with implementation-ready research; only structural review, not actual models/tests.",
+      "2026-11-19 P061-P064: six pending implementation/review tasks; planning only, not product implementation or external model approval."
     ]
   },
   "repo_root": "/mnt/data/workspaces/plan-and-execute",
@@ -934,7 +987,7 @@
   "language": "English",
   "summary_status": "pending",
   "created_at": "2026-10-29T02:40:14+00:00",
-  "updated_at": "2026-11-19T15:40:00Z",
+  "updated_at": "2026-11-19T19:00:00Z",
   "tasks": [
     {
       "id": "001",
@@ -18678,6 +18731,894 @@
       "related_task_files": []
     },
     {
+      "id": "115",
+      "slug": "preferred-quota-recovery",
+      "title": "Implement preferred-provider priority restoration and durable quota resume",
+      "objective": "Re-rank allowed providers by user preference before each new safe dispatch only.",
+      "requirement_ids": [
+        "R061",
+        "R062"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One shared runtime invariant and focused independent validation boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned research, relevant current source symbols and accepted dependency receipts."
+        ],
+        "why_one_todo": "Changes share one source/test contract that can be verified without reading unrelated tasks.",
+        "separate_from": [
+          "Do not load unrelated studies, historical transcripts, other provider guides or raw success logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Implement preferred-provider priority restoration and durable quota resume"
+        ],
+        "out": [
+          "No second orchestrator, unrelated legacy test edits, runtime implementation in this planning amendment or paid model polling."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/availability.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/keepalivectl.py",
+          "skill/plan-and-execute/scripts/jobctl.py",
+          "skill/plan-and-execute/scripts/quota_resume.py",
+          "skill/plan-and-execute/references/QUOTA_RECOVERY.md",
+          "test/optimization/quota_recovery_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/115-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/115-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "023",
+        "055",
+        "075",
+        "100",
+        "104"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/115-quota-auto-recovery.md only for this task; architecture and negative cases are mandatory.",
+        "Re-rank allowed providers by user preference before each new safe dispatch only.",
+        "Persist quota pool, retry-after and unknown reset; distinguish auth/billing/environment errors from quota.",
+        "When every allowed provider is quota limited persist PAUSED_QUOTA and one fenced durable one-shot scheduled recheck; use existing scheduler, even for fewer than six tasks.",
+        "Zero paid polling; bounded jitter/backoff; no preemption, duplicate work, secret/permission bypass or sleeping host guarantee.",
+        "Cover A->B->A preference, no provider, multiple pools, scheduler missing, clock skew, cancel and crash/resume.",
+        "Use per-phase economic routing and indexed source scope; preserve capability floors and independent reviews.",
+        "Produce actual receipt/outcome only after code, mapped checks and real review; no fabricated success."
+      ],
+      "acceptance_criteria": [
+        "Verified: Re-rank allowed providers by user preference before each new safe dispatch only.",
+        "Verified: Persist quota pool, retry-after and unknown reset; distinguish auth/billing/environment errors from quota.",
+        "Verified: When every allowed provider is quota limited persist PAUSED_QUOTA and one fenced durable one-shot scheduled recheck; use existing scheduler, even for fewer than six tasks.",
+        "Verified: Zero paid polling; bounded jitter/backoff; no preemption, duplicate work, secret/permission bypass or sleeping host guarantee.",
+        "Actual source-bound tests, negative fixtures and compact cost evidence establish behavior without inventing savings.",
+        "No unauthorized provider/legacy test edits, leaked secrets, duplicate scheduler or lost global validation gate."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_115",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_115"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect assigned architecture and relevant source symbols",
+          "objective": "Inspect assigned architecture and relevant source symbols using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement bounded contract without duplicate framework",
+          "objective": "Implement bounded contract without duplicate framework using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Integrate monitoring, permissions and route",
+          "objective": "Integrate monitoring, permissions and route using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Execute adversarial focused validation",
+          "objective": "Execute adversarial focused validation using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record real product evidence or stay pending",
+          "objective": "Record real product evidence or stay pending using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/115-preferred-quota-recovery.md",
+      "related_task_files": []
+    },
+    {
+      "id": "116",
+      "slug": "review-preferred-quota-recovery",
+      "title": "Independently review provider preference recovery and quota wake",
+      "objective": "Real fresh max reviewer on final 115 hashes; no simulated approval.",
+      "requirement_ids": [
+        "R061",
+        "R062"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent independent final-source correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned research, relevant current source symbols and accepted dependency receipts."
+        ],
+        "why_one_todo": "Changes share one source/test contract that can be verified without reading unrelated tasks.",
+        "separate_from": [
+          "Do not load unrelated studies, historical transcripts, other provider guides or raw success logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independently review provider preference recovery and quota wake"
+        ],
+        "out": [
+          "No second orchestrator, unrelated legacy test edits, runtime implementation in this planning amendment or paid model polling."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/availability.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/keepalivectl.py",
+          "skill/plan-and-execute/scripts/jobctl.py",
+          "skill/plan-and-execute/scripts/quota_resume.py",
+          "skill/plan-and-execute/references/QUOTA_RECOVERY.md",
+          "test/optimization/quota_recovery_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/116-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/116-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "115"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/115-quota-auto-recovery.md only for this task; architecture and negative cases are mandatory.",
+        "Real fresh max reviewer on final 115 hashes; no simulated approval.",
+        "Challenge dispatch order, no-preempt, all-unavailable, one-shot lease and stale generation.",
+        "Probe billing/auth mismatch, unknown reset, unsupported host, duplicate timers and cancel.",
+        "Correct high/critical defects; independently approve current code with source-bound logs.",
+        "Use per-phase economic routing and indexed source scope; preserve capability floors and independent reviews.",
+        "Produce actual receipt/outcome only after code, mapped checks and real review; no fabricated success."
+      ],
+      "acceptance_criteria": [
+        "Verified: Real fresh max reviewer on final 115 hashes; no simulated approval.",
+        "Verified: Challenge dispatch order, no-preempt, all-unavailable, one-shot lease and stale generation.",
+        "Verified: Probe billing/auth mismatch, unknown reset, unsupported host, duplicate timers and cancel.",
+        "Verified: Correct high/critical defects; independently approve current code with source-bound logs.",
+        "Real independent reviewer approves final code and all high/critical findings are closed.",
+        "No unauthorized provider/legacy test edits, leaked secrets, duplicate scheduler or lost global validation gate."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_116",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_116"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect final prior source and evidence",
+          "objective": "Inspect final prior source and evidence using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Dispatch genuine independent model review",
+          "objective": "Dispatch genuine independent model review using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Probe adverse contract and security cases",
+          "objective": "Probe adverse contract and security cases using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Correct findings and revalidate current code",
+          "objective": "Correct findings and revalidate current code using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record real approved evidence or stay pending",
+          "objective": "Record real approved evidence or stay pending using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/116-review-preferred-quota-recovery.md",
+      "related_task_files": []
+    },
+    {
+      "id": "117",
+      "slug": "ai-test-oracles",
+      "title": "Implement contract-grounded AI test oracles and defect-detection checks",
+      "objective": "Require independent expected-outcome contract, meaningful assertions, mapped risk, source and layer for each newly created/changed test.",
+      "requirement_ids": [
+        "R063",
+        "R064"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One shared runtime invariant and focused independent validation boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned research, relevant current source symbols and accepted dependency receipts."
+        ],
+        "why_one_todo": "Changes share one source/test contract that can be verified without reading unrelated tasks.",
+        "separate_from": [
+          "Do not load unrelated studies, historical transcripts, other provider guides or raw success logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Implement contract-grounded AI test oracles and defect-detection checks"
+        ],
+        "out": [
+          "No second orchestrator, unrelated legacy test edits, runtime implementation in this planning amendment or paid model polling."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/test_impact.py",
+          "skill/plan-and-execute/scripts/test_failure_cycle.py",
+          "skill/plan-and-execute/scripts/test_oracle.py",
+          "skill/plan-and-execute/references/TEST_AUTHORING.md",
+          "test/optimization/ai_test_quality_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/117-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/117-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "110",
+        "112",
+        "108"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/117-ai-test-oracle-quality.md only for this task; architecture and negative cases are mandatory.",
+        "Require independent expected-outcome contract, meaningful assertions, mapped risk, source and layer for each newly created/changed test.",
+        "Reuse 111 impact selector and 109 failure cycle; no duplicate runner; authorize legacy edits only via 113.",
+        "Property/parameterized tests for field/rule matrices; risk-unique E2E for browser user journeys.",
+        "Seeded defect or bounded incremental mutation proves critical oracles detect meaningful failures; no mandatory global mutation.",
+        "Cover 45-field form, auth positive/negative, vacuous oracle, hallucinated API, flaky fixtures and repaired bug red/green.",
+        "Use per-phase economic routing and indexed source scope; preserve capability floors and independent reviews.",
+        "Produce actual receipt/outcome only after code, mapped checks and real review; no fabricated success."
+      ],
+      "acceptance_criteria": [
+        "Verified: Require independent expected-outcome contract, meaningful assertions, mapped risk, source and layer for each newly created/changed test.",
+        "Verified: Reuse 111 impact selector and 109 failure cycle; no duplicate runner; authorize legacy edits only via 113.",
+        "Verified: Property/parameterized tests for field/rule matrices; risk-unique E2E for browser user journeys.",
+        "Verified: Seeded defect or bounded incremental mutation proves critical oracles detect meaningful failures; no mandatory global mutation.",
+        "Actual source-bound tests, negative fixtures and compact cost evidence establish behavior without inventing savings.",
+        "No unauthorized provider/legacy test edits, leaked secrets, duplicate scheduler or lost global validation gate."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_117",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_117"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect assigned architecture and relevant source symbols",
+          "objective": "Inspect assigned architecture and relevant source symbols using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement bounded contract without duplicate framework",
+          "objective": "Implement bounded contract without duplicate framework using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Integrate monitoring, permissions and route",
+          "objective": "Integrate monitoring, permissions and route using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Execute adversarial focused validation",
+          "objective": "Execute adversarial focused validation using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record real product evidence or stay pending",
+          "objective": "Record real product evidence or stay pending using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/117-ai-test-oracles.md",
+      "related_task_files": []
+    },
+    {
+      "id": "118",
+      "slug": "review-ai-test-oracles",
+      "title": "Independently review AI test oracle quality and efficiency",
+      "objective": "Real fresh max review with 117 final hashes/dispatch evidence.",
+      "requirement_ids": [
+        "R063",
+        "R064"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent independent final-source correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned research, relevant current source symbols and accepted dependency receipts."
+        ],
+        "why_one_todo": "Changes share one source/test contract that can be verified without reading unrelated tasks.",
+        "separate_from": [
+          "Do not load unrelated studies, historical transcripts, other provider guides or raw success logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independently review AI test oracle quality and efficiency"
+        ],
+        "out": [
+          "No second orchestrator, unrelated legacy test edits, runtime implementation in this planning amendment or paid model polling."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/test_impact.py",
+          "skill/plan-and-execute/scripts/test_failure_cycle.py",
+          "skill/plan-and-execute/scripts/test_oracle.py",
+          "skill/plan-and-execute/references/TEST_AUTHORING.md",
+          "test/optimization/ai_test_quality_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/118-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/118-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "117"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/117-ai-test-oracle-quality.md only for this task; architecture and negative cases are mandatory.",
+        "Real fresh max review with 117 final hashes/dispatch evidence.",
+        "Reject assert-true, mock-only auth, mutante surviving and regressions masked by changed expectations.",
+        "Review representative browser coverage, risk, test timing, property cases and legacy edit consent.",
+        "Correct all high/critical findings and rerun scoped suites before independent acceptance.",
+        "Use per-phase economic routing and indexed source scope; preserve capability floors and independent reviews.",
+        "Produce actual receipt/outcome only after code, mapped checks and real review; no fabricated success."
+      ],
+      "acceptance_criteria": [
+        "Verified: Real fresh max review with 117 final hashes/dispatch evidence.",
+        "Verified: Reject assert-true, mock-only auth, mutante surviving and regressions masked by changed expectations.",
+        "Verified: Review representative browser coverage, risk, test timing, property cases and legacy edit consent.",
+        "Verified: Correct all high/critical findings and rerun scoped suites before independent acceptance.",
+        "Real independent reviewer approves final code and all high/critical findings are closed.",
+        "No unauthorized provider/legacy test edits, leaked secrets, duplicate scheduler or lost global validation gate."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_118",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_118"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect final prior source and evidence",
+          "objective": "Inspect final prior source and evidence using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Dispatch genuine independent model review",
+          "objective": "Dispatch genuine independent model review using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Probe adverse contract and security cases",
+          "objective": "Probe adverse contract and security cases using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Correct findings and revalidate current code",
+          "objective": "Correct findings and revalidate current code using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record real approved evidence or stay pending",
+          "objective": "Record real approved evidence or stay pending using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/118-review-ai-test-oracles.md",
+      "related_task_files": []
+    },
+    {
+      "id": "119",
+      "slug": "task-context-routing",
+      "title": "Enforce economical phase routing and minimal source-bound task context",
+      "objective": "Create deterministic context packet selected by phase, expected paths, actual source hashes and dependency receipts; add reason and size.",
+      "requirement_ids": [
+        "R064"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One shared runtime invariant and focused independent validation boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned research, relevant current source symbols and accepted dependency receipts."
+        ],
+        "why_one_todo": "Changes share one source/test contract that can be verified without reading unrelated tasks.",
+        "separate_from": [
+          "Do not load unrelated studies, historical transcripts, other provider guides or raw success logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Enforce economical phase routing and minimal source-bound task context"
+        ],
+        "out": [
+          "No second orchestrator, unrelated legacy test edits, runtime implementation in this planning amendment or paid model polling."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/routingctl.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/task_context_router.py",
+          "skill/plan-and-execute/references/TASK_CONTEXT_ROUTING.md",
+          "test/optimization/route_aware_context_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/119-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/119-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "015",
+        "029",
+        "065",
+        "090",
+        "098",
+        "112",
+        "116",
+        "118"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/119-task-wide-lazy-routing.md only for this task; architecture and negative cases are mandatory.",
+        "Create deterministic context packet selected by phase, expected paths, actual source hashes and dependency receipts; add reason and size.",
+        "Enforce economy tool first, qualified model/effort floors, provider preference/data permissions and max independent review; reuse routingctl.",
+        "Load only assigned research and references; avoid unrelated tasks, raw logs and full history; support targeted symbol reads.",
+        "Stable short caching prefix only when provider supports it and actual cost/quality are measured; report unknown billing honestly.",
+        "Gate all 120 active TODOs plus future ones; stale evidence, unsafe scope, secrets and unknown dependency broaden with justification.",
+        "Use per-phase economic routing and indexed source scope; preserve capability floors and independent reviews.",
+        "Produce actual receipt/outcome only after code, mapped checks and real review; no fabricated success."
+      ],
+      "acceptance_criteria": [
+        "Verified: Create deterministic context packet selected by phase, expected paths, actual source hashes and dependency receipts; add reason and size.",
+        "Verified: Enforce economy tool first, qualified model/effort floors, provider preference/data permissions and max independent review; reuse routingctl.",
+        "Verified: Load only assigned research and references; avoid unrelated tasks, raw logs and full history; support targeted symbol reads.",
+        "Verified: Stable short caching prefix only when provider supports it and actual cost/quality are measured; report unknown billing honestly.",
+        "Actual source-bound tests, negative fixtures and compact cost evidence establish behavior without inventing savings.",
+        "No unauthorized provider/legacy test edits, leaked secrets, duplicate scheduler or lost global validation gate."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_119",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_119"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect assigned architecture and relevant source symbols",
+          "objective": "Inspect assigned architecture and relevant source symbols using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement bounded contract without duplicate framework",
+          "objective": "Implement bounded contract without duplicate framework using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Integrate monitoring, permissions and route",
+          "objective": "Integrate monitoring, permissions and route using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Execute adversarial focused validation",
+          "objective": "Execute adversarial focused validation using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record real product evidence or stay pending",
+          "objective": "Record real product evidence or stay pending using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/119-task-context-routing.md",
+      "related_task_files": []
+    },
+    {
+      "id": "120",
+      "slug": "review-task-context-routing",
+      "title": "Independently review task-wide economical routing and context safety",
+      "objective": "Real fresh max independent review pinned to 119 final source and actual dispatch.",
+      "requirement_ids": [
+        "R064"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One coherent independent final-source correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Only assigned research, relevant current source symbols and accepted dependency receipts."
+        ],
+        "why_one_todo": "Changes share one source/test contract that can be verified without reading unrelated tasks.",
+        "separate_from": [
+          "Do not load unrelated studies, historical transcripts, other provider guides or raw success logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independently review task-wide economical routing and context safety"
+        ],
+        "out": [
+          "No second orchestrator, unrelated legacy test edits, runtime implementation in this planning amendment or paid model polling."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/routingctl.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/task_context_router.py",
+          "skill/plan-and-execute/references/TASK_CONTEXT_ROUTING.md",
+          "test/optimization/route_aware_context_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/120-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/120-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "119"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/119-task-wide-lazy-routing.md only for this task; architecture and negative cases are mandatory.",
+        "Real fresh max independent review pinned to 119 final source and actual dispatch.",
+        "Probe all 120 current tasks and future task, cache unknown, changed source, stale contracts and prompt leaks.",
+        "Check low-cost deterministic lookup, architecture high floor, max reviewer and restricted data path.",
+        "Correct blocking findings; rerun mapped validation and report measured/unknown costs without imaginary savings.",
+        "Use per-phase economic routing and indexed source scope; preserve capability floors and independent reviews.",
+        "Produce actual receipt/outcome only after code, mapped checks and real review; no fabricated success."
+      ],
+      "acceptance_criteria": [
+        "Verified: Real fresh max independent review pinned to 119 final source and actual dispatch.",
+        "Verified: Probe all 120 current tasks and future task, cache unknown, changed source, stale contracts and prompt leaks.",
+        "Verified: Check low-cost deterministic lookup, architecture high floor, max reviewer and restricted data path.",
+        "Verified: Correct blocking findings; rerun mapped validation and report measured/unknown costs without imaginary savings.",
+        "Real independent reviewer approves final code and all high/critical findings are closed.",
+        "No unauthorized provider/legacy test edits, leaked secrets, duplicate scheduler or lost global validation gate."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_120",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_120"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect final prior source and evidence",
+          "objective": "Inspect final prior source and evidence using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Dispatch genuine independent model review",
+          "objective": "Dispatch genuine independent model review using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Probe adverse contract and security cases",
+          "objective": "Probe adverse contract and security cases using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Correct findings and revalidate current code",
+          "objective": "Correct findings and revalidate current code using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record real approved evidence or stay pending",
+          "objective": "Record real approved evidence or stay pending using only task-specific research, current code and current acceptance evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/120-review-task-context-routing.md",
+      "related_task_files": []
+    },
+    {
       "id": "082",
       "slug": "integrate-all-implemented-contracts-and-close-cross-feature-gaps",
       "title": "Integrate all implemented contracts and close cross-feature gaps",
@@ -18705,7 +19646,11 @@
         "R057",
         "R058",
         "R059",
-        "R060"
+        "R060",
+        "R061",
+        "R062",
+        "R063",
+        "R064"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -18790,7 +19735,10 @@
         "106",
         "108",
         "110",
-        "114"
+        "114",
+        "116",
+        "118",
+        "120"
       ],
       "implementation_guidance": [
         "Read docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md.",
@@ -18805,7 +19753,8 @@
         "Integrate all six feature pairs from docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md; require actual independent review receipts.",
         "Integrate verified P053 101/102 host sleep guard and tests across providers, OS backends, WSL, long validation and strict preflight.",
         "Integrate P054 timer cleanup and P055 L6 model routing after genuine independent reviews 104/106.",
-        "Require real review 112 before 109 and 114 before integration; run full global suites at plan-final fingerprint, not after every task."
+        "Require real review 112 before 109 and 114 before integration; run full global suites at plan-final fingerprint, not after every task.",
+        "Integrate independently reviewed 115-120 quota restoration/resume, oracle-strength tests and every-task lazy routing without losing global final suite."
       ],
       "acceptance_criteria": [
         "All implementation acceptance cases and required independent code reviews have current evidence.",
@@ -18819,7 +19768,8 @@
         "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence.",
         "Task 107 design-security/performance and final-code-review lenses are implemented and independently reviewed by 108 with no default benchmarks.",
         "P057 109/110 real implementation and independent review prove full-safe failure inventory, targeted fix cycles and mandatory final full-suite gate.",
-        "Complete global unit/contract/integration/E2E suite passes at plan closure on final source; opt-in review authorization is proven."
+        "Complete global unit/contract/integration/E2E suite passes at plan closure on final source; opt-in review authorization is proven.",
+        "All quota, test-oracle and lazy-context requirements have current executable negative tests and genuine review evidence."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_082",
@@ -19462,7 +20412,11 @@
         "R057",
         "R058",
         "R059",
-        "R060"
+        "R060",
+        "R061",
+        "R062",
+        "R063",
+        "R064"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -19503,7 +20457,8 @@
         "Write actual changed-file, test and acceptance evidence to docs/research/20261028-skill-optimization/implementation/086-receipt.json.",
         "Dispatch an actual fresh maximum-qualified reviewer; record its real route and input hashes, then correct and revalidate every blocking finding.",
         "Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.",
-        "If integration exposes a defect outside this write scope, reopen its owning TODO and correction review with native controllers; do not silently expand scope."
+        "If integration exposes a defect outside this write scope, reopen its owning TODO and correction review with native controllers; do not silently expand scope.",
+        "Final whole-skill review verifies P061-P064, real source hashes, fail-safe wake, test defect detection and measured/unknown tokens."
       ],
       "acceptance_criteria": [
         "All implementation acceptance cases and required independent code reviews have current evidence.",
@@ -19700,6 +20655,21 @@
         "110"
       ],
       "previous_count": 108,
+      "implementation_complete": false
+    },
+    {
+      "at": "2026-11-19T19:00:00Z",
+      "type": "contract_amendment",
+      "reference": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261119_QUOTA_TEST_TOKENS.md",
+      "added_task_ids": [
+        "115",
+        "116",
+        "117",
+        "118",
+        "119",
+        "120"
+      ],
+      "previous_count": 114,
       "implementation_complete": false
     }
   ],

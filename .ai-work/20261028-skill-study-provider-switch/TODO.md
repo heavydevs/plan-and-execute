@@ -109,6 +109,12 @@
 - [ ] **112** — Independently review and correct test hierarchy and impact selector
 - [ ] **113** — Implement opt-in legacy or current-plan test audit and guarded refactoring
 - [ ] **114** — Independently review and correct test-audit authorization and ownership
+- [ ] **115** — Implement preferred-provider priority restoration and durable quota resume
+- [ ] **116** — Independently review provider preference recovery and quota wake
+- [ ] **117** — Implement contract-grounded AI test oracles and defect-detection checks
+- [ ] **118** — Independently review AI test oracle quality and efficiency
+- [ ] **119** — Enforce economical phase routing and minimal source-bound task context
+- [ ] **120** — Independently review task-wide economical routing and context safety
 - [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
 - [ ] **083** — Review and correct end-to-end integration
 - [ ] **084** — Validate release contents, documentation and migration

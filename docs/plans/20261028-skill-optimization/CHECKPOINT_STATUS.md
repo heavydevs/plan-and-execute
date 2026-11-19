@@ -22,3 +22,8 @@ See docs/research/20261028-skill-optimization/prepared-research/READINESS.md and
 - 2026-11-12: researched and inserted pending TODOs 103/104 (opt-in 20-minute host keepalive) and 105/106 (latest providers and opt-in L6 frontier model tier), with integration dependencies in task 082. Research and graph-only work; no implementation/independent review evidence yet.
 
 - 2026-11-19: verified existing P057 109/110, added pending 111/112 impact-aware test policy and 113/114 explicit scope test audit/refactor. Research/planning only, no skill product code, application test refactor, paid review or testing performed by amendment. Commit/push of plan authorized.
+
+
+## 2026-11-19 P061–P064 extension
+
+The **single active plan now contains 120 pending tasks**. 115/116: preferred provider auto-restoration and durable all-quota pause/wake. 117/118: contract-grounded AI test oracles and defect-detection evidence, complementing 109–114. 119/120: universal qualified phase routing and minimal indexed context. The three scoped research reports are `docs/research/20261028-skill-optimization/prepared-research/115-quota-auto-recovery.md`, `docs/research/20261028-skill-optimization/prepared-research/117-ai-test-oracle-quality.md`, `docs/research/20261028-skill-optimization/prepared-research/119-task-wide-lazy-routing.md`. Independent acceptance gates 116/118/120 precede 082; final review 086 remains last. Research and plan preparation are not actual product implementation, external review, test success or measured cost reduction. User authorized plan commit/push on this branch only.

@@ -255,3 +255,8 @@ Research `docs/research/20261028-skill-optimization/prepared-research/107-archit
 
 Execute all safely runnable tests once to inventory failures, with per-test stack/log and E2E screenshot/trace evidence. Fix by rerunning only failed/impacted tests, then run the entire required suite on the final source; repeat until fully green. Fatal build/infra/dependency failures must stop safely. Research source, docs, books and agents before creating tasks.
 Detailed research: `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md`; pending 109 implementation and 110 independent review; 110 gates 082, final 086 remains last.
+
+
+## User request 2026-11-19 — P061–P064 (faithful content)
+
+Quando um agente fica sem créditos, outro assume, mas quando o preferencial recupera créditos a skill deve voltar a usá-lo automaticamente segundo preferências. Se todos esgotarem créditos no meio do plano, deve agendar retomada após créditos voltarem. Pesquisar amplamente livros, estudos, artigos, docs e benchmarks sobre criação/alteração de testes automáticos rápidos e de qualidade, preparar a task com arquitetura. Todas as tasks devem usar roteamento econômico e contexto mínimo, sem ler arquivos irrelevantes. Commit e push no branch checkpoint/plano1-estudo-provider-switch-20261028.

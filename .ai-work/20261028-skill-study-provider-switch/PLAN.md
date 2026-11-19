@@ -110,3 +110,13 @@ Study `docs/research/20261028-skill-optimization/prepared-research/109-batched-t
 - Implementation-ready sources: `docs/research/20261028-skill-optimization/prepared-research/111-impact-aware-test-design-and-selection.md` and `docs/research/20261028-skill-optimization/prepared-research/113-opt-in-test-suite-review-refactor.md`.
 - 111/112 implement/review test portfolio and impact selection; 109 now depends on 112; 113/114 implement/review on-demand audit after 110; 114 gates integration 082 and 086 remains final.
 - All 114 tasks pending. No runtime skill code, project tests, independent model review or benchmark has been executed by this plan amendment.
+
+
+## P061–P064 — Additional pending work (2026-11-19)
+
+- **R061** [must; user; P061 -> 115,116,082,086] After provider quota recovery, next safe dispatch selects highest-priority configured eligible agent, respecting pins, capability and security.
+- **R062** [must; user; P062 -> 115,116,082,086] When all allowed providers run out of quota, persist plan pause and one durable bounded automatic recheck/resume, without paid polling or duplicate workers.
+- **R063** [must; user; P063 -> 117,118,082,086] AI-generated tests must have independent contract-grounded oracles, meaningful defect-detection checks and risk-proportional unit/contract/integration/E2E.
+- **R064** [must; user; P064 -> 117,118,119,120,082,086] All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics.
+
+Tasks 115–120 follow implementation/independent review pairs, staged before integration 082; final 086 remains last. Research is loaded only on matching task. No implementation or external review has occurred; commit/push of plan authorized.
