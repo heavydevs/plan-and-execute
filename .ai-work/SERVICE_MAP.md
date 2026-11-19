@@ -4651,6 +4651,146 @@ This project-local router maps every automated validation to its toolchain prere
       ],
       "resources": [],
       "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_111",
+      "name": "P058-P060 task 111 checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "111"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_111",
+      "name": "P058-P060 task 111 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "111"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_112",
+      "name": "P058-P060 task 112 checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "112"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_112",
+      "name": "P058-P060 task 112 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "112"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_113",
+      "name": "P058-P060 task 113 checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "113"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_113",
+      "name": "P058-P060 task 113 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "113"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_TESTS_114",
+      "name": "P058-P060 task 114 checks",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "114"
+      ],
+      "toolchains": [
+        "PYTHON",
+        "NODE"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
+    },
+    {
+      "id": "P1_114",
+      "name": "P058-P060 task 114 receipt gate",
+      "command": [
+        "python",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "--repo-root",
+        ".",
+        "--task",
+        "114"
+      ],
+      "toolchains": [
+        "PYTHON"
+      ],
+      "resources": [],
+      "no_progress_timeout_seconds": 300
     }
   ],
   "resources": [

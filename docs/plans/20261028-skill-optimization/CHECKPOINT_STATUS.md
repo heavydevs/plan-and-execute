@@ -3,7 +3,7 @@
 Date: 2026-10-28. Product baseline remains 0.11.0.
 
 - Thirty-two research reports were rewritten with primary-source comparisons and scoped implementation contracts.
-- One implementation plan remains: 106 tasks, all pending; new extension checkpoints; 53 future independent reviews.
+- One implementation plan remains: 114 tasks, all pending, with additional independent correction review gates.
 - Native plan/study validation, map audit, report linkage and 50 preparation-gate tests pass.
 - Prepared research is not implemented functionality or independent code-review evidence.
 - All 135 baseline files under skill/, bin/ and lib/ are unchanged.
@@ -20,3 +20,5 @@ See docs/research/20261028-skill-optimization/prepared-research/READINESS.md and
 - 2026-11-05: researched P053 host sleep lease and added TODOs 101/102 pending; no product implementation, provider call or physical OS smoke tests yet.
 
 - 2026-11-12: researched and inserted pending TODOs 103/104 (opt-in 20-minute host keepalive) and 105/106 (latest providers and opt-in L6 frontier model tier), with integration dependencies in task 082. Research and graph-only work; no implementation/independent review evidence yet.
+
+- 2026-11-19: verified existing P057 109/110, added pending 111/112 impact-aware test policy and 113/114 explicit scope test audit/refactor. Research/planning only, no skill product code, application test refactor, paid review or testing performed by amendment. Commit/push of plan authorized.

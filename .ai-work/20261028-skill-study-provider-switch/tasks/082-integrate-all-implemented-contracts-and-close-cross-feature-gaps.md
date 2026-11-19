@@ -2,7 +2,7 @@
 task_id: "082"
 status: "pending"
 requirements: "R001,R003,R004,R005,R041,R042,R043,R044,R046,R047,R048,R049,R050,R051,R052"
-dependencies: "003,005,007,009,011,013,015,017,019,021,023,025,027,029,031,033,035,037,039,041,043,045,047,049,051,053,055,057,059,061,063,065,067,069,071,073,075,077,079,081,088,090,092,094,096,098,100"
+dependencies: "003,005,007,009,011,013,015,017,019,021,023,025,027,029,031,033,035,037,039,041,043,045,047,049,051,053,055,057,059,061,063,065,067,069,071,073,075,077,079,081,088,090,092,094,096,098,100,114"
 allowed_related_task_reads: "none"
 ---
 
@@ -35,6 +35,8 @@ Out: No new broad research phase or second-plan generation.; Do not change insta
 Files: `README.md`, `README.pt-BR.md`, `CHANGELOG.md`, `tools/run-repo-checks.js`, `tools/run-skill-self-test.js`, `test/optimization/integration_082_self_test.py`, `docs/research/20261028-skill-optimization/implementation/082-receipt.json`, `docs/research/20261028-skill-optimization/implementation/082-outcome.md`
 
 ## Guidance
+
+- Require genuine independent 112 impact selection and 114 audit/refactor permission reviews before integration. Test completion uses complete mapped source-specific suites; full unit/integration/contract/E2E global suite runs at final plan revision, repeat on later fixes.
 
 - Read docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md.
 - Read docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md.

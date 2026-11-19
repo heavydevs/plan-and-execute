@@ -232,6 +232,18 @@
       {
         "id": "P057",
         "text": "Save time and tokens by completing safe failure collection once, grouping per-case failures and doing selective repairs before mandatory final full regression."
+      },
+      {
+        "id": "P058",
+        "text": "Define lower-cost trustworthy unit/contract/integration test coverage and representative minimum/maximum/validation E2E flows."
+      },
+      {
+        "id": "P059",
+        "text": "Select changed and impacted tests per task; run complete mapped regressions, reserving global all-suite for plan completion with risk exceptions."
+      },
+      {
+        "id": "P060",
+        "text": "Add explicit user-triggered review/refactor of legacy suites or just current-plan-developed tests; default review-only and separate edits."
       }
     ],
     "repository_findings": [
@@ -244,7 +256,8 @@
       "Current progress_watch renews on distinct arbitrary stdout and CPU, while PROGRESS counters lack enforced stage/denominator monotonicity; long-running work already has 300-second idle monitoring and semantic escalation in the runner.",
       "P053: host OS sleep lease is absent across whole-plan gaps; progress/resume alone do not block idle suspend.",
       "Design phase accepts nonempty architecture note without separate security/performance reviewer; existing independent final code-review path can be reused.",
-      "run_isolated.run_validation_commands returns after first failed mapped command, and plan-specific run_task_checks stops at first nonzero check."
+      "run_isolated.run_validation_commands returns after first failed mapped command, and plan-specific run_task_checks stops at first nonzero check.",
+      "Existing 109/110 collects all safely runnable mapped failures but lacks test-level authoring and conservative cross-task impact selection."
     ],
     "research_decision": "Revision 2 evaluates primary-source alternatives for all 32 reports; workers consume the selected decision and refresh only material version or account conflicts.",
     "research_findings": [
@@ -265,7 +278,8 @@
       "Whole-process cancellation and multi-file state publication need ownership and crash-recovery tests, not only atomic single-file writes.",
       "Fixture replay proves dispatch contracts, not empirical savings; repeated identical cases do not create independent benchmark samples.",
       "Focused P052 study: docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md; existing 052/054/062 contracts partially cover the request but not the complete semantic-percent-and-repair seam.",
-      "P053 official OS and provider report: docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md"
+      "P053 official OS and provider report: docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md",
+      "Public Google/Fowler sources favor small tests; Nx/Jest/Vitest selection misses dynamic/shared dependencies, so unknown impact needs broad fallback."
     ],
     "assumptions": [
       "The user requested a deeper research revision and implementation-readiness validation, not product execution or publication in this turn.",
@@ -282,7 +296,8 @@
       "A busy-loop or changing log can resemble work; automatic escalation on ambiguous/environmental stalls can waste models or destroy useful checkpoints. P052 requires trustworthy semantic evidence and authorized repair.",
       "No idle inhibitor guarantees manual/lid/battery/thermal/policy/Modern Standby/host network/quotas and noninteractive approval.",
       "Review duplication wastes model credits; require extra reviewer only for material architecture and reuse existing final code-review worker.",
-      "Continue only independent safe tests; missing reports, environment faults, flaky tests and focused green cannot satisfy final acceptance."
+      "Continue only independent safe tests; missing reports, environment faults, flaky tests and focused green cannot satisfy final acceptance.",
+      "A narrow dependency graph may miss auth/schema/fixture regressions; enforce safe fallback and a final global suite."
     ],
     "open_questions": [
       "Authenticated execution and independent maximum-qualified review require an available authorized provider at implementation time."
@@ -803,6 +818,33 @@
       "request_part_ids": [
         "P057"
       ]
+    },
+    {
+      "id": "R058",
+      "text": "Choose the cheapest faithful test level for each behavior and validation rule; preserve representative and unique high-risk browser journeys.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P058"
+      ]
+    },
+    {
+      "id": "R059",
+      "text": "Select task-level tests through conservative dependency/risk evidence; full mapped checks and final current-source global test suite remain required.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P059"
+      ]
+    },
+    {
+      "id": "R060",
+      "text": "Allow legacy-wide or current-plan-test review/refactor only on explicit user request and exact scope; read-only by default and edits separately authorized.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P060"
+      ]
     }
   ],
   "global_constraints": [
@@ -812,7 +854,8 @@
     "Never edit installed skill copies or user-global configuration.",
     "Keep new provider-switch behavior opt-in and preserve disabled-mode and legacy contracts.",
     "Keep real independent code reviews before acceptance; missing reviewers are not simulated.",
-    "Load only assigned reports and source paths; preserve source evidence outside disposable plan controls."
+    "Load only assigned reports and source paths; preserve source evidence outside disposable plan controls.",
+    "Do not automatically refactor preexisting application tests; obtain explicit test-case scope and user edit authorization."
   ],
   "execution_context": {
     "global": {
@@ -879,7 +922,8 @@
       "2026-11-02 P052 amendment: 099/100 specify semantic progress, truthful percentages and guarded stall recovery; structure-only assessment, not completed implementation, provider review or runtime validation.",
       "2026-11-12: P054/P055 are planning amendments only; no production feature or independent review has run.",
       "P056 pending 107/108: research/planning only, no code implementation or genuine independent reviewer.",
-      "P057 109/110 pending research-backed batch failure fix cycle; no implementation/reviewer/test execution."
+      "P057 109/110 pending research-backed batch failure fix cycle; no implementation/reviewer/test execution.",
+      "2026-11-19 P058–P060: added pending 111–114 with implementation-ready research; only structural review, not actual models/tests."
     ]
   },
   "repo_root": "/mnt/data/workspaces/plan-and-execute",
@@ -890,7 +934,7 @@
   "language": "English",
   "summary_status": "pending",
   "created_at": "2026-10-29T02:40:14+00:00",
-  "updated_at": "2026-11-14T06:13:00Z",
+  "updated_at": "2026-11-19T15:40:00Z",
   "tasks": [
     {
       "id": "001",
@@ -17688,7 +17732,8 @@
       "title": "Implement complete test-failure inventory, focused repair and final full-suite gate",
       "objective": "Collect all safely runnable test failures with per-test stack/log/E2E evidence, rerun failures and impacted tests during repair, then require a full final current-source regression pass.",
       "requirement_ids": [
-        "R057"
+        "R057",
+        "R059"
       ],
       "complexity": "high",
       "atomicity_rationale": "One coherent validation cycle feature or independent correction boundary with shared source/manifest/report contract.",
@@ -17733,7 +17778,8 @@
         "063",
         "098",
         "100",
-        "108"
+        "108",
+        "112"
       ],
       "implementation_guidance": [
         "Read `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md` and `docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261114_TEST_FAILURE_BATCH.md` before code; inspect source exactly, don't infer newer features are already implemented.",
@@ -17877,7 +17923,8 @@
       "title": "Independently review and correct batched failure-repair validation",
       "objective": "Independently review task 109's complete discovery, per-test artifacts, targeted reruns, final full gate and negative/failure safety.",
       "requirement_ids": [
-        "R057"
+        "R057",
+        "R059"
       ],
       "complexity": "high",
       "atomicity_rationale": "One coherent validation cycle feature or independent correction boundary with shared source/manifest/report contract.",
@@ -18022,6 +18069,615 @@
       "related_task_files": []
     },
     {
+      "id": "111",
+      "slug": "impact-aware-test-strategy",
+      "title": "Implement risk-layered test authoring and deterministic impact-scoped validation",
+      "objective": "Choose faithful test levels and conservative impact-selected task validations; retain complete global regression on final plan source.",
+      "requirement_ids": [
+        "R058",
+        "R059"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One cohesive implementation contract or independent correction gate with a shared acceptance boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Assigned research, current affected source and accepted prerequisite receipts only."
+        ],
+        "why_one_todo": "Scope and review need one verified code/test fingerprint.",
+        "separate_from": [
+          "Do not preload unrelated studies, entire test suites, raw logs or provider documentation."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Implement architecture, policy, safe selectors and required guarded integration."
+        ],
+        "out": [
+          "No unrequested legacy test edits, full-suite per every unrelated task or false green."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/resource_watch.py",
+          "skill/plan-and-execute/scripts/service_map.py",
+          "skill/plan-and-execute/references/WORKFLOW.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+          "skill/plan-and-execute/scripts/test_impact.py",
+          "skill/plan-and-execute/references/TEST_STRATEGY.md",
+          "test/optimization/impact_aware_test_strategy_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/111-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/111-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "055",
+        "059",
+        "063",
+        "098",
+        "100",
+        "108"
+      ],
+      "implementation_guidance": [
+        "Read implementation-ready `docs/research/20261028-skill-optimization/prepared-research/111-impact-aware-test-design-and-selection.md` only for this task; its alternatives, algorithms and fixtures are mandatory.",
+        "Read only the assigned 111 research and relevant current source; write a lazy TEST_STRATEGY.md reference, never inflate the default worker prompt.",
+        "Per behavior and risk, choose the smallest trustworthy unit/component, contract, integration or real-browser test with assertions, test IDs and explicit unique E2E reasons.",
+        "Cover all validation rules with parameterized unit/API tests. E2E cover minimum-valid success, maximum-meaningful success and representative UI errors plus unique high-risk client cases.",
+        "Use native verified exact argv selectors, git diff including untracked files, reverse dependencies/ownership, shared schema/auth and source/map/config fingerprints in test_impact.py.",
+        "Broaden selection for unknown/dynamic graph, shared fixtures, global config, schema/auth, missing tests/shards, stale hash or zero selected; no silent green.",
+        "Complete all mapped impacted task suites on current source; P057 collects all safe failures and repairs targeted cases; full global repository suites run at final integration or earlier on risk/CI requirement.",
+        "Reuse existing monitor, job and runner controls and current tier routing; cache deterministic graph and pass bounded reasons/evidence, not all raw logs.",
+        "Adversarial tests must include 45-rule form, 1000 tests with 100 E2E, cross-cutting shared change, hidden regression, crash/resume, missing selectors and honest measured overhead."
+      ],
+      "acceptance_criteria": [
+        "Each behavior has coverage at the cheapest faithful level with all expected field-validation cases in parameterized unit/API tests.",
+        "E2E cover critical min/max success and representative UI errors without one test per input combination or a rigid quota.",
+        "Changed/new tests, reverse dependents, contracts and relevant real-user E2E selected with exact verified runner argv and reasons.",
+        "Unknown/shared/dynamic dependencies, missing shards, zero selectors, stale source and global auth/schema changes trigger broader checks or block.",
+        "Focused failures alone never finish a task; all selected mapped tests pass on current code, and global all-suite passes at final plan source.",
+        "Resource watcher, P057 failure collection, cancellation, bounded worker context and true nonzero exits remain intact.",
+        "Adversarial selector/quality fixtures prove no false-green regression and no fabricated performance/token saving."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_111",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_111"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect current source and assigned research",
+          "objective": "Read relevant paths and exact runner/authorization interfaces; research never proves code implemented.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement or independently audit core contract",
+          "objective": "Produce the stated deterministic implementation or genuine fresh independent code review.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Wire guarded routing and selected validation",
+          "objective": "Preserve resource monitor, existing provider routing, task/global testing boundaries and on-demand context.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Run functional, adversarial and negative checks",
+          "objective": "Exercise false-green, missing input, shared changes, authorization and current-source cases.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record honest current-state evidence",
+          "objective": "Persist actual code/test hashes, check exits and real review provenance; otherwise remain pending.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/111-impact-aware-test-strategy.md",
+      "related_task_files": []
+    },
+    {
+      "id": "112",
+      "slug": "review-impact-aware-test-strategy",
+      "title": "Independently review and correct test hierarchy and impact selector",
+      "objective": "Independently challenge 111 selection soundness, browser coverage, source fingerprints and plan-wide final suite.",
+      "requirement_ids": [
+        "R058",
+        "R059"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One cohesive implementation contract or independent correction gate with a shared acceptance boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Assigned research, current affected source and accepted prerequisite receipts only."
+        ],
+        "why_one_todo": "Scope and review need one verified code/test fingerprint.",
+        "separate_from": [
+          "Do not preload unrelated studies, entire test suites, raw logs or provider documentation."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independent security/performance/correctness review of preceding implementation."
+        ],
+        "out": [
+          "No unrequested legacy test edits, full-suite per every unrelated task or false green."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/resource_watch.py",
+          "skill/plan-and-execute/scripts/service_map.py",
+          "skill/plan-and-execute/references/WORKFLOW.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+          "skill/plan-and-execute/scripts/test_impact.py",
+          "skill/plan-and-execute/references/TEST_STRATEGY.md",
+          "test/optimization/impact_aware_test_strategy_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/112-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/112-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "111"
+      ],
+      "implementation_guidance": [
+        "Read implementation-ready `docs/research/20261028-skill-optimization/prepared-research/111-impact-aware-test-design-and-selection.md` only for this task; its alternatives, algorithms and fixtures are mandatory.",
+        "Use a genuinely independent fresh max-qualified review of real final 111 source/tests/receipt, recording provider, model, effort and reviewed hashes.",
+        "Seed regressions outside naive graph, dynamic imports, changed auth/schema, zero selected, missing shards, shared test fixtures and stale caches.",
+        "Review faithfully covered min/max/browser validation flows, no rigid E2E quota, actual mapped task suites vs final global suite, security/privacy and token efficiency.",
+        "Correct every critical/high finding; rerun required current-code tests and obtain a fresh approval on final hashes. Never simulate a reviewer."
+      ],
+      "acceptance_criteria": [
+        "Real fresh independent reviewer and dispatch metadata match final 111 source/test hashes.",
+        "Uncertain dependency graph, empty selection, changed auth, dynamic imports and shards cannot falsely pass.",
+        "All behavior and critical browser flows retain credible coverage without unnecessary E2E copies.",
+        "Mapped task validation and complete global plan-final gate remain mandatory and current-source bound.",
+        "Security, performance, routing and token context reviewed; high/critical issues corrected and genuinely re-reviewed."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_112",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_112"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect current source and assigned research",
+          "objective": "Read relevant paths and exact runner/authorization interfaces; research never proves code implemented.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement or independently audit core contract",
+          "objective": "Produce the stated deterministic implementation or genuine fresh independent code review.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Wire guarded routing and selected validation",
+          "objective": "Preserve resource monitor, existing provider routing, task/global testing boundaries and on-demand context.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Run functional, adversarial and negative checks",
+          "objective": "Exercise false-green, missing input, shared changes, authorization and current-source cases.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record honest current-state evidence",
+          "objective": "Persist actual code/test hashes, check exits and real review provenance; otherwise remain pending.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/112-review-impact-aware-test-strategy.md",
+      "related_task_files": []
+    },
+    {
+      "id": "113",
+      "slug": "opt-in-test-audit-refactor",
+      "title": "Implement opt-in legacy or current-plan test audit and guarded refactoring",
+      "objective": "Create audit-only-by-default and user-authorized refactoring for legacy or provably plan-created/modified test cases.",
+      "requirement_ids": [
+        "R058",
+        "R060"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One cohesive implementation contract or independent correction gate with a shared acceptance boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Assigned research, current affected source and accepted prerequisite receipts only."
+        ],
+        "why_one_todo": "Scope and review need one verified code/test fingerprint.",
+        "separate_from": [
+          "Do not preload unrelated studies, entire test suites, raw logs or provider documentation."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Implement architecture, policy, safe selectors and required guarded integration."
+        ],
+        "out": [
+          "No automatic existing-project test refactor or forged edit consent."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/SKILL.md",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/resource_watch.py",
+          "skill/plan-and-execute/scripts/service_map.py",
+          "skill/plan-and-execute/references/WORKFLOW.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+          "skill/plan-and-execute/scripts/test_impact.py",
+          "skill/plan-and-execute/scripts/test_audit.py",
+          "skill/plan-and-execute/references/TEST_REVIEW_REFACTOR.md",
+          "test/optimization/test_suite_refactor_scope_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/113-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/113-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "110",
+        "112"
+      ],
+      "implementation_guidance": [
+        "Read implementation-ready `docs/research/20261028-skill-optimization/prepared-research/113-opt-in-test-suite-review-refactor.md` only for this task; its alternatives, algorithms and fixtures are mandatory.",
+        "Read only assigned 113 architecture, 111 selection contract, and current plan provenance; lazily load TEST_REVIEW_REFACTOR.md only on explicit user review/refactor request.",
+        "Mode A repository tests: inspect or refactor legacy test suite only after explicit user request; audit-only by default; modifying tests needs separately explicit edit permission.",
+        "Mode B current-plan tests: review only on explicit request; prove individual test-case ownership using original git base, task receipts, diffs and code hashes; mixed legacy files preserve unowned test-case ranges.",
+        "Implement deterministic test_audit.py inventory and bounded reports for duplicate expensive E2E, brittle selectors, gaps, flaky fixtures and direct/indirect coverage; unknown is not classified as safe.",
+        "Untrusted CLI flags, model prompts or source comments cannot confer edit authorization; stale ownership, mixed shared fixtures, symlink/traversal, concurrent plan or unknown case boundaries fail closed.",
+        "Before removing scoped redundant E2E, add equivalent smaller unit/contract/integration coverage, run old+new tests, retain unique browser/security behaviors, preserve rollback and full final gate.",
+        "No production-code edits, disabled tests, assertion weakening, bypassed CI, unsanctioned repository-wide test migration or separate test orchestrator.",
+        "Reuse existing impact selector, P057 failure cycle, watcher and model routes; bounded per-case findings and actual timing/token evidence only."
+      ],
+      "acceptance_criteria": [
+        "Ordinary feature work never activates a legacy test suite audit/refactor.",
+        "Existing repository test review/refactor requires explicit user intent; audit_only cannot modify tests.",
+        "Current-plan-only review uses reliable task-proven case ownership and is audit-only unless edits are expressly authorized.",
+        "Current-plan edits preserve unrelated legacy cases in mixed files byte-for-byte; unknown provenance blocks writes.",
+        "Symlink/traversal, stale hashes, forged flags, concurrent plan or out-of-scope fixtures fail closed.",
+        "Equivalent cheaper tests must pass before removal of redundant scoped E2E; unique UI/security flows and final regression remain.",
+        "No production-code, skip/quarantine or CI weakening; precise case report and genuine before/after measurements provided.",
+        "500-legacy-E2E no-op, scoped mixed-file, read-only review, permission spoof and rollback fixture cases pass."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_113",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_113"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect current source and assigned research",
+          "objective": "Read relevant paths and exact runner/authorization interfaces; research never proves code implemented.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement or independently audit core contract",
+          "objective": "Produce the stated deterministic implementation or genuine fresh independent code review.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Wire guarded routing and selected validation",
+          "objective": "Preserve resource monitor, existing provider routing, task/global testing boundaries and on-demand context.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Run functional, adversarial and negative checks",
+          "objective": "Exercise false-green, missing input, shared changes, authorization and current-source cases.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record honest current-state evidence",
+          "objective": "Persist actual code/test hashes, check exits and real review provenance; otherwise remain pending.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/113-opt-in-test-audit-refactor.md",
+      "related_task_files": []
+    },
+    {
+      "id": "114",
+      "slug": "review-opt-in-test-audit-refactor",
+      "title": "Independently review and correct test-audit authorization and ownership",
+      "objective": "Independently challenge 113's consent, mixed-file test ownership, coverage and fail-closed mutation boundaries.",
+      "requirement_ids": [
+        "R058",
+        "R060"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One cohesive implementation contract or independent correction gate with a shared acceptance boundary.",
+      "context_boundary": {
+        "shared_context": [
+          "Assigned research, current affected source and accepted prerequisite receipts only."
+        ],
+        "why_one_todo": "Scope and review need one verified code/test fingerprint.",
+        "separate_from": [
+          "Do not preload unrelated studies, entire test suites, raw logs or provider documentation."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independent security/performance/correctness review of preceding implementation."
+        ],
+        "out": [
+          "No automatic existing-project test refactor or forged edit consent."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/SKILL.md",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/resource_watch.py",
+          "skill/plan-and-execute/scripts/service_map.py",
+          "skill/plan-and-execute/references/WORKFLOW.md",
+          "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+          "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+          "skill/plan-and-execute/scripts/test_impact.py",
+          "skill/plan-and-execute/scripts/test_audit.py",
+          "skill/plan-and-execute/references/TEST_REVIEW_REFACTOR.md",
+          "test/optimization/test_suite_refactor_scope_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/114-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/114-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "113"
+      ],
+      "implementation_guidance": [
+        "Read implementation-ready `docs/research/20261028-skill-optimization/prepared-research/113-opt-in-test-suite-review-refactor.md` only for this task; its alternatives, algorithms and fixtures are mandatory.",
+        "Invoke independent fresh maximum-qualified reviewer on final 113 diff/receipt, with genuine provider, model, effort and source hashes.",
+        "Probe review-only write attempts, generic prompt activation, forged edit flag, old plan receipt, moved/mixed test file, concurrent owner and unsafe symlink.",
+        "Verify unknown source/case provenance prevents edits and unrelated legacy sections remain byte-stable, including shared fixtures.",
+        "Verify cheaper replacement preserves all expected checks, critical E2E and final full suite; investigate performance/security and prompt loading.",
+        "Correct critical/high findings and re-review current final code; preserve genuine failure/limitation evidence."
+      ],
+      "acceptance_criteria": [
+        "Real independent fresh reviewer with final 113 source/test/review receipt hashes and dispatch provenance.",
+        "Generic requests, audit-only and forged flags cannot trigger refactoring or writes.",
+        "Current-plan-only case ownership is enforced even inside mixed legacy test files.",
+        "Legacy-suite migration requires explicitly authorized edit scope and preserves required coverage.",
+        "Stale/ambiguous cases, path escape and concurrent edits fail closed; test evidence remains source-pinned.",
+        "Real high/critical findings are corrected and re-reviewed without model simulation or fictitious time savings."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_114",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_114"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect current source and assigned research",
+          "objective": "Read relevant paths and exact runner/authorization interfaces; research never proves code implemented.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement or independently audit core contract",
+          "objective": "Produce the stated deterministic implementation or genuine fresh independent code review.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Wire guarded routing and selected validation",
+          "objective": "Preserve resource monitor, existing provider routing, task/global testing boundaries and on-demand context.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Run functional, adversarial and negative checks",
+          "objective": "Exercise false-green, missing input, shared changes, authorization and current-source cases.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record honest current-state evidence",
+          "objective": "Persist actual code/test hashes, check exits and real review provenance; otherwise remain pending.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/114-review-opt-in-test-audit-refactor.md",
+      "related_task_files": []
+    },
+    {
       "id": "082",
       "slug": "integrate-all-implemented-contracts-and-close-cross-feature-gaps",
       "title": "Integrate all implemented contracts and close cross-feature gaps",
@@ -18046,7 +18702,10 @@
         "R054",
         "R055",
         "R056",
-        "R057"
+        "R057",
+        "R058",
+        "R059",
+        "R060"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -18130,7 +18789,8 @@
         "104",
         "106",
         "108",
-        "110"
+        "110",
+        "114"
       ],
       "implementation_guidance": [
         "Read docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md.",
@@ -18144,7 +18804,8 @@
         "Every changed implementation and correction gate needs actual acceptance evidence; prepared research never counts as a pass.",
         "Integrate all six feature pairs from docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md; require actual independent review receipts.",
         "Integrate verified P053 101/102 host sleep guard and tests across providers, OS backends, WSL, long validation and strict preflight.",
-        "Integrate P054 timer cleanup and P055 L6 model routing after genuine independent reviews 104/106."
+        "Integrate P054 timer cleanup and P055 L6 model routing after genuine independent reviews 104/106.",
+        "Require real review 112 before 109 and 114 before integration; run full global suites at plan-final fingerprint, not after every task."
       ],
       "acceptance_criteria": [
         "All implementation acceptance cases and required independent code reviews have current evidence.",
@@ -18157,7 +18818,8 @@
         "P053 OS lease and release tests, accurate supported-host caveats and independent acceptance are evidenced.",
         "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence.",
         "Task 107 design-security/performance and final-code-review lenses are implemented and independently reviewed by 108 with no default benchmarks.",
-        "P057 109/110 real implementation and independent review prove full-safe failure inventory, targeted fix cycles and mandatory final full-suite gate."
+        "P057 109/110 real implementation and independent review prove full-safe failure inventory, targeted fix cycles and mandatory final full-suite gate.",
+        "Complete global unit/contract/integration/E2E suite passes at plan closure on final source; opt-in review authorization is proven."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_082",
@@ -18797,7 +19459,10 @@
         "R054",
         "R055",
         "R056",
-        "R057"
+        "R057",
+        "R058",
+        "R059",
+        "R060"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",

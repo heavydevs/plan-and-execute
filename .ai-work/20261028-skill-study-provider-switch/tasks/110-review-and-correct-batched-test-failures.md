@@ -1,7 +1,7 @@
 ---
 task_id: "110"
 status: "pending"
-requirements: "R057"
+requirements: "R057,R059"
 dependencies: "109"
 allowed_related_task_reads: "none"
 ---
@@ -33,6 +33,8 @@ Out: No second orchestrator, fake green, unrelated edits or unapproved provider/
 Files: `skill/plan-and-execute/scripts/test_failure_cycle.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/validatectl.py`, `skill/plan-and-execute/scripts/jobctl.py`, `skill/plan-and-execute/scripts/resource_watch.py`, `skill/plan-and-execute/scripts/service_map.py`, `skill/plan-and-execute/references/WORKFLOW.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `skill/plan-and-execute/references/PLAN_SPEC.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `docs/plans/20261028-skill-optimization/support/run_task_checks.py`, `test/optimization/batch_test_failure_cycle_self_test.py`, `docs/research/20261028-skill-optimization/implementation/110-receipt.json`, `docs/research/20261028-skill-optimization/implementation/110-outcome.md`
 
 ## Guidance
+
+- Review the distinction between complete task-mapped reruns and final global full-suite regression; unknown/zero impact selection and focused-only green never satisfy acceptance.
 
 - Read `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md` and `docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261114_TEST_FAILURE_BATCH.md` before code; inspect source exactly, don't infer newer features are already implemented.
 - Inspect run_isolated.run_validation_commands, run_validation_jobs, finish_task_validation, validatectl.run, runner_contract.install_runner_contract and active plan run_task_checks.

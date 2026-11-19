@@ -1,8 +1,8 @@
 ---
 task_id: "109"
 status: "pending"
-requirements: "R057"
-dependencies: "055,059,063,098,100,108"
+requirements: "R057,R059"
+dependencies: "055,059,063,098,100,108,112"
 allowed_related_task_reads: "none"
 ---
 
@@ -36,6 +36,8 @@ Out: No second orchestrator, fake green, unrelated edits or unapproved provider/
 Files: `skill/plan-and-execute/scripts/test_failure_cycle.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/validatectl.py`, `skill/plan-and-execute/scripts/jobctl.py`, `skill/plan-and-execute/scripts/resource_watch.py`, `skill/plan-and-execute/scripts/service_map.py`, `skill/plan-and-execute/references/WORKFLOW.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `skill/plan-and-execute/references/PLAN_SPEC.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `docs/plans/20261028-skill-optimization/support/run_task_checks.py`, `test/optimization/batch_test_failure_cycle_self_test.py`, `docs/research/20261028-skill-optimization/implementation/109-receipt.json`, `docs/research/20261028-skill-optimization/implementation/109-outcome.md`
 
 ## Guidance
+
+- Use reviewed 111 impact-selected task tests. After focused fixes, rerun all required **mapped task** suites; the unrelated global all-project suite runs at plan closure 082/084 or earlier when risk, unknown graph or CI requires.
 
 - Read `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md` and `docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261114_TEST_FAILURE_BATCH.md` before code; inspect source exactly, don't infer newer features are already implemented.
 - Inspect run_isolated.run_validation_commands, run_validation_jobs, finish_task_validation, validatectl.run, runner_contract.install_runner_contract and active plan run_task_checks.

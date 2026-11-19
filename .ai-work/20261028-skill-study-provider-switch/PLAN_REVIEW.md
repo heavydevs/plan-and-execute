@@ -45,3 +45,9 @@ Checks: coverage_complete, tasks_atomic, dependencies_valid, validations_suffici
 
 - Add pending 109 + independently reviewed 110, research-based architecture and functional regression fixtures; task 082 depends on 110, 086 remains final.
 - This is plan-only analysis, not implementation, independent reviewer dispatch, test execution or measured cost saving.
+
+## P058–P060 — 2026-11-19 structural amendment
+
+- Added researched, implementation-ready pending tasks 111–114 with deterministic test impact selection and explicit test-audit/refactor authorization.
+- Reviewed the acyclic dependency ordering: 112 precedes 109, 113 follows 110, 114 precedes 082, final 086 unchanged.
+- This approves only the plan structure, not implementation, automated regression, user project test migration, or genuine independent reviewer execution.

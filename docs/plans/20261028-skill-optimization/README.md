@@ -48,3 +48,7 @@ The former specification, protocol and native control state are preserved in `hi
 ## Focused long-validation extension (2026-11-02)
 
 TODO 099 implements trustworthy long-validation progress/percentages and evidence-based safe repair after a five-minute semantic stall, with mandatory independent correction review 100. Read [the focused research](../../../docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md). This prepared study does not count as implementation or validated review.
+
+## 2026-11-19: testing architecture extension
+
+The same single implementation plan now has **114 pending tasks**. Existing 109/110 gather safe test failures, repair focused cases and rerun the full selected mapped task suite. New 111/112 define risk-tiered test authoring and deterministic impact selection, while 113/114 create lazy opt-in legacy/current-plan test auditing with explicitly authorized, provenance-limited refactoring. 114 gates 082 integration, and final 086 remains the whole-skill review. At plan completion, full global unit/integration/contract/E2E suites run on the final source. See [new request extension](REQUEST_EXTENSION_20261119_TEST_STRATEGY.md), [impact design](../../research/20261028-skill-optimization/prepared-research/111-impact-aware-test-design-and-selection.md), and [opt-in review architecture](../../research/20261028-skill-optimization/prepared-research/113-opt-in-test-suite-review-refactor.md).

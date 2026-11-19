@@ -105,6 +105,10 @@
 - [ ] **108** — Independently review and correct architecture security/performance gates
 - [ ] **109** — Implement complete test-failure inventory, focused repair and final full-suite gate
 - [ ] **110** — Independently review and correct batched failure-repair validation
+- [ ] **111** — Implement risk-layered test authoring and deterministic impact-scoped validation
+- [ ] **112** — Independently review and correct test hierarchy and impact selector
+- [ ] **113** — Implement opt-in legacy or current-plan test audit and guarded refactoring
+- [ ] **114** — Independently review and correct test-audit authorization and ownership
 - [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
 - [ ] **083** — Review and correct end-to-end integration
 - [ ] **084** — Validate release contents, documentation and migration

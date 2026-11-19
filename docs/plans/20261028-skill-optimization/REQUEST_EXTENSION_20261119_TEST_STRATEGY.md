@@ -1,0 +1,13 @@
+# Request extension P058–P060 — 2026-11-19: right-sized tests, impact selection, explicit refactor permission
+
+Branch `checkpoint/plano1-estudo-provider-switch-20261028`; **one existing active plan** `.ai-work/20261028-skill-study-provider-switch`. The user's request is to **plan**, study and publish the new task definitions to this branch, not to implement the new skill behavior or to refactor any target application's tests now. Commit and push of this plan amendment are expressly authorized.
+
+P057 already covers gathering every safely executable failure, focused reruns and a complete final mapped-suite gate: pending TODO 109 plus independent 110. **Do not duplicate P057.** Add complementary P058/P059/P060: choose the least expensive adequate test level (unit/contract/integration plus risk-sized E2E), deterministically identify changed/affected tests for each task, reserve full-project global regression for closing the plan, and expose a progressive-disclosure review/refactor reference supporting (A) user-authorized existing-suite refactor and (B) explicitly requested current-plan-created-tests review/refactor only. Global legacy refactor is never implicit or automatically activated.
+
+Design references:
+- `docs/research/20261028-skill-optimization/prepared-research/111-impact-aware-test-design-and-selection.md` — behavior coverage matrix, risk criteria, actual graph/CI selector adapters, fail-closed strategy and stage gates.
+- `docs/research/20261028-skill-optimization/prepared-research/113-opt-in-test-suite-review-refactor.md` — read-only inventory by default, exact user/plan ownership and bounded authorized refactoring.
+
+**Dependency clarification with P057:** "full suite" after a task's focused repair means all selected **required task-mapped** tests/jobs for that task's code fingerprint; it does not force running the entire repository's unrelated browser matrix after every task. The global full suite is required at final integration/release on final source; a task with high-risk global changes or missing safe graph may require broader tests earlier. P057 still collects all ordinary failing tests across all **safely runnable selected suites** before repair, and never accepts focused-only green.
+
+TODOs 111 (policy/selector), 112 (independent review), 113 (opt-in audit/refactor capability), 114 (independent review) must be implementation-ready, each with explicit acceptance/checks. Pending 109 waits for 112 to use its selector; 113 waits for 110; pending 114 gates 082 integration, and 086 remains final. Preserve already-pending work and all runtime state. These are research/plan artifacts only; no product source, tests, paid agents or installation are executed by this amendment.

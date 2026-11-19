@@ -101,3 +101,12 @@ Research `docs/research/20261028-skill-optimization/prepared-research/107-archit
 ## P057 — 2026-11-14 batch failure discovery
 
 Study `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md`, pending 109 implementation and genuine independent 110 review. Continue independent safe tests to collect all failures, preserving stacks, logs and E2E artifacts; stop unsafe infra/build chains. After focused fixes, full current-code validation is mandatory. 110 gates 082; 086 last. No product/runtime/reviewer evidence yet.
+
+## P058–P060 — 2026-11-19 testing and refactor architecture
+
+- **R058** [must; user; P058 -> 111,112,113,114,082,086] Create tests at the cheapest faithful unit/contract/integration level; use E2E for critical min/max and browser validation behavior.
+- **R059** [must; user; P059 -> 111,112,109,110,082,086] Select task tests by proven impact and conservative fallback. Task gate reruns mapped selection; final plan gate reruns all global suites.
+- **R060** [must; user; P060 -> 113,114,082,086] Review/refactor legacy or current-plan-created tests only upon explicit scope request; audit-only by default and case edits separately authorized.
+- Implementation-ready sources: `docs/research/20261028-skill-optimization/prepared-research/111-impact-aware-test-design-and-selection.md` and `docs/research/20261028-skill-optimization/prepared-research/113-opt-in-test-suite-review-refactor.md`.
+- 111/112 implement/review test portfolio and impact selection; 109 now depends on 112; 113/114 implement/review on-demand audit after 110; 114 gates integration 082 and 086 remains final.
+- All 114 tasks pending. No runtime skill code, project tests, independent model review or benchmark has been executed by this plan amendment.

@@ -4,7 +4,7 @@ Date: 2026-10-28. This replaces the former research-then-Plan2 execution workflo
 
 ## Authority and honest state
 
-`PLAN1_SPEC.json` is the current portable specification. The native `manifest.json` is authoritative during execution; task Markdown and `TODO.md` are generated projections. All 110 tasks remain pending after the 2026-11-14 P057 plan extension. Research readiness is recorded separately in the prepared report index; report existence cannot complete an implementation task. Autostart is false. No authenticated model has been dispatched in this preparation.
+`PLAN1_SPEC.json` is the current portable specification. The native `manifest.json` is authoritative during execution; task Markdown and `TODO.md` are generated projections. All 114 tasks remain pending after the 2026-11-14 P057 plan extension. Research readiness is recorded separately in the prepared report index; report existence cannot complete an implementation task. Autostart is false. No authenticated model has been dispatched in this preparation.
 
 The native `plan_review` records a host structural/synthesis check, not an independent model review. The current amendment authorizes research and local replanning; it does not authorize changing installed copies, user-global configuration, committing, pushing, opening PRs, publishing or paid model experiments. Those actions retain the original explicit-consent boundary. Never print environment/profile secrets.
 
@@ -68,3 +68,9 @@ For material formal design, require genuine read-only independent, current-hash 
 - Fix by native exact selectors of failed/impacted tests, not repeated full suites after each issue; never treat 0 selected or stale successes as green.
 - After focused repairs all original mapped validations/jobs must fully pass on final current source; regressions start bounded cycles.
 - Pending 109 implementation and real independent 110 review; 110 precedes 082 and final 086 remains last.
+
+## P058–P060 — Test design, conservative impact and user-authorized refactor
+
+111 implements the lazy `references/TEST_STRATEGY.md` and deterministic `scripts/test_impact.py`, and 112 reviews its actual final source. Require small trustworthy unit/contract/integration tests and only justified user-facing E2E; run all selected mapped task tests on current code. P057 (109/110) gathers all safely runnable failures within the selected suites and fully reruns the mapped scope after focused repairs. **Global** unit/integration/contract/configured browser tests are required at final integration 082/084 on identical final code and resource fingerprint; high risk or explicit CI can demand earlier global tests.
+
+113 implements `references/TEST_REVIEW_REFACTOR.md` and guarded `scripts/test_audit.py` for two explicitly requested modes: existing project-wide suite and current-plan-owned test cases. Both default to read-only audit; editing requires separate explicit user edit authorization. In plan mode, only provenance-verified plan-created/modified test-case ranges may be touched, even in mixed legacy files. 114 independently reviews these guards and gates 082. 086 stays last. Sources: `docs/research/20261028-skill-optimization/prepared-research/111-impact-aware-test-design-and-selection.md` and `113-opt-in-test-suite-review-refactor.md`. No project test suite was refactored in this amendment.
