@@ -51,3 +51,8 @@ Checks: coverage_complete, tasks_atomic, dependencies_valid, validations_suffici
 - Added researched, implementation-ready pending tasks 111–114 with deterministic test impact selection and explicit test-audit/refactor authorization.
 - Reviewed the acyclic dependency ordering: 112 precedes 109, 113 follows 110, 114 precedes 082, final 086 unchanged.
 - This approves only the plan structure, not implementation, automated regression, user project test migration, or genuine independent reviewer execution.
+
+## P066 — 2026-11-20 structural review
+
+- Four pending tasks 127–130 implement/review source-backed project coding conventions; approved first-use coding+UX consent shared with tasks 121–126. Recheck graph: 127 -> 128 -> 121 -> 122 -> 123 -> 124 -> 125 -> 126 -> 082, independently 128 -> 129 -> 130 -> 082; 086 remains final. Task 129 additionally requires 108 and 112. No circular dependencies, assuming prior graph acyclic.
+- Requirements R069–R072 are linked to tasks/manifest and prepared research P066. Real tests, provider capability, token costs, user acceptance and genuine code review are NOT yet evidenced; do not mark tasks complete.
