@@ -74,7 +74,7 @@ def inputs():
         result[p]=sha(v)
     return result
 
-def snippets(max_chars=15000):
+def snippets(max_chars=4700):
     items=[]
     for path,names in FUNCTIONS.items():
         p=ROOT/path
@@ -173,7 +173,7 @@ def local_server_call(binary:Path, model:Path, system:str, user:str, timeout:int
         except json.JSONDecodeError as ex:
             finish = data.get('choices', [{}])[0].get('finish_reason', 'unknown')
             fingerprint = hashlib.sha256(msg.encode()).hexdigest()[:16]
-            raise RuntimeError(f'LLM response is not valid JSON (finish={finish}, chars={len(msg)}, sha256_prefix={fingerprint}, line={ex.lineno}, column={ex.colno}, prefix={msg[:50]!r}, suffix={msg[-60:]!r})') from ex
+            raise RuntimeError(f'LLM response is not valid JSON (finish={finish}, chars={len(msg)}, sha256_prefix={fingerprint}, line={ex.lineno}, column={ex.colno})') from ex
         return parse_response(body),data.get('usage',{}),proc.pid
     finally:
         proc.terminate()

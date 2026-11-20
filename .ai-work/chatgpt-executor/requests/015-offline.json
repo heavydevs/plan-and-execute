@@ -3,8 +3,8 @@
   "task_id": "015",
   "model": "Qwen2.5-Coder-1.5B-Instruct-Q4_K_M",
   "max_invocations": 1,
-  "request_id": "015-openweights-bounded-json-20261120-03",
+  "request_id": "015-openweights-poc-20261120-short-context",
   "scope": "one-shot independent verification proof; no max-tier gate claim",
-  "reviewed_commit_before_request": "9b1b1a522c931d40e813c435def761a398b3e6d5",
-  "failure_recovered_from": "run-44811133165-generated-length-truncated"
+  "reviewed_commit_before_request": "191030c53b3ef53c904ba6b1317fcf4975c2ed17",
+  "failure_recovered_from": "run-44811133165-finish-length"
 }
