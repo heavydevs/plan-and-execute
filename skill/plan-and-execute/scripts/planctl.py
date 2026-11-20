@@ -5513,6 +5513,14 @@ def check_hypothesis_freshness(
     if recorded_sig and current_sig and recorded_sig != current_sig:
         reasons.append("failure_signature_changed")
     evidence_digests = hypothesis.get("evidence_digests")
+    # File#symbol and file::symbol are explicit file claims.  A missing
+    # fingerprint is stale even if extraction returned no existing files.
+    for reference in hypothesis.get("evidence_refs") or []:
+        source = explicit_learning_source_file(reference)
+        if source is not None and (
+            not isinstance(evidence_digests, dict) or source not in evidence_digests
+        ):
+            reasons.append(f"evidence_digest_missing:{source}")
     if isinstance(evidence_digests, dict) and evidence_digests:
         if repo_root is None or not repo_root.is_dir():
             reasons.append("evidence_repo_root_unavailable")
