@@ -1,0 +1,103 @@
+{
+  "schema": "pae-offline-review/1",
+  "task_id": "015",
+  "created_at": "2026-11-20T20:31:10.156822+00:00",
+  "model_file_sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+  "model_source": "Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF",
+  "runtime": "llama-server",
+  "binary_sha256": "66ea7f08c31737fb0e223503bd001ef0af146f5afb7c9bc48932ffb1af3563bb",
+  "review_session_id": "offline-06aa814d75464584857f80ffa7ff20f5",
+  "process_id": 2486,
+  "head_sha": "191030c53b3ef53c904ba6b1317fcf4975c2ed17",
+  "prompt_sha256": "41e5eae5f4fbefabc7e21ae0154fad37cede801cf1ba49fe12874d04a251d13b",
+  "reviewed_inputs": {
+    "docs/research/20261028-skill-optimization/implementation/014-receipt.json": "00b767422b92f8cc2d632826a81bbcf922c37a7a685baa7b50628c801e35f730",
+    "docs/research/20261028-skill-optimization/implementation/014-outcome.md": "75c96fd543c1144994a434d8c2a4d9ea78eb68ae7a54ef3aca48ab3202e168aa",
+    "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md": "29ed7ba03768a1f474f880bf649f270a88545af804fbc7abc3edb866f58548fe",
+    "skill/plan-and-execute/scripts/planctl.py": "8a4b340b721b3cfdfa253cad743d4cf3f318f2e280556092359fbb5e1dd3c845",
+    "skill/plan-and-execute/scripts/artifact_contract.py": "3af9ebb88b3f6c4e377df7e032246cd5eee5d481c234d779314d98bc5fe76aea",
+    "skill/plan-and-execute/scripts/runner_contract.py": "c7bab30e4c6a5a09a244481ee2fdf1f8e06ec8e7512740b743680e904dd98cf5",
+    "test/optimization/context_learning_self_test.py": "07c85dc6f708e6c92fdd45d9b6e32432a99dbfbfef0a0c370089a6b2efa0e565",
+    "skill/plan-and-execute/references/EXECUTION_CONTEXT.md": "ca9878dbbd42a0da9a16169112c0cd58e90aeea816135e990f5390bfde087396",
+    "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md": "2f7107c3e620e1629e4fddeab4247ee43bc215acc0b03c61683966d717a9ad08"
+  },
+  "symbol_coverage": [
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "symbol": "extract_cited_repo_files",
+      "start_line": 4595,
+      "end_line": 4631,
+      "complete": true
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "symbol": "check_learning_artifact_freshness",
+      "start_line": 4650,
+      "end_line": 4751,
+      "complete": true
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "symbol": "claim_task",
+      "start_line": 5980,
+      "end_line": 6025,
+      "complete": true
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "symbol": "invalidate_stale_learnings",
+      "start_line": 4754,
+      "end_line": 4825,
+      "complete": true
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "symbol": "detect_policy_override_note",
+      "start_line": 4585,
+      "end_line": 4592,
+      "complete": true
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "symbol": "bounded_task_suffix",
+      "start_line": 91,
+      "end_line": 104,
+      "complete": true
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "symbol": "prompt_cache_structure",
+      "start_line": 14,
+      "end_line": 31,
+      "complete": false
+    }
+  ],
+  "verdict": "changes_requested",
+  "summary": "The provided code snippet contains a potential issue with the `bounded_task_suffix` function in `runner_contract.py`. The function uses a hardcoded prefix boundary marker (`PREFIX`",
+  "findings": [
+    {
+      "id": "1",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/runner_contract.py:91",
+      "title": "Hardcoded Prefix Boundary Marker",
+      "detail": "The function uses a hardcoded prefix boundary marker (`PREFIX`), which may not be suitable for all use cases. It is recommended to dynamically determine the prefix boundary marker based on the task-specific suffix.",
+      "fix": "Replace the hardcoded prefix boundary marker with a dynamic approach that can be determined based on the task-specific suffix."
+    }
+  ],
+  "usage": {
+    "completion_tokens": 181,
+    "prompt_tokens": 4722,
+    "total_tokens": 4903,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "model_tier": "offline_small_model_not_max",
+  "actual_review": true,
+  "original_gate_not_automatically_satisfied": true,
+  "limitations": [
+    "bounded symbol coverage",
+    "model is not max-tier",
+    "separate process is not external provider"
+  ]
+}
