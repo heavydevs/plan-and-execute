@@ -88,3 +88,16 @@ Snapshot de origem: GitHub Actions run 44823644185, artefato 14670994269, ZIP SH
 Dispatcher original executado em primeiro plano nesta sessão: exit 2, NO_REVIEW task=015 dispatch=2: no provider could review (codex:missing_cli, claude:missing_cli). Nenhum session_id, model, native_effort, reviewed_input_hashes ou RECEIPT_REVIEWER válido foi gerado. A rota Copilot continua dependente de entitlement externo previamente bloqueado; não simular evidência, nem repetir tentativas faturáveis sem mudança concreta.
 
 **Parecer técnico: duas vulnerabilidades HIGH reproduzidas e corrigidas, patch comprovado por testes, mas entrega FORMALMENTE BLOQUEADA pela independência/modelo externo e pelo P1_015.** Task 015, S002 e demais gates permanecem pendentes. Não iniciar 016.
+
+---
+
+## Nova auditoria da task 015 — 2026-11-20, base `4045dd2871607e75be1a767c08410cd2cb81c050`
+
+Este parecer foi formulado nesta sessao a partir de `AGENTS.md`, do guia, task 015, pesquisas e **codigo e testes atuais**, antes da leitura de pareceres preexistentes. Trata-se de analise deste chat (GPT-6), **nao** de revisor externo max-tier independente nem de `RECEIPT_REVIEWER` valido.
+
+- **015-R3-01 / HIGH**: `skill/plan-and-execute/scripts/planctl.py:4845-4865`, hash de base Git blob `b8096244a892ac2c64af7f066a0aea2f3606ba54`. Em `invalidate_stale_learnings`, o primeiro artefato stale era removido antes da prevalidacao do proximo. Se o segundo `file` apontasse para `tasks/important.md`, um `PlanError` tardio deixaria o primeiro arquivo apagado sem gravar o manifest. **Correcao**: prevalidacao de todos os destinos antes de qualquer `unlink`, com caso adversarial que verifica ausencia de exclusao parcial.
+- **015-R3-02 / HIGH**: `skill/plan-and-execute/scripts/planctl.py:4597-4653, 5138-5145` no mesmo blob base. `explicit_learning_source_file` so classificava referencias com `#` ou `::`; uma referencia simples `src/missing.py` podia perder o fingerprint ao ser omitida por `extract_cited_repo_files` e, depois, nao ser invalidada. **Correcao**: reconhecer nomes de arquivos de codigo/documentacao com extensoes conhecidas mesmo sem ancora; rejeitar fonte ausente, capturar digest e invalidar apos edicao. IDs sem extensao e comandos continuam tratados como evidencia nao-arquivo.
+
+**Hashes de entrada**: `planctl.py` `b8096244a892ac2c64af7f066a0aea2f3606ba54`; `context_learning_self_test.py` `7dc15887e57dc5d528d50ee344345de496e4d41c`; `artifact_contract.py` `48c2b06f3a1832134f1447170d26c48fb4eaa604`; `runner_contract.py` `c13fa8da09a6470fa33eeedf405245db1ae0c7af`; `EXECUTION_CONTEXT.md` `2d879ea9fd8d9bee29594e952553de9fc45fb6fb`; `TOKEN_EFFICIENCY.md` `d7b8865b2f33293f45a10fb18fb834493fe2fc49` (Git blob SHA-1 do GitHub, ligados ao commit base).
+
+**Entrega**: as regressoes novas e correcoes necessitam de execucao no commit publicado e evidencia CI; a revisao externa max-tier com `provider/model/native_effort/session_id/reviewed_input_hashes` permanece obrigatoria. Nao gerar `015-receipt.json` nem fechar `P1_015` antes de evidencias reais. Task 015 e checkpoints S002-S006 continuam pendentes. Nao iniciar 016.

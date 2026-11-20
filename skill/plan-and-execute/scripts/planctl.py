@@ -4645,12 +4645,23 @@ def explicit_learning_source_file(reference: Any) -> str | None:
     text = reference.strip().strip("`")
     if any(ch.isspace() for ch in text) or "://" in text:
         return None
-    if "::" not in text and "#" not in text:
-        return None
+    anchored = "::" in text or "#" in text
     candidate = text.split("::", 1)[0].split("#", 1)[0].replace("\\", "/")
-    if not candidate or not Path(candidate).suffix:
+    if not candidate:
         return None
-    return candidate
+    if anchored:
+        return candidate if Path(candidate).suffix else None
+    # Plain file paths cite sources too. Otherwise "src/missing.py" silently
+    # publishes an unfingerprinted learning which never becomes stale.
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", candidate):
+        return None
+    source_suffixes = {
+        ".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".go", ".rs",
+        ".c", ".h", ".cpp", ".cs", ".rb", ".sh", ".sql",
+        ".json", ".yaml", ".yml", ".toml", ".xml", ".md", ".txt",
+        ".html", ".css", ".scss", ".gradle", ".properties",
+    }
+    return candidate if Path(candidate).suffix.lower() in source_suffixes else None
 
 
 def learning_provenance_sha256(artifact: dict[str, Any]) -> str:
@@ -4859,10 +4870,6 @@ def invalidate_stale_learnings(
             if path.is_symlink():
                 raise PlanError(f"Refusing to remove symlinked learning artifact: {relative}")
             stale_files.add(relative)
-            try:
-                path.unlink()
-            except FileNotFoundError:
-                pass
         record = {
             "file": relative,
             "producer_task_id": status["producer_task_id"],
@@ -4875,6 +4882,23 @@ def invalidate_stale_learnings(
         invalidated.append(record)
 
     if invalidated:
+        # Validate every removal target before deleting the first file.
+        # A later malicious entry must not leave a partially erased plan.
+        for relative in sorted(stale_files):
+            checked = checked_relative_path(relative, "learning artifact file")
+            reject_symlink_components(plan_dir, Path(checked), "learning artifact")
+            path = plan_dir / checked
+            if path.is_symlink():
+                raise PlanError(f"Refusing to remove symlinked learning artifact: {relative}")
+        for relative in sorted(stale_files):
+            path = plan_dir / relative
+            reject_symlink_components(plan_dir, Path(relative), "learning artifact")
+            if path.is_symlink():
+                raise PlanError(f"Refusing to remove symlinked learning artifact: {relative}")
+            try:
+                path.unlink()
+            except FileNotFoundError:
+                pass
         manifest["learning_artifacts"] = kept
         manifest.setdefault("invalidated_learnings", []).extend(invalidated)
         for task in manifest.get("tasks", []):

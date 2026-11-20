@@ -1131,6 +1131,65 @@ def test_review_015_missing_explicit_source_reference_is_rejected() -> None:
         assert not (plan_dir / "learnings/001-to-002.md").exists()
 
 
+def test_review_015_plain_source_path_requires_digest_and_invalidation() -> None:
+    """A plain file reference must be hashed and an absent file must fail closed."""
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "plain-source-015")
+        spec = three_task_spec(targets_001=[{
+            "task_id": "002",
+            "reason": "This task consumes the pinned source file before implementation.",
+            "topics": ["source provenance"],
+        }])
+        plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "plain-source")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        base_planctl.claim_task(plan_dir, manifest, "001", None)
+        report = completion_report(learnings=[{
+            "kind": "code",
+            "guidance": "Read the cited implementation source before using the validated result in a later task.",
+            "references": ["src/missing.py"],
+            "target_task_ids": ["002"],
+        }])
+        expect_plan_error(
+            lambda: base_planctl.complete_task(plan_dir, manifest, "001", report, None),
+            "Learning source reference missing or unsafe",
+        )
+        assert manifest["learning_artifacts"] == []
+        source = repo / "src" / "missing.py"
+        source.parent.mkdir()
+        source.write_text("MARKER = 1\n", encoding="utf-8")
+        base_planctl.complete_task(plan_dir, manifest, "001", report, None)
+        artifact = manifest["learning_artifacts"][0]
+        assert artifact["cited_file_digests"]["src/missing.py"] == base_planctl.file_sha256(source)
+        assert base_planctl.check_learning_artifact_freshness(artifact, manifest, plan_dir=plan_dir)["fresh"]
+        source.write_text("MARKER = 2\n", encoding="utf-8")
+        freshness = base_planctl.check_learning_artifact_freshness(artifact, manifest, plan_dir=plan_dir)
+        assert not freshness["fresh"]
+        assert "cited_file_changed:src/missing.py" in freshness["stale_reasons"]
+
+
+def test_review_015_invalidation_preflights_all_paths_before_deletion() -> None:
+    """A later corrupt artifact path cannot partially remove earlier learning files."""
+    with tempfile.TemporaryDirectory() as temp:
+        plan_dir = Path(temp) / "plan"
+        (plan_dir / "learnings").mkdir(parents=True)
+        (plan_dir / "tasks").mkdir()
+        good = plan_dir / "learnings" / "001-to-002.md"
+        good.write_text("retain until fully validated\n", encoding="utf-8")
+        victim = plan_dir / "tasks" / "important.md"
+        victim.write_text("must survive\n", encoding="utf-8")
+        manifest = {"tasks": [], "learning_artifacts": [
+            {"source_task_id": "001", "target_task_id": "002", "file": "learnings/001-to-002.md"},
+            {"source_task_id": "001", "target_task_id": "003", "file": "tasks/important.md"},
+        ]}
+        expect_plan_error(
+            lambda: base_planctl.invalidate_stale_learnings(plan_dir, manifest),
+            "unexpected path",
+        )
+        assert good.read_text(encoding="utf-8") == "retain until fully validated\n"
+        assert victim.read_text(encoding="utf-8") == "must survive\n"
+        assert len(manifest["learning_artifacts"]) == 2
+
+
 def test_review_015_invalidation_cannot_unlink_outside_plan() -> None:
     """Malformed paths and ancestor symlinks must not delete unrelated files."""
     with tempfile.TemporaryDirectory() as temp:
@@ -1339,6 +1398,8 @@ def test_review_015_missing_explicit_hypothesis_reference_is_stale() -> None:
 
 
 def main() -> int:
+    test_review_015_plain_source_path_requires_digest_and_invalidation()
+    test_review_015_invalidation_preflights_all_paths_before_deletion()
     test_review_015_missing_provenance_cannot_be_reused()
     test_review_015_missing_explicit_source_reference_is_rejected()
     test_review_015_invalidation_cannot_unlink_outside_plan()
