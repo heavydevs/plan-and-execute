@@ -45,6 +45,11 @@ class ReviewTests(unittest.TestCase):
         with self.assertRaises(r.ReviewError):
             r.parse_cli_jsonl(event({'verdict':'approved','summary':'bad','findings':'empty'}))
 
+    def test_safe_failure_categories_do_not_echo_secrets(self):
+        self.assertEqual(r.classify_cli_failure("error: unknown option '--bogus' token ghp_hidden"), "cli_argument_or_version")
+        self.assertEqual(r.classify_cli_failure("Error 403 organization policy prevents using Copilot"), "copilot_policy_or_entitlement")
+        self.assertEqual(r.classify_cli_failure("Unexpected upstream failure, token my-private-key"), "unclassified_cli_failure")
+
     def test_readonly_cli_flags_are_pinned(self):
         self.assertEqual(r.MODEL, 'claude-opus-5.5')
         self.assertEqual(r.EFFORT, 'xhigh')

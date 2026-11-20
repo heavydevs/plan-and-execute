@@ -140,6 +140,20 @@ def find_json_object(text: str) -> dict[str, Any] | None:
         return None
 
 
+def classify_cli_failure(stderr: str) -> str:
+    """Return only a bounded diagnostic category, never raw CLI output or secrets."""
+    value = stderr.casefold()[:32_000]
+    patterns = [
+        ("cli_argument_or_version", ("unknown option", "unrecognized option", "invalid option", "unknown argument", "invalid value", "unexpected argument")),
+        ("authentication", ("authentication failed", "not authenticated", "unauthorized", "invalid token", "login required")),
+        ("copilot_policy_or_entitlement", ("not entitled", "not enabled", "copilot cli policy", "organization policy", "not permitted", "forbidden", "403")),
+        ("model_not_available", ("unknown model", "not supported", "model not available", "model unavailable", "model is not enabled")),
+        ("quota_or_billing", ("rate limit", "quota exceeded", "insufficient credits", "billing", "premium requests")),
+        ("network", ("connection refused", "network error", "dns", "getaddrinfo", "timeout")),
+    ]
+    return next((category for category, terms in patterns if any(t in value for t in terms)), "unclassified_cli_failure")
+
+
 def parse_cli_jsonl(raw: str, model: str = MODEL, effort: str = EFFORT) -> tuple[dict[str, Any], dict[str, Any]]:
     events = []
     for line in raw.splitlines():
@@ -264,7 +278,7 @@ def run(tid: str, *, dry_run: bool = False, timeout: int = 360) -> dict[str, Any
         except OSError as exc:
             raise ReviewError("copilot executable unavailable") from exc
         if result.returncode != 0:
-            raise ReviewError("Copilot CLI invocation failed (auth, policy, quota, model or environment); no approval")
+            raise ReviewError("Copilot CLI invocation failed (" + classify_cli_failure(result.stderr) + "); no approval")
         if FORBIDDEN_SECRET.search(result.stdout) or FORBIDDEN_SECRET.search(result.stderr):
             raise ReviewError("review output appears to contain a secret; refuse publishing")
         review, identity = parse_cli_jsonl(result.stdout)
