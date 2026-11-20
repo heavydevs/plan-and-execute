@@ -22,6 +22,7 @@ import service_map  # noqa: E402
 # Any newly discovered test/build/CI path requires a separate inventory review.
 REVIEWED_CHANGED = frozenset({
     ".github/workflows/chatgpt-task-gate.yml",
+    ".github/workflows/chatgpt-independent-review.yml",
     ".github/workflows/ci.yml",
     ".github/workflows/publish.yml",
     "docs/plans/20261028-skill-optimization/history/pre-research-conversion/support/delivery_gate_self_test.py",
