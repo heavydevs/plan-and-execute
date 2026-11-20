@@ -1,0 +1,59 @@
+name: ChatGPT executor - active task gate
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.ai-work/chatgpt-executor/**'
+      - 'AGENTS.md'
+      - '.github/workflows/chatgpt-task-gate.yml'
+      - 'skill/plan-and-execute/**'
+      - 'test/optimization/context_learning_self_test.py'
+      - '.ai-work/SERVICE_MAP.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chatgpt-executor-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  task-015:
+    name: "Task 015 / ${{ matrix.python }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.10', '3.13']
+    steps:
+      - name: Checkout exact push commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Report exact source SHA
+        run: |
+          git rev-parse HEAD
+          python .ai-work/chatgpt-executor/taskctl.py doctor
+          python .ai-work/chatgpt-executor/taskctl.py status --task 015
+      - name: Harness security self-tests
+        run: python .ai-work/chatgpt-executor/taskctl.py self-test
+      - name: Declared targeted regressions
+        run: python .ai-work/chatgpt-executor/taskctl.py run-checks --task 015 --mode targeted --timeout 900
+      - name: Original supervised validation gates
+        run: python .ai-work/chatgpt-executor/taskctl.py run-checks --task 015 --mode watcher --timeout 1200
+      - name: Upload bounded execution evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: task-015-checks-py${{ matrix.python }}
+          path: .ai-work/chatgpt-executor/runs/
+          if-no-files-found: warn
+          retention-days: 14

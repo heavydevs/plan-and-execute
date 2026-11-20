@@ -1,0 +1,5 @@
+# Agent routing for plan-and-execute
+
+When asked to implement, review, validate, resume or research a task of the active plan in this repository, **first read** [`.ai-work/chatgpt-executor/ENTRYPOINT.md`](.ai-work/chatgpt-executor/ENTRYPOINT.md). That document routes to the minimal phase-specific instructions and locally runnable tools.
+
+The source of truth for development state is `.ai-work/20261028-skill-study-provider-switch/manifest.json`, **not** a chatbot message, checked Markdown item, or partial research report. Never forge reviewers, test runs, receipts or completion. Do not skip the original independent-review gate or call a self-review independent. Preserve unrelated user changes. Restrict edits to the selected task's declared write scope, except this deliberately authorized harness and routing setup.
