@@ -46,3 +46,45 @@ O CI anterior ao patch, run `44818552920`, registrou **7/7 checks direcionados P
 O contrato exige um **modelo externo max-tier de sessão realmente distinta** com `provider`, `model`, `native_effort`, `session_id`, `reviewed_input_hashes`, findings e veredito verificáveis no SHA final. A execução local de `review_dispatch.py` comprovou indisponibilidade, não revisão. Resolver entitlement de Copilot CLI ou disponibilizar Codex/Claude autorizado, realizar review novo depois da correção, corrigir novos blockers, repetir `P1_TESTS_015` e `P1_015` no SHA revisado, emitir `015-receipt.json` autêntico, checar `check_delivery.py`, avançar checkpoints/status com `planctl` e confirmar push por CAS.
 
 **Não foi criado `015-receipt.json` fictício. O arquivo permanece ausente por segurança até a revisão obrigatória.**
+
+---
+
+## Parecer adicional da sessão independente 2026-11-20 18:46 (BRT)
+
+Este parecer foi redigido antes de consultar relatórios de revisão anteriores, inicialmente salvo em arquivo local com SHA-256 eee583b38d2af5ea81ad3e936689891521349dad55e2ae64c629d0cfe472e021. A sessão é independente de conclusões anteriores, mas NÃO é a revisão externa max-tier por outra IA exigida pelo gate S002/P1_015. Não houve aprovação simulada.
+
+### PAE-015-01 — HIGH, demonstrado
+
+Em skill/plan-and-execute/scripts/planctl.py:6045-6085 (baseline ab951d128098e880afe904bd526d23afa45b4db2), remove_learning_artifacts_from_source aceitava caminho de manifest sem verificar a localização canônica e inspecionava apenas path.is_symlink() no arquivo final. Reprodução executada: plan/learnings era symlink para diretório outside, a rotina retornou o caminho removido e apagou outside/001-to-002.md. Outra reprodução com manifest.file=tasks/important.md removeu arquivo não pertencente à pasta de aprendizados. Impacto: integridade e exclusão fora do plano.
+
+### PAE-015-02 — HIGH, demonstrado no aprofundamento
+
+Em skill/plan-and-execute/scripts/planctl.py:5193-5200 (mesmo baseline), materialize_learning_artifacts gravava por atomic_write_text após seguir symlink ancestral. Reprodução executada: plan/learnings apontando para outside; complete_task concluiu e criou outside/001-to-002.md. Impacto: escrita fora do plano.
+
+### Correções e regressões
+
+Commit com push confirmado: 84278fb000c84859aaa770fe49c72d43280ca500, fix(task-015): constrain learning publication and reset to safe canonical paths. A publicação valida caminhos canônicos e symlinks em todos os destinos antes de gravar. O reset valida todos os caminhos e symlinks antes de qualquer remoção e revalida antes do unlink. Quatro testes negativos foram adicionados:
+
+- test_review_015_reset_rejects_non_learning_manifest_path
+- test_review_015_reset_rejects_symlinked_learning_parent
+- test_review_015_reset_preflights_every_artifact_before_unlinking
+- test_review_015_publication_rejects_symlinked_learning_directory
+
+Primeira execução dos novos testes antes da correção: exit 1, Expected PlanError containing 'unexpected path'. Depois da correção, a bateria focal passou (exit 0), e os sete scripts declarados passaram no container (self_test.py foi repetido isoladamente após uma primeira execução interrompida por timeout e terminou exit 0).
+
+### SHA-256 do código — baseline -> corrigido
+
+- planctl.py: 7288ce852a565f3371c0e2c0733250d408d8f8ff5b6256d5b254f1aa5435e108 -> d55231ba9739d4b52a3e11f9b0da01c69832bd53958261372f4c3abffe7b1ac0
+- test/optimization/context_learning_self_test.py: 403077f7bf231e2ecefa6f45fb0cf45483cd02cdfe8c0caed452ed15aabb1450 -> e6651ee700b9cd9836fd3a964e51cc7503eb2e111f46676fa4ba50831ba911c7
+- artifact_contract.py (inalterado): 3af9ebb88b3f6c4e377df7e032246cd5eee5d481c234d779314d98bc5fe76aea
+- runner_contract.py (inalterado): c7bab30e4c6a5a09a244481ee2fdf1f8e06ec8e7512740b743680e904dd98cf5
+- references/EXECUTION_CONTEXT.md (inalterado): ca9878dbbd42a0da9a16169112c0cd58e90aeea816135e990f5390bfde087396
+- references/TOKEN_EFFICIENCY.md (inalterado): 2f7107c3e620e1629e4fddeab4247ee43bc215acc0b03c61683966d717a9ad08
+
+### Provas autenticadas e gate
+
+Snapshot de origem: GitHub Actions run 44823644185, artefato 14670994269, ZIP SHA-256 04a90e06d5d3aee0cd22b23ac08cd2c2762c8a8c4f5a2863cb7b2b728ad6679d. CI do commit corrigido: run 44825817681, jobs 3.10 e 3.13. Artefatos 14674316058 (Python 3.10) e 14672834852 (Python 3.13). Resultados py3.13 verificáveis em result.json: source_unchanged=true, targeted=passed, 7/7 testes exit 0, P1_TESTS_015 exit 0, P1_015 exit 1. Log P1_015: DELIVERY REJECTED: Missing evidence: .../015-receipt.json. O workflow tem conclusão global failure, não success.
+
+Dispatcher original executado em primeiro plano nesta sessão: exit 2, NO_REVIEW task=015 dispatch=2: no provider could review (codex:missing_cli, claude:missing_cli). Nenhum session_id, model, native_effort, reviewed_input_hashes ou RECEIPT_REVIEWER válido foi gerado. A rota Copilot continua dependente de entitlement externo previamente bloqueado; não simular evidência, nem repetir tentativas faturáveis sem mudança concreta.
+
+**Parecer técnico: duas vulnerabilidades HIGH reproduzidas e corrigidas, patch comprovado por testes, mas entrega FORMALMENTE BLOQUEADA pela independência/modelo externo e pelo P1_015.** Task 015, S002 e demais gates permanecem pendentes. Não iniciar 016.
