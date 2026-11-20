@@ -1,0 +1,57 @@
+{
+  "task_id": "013",
+  "dispatch": 2,
+  "session_id": "a3fdb72a-66e9-4eaf-ac2d-b00d74d1914b",
+  "verdict": "approved",
+  "summary": "Read-only review of dispatch 2 (code read only; tests not re-run, hashes not recomputed). All dispositions F01–F11 match the current code. F01: explicit non-approved verdicts are rejected; review approval moves to the delivery gate (check_delivery.py:343-348). F02: expected_generation is required in API and CLI. F04: lock takeover is guarded and live owners are kept. F05–F08 and F10 are as stated. F07 tests now reach the staged rollback and a killed revise. No critical or high finding remains. Three medium defects remain: revise drops study_gate and tier reclassifications; completion builds the receipt from the stored contract digest but validates against a recomputed one; a failed worker-reported validation blocks runner-validated completion.",
+  "findings": [
+    {
+      "id": "N01",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3734-3776, planctl.py:3643-3663, studyctl.py:2873, studyctl.py:2890-2892, model_catalogctl.py:705-711, references/PLANNING_PROTOCOL.md:171",
+      "title": "revise rebuilds the manifest from the spec and silently drops study_gate and audited tier/effort reclassifications",
+      "detail": "staged_manifest is built from scratch and carries forward only request_source and git_exclude (3773-3776). The study_gate written by `studyctl attach` (studyctl.py:2873) is lost. The live manifest has one (.ai-work/20261028-skill-study-provider-switch/manifest.json:27910). After any revise, `studyctl_concise.py validate-plan` fails with 'plan manifest has no attached study_gate metadata' (studyctl.py:2890-2892). That check is a required deterministic gate (PLANNING_PROTOCOL.md:171). The unchanged-contract path keeps only runtime fields (3643-3663) and rebuilds model_tier/reasoning_effort from the spec. So an audited `matrix reclassify` (model_catalogctl.py:705-711, event task_reclassified) reverts with no record. revise is new in 012, so this is a 012 regression.",
+      "fix": "Carry forward study_gate and any top-level manifest keys the spec does not own. Preserve model_tier/reasoning_effort for tasks whose last task_reclassified event postdates the spec, or require the spec to restate them, and record the decision in the revision record. Add a test that attaches a study, revises, and then runs studyctl validate-plan."
+    },
+    {
+      "id": "N02",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:2704, planctl.py:2589-2595, planctl.py:4881-4896, planctl.py:3832-4084, run_isolated.py:2217-2238, docs/plans/20261028-skill-optimization/support/apply_review_dispatch_20261120.py:279",
+      "title": "Completion builds the receipt from the stored contract_digest but validates it against a recomputed one, so out-of-band contract edits block completion",
+      "detail": "build_task_receipt uses the task's stored contract_digest (2704). validate_receipt recomputes the expected digest from the current manifest (2593-2595). complete_task assigns digests only when they are missing (4881), so after the first post-012 completion every task has a stored digest. Any later contract change that does not go through revise makes every completion of that task fail with contract_digest_mismatch. That includes a subtask objective, an acceptance criterion or a dependency, and it extends to all transitive dependents, e.g. integration task 082. This repo's apply_*.py support scripts make exactly such edits directly to manifest.json. The failure appears only after deterministic validation has passed. run_isolated retries, then calls fail_task with no failure class ('unknown'), which escalates the route and burns attempts. validate_plan never reports the stale digest.",
+      "fix": "In complete_task, always recompute the contract digests and bind the receipt to the contract that was actually executed. Older receipts still fail validate-receipt when their contract drifted. Also make validate_plan report stored-vs-recomputed contract_digest drift and tell the operator to run revise."
+    },
+    {
+      "id": "N03",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:2658-2663, planctl.py:2721-2723, planctl.py:4893-4896, run_isolated.py:757, run_isolated.py:2224-2238, references/completion-report.schema.json:18-30",
+      "title": "A failed worker-reported validation now blocks completion even after the runner's own validation passed",
+      "detail": "build_task_receipt copies the worker's self-reported `validations` into the receipt. validate_receipt rejects the receipt if any item has passed != true (failed_validation_in_receipt), and complete_task raises. The runner has already run the declared validation commands successfully, and its prompt says 'The runner owns final acceptance' (run_isolated.py:757). A worker that honestly lists an extra or pre-existing failing check gets validated work refused; this host has known failing self-tests. The runner's retry keeps `validations` (2224-2231), so it fails again. It then calls fail_task with no failure class, which escalates to a costlier route for a non-model problem. Before 012, completion accepted such reports.",
+      "fix": "Base receipt validity on the runner's authoritative validation_results, not the worker's self-reported validations. Record worker-reported failures as risks instead of rejecting. Alternatively, have the runner classify this as a mechanical report error rather than 'unknown'. Add a test with a worker report that lists a non-gating failed check."
+    },
+    {
+      "id": "N04",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:1159-1161, planctl.py:1086-1094, planctl.py:1102",
+      "title": "Writer-lock takeover loop skips the deadline and the sleep: it busy-spins, and hangs if the stale lock cannot be removed",
+      "detail": "When a lock is judged stale, the loop calls _take_over_stale_writer_lock and `continue`s without checking the deadline or sleeping. Three consequences: (1) If another contender holds the .takeover guard, or a crashed one left it behind (it counts as stale only after 10 s), every waiter spins at full CPU, re-reading the lock file. On Windows that raises the chance of sharing-violation failures on unlink. (2) If the stale lock cannot be deleted, e.g. a persistent PermissionError, _unlink_with_retry returns False silently (1102). The loop then never reaches the timeout check, so timeout_seconds is not honoured and the writer hangs forever. (3) The guard's stale check stats it and then unlinks it as two separate steps (1090-1091), so it can delete a guard that was just created.",
+      "fix": "Check the deadline before `continue` and sleep briefly when the takeover did not remove the lock. Raise a PlanError when the stale lock cannot be unlinked. Remove a stale guard only by renaming it and verifying its contents, like the lock itself."
+    },
+    {
+      "id": "N05",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3531-3541, references/PLAN_SPEC.md:242",
+      "title": "Digest carry-forward is not limited to flag-bound digests, so removing a binding from the spec is silently ignored",
+      "detail": "The F06 fix carries forward any previous scoped_input_digests the new spec omits, including bindings that originally came from the spec. A planner who deletes the scoped_input_digests key to unbind an input sees the old binding kept. Completion keeps enforcing the old hash, and the manifest no longer matches spec_sha256. Only an explicit empty object unbinds, and this is undocumented. PLAN_SPEC.md:242 says only digests bound with `revise --scoped-input-digests` are carried forward.",
+      "fix": "Record each binding's origin (flag or spec) on the task and carry forward only flag-bound digests. Otherwise, document that an explicit {} is required to unbind, and test both cases."
+    },
+    {
+      "id": "N06",
+      "severity": "info",
+      "location": ".ai-work/20261028-skill-study-provider-switch/manifest.json:1-27910, references/PLAN_SPEC.md:240, planctl.py:3759-3770",
+      "title": "The live plan is still unmigrated; a minor doc mismatch",
+      "detail": "The live schema-4 manifest has no generation and no contract_digest. claim, complete and fail on it therefore still have no stale-writer protection until recover-projections or the first revise is run. This is documented, but it is the plan that matters. PLAN_SPEC.md:240 says each revision appends a `plan_revision` record. The code appends to `revisions[]` and emits a `plan_revised` event.",
+      "fix": "Run `recover-projections` on the live plan as an explicit migration step while no runner is active, and record the result. Change the doc wording to `revisions[]` / `plan_revised`."
+    }
+  ]
+}

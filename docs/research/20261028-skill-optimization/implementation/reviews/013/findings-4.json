@@ -1,0 +1,81 @@
+{
+  "task_id": "013",
+  "dispatch": 4,
+  "session_id": "96a82f16-2be3-4ccd-ab66-3807838923bf",
+  "verdict": "approved",
+  "summary": "I found no critical or high defects in the current pinned code. All nine task-012 acceptance criteria hold on the supported paths. Dispatch-3 fixes are in place: F01 refreshes only the completing task's digest (planctl.py:4966,4994); F02 validates the receipt before subtask and learning side effects (4959-4993); F03 restores the generation if the manifest write fails (3207-3215). Two medium issues remain. First, the generation check in save_manifest runs after complete/reset already wrote or deleted files. Second, the F01 fix is incomplete when a dependent task completes after its dependency was edited out of band. The 012 receipt and log evidence is superseded and needs fresh 013 test logs.",
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:4987-5021, 4662-4668, 5193-5240, 3169-3183",
+      "title": "Generation check runs after complete_task/reset_task have already changed files",
+      "detail": "Task 012 added the stale-generation check (CAS) to save_manifest. It runs only at the very end, inside save_manifest (3169-3183). Before that point, complete_task has already written learning files (materialize_learning_artifacts, 4662-4668). reset_task has already deleted learning files and the design note (5193-5197, 5234-5240). If save_manifest then rejects a stale writer, the files stay changed while manifest.json does not. For completion: orphan learnings/*.md cause validate_plan to fail with 'Unexpected learning artifacts', and retries fail with 'Learning artifact already exists' until someone runs recover-projections. The runner leaves a long window for this: it refreshes the manifest, runs validation, and only then completes. For reset: the manifest still says design_phase is completed, but the note file is gone for good. The F02 fix and test_r09 cover receipt rejection only, not stale-writer or save-failure rejection.",
+      "fix": "At the start of complete_task and reset_task, enter plan_writer_lock (it is re-entrant) and check that the disk generation equals the manifest generation before touching any file. Keep the lock held through save_manifest. Alternatively, delete the learning files just written if save_manifest raises. Add a test: a stale manifest plus reusable_learnings must raise 'Stale plan writer' and leave no learnings/*.md behind."
+    },
+    {
+      "id": "F02",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:4966, 3647, 2553-2576; test/optimization/plan_contract_self_test.py:1358-1371",
+      "title": "Dependent task completed after an out-of-band dependency edit is not reopened by revise",
+      "detail": "complete_task recomputes executed_digest across all dependencies from their current manifest contents (4966). revise compares against the stored digests (3647). Scenario: 001 completes; someone edits 001 directly in manifest.json; then 002 (which depends on 001) completes. 002's stored digest now includes 001's edited contract, while 001 keeps its old stored digest. A revise that restates the edit reopens 001 but computes the same digest for 002, so 002 stays completed. Yet 002 consumed output 001 produced under its old contract. That breaks 'changing one task contract invalidates its dependent outputs' on exactly the out-of-band path the F01 fix targets. test_r09 only completes the independent task 003.",
+      "fix": "Build executed_digest from each dependency's stored contract_digest (task_contract_digest(task, dependency_digests={dep: stored digest})). Validate the receipt with expected_contract_digest=executed_digest. Then the stored digests chain together and revise reopens both tasks. Add a test: complete 001, edit it out of band, complete 002, revise; expect 001 and 002 both in invalidated_tasks."
+    },
+    {
+      "id": "F03",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:4424-4447, 4987-4988",
+      "title": "A completion rejected during subtask reconciliation still changes subtask state",
+      "detail": "reconcile_reported_subtasks marks the reported subtasks completed before it checks for missing required subtasks or an exact ID match, and only then raises. The artifact_contract wrapper restores only the completion_* fields. The runner then calls fail_task on the same in-memory manifest, which saves those subtasks as 'completed_from_report' even though completion was refused. This is mostly pre-existing behavior, but it contradicts the F02 claim that a rejected completion changes no subtask.",
+      "fix": "Run every reconciliation check against the reported ID set first (or on a deepcopy), then change subtask statuses only after all checks pass."
+    },
+    {
+      "id": "F04",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3702-3713",
+      "title": "revise silently moves an in_progress task back to pending when its contract changes",
+      "detail": "When the contract of an in_progress task changes, revise sets it to pending and drops its subtask progress, but the worker keeps running. The runner's complete_task then fails with 'not in progress', and the retry and fail_task raise too. Meanwhile another runner could claim the same task. Data stays consistent, but nothing coordinates with the active claim.",
+      "fix": "Refuse revisions that change the contract of an in_progress task unless that task is released first, or record an explicit 'interrupted_by_revision' event and document the runner behavior."
+    },
+    {
+      "id": "F05",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3782-3786, 3883-3886, 3044-3053, 4804-4806",
+      "title": "Renaming a task ID with task_id_mapping makes revise fail when that task has a preserved learning artifact",
+      "detail": "The preserved artifact gets the new file path, and staging then copies from plan_path/<new path>, which does not exist. _sync_projections_unlocked regenerates the file with the new IDs but keeps the old sha256. Staged validation then reports a learning artifact hash mismatch and the revision is rejected. With the non-concise renderer, a title change on a source or target task fails the same way. The failure is safe but blocks legitimate revisions.",
+      "fix": "Copy from the old artifact path, or re-render the artifact and recompute its sha256 whenever its ID or rendered content changes."
+    },
+    {
+      "id": "F06",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3563, 3801-3815",
+      "title": "Requirement IDs are not preserved across revisions",
+      "detail": "Instruction 3 of the prepared decision says to preserve requirement IDs and attach supersession notes, and PLAN_SPEC.md:79 says the same. revise_plan nevertheless accepts a spec that silently drops a previous requirement ID. The revision record also does not list added or removed requirement IDs.",
+      "fix": "Compare the old and new requirement IDs. Reject a dropped ID unless it is kept with a supersession_note, or at least record removed_requirement_ids in the revision record."
+    },
+    {
+      "id": "F07",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:2508-2525",
+      "title": "Contract digest leaves out requirement text and implementation guidance",
+      "detail": "The digest covers only requirement_ids, not the requirement text. A revision that changes the text of a requirement that a completed task covers, or changes that task's implementation_guidance, without touching acceptance criteria will not reopen the task.",
+      "fix": "Include the covered requirements' text (and, if intended, implementation_guidance) in task_contract_payload, or document the exclusion as deliberate in PLAN_SPEC."
+    },
+    {
+      "id": "F08",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3754-3760",
+      "title": "revise creates a receipt for tasks completed before 012 using unverified declared input hashes",
+      "detail": "For a completed task with no current_receipt, revise builds one with build_task_receipt. It copies the declared scoped_input_digests without hashing the files and marks it neither backfilled nor historical. validate_receipt accepts it as current.",
+      "fix": "Mark created receipts as backfilled: true and observe the scoped inputs on disk, or leave current_receipt null for completions that predate 012."
+    },
+    {
+      "id": "F09",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/012-receipt.json:17-18; implementation/logs/012/20261120T104118-15876/check-01.log:1",
+      "title": "The 012 receipt and log no longer match the reviewed code",
+      "detail": "The receipt pins planctl.py at 04966b…, but the reviewed file is 174830…. check-01.log prints the old '(012)' banner, which predates test_r01-r09. This matches the known follow-up item F08. Acceptance evidence must come from fresh 013 test logs, not from the 012 receipt or the prepared report.",
+      "fix": "Record the 013 receipt with the current file hashes and actual logs from running plan_contract_self_test.py under the resource watcher."
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "task_id": "013",
+  "dispatch": 3,
+  "session_id": "247a20c5-f181-41c8-9333-bed448c4c5dd",
+  "verdict": "approved",
+  "summary": "Approved: no critical or high findings remain. All six fixes (N01–N06) are in the current code and each has a test: N01 at planctl.py:3846-3850 with test_r08, N02 at :4957, N03 at :2770-2789, N04 at :1086-1213 with test_r04, N05 at :3598-3616 with test_r06, and N06 in PLAN_SPEC.md:240. The tests for the acceptance criteria exercise each of the 012 criteria. I found two medium issues. First, the N02 fix lets a later revise re-bind a stale receipt to a new contract. Second, completion has side effects that happen before the receipt check and stay behind if it fails. The low and info items are robustness edge cases. I did not run any tests (read-only review).",
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:4957; planctl.py:3637; planctl.py:3744-3750",
+      "title": "N02 rewrites stored digests for all tasks, so a later revise re-binds a stale receipt",
+      "detail": "complete_task calls assign_task_contract_digests on every task, not just the one being completed. revise_plan prefers the stored contract_digest (old_digest at :3637). When old and new digests match, it sets preserved_receipt['contract_digest'] = new_digest without checking the receipt. Example: task 001 is completed under contract C1. Its contract is then hand-edited to C2. Any unrelated completion rewrites 001's stored digest to D(C2). A revise whose spec restates C2 then sees 'unchanged', keeps 001 completed, and stamps its C1 receipt with D(C2), so validate_receipt now passes. Transitive dependents of 001 are carried along the same way. Before N02, the stored digest stayed D(C1), so this revise would have reopened 001 and its dependents. The supported revise-only path still behaves correctly, which is why this is medium rather than high.",
+      "fix": "In complete_task, compute the digests locally and update only the completing task's contract_digest. Do not persist new digests for other tasks. In revise_plan's unchanged branch, re-bind the receipt only if it was valid against the previous contract (receipt contract_digest == recomputed old digest). Otherwise archive it and reopen the task. Add a test: hand-edit a completed task, complete another task, revise, and assert the edited task is invalidated."
+    },
+    {
+      "id": "F02",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:4936-4972; artifact_contract.py:791-797",
+      "title": "Completion side effects run before the receipt check and persist if it fails",
+      "detail": "reconcile_reported_subtasks, materialize_learning_artifacts and the digest rewrite all run before the validate_receipt check at :4968. materialize writes learnings/*.md to disk and adds entries to manifest.learning_artifacts and to the target task's learning_files. When the receipt check fails (for example scoped_input_mismatch, an explicit non-approved verdict, or a 018 validator), the artifact_contract wrapper restores only COMPLETION_FIELDS. The runner then retries and calls fail_task with the same in-memory manifest, which saves the learning artifact published by the rejected attempt. On the next attempt, materialize stops with 'Learning artifact already exists', and the leftover artifact stays assigned to the target task.",
+      "fix": "Build and validate the receipt first, using a deep copy of the task and locally computed digests. Run reconcile/materialize only after the check passes. Alternatively, on rejection, roll back the written learning files, the manifest entries and the digest changes. Add a test that sends reusable_learnings together with a drifted scoped input."
+    },
+    {
+      "id": "F03",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3182-3205",
+      "title": "A failed write leaves the in-memory generation ahead of disk",
+      "detail": "save_manifest sets manifest['generation'] = disk_gen + 1 before atomic_write_json. If the write raises (for example replace_with_retry exhausting its retries on a Windows sharing violation), the caller's manifest is one generation ahead of disk. Every later save from that object is then rejected as 'Stale plan writer', including the runner's fail_task fallback.",
+      "fix": "Save the previous generation and updated_at, and restore them in an except block around the write. Alternatively, write a bumped copy and update the caller's dict only after a successful replace."
+    },
+    {
+      "id": "F04",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:1094-1108; planctl.py:1227-1233",
+      "title": "Narrow lock races remain in guard removal and in lock release",
+      "detail": "Two narrow races. (1) Guard removal: when a fresh guard is renamed to the tombstone by mistake, os.link restores it. A third contender can create a new guard between the rename and the link. On filesystems without hard links (FAT/exFAT, some SMB shares) the link always fails. In both cases two contenders can run a takeover at once. A guard holder suspended for more than 10 s has the same effect. (2) Release: an OSError while reading the lock sets still_ours=True, so a lock that another host took over after 300 s could be deleted. Both need multiple contenders plus a crash or suspension.",
+      "fix": "If os.link fails, log it and treat the round as busy instead of proceeding silently. Document that hard-link support is required. On release, treat a non-FileNotFound read error as 'not ours' and leave the lock for stale detection."
+    },
+    {
+      "id": "F05",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3598-3614",
+      "title": "Older flag-bound digests are silently unbound",
+      "detail": "Carry-forward now requires scoped_input_digests_source == 'revise_flag'. Digests bound with --scoped-input-digests by the 012 or dispatch-2 code have no marker, so they count as spec-bound. The next revision that omits them unbinds them and reopens those completed tasks. The live .ai-work manifest has no scoped_input_digests, so there is no current impact.",
+      "fix": "Mention this in PLAN_SPEC.md, or in the revision record treat untagged digests that are absent from the raw spec of the generation that bound them as flag-bound. At minimum, list any unbound digests in the revision record."
+    },
+    {
+      "id": "F06",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:2767-2789; planctl.py:5465-5471",
+      "title": "A CLI `complete` receipt has no validation evidence and ignores failed checks",
+      "detail": "After N03, receipt validations come only from report['validation_results']. The CLI `complete` command does not run validations, so a manual completion records no validation evidence. A worker report whose validations all failed is accepted, with the failures recorded only as worker_reported_failed_validations. The runner path is unaffected.",
+      "fix": "Mark receipts built without runner results, for example validation_source='none', and let validate_receipt or 018 reject them where runner evidence is required. Alternatively, document that CLI `complete` is an operator override."
+    },
+    {
+      "id": "F07",
+      "severity": "info",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:2873-2883",
+      "title": "studyctl writes the manifest without the lock or a generation bump",
+      "detail": "studyctl attaches study_gate with a direct atomic write. It does not take .plan-writer.lock or bump the generation. A writer holding the same generation can therefore pass the check and drop study_gate. N01 protects study_gate during revise, but this direct-write race remains. PLAN_SPEC.md:241 mentions only the missed lag detection. This is outside 012's write scope.",
+      "fix": "Follow-up: have studyctl write through planctl.save_manifest, or under plan_writer_lock with a generation bump."
+    },
+    {
+      "id": "F08",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/012-receipt.json:15-35",
+      "title": "The 012 receipt's file hashes no longer match the corrected files",
+      "detail": "The 012 receipt pins planctl.py at 04966b45… and the other changed files at similar older hashes. The current reviewed files differ (planctl.py is now 331cbf41…). This is expected after the 013 corrections. It means the 012 receipt is not evidence for the current state, and its outcome text describes the earlier dead-PID-only lock design.",
+      "fix": "Task 013 should write its own receipt and outcome that pin the final hashes for all five files and cite actual logs from the re-run plan_contract_self_test.py. Leave the 012 receipt untouched as historical."
+    }
+  ]
+}

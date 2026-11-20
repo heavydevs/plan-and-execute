@@ -1,0 +1,82 @@
+{
+  "schema": "review-dispatch/1",
+  "task_id": "011",
+  "review_of": "010",
+  "dispatch": 1,
+  "provider": "claude",
+  "model": "claude-opus-5-5",
+  "native_effort": "xhigh",
+  "requested_effort": "xhigh",
+  "model_tier": "max",
+  "fresh_context": true,
+  "read_only": true,
+  "session_id": "d4e7920f-be5d-45bd-9c11-4e43ab96bca7",
+  "observed_models": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+  ],
+  "brief_path": "docs/research/20261028-skill-optimization/implementation/reviews/011/brief-1.md",
+  "brief_sha256": "fc9fc844ce31ea1b949ce306cc48c90472f8852c99e94eedf83a8701955d6298",
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/010-receipt.json",
+      "sha256": "31eb3655184acae09d34b51e3cd75ca43e1d02863d827e99363d6b986bd1441e"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/010-outcome.md",
+      "sha256": "92a6a0d216e1c26f36220ad1306a66e9ca75416336e3f2d1be038466d43b2f0a"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/studyctl.py",
+      "sha256": "07cfca7e82ce1b22eeeaf4f16894380071c761012ea6d6115cbab0b2c66f045b"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/study_self_test.py",
+      "sha256": "e3cc3d381cb86a121a6d279a9d491f4a4da08766ab2a820f2188919861a6a5f7"
+    },
+    {
+      "path": "test/optimization/adaptive_study_self_test.py",
+      "sha256": "029051096ee015dc60ad628b37097057e193675ff2273134d58c1594b9735857"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+      "sha256": "d4dcbcb852dbe4f26968f2931347775d9bd1af21d7c93942e2ba9a041e375f82"
+    }
+  ],
+  "argv_redacted": [
+    "C:/Users/luizc/.local/bin/claude-pae-2.1.322.exe",
+    "--print",
+    "--no-session-persistence",
+    "--output-format",
+    "json",
+    "--permission-mode",
+    "plan",
+    "--model",
+    "claude-opus-5-5",
+    "--effort",
+    "xhigh",
+    "--tools",
+    "Read,Grep,Glob",
+    "--json-schema",
+    "{\"type\":\"object\",\"properties\":{\"verdict\":{\"type\":\"string\",\"enum\":[\"approved\",\"changes_requested\"]},\"summary\":{\"type\":\"string\",\"maxLength\":800},\"findings\":{\"type\":\"array\",\"maxItems\":20,\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"maxLength\":16},\"severity\":{\"type\":\"string\",\"enum\":[\"critical\",\"high\",\"medium\",\"low\",\"info\"]},\"location\":{\"type\":\"string\",\"maxLength\":300},\"title\":{\"type\":\"string\",\"maxLength\":200},\"detail\":{\"type\":\"string\",\"maxLength\":1200},\"fix\":{\"type\":\"string\",\"maxLength\":800}},\"required\":[\"id\",\"severity\",\"location\",\"title\",\"detail\",\"fix\"],\"additionalProperties\":false}}},\"required\":[\"verdict\",\"summary\",\"findings\"],\"additionalProperties\":false}",
+    "<prompt>"
+  ],
+  "started_at": "2026-11-20T09:55:40Z",
+  "finished_at": "2026-11-20T10:00:15Z",
+  "exit_code": 0,
+  "usage": {
+    "input_tokens": 34,
+    "cached_tokens": 1379825,
+    "cache_write_tokens": 121956,
+    "output_tokens": 27789,
+    "credits": null,
+    "usd": 1.8078142
+  },
+  "verdict": "changes_requested",
+  "findings_count": 13,
+  "blocking_findings": 3,
+  "findings_path": "docs/research/20261028-skill-optimization/implementation/reviews/011/findings-1.json",
+  "findings_sha256": "1f1648a2899460b9da8bf74ce97f19c75d1055d01b8c3d2b491033b78434ac3a",
+  "skipped_attempts": [],
+  "helper": "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
+}

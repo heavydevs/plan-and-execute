@@ -1,0 +1,81 @@
+{
+  "task_id": "011",
+  "dispatch": 3,
+  "session_id": "15c28c29-6ba9-4ca7-ba39-86b56f430cee",
+  "verdict": "approved",
+  "summary": "Checked the current studyctl.py, both test suites and ADAPTIVE_STUDY.md against AC01–AC07, the prepared-research non-proof rule and each dispatch-2 fix claim. The claimed fixes are present. I traced every new test by hand and found no logic that would make one fail, but I did not run them. Each AC has a working guard and a test, so no critical/high finding remains. Gaps remain: an access date counts as a version for AC01; external sources can stand in as probe results; recommendations don't inherit the question's quota claim; ledger readiness ignores its own invalidation signals. Evidence gap: 010-receipt.json/010-outcome.md and the only logs (11 tests) predate the corrections. Worker 011 must re-run all three checks and record new hashes before closing.",
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:104-107,227-233,236-257; .ai-work/20261028-skill-study-provider-switch/study.json:95; docs/research/20261028-skill-optimization/INITIAL_SOURCES.json:22",
+      "title": "AC01: a retrieval/access date alone counts as an explicit version/date, so undated live CLI docs are never flagged",
+      "detail": "has_explicit_version_or_date() accepts any year or semver-like match anywhere in version_or_date. 'Retrieved 2026-10-28; record W-KIMI-CLI' and 'Live documentation accessed 2026-10-28' (real values in this repo, including CLI docs) count as dated, so refresh_required stays False even when affects_cli_behavior or cli_interface applies. The prepared decision (010-adaptive-study.md:49) says a retrieved page date differs from the source's own date, and the code now has a separate retrieved_at field. Yet version_or_date still treats an access date as a version. AC01 only fires for empty or placeholder values, which the project's real sources never use.",
+      "fix": "Treat a version_or_date that has only a retrieval/access/discovery date (e.g. 'retrieved|accessed|search-discovered' + date, or a value equal to retrieved_at) as undated for refresh purposes, or require a separate published_at/version field for cli_interface sources. Add a regression test with 'Live documentation accessed 2026-10-28' on a CLI source."
+    },
+    {
+      "id": "F02",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1042-1052,565-573",
+      "title": "probe_verified can be backed by an external URL self-labelled observed_repository_behavior, even an unread one",
+      "detail": "The probe-result check accepts any cited source whose evidence_kind is observed_repository_behavior. normalize_external_sources lets an external source set that kind at any reading scope; it only forbids verified_source_fact for unverified scopes. So in schema v2, a contradicted high-importance question can become 'resolved' with probe_verified=true by citing a discovery_only/inaccessible external URL labelled observed_repository_behavior next to the two inspected contradicting docs. Line 881 doesn't stop this because not every citation is unverified. This reopens the 'self-declared probe' escape that F03 meant to close (AC03).",
+      "fix": "Count only internal sources (optionally restricted to tests/implementation/history kinds) as probe results. Reject evidence_kind observed_repository_behavior on external sources, or at least on discovery_only/abstract_only/inaccessible scopes. Add a v2 regression test."
+    },
+    {
+      "id": "F03",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1880-1888,1914-1923,890-892",
+      "title": "AC06: recommendations don't inherit the linked question's subscription_quota claim, so the api_pricing guard is bypassed by defaults",
+      "detail": "A recommendation's claim_type defaults to design_recommendation, and its evidence_domain defaults to the question's evidence_domain only. If a probe_required question uses claim_type 'subscription_quota' without evidence_domain, or a recommendation explicitly sets evidence_domain 'general', the recommendation can cite only an api_pricing source (e.g. 'set quota cap from price table') and pass. The quota guard checks only the recommendation's own claim_type and domain. The F01 test covers only an explicit claim_type subscription_quota.",
+      "fix": "In normalize_recommendations, run the quota guard when the linked question's claim_type or evidence_domain is subscription_quota/account_capability, unless the recommendation's claim_type is capability_probe. Add a test with default claim_type and a question that has only claim_type=subscription_quota."
+    },
+    {
+      "id": "F04",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:2434-2443,2075-2122,2334-2339",
+      "title": "Ledger readiness ignores its own invalidation_result; consumed_reports still lists invalidated reports",
+      "detail": "normalize_evidence_ledger stores invalidation_signals and computes invalidation_result. evaluate_stopping_condition never looks at either, so 'ledger-validate --require-ready' reports ready=true while recommendations and reports in the same ledger are invalidated and pending refresh. plan_research_action also returns every prepared report in consumed_reports, including those in invalidated_report_ids. A caller reading consumed_reports would reuse a stale report.",
+      "fix": "Add a blocking reason to evaluate_stopping_condition for each invalidated recommendation/report when the ledger carries signals. In plan_research_action, exclude invalidated_report_ids from consumed_reports (or list them separately as refresh_required_reports). Add tests."
+    },
+    {
+      "id": "F05",
+      "severity": "medium",
+      "location": "docs/research/20261028-skill-optimization/implementation/010-receipt.json:15-31,40; docs/research/20261028-skill-optimization/implementation/010-outcome.md:22-24,41-43",
+      "title": "Recorded test evidence and hashes predate the corrections; the corrected suites have no run log",
+      "detail": "Hashes in the receipt (studyctl.py 07cfca7e…, study_self_test.py e3cc3d38…, adaptive_study_self_test.py 02905109…, ADAPTIVE_STUDY.md d4dcbcb8…) don't match the reviewed state (dc4b944c…, d0e6c32d…, 7121f82b…, a345f363…). The only logs (logs/010/20261120T095239-18232) show 11 adaptive tests; the current suite has 17, and study_self_test has 18. The outcome still says 11 tests. I traced the new tests by hand but did not run them. The review acceptance ('assigned acceptance cases have actual test evidence') is unmet until checkpoints S004–S006 run.",
+      "fix": "Re-run all three declared checks (adaptive_study_self_test.py, study_self_test.py, artifact_concision_self_test.py) through resource_watch.py on the final source. Then write a fresh 011 receipt/outcome with the new hashes, test counts and logs. Don't reuse the 010 logs."
+    },
+    {
+      "id": "F06",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:2263-2271,2233-2237",
+      "title": "Invalidation is imprecise in two places: report metadata is ignored once any recommendation links to it, and missing_date_or_version ignores the named source_ids",
+      "detail": "A report with at least one linked recommendation is invalidated only through those recommendations; its own affected_providers/version_sensitive fields are skipped. So a version-sensitive report whose recorded recommendation isn't version-sensitive survives a matching provider change (under-invalidation). Separately, a missing_date_or_version signal matches every CLI-affecting recommendation with any undated source, even one the signal doesn't name (over-invalidation). Yet SIGNAL_REQUIRED_TARGETS forces that signal to name source_ids.",
+      "fix": "In the report loop, also run the report-level provider/version_sensitive match for reports that have linked recommendations. For missing_date_or_version, require set(sig.source_ids) & set(rec.source_ids) (or a component match). Add regression tests."
+    },
+    {
+      "id": "F07",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1488-1498,1408,1431-1447; skill/plan-and-execute/references/ADAPTIVE_STUDY.md:156",
+      "title": "Prepared-report completion rule can be relabelled outside the exact path marker; 'implementation_proven' rests on an unverified string",
+      "detail": "An entry in prepared_reports can set evidence_origin=implementation and implementation_status=completed with no receipt when its path lacks the case-sensitive 'prepared-research/' marker (e.g. 'Prepared-Research/' on Windows, or a moved copy). The normalized and rendered ledger then shows impl=completed. When a receipt string is present, implementation_proven=True comes only from a '.json'-suffixed relative path. Nothing in the repo (check_delivery.py included) checks the ledger's receipt fields, so ADAPTIVE_STUDY.md:156 ('the delivery gate verifies that receipt') overstates the safeguard. Existence/hash checks were deferred, but this text and field name are misleading.",
+      "fix": "Treat everything in prepared_reports as prepared_research (or compare the marker case-insensitively). Rename implementation_proven/independent_review_proven to *_receipt_declared until existence/hash checks exist. Change ADAPTIVE_STUDY.md:156 to say receipt verification is not yet wired to the ledger."
+    },
+    {
+      "id": "F08",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:870-888,1332,766-777",
+      "title": "Located-only guards apply only to status 'resolved'; prepared-report waiver isn't tied to the task",
+      "detail": "The verified_interface and 'discovery_only/inaccessible cannot be verified support' checks run only when status=='resolved'. A medium-importance question with claim_type verified_interface and status 'assumed' can rest solely on a search hit, and the study is still ready. Separately, the medium-depth waiver accepts any prepared report that names any source_ids. It doesn't check that the report's task_id matches the current task or that the report was not invalidated.",
+      "fix": "Reject claim_type verified_interface with status 'assumed' (require probe_required instead). Require the waiving report to match the study's task (e.g. a task_id field) and not be invalidated."
+    },
+    {
+      "id": "F09",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:2597-2601,2913-2915,249-255",
+      "title": "Backward compatibility: plain render format and version_or_date rule changed for previously valid studies",
+      "detail": "render_study now prints '[source_type; scope]' plus refresh/probe/extra sections. validate_plan_study compares STUDY.md byte-for-byte, so plans attached earlier with plain studyctl.py (not studyctl_concise.py) now fail validate-plan. Also, a previously valid version_or_date with no date or version pattern (e.g. 'Live documentation') is now rejected unless affects_cli_behavior is added, and adding it changes the hashed study.json. Current repo plans use studyctl_concise and dated values, so practical impact is low. Still, the outcome's 'preserving all existing … validate-plan contracts' is not strictly true.",
+      "fix": "Record the change as a known compatibility break in the outcome, or keep the legacy render for sources without explicit reading_scope. Add a regression test that an older-format attached plan still validates."
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "task_id": "011",
+  "dispatch": 1,
+  "session_id": "d4e7920f-be5d-45bd-9c11-4e43ab96bca7",
+  "verdict": "changes_requested",
+  "summary": "Read-only review by Claude Opus 5.5 (claude-opus-5-5) of the task 010 code at the listed paths. I did not recompute the input hashes because no shell was available. The logs show all 11 adaptive and 15 study self-tests passing. The tests only cover the happy path for each guard, and several acceptance criteria can still be bypassed. On the recommendation path, AC05/AC06 checks are skipped when the linked question is probe_required. The AC03 contradiction guard only fires for status=resolved, and probe_verified is an unchecked boolean. The v1/v2 study contract no longer requires version_or_date, so an unlabelled undated CLI source passes, and the outcome's claim that existing contracts are preserved is false. Three high findings remain, so the verdict is changes requested.",
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1788-1801",
+      "title": "Recommendation guards are skipped when the linked question is probe_required, so AC05 and AC06 can be bypassed",
+      "detail": "check_status becomes 'probe_required' whenever question['status']=='probe_required', even if the recommendation's own claim_type is subscription_quota or verified_interface. _validate_claim_and_source_alignment only checks verified_interface at status=='resolved' (843) and subscription_quota at {'resolved','assumed'} (863-865), so both guards are skipped. Repro: in base_ledger(), add a recommendation with material_question_id='Q002' (probe_required), source_ids=['W-COST'] (api_pricing), claim_type='subscription_quota', change='Hardcode quota from API price'. ledger-validate --require-ready accepts it and reports ready=True. Same result for claim_type='verified_interface' citing only a discovery_only source. The AC06 test (adaptive_study_self_test.py:550-571) only binds to resolved Q001, so this path is untested.",
+      "fix": "Derive check_status from the recommendation's own claim. Only claim_type=='capability_probe' should use 'probe_required'. Every other claim type (verified_interface, subscription_quota, design_recommendation) should be checked as 'resolved' whatever the question's status. Add counterexample tests that bind the bad quota and verified-interface recommendations to a probe_required question."
+    },
+    {
+      "id": "F02",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:513-515,521-525,543-545 (also 1500-1502)",
+      "title": "version_or_date is no longer required in v1/v2 studies, and CLI refresh flagging only works if the author labels the source",
+      "detail": "The earlier contract (snapshot .ai-work/progress-review/patch-verification-c2a2152c/.../studyctl.py:279-283) required version_or_date via ensure_text(min 3). It is now optional and silently becomes 'unknown'. affects_cli_behavior defaults to False and evidence_domain to 'general'. As a result, a legacy or unlabelled v1/v2 source with no date or version is accepted and the study becomes ready without any refresh flag, even if the source documents CLI flags. Before this change that input was rejected. AC01 therefore holds only when the author opts in by labelling the source cli_interface. The 010 outcome says existing v1/v2 'validate' contracts are preserved, which is false. No test covers an unlabelled undated source.",
+      "fix": "Keep rejecting a missing or placeholder version_or_date unless the source explicitly declares affects_cli_behavior (true or false), or records an explicit unknown with refresh_required. Keep schema v1 strict. Add a regression test: an undated v1/v2 source with no labels must be rejected."
+    },
+    {
+      "id": "F03",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:993-1002, 1102-1168",
+      "title": "AC03 contradiction guard can be bypassed with status 'assumed' or a self-declared probe_verified=true",
+      "detail": "An invented resolution is rejected only when status=='resolved' and probe_verified is false. A question with recorded contradictions can use status='assumed' with medium or low importance. It still requires and carries a resolution, but no capability_probe is required. validate_ready_state never checks contradictions, so the v2 study becomes ready; only the ledger's evaluate_stopping_condition (1966) blocks this. probe_verified is also just a boolean with no bound probe definition, receipt or observed evidence. Setting probe_verified=true lets a high-importance contradicted question be 'resolved' with any invented resolution, in both studies and ledgers (it also exempts recommendations at 1779-1787). Neither path is tested.",
+      "fix": "If contradictions are present, require status=='probe_required' unless probe_verified is true. In that case also require a capability_probe and at least one cited internal or observed_repository_behavior evidence id recording the probe result. Add the contradiction check to validate_ready_state. Add counterexample tests for 'assumed' and for a bare probe_verified=true."
+    },
+    {
+      "id": "F04",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:742-750, 1240-1249, 1336-1404",
+      "title": "Any prepared_reports entry waives the medium-trigger focused-research rule, and reports are never checked",
+      "detail": "has_prepared_reports=bool(prepared_reports) turns off 'medium requests with external triggers must perform focused research' for every trigger, including security_sensitive and conflicting_evidence. A report needs only report_id and a path of at least 3 characters. Nothing checks that the path exists, that sha256 matches, that the report covers the triggered concern, or that a recorded refresh signal hasn't invalidated it. AC04 says 'known' prepared reports, but the gate accepts any stub string.",
+      "fix": "Require the report file to exist inside the repo and match its sha256. Require a non-empty source_ids list or a coverage note that relates the report to the triggered fields. Don't apply the waiver when the report is invalidated or the trigger is security_sensitive or conflicting_evidence."
+    },
+    {
+      "id": "F05",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1313-1333, 1366-1369",
+      "title": "Prepared-research non-proof check can be skipped by changing evidence_origin, and any string counts as a receipt",
+      "detail": "validate_completion_claim only enforces the rule when evidence_origin=='prepared_research'. evidence_origin is unconstrained free text, so a report entry pointing at prepared-research/*.md with evidence_origin='implementation' and implementation_status='completed' passes with no receipt. The ledger and STUDY.md then show impl=completed (2303, 2450). When origin is prepared_research, any non-empty implementation_receipt or review_receipt string is accepted as proof. Nothing checks that the receipt file exists, its hash, or that the review was a fresh session.",
+      "fix": "Restrict evidence_origin to an enumerated set. Treat any path under prepared-research/ as prepared_research. Require receipts to be existing repo paths, optionally with a sha256 match, before 'completed' is accepted. Add counterexample tests."
+    },
+    {
+      "id": "F06",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1875-1907, 2043-2061, 2129-2143",
+      "title": "Invalidation signals that target nothing are silently treated as no-ops (fail-open)",
+      "detail": "normalize_invalidation_signal doesn't require the fields each signal kind needs. A provider_version_change with no provider (2044), or a source_digest_change or contradicted_evidence with no source_ids or question id, matches nothing. evaluate_invalidation then returns action='consume_prepared_reports' with no warning, so an explicit refresh signal is dropped. Reports without recommendations are only checked for digest, provider-version and CLI-version signals. model_contract_change, account_capability_change, contradicted_evidence and missing_date_or_version never invalidate them.",
+      "fix": "Validate the required targeting fields for each signal kind and raise StudyError when they are missing. Report the signals that matched nothing in an 'unmatched_signals' list. Extend the report-only loop to every signal kind."
+    },
+    {
+      "id": "F07",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:854-861, 1945-1985; skill/plan-and-execute/references/ADAPTIVE_STUDY.md:136",
+      "title": "High-impact questions can be marked resolved without any verified-scope evidence, contradicting the documented stopping rule",
+      "detail": "ADAPTIVE_STUDY.md:136 says to stop only when every high-impact question is 'resolved with verified evidence'. The code only rejects a resolved question whose external sources are all discovery_only or inaccessible. A high-impact question resolved only from abstract_only sources, which the summary counts as unverified, still gives stopping_evaluation.ready=True and a ready v2 study. abstract_only sources can also be tagged evidence_kind='verified_source_fact' (536-542, 1608-1615).",
+      "fix": "In evaluate_stopping_condition and validate_ready_state, require each resolved high-importance question to cite at least one internal source or one source in VERIFIED_READING_SCOPES. Reject verified_source_fact on abstract_only sources."
+    },
+    {
+      "id": "F08",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:866-882",
+      "title": "Subscription-quota guard accepts api_pricing evidence plus an unread quota source",
+      "detail": "has_quota_evidence is true for any cited source in the subscription_quota or account_capability domain, whatever its reading_scope. If a claim cites an inspected api_pricing source plus a discovery_only or inaccessible 'subscription limits' URL, every check passes. The only inspected evidence is the API pricing record, which is the substitution AC06 forbids.",
+      "fix": "Count only sources in VERIFIED_READING_SCOPES (or internal observed evidence) as quota evidence. Add a counterexample test: api_pricing plus a discovery_only quota source must be rejected."
+    },
+    {
+      "id": "F09",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:2054-2058, 2104-2111",
+      "title": "Invalidation over-reports which sources and recommendations are affected",
+      "detail": "For signals without a provider, such as source_digest_change, every source of a matched recommendation is added to invalidated_source_ids. In the CLI test, a W-CONTEXT digest change also reports W-COST as invalidated. In addition, any current_version that is not in rec_versions invalidates every recommendation citing that provider. For example, a Claude Code CLI version bump invalidates recommendations that cite only the Claude API pricing doc (provider_version '2026-10').",
+      "fix": "For signals with source_ids, only add the intersecting sources. Match provider_version within the same product or component instead of across the whole provider namespace."
+    },
+    {
+      "id": "F10",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1374, 1395, 1684, 1858",
+      "title": "Unchecked type coercion: invalid research_revision crashes the CLI, and the string 'false' becomes True",
+      "detail": "int(data.get('research_revision', 2)) raises ValueError or TypeError for non-numeric input. main() only catches StudyError, so the CLI prints a traceback instead of a {valid:false} JSON result. bool(data.get('version_sensitive')) turns the string 'false' into True, which silently widens invalidation.",
+      "fix": "Validate that research_revision is an int and that version_sensitive is a bool, raising StudyError like the other boolean fields do."
+    },
+    {
+      "id": "F11",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1654-1658, 1836-1857",
+      "title": "The article-copy limit applies only to source_register.summary",
+      "detail": "AC02's 'without copying an entire article' is enforced only by MAX_SOURCE_SUMMARY_CHARS on summary and a 400-character limit on evidence_records.repository_applicability. The implementation_consequence field and the recommendation fields change, repository_applicability and implementation_consequence have no limit, so a full article can be pasted there.",
+      "fix": "Apply concise budgets (for example, the existing STUDY_BUDGETS impact and finding ceilings) to all free-text ledger fields."
+    },
+    {
+      "id": "F12",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:847, 2214-2219",
+      "title": "Citing any internal source satisfies a verified_interface claim",
+      "detail": "Ledger internal sources are automatically marked reading_scope='inspected_section'. Any cited internal source then satisfies verified_interface, even when it has nothing to do with the provider interface. A discovery_only external doc plus an unrelated repo file passes.",
+      "fix": "Require the internal source to be of kind 'interface' or 'tests', or evidence_kind observed_repository_behavior, before it can satisfy verified_interface."
+    },
+    {
+      "id": "F13",
+      "severity": "low",
+      "location": "docs/research/20261028-skill-optimization/implementation/010-receipt.json:33-106",
+      "title": "Receipt has no acceptance_coverage entry for the eighth acceptance criterion",
+      "detail": "Task 010 has eight acceptance criteria. The receipt lists only AC01-AC07, and 'prepared research is not proof of implementation/review' appears only in the summary and outcome prose. Review automation that keys on acceptance IDs cannot confirm coverage of that criterion.",
+      "fix": "Add an AC08 coverage entry citing test_prepared_research_not_proof_of_implementation_or_review and the check-01 and check-02 logs."
+    }
+  ]
+}

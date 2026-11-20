@@ -1,0 +1,97 @@
+{
+  "task_id": "013",
+  "dispatch": 1,
+  "session_id": "4fd8e325-6f4d-48c7-8ea8-eb8afb98b296",
+  "verdict": "changes_requested",
+  "summary": "Read-only review of task 012 at the stated hashes (code read only; tests not re-run). The decision's core design is present: staged revisions, a writer lock, generation checks, projection recovery, transitive contract digests and receipt history. Two high defects block approval. (1) The new receipt check makes tasks with requires_independent_review unable to complete through the runner, because the completion-report schema cannot carry a verdict. (2) The stale-writer guarantee is opt-in: revise without --expected-generation, and every pre-012 schema-4 plan (including the live one), has no generation check. Medium issues: a lock-takeover race, scoped-input binding that never hashes the real files, spurious invalidation, and tests that never reach the staging rollback.",
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/planctl.py:2542-2548, planctl.py:4677-4681, skill/plan-and-execute/references/completion-report.schema.json:136, skill/plan-and-execute/scripts/run_isolated.py:2218-2238",
+      "title": "Tasks with requires_independent_review can never complete through the runner",
+      "detail": "complete_task now builds a receipt and runs it through validate_receipt. If the task has requires_independent_review, the check needs verdict or independent_review_status set to 'approved'. Otherwise it adds independent_review_not_approved and complete_task raises an error. The worker completion report schema has additionalProperties:false and no verdict or independent_review_status field, so a worker that follows the schema can never supply one. The runner then retries, fails again and calls fail_task, using up attempts. The live plan inputs (docs/plans/20261028-skill-optimization/TASK_INPUTS.json) give every review task (e.g. 013) requires_independent_review:true. If the field means 'needs a review', implementation tasks deadlock instead, because the review depends on them completing first. The 012 test (AC02) creates such a task but never completes it.",
+      "fix": "Choose one meaning and wire it end to end. Either (a) add an optional verdict field to the completion schema, accepted only for review_of tasks and taken from the review artifact, or (b) stop checking a review task's own completion receipt for approval. Instead, check the reviewed implementation's acceptance against the review task's recorded verdict (e.g. through a register_receipt_validator extension). Add a test that claims and completes a review_of task with a schema-valid report."
+    },
+    {
+      "id": "F02",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3289-3295, planctl.py:5237, references/PLAN_SPEC.md:239, references/PLANNING_PROTOCOL.md:190",
+      "title": "A stale plan revision can replace a newer generation by default (generation check is opt-in)",
+      "detail": "revise_plan only checks the generation when expected_generation is passed, and the CLI defaults --expected-generation to None. Example: planner A writes a spec from generation N while planner B publishes N+1. If A runs `revise` without the flag, A's spec silently replaces B's. B's tasks and requirements are dropped and completed work may be reopened. This breaks the acceptance criterion 'A stale plan writer cannot replace a newer generation' on the default path. AC07 only tests the opt-in path. PLAN_SPEC.md:239 and PLANNING_PROTOCOL.md:190 state the guarantee without saying it is opt-in.",
+      "fix": "Make expected_generation required for schema-4 revise in both the API and the CLI. Alternatively, require the spec to carry a base_generation/base_spec_sha256 and reject a mismatch. Update the docs to match, and add a test showing revise without a base generation is rejected."
+    },
+    {
+      "id": "F03",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:2935-2953, planctl.py:2703-2707, planctl.py:3709-3711",
+      "title": "Pre-012 schema-4 manifests never get a generation, so the live plan has no stale-writer check or lag detection",
+      "detail": "save_manifest only sets generation=1 when manifest.json does not exist yet. For an existing schema-4 manifest without a generation (none of the .ai-work manifests have one), disk_gen is not an int. The generation check is skipped, no bump happens, _write_projection_state returns early, and validate_plan's lag check never runs. claim, complete and fail therefore have no stale-writer protection on the plans that matter until someone runs revise. PLANNING_PROTOCOL.md:190 says every schema-4 manifest carries a monotonic generation.",
+      "fix": "Under the lock in save_manifest, initialise generation for schema-4 manifests that lack it (an explicit one-time upgrade with an event), or require recover-projections or a migration first. Add a test using a schema-4 fixture without a generation."
+    },
+    {
+      "id": "F04",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:1024-1049, planctl.py:1034-1035, planctl.py:973-986, planctl.py:1068-1073",
+      "title": "Writer lock: stale-takeover race, live locks can be stolen, Windows edge cases",
+      "detail": "(1) Takeover race: two contenders can both read the same stale lock. A unlinks it and creates a new lock; B then unlinks A's fresh lock and creates its own, so both hold the lock. The generation check (read, compare, write) is only safe under true exclusion, so an update can be lost. (2) Any lock at least 300s old is treated as stale even when its same-host owner PID is alive, and nothing refreshes its mtime. (3) On Windows, OpenProcess failing with access denied (e.g. an elevated owner) counts as a dead process. (4) A lock file containing valid non-object JSON raises AttributeError, which is not caught. (5) A PermissionError from unlink in the finally block escapes, hides the original error and leaves a lock owned by a live PID. Later writers in that process then time out for up to 300s. No test covers contention or takeover.",
+      "fix": "Take over atomically: rename the stale file to a unique tombstone, check it is still the lock you inspected (same content/inode), then retry O_EXCL. Alternatively use msvcrt.locking/fcntl.flock on a held handle. Do not steal locks from live same-host PIDs by age alone. Treat ERROR_ACCESS_DENIED as alive. Catch non-dict JSON. Retry unlink on PermissionError. Add a contention test with two processes."
+    },
+    {
+      "id": "F05",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:2594, planctl.py:2522-2529, planctl.py:4673-4677, planctl.py:5075-5077",
+      "title": "Scoped-input binding only restates the plan's declared hashes and never hashes the real files",
+      "detail": "build_task_receipt copies the task's declared scoped_input_digests into the receipt. complete_task never hashes the actual scoped_inputs on disk, and validate_receipt compares the receipt with those same declared values, so they always match. Change a scoped input file without running revise and every receipt stays valid. validate-receipt without --scoped-input-digests reports valid. A task can also complete against a drifted input and get a valid receipt. This does not do what decision instruction 7 asks ('bind acceptance to task contract and scoped inputs').",
+      "fix": "At completion, hash each scoped_input on disk. Reject or mark drift when it differs from the declared digest, and record the observed hashes in the receipt. In validate-receipt, recompute current hashes from disk by default when scoped_inputs are declared."
+    },
+    {
+      "id": "F06",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3303-3310, planctl.py:3356-3359, planctl.py:2316-2325",
+      "title": "Scoped digests passed with --scoped-input-digests are not carried into later revisions, so unrelated completed tasks get reopened",
+      "detail": "Digests injected with the revise flag are stored on the new task and included in contract_digest, but the spec is not updated. A later revise that changes only task C, run without the flag, normalises task A from the spec without those digests. A's digest changes and A plus all its dependents are invalidated and reopened, even though their spec did not change. This contradicts 'Changing one task contract invalidates its dependent outputs, not unrelated completed tasks.'",
+      "fix": "Carry forward the previous scoped_input_digests for mapped tasks when neither the spec nor the flag provides them. Alternatively, reject the flag and require digests in the spec. Add a two-revision regression test."
+    },
+    {
+      "id": "F07",
+      "severity": "medium",
+      "location": "test/optimization/plan_contract_self_test.py:274-314, plan_contract_self_test.py:665-671, planctl.py:2884-2920, implementation/012-outcome.md:27",
+      "title": "Negative tests never reach the staged-audit rollback; some checks pass vacuously",
+      "detail": "All four AC01 failures (cycle, uncovered requirement, orphan review, vague text) are rejected in preflight or normalisation, before .staging is created. The rollback at planctl.py:3600-3606 and the byte-identical guarantee after a partial staging write are never exercised. The outcome still says these revisions 'remove staging'. AC06 'crash before publication' builds a staging directory by hand instead of interrupting revise_plan. tasks_completed_changed compares the same unmodified dict, so it is always False. There is no test of lock contention, timeout or takeover. The only evidence log (check-01.log) is one line with no command, exit code or source hashes.",
+      "fix": "Inject a failure inside staging (e.g. a validate_plan error or a hook after staged projections are written) and assert the plan files are byte-identical with no .staging left. Interrupt revise_plan itself before publication. Compute tasks_completed_changed against the statuses on disk before and after. Add a lock contention test. Record the command, exit code and tested source hashes in the logs."
+    },
+    {
+      "id": "F08",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/artifact_contract.py:781-786, artifact_contract.py:790-794",
+      "title": "complete/reset wrappers make two separate locked saves",
+      "detail": "The wrapper calls the original complete_task (save, bump to N+1), then sets completion_summary and saves again (bump to N+2), releasing the lock in between. A crash between the two leaves a completed task without its summary. If another writer bumps the generation in between, the second save raises 'Stale plan writer' after completion already happened. The runner then retries and fails on 'not in progress'. reset_task has the same pattern.",
+      "fix": "Fold the completion summary fields into the single complete_task/reset_task save, e.g. through a pre-save hook or by passing the fields into planctl."
+    },
+    {
+      "id": "F09",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3213-3234, planctl.py:2909, planctl.py:3718, references/PLANNING_PROTOCOL.md:189",
+      "title": "Saves with bump_generation=False reuse a generation; lag detection checks only the generation number",
+      "detail": "After publishing, create_plan saves again with bump_generation=False (git_exclude, request move). The manifest content changes but the generation stays 1, so a concurrent reader still holding generation 1 passes the check and can overwrite those fields. Lag detection compares only the generation, not the recorded manifest_sha256. create_plan does not take .plan-writer.lock, although PLANNING_PROTOCOL.md:189 says create publishes under it.",
+      "fix": "Bump the generation on every content change, or compare manifest_sha256 in lag detection and the generation check. Fix the documentation."
+    },
+    {
+      "id": "F10",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:3126, planctl.py:2886-2899, planctl.py:3582-3620",
+      "title": "Leftover create-staging directories are not cleaned; MODEL_MATRIX is not rebuilt on revise",
+      "detail": "create_plan stages in <work_root>/.staging-<id>-<hex>. After a crash, recover_projections only cleans <plan>/.staging, so these directories, each holding a sentinel and manifest, are left behind. revise_plan publishes new generations without rebinding MODEL_MATRIX.json from generation 1, so a plan-local artifact from an older generation stays alongside newer ones. Snapshot routing falls back for added or renamed tasks.",
+      "fix": "Clean create-staging leftovers for the plan_id. Rebind MODEL_MATRIX for changed tasks inside the staged revision, or record it as out of scope."
+    },
+    {
+      "id": "F11",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:2680-2698, planctl.py:2303-2364, planctl.py:3481",
+      "title": "Gaps in the dependency and research-output checks",
+      "detail": "Existence and hash checks for research outputs apply only to research_metadata paths. A task listing a prepared report in scoped_inputs can depend on a missing file. Learning edges are not part of contract_digest. A completed target that consumed a learning artifact from a now-invalidated source stays completed with a valid receipt. SECOND_PLAN_PATTERN only matches create/generate/produce, so wording like 'draft/build Plan 2' passes.",
+      "fix": "Check that scoped_inputs exist for active tasks. Include consumed learning sources in the target's contract digest, or invalidate the targets. Widen the second-plan check or base it on structured metadata."
+    }
+  ]
+}
