@@ -12,6 +12,9 @@ allowed_related_task_reads: "none"
 
 **Pre-decided architecture:** docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md. Implement these decisions without a new broad research phase. All functionality and reviews are PENDING.
 
+
+**P066 first-use rule:** The only broad UI/UX code + external best-practices research is during explicitly approved first relevant skill use in the project or via manual pae ux init/refresh. Reuse shared onboarding approval from 127/128; thereafter consume compact approved design indexes, current affected components and hashes, never repeat study on each feature. Node lab is separate explicit opt-in. Non-UI/backend tasks and CI incur zero UI study or paid model calls. Permission denial and stale samples must remain visible, not silently green.
+
 ## Internal implementation checklist
 - [ ] **S001** — Read P065 architecture and accepted 122/112 receipts, inspect only relevant real frontend source.
 - [ ] **S002** — Implement deterministic mode: in-app/stories with REAL components when capable, otherwise optional isolated Vite vanilla HTML/JS/SCSS lab; no mandatory Figma or npm install.
