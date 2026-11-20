@@ -95,6 +95,8 @@ Each materialized learning carries provenance metadata in `manifest.json`:
 
 Changing a cited file or revising the producer's contract invalidates or flags only that learning before reuse (`planctl.py check-learnings --invalidate-stale`), without deleting unrelated knowledge. Repeated conventions needed by multiple tasks belong in a versioned shared pattern (`patternctl.py`), not copied learning prose.
 
+Before a worker claim **and on a retry**, compare the rendered learning file's actual SHA-256 with its manifest record; reject a missing, modified, or symlinked file even when the producer's cited sources are unchanged. Source references in `path.py#symbol` and `path.py::symbol` form pin the underlying file, not merely the fragment. Reject unsafe cited-file paths and ancestor symlinks. Offline receipts and `check-learnings` must report the same stale state; absence of a trustworthy repository root is not proof of freshness. This guards the local read boundary, not files that could be maliciously replaced after the check; untrusted filesystem writers require independent isolation.
+
 ## Failed-attempt hypotheses
 
 Failed attempts may record bounded, task-local hypotheses with concrete evidence references. When underlying evidence files, failure signatures, or the task contract change, open hypotheses are automatically invalidated.

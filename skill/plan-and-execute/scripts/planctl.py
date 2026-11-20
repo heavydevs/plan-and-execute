@@ -4605,7 +4605,9 @@ def extract_cited_repo_files(references: Iterable[str], repo_root: Path | None) 
         if not candidate or any(ch.isspace() for ch in candidate) or candidate.startswith("-"):
             continue
         candidate = candidate.split("::", 1)[0]
-        candidate = re.sub(r"#L\d+(?:-L?\d+)?$", "", candidate)
+        # Strip both line anchors (#L12) and symbol anchors (#Class.method).
+        # Otherwise ordinary source references silently lose their change fingerprint.
+        candidate = candidate.split("#", 1)[0]
         candidate = re.sub(r":\d+(?:-\d+)?$", "", candidate)
         candidate = candidate.replace("\\", "/")
         if not candidate or candidate.startswith("/") or candidate.startswith(".ai-work/"):
@@ -4649,8 +4651,10 @@ def check_learning_artifact_freshness(
     artifact: dict[str, Any],
     manifest: dict[str, Any],
     repo_root: Path | None = None,
+    *,
+    plan_dir: Path | None = None,
 ) -> dict[str, Any]:
-    """Deterministically evaluate provenance, contract alignment and cited-file freshness."""
+    """Evaluate provenance and cited inputs; also verify the learning file when a plan directory is supplied."""
     stale_reasons: list[str] = []
     changed_files: list[str] = []
     trust_class = artifact.get("trust_class")
@@ -4679,16 +4683,45 @@ def check_learning_artifact_freshness(
     if recorded_prov is not None and recorded_prov != learning_provenance_sha256(artifact):
         stale_reasons.append("provenance_hash_mismatch")
 
+    # The rendered Markdown is consumed by the next worker. Checking only its
+    # manifest provenance lets a modified learning file bypass claim-time checks.
+    if plan_dir is not None:
+        expected_relative = learning_artifact_path(producer_id, target_id)
+        if artifact.get("file") != expected_relative:
+            stale_reasons.append("learning_file_path_mismatch")
+        else:
+            file_path = plan_dir / expected_relative
+            try:
+                reject_symlink_components(plan_dir, Path(expected_relative), "learning artifact")
+                if file_path.is_symlink() or not file_path.is_file():
+                    stale_reasons.append("learning_file_missing_or_symlink")
+                else:
+                    expected_sha = artifact.get("sha256")
+                    if not isinstance(expected_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", expected_sha):
+                        stale_reasons.append("learning_file_sha256_missing")
+                    elif file_sha256(file_path) != expected_sha:
+                        stale_reasons.append("learning_file_changed")
+            except (OSError, PlanError):
+                stale_reasons.append("learning_file_unreadable_or_unsafe")
+
     resolved_root = repo_root
     if resolved_root is None and isinstance(manifest.get("repo_root"), str) and manifest.get("repo_root"):
         candidate_root = Path(manifest["repo_root"])
         if candidate_root.is_dir():
             resolved_root = candidate_root.resolve()
     cited_digests = artifact.get("cited_file_digests")
+    if isinstance(cited_digests, dict) and cited_digests and resolved_root is None:
+        stale_reasons.append("cited_repo_root_unavailable")
     if isinstance(cited_digests, dict) and cited_digests and resolved_root is not None:
         for rel, expected_sha in sorted(cited_digests.items()):
             rel_path = Path(rel)
             if rel_path.is_absolute() or ".." in rel_path.parts:
+                stale_reasons.append(f"cited_file_unsafe:{rel}")
+                changed_files.append(rel)
+                continue
+            try:
+                reject_symlink_components(resolved_root, rel_path, "cited reference")
+            except PlanError:
                 stale_reasons.append(f"cited_file_unsafe:{rel}")
                 changed_files.append(rel)
                 continue
@@ -4742,7 +4775,7 @@ def invalidate_stale_learnings(
         if normalized_filter is not None and target_id != normalized_filter:
             kept.append(artifact)
             continue
-        status = check_learning_artifact_freshness(artifact, manifest, repo_root=repo_root)
+        status = check_learning_artifact_freshness(artifact, manifest, repo_root=repo_root, plan_dir=plan_dir)
         if status["fresh"]:
             kept.append(artifact)
             continue
@@ -5239,7 +5272,7 @@ def validate_learning_artifacts(
             and int(target.get("attempts", 0)) == 0
             and target.get("started_at") is None
         ):
-            freshness = check_learning_artifact_freshness(artifact, manifest)
+            freshness = check_learning_artifact_freshness(artifact, manifest, plan_dir=plan_dir)
             if not freshness["fresh"]:
                 errors.append(
                     f"Learning artifact {relative} is stale before reuse: {', '.join(freshness['stale_reasons'])}"
@@ -5757,7 +5790,7 @@ def build_context_accounting_receipt(
     for rel in task.get("learning_files", []):
         artifact = artifact_by_file.get(rel)
         if artifact is not None:
-            freshness = check_learning_artifact_freshness(artifact, manifest, repo_root=repo_root)
+            freshness = check_learning_artifact_freshness(artifact, manifest, repo_root=repo_root, plan_dir=plan_dir)
             is_fresh = freshness["fresh"]
             reasons = freshness["stale_reasons"]
             if not is_fresh:
@@ -5962,7 +5995,7 @@ def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: di
             f"Task {task['id']} is waiting for declared learning source(s): "
             + ", ".join(pending_learning_sources)
         )
-    if task.get("learning_files") and int(task.get("attempts", 0)) == 0:
+    if task.get("learning_files"):
         artifact_by_file = {
             str(item.get("file")): item
             for item in manifest.get("learning_artifacts", [])
@@ -5974,7 +6007,7 @@ def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: di
             if artifact is None:
                 stale_msgs.append(f"{rel} (missing manifest provenance)")
                 continue
-            freshness = check_learning_artifact_freshness(artifact, manifest)
+            freshness = check_learning_artifact_freshness(artifact, manifest, plan_dir=plan_dir)
             if not freshness["fresh"]:
                 stale_msgs.append(f"{rel} ({', '.join(freshness['stale_reasons'])})")
         if stale_msgs:
@@ -6629,7 +6662,7 @@ def command_check_learnings(args: argparse.Namespace) -> None:
     artifacts = manifest.get("learning_artifacts", [])
     task_filter = normalize_task_id(args.task) if args.task else None
     checks = [
-        check_learning_artifact_freshness(artifact, manifest)
+        check_learning_artifact_freshness(artifact, manifest, plan_dir=plan_dir)
         for artifact in artifacts
         if isinstance(artifact, dict)
         and (task_filter is None or str(artifact.get("target_task_id", "")) == task_filter)
