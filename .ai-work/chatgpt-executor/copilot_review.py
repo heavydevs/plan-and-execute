@@ -26,7 +26,7 @@ REQUESTS = ROOT / ".ai-work/chatgpt-executor/requests"
 MODEL = "claude-opus-5.5"
 EFFORT = "xhigh"
 MAX_BYTES = 600_000
-HEX64 = re.compile(r"^[a-f0-9]{64}$")
+COMMIT_SHA = re.compile(r"^[a-f0-9]{40}$")
 FORBIDDEN_SECRET = re.compile(r"(?:gh[opusr]_[A-Za-z0-9]{18,}|sk-[A-Za-z0-9_-]{18,}|Authorization\s*:\s*Bearer)", re.I)
 
 
@@ -193,8 +193,8 @@ def parse_cli_jsonl(raw: str, model: str = MODEL, effort: str = EFFORT) -> tuple
 
 def persist(tid: str, request: dict[str, Any], entries: list[dict[str, str]], prompt: str,
             review: dict[str, Any], identity: dict[str, Any], source_sha: str, output: Path) -> dict[str, Any]:
-    if not HEX64.fullmatch(source_sha):
-        raise ReviewError("source commit SHA must be pinned (sha256 of tree is insufficient)")
+    if not COMMIT_SHA.fullmatch(source_sha):
+        raise ReviewError("Git commit SHA must be the actual 40-hex git object ID")
     output.mkdir(parents=True, exist_ok=True)
     number = 1
     while any((output / f"{stem}-{number}.{ext}").exists() for stem, ext in
