@@ -121,3 +121,9 @@ Reviews 122/124/126 são bloqueadores de 082 e 086 continua último. Não altera
 
 Fontes verificam técnicas e contratos, não execução por este agente, rankings de modelo, economias reais ou teste com usuários. Revisões, implementação e validação visual só poderão ser marcadas depois de realizadas no projeto de destino.
 
+
+## Amendment P066 — 2026-11-20: only first authorized use or proactive command
+
+P066 ONE-TIME PROJECT ONBOARDING: Shared durable per-project coding/UX opt-in in task 127/128. Broad project/UI/design analysis and contemporary external research happen ONLY at first relevant approved use or explicit pae ux init/refresh; later tasks use compact module-scoped approved source-indexed design patterns without re-running research. Backend-only, declined, CI and trivial commands have zero UX activation. Independent UX prototype opt-in remains separate. No unapproved overwrite, paid model, network or source changes.
+
+Canonical shared first-use gate, coding standards, commands and test negatives: docs/research/20261028-skill-optimization/prepared-research/127-project-coding-standards-and-first-use-research.md. 121 depends on independent 128. UX prototype lab is separate explicit option. P065 original on-demand quality and tests remain; no repeated discovery per page/task.
