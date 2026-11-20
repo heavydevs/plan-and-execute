@@ -45,6 +45,10 @@ jobs:
           python .ai-work/chatgpt-executor/taskctl.py status --task 015
       - name: Harness security self-tests
         run: python .ai-work/chatgpt-executor/taskctl.py self-test
+      - name: API reviewer adapter self-tests (offline; no provider call)
+        env:
+          PYTHONPATH: .ai-work/chatgpt-executor
+        run: python .ai-work/chatgpt-executor/tests/test_api_review.py
       - name: Declared targeted regressions
         run: python .ai-work/chatgpt-executor/taskctl.py run-checks --task 015 --mode targeted --timeout 900
       - name: Reconcile reviewed resource-map input fingerprints

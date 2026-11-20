@@ -8,3 +8,5 @@ Read **only** what this phase needs, not the whole task history:
 - **Architecture, security, provider alternatives:** read [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 Use the GitHub connector to read/write/commit with compare-and-swap if this chat's container cannot access GitHub; use GitHub Actions for execution on a real remote checkout. The connector is a **transport**, not an independent reviewer or test runner. Follow the per-task scope and original validation IDs. **Never** mark a task completed from a review packet, pre-research, compile-only pass, or successful self-test of this harness.
+
+- **Optional independent API reviewer:** see [`API_REVIEW.md`](API_REVIEW.md) and `api_review.py`; requires an explicit API key and is not automatically recognized by the original 015 delivery gate.

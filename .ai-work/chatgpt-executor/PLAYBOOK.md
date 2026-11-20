@@ -40,3 +40,7 @@ Read a task definition, brief assigned files, one current failure log tail and t
 ## Audited resource-map reconciliation, 2026-11-20
 
 The original map was observed stale on GitHub Actions because of 36 specific changed test/build/CI inputs, not because a required test failed. `.ai-work/chatgpt-executor/mapctl.py` imports the original `service_map.py`, requires the original index, checks only the explicitly inspected 36 changed paths and confirms both 015 validation IDs before restamping in a temporary GitHub Actions checkout. Unknown paths or malformed inventories abort; no blanket `stamp` is allowed. The CI artifact includes the updated map and index so their **exact** content can be published through GitHub CAS; the repository map is not considered reconciled until that content is committed. This procedure is independent of, and never substitutes for, an external model review.
+
+## Optional API review bridge
+
+`python .ai-work/chatgpt-executor/api_review.py --task 015 --dry-run` only verifies prepared source scope and cost/size envelope. A real invocation requires an authorized `OPENAI_API_KEY` environment variable; it contacts the OpenAI Responses API, may incur charges, and records real response/session/model/usage and exact source SHA-256. **Do not** convert that JSON into `review_dispatch` receipt metadata or mark 015 done; the original delivery contract remains authoritative unless properly revised.
