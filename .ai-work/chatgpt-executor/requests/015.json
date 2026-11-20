@@ -4,8 +4,8 @@
   "model": "claude-opus-5.5",
   "effort": "xhigh",
   "max_invocations": 1,
-  "review_request_id": "015-20261120-copilot-cli-83b49a05",
-  "source_head_before_request": "83b49a05e2b9bfe0ca262e24e80c9de7b209a169",
+  "review_request_id": "015-20261120-copilot-diagnostics-6797414b",
+  "source_head_before_request": "6797414b56d7744a72ac8a60ea3eb46b5f2b2bbe",
   "requested_by": "user-request-chatgpt-task-gate",
-  "purpose": "Complete independent max-tier review of task 015 without Codex CLI"
+  "purpose": "Retry one bounded model review with explicit failure classification after initial CLI invocation rejected"
 }
