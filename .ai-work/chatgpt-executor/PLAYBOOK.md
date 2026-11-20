@@ -4,7 +4,7 @@
 
 1. Use the connected GitHub app to read the exact branch ref and identify **the first pending/in-progress task** in the authoritative manifest. Inspect its dependencies, Sxxx checkpoints, permitted write scope, prepared architecture and `TASK_INPUTS.json` record. Do not advance past the selected task.
 2. `python .ai-work/chatgpt-executor/taskctl.py doctor` explains available tools. A complete checkout is required for local tests; never run a task against a stale bundled skill copy. With no GitHub network in the container, write the patch through GitHub `create_blob` -> `create_tree(base_tree)` -> `create_commit(parent)` -> `update_ref(expected_sha, force=false)`; this is optimistic concurrency, not local checkout.
-3. Preserve a hash-bound snapshot of all actual inputs and identify scope. Execute GitHub remote tests on the **commit SHA of that snapshot** via `.github/workflows/chatgpt-executor.yml` on the named checkpoint branch; check Action run SHA, conclusion and logs. If the host has neither shell source nor Actions, record `environment_unavailable`, not success.
+3. Preserve a hash-bound snapshot of all actual inputs and identify scope. Execute GitHub remote tests on the **commit SHA of that snapshot** via `.github/workflows/chatgpt-task-gate.yml` on the named checkpoint branch; check Action run SHA, conclusion and logs. If the host has neither shell source nor Actions, record `environment_unavailable`, not success.
 
 ## Local tool commands
 
