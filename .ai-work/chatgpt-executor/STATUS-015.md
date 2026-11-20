@@ -22,3 +22,15 @@
 ### Method and limitations
 
 Source/command hashes and detailed logs are available as the version-pinned CI artifacts. No claimed prompt-cache or paid-model benchmark, native Windows test, or external model consumption. The local container lacked GitHub DNS, so tests were run in actual GitHub-hosted Linux checkouts of the pushed commit. `taskctl.py` and `mapctl.py` do not edit the plan manifest. Future work should prefer deterministic checks before additional paid model calls.
+
+## Verificação mais recente — 2026-11-20, execução 44801488387
+
+- [GitHub Actions — evidência real da branch](https://github.com/heavydevs/plan-and-execute/actions/runs/44801488387), SHA de entrada `42e89871cbf10be07b3c850abc562cc18414d042`, Python **3.10** e **3.13**.
+- Testes herméticos do executor: **4/4 aprovados** em ambas as versões; testes offline do adaptador OpenAI Responses API: **aprovados** em ambas, **sem** invocação de modelo autenticado.
+- Checks direcionados exigidos por `TASK_INPUTS.json[015]`: **7/7 aprovados** em ambas as versões, sobre o checkout correto.
+- Reconciliação explícita do mapa de recursos: aprovada; `P1_TESTS_015` supervisionado pelo monitor original: **aprovado** em ambas as versões (exit 0, sete casos de teste). Snapshot de 71 entradas, digest `6988df40159932b576b72ec35e73be0ddf65a10faeef38d0a15d13f73c3a158d`.
+- `P1_015` (gate final de entrega): **não aprovado**, por ausência do arquivo `docs/research/20261028-skill-optimization/implementation/015-receipt.json`. A revisão independente real por modelo externo não ocorreu; não há sessão/modelo/effort autenticamente produzidos. **Não considerar o status geral de CI como aprovação da task.**
+- Evidências completas nos artefatos `task-015-checks-py3.10` e `task-015-checks-py3.13` da execução acima. O mapa e índice foram copiados dos artefatos para a branch sem alterar o conjunto de dependências validado.
+- O adaptador `.ai-work/chatgpt-executor/api_review.py` é opção genuína para ambiente com `OPENAI_API_KEY` configurada; não foi autorizado/autenticado aqui, e sua saída não substitui automaticamente o `review_dispatch.py` exigido no plano.
+
+**Decisão:** manter task **015** e checkpoints restantes pendentes. É necessário executar revisão externa genuína sobre os hashes finais, corrigir achados bloqueadores e passar o gate original antes de gerar recibo de implementação.
