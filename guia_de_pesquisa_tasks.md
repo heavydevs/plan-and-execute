@@ -50,8 +50,8 @@
 
 As caixas registram **somente pesquisa + arquitetura + vínculo na definição + commit/push verificado**, não a execução de tarefas.
 
-- [x] **015** — Review and correct assigned context, learned facts and token budgets. [Relatório](docs/research/20261028-skill-optimization/pesquisas-por-task/015-pesquisa-arquitetura.md) · commit: pendente
-- [ ] **016** — Implement versioned shared contracts and selective invalidation. [Relatório](docs/research/20261028-skill-optimization/pesquisas-por-task/016-pesquisa-arquitetura.md) · commit: pendente
+- [x] **015** — Review and correct assigned context, learned facts and token budgets. [Relatório](docs/research/20261028-skill-optimization/pesquisas-por-task/015-pesquisa-arquitetura.md) · commit: [099cabf](https://github.com/heavydevs/plan-and-execute/commit/099cabfb32d0ca26681d970c609732a5ce278dc4)
+- [x] **016** — Implement versioned shared contracts and selective invalidation. [Relatório](docs/research/20261028-skill-optimization/pesquisas-por-task/016-pesquisa-arquitetura.md) · commit: ver histórico da branch (publicado com relatório)
 - [ ] **017** — Review and correct versioned shared contracts and selective invalidation. [Relatório](docs/research/20261028-skill-optimization/pesquisas-por-task/017-pesquisa-arquitetura.md) · commit: pendente
 - [ ] **018** — Implement leases, resume, cancellation, reset and guarded cleanup. [Relatório](docs/research/20261028-skill-optimization/pesquisas-por-task/018-pesquisa-arquitetura.md) · commit: pendente
 - [ ] **019** — Review and correct leases, resume, cancellation, reset and guarded cleanup. [Relatório](docs/research/20261028-skill-optimization/pesquisas-por-task/019-pesquisa-arquitetura.md) · commit: pendente

@@ -59,3 +59,9 @@ Files: `skill/plan-and-execute/scripts/patternctl.py`, `skill/plan-and-execute/s
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_016`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_016`
+
+## Pesquisa e arquitetura obrigatórias (pré-execução)
+
+- **Relatório de estudo antecipado e arquitetura:** `docs/research/20261028-skill-optimization/pesquisas-por-task/016-pesquisa-arquitetura.md`.
+- A IA implementadora **deve ler e utilizar como arquitetura-base** os contratos, APIs, concorrência, invalidação seletiva, segurança e casos de teste desse relatório, junto do `016-shared-patterns.md` anterior. Reestudar apenas mudanças materiais de código/versão; não repetir uma pesquisa genérica já documentada.
+- Este vínculo não autoriza adiantar a implementação antes de dependências 015/019, não altera o escopo e **não significa que a task, os testes ou seu reviewer 017 foram executados**.
