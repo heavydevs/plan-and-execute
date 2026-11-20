@@ -4645,8 +4645,9 @@ def explicit_learning_source_file(reference: Any, *, require_plain_file: bool = 
     text = reference.strip().strip("`")
     if any(ch.isspace() for ch in text) or "://" in text:
         return None
-    anchored = "::" in text or "#" in text
+    anchored = "::" in text or "#" in text or bool(re.search(r":\d+(?:-\d+)?$", text))
     candidate = text.split("::", 1)[0].split("#", 1)[0].replace("\\", "/")
+    candidate = re.sub(r":\d+(?:-\d+)?$", "", candidate)
     if not candidate:
         return None
     if anchored:
