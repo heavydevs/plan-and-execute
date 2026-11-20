@@ -20,6 +20,8 @@ allowed_related_task_reads: "none"
 - [ ] **S005** — Provide NN/g heuristic and qualified visual review with user approval/privacy; distinguish human feedback from model speculation and axe automatic tests.
 - [ ] **S006** — Run focused component/visual/a11y checks per 111 and 109; global suites remain 082/084; no compulsory performance benchmark.
 
+**P066 UX gate amendment:** P066 ONE-TIME PROJECT ONBOARDING: Shared durable per-project coding/UX opt-in in task 127/128. Broad project/UI/design analysis and contemporary external research happen ONLY at first relevant approved use or explicit pae ux init/refresh; later tasks use compact module-scoped approved source-indexed design patterns without re-running research. Backend-only, declined, CI and trivial commands have zero UX activation. Independent UX prototype opt-in remains separate. No unapproved overwrite, paid model, network or source changes.
+
 ## Design and execution constraints
 - Read docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md only while implementing task 125 and examine only current affected source/dependency receipts.
 - Read P065 architecture, 124/108/110 accepted receipts and only real changed UI source.
