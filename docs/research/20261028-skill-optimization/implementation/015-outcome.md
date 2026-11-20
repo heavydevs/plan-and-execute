@@ -140,3 +140,9 @@ O CI autentico [44828129044](https://github.com/heavydevs/plan-and-execute/actio
 | `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md` | `2f7107c3e620e1629e4fddeab4247ee43bc215acc0b03c61683966d717a9ad08` |
 
 **Estado e proximo desbloqueio:** task 015 e S002–S006 seguem `pending`; nao criar `015-receipt.json` sem revisao independente max-tier autentica, identificacao de `provider/model/native_effort/session_id` e hashes finais. E necessaria capacidade real de provider/CLI/API autorizada, nova revisao externa sobre o codigo final, tratamento dos findings e repeticao do gate. Nao executar task 016.
+
+### Tentativa de desbloqueio externo via Codex/Copilot em 2026-11-20
+
+Foram executadas novas rotas externas reais sem modificar o validador: PR de review [#21](https://github.com/heavydevs/plan-and-execute/pull/21) limitado aos três arquivos alterados; gatilho `@codex review` no commit `f86bcc925837ad3af39d01fdbbe477890dcac3e2`; e requisição de reviewer `copilot-pull-request-reviewer[bot]` pelo conector GitHub. O próprio bot Codex informou [limite de uso de code reviews atingido](https://github.com/heavydevs/plan-and-execute/pull/21#issuecomment-7052591136) e registrou `status=failed` — **nenhum parecer independente aprovado**. O GitHub não mostrou review Copilot criado nas consultas seguintes; aceite do pedido não demonstra execução. A rota Copilot CLI em Actions continuava sem entitlement/política habilitados. Evidência detalhada: [external-review-attempts-20261120.md](reviews/015/external-review-attempts-20261120.md).
+
+**Gate preservado:** `P1_015` não foi contornado, `015-receipt.json` permanece ausente, task 015 segue `pending`. Desbloqueio efetivo requer restabelecer a quota de Codex PR Code Review ou a política/licença Copilot CLI (ou configurar revisor max-tier autenticado por API/CLI); depois executar **nova revisão válida de todos os hashes finais**, tratar findings e gerar recibo real. Não executar 016.
