@@ -121,6 +121,10 @@
 - [ ] **124** — Independently review prototype isolation and guarded production migration
 - [ ] **125** — Implement visual usability accessibility and responsive quality gates with pae ux CLI
 - [ ] **126** — Independently review full UI/UX quality, consent, economy and integration
+- [ ] **127** — Implement one-time project onboarding, source-derived coding standards documentation and CLI
+- [ ] **128** — Independently review coding-standard discovery, consent, documentation and CLI safety
+- [ ] **129** — Integrate pattern-first code reuse, scoped retrieval and architectural drift checks into implementation and review
+- [ ] **130** — Independently review source-backed pattern enforcement, safe exceptions and token economy
 - [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
 - [ ] **083** — Review and correct end-to-end integration
 - [ ] **084** — Validate release contents, documentation and migration
