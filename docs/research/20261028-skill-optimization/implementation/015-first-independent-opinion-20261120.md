@@ -34,3 +34,13 @@ Blobs do patch preparado para publicação, respectivamente: `b8096244a892ac2c64
 ## Limitações e decisão
 
 Não concluída: revisão externa realmente independente max-tier com `provider/model/effort/session` e hash binding; `015-receipt.json` ainda ausente. Não atualizar manifesto, checklist ou estado de 015 para completed antes dos gates `P1_TESTS_015`, `P1_015` e `check_delivery.py` reais. Nenhuma aprovação foi simulada. O teste local contra snapshot não é equivalente aos workflows e à validação com resource watcher.
+
+## Validação pós-patch no GitHub Actions
+
+- Commit revisado: `7d10004f969a209382663b72601aa0dcf4db5619`.
+- CI: https://github.com/heavydevs/plan-and-execute/actions/runs/44827054567
+- Artefato da execução Python 3.13: `task-015-checks-py3.13`, artifact ID `14673727137`.
+- Resultado real em Python 3.13: sete de sete testes de `TASK_INPUTS.json` com `exit_code=0`; `P1_TESTS_015` com `exit_code=0`.
+- Resultado real do `P1_015`: **falha por ausência de `015-receipt.json`**, mensagem `DELIVERY REJECTED: Missing evidence`; `exit_code=1`. Os checks de regressão do workflow também passaram em Python 3.10; não interpretar o status final vermelho como quebra dos testes de produto.
+- Os hashes SHA-256 dos fontes efetivamente inspecionados pelo CI (não confundir com Git blob SHA-1) incluem: `planctl.py=4f48a7d1ed77159a2e8ad53006e4cf8691eb5f1db56af159adac58756a5b9a3c` e `context_learning_self_test.py=328f09b43f20e9f38004c528713168e71a53f0724a35ea1096107df299efe475`.
+- Continua bloqueado **somente o gate de entrega/revisão independente max autenticada**. Falta sessão nova comprovada, modelo/effort real, findings e recibo vinculado aos hashes finais. Não fabricar recibo nem reduzir critérios do validador.
