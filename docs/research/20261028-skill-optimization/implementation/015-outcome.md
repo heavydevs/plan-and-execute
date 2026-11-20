@@ -114,3 +114,29 @@ O CI autentico [44828129044](https://github.com/heavydevs/plan-and-execute/actio
 - Ambos os `check-02.log` originais de watcher registram `DELIVERY REJECTED: Missing evidence: .../015-receipt.json`. Essa rejeicao decorre da **ausencia de review externo max-tier autenticado por sessao**; nao equivale a regressao funcional. Os artefatos completos incluem `result.json`, arquivos de log por comando e `source_hashes` SHA-256 do SHA testado. `source_unchanged=true` nos resultados direcionados.
 - Blobs finais no commit testado: `planctl.py` `8ed8edbf65c17ed01253bd09975822268700424d`; `context_learning_self_test.py` `44cc8943661c57aebb449b555ec2ebe93ae77580`; `artifact_contract.py` `48c2b06f3a1832134f1447170d26c48fb4eaa604`; `runner_contract.py` `c13fa8da09a6470fa33eeedf405245db1ae0c7af`; `EXECUTION_CONTEXT.md` `2d879ea9fd8d9bee29594e952553de9fc45fb6fb`; `TOKEN_EFFICIENCY.md` `d7b8865b2f33293f45a10fb18fb834493fe2fc49` (Git blob IDs, nao SHA-256).
 - **Status real**: 015 permanece `pending`. Nenhum `015-receipt.json` foi gerado, `S002–S006` e `P1_015` nao foram aprovados. A proxima acao exige obtencao de capacidade/credencial/licenca para revisor externo max-tier independente com `provider`, `model`, `native_effort`, `session_id`, hashes finais e findings reais; reexecutar gate no SHA respectivo. Nao avancar para 016.
+
+
+### Verificacao independente de fonte desta sessao — 2026-11-20
+
+**Primeiro parecer registrado ANTES de ler revisoes anteriores:** [parecer-desta-sessao-20261120.md](reviews/015/parecer-desta-sessao-20261120.md), commit `f5cf211735b5faff64787274d74df5657e7b4ef9`. O parecer e uma inspeção propria do ChatGPT, **nao** uma sessao max-tier externa, nem o recibo `RECEIPT_REVIEWER`.
+
+**Base autenticada:** commit `780d364e657206509246b76b31991bc5275b16d6`, exportacao GitHub Actions [44829847238](https://github.com/heavydevs/plan-and-execute/actions/runs/44829847238), artifact `14676120353`, ZIP SHA-256 `f487e2757a186625234e49d4ebcb93100252df5084082eee39b9e291ee1e95b2`. Fonte extraida com verificacao de origem/integridade; snapshot nao possui historico `.git`.
+
+**Achado 015-NEW-01 — HIGH, reproduzido:** `skill/plan-and-execute/scripts/planctl.py:4610-4666`, `explicit_learning_source_file` nao classificava referencia `src/missing.py:12` como arquivo; `complete_task` aceitava learning com `cited_file_digests={}`. Caso `test_review_015_line_anchored_missing_source_rejected` produziu `AssertionError: Expected PlanError containing 'Learning source reference missing or unsafe'` antes da correcao. Correcao detecta e remove a ancora de linha (`:N` e `:N-M`) antes de resolver arquivo e rejeita citacoes a arquivos ausentes, sem falsificar proveniencia. Teste apos correcao comprova tanto `PlanError` quanto digest de arquivo existente e invalidacao `cited_file_changed:src/missing.py`.
+
+**Commits publicados nesta branch:** codigo `f9cbed46fd89d20fab888a31b317fe4f394c33f3`; regressao `695b79329e450465083955b96d353e23d3564f30`. O commit de codigo e testes efetivamente validado foi `695b79329e450465083955b96d353e23d3564f30`, sem alteracoes de implementacao posteriores nesta auditoria.
+
+**CI no commit exato:** [GitHub Actions 44830324858](https://github.com/heavydevs/plan-and-execute/actions/runs/44830324858), artefatos Python 3.13 `14676226040` e Python 3.10 `14676165985`. Nos dois Pythons, sete checks direcionados passaram (`7/7`), `P1_TESTS_015` passou, e `P1_015` falhou com `DELIVERY REJECTED: Missing evidence: .../015-receipt.json`. O workflow agregado consta `failure` por esse gate, nao por falha nos sete testes. A reconciliacao auditada do mapa de recursos no CI passou; nao e prova de review por outro modelo. O dispatcher autentico executado localmente retornou `exit 2`, `codex:missing_cli, claude:missing_cli`; nenhuma sessao externa foi criada.
+
+**SHA-256 de fontes no commit testado (do artefato CI):**
+
+| Caminho | SHA-256 |
+|---|---|
+| `skill/plan-and-execute/scripts/planctl.py` | `4636f798d03e529c6e1a05339d18ff5fb6b3ff83fd016225814db7adf9c0bd52` |
+| `test/optimization/context_learning_self_test.py` | `104ff72600ceb4ffd5e0ca3bded718f0beed8ca683a43967f418f1ba0b8b79ea` |
+| `skill/plan-and-execute/scripts/artifact_contract.py` | `3af9ebb88b3f6c4e377df7e032246cd5eee5d481c234d779314d98bc5fe76aea` |
+| `skill/plan-and-execute/scripts/runner_contract.py` | `c7bab30e4c6a5a09a244481ee2fdf1f8e06ec8e7512740b743680e904dd98cf5` |
+| `skill/plan-and-execute/references/EXECUTION_CONTEXT.md` | `ca9878dbbd42a0da9a16169112c0cd58e90aeea816135e990f5390bfde087396` |
+| `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md` | `2f7107c3e620e1629e4fddeab4247ee43bc215acc0b03c61683966d717a9ad08` |
+
+**Estado e proximo desbloqueio:** task 015 e S002–S006 seguem `pending`; nao criar `015-receipt.json` sem revisao independente max-tier autentica, identificacao de `provider/model/native_effort/session_id` e hashes finais. E necessaria capacidade real de provider/CLI/API autorizada, nova revisao externa sobre o codigo final, tratamento dos findings e repeticao do gate. Nao executar task 016.
