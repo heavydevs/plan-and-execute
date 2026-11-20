@@ -2,7 +2,7 @@
 task_id: "121"
 status: "pending"
 requirements: "R065,R068"
-dependencies: "025,120"
+dependencies: "025,120,128"
 allowed_related_task_reads: "none"
 ---
 
@@ -11,6 +11,8 @@ allowed_related_task_reads: "none"
 **Objective:** Implement opt-in UI/UX design system, identity and compact agent memory. Read assigned P065 architectural report and current affected symbols; verify accepted 025/120 prior receipts only.
 
 **Pre-decided architecture:** docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md. Implement these decisions without a new broad research phase. All functionality and reviews are PENDING.
+
+**P066 cross-feature amendment:** Shared first-use decision/state is implemented by 127 and independently reviewed by 128. Do not build a second UX consent controller. Broad UX research/code analysis is ONE TIME on first approved relevant project use or manual pae ux init/refresh; never automatically repeat per new feature. Persist refusal. Subsequent tasks retrieve tiny approved design index and relevant components. Backend-only/CI/status never prompt or research. Prototype lab requires separate explicit opt-in.
 
 ## Internal implementation checklist
 - [ ] **S001** — Read assigned P065 architectural report and current affected symbols; verify accepted 025/120 prior receipts only.
@@ -40,6 +42,7 @@ allowed_related_task_reads: "none"
 - test/optimization/ux_context_self_test.py
 
 ## Testable acceptance
+- [ ] UX init/refresh, first-use consent and no repeated research are verified by spies in tests; no backend-only overhead or silent paid calls.
 - [ ] Existing visual patterns remain canonical and fresh UI components reuse real exports and styles without unapproved redesign.
 - [ ] Greenfield identity remains provisional until the user approves; design tokens have deterministic typed semantics.
 - [ ] Non-UI task has no UX runtime or extra context; agent index is short, source-indexed and privacy-safe.
