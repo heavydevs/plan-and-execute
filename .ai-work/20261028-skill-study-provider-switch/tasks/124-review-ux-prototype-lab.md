@@ -12,6 +12,9 @@ allowed_related_task_reads: "none"
 
 **Pre-decided architecture:** docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md. Implement these decisions without a new broad research phase. All functionality and reviews are PENDING.
 
+
+**P066 first-use rule:** The only broad UI/UX code + external best-practices research is during explicitly approved first relevant skill use in the project or via manual pae ux init/refresh. Reuse shared onboarding approval from 127/128; thereafter consume compact approved design indexes, current affected components and hashes, never repeat study on each feature. Node lab is separate explicit opt-in. Non-UI/backend tasks and CI incur zero UI study or paid model calls. Permission denial and stale samples must remain visible, not silently green.
+
 ## Internal implementation checklist
 - [ ] **S001** — Read only P065 report, final 123 source, tests and hashed receipt.
 - [ ] **S002** — Run real fresh max-qualified independent review of in-app/lab mode, security, performance, licensing and UX fidelity.
