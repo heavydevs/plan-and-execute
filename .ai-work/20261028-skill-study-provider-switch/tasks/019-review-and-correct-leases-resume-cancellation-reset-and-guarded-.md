@@ -56,3 +56,10 @@ Files: `skill/plan-and-execute/scripts/lifecyclectl.py`, `skill/plan-and-execute
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_019`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_019`
+
+## Pesquisa e arquitetura obrigatórias (pré-execução)
+
+- **Arquitetura aprovada de partida para a revisão 019:** [019-pesquisa-arquitetura.md](../../../../docs/research/20261028-skill-optimization/pesquisas-por-task/019-pesquisa-arquitetura.md) (caminho desde a raiz: `docs/research/20261028-skill-optimization/pesquisas-por-task/019-pesquisa-arquitetura.md`).
+- Antes de S001–S006, a IA revisora/implementadora deve **ler e seguir integralmente** o relatório como arquitetura de referência obrigatória, junto da decisão preparada 018 e da arquitetura individual 018; conferir apenas incompatibilidades **materiais e demonstráveis** de código, APIs, versão ou contrato, documentando qualquer desvio. A pesquisa é pré-execução e **não** substitui o review independente real nem seus receipts.
+- **Dependência inegociável:** a task 018 deve estar implementada, com 018-receipt.json, 018-outcome.md e hashes verificáveis. Sem tais artefatos, manter 019 pendente e não fabricar findings, session_id, aprovação ou testes. Fazer review via `review_dispatch.py --repo-root . --task 019` em foreground; corrigir apenas findings bloqueadores dentro do write scope, executar os checks declarados e redespachar review após alterações de arquivos revisados.
+- **Integridade de projeções:** `planctl.save_manifest` regenera a definição da task no schema 4. Ler o vínculo neste arquivo e no guia antes do primeiro claim/save, e conferir a preservação/acessibilidade da arquitetura após regeneração. Não alterar manifest nem status de desenvolvimento em nome da pesquisa.
