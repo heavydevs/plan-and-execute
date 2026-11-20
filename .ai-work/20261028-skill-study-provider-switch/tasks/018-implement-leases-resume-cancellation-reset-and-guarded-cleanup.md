@@ -60,3 +60,10 @@ Files: `skill/plan-and-execute/scripts/lifecyclectl.py`, `skill/plan-and-execute
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_018`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_018`
+
+## Pesquisa e arquitetura obrigatórias (pré-execução)
+
+- **Referência arquitetural aprovada de partida para esta task:** [018-pesquisa-arquitetura.md](../../../../docs/research/20261028-skill-optimization/pesquisas-por-task/018-pesquisa-arquitetura.md) (caminho desde a raiz: `docs/research/20261028-skill-optimization/pesquisas-por-task/018-pesquisa-arquitetura.md`).
+- Antes de implementar S001–S006, a IA implementadora deve **ler e seguir integralmente** o relatório como arquitetura de referência obrigatória, junto da pesquisa preparada 018; rever somente incompatibilidades materiais e demonstráveis de versão, API, contrato ou código atual, documentando qualquer desvio e sua justificativa. Não trocar a arquitetura por nova pesquisa genérica nem confundir estudo com receipt de execução.
+- Proteger identidade real do processo, fencing de conclusão, reconciliação de efeitos incertos, validação escopada pelo validador único de 012 e limpeza que falha com segurança. Preservar todos os ACs, os checks e o write_scope da task; não marcar desenvolvimento/revisão concluído por causa da pesquisa.
+- **Atenção à projeção:** `planctl.save_manifest` reescreve definições da schema 4 a partir do manifest; consumir este vínculo antes do primeiro claim/save e conferir que ele continua acessível pelo guia/relatório após qualquer regeneração. Não alterar manualmente status ou manifest para preservar o vínculo.
