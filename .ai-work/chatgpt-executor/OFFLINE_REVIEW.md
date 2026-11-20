@@ -29,3 +29,5 @@ A revisão anterior via Copilot CLI foi bloqueada por `copilot_policy_or_entitle
 - Problemas anteriores: `.ai-work/chatgpt-executor/STATUS-015.md`.
 
 **Retificacao da prova:** a primeira execucao [44809741623](https://github.com/heavydevs/plan-and-execute/actions/runs/44809741623) detectou HTTP 404 no download de `v0.9.0`: a serie semver nao publicava o binario. A rota foi corrigida para o nightly `b10786`, cujo binario e hash sao atestados pelo proprio projeto: https://github.com/ggml-org/llama.cpp/attestations/44990064. Nenhuma revisao de IA foi concluida na primeira tentativa.
+
+**Diagnostico do schema-constrained (run 44810572125):** no runner `b10786` o modelo retornou uma mensagem de 2.386 caracteres com `finish=stop`, mas que nao era JSON parseavel. O erro foi recusado e sua assinatura gravada, sem inventar findings. Nova configuracao segue exatamente a sintaxe de `response_format.json_schema.schema` descrita em `llama.cpp/grammars/README.md`, e fixa o SHA-256 do GGUF baixado. Se o modelo continuar sem produzir JSON valido, classificar como *capacidade insuficiente*, nao aprovar ou converter automaticamente a prosa em recibo.

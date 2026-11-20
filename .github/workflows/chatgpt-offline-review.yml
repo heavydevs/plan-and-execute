@@ -70,7 +70,9 @@ jobs:
           test -n "$SERVER"
           python .ai-work/chatgpt-executor/offline_review.py --task 015 \
             --model /tmp/pae-review-model.gguf --llama-server "$SERVER" \
-            --model-source Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF --timeout 480
+            --model-source Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF \
+            --expected-model-sha cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046 \
+            --timeout 480
       - name: Upload observed model and test evidence
         if: always()
         uses: actions/upload-artifact@v4

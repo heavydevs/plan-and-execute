@@ -161,7 +161,7 @@ def local_server_call(binary:Path, model:Path, system:str, user:str, timeout:int
             time.sleep(2)
         else:raise RuntimeError('Model server health timeout')
         payload={'model':'local','messages':[{'role':'system','content':system},{'role':'user','content':user}],
-                 'temperature':0,'max_tokens':1400,'response_format':{'type':'json_schema','schema':review_schema()},'stream':False}
+                 'temperature':0,'max_tokens':1400,'response_format':{'type':'json_schema','json_schema':{'schema':review_schema()}},'stream':False}
         req=urllib.request.Request(f'http://127.0.0.1:{port}/v1/chat/completions',
             data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'},method='POST')
         with urllib.request.urlopen(req,timeout=timeout) as res:data=json.load(res)
