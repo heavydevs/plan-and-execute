@@ -27,6 +27,17 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 import planctl  # noqa: E402
 import resource_watch  # noqa: E402
 import lifecyclectl  # noqa: E402
@@ -1206,7 +1217,16 @@ def pump_stream(
             log.write(f"{prefix}{line}")
             log.flush()
             if show:
-                print(f"{prefix}{line}", end="", flush=True)
+                try:
+                    sys.stdout.write(f"{prefix}{line}")
+                    sys.stdout.flush()
+                except UnicodeEncodeError:
+                    encoding = sys.stdout.encoding or "utf-8"
+                    safe_text = f"{prefix}{line}".encode(encoding, errors="replace").decode(encoding, errors="replace")
+                    sys.stdout.write(safe_text)
+                    sys.stdout.flush()
+                except Exception:
+                    pass
     finally:
         stream.close()
 
@@ -1244,6 +1264,7 @@ def run_process(
             process = launch(
                 command,
                 cwd=cwd,
+                stdin=subprocess.DEVNULL,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,

@@ -2,6 +2,9 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+- `run_isolated.py` forces UTF-8 (`errors="replace"`) on stdout/stderr and no longer lets an unencodable worker line abort the live echo of worker output; the log file is unaffected. Workers now start with `stdin=subprocess.DEVNULL`, like `jobctl`, `keepalivectl` and `progress_watch`, so they cannot block on or consume the runner's console input.
 
 ## 0.11.0 - 2026-10-27
 
