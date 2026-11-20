@@ -24,6 +24,8 @@ REVIEWED_CHANGED = frozenset({
     ".github/workflows/chatgpt-task-gate.yml",
     ".github/workflows/chatgpt-independent-review.yml",
     ".github/workflows/chatgpt-offline-review.yml",
+    ".github/workflows/chatgpt-snapshot-export.yml",
+    ".github/workflows/chatgpt-offline-review.yml",
     ".github/workflows/ci.yml",
     ".github/workflows/publish.yml",
     "docs/plans/20261028-skill-optimization/history/pre-research-conversion/support/delivery_gate_self_test.py",

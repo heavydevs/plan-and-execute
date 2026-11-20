@@ -52,3 +52,7 @@ O guia em `guia_de_pesquisa_execucao_tasks.md` substitui o fluxo antigo que para
 ## Rota autenticada alternativa para o gate 015
 
 Ler `GATE_REVISAO_015.md`. A alternativa é `.github/workflows/chatgpt-independent-review.yml` → `copilot_review.py` → sessão externa real com `claude-opus-5.5`, esforço `xhigh`, ferramentas estritamente de leitura e evidência hash-bound para o gate original. O workflow é ativado somente pelo request explícito; não é um substituto de modelo simulado e pode consumir créditos. Importar artefatos/receipts por commit CAS somente após validar provedor, sessão, hashes, findings, testes e gate. Falha de autenticação/billing deixa o plano pendente.
+
+## Copia fisica do checkout por artefato
+
+O fallback de clone bloqueado pelo DNS agora e `SNAPSHOT_BRIDGE.md`, nao apenas leitura de blobs individuais. O GitHub Actions gera um archive completo com SHA do commit. `import_snapshot.py` verifica o hash do archive, o sha da origem, o repo e os nomes/simbolic links antes da extracao num diretorio novo. Ele recusa overwrite e caminhos invalidos. A copia tem os fontes suficientes para testes Python/Node normais, sem historico Git; comandos que exigem checkout git devem continuar no GitHub Actions. Os resultados de testes feitos no container local sao separados de CI e so valem para o mesmo snapshot.

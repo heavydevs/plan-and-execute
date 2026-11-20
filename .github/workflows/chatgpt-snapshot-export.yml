@@ -1,0 +1,58 @@
+name: PAE ChatGPT checkout snapshot bridge
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.github/workflows/chatgpt-snapshot-export.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pae-snapshot-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout immutable head commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Produce deterministic archive plus provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          git archive --format=tar.gz --output /tmp/pae-snapshot.tar.gz "${GITHUB_SHA}"
+          tar -tzf /tmp/pae-snapshot.tar.gz >/dev/null
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          p=Path('/tmp/pae-snapshot.tar.gz')
+          data={
+            'schema':'pae-checkout-snapshot/1',
+            'repository':os.environ['GITHUB_REPOSITORY'],
+            'head_sha':os.environ['GITHUB_SHA'],
+            'archive_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
+            'archive_size':p.stat().st_size,
+            'content':'git-archive tracked files; no .git history',
+          }
+          Path('/tmp/pae-snapshot.json').write_text(json.dumps(data,sort_keys=True,indent=2)+'\n')
+          print(json.dumps(data))
+          PY
+      - name: Upload exact checkout snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: pae-checkout-${{ github.sha }}
+          path: |
+            /tmp/pae-snapshot.tar.gz
+            /tmp/pae-snapshot.json
+          if-no-files-found: error
+          retention-days: 7

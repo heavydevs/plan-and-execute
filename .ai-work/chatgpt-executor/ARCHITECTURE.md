@@ -148,3 +148,10 @@ A política de GitHub Copilot e autorização do token só podem ser testadas em
 GitHub Actions baixa binario llama.cpp versionado com checksum e GGUF Qwen Coder (pesos registrados por SHA-256) para executar inferencia local na propria VM. `offline_review.py` gera um brief com pontos de risco e linhas de codigo, abre um subprocesso `llama-server` em loopback, exige findings JSON e confere hashes de entrada antes/depois. O resultado e separado do ChatGPT implementador e nao utiliza Codex Cloud, Copilot ou credencial API. Ver `OFFLINE_REVIEW.md`.
 
 **Limite contratual:** um Qwen 1.5B open-weights nao se compara ao revisor max original e nao satisfaz o requisito de alta capacidade da task 015. Nao alterar `check_delivery.py` para fingir a mesma classe de reviewer. A futura extensao de auditoria pode combinar 7B quantizado (runners de 16 GB), CodeQL, testes adversariais e revisao formal de contrato por usuario, mas so apos medir a qualidade e repetir os testes.
+
+
+## Extensao verificada: export GitHub Actions -> ZIP de snapshot -> diretorio temporario ChatGPT
+
+O novo `.github/workflows/chatgpt-snapshot-export.yml` usa `git archive HEAD` num checkout no Actions, calcula o SHA-256 do tarball e cria metadata (`repo`, `head_sha`, size, digest). O conector GitHub baixa o artefato ZIP autenticado para `/mnt/data/`; `.ai-work/chatgpt-executor/import_snapshot.py` valida ZIP, metadata, checksum, SHA40, limites de bytes/membros, nomes POSIX sem traversal e tipos de tar. Rejeita symlinks/hardlinks e extrai apenas em pasta nova, deixando evidencias do SHA. Nenhuma credencial e copiada para o snapshot. A conversao e reversivel e nao altera `manifest`, statuses ou receipts.
+
+A pasta local contem apenas arquivos rastreados, **sem `.git`**, portanto nao substitui clones para comandos `git ...`. Os testes localizados podem ser executados no container ChatGPT com Python/Node instalados; os checks que requerem Git/recursos externos rodam no Actions. A integridade e a versao dos testes sao ligadas ao SHA e logs reais. O processo local do ChatGPT continua sendo *o implementador*, por isso a revisao independente permanece em outra execucao/modelo.

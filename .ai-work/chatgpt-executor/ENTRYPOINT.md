@@ -10,3 +10,7 @@
 6. **Conclusão:** exigir `015-receipt`, `015-outcome`, todos os checks e o `check_delivery.py` real; só então atualizar checkpoints/status do manifest e checklist de execução, commit/push e remoto.
 
 Este arquivo é um roteador, não uma aprovação; a fonte de verdade continua sendo o manifest e os recibos reais. A versão copiável das instruções deste Projeto ChatGPT está em [`INSTRUCOES_PROJETO_CHATGPT.md`](INSTRUCOES_PROJETO_CHATGPT.md).
+
+## Checkout fisico em ChatGPT sem rede externa
+
+Se o container nao conseguir clonar o repositorio, usar o workflow [`.github/workflows/chatgpt-snapshot-export.yml`](../../.github/workflows/chatgpt-snapshot-export.yml): exporta um `git archive` do SHA exato como artefato. Baixar o ZIP via conector GitHub, importar em diretório temporario isolado com `python .ai-work/chatgpt-executor/import_snapshot.py --artifact /mnt/data/<zip> --destination /mnt/data/pae-checkout-<SHA> --sha <SHA>` (executando o importador de uma copia confiavel). Ver [SNAPSHOT_BRIDGE.md](SNAPSHOT_BRIDGE.md). A extracao recusa symlinks, traversal e SHA incorreto. **Snapshot e apenas copia de arquivos rastreados, sem `.git`; nao simula um clone.** Rodar testes nele e conferir reports, mas commits continuam pelo conector GitHub.
