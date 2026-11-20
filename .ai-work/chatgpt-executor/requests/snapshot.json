@@ -2,7 +2,7 @@
   "schema": "chatgpt-snapshot-request/1",
   "enabled": true,
   "task_id": "015",
-  "request_id": "015-20261120-1906-independent-inspection",
-  "requested_source_head": "3d3c3abc0b1357288bb6b014bd1bca928c489796",
-  "reason": "Export exact commit for independent source inspection and executable local regression tests; no review approval implied"
+  "request_id": "015-20261120-new-session-independent-check",
+  "requested_source_head": "0ee9688797d9a9e02ad0ba0e132709d7f2a2b1a3",
+  "reason": "Generate GitHub Actions snapshot to inspect exact sources and reproduce task 015 regressions without asserting external review approval"
 }
