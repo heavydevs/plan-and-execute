@@ -1167,6 +1167,41 @@ def test_review_015_plain_source_path_requires_digest_and_invalidation() -> None
         assert "cited_file_changed:src/missing.py" in freshness["stale_reasons"]
 
 
+def test_review_015_line_anchored_missing_source_rejected() -> None:
+    """A file:line citation must be treated as a source dependency, even when missing."""
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "line-cited-missing-015")
+        spec = three_task_spec(targets_001=[{
+            "task_id": "002",
+            "reason": "The target must pin the cited source line before reuse.",
+            "topics": ["line provenance"],
+        }])
+        plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "line-cited-missing")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        base_planctl.claim_task(plan_dir, manifest, "001", None)
+        report = completion_report(learnings=[{
+            "kind": "code",
+            "guidance": "Inspect the cited code line before treating this result as a reusable validated learning.",
+            "references": ["src/missing.py:12"],
+            "target_task_ids": ["002"],
+        }])
+        expect_plan_error(
+            lambda: base_planctl.complete_task(plan_dir, manifest, "001", report, None),
+            "Learning source reference missing or unsafe",
+        )
+        assert manifest["learning_artifacts"] == []
+        source = repo / "src" / "missing.py"
+        source.parent.mkdir()
+        source.write_text("MARKER = 1\n", encoding="utf-8")
+        base_planctl.complete_task(plan_dir, manifest, "001", report, None)
+        artifact = manifest["learning_artifacts"][0]
+        assert artifact["cited_file_digests"]["src/missing.py"] == base_planctl.file_sha256(source)
+        source.write_text("MARKER = 2\n", encoding="utf-8")
+        assert "cited_file_changed:src/missing.py" in base_planctl.check_learning_artifact_freshness(
+            artifact, manifest, plan_dir=plan_dir
+        )["stale_reasons"]
+
+
 def test_review_015_invalidation_preflights_all_paths_before_deletion() -> None:
     """A later corrupt artifact path cannot partially remove earlier learning files."""
     with tempfile.TemporaryDirectory() as temp:
@@ -1399,6 +1434,7 @@ def test_review_015_missing_explicit_hypothesis_reference_is_stale() -> None:
 
 def main() -> int:
     test_review_015_plain_source_path_requires_digest_and_invalidation()
+    test_review_015_line_anchored_missing_source_rejected()
     test_review_015_invalidation_preflights_all_paths_before_deletion()
     test_review_015_missing_provenance_cannot_be_reused()
     test_review_015_missing_explicit_source_reference_is_rejected()
