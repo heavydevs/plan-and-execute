@@ -1312,7 +1312,9 @@ def reject_symlink_components(root: Path, relative: Path, field: str) -> None:
     current = root
     for part in relative.parts:
         current = current / part
-        if current.exists() and current.is_symlink():
+        # `exists()` is false for dangling links. Still reject them before any
+        # later filesystem operation can follow a newly introduced target.
+        if current.is_symlink():
             raise PlanError(f"{field} must not traverse a symlink: {current}")
 
 
@@ -4631,6 +4633,26 @@ def extract_cited_repo_files(references: Iterable[str], repo_root: Path | None) 
     return digests
 
 
+def explicit_learning_source_file(reference: Any) -> str | None:
+    """Return an explicitly anchored source filename, not an arbitrary evidence ID/command.
+
+    File#symbol and file::symbol are authoritative source citations. A missing
+    file must never silently become an unhashed, apparently valid learning.
+    Plain evidence IDs and shell commands are still allowed as non-file refs.
+    """
+    if not isinstance(reference, str):
+        return None
+    text = reference.strip().strip("`")
+    if any(ch.isspace() for ch in text) or "://" in text:
+        return None
+    if "::" not in text and "#" not in text:
+        return None
+    candidate = text.split("::", 1)[0].split("#", 1)[0].replace("\\", "/")
+    if not candidate or not Path(candidate).suffix:
+        return None
+    return candidate
+
+
 def learning_provenance_sha256(artifact: dict[str, Any]) -> str:
     payload = {
         "trust_class": artifact.get("trust_class", TRUST_CLASS_VALIDATED_LEARNING),
@@ -4657,31 +4679,61 @@ def check_learning_artifact_freshness(
     """Evaluate provenance and cited inputs; also verify the learning file when a plan directory is supplied."""
     stale_reasons: list[str] = []
     changed_files: list[str] = []
+    # v4 promises verified, directional provenance. Legacy manifests retain
+    # their historic validation contract but must not weaken the current one.
+    strict_provenance = int(manifest.get("schema_version", 0) or 0) >= 4
     trust_class = artifact.get("trust_class")
-    if trust_class is not None and trust_class not in VALID_LEARNING_TRUST_CLASSES:
+    if strict_provenance and trust_class != TRUST_CLASS_VALIDATED_LEARNING:
+        stale_reasons.append("missing_or_invalid_trust_class")
+    elif trust_class is not None and trust_class not in VALID_LEARNING_TRUST_CLASSES:
         stale_reasons.append(f"invalid_trust_class:{trust_class}")
 
     producer_id = str(artifact.get("producer_task_id") or artifact.get("source_task_id") or "")
     target_id = str(artifact.get("target_task_id") or "")
+    if strict_provenance and (
+        not artifact.get("producer_task_id")
+        or artifact.get("producer_task_id") != artifact.get("source_task_id")
+    ):
+        stale_reasons.append("producer_task_id_missing_or_mismatch")
     consumers = artifact.get("consumer_task_ids")
-    if consumers is not None and (not isinstance(consumers, list) or target_id not in consumers):
+    if strict_provenance and consumers != [target_id]:
+        stale_reasons.append("consumer_set_mismatch")
+    elif consumers is not None and (not isinstance(consumers, list) or target_id not in consumers):
         stale_reasons.append("consumer_set_mismatch")
 
     tasks = manifest.get("tasks", []) if isinstance(manifest.get("tasks"), list) else []
     task_by_id = {str(t.get("id")): t for t in tasks if isinstance(t, dict)}
     producer = task_by_id.get(producer_id)
     recorded_contract = artifact.get("source_contract_digest")
+    if strict_provenance and (
+        not isinstance(recorded_contract, str) or not re.fullmatch(r"[0-9a-f]{64}", recorded_contract)
+    ):
+        stale_reasons.append("source_contract_digest_missing_or_invalid")
     if producer is None:
         stale_reasons.append(f"missing_producer:{producer_id}")
     elif recorded_contract:
         current_digests = compute_task_contract_digests(tasks) if tasks else {}
         current_contract = current_digests.get(producer_id) or producer.get("contract_digest")
-        if current_contract and current_contract != recorded_contract:
+        if strict_provenance and not current_contract:
+            stale_reasons.append("source_contract_digest_unverifiable")
+        elif current_contract and current_contract != recorded_contract:
             stale_reasons.append(f"source_contract_changed:{producer_id}")
 
     recorded_prov = artifact.get("provenance_sha256")
-    if recorded_prov is not None and recorded_prov != learning_provenance_sha256(artifact):
+    if strict_provenance and (
+        not isinstance(recorded_prov, str) or not re.fullmatch(r"[0-9a-f]{64}", recorded_prov)
+    ):
+        stale_reasons.append("provenance_hash_missing_or_invalid")
+    elif recorded_prov is not None and recorded_prov != learning_provenance_sha256(artifact):
         stale_reasons.append("provenance_hash_mismatch")
+
+    if strict_provenance:
+        rule = artifact.get("invalidation_rule")
+        if not isinstance(rule, dict) or any(
+            rule.get(name) is not True
+            for name in ("on_source_contract_change", "on_source_reset", "on_cited_file_change")
+        ) or rule.get("scope") != "assigned_consumers_only":
+            stale_reasons.append("invalidation_rule_missing_or_invalid")
 
     # The rendered Markdown is consumed by the next worker. Checking only its
     # manifest provenance lets a modified learning file bypass claim-time checks.
@@ -4710,6 +4762,21 @@ def check_learning_artifact_freshness(
         if candidate_root.is_dir():
             resolved_root = candidate_root.resolve()
     cited_digests = artifact.get("cited_file_digests")
+    if strict_provenance:
+        if not isinstance(cited_digests, dict) or any(
+            not isinstance(rel, str) or not isinstance(digest, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", digest)
+            for rel, digest in cited_digests.items()
+        ):
+            stale_reasons.append("cited_file_digests_missing_or_invalid")
+        else:
+            for item in artifact.get("items") or []:
+                if not isinstance(item, dict):
+                    continue
+                for ref in item.get("references") or []:
+                    source = explicit_learning_source_file(ref)
+                    if source is not None and source not in cited_digests:
+                        stale_reasons.append(f"cited_file_digest_missing:{source}")
     if isinstance(cited_digests, dict) and cited_digests and resolved_root is None:
         stale_reasons.append("cited_repo_root_unavailable")
     if isinstance(cited_digests, dict) and cited_digests and resolved_root is not None:
@@ -4781,10 +4848,17 @@ def invalidate_stale_learnings(
             continue
         relative = str(artifact.get("file", ""))
         if relative:
-            stale_files.add(relative)
-            path = plan_dir / checked_relative_path(relative, "learning artifact file")
+            # Stale metadata is untrusted input at deletion time. Never unlink
+            # an arbitrary file supplied by a corrupted/malicious manifest.
+            expected = learning_artifact_path(status["producer_task_id"], target_id)
+            if relative != expected:
+                raise PlanError(f"Refusing to remove learning artifact with unexpected path: {relative}")
+            checked = checked_relative_path(relative, "learning artifact file")
+            reject_symlink_components(plan_dir, Path(checked), "learning artifact")
+            path = plan_dir / checked
             if path.is_symlink():
                 raise PlanError(f"Refusing to remove symlinked learning artifact: {relative}")
+            stale_files.add(relative)
             try:
                 path.unlink()
             except FileNotFoundError:
@@ -5063,6 +5137,12 @@ def materialize_learning_artifacts(
         ]
         all_refs = [ref for item in artifact_items for ref in item["references"]]
         cited_file_digests = extract_cited_repo_files(all_refs, repo_root_path)
+        # An explicit file#symbol or file::symbol citation is a claimed code
+        # anchor, not an optional hint. Missing/unsafe sources fail closed.
+        for reference in all_refs:
+            source = explicit_learning_source_file(reference)
+            if source is not None and source not in cited_file_digests:
+                raise PlanError(f"Learning source reference missing or unsafe: {reference}")
         invalidation_rule = {
             "on_source_contract_change": True,
             "on_source_reset": True,
@@ -5179,6 +5259,13 @@ def validate_learning_artifacts(
         consumers = artifact.get("consumer_task_ids")
         if consumers is not None and (not isinstance(consumers, list) or consumers != [target_id]):
             errors.append(f"{field}.consumer_task_ids does not match assigned consumer {target_id!r}")
+        if int(manifest.get("schema_version", 0) or 0) >= 4:
+            for required_field in (
+                "trust_class", "producer_task_id", "consumer_task_ids", "source_contract_digest",
+                "cited_file_digests", "invalidation_rule", "provenance_sha256",
+            ):
+                if required_field not in artifact or artifact[required_field] is None:
+                    errors.append(f"{field}.{required_field} is required for provenance")
         if artifact.get("reason") != declaration.get("reason"):
             errors.append(f"{field}.reason does not match the planned learning relationship")
         if artifact.get("topics") != declaration.get("topics"):
@@ -5426,23 +5513,31 @@ def check_hypothesis_freshness(
     if recorded_sig and current_sig and recorded_sig != current_sig:
         reasons.append("failure_signature_changed")
     evidence_digests = hypothesis.get("evidence_digests")
-    if isinstance(evidence_digests, dict) and evidence_digests and repo_root is not None and repo_root.is_dir():
-        root = repo_root.resolve()
-        for rel, expected_sha in sorted(evidence_digests.items()):
-            rel_path = Path(rel)
-            if rel_path.is_absolute() or ".." in rel_path.parts:
-                reasons.append(f"evidence_unsafe:{rel}")
-                continue
-            target = root / rel_path
-            if target.is_symlink() or not target.is_file():
-                reasons.append(f"evidence_missing:{rel}")
-                continue
-            try:
-                actual_sha = file_sha256(target)
-                if actual_sha != expected_sha and lf_sha256(target) != expected_sha:
-                    reasons.append(f"evidence_changed:{rel}")
-            except OSError:
-                reasons.append(f"evidence_unreadable:{rel}")
+    if isinstance(evidence_digests, dict) and evidence_digests:
+        if repo_root is None or not repo_root.is_dir():
+            reasons.append("evidence_repo_root_unavailable")
+        else:
+            root = repo_root.resolve()
+            for rel, expected_sha in sorted(evidence_digests.items()):
+                rel_path = Path(rel)
+                if rel_path.is_absolute() or ".." in rel_path.parts:
+                    reasons.append(f"evidence_unsafe:{rel}")
+                    continue
+                try:
+                    reject_symlink_components(root, rel_path, "hypothesis evidence")
+                except PlanError:
+                    reasons.append(f"evidence_unsafe:{rel}")
+                    continue
+                target = root / rel_path
+                if target.is_symlink() or not target.is_file():
+                    reasons.append(f"evidence_missing:{rel}")
+                    continue
+                try:
+                    actual_sha = file_sha256(target)
+                    if actual_sha != expected_sha and lf_sha256(target) != expected_sha:
+                        reasons.append(f"evidence_changed:{rel}")
+                except OSError:
+                    reasons.append(f"evidence_unreadable:{rel}")
     return reasons
 
 

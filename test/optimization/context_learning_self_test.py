@@ -1018,7 +1018,130 @@ def test_cli_check_learnings_and_context_receipt() -> None:
         assert rcpt["contains_secrets"] is False
 
 
+def test_review_015_missing_provenance_cannot_be_reused() -> None:
+    """Every v4 learning field must remain present and bound to the sole recipient."""
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "missing-provenance-015")
+        (repo / "source.py").write_text("MARKER = 1\n", encoding="utf-8")
+        spec = three_task_spec(
+            targets_001=[{"task_id": "002", "reason": "The target must verify the source marker before reusing it.", "topics": ["source marker"]}]
+        )
+        plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "missing-provenance")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        base_planctl.claim_task(plan_dir, manifest, "001", None)
+        base_planctl.complete_task(
+            plan_dir, manifest, "001",
+            completion_report(learnings=[{
+                "kind": "code", "guidance": "Consult the verified source marker before reusing the result in the next task.",
+                "references": ["source.py::MARKER"], "target_task_ids": ["002"],
+            }]), None,
+        )
+        artifact = manifest["learning_artifacts"][0]
+        assert base_planctl.check_learning_artifact_freshness(artifact, manifest, plan_dir=plan_dir)["fresh"]
+        mandatory = (
+            "trust_class", "producer_task_id", "consumer_task_ids", "source_contract_digest",
+            "cited_file_digests", "invalidation_rule", "provenance_sha256",
+        )
+        for field in mandatory:
+            saved = artifact.pop(field)
+            try:
+                freshness = base_planctl.check_learning_artifact_freshness(artifact, manifest, plan_dir=plan_dir)
+                assert not freshness["fresh"], (field, freshness)
+                assert base_planctl.validate_plan(plan_dir, manifest), field
+                expect_plan_error(lambda: base_planctl.claim_task(plan_dir, manifest, "002", None), "stale learning")
+            finally:
+                artifact[field] = saved
+        artifact["consumer_task_ids"] = ["002", "003"]
+        assert "consumer_set_mismatch" in base_planctl.check_learning_artifact_freshness(
+            artifact, manifest, plan_dir=plan_dir
+        )["stale_reasons"]
+
+
+def test_review_015_missing_explicit_source_reference_is_rejected() -> None:
+    """A file#symbol or file::symbol citation cannot silently lose its source digest."""
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "missing-cited-source-015")
+        spec = three_task_spec(
+            targets_001=[{"task_id": "002", "reason": "The target must pin the cited implementation symbol before reuse.", "topics": ["symbol provenance"]}]
+        )
+        plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "missing-cited-source")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        base_planctl.claim_task(plan_dir, manifest, "001", None)
+        expect_plan_error(
+            lambda: base_planctl.complete_task(
+                plan_dir, manifest, "001",
+                completion_report(learnings=[{
+                    "kind": "code", "guidance": "Read the cited source symbol before treating this finding as reusable evidence.",
+                    "references": ["src/does-not-exist.py::MARKER"], "target_task_ids": ["002"],
+                }]), None,
+            ), "source reference",
+        )
+        assert not (plan_dir / "learnings/001-to-002.md").exists()
+
+
+def test_review_015_invalidation_cannot_unlink_outside_plan() -> None:
+    """Malformed paths and ancestor symlinks must not delete unrelated files."""
+    with tempfile.TemporaryDirectory() as temp:
+        root = Path(temp)
+        plan_dir = root / "plan"
+        plan_dir.mkdir()
+        outside = root / "outside"
+        outside.mkdir()
+        victim = outside / "victim.txt"
+        victim.write_text("must survive\n", encoding="utf-8")
+        symlink = plan_dir / "escape"
+        try:
+            symlink.symlink_to(outside, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            return  # Windows installations without symlink privilege cannot exercise this case.
+        manifest = {"tasks": [], "learning_artifacts": [
+            {"source_task_id": "001", "target_task_id": "002", "file": "escape/victim.txt"}
+        ]}
+        expect_plan_error(
+            lambda: base_planctl.invalidate_stale_learnings(plan_dir, manifest),
+            "refusing to remove",
+        )
+        assert victim.read_text(encoding="utf-8") == "must survive\n"
+        (outside / "001-to-002.md").write_text("outside learning\n", encoding="utf-8")
+        (plan_dir / "learnings").symlink_to(outside, target_is_directory=True)
+        manifest["learning_artifacts"][0]["file"] = "learnings/001-to-002.md"
+        expect_plan_error(
+            lambda: base_planctl.invalidate_stale_learnings(plan_dir, manifest),
+            "symlink",
+        )
+        assert (outside / "001-to-002.md").read_text(encoding="utf-8") == "outside learning\n"
+
+
+def test_review_015_hypothesis_ancestor_symlink_is_stale() -> None:
+    """Replacing a cited directory with an outside symlink invalidates a hypothesis."""
+    with tempfile.TemporaryDirectory() as temp:
+        root = Path(temp)
+        repo = root / "repo"
+        repo.mkdir()
+        original = repo / "source"
+        original.mkdir()
+        cited = original / "evidence.txt"
+        cited.write_text("evidence\n", encoding="utf-8")
+        hyp = {
+            "source_contract_digest": "contract-a",
+            "evidence_digests": {"source/evidence.txt": base_planctl.file_sha256(cited)},
+        }
+        task = {"contract_digest": "contract-a"}
+        assert base_planctl.check_hypothesis_freshness(hyp, task, repo) == []
+        assert "evidence_repo_root_unavailable" in base_planctl.check_hypothesis_freshness(hyp, task)
+        relocated = root / "outside"
+        original.rename(relocated)
+        try:
+            original.symlink_to(relocated, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            return
+        assert "evidence_unsafe:source/evidence.txt" in base_planctl.check_hypothesis_freshness(hyp, task, repo)
+
 def main() -> int:
+    test_review_015_missing_provenance_cannot_be_reused()
+    test_review_015_missing_explicit_source_reference_is_rejected()
+    test_review_015_invalidation_cannot_unlink_outside_plan()
+    test_review_015_hypothesis_ancestor_symlink_is_stale()
     test_ac01_unrelated_later_task_cannot_receive_learning()
     test_ac02_cited_file_change_invalidates_or_flags_learning_before_reuse()
     test_review_015_symbol_reference_and_tampered_learning_are_rejected()
