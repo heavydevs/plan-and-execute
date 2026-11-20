@@ -5716,6 +5716,31 @@ def promote_hypothesis_to_learning(
         raise PlanError(
             "Promoting a failed-attempt hypothesis into a reusable fact requires passing deterministic validation evidence"
         )
+    # A caller-provided list is not execution evidence.  Bind promotion to the
+    # runner-owned receipt of a completed task before trusting the passed flags.
+    receipt = task.get("current_receipt")
+    if task.get("status") != "completed" or not isinstance(receipt, dict):
+        raise PlanError("Cannot promote hypothesis without a completed task and authoritative validation receipt")
+    verdict = validate_receipt(receipt, task, manifest=manifest)
+    if not verdict["valid"]:
+        raise PlanError("Cannot promote hypothesis with an invalid task validation receipt")
+    authoritative = task.get("validation_results")
+    if not isinstance(authoritative, list) or not authoritative:
+        raise PlanError("Cannot promote hypothesis without runner validation results")
+    receipt_checks = receipt.get("validations")
+    if not isinstance(receipt_checks, list) or not receipt_checks:
+        raise PlanError("Cannot promote hypothesis without validation checks recorded in receipt")
+    for check in deterministic_evidence:
+        if not isinstance(check, dict) or check not in authoritative:
+            raise PlanError("Promotion evidence was not observed by the completed task runner")
+        if not any(
+            isinstance(saved, dict)
+            and saved.get("command") == check.get("command")
+            and saved.get("passed") is True
+            and saved.get("exit_code") == 0
+            for saved in receipt_checks
+        ):
+            raise PlanError("Promotion evidence is absent from the authoritative task receipt")
     has_passing_check = False
     for check in deterministic_evidence:
         if not isinstance(check, dict):
