@@ -3,7 +3,8 @@
   "task_id": "015",
   "model": "Qwen2.5-Coder-1.5B-Instruct-Q4_K_M",
   "max_invocations": 1,
-  "request_id": "015-openweights-poc-20261120-01",
+  "request_id": "015-openweights-poc-20261120-b10786",
   "scope": "one-shot independent verification proof; no max-tier gate claim",
-  "reviewed_commit_before_request": "cdaaacbbd7a6c5982bc5e474c54cb535f1021935"
+  "reviewed_commit_before_request": "704567b6513d5b60f22b5897e4aecd77789b331b",
+  "failure_recovered_from": "run-44809741623-http-404-semver-no-assets"
 }

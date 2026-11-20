@@ -49,9 +49,9 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --location --retry 3 --connect-timeout 20 --max-time 240 \
-            'https://github.com/ggml-org/llama.cpp/releases/download/v0.9.0/llama-v0.9.0-bin-ubuntu-x64.tar.gz' \
+            'https://github.com/ggml-org/llama.cpp/releases/download/b10786/llama-b10786-bin-ubuntu-x64.tar.gz' \
             -o /tmp/llama-runtime.tar.gz
-          echo '3c547bdad81a0a0a888382fdc21ce6d4437cb2c68c2a17cc7a3f4944bf1a81fb  /tmp/llama-runtime.tar.gz' | sha256sum --check
+          echo '79c0a6d479cc306bcac6aa891c3d97e0c32d817e898e32a5947bfe0dd22439ef  /tmp/llama-runtime.tar.gz' | sha256sum --check
           mkdir -p /tmp/llama-runtime
           tar xzf /tmp/llama-runtime.tar.gz -C /tmp/llama-runtime
           find /tmp/llama-runtime -type f -name llama-server -exec chmod +x {} \;
