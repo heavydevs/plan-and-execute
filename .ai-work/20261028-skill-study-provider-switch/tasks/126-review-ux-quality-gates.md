@@ -19,6 +19,8 @@ allowed_related_task_reads: "none"
 - [ ] **S004** — Fix owned defects or reopen source owner, rerun selected current tests; retain global validation gate 082.
 - [ ] **S005** — Record real reviewer session/effort/model/final hash/cost and any unsupported environments; remain pending without evidence.
 
+**P066 UX gate amendment:** P066 ONE-TIME PROJECT ONBOARDING: Shared durable per-project coding/UX opt-in in task 127/128. Broad project/UI/design analysis and contemporary external research happen ONLY at first relevant approved use or explicit pae ux init/refresh; later tasks use compact module-scoped approved source-indexed design patterns without re-running research. Backend-only, declined, CI and trivial commands have zero UX activation. Independent UX prototype opt-in remains separate. No unapproved overwrite, paid model, network or source changes.
+
 ## Design and execution constraints
 - Read docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md only while implementing task 126 and examine only current affected source/dependency receipts.
 - Read P065 report, 125 final source/receipt and minimal accepted 122/124 review metadata.
