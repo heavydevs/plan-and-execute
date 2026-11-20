@@ -57,3 +57,9 @@ Files: `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scri
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_015`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_015`
+
+## Pesquisa e arquitetura obrigatórias (pré-execução)
+
+- **Estudo antecipado:** `docs/research/20261028-skill-optimization/pesquisas-por-task/015-pesquisa-arquitetura.md`.
+- A IA revisora **deve usar a arquitetura, matriz de riscos, fontes e estratégia de validação desse relatório como referência obrigatória de partida**; consultar o relatório 014 para contextos anteriores. Verificar apenas divergências materiais de código/versão; não repetir pesquisa ampla sem mudança que altere uma decisão.
+- Este vínculo certifica **somente a pesquisa antecipada**, não a revisão independente 015, nem testes, nem conclusão da implementação. Preservar o dispatch real, os receipts e os checks declarados.
