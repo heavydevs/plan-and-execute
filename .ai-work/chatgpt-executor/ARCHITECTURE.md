@@ -91,3 +91,7 @@ The static/source-gate proof applies only to local code. It is **not** a second-
 12. [Python unittest docs](https://docs.python.org/3/library/unittest.html), deterministic standard-library fixture model used in executor self-tests.
 
 **Evidence limitations:** No external provider call, cross-platform benchmark, remote Actions run, or authenticated independent review was performed by the research phase itself. Actual CI conclusions, if available after commit, must be appended as observed evidence rather than predicted.
+
+## Audited resource-map reconciliation, 2026-11-20
+
+The original map was observed stale on GitHub Actions because of eight specific changed test/build/CI inputs, not because a required test failed. `.ai-work/chatgpt-executor/mapctl.py` imports the original `service_map.py`, requires the original index, checks only the explicitly inspected eight changed paths and confirms both 015 validation IDs before restamping in a temporary GitHub Actions checkout. Unknown paths or malformed inventories abort; no blanket `stamp` is allowed. The CI artifact includes the updated map and index so their **exact** content can be published through GitHub CAS; the repository map is not considered reconciled until that content is committed. This procedure is independent of, and never substitutes for, an external model review.
