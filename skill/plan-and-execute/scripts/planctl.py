@@ -4633,7 +4633,7 @@ def extract_cited_repo_files(references: Iterable[str], repo_root: Path | None) 
     return digests
 
 
-def explicit_learning_source_file(reference: Any) -> str | None:
+def explicit_learning_source_file(reference: Any, *, require_plain_file: bool = False) -> str | None:
     """Return an explicitly anchored source filename, not an arbitrary evidence ID/command.
 
     File#symbol and file::symbol are authoritative source citations. A missing
@@ -4651,7 +4651,9 @@ def explicit_learning_source_file(reference: Any) -> str | None:
         return None
     if anchored:
         return candidate if Path(candidate).suffix else None
-    # Plain file paths cite sources too. Otherwise "src/missing.py" silently
+    if not require_plain_file:
+        return None
+    # Plain code references cite sources too. Otherwise "src/missing.py" silently
     # publishes an unfingerprinted learning which never becomes stale.
     if not re.fullmatch(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", candidate):
         return None
@@ -4785,7 +4787,9 @@ def check_learning_artifact_freshness(
                 if not isinstance(item, dict):
                     continue
                 for ref in item.get("references") or []:
-                    source = explicit_learning_source_file(ref)
+                    source = explicit_learning_source_file(
+                        ref, require_plain_file=item.get("kind") == "code"
+                    )
                     if source is not None and source not in cited_digests:
                         stale_reasons.append(f"cited_file_digest_missing:{source}")
     if isinstance(cited_digests, dict) and cited_digests and resolved_root is None:
@@ -5163,10 +5167,13 @@ def materialize_learning_artifacts(
         cited_file_digests = extract_cited_repo_files(all_refs, repo_root_path)
         # An explicit file#symbol or file::symbol citation is a claimed code
         # anchor, not an optional hint. Missing/unsafe sources fail closed.
-        for reference in all_refs:
-            source = explicit_learning_source_file(reference)
-            if source is not None and source not in cited_file_digests:
-                raise PlanError(f"Learning source reference missing or unsafe: {reference}")
+        for learning in target_learnings:
+            for reference in learning["references"]:
+                source = explicit_learning_source_file(
+                    reference, require_plain_file=learning.get("kind") == "code"
+                )
+                if source is not None and source not in cited_file_digests:
+                    raise PlanError(f"Learning source reference missing or unsafe: {reference}")
         invalidation_rule = {
             "on_source_contract_change": True,
             "on_source_reset": True,
