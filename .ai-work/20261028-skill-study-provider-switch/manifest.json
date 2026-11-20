@@ -260,6 +260,10 @@
       {
         "id": "P064",
         "text": "All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics."
+      },
+      {
+        "id": "P065",
+        "text": "Research and add implementation-ready architecture for opt-in visual identity, brownfield UI standards, optional Node HTML/JS/SCSS prototype lab, safe import and transfer and validated accessible UX with low-token routing."
       }
     ],
     "repository_findings": [
@@ -897,6 +901,42 @@
       "request_part_ids": [
         "P064"
       ]
+    },
+    {
+      "id": "R065",
+      "text": "Create opt-in durable visual identity, design tokens and source-indexed agent context respecting real existing frontend standards.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P065"
+      ]
+    },
+    {
+      "id": "R066",
+      "text": "Create optional in-app or isolated Node HTML/JavaScript/SCSS prototype workflows, scoped existing-project import and guarded prototype-to-production implementation plans.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P065"
+      ]
+    },
+    {
+      "id": "R067",
+      "text": "Enforce evidence-based beautiful consistent UI and accessible functional UX acceptance including visual, responsive, keyboard, forms and explicit human review.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P065"
+      ]
+    },
+    {
+      "id": "R068",
+      "text": "Use lazy UX activation and qualified economical per-phase routing with minimal source-indexed context and no repeated broad study.",
+      "source": "user",
+      "priority": "must",
+      "request_part_ids": [
+        "P065"
+      ]
     }
   ],
   "global_constraints": [
@@ -908,7 +948,8 @@
     "Keep real independent code reviews before acceptance; missing reviewers are not simulated.",
     "Load only assigned reports and source paths; preserve source evidence outside disposable plan controls.",
     "Do not automatically refactor preexisting application tests; obtain explicit test-case scope and user edit authorization.",
-    "Enforce task-specific phase routing, provider capability floors and lazy indexed context on every task; never preload unrelated research/TODOs/logs."
+    "Enforce task-specific phase routing, provider capability floors and lazy indexed context on every task; never preload unrelated research/TODOs/logs.",
+    "UX capability is opt-in and lazily loaded; existing production components and human approvals outrank prototype inventions; no automatic production migration."
   ],
   "execution_context": {
     "global": {
@@ -987,7 +1028,7 @@
   "language": "English",
   "summary_status": "pending",
   "created_at": "2026-10-29T02:40:14+00:00",
-  "updated_at": "2026-11-19T19:00:00Z",
+  "updated_at": "2026-11-20T03:20:00Z",
   "tasks": [
     {
       "id": "001",
@@ -19619,6 +19660,904 @@
       "related_task_files": []
     },
     {
+      "id": "121",
+      "slug": "ux-design-system",
+      "title": "Implement opt-in UI/UX design system, identity and compact agent memory",
+      "objective": "Implement opt-in UI/UX design system, identity and compact agent memory. Read assigned P065 architectural report and current affected symbols; verify accepted 025/120 prior receipts only.",
+      "requirement_ids": [
+        "R065",
+        "R068"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One bounded implementation change or independent final-hash correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Read only P065 report, affected source symbols and accepted dependency evidence."
+        ],
+        "why_one_todo": "Single independently verifiable UI/UX capability contract.",
+        "separate_from": [
+          "Do not read unrelated tasks, full style inventories, private screenshots or old logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Implement opt-in UI/UX design system, identity and compact agent memory"
+        ],
+        "out": [
+          "No automatic production frontend edits, unrelated test changes, second plan or paid agent use."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/design_context.py",
+          "skill/plan-and-execute/scripts/uxctl.py",
+          "skill/plan-and-execute/references/UI_UX_WORKFLOW.md",
+          "skill/plan-and-execute/references/UI_UX_DESIGN_SYSTEM.md",
+          "skill/plan-and-execute/SKILL.md",
+          "test/optimization/ux_context_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/121-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/121-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "025",
+        "120"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md only while implementing task 121 and examine only current affected source/dependency receipts.",
+        "Read assigned P065 architectural report and current affected symbols; verify accepted 025/120 prior receipts only.",
+        "Implement UX intent/setup gate: ask once for new project or explicit design request; non-UI DIRECT default OFF with no prompt, model, browser or reading new reference.",
+        "Extract real existing components, token/style source, route map by rg/AST and hashes; distinguish inferred from user-approved identity, do not rebrand mature UI.",
+        "Produce durable project-local docs/ui-ux/AGENT_INDEX.md, manifest.json, identity.md, tokens.json, components.json and UX_PATTERNS.md only when opted in; validate DTCG aliases/cycles/contrast and keep approved status honest.",
+        "Wire concise lazy reference from SKILL.md, use shared routing and source hash invalidation not whole-project re-study.",
+        "Add tests for greenfield, brownfield, denied setup, backend-only no overhead, stale hashes, token cycles, path traversal, privacy; actual receipts only.",
+        "Reuse routingctl, task_context_router, planctl, existing validators and P056 security/performance gates; no parallel orchestration.",
+        "Produce real source hashes/test results and genuine independent review where required; never call prepared research executed implementation."
+      ],
+      "acceptance_criteria": [
+        "Existing visual patterns remain canonical and fresh UI components reuse real exports and styles without unapproved redesign.",
+        "Greenfield identity remains provisional until the user approves; design tokens have deterministic typed semantics.",
+        "Non-UI task has no UX runtime or extra context; agent index is short, source-indexed and privacy-safe.",
+        "Real tests prove hash invalidation and that no fictitious product implementation/review is credited."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_121",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_121"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect scoped source architecture",
+          "objective": "Read assigned P065 architectural report and current affected symbols; verify accepted 025/120 prior receipts only.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement or genuinely review contract",
+          "objective": "Implement UX intent/setup gate: ask once for new project or explicit design request; non-UI DIRECT default OFF with no prompt, model, browser or reading new reference.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Enforce consent/source-of-truth/safety",
+          "objective": "Extract real existing components, token/style source, route map by rg/AST and hashes; distinguish inferred from user-approved identity, do not rebrand mature UI.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Run adversarial validation",
+          "objective": "Produce durable project-local docs/ui-ux/AGENT_INDEX.md, manifest.json, identity.md, tokens.json, components.json and UX_PATTERNS.md only when opted in; validate DTCG aliases/cycles/contrast and keep approved status honest.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record actual acceptance evidence",
+          "objective": "Wire concise lazy reference from SKILL.md, use shared routing and source hash invalidation not whole-project re-study.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S006",
+          "title": "Close current-source final check",
+          "objective": "Add tests for greenfield, brownfield, denied setup, backend-only no overhead, stale hashes, token cycles, path traversal, privacy; actual receipts only.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/121-ux-design-system.md",
+      "related_task_files": []
+    },
+    {
+      "id": "122",
+      "slug": "review-ux-design-system",
+      "title": "Independently review visual identity, design token and agent context safety",
+      "objective": "Independently review visual identity, design token and agent context safety. Read only P065 report, final 121 source/receipt and its tests.",
+      "requirement_ids": [
+        "R065",
+        "R068"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One bounded implementation change or independent final-hash correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Read only P065 report, affected source symbols and accepted dependency evidence."
+        ],
+        "why_one_todo": "Single independently verifiable UI/UX capability contract.",
+        "separate_from": [
+          "Do not read unrelated tasks, full style inventories, private screenshots or old logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independently review visual identity, design token and agent context safety"
+        ],
+        "out": [
+          "No automatic production frontend edits, unrelated test changes, second plan or paid agent use."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/design_context.py",
+          "skill/plan-and-execute/scripts/uxctl.py",
+          "skill/plan-and-execute/references/UI_UX_WORKFLOW.md",
+          "skill/plan-and-execute/references/UI_UX_DESIGN_SYSTEM.md",
+          "skill/plan-and-execute/SKILL.md",
+          "test/optimization/ux_context_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/122-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/122-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "121"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md only while implementing task 122 and examine only current affected source/dependency receipts.",
+        "Read only P065 report, final 121 source/receipt and its tests.",
+        "Dispatch genuine independent fresh max-qualified reviewer, including visual, security/performance and privacy lenses.",
+        "Probe unsupported/no-consent, stale hash, invalid alias, unsafe path, prompt injection and unwanted rebrand.",
+        "Correct predecessor-owned source and rerun focused tests, require reviewer approval of final hashes.",
+        "Record actual provider/model/effort/session evidence; never mark synthetic review complete.",
+        "Reuse routingctl, task_context_router, planctl, existing validators and P056 security/performance gates; no parallel orchestration.",
+        "Produce real source hashes/test results and genuine independent review where required; never call prepared research executed implementation."
+      ],
+      "acceptance_criteria": [
+        "Real independent model review approves actual current design-memory source and approval boundaries.",
+        "No data leakage, unapproved redesign or DIRECT-mode overhead; high/critical issues corrected."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_122",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_122"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect scoped source architecture",
+          "objective": "Read only P065 report, final 121 source/receipt and its tests.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement or genuinely review contract",
+          "objective": "Dispatch genuine independent fresh max-qualified reviewer, including visual, security/performance and privacy lenses.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Enforce consent/source-of-truth/safety",
+          "objective": "Probe unsupported/no-consent, stale hash, invalid alias, unsafe path, prompt injection and unwanted rebrand.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Run adversarial validation",
+          "objective": "Correct predecessor-owned source and rerun focused tests, require reviewer approval of final hashes.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record actual acceptance evidence",
+          "objective": "Record actual provider/model/effort/session evidence; never mark synthetic review complete.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/122-review-ux-design-system.md",
+      "related_task_files": []
+    },
+    {
+      "id": "123",
+      "slug": "ux-prototype-lab",
+      "title": "Implement optional real-component or Node Vite HTML JavaScript SCSS prototype lab and safe transfer plan",
+      "objective": "Implement optional real-component or Node Vite HTML JavaScript SCSS prototype lab and safe transfer plan. Read P065 architecture and accepted 122/112 receipts, inspect only relevant real frontend source.",
+      "requirement_ids": [
+        "R066",
+        "R068"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One bounded implementation change or independent final-hash correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Read only P065 report, affected source symbols and accepted dependency evidence."
+        ],
+        "why_one_todo": "Single independently verifiable UI/UX capability contract.",
+        "separate_from": [
+          "Do not read unrelated tasks, full style inventories, private screenshots or old logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Implement optional real-component or Node Vite HTML JavaScript SCSS prototype lab and safe transfer plan"
+        ],
+        "out": [
+          "No automatic production frontend edits, unrelated test changes, second plan or paid agent use."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/ux_prototype.py",
+          "skill/plan-and-execute/scripts/uxctl.py",
+          "skill/plan-and-execute/references/UI_UX_PROTOTYPING.md",
+          "skill/plan-and-execute/assets/ux-lab-template/package.json",
+          "skill/plan-and-execute/assets/ux-lab-template/index.html",
+          "skill/plan-and-execute/assets/ux-lab-template/src/main.js",
+          "skill/plan-and-execute/assets/ux-lab-template/src/styles/main.scss",
+          "skill/plan-and-execute/assets/ux-lab-template/README.md",
+          "test/optimization/ux_prototype_lab_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/123-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/123-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "122",
+        "112"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md only while implementing task 123 and examine only current affected source/dependency receipts.",
+        "Read P065 architecture and accepted 122/112 receipts, inspect only relevant real frontend source.",
+        "Implement deterministic mode: in-app/stories with REAL components when capable, otherwise optional isolated Vite vanilla HTML/JS/SCSS lab; no mandatory Figma or npm install.",
+        "Build versioned local scaffold template with pinned dependency lockfile, localhost-only dev and sanitized mock data, generated tokens, no production credentials or remote assets.",
+        "Create selected-route real->prototype read-only import with component/variant/token mapping and source_sha256/fidelity warnings; prevent symlink and URL leaks.",
+        "Implement prototype->real sync-plan with affected real components, UX decisions, acceptance tests, hashes, conflicts, rollback and required user approval; NO automatic production writes.",
+        "Run actual tests for legacy, existing, new, offline, stale hash, malicious path and permissions; record evidence only.",
+        "Reuse routingctl, task_context_router, planctl, existing validators and P056 security/performance gates; no parallel orchestration.",
+        "Produce real source hashes/test results and genuine independent review where required; never call prepared research executed implementation."
+      ],
+      "acceptance_criteria": [
+        "Mature frontend prefers real component workbench, not duplicate HTML lab.",
+        "Explicit opt-in creates usable isolated Node/Vite HTML/JS/SCSS lab with safe fixtures.",
+        "Import reads only selected existing UI; sync generates PLAN not unauthorized write; stale SHA blocks.",
+        "Missing Node/Figma/permissions yields honest skip, not green test."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_123",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_123"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect scoped source architecture",
+          "objective": "Read P065 architecture and accepted 122/112 receipts, inspect only relevant real frontend source.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement or genuinely review contract",
+          "objective": "Implement deterministic mode: in-app/stories with REAL components when capable, otherwise optional isolated Vite vanilla HTML/JS/SCSS lab; no mandatory Figma or npm install.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Enforce consent/source-of-truth/safety",
+          "objective": "Build versioned local scaffold template with pinned dependency lockfile, localhost-only dev and sanitized mock data, generated tokens, no production credentials or remote assets.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Run adversarial validation",
+          "objective": "Create selected-route real->prototype read-only import with component/variant/token mapping and source_sha256/fidelity warnings; prevent symlink and URL leaks.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record actual acceptance evidence",
+          "objective": "Implement prototype->real sync-plan with affected real components, UX decisions, acceptance tests, hashes, conflicts, rollback and required user approval; NO automatic production writes.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S006",
+          "title": "Close current-source final check",
+          "objective": "Run actual tests for legacy, existing, new, offline, stale hash, malicious path and permissions; record evidence only.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/123-ux-prototype-lab.md",
+      "related_task_files": []
+    },
+    {
+      "id": "124",
+      "slug": "review-ux-prototype-lab",
+      "title": "Independently review prototype isolation and guarded production migration",
+      "objective": "Independently review prototype isolation and guarded production migration. Read only P065 report, final 123 source, tests and hashed receipt.",
+      "requirement_ids": [
+        "R066",
+        "R068"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One bounded implementation change or independent final-hash correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Read only P065 report, affected source symbols and accepted dependency evidence."
+        ],
+        "why_one_todo": "Single independently verifiable UI/UX capability contract.",
+        "separate_from": [
+          "Do not read unrelated tasks, full style inventories, private screenshots or old logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independently review prototype isolation and guarded production migration"
+        ],
+        "out": [
+          "No automatic production frontend edits, unrelated test changes, second plan or paid agent use."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/ux_prototype.py",
+          "skill/plan-and-execute/scripts/uxctl.py",
+          "skill/plan-and-execute/references/UI_UX_PROTOTYPING.md",
+          "skill/plan-and-execute/assets/ux-lab-template/package.json",
+          "skill/plan-and-execute/assets/ux-lab-template/index.html",
+          "skill/plan-and-execute/assets/ux-lab-template/src/main.js",
+          "skill/plan-and-execute/assets/ux-lab-template/src/styles/main.scss",
+          "skill/plan-and-execute/assets/ux-lab-template/README.md",
+          "test/optimization/ux_prototype_lab_self_test.py",
+          "docs/research/20261028-skill-optimization/implementation/124-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/124-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "123"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md only while implementing task 124 and examine only current affected source/dependency receipts.",
+        "Read only P065 report, final 123 source, tests and hashed receipt.",
+        "Run real fresh max-qualified independent review of in-app/lab mode, security, performance, licensing and UX fidelity.",
+        "Test traversal, symlinks, credential leakage, unsafe npm, stale mapping and bypassing user consent.",
+        "Correct predecessor-owned source, rerun impacted checks, never rewrite unrelated application source.",
+        "Record genuine reviewer metadata and unresolved limits; no simulated approval.",
+        "Reuse routingctl, task_context_router, planctl, existing validators and P056 security/performance gates; no parallel orchestration.",
+        "Produce real source hashes/test results and genuine independent review where required; never call prepared research executed implementation."
+      ],
+      "acceptance_criteria": [
+        "Independent final-source review verifies no secret or production write leakage.",
+        "Stale mapping and consent gate cannot be bypassed; critical findings fixed."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_124",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_124"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect scoped source architecture",
+          "objective": "Read only P065 report, final 123 source, tests and hashed receipt.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement or genuinely review contract",
+          "objective": "Run real fresh max-qualified independent review of in-app/lab mode, security, performance, licensing and UX fidelity.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Enforce consent/source-of-truth/safety",
+          "objective": "Test traversal, symlinks, credential leakage, unsafe npm, stale mapping and bypassing user consent.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Run adversarial validation",
+          "objective": "Correct predecessor-owned source, rerun impacted checks, never rewrite unrelated application source.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record actual acceptance evidence",
+          "objective": "Record genuine reviewer metadata and unresolved limits; no simulated approval.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/124-review-ux-prototype-lab.md",
+      "related_task_files": []
+    },
+    {
+      "id": "125",
+      "slug": "ux-quality-gates",
+      "title": "Implement visual usability accessibility and responsive quality gates with pae ux CLI",
+      "objective": "Implement visual usability accessibility and responsive quality gates with pae ux CLI. Read P065 architecture, 124/108/110 accepted receipts and only real changed UI source.",
+      "requirement_ids": [
+        "R067",
+        "R068"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One bounded implementation change or independent final-hash correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Read only P065 report, affected source symbols and accepted dependency evidence."
+        ],
+        "why_one_todo": "Single independently verifiable UI/UX capability contract.",
+        "separate_from": [
+          "Do not read unrelated tasks, full style inventories, private screenshots or old logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Implement visual usability accessibility and responsive quality gates with pae ux CLI"
+        ],
+        "out": [
+          "No automatic production frontend edits, unrelated test changes, second plan or paid agent use."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/ux_review.py",
+          "skill/plan-and-execute/scripts/uxctl.py",
+          "skill/plan-and-execute/references/UI_UX_VALIDATION.md",
+          "bin/plan-and-execute.js",
+          "test/optimization/ux_visual_acceptance_self_test.py",
+          "test/cli.test.js",
+          "docs/research/20261028-skill-optimization/implementation/125-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/125-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "124",
+        "108",
+        "110"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md only while implementing task 125 and examine only current affected source/dependency receipts.",
+        "Read P065 architecture, 124/108/110 accepted receipts and only real changed UI source.",
+        "Wire pae ux fixed-script CLI init/extract/prototype/import/audit/sync-plan/validate/status; preserve legacy argv and disabled behavior.",
+        "Implement stable scoped screenshots with current code SHA, viewport/theme, approved golden and sanitized artifact; never auto-approve changed baseline.",
+        "Validate actual interactions, focus/keyboard, WCAG2.2AA target/contrast/labels, responsive and empty/loading/error states; screenshot alone never passes.",
+        "Provide NN/g heuristic and qualified visual review with user approval/privacy; distinguish human feedback from model speculation and axe automatic tests.",
+        "Run focused component/visual/a11y checks per 111 and 109; global suites remain 082/084; no compulsory performance benchmark.",
+        "Reuse routingctl, task_context_router, planctl, existing validators and P056 security/performance gates; no parallel orchestration.",
+        "Produce real source hashes/test results and genuine independent review where required; never call prepared research executed implementation."
+      ],
+      "acceptance_criteria": [
+        "Screenshot matching with keyboard trap or missing label fails.",
+        "Visual changes need explicit baseline review, with reproducible artifacts and redaction.",
+        "No browser/model on non-UI task or endless E2E matrix, no invented user testing.",
+        "Existing CLI remains compatible and performance/security review enforced."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_125",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_125"
+      ],
+      "provider": "auto",
+      "model_tier": "strong",
+      "reasoning_effort": "high",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect scoped source architecture",
+          "objective": "Read P065 architecture, 124/108/110 accepted receipts and only real changed UI source.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement or genuinely review contract",
+          "objective": "Wire pae ux fixed-script CLI init/extract/prototype/import/audit/sync-plan/validate/status; preserve legacy argv and disabled behavior.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Enforce consent/source-of-truth/safety",
+          "objective": "Implement stable scoped screenshots with current code SHA, viewport/theme, approved golden and sanitized artifact; never auto-approve changed baseline.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Run adversarial validation",
+          "objective": "Validate actual interactions, focus/keyboard, WCAG2.2AA target/contrast/labels, responsive and empty/loading/error states; screenshot alone never passes.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record actual acceptance evidence",
+          "objective": "Provide NN/g heuristic and qualified visual review with user approval/privacy; distinguish human feedback from model speculation and axe automatic tests.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S006",
+          "title": "Close current-source final check",
+          "objective": "Run focused component/visual/a11y checks per 111 and 109; global suites remain 082/084; no compulsory performance benchmark.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/125-ux-quality-gates.md",
+      "related_task_files": []
+    },
+    {
+      "id": "126",
+      "slug": "review-ux-quality-gates",
+      "title": "Independently review full UI/UX quality, consent, economy and integration",
+      "objective": "Independently review full UI/UX quality, consent, economy and integration. Read P065 report, 125 final source/receipt and minimal accepted 122/124 review metadata.",
+      "requirement_ids": [
+        "R065",
+        "R066",
+        "R067",
+        "R068"
+      ],
+      "complexity": "high",
+      "atomicity_rationale": "One bounded implementation change or independent final-hash correction gate.",
+      "context_boundary": {
+        "shared_context": [
+          "Read only P065 report, affected source symbols and accepted dependency evidence."
+        ],
+        "why_one_todo": "Single independently verifiable UI/UX capability contract.",
+        "separate_from": [
+          "Do not read unrelated tasks, full style inventories, private screenshots or old logs."
+        ]
+      },
+      "scope": {
+        "in": [
+          "Independently review full UI/UX quality, consent, economy and integration"
+        ],
+        "out": [
+          "No automatic production frontend edits, unrelated test changes, second plan or paid agent use."
+        ],
+        "expected_files": [
+          "skill/plan-and-execute/scripts/ux_review.py",
+          "skill/plan-and-execute/scripts/uxctl.py",
+          "skill/plan-and-execute/references/UI_UX_VALIDATION.md",
+          "bin/plan-and-execute.js",
+          "test/optimization/ux_visual_acceptance_self_test.py",
+          "test/cli.test.js",
+          "docs/research/20261028-skill-optimization/implementation/126-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/126-outcome.md"
+        ]
+      },
+      "dependencies": [
+        "125"
+      ],
+      "implementation_guidance": [
+        "Read docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md only while implementing task 126 and examine only current affected source/dependency receipts.",
+        "Read P065 report, 125 final source/receipt and minimal accepted 122/124 review metadata.",
+        "Dispatch real fresh max-qualified independent review for visual craft, security, performance, accessibility and privacy.",
+        "Test all P065 negative A–P cases, especially keyboard vs screenshot, skipped browser, stale prototype, consent and token context budget.",
+        "Fix owned defects or reopen source owner, rerun selected current tests; retain global validation gate 082.",
+        "Record real reviewer session/effort/model/final hash/cost and any unsupported environments; remain pending without evidence.",
+        "Reuse routingctl, task_context_router, planctl, existing validators and P056 security/performance gates; no parallel orchestration.",
+        "Produce real source hashes/test results and genuine independent review where required; never call prepared research executed implementation."
+      ],
+      "acceptance_criteria": [
+        "Genuine final-hash review approves visual, functional and accessible UI behavior together.",
+        "No unauthorized real frontend edits, paid visual calls, lost global gate or unrelated UX loads.",
+        "126 genuinely gates integration 082; only measured savings can be claimed."
+      ],
+      "validation_commands": [
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_126",
+        "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_126"
+      ],
+      "provider": "auto",
+      "model_tier": "max",
+      "reasoning_effort": "xhigh",
+      "design_route": null,
+      "design_phase": null,
+      "allow_provider_fallback": true,
+      "related_task_reads": [],
+      "subtasks": [
+        {
+          "id": "S001",
+          "title": "Inspect scoped source architecture",
+          "objective": "Read P065 report, 125 final source/receipt and minimal accepted 122/124 review metadata.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S002",
+          "title": "Implement or genuinely review contract",
+          "objective": "Dispatch real fresh max-qualified independent review for visual craft, security, performance, accessibility and privacy.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S003",
+          "title": "Enforce consent/source-of-truth/safety",
+          "objective": "Test all P065 negative A–P cases, especially keyboard vs screenshot, skipped browser, stale prototype, consent and token context budget.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S004",
+          "title": "Run adversarial validation",
+          "objective": "Fix owned defects or reopen source owner, rerun selected current tests; retain global validation gate 082.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        },
+        {
+          "id": "S005",
+          "title": "Record actual acceptance evidence",
+          "objective": "Record real reviewer session/effort/model/final hash/cost and any unsupported environments; remain pending without evidence.",
+          "required": true,
+          "status": "pending",
+          "started_at": null,
+          "completed_at": null,
+          "history": []
+        }
+      ],
+      "learning_targets": [],
+      "learning_files": [],
+      "published_learning_files": [],
+      "max_attempts": 8,
+      "status": "pending",
+      "attempts": 0,
+      "functional_failures": 0,
+      "failure_classes": [],
+      "rate_limit_events": 0,
+      "current_route": null,
+      "started_at": null,
+      "completed_at": null,
+      "last_error": null,
+      "history": [],
+      "changed_files": [],
+      "validation_results": [],
+      "result_file": null,
+      "context_files": [
+        "CONTEXT.md"
+      ],
+      "file": "tasks/126-review-ux-quality-gates.md",
+      "related_task_files": []
+    },
+    {
       "id": "082",
       "slug": "integrate-all-implemented-contracts-and-close-cross-feature-gaps",
       "title": "Integrate all implemented contracts and close cross-feature gaps",
@@ -19650,7 +20589,11 @@
         "R061",
         "R062",
         "R063",
-        "R064"
+        "R064",
+        "R065",
+        "R066",
+        "R067",
+        "R068"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -19738,7 +20681,10 @@
         "114",
         "116",
         "118",
-        "120"
+        "120",
+        "122",
+        "124",
+        "126"
       ],
       "implementation_guidance": [
         "Read docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md.",
@@ -19754,7 +20700,8 @@
         "Integrate verified P053 101/102 host sleep guard and tests across providers, OS backends, WSL, long validation and strict preflight.",
         "Integrate P054 timer cleanup and P055 L6 model routing after genuine independent reviews 104/106.",
         "Require real review 112 before 109 and 114 before integration; run full global suites at plan-final fingerprint, not after every task.",
-        "Integrate independently reviewed 115-120 quota restoration/resume, oracle-strength tests and every-task lazy routing without losing global final suite."
+        "Integrate independently reviewed 115-120 quota restoration/resume, oracle-strength tests and every-task lazy routing without losing global final suite.",
+        "Integrate actual independently reviewed P065 tasks 121-126, source-of-truth design memory, optional prototype lab and accessible UX validation without lost final-suite gate."
       ],
       "acceptance_criteria": [
         "All implementation acceptance cases and required independent code reviews have current evidence.",
@@ -19769,7 +20716,8 @@
         "Task 107 design-security/performance and final-code-review lenses are implemented and independently reviewed by 108 with no default benchmarks.",
         "P057 109/110 real implementation and independent review prove full-safe failure inventory, targeted fix cycles and mandatory final full-suite gate.",
         "Complete global unit/contract/integration/E2E suite passes at plan closure on final source; opt-in review authorization is proven.",
-        "All quota, test-oracle and lazy-context requirements have current executable negative tests and genuine review evidence."
+        "All quota, test-oracle and lazy-context requirements have current executable negative tests and genuine review evidence.",
+        "P065 identity, guarded lab import/sync and accessible visual/keyboard check contracts have real 122/124/126 review evidence and current integration tests."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_082",
@@ -20416,7 +21364,11 @@
         "R061",
         "R062",
         "R063",
-        "R064"
+        "R064",
+        "R065",
+        "R066",
+        "R067",
+        "R068"
       ],
       "complexity": "high",
       "atomicity_rationale": "One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.",
@@ -20458,7 +21410,8 @@
         "Dispatch an actual fresh maximum-qualified reviewer; record its real route and input hashes, then correct and revalidate every blocking finding.",
         "Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.",
         "If integration exposes a defect outside this write scope, reopen its owning TODO and correction review with native controllers; do not silently expand scope.",
-        "Final whole-skill review verifies P061-P064, real source hashes, fail-safe wake, test defect detection and measured/unknown tokens."
+        "Final whole-skill review verifies P061-P064, real source hashes, fail-safe wake, test defect detection and measured/unknown tokens.",
+        "Review integrated P065 actual source/review receipts, aesthetic/keyboard/UX correctness, privacy and token costs on final source."
       ],
       "acceptance_criteria": [
         "All implementation acceptance cases and required independent code reviews have current evidence.",
@@ -20469,7 +21422,8 @@
         "P053 final whole-skill review examines actual 101/102 validation/reviewer hashes and unsupported overnight conditions.",
         "New reviewed 103/104 twenty-minute timer and 105/106 sixth frontier-tier work have actual acceptance evidence.",
         "Final P056 review checks real 107/108 evidence, current design gate and two review lenses, without mandatory automated performance tests.",
-        "P057 final whole-skill review validates actual 109/110 source hashes, all-failure reporting, focused rechecks and full current-source green suite."
+        "P057 final whole-skill review validates actual 109/110 source hashes, all-failure reporting, focused rechecks and full current-source green suite.",
+        "All P065 122/124/126 independent gates and global current-source acceptance evidence pass before final signoff."
       ],
       "validation_commands": [
         "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_086",
@@ -20670,6 +21624,21 @@
         "120"
       ],
       "previous_count": 114,
+      "implementation_complete": false
+    },
+    {
+      "at": "2026-11-20T03:20:00Z",
+      "type": "contract_amendment",
+      "reference": "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261120_UIUX.md",
+      "added_task_ids": [
+        "121",
+        "122",
+        "123",
+        "124",
+        "125",
+        "126"
+      ],
+      "previous_count": 120,
       "implementation_complete": false
     }
   ],

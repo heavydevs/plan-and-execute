@@ -260,3 +260,9 @@ Detailed research: `docs/research/20261028-skill-optimization/prepared-research/
 ## User request 2026-11-19 — P061–P064 (faithful content)
 
 Quando um agente fica sem créditos, outro assume, mas quando o preferencial recupera créditos a skill deve voltar a usá-lo automaticamente segundo preferências. Se todos esgotarem créditos no meio do plano, deve agendar retomada após créditos voltarem. Pesquisar amplamente livros, estudos, artigos, docs e benchmarks sobre criação/alteração de testes automáticos rápidos e de qualidade, preparar a task com arquitetura. Todas as tasks devem usar roteamento econômico e contexto mínimo, sem ler arquivos irrelevantes. Commit e push no branch checkpoint/plano1-estudo-provider-switch-20261028.
+
+---
+
+## P065 — request 2026-11-20
+
+User wants great polished visual layouts, standardized UX and preservation of established frontend patterns. Research web, books, agents and similar tools; provide finalized architecture inside TODO. Offer optional Node project with HTML/JS/SCSS prototype, extraction/import for existing app and a guarded plan to move approved UX decisions into real frontend. Create visual identity and compact agent-ready docs; avoid repeated large reads through opt-in and phase routing; commit/push to branch checkpoint/plano1-estudo-provider-switch-20261028. Full study: docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md. Plan amendment: docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261120_UIUX.md.

@@ -56,3 +56,7 @@ A execução automática permanece desligada. Nenhuma revisão externa, chamada 
 Consulte `PORTABILITY.md` antes de executar. O manifesto exportado contém o caminho absoluto deste ambiente; outro host deve recriá-lo com os controladores nativos, preservando o mesmo identificador e a especificação atual. Não altere status ou caminhos internos manualmente. O histórico anterior foi arquivado em `history/pre-research-conversion/` e não deve ser retomado como segundo plano.
 
 A branch remota de referência continua `checkpoint/plano1-estudo-provider-switch-20261028`, no commit `d4fc2ae` verificado antes desta alteração. As mudanças desta entrega estão na cópia local e no ZIP; não foram enviadas ao GitHub.
+
+## P065 — 2026-11-20 UI/UX
+
+R065 121/122: identity, semantic tokens and source-indexed agent memory. R066 123/124: optional in-app or isolated Node Vite vanilla HTML/JS/SCSS prototypes, read-only existing-project import and guarded sync PLAN. R067 125/126: visual/interactive/responsive/accessible quality evidence. R068 all: lazy low-token routing with 024, 107, 109–114, 119. Reference docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md. New independent reviews 122,124,126 precede 082, final 086 unchanged. **126 tasks remain pending.** No product implementation or real reviewer/test executed; only plan authorized for commit/push.

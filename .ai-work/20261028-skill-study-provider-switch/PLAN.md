@@ -120,3 +120,12 @@ Study `docs/research/20261028-skill-optimization/prepared-research/109-batched-t
 - **R064** [must; user; P064 -> 117,118,119,120,082,086] All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics.
 
 Tasks 115–120 follow implementation/independent review pairs, staged before integration 082; final 086 remains last. Research is loaded only on matching task. No implementation or external review has occurred; commit/push of plan authorized.
+
+- **R065** [must; user; P065 -> 121,122,082,086] Durable opt-in design identity, approved tokens, real component reuse and small source-indexed agent docs.
+- **R066** [must; user; P065 -> 123,124,082,086] Optional standalone Node prototype, safe existing project import and approval-gated real frontend transfer plan.
+- **R067** [must; user; P065 -> 125,126,082,086] Scope-correct visual/UX/accessibility, interaction and responsive review with real evidence.
+- **R068** [must; user; P065 -> 121,122,123,124,125,126,082,086] Lazy activation, qualified phase routing and minimal UX context.
+
+## P065 — 2026-11-20 UI/UX
+
+R065 121/122: identity, semantic tokens and source-indexed agent memory. R066 123/124: optional in-app or isolated Node Vite vanilla HTML/JS/SCSS prototypes, read-only existing-project import and guarded sync PLAN. R067 125/126: visual/interactive/responsive/accessible quality evidence. R068 all: lazy low-token routing with 024, 107, 109–114, 119. Reference docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md. New independent reviews 122,124,126 precede 082, final 086 unchanged. **126 tasks remain pending.** No product implementation or real reviewer/test executed; only plan authorized for commit/push.

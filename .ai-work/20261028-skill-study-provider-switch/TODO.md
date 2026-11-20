@@ -115,6 +115,12 @@
 - [ ] **118** — Independently review AI test oracle quality and efficiency
 - [ ] **119** — Enforce economical phase routing and minimal source-bound task context
 - [ ] **120** — Independently review task-wide economical routing and context safety
+- [ ] **121** — Implement opt-in UI/UX design system, identity and compact agent memory
+- [ ] **122** — Independently review visual identity, design token and agent context safety
+- [ ] **123** — Implement optional real-component or Node Vite HTML JavaScript SCSS prototype lab and safe transfer plan
+- [ ] **124** — Independently review prototype isolation and guarded production migration
+- [ ] **125** — Implement visual usability accessibility and responsive quality gates with pae ux CLI
+- [ ] **126** — Independently review full UI/UX quality, consent, economy and integration
 - [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
 - [ ] **083** — Review and correct end-to-end integration
 - [ ] **084** — Validate release contents, documentation and migration
