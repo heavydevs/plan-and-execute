@@ -1137,11 +1137,45 @@ def test_review_015_hypothesis_ancestor_symlink_is_stale() -> None:
             return
         assert "evidence_unsafe:source/evidence.txt" in base_planctl.check_hypothesis_freshness(hyp, task, repo)
 
+def test_review_015_missing_explicit_hypothesis_reference_is_stale() -> None:
+    """An absent File#symbol reference must never look freshly evidenced."""
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp)
+        task = {"id": "001", "contract_digest": "contract-a"}
+        hyp = base_planctl.normalize_attempt_hypothesis(
+            {
+                "hypothesis": "Inspect the declared helper before another attempt.",
+                "evidence_refs": ["missing.py#helper"],
+            },
+            task,
+            repo_root=repo,
+        )
+        assert hyp["evidence_digests"] == {}
+        assert "evidence_digest_missing:missing.py" in base_planctl.check_hypothesis_freshness(hyp, task, repo)
+        source = repo / "missing.py"
+        source.write_text("def helper(): return 1\n", encoding="utf-8")
+        # A source created after the reference was recorded cannot retroactively
+        # make a missing fingerprint valid.
+        assert "evidence_digest_missing:missing.py" in base_planctl.check_hypothesis_freshness(hyp, task, repo)
+        valid = base_planctl.normalize_attempt_hypothesis(
+            {
+                "hypothesis": "Inspect the present helper before another attempt.",
+                "evidence_refs": ["missing.py#helper"],
+            },
+            task,
+            repo_root=repo,
+        )
+        assert base_planctl.check_hypothesis_freshness(valid, task, repo) == []
+        source.write_text("def helper(): return 2\n", encoding="utf-8")
+        assert "evidence_changed:missing.py" in base_planctl.check_hypothesis_freshness(valid, task, repo)
+
+
 def main() -> int:
     test_review_015_missing_provenance_cannot_be_reused()
     test_review_015_missing_explicit_source_reference_is_rejected()
     test_review_015_invalidation_cannot_unlink_outside_plan()
     test_review_015_hypothesis_ancestor_symlink_is_stale()
+    test_review_015_missing_explicit_hypothesis_reference_is_stale()
     test_ac01_unrelated_later_task_cannot_receive_learning()
     test_ac02_cited_file_change_invalidates_or_flags_learning_before_reuse()
     test_review_015_symbol_reference_and_tampered_learning_are_rejected()
