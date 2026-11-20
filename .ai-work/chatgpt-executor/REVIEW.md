@@ -6,6 +6,8 @@
 2. **Executed automated tests** prove only the asserted behavior on the reported exact commit, platform, commands and environment. A pass for `self-test` proves just this harness.
 3. **Independent review** requires a distinct authorized reviewer (the repo's `review_dispatch.py` through genuine max-tier Codex/Claude, or a future formally approved equivalent), full provider/model/effort/session provenance, hash-bound reviewed inputs and a clear no-blockers verdict. A second pass in this same ChatGPT conversation does **not** satisfy that contract.
 
+**Autorreparo em revisão reprovada:** findings `critical/high` ou `changes_requested` acionam reprodução e correção imediatas na task atual, testes focais e completos, e **nova** revisão autenticamente independente sobre os hashes finais. `NO_REVIEW`/falta de credencial **não** é aprovação e não se resolve com recibo fictício; tentar apenas rotas autorizadas e registrar bloqueio comprovado. Seguir [o PLAYBOOK](PLAYBOOK.md#mandatory-automatic-correction-loop-on-failure).
+
 ## 015 instructions
 
 First read `.ai-work/20261028-skill-study-provider-switch/tasks/015-*.md` and `docs/research/20261028-skill-optimization/pesquisas-por-task/015-pesquisa-arquitetura.md`. The completed 014 receipt and outcome, not an unexecuted pre-study, are the reviewed implementation. Review trust boundaries, prompt injection, provenance hash integrity, `#symbol`-style file anchors, stale learnings on retries, scoped context and bounded prefix/suffix. Verify the acceptance additions on 2026-11-20 and all declared checks on the final SHA.

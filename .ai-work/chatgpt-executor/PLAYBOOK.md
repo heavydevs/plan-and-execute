@@ -33,6 +33,19 @@ python .ai-work/chatgpt-executor/taskctl.py gate --task 015 --run-evidence .ai-w
 4. Only after the original acceptance checks and independent reviewer pass, create the receipt/outcome using the original schema, validate them with the repo's delivery gate, advance task checkpoints through `planctl` and commit/push. If a gate is unavailable, publish a clearly labeled partial repair and leave status pending.
 5. For GitHub Actions observations, compare the workflow `head_sha` to your pushed commit. A success from another commit or a CI runner without the expected tests is invalid evidence.
 
+## Mandatory automatic correction loop on failure
+
+A `failed` / `rejected` / `changes_requested` outcome from CI, tests, independent review or delivery gate is **not a stop condition while a verifiable repair is available**. Run this loop on the **same task** without waiting for another user message:
+
+1. Match the workflow run `head_sha` and all input hashes; read the bounded result and every failed check's log, stack and artifact. Classify failures individually as code/test defect, reviewer finding, missing evidence, stale resource map, or external authorization/environment. Preserve the original failure evidence.
+2. For code/test failures, finish the current suite when possible, aggregate all distinct failures before editing, fix the root causes with regression cases, rerun only affected tests until clean, then rerun the original full targeted/watcher suite once. Repeat only if new evidence indicates a new or surviving defect. Do not relaunch the full suite after every isolated test fix.
+3. For reviewer blocking findings, reproduce and repair within the declared write scope. Request **a new, real independent review** bound to the updated source hashes after the code/test corrections; never reuse an old session/verdict.
+4. For `Missing evidence`, identify the prerequisite operation rather than modifying the validator. Example: `P1_015` missing `015-receipt.json` requires authenticated independent max-tier review, genuine session/model/effort/final-hash metadata and complete checks *before* creating the actual receipt and rerunning `P1_015`. Do **not** write a placeholder receipt or weaken `check_delivery.py`.
+5. For toolchain/map/permissions errors, repair safely if authorized and retry after a meaningful change. If organizational entitlement, provider credentials or paid inference remain unavailable, mark `environment_or_entitlement`, keep the task/checkpoints pending, persist the exact blocker and required action, and stop *only that unavailable operation*. No repeated paid/billing attempts, busy-polling or unbounded retries.
+6. Publish verified repairs and logs to the same branch using CAS; confirm HEAD. Mark the task completed and advance **only** after every original gate passes. An unresolved external blocker is an incomplete delivery, not a test pass or an excuse to move to 016.
+
+This instruction runs in an **active agent session**. It does not create a background agent or guarantee a later retry when the chat ends. It never overrides safety, authority, scope, review independence or the original acceptance gates.
+
 ## Token cost
 
 Read a task definition, brief assigned files, one current failure log tail and the minimal changed source. Deterministic code handles hashing and triage. Never replay all previous worker conversations. Stop after verified acceptance; keep local run history as artifacts rather than prompting with full logs.
