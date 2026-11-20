@@ -5190,10 +5190,20 @@ def materialize_learning_artifacts(
             + ", ".join(missing_targets)
         )
 
+    # A canonical learning path can still escape when `learnings/` is a
+    # symlink. Preflight every destination before writing any artifact.
+    for item in prepared:
+        relative = checked_relative_path(item["relative"], "learning artifact file")
+        expected = learning_artifact_path(task["id"], item["artifact"]["target_task_id"])
+        if relative != expected:
+            raise PlanError(f"Refusing to write learning artifact with unexpected path: {relative}")
+        reject_symlink_components(plan_dir, Path(relative), "learning artifact")
+
     written: list[Path] = []
     try:
         for item in prepared:
             path = plan_dir / item["relative"]
+            reject_symlink_components(plan_dir, Path(item["relative"]), "learning artifact")
             atomic_write_text(path, item["content"])
             written.append(path)
             item["artifact"]["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -6059,8 +6069,14 @@ def remove_learning_artifacts_from_source(
         task["published_learning_files"] = []
         return []
 
+    # Manifest records are not an unlink allowlist. Check *all* targets,
+    # canonical names, and symlink components before deleting any artifact.
+    # This prevents a corrupted manifest from erasing other plan files and
+    # keeps a reset from partially removing good learnings on preflight error.
+    selected_files: set[str] = set()
     for artifact in selected:
-        target = find_task(manifest, str(artifact.get("target_task_id", "")))
+        target_id = str(artifact.get("target_task_id", ""))
+        target = find_task(manifest, target_id)
         if (
             target.get("status") != "pending"
             or int(target.get("attempts", 0)) != 0
@@ -6070,17 +6086,18 @@ def remove_learning_artifacts_from_source(
                 f"Cannot reset completed task {task['id']}: learning artifact "
                 f"{artifact.get('file')} has already become part of TODO {target['id']} execution"
             )
+        relative = artifact.get("file")
+        expected = learning_artifact_path(str(task["id"]), target_id)
+        if not isinstance(relative, str) or relative != expected:
+            raise PlanError(f"Refusing to remove learning artifact with unexpected path: {relative!r}")
+        checked = checked_relative_path(relative, "learning artifact file")
+        reject_symlink_components(plan_dir, Path(checked), "learning artifact")
+        selected_files.add(checked)
 
     removed: list[str] = []
-    selected_files = {
-        str(artifact.get("file"))
-        for artifact in selected
-        if isinstance(artifact.get("file"), str)
-    }
     for relative in sorted(selected_files):
-        path = plan_dir / checked_relative_path(relative, "learning artifact file")
-        if path.is_symlink():
-            raise PlanError(f"Refusing to remove symlinked learning artifact: {relative}")
+        path = plan_dir / relative
+        reject_symlink_components(plan_dir, Path(relative), "learning artifact")
         try:
             path.unlink()
         except FileNotFoundError:

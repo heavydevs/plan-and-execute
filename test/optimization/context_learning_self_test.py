@@ -1131,6 +1131,122 @@ def test_review_015_invalidation_cannot_unlink_outside_plan() -> None:
         assert (outside / "001-to-002.md").read_text(encoding="utf-8") == "outside learning\n"
 
 
+def test_review_015_reset_rejects_non_learning_manifest_path() -> None:
+    """Reset must not delete arbitrary in-plan files named by untrusted artifact metadata."""
+    with tempfile.TemporaryDirectory() as temp:
+        plan_dir = Path(temp) / "plan"
+        plan_dir.mkdir()
+        (plan_dir / "tasks").mkdir()
+        victim = plan_dir / "tasks" / "important.md"
+        victim.write_text("must survive\n", encoding="utf-8")
+        source = {"id": "001", "published_learning_files": ["tasks/important.md"]}
+        target = {"id": "002", "status": "pending", "attempts": 0, "started_at": None,
+                  "learning_files": ["tasks/important.md"]}
+        manifest = {"tasks": [source, target], "learning_artifacts": [
+            {"source_task_id": "001", "target_task_id": "002", "file": "tasks/important.md"}
+        ]}
+        expect_plan_error(
+            lambda: base_planctl.remove_learning_artifacts_from_source(plan_dir, manifest, source),
+            "unexpected path",
+        )
+        assert victim.read_text(encoding="utf-8") == "must survive\n"
+        assert len(manifest["learning_artifacts"]) == 1
+
+
+def test_review_015_reset_rejects_symlinked_learning_parent() -> None:
+    """Reset cannot follow a learning-directory symlink into external files."""
+    with tempfile.TemporaryDirectory() as temp:
+        root = Path(temp)
+        plan_dir = root / "plan"
+        plan_dir.mkdir()
+        outside = root / "outside"
+        outside.mkdir()
+        victim = outside / "001-to-002.md"
+        victim.write_text("must survive\n", encoding="utf-8")
+        try:
+            (plan_dir / "learnings").symlink_to(outside, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            return
+        source = {"id": "001", "published_learning_files": ["learnings/001-to-002.md"]}
+        target = {"id": "002", "status": "pending", "attempts": 0, "started_at": None,
+                  "learning_files": ["learnings/001-to-002.md"]}
+        manifest = {"tasks": [source, target], "learning_artifacts": [
+            {"source_task_id": "001", "target_task_id": "002", "file": "learnings/001-to-002.md"}
+        ]}
+        expect_plan_error(
+            lambda: base_planctl.remove_learning_artifacts_from_source(plan_dir, manifest, source),
+            "symlink",
+        )
+        assert victim.read_text(encoding="utf-8") == "must survive\n"
+        assert len(manifest["learning_artifacts"]) == 1
+
+
+def test_review_015_reset_preflights_every_artifact_before_unlinking() -> None:
+    """One tampered path must not partially erase another valid learning."""
+    with tempfile.TemporaryDirectory() as temp:
+        plan_dir = Path(temp) / "plan"
+        directory = plan_dir / "learnings"
+        directory.mkdir(parents=True)
+        good = directory / "001-to-002.md"
+        good.write_text("valid learning\n", encoding="utf-8")
+        (plan_dir / "tasks").mkdir()
+        victim = plan_dir / "tasks" / "important.md"
+        victim.write_text("must survive\n", encoding="utf-8")
+        source = {"id": "001", "published_learning_files": [
+            "learnings/001-to-002.md", "tasks/important.md"]}
+        targets = [{"id": tid, "status": "pending", "attempts": 0, "started_at": None,
+                    "learning_files": [rel]} for tid, rel in (
+            ("002", "learnings/001-to-002.md"), ("003", "tasks/important.md")
+        )]
+        manifest = {"tasks": [source, *targets], "learning_artifacts": [
+            {"source_task_id": "001", "target_task_id": "002", "file": "learnings/001-to-002.md"},
+            {"source_task_id": "001", "target_task_id": "003", "file": "tasks/important.md"},
+        ]}
+        expect_plan_error(
+            lambda: base_planctl.remove_learning_artifacts_from_source(plan_dir, manifest, source),
+            "unexpected path",
+        )
+        assert good.read_text(encoding="utf-8") == "valid learning\n"
+        assert victim.read_text(encoding="utf-8") == "must survive\n"
+        assert len(manifest["learning_artifacts"]) == 2
+
+
+def test_review_015_publication_rejects_symlinked_learning_directory() -> None:
+    """Publication must not write validated learning output outside the plan."""
+    with tempfile.TemporaryDirectory() as temp:
+        root = Path(temp)
+        repo = make_repo(root, "unsafe-learning-dir-015")
+        (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
+        spec = three_task_spec(targets_001=[{
+            "task_id": "002", "reason": "This task consumes the validated implementation marker.",
+            "topics": ["source marker"],
+        }])
+        plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "unsafe-learning-dir")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        base_planctl.claim_task(plan_dir, manifest, "001", None)
+        (plan_dir / "learnings").rmdir()
+        outside = root / "outside"
+        outside.mkdir()
+        try:
+            (plan_dir / "learnings").symlink_to(outside, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            return
+        expect_plan_error(
+            lambda: base_planctl.complete_task(
+                plan_dir, manifest, "001",
+                completion_report(learnings=[{
+                    "kind": "code",
+                    "guidance": "Read implemented.txt from the validated source instead of guessing its contents.",
+                    "references": ["implemented.txt"],
+                    "target_task_ids": ["002"],
+                }]), None,
+            ),
+            "symlink",
+        )
+        assert not (outside / "001-to-002.md").exists()
+        assert not manifest.get("learning_artifacts")
+
+
 def test_review_015_hypothesis_ancestor_symlink_is_stale() -> None:
     """Replacing a cited directory with an outside symlink invalidates a hypothesis."""
     with tempfile.TemporaryDirectory() as temp:
@@ -1193,6 +1309,10 @@ def main() -> int:
     test_review_015_missing_provenance_cannot_be_reused()
     test_review_015_missing_explicit_source_reference_is_rejected()
     test_review_015_invalidation_cannot_unlink_outside_plan()
+    test_review_015_reset_rejects_non_learning_manifest_path()
+    test_review_015_reset_rejects_symlinked_learning_parent()
+    test_review_015_reset_preflights_every_artifact_before_unlinking()
+    test_review_015_publication_rejects_symlinked_learning_directory()
     test_review_015_hypothesis_ancestor_symlink_is_stale()
     test_review_015_missing_explicit_hypothesis_reference_is_stale()
     test_ac01_unrelated_later_task_cannot_receive_learning()
