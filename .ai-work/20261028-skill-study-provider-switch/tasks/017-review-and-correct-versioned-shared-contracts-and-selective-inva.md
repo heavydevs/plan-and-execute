@@ -57,3 +57,10 @@ Files: `skill/plan-and-execute/scripts/patternctl.py`, `skill/plan-and-execute/s
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_017`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_017`
+
+## Pesquisa e arquitetura obrigatórias (pré-execução)
+
+- **Relatório de estudo antecipado e arquitetura de revisão:** `docs/research/20261028-skill-optimization/pesquisas-por-task/017-pesquisa-arquitetura.md`.
+- A IA que executar ou revisar esta task **deve ler e adotar esse relatório como arquitetura de referência obrigatória** para a revisão independente: hipóteses de defeitos, invariantes, matriz de testes negativos, protocolo de hashes/recibos, segurança, concorrência, compatibilidade e economia de tokens. Use também a arquitetura-base da 016. Revalide apenas mudanças materiais de código/versão entre o estudo e a implementação efetivamente entregue por 016; não trate hipóteses do estudo como achados comprovados.
+- **Gate de independência:** somente iniciar 017 depois de 016 concluída com `016-receipt.json`, `016-outcome.md`, fonte/testes e evidência real; execute o `review_dispatch.py --task 017` conforme S002, corrija findings críticos/altos no escopo e refaça revisão para hashes alterados. O relatório não substitui essa revisão nem autorização de implementação.
+- O vínculo é **somente preparatório**: não modifica status, dependências, checkpoints, ownership, aceite ou testes; não declara que 016/017 foram implementadas, aprovadas ou executadas.
