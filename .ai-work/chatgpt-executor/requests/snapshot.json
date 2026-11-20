@@ -2,7 +2,7 @@
   "schema": "chatgpt-snapshot-request/1",
   "enabled": true,
   "task_id": "015",
-  "request_id": "015-chatgpt-checkout-20261120-02",
-  "requested_source_head": "a67cf2e6c05aed6783a13cba424baa1d300ef9af",
-  "reason": "re-import exact complete repository snapshot for local ChatGPT validations"
+  "request_id": "015-independent-review-20261120-1824",
+  "requested_source_head": "fcfa9b11082ddcf3059bb40e9594c038187ea345",
+  "reason": "Export exact repository checkout for independent task-015 static/dynamic validation; no approval implied"
 }
