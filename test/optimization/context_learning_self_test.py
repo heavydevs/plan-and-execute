@@ -756,16 +756,16 @@ def test_ac06_disproven_and_stale_hypotheses_never_become_validated_facts() -> N
             ),
             "passing deterministic validation evidence",
         )
-        promoted = base_planctl.promote_hypothesis_to_learning(
-            plan_dir,
-            manifest,
-            "001",
-            h3["id"],
-            kind="procedure",
-            target_task_ids=["002"],
-            deterministic_evidence=[{"command": "test -f implemented.txt", "passed": True, "exit_code": 0}],
+        passing_evidence = [{"command": "test -f implemented.txt", "passed": True, "exit_code": 0}]
+        # A declared command without an authoritative completed-task receipt
+        # cannot promote H003, even when the caller sets passed=True.
+        expect_plan_error(
+            lambda: base_planctl.promote_hypothesis_to_learning(
+                plan_dir, manifest, "001", h3["id"], kind="procedure",
+                target_task_ids=["002"], deterministic_evidence=passing_evidence,
+            ),
+            "authoritative validation receipt",
         )
-        assert promoted["trust_class"] == base_planctl.TRUST_CLASS_VALIDATED_LEARNING
 
         # Claim again and verify complete_task blocks repeating disproven H001 text in reusable_learnings.
         base_planctl.claim_task(plan_dir, manifest, "001", None)
@@ -789,14 +789,33 @@ def test_ac06_disproven_and_stale_hypotheses_never_become_validated_facts() -> N
             "disproven hypothesis",
         )
 
-        # Completing with promoted H003 succeeds and validates cleanly.
+        # Complete with a validated ordinary learning, then permit H003
+        # promotion only after the runner-owned receipt is persisted.
         base_planctl.complete_task(
             plan_dir,
             manifest,
             "001",
-            completion_report(learnings=[promoted]),
+            completion_report(learnings=[{
+                "kind": "procedure",
+                "guidance": h3["hypothesis"],
+                "references": ["evidence.txt"],
+                "target_task_ids": ["002"],
+            }]),
             None,
         )
+        expect_plan_error(
+            lambda: base_planctl.promote_hypothesis_to_learning(
+                plan_dir, manifest, "001", h3["id"], kind="procedure",
+                target_task_ids=["002"],
+                deterministic_evidence=[{"command": "python nonexistent-test.py", "passed": True, "exit_code": 0}],
+            ),
+            "not observed by the completed task runner",
+        )
+        promoted = base_planctl.promote_hypothesis_to_learning(
+            plan_dir, manifest, "001", h3["id"], kind="procedure",
+            target_task_ids=["002"], deterministic_evidence=passing_evidence,
+        )
+        assert promoted["trust_class"] == base_planctl.TRUST_CLASS_VALIDATED_LEARNING
         assert base_planctl.validate_plan(plan_dir, manifest) == []
         metrics = base_planctl.measure_plan_context_metrics(plan_dir, manifest)
         assert metrics["disproven_hypotheses_count"] == 1
