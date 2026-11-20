@@ -141,3 +141,10 @@ The original map was observed stale on GitHub Actions because of 36 specific cha
 ### Limitações não resolvidas por documentação
 
 A política de GitHub Copilot e autorização do token só podem ser testadas em invocação real no runner; a resposta JSONL e as capacidades do modelo devem ser confirmadas, não presumidas. O gate de entrega é propositalmente mais restritivo do que o êxito de CI. Nenhuma instrução deste arquivo autoriza falsificar um resultado de provedor ou diminuir segurança/performance apenas para fazer `P1_015` passar.
+
+
+## Extensao de 2026-11-20: revisor local de modelo aberto sem API
+
+GitHub Actions baixa binario llama.cpp versionado com checksum e GGUF Qwen Coder (pesos registrados por SHA-256) para executar inferencia local na propria VM. `offline_review.py` gera um brief com pontos de risco e linhas de codigo, abre um subprocesso `llama-server` em loopback, exige findings JSON e confere hashes de entrada antes/depois. O resultado e separado do ChatGPT implementador e nao utiliza Codex Cloud, Copilot ou credencial API. Ver `OFFLINE_REVIEW.md`.
+
+**Limite contratual:** um Qwen 1.5B open-weights nao se compara ao revisor max original e nao satisfaz o requisito de alta capacidade da task 015. Nao alterar `check_delivery.py` para fingir a mesma classe de reviewer. A futura extensao de auditoria pode combinar 7B quantizado (runners de 16 GB), CodeQL, testes adversariais e revisao formal de contrato por usuario, mas so apos medir a qualidade e repetir os testes.

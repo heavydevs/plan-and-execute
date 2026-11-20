@@ -1,0 +1,84 @@
+name: PAE independent open-weights reviewer (no Codex/Copilot/API key)
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.ai-work/chatgpt-executor/requests/015-offline.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pae-offline-review-015-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact reviewed revision
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Run isolated reviewer parser and evidence negative tests
+        run: |
+          python .ai-work/chatgpt-executor/tests/test_offline_review.py -v
+          python .ai-work/chatgpt-executor/offline_review.py --task 015 --dry-run > /tmp/offline-review-readset.json
+          python -m json.tool /tmp/offline-review-readset.json > /dev/null
+      - name: Validate explicit one-request authorization
+        run: |
+          python - <<'PYCODE'
+          import json
+          from pathlib import Path
+          path=Path('.ai-work/chatgpt-executor/requests/015-offline.json')
+          req=json.loads(path.read_text())
+          assert req.get('enabled') is True and req.get('task_id') == '015', 'Offline review request disabled'
+          assert req.get('max_invocations') == 1, 'Only one invocation allowed per revision'
+          assert req.get('model') == 'Qwen2.5-Coder-1.5B-Instruct-Q4_K_M', 'Unsupported model'
+          print('Authorized request:',req['request_id'])
+          PYCODE
+      - name: Install checksum-verified standalone llama.cpp CPU runtime
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 240 \
+            'https://github.com/ggml-org/llama.cpp/releases/download/v0.9.0/llama-v0.9.0-bin-ubuntu-x64.tar.gz' \
+            -o /tmp/llama-runtime.tar.gz
+          echo '3c547bdad81a0a0a888382fdc21ce6d4437cb2c68c2a17cc7a3f4944bf1a81fb  /tmp/llama-runtime.tar.gz' | sha256sum --check
+          mkdir -p /tmp/llama-runtime
+          tar xzf /tmp/llama-runtime.tar.gz -C /tmp/llama-runtime
+          find /tmp/llama-runtime -type f -name llama-server -exec chmod +x {} \;
+      - name: Download public, uncredentialed GGUF reviewer model
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 800 \
+            'https://huggingface.co/Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF/resolve/main/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf?download=true' \
+            -o /tmp/pae-review-model.gguf
+          test "$(stat -c '%s' /tmp/pae-review-model.gguf)" -gt 850000000
+          sha256sum /tmp/pae-review-model.gguf
+      - name: Execute independent model in its own read-only CPU process
+        run: |
+          set -euo pipefail
+          SERVER="$(find /tmp/llama-runtime -type f -name llama-server | head -n 1)"
+          test -n "$SERVER"
+          python .ai-work/chatgpt-executor/offline_review.py --task 015 \
+            --model /tmp/pae-review-model.gguf --llama-server "$SERVER" \
+            --model-source Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF --timeout 480
+      - name: Upload observed model and test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pae-offline-review-015-${{ github.sha }}
+          path: |
+            /tmp/offline-review-readset.json
+            docs/research/20261028-skill-optimization/implementation/reviews/015/offline/
+            .ai-work/chatgpt-executor/runs/offline-llama-server.log
+          if-no-files-found: warn
+          retention-days: 30
