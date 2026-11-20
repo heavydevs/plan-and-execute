@@ -127,6 +127,19 @@ def parse_response(raw):
         raise RuntimeError('Approval conflicts with blocking finding')
     return raw
 
+def review_schema():
+    """Small constrained schema: prevents open-ended hallucinated JSON and truncation."""
+    finding = {"type":"object", "properties": {
+        "id":{"type":"string"},"severity":{"type":"string","enum":sorted(SEVERITIES)},
+        "location":{"type":"string"},"title":{"type":"string"},
+        "detail":{"type":"string"},"fix":{"type":"string"}},
+        "required":["id","severity","location","title","detail","fix"],
+        "additionalProperties":False}
+    return {"type":"object", "properties":{
+        "verdict":{"type":"string","enum":["approved","changes_requested"]},
+        "summary":{"type":"string"},"findings":{"type":"array","items":finding,"maxItems":2}},
+        "required":["verdict","summary","findings"],"additionalProperties":False}
+
 def local_server_call(binary:Path, model:Path, system:str, user:str, timeout:int=480):
     with socket.socket() as sock:
         sock.bind(('127.0.0.1',0))
@@ -148,14 +161,17 @@ def local_server_call(binary:Path, model:Path, system:str, user:str, timeout:int
             time.sleep(2)
         else:raise RuntimeError('Model server health timeout')
         payload={'model':'local','messages':[{'role':'system','content':system},{'role':'user','content':user}],
-                 'temperature':0,'max_tokens':800,'response_format':{'type':'json_object'},'stream':False}
+                 'temperature':0,'max_tokens':1400,'response_format':{'type':'json_schema','schema':review_schema()},'stream':False}
         req=urllib.request.Request(f'http://127.0.0.1:{port}/v1/chat/completions',
             data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'},method='POST')
         with urllib.request.urlopen(req,timeout=timeout) as res:data=json.load(res)
         msg=data['choices'][0]['message']['content']
         if not isinstance(msg,str):raise RuntimeError('No LLM response text')
         try:body=json.loads(msg)
-        except json.JSONDecodeError as ex:raise RuntimeError('LLM response is not valid JSON') from ex
+        except json.JSONDecodeError as ex:
+            finish = data.get('choices', [{}])[0].get('finish_reason', 'unknown')
+            fingerprint = hashlib.sha256(msg.encode()).hexdigest()[:16]
+            raise RuntimeError(f'LLM response is not valid JSON (finish={finish}, chars={len(msg)}, sha256_prefix={fingerprint})') from ex
         return parse_response(body),data.get('usage',{}),proc.pid
     finally:
         proc.terminate()
