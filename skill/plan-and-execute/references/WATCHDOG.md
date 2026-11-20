@@ -104,11 +104,12 @@ Runners also stop dying from the original cause of an incident: `planctl.atomic_
 The following configured global preference applies to autonomous observation workflows; see [ROUTING_CONFIG.md](ROUTING_CONFIG.md) for paths and precedence. The watchdog itself selects no provider. Built-in order remains Claude then Codex; plan/task/CLI overrides and legacy snapshots retain precedence.
 
 - **Model-free status checks**: Routine watchdog execution (`watchdogctl.py status --quiet`) runs deterministically without invoking an LLM.
-- **Watchkeeper agent**: When an autonomous watchkeeper agent is scheduled or spawned to monitor status output, it routes in the `economy` tier via **Antigravity** (`gemini-3.8-flash-high`, omitting `--effort` because the model ID embeds maximum effort), with fallback Claude (`haiku`) -> Codex (`gpt-6-luna`).
-- **Blocked task diagnosis**: Investigating a `blocked` task's assigned latest-failure capsule before routing or replanning routes in the `strong` tier at `high` reasoning effort on **Codex** (`gpt-6.1-sol`, strong/high), falling back to Claude (`claude-opus-5-5`, effort `high`) -> Antigravity (`claude-opus-4-6-thinking`).
+- **Watchkeeper agent**: When an autonomous watchkeeper agent is scheduled or spawned to monitor status output, it routes in the `economy` tier via **Antigravity** (`gemini-3.8-flash-high`, omitting `--effort` because the model ID embeds maximum effort), with fallback Claude (`claude-haiku-5-5`) -> Codex (`gpt-6.2-sol` at low).
+- **Blocked task diagnosis**: Investigating a `blocked` task's assigned latest-failure capsule before routing or replanning routes in the `strong` tier at `high` reasoning effort on **Codex** (`gpt-6.2-sol`, strong/high), falling back to Claude (`claude-opus-5-5`, effort `high`) -> Antigravity (`gemini-4-neon-high`).
 - **Provider policy alignment**: Follows the global provider priority:
-  - `economy`: Antigravity (`gemini-3.8-flash-high`) -> Claude (`haiku`) -> Codex (`gpt-6-luna`)
-  - `standard`+: Codex (`gpt-6.1-sol`) -> Claude (`claude-sonnet-5-5` for standard, `claude-opus-5-5` for configured advanced/strong/max) -> Antigravity. See [MODEL_MAPPING.md](MODEL_MAPPING.md) for the host model example; empty tiers skip upward and configured overrides may select another primary.
+  - `economy`: Antigravity (`gemini-3.8-flash-high`) -> Claude (`claude-haiku-5-5`) -> Codex (`gpt-6.2-sol` low)
+  - `standard`+: Codex (`gpt-6.2-sol`: medium for standard, high/xhigh for configured advanced/strong/max) -> Claude (`claude-sonnet-5-5` for standard, `claude-opus-5-5` for configured advanced/strong/max) -> Antigravity. See [MODEL_MAPPING.md](MODEL_MAPPING.md) for the host model example; empty tiers skip upward and configured overrides may select another primary.
+  - Frontier level (Fable 5.2 / Astra 6.2): never used for watchkeeping or blocked-task diagnosis. A `ladder_exhausted` block that follows a failed frontier attempt means replan; the watchdog never dispatches a frontier route.
 
 ## Watchkeeper prompt
 

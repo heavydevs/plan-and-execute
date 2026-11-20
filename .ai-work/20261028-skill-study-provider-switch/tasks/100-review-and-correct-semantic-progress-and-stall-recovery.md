@@ -21,7 +21,7 @@ Objective: Independently review and correct semantic-progress instrumentation, h
 ## Checkpoints
 
 - [ ] **S001** Read actual implementation and evidence — Inspect task 099 code, test receipts, source hashes and limitations; never reuse unverified research as test evidence.
-- [ ] **S002** Run independent maximum-qualified review — Have a genuine fresh qualified reviewer check semantics, percent math, route/permission guards and negative cases; record exact reviewed hashes.
+- [ ] **S002** Run independent maximum-qualified review — Run `python docs/plans/20261028-skill-optimization/support/review_dispatch.py --repo-root . --task 100` in the foreground (rerun on exit 75); use only its DISPATCH line and compact findings. Focus: semantics, percent math, route/permission guards, negative cases.
 - [ ] **S003** Fix critical and high defects — Correct confirmed findings inside the authorized scope or leave the review pending with a recorded blocker.
 - [ ] **S004** Rerun mapped acceptance — Independently rerun the complete new test and affected progress/job/validate/routing regressions through resource monitoring.
 - [ ] **S005** Record independent review evidence — Write task 100 review receipt/outcome with provider/model/effort, hashes, actual checks and unresolved findings.
@@ -38,6 +38,8 @@ Files: `skill/plan-and-execute/scripts/progress_signal.py`, `skill/plan-and-exec
 - Follow task 100 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json; dispatch a genuinely independent qualified reviewer and pin reviewed hashes.
 - Validate semantic-vs-liveness behavior, truthful percentages, safe ownership and authorized provider routing; correct critical/high findings.
 - Record actual review and tests in docs/research/20261028-skill-optimization/implementation/100-receipt.json and docs/research/20261028-skill-optimization/implementation/100-outcome.md; pending unless verified.
+- Review only via review_dispatch.py (synchronous; max route; writes dispatch evidence); fix blocking findings, rerun declared checks, re-dispatch if a reviewed file changed, copy its RECEIPT_REVIEWER fields into the receipt.
+- Never launch background or asynchronous agents or processes: this headless session ends when you stop calling tools, so anything unfinished is lost.
 
 ## Acceptance
 
@@ -53,6 +55,9 @@ Files: `skill/plan-and-execute/scripts/progress_signal.py`, `skill/plan-and-exec
 - Verify: DIRECT validate-only remains read-only and plan-free; authorized DIRECT repair and ORCHESTRATED retries share the monitoring engine, attempts, source hashes, budgets and cancellation guards.
 - Verify: Tests cover simulated 299/300/301-second boundaries, stage resets/replayed counters, process descendants, crash/restart, dependency health, safe probes, and no per-tick LLM cost.
 - No unresolved critical/high finding or missing mapped test evidence may be marked complete.
+- Verify: A confirmed stall raises effort first on the same eligible route, then the next tier up to max; frontier is never chosen for implementation repair.
+- A frontier (Fable 5.2 / Astra 6.2) reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.
+- Every 2026-11-20 acceptance addition of task 099 has actual test evidence on the final reviewed hashes.
 
 ## Validate
 

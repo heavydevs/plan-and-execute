@@ -90,7 +90,7 @@ class MatrixTests(unittest.TestCase):
             self.assertNotIn('model', task)
         # Economy floor: claude haiku; providers with an empty tier skip upward, never down.
         binding = matrix['tasks'][self.manifest()['tasks'][0]['id']]
-        self.assertIn({'provider': 'claude', 'tier': 'economy', 'model': 'haiku'}, binding['candidates'])
+        self.assertIn({'provider': 'claude', 'tier': 'economy', 'model': 'claude-haiku-5-5'}, binding['candidates'])
 
     def test_skip_upward_never_downgrades(self):
         table = mcc._tier_table(mc.bootstrap_catalog())

@@ -1,0 +1,135 @@
+{
+  "schema_version": 2,
+  "task_id": "008",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Implemented content-addressed lossless source/block/fragment hashing with consumption-time integrity verification, bounded ordered OOXML nested/merged table extraction with unsupported-structure recording, unique obligation and contradiction coverage enforcement, resumable digest status, and an offline deterministic one-shot vs staged comparator.",
+  "outcome_sha256": "bdb0ce5ebe1d1e548a41754abf1d9517055a0c23d538f898e32cd8b68b3fa968",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md",
+      "sha256": "1862a226b1ea4c132af94d759179c25eaa1949f063e2520b0c6679f0345c0580"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "skill/plan-and-execute/scripts/preplanctl.py",
+      "sha256": "5c15578441a0456adf8ef9e15aec30358e6950139977670c0c425dc1538af1fd"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/preplan_self_test.py",
+      "sha256": "56bcf13402596f0a2143439a2a8afae7eefedb5f89be789c3037e90225d35b94"
+    },
+    {
+      "path": "test/optimization/primary_planning_self_test.py",
+      "sha256": "868612ab8dd80f0c5cc4d8e135fa8695b29e45c50e200308ce4e42d1888bf1b3"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+      "sha256": "3a410e690e768881c7b86d30d5986ae4181677b00665cad3d66fca070bb27c64"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md",
+      "sha256": "0a81afbe319dd468eeddc49766f897ed87e3b9d0694d78b9ca91211480413910"
+    }
+  ],
+  "checks_sha256": "eab7a918fd3f0169c515dde1784cc957e590bc2a1b86ede5ee47e67f51bc319c",
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "description": "Mutating one byte of a fragment after coverage approval invalidates the package.",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/primary_planning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-02.log"
+      ]
+    },
+    {
+      "id": "AC02",
+      "description": "DOCX paragraphs and table cells preserve all obligations in source order.",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/primary_planning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-02.log"
+      ]
+    },
+    {
+      "id": "AC03",
+      "description": "Duplicates, missing IDs, contradictory clauses and symlinks/junctions are rejected or explicitly recorded.",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/primary_planning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-02.log"
+      ]
+    },
+    {
+      "id": "AC04",
+      "description": "Interrupted batch resumes from validated digests without reprocessing completed raw fragments.",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/primary_planning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-02.log"
+      ]
+    },
+    {
+      "id": "AC05",
+      "description": "Permuting a requirement between beginning, middle and end preserves identical final requirement coverage.",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/primary_planning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-02.log"
+      ]
+    },
+    {
+      "id": "AC06",
+      "description": "Same-size fragment rewrite with unchanged timestamp is rejected by content SHA-256 checks.",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/primary_planning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-02.log"
+      ]
+    },
+    {
+      "id": "AC07",
+      "description": "Nested and merged table cells produce ordered, nonduplicated source anchors under bounded ZIP/XML limits.",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/primary_planning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-02.log"
+      ]
+    },
+    {
+      "id": "AC08",
+      "description": "A requirement appearing only in a table cell cannot disappear from the final coverage map.",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/primary_planning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-02.log"
+      ]
+    },
+    {
+      "id": "AC09",
+      "description": "Large repeated blocks adjust working-set routing estimates without deletion from authoritative fragments.",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/primary_planning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/008/20261120T082554-30216/check-02.log"
+      ]
+    }
+  ],
+  "limitations": [
+    "Offline deterministic extraction comparator only; live model-based digest comparison requires owner confirmation (G002) and was not executed.",
+    "Unsupported Office structures (tracked changes, drawings/text boxes, embedded OLE objects, headers/footers/footnotes/comments/media) are explicitly recorded in SOURCE_INDEX.json rather than OCRd or merged into body blocks.",
+    "Windows host lacked SeCreateSymbolicLinkPrivilege (WinError 1314) for os.symlink; link rejection was validated via real NTFS directory junction (mklink /J) plus deterministic Path.is_symlink guard coverage.",
+    "Independent max-capability code review (task 009) remains a separate later acceptance gate and is not claimed by this implementation receipt."
+  ]
+}

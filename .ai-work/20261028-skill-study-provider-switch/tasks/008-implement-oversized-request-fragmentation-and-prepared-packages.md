@@ -1,6 +1,6 @@
 ---
 task_id: "008"
-status: "pending"
+status: "completed"
 requirements: "R002,R003,R004,R005,R007,R032,R037,R038,R039,R042,R044"
 dependencies: "001"
 allowed_related_task_reads: "none"
@@ -20,12 +20,12 @@ Objective: Use content-addressed, lossless source fragments and obligation cover
 
 ## Checkpoints
 
-- [ ] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md. Verify the current source and only material version/account conflicts.
-- [ ] **S002** Implement revised contract 1 — Hash raw source, extracted block stream and fragments; reject stale fragments at final consumption, not only during initial preparation.
-- [ ] **S003** Implement revised contract 2 — Traverse nested tables in document order and bound ZIP/XML input; record unsupported source structures rather than silently omitting them.
-- [ ] **S004** Implement revised contract 3 — Measure obligation recall and contradiction coverage against one-shot and staged baselines before changing token thresholds.
-- [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
-- [ ] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
+- [x] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md. Verify the current source and only material version/account conflicts.
+- [x] **S002** Implement revised contract 1 — Hash raw source, extracted block stream and fragments; reject stale fragments at final consumption, not only during initial preparation.
+- [x] **S003** Implement revised contract 2 — Traverse nested tables in document order and bound ZIP/XML input; record unsupported source structures rather than silently omitting them.
+- [x] **S004** Implement revised contract 3 — Measure obligation recall and contradiction coverage against a deterministic one-shot extraction comparator offline; a model-based comparison needs owner confirmation (G002), otherwise it is a recorded limitation.
+- [x] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
+- [x] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
 
 ## Scope
 

@@ -32,19 +32,20 @@ Objective: Collect all safely runnable test failures with per-test stack/log/E2E
 ## Scope
 
 In: Collect all safely runnable test failures with per-test stack/log/E2E evidence, rerun failures and impacted tests during repair, then require a full final current-source regression pass.
-Out: No second orchestrator, fake green, unrelated edits or unapproved provider/model calls.
+Out: No parallel testing orchestrator, unsafe continuation, skipped failed tests, benchmark default or unapproved provider/global configuration changes.
 Files: `skill/plan-and-execute/scripts/test_failure_cycle.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/validatectl.py`, `skill/plan-and-execute/scripts/jobctl.py`, `skill/plan-and-execute/scripts/resource_watch.py`, `skill/plan-and-execute/scripts/service_map.py`, `skill/plan-and-execute/references/WORKFLOW.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `skill/plan-and-execute/references/PLAN_SPEC.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `docs/plans/20261028-skill-optimization/support/run_task_checks.py`, `test/optimization/batch_test_failure_cycle_self_test.py`, `docs/research/20261028-skill-optimization/implementation/109-receipt.json`, `docs/research/20261028-skill-optimization/implementation/109-outcome.md`
 
 ## Guidance
 
-- Use reviewed 111 impact-selected task tests. After focused fixes, rerun all required **mapped task** suites; the unrelated global all-project suite runs at plan closure 082/084 or earlier when risk, unknown graph or CI requires.
-
-- Read `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md` and `docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261114_TEST_FAILURE_BATCH.md` before code; inspect source exactly, don't infer newer features are already implemented.
+- Read docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md and docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261114_TEST_FAILURE_BATCH.md before code.
+- Inspect source exactly; do not infer that newer features are already implemented.
 - Inspect run_isolated.run_validation_commands, run_validation_jobs, finish_task_validation, validatectl.run, runner_contract.install_runner_contract and active plan run_task_checks.
 - Reuse resource_watch, jobctl, service_map and native reporter results; record versioned per-test failures and artifacts securely, continue only safe independent tests, prefer case IDs to console text.
 - Implement targeted rerun only for verified supported framework selectors, with impacted neighbors; never treat incomplete/0-selected/current-code mismatch as success; final full regression must run again.
 - Preserve process ownership, model routing/cost and progress, platform/CI behavior and bounded prompts; do not fabricate full-book, test or reviewer evidence.
 - Write tests for this feature's functional correctness and failures; do not add application load/benchmark tests unless independently asked.
+- Use reviewed 111 impact-selected task tests; after focused fixes rerun all required mapped task suites; the global all-project suite runs at plan closure 082/084 or earlier when risk, unknown graph or CI requires.
+- Edits to support/run_task_checks.py stay fail-closed (nonzero if any declared check fails or did not run); record its hash in changed_artifacts and in 110's reviewed_inputs (code_fingerprint does not cover docs/).
 
 ## Acceptance
 

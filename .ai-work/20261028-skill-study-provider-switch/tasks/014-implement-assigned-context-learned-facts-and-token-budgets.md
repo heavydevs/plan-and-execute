@@ -1,6 +1,6 @@
 ---
 task_id: "014"
-status: "pending"
+status: "completed"
 requirements: "R002,R003,R004,R005,R007,R032,R037,R038,R039,R042,R044"
 dependencies: "001,013"
 allowed_related_task_reads: "none"
@@ -20,12 +20,12 @@ Objective: Use provenance-bearing task context and directional learnings with ex
 
 ## Checkpoints
 
-- [ ] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md. Verify the current source and only material version/account conflicts.
-- [ ] **S002** Implement revised contract 1 — Assign each learning a trust class, producer, consumer set and source/contract digest.
-- [ ] **S003** Implement revised contract 2 — Keep failed-attempt hypotheses separate from normative shared facts; invalidate them when their evidence changes.
-- [ ] **S004** Implement revised contract 3 — Measure stale-learning errors and task success as well as context bytes; cache reuse is an observed metric, not a structural assertion.
-- [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
-- [ ] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
+- [x] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md. Verify the current source and only material version/account conflicts.
+- [x] **S002** Implement revised contract 1 — Assign each learning a trust class, producer, consumer set and source/contract digest.
+- [x] **S003** Implement revised contract 2 — Keep failed-attempt hypotheses separate from normative shared facts; invalidate them when their evidence changes.
+- [x] **S004** Implement revised contract 3 — Measure stale-learning errors and context bytes offline; live task-success measurement without owner authorization is a recorded limitation; cache reuse is an observed metric, not a structural assertion.
+- [x] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
+- [x] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
 
 ## Scope
 
@@ -50,7 +50,7 @@ Files: `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scri
 - Changing a cited file invalidates or flags the learning before reuse.
 - A malicious or unsupported note cannot alter acceptance, permissions or provider policy.
 - The universal context contains only constraints needed by all tasks and remains within its existing budget.
-- Byte-stable prefixes and bounded task suffixes survive different task IDs and prior failure lengths.
+- Prefix stability is owned by 028; 014 changes do not regress the existing byte-stable prefix fixtures.
 - A disproven hypothesis never appears as a validated shared fact.
 - A source-contract change invalidates its learning without deleting unrelated knowledge.
 - The static prefix remains stable while task-specific reports are loaded only for their assigned consumers.

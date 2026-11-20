@@ -25,6 +25,9 @@ import routingctl  # noqa: E402
 
 TIERS = routingctl.TIER_ORDER
 EFFORTS = routingctl.EFFORT_ORDER
+# Per-tier model choices live only in routingctl.CURRENT_MODELS (and the bootstrap catalog).
+CODEX_STANDARD = routingctl.CURRENT_MODELS["codex"]["standard"]
+CODEX_STRONG = routingctl.CURRENT_MODELS["codex"]["strong"]
 DOC = SCRIPTS.parent / "references" / "DELEGATION.md"
 
 SONNET = {"provider": "claude", "model": "claude-sonnet-5-5", "tier": "standard", "effort": "medium"}
@@ -47,7 +50,7 @@ CORPUS: list[dict] = [
     {"id": "D04-delegate-read-only-discovery", "request": DISCOVERY,
      "expect": {"decision": "delegate", "fan_out": 4, "role": "scout", "reasons": ["fan_out_limit", "delegate"],
                 "write_scopes": [[], [], [], []]},
-     "route": ["claude", "haiku", "economy", "low"]},
+     "route": ["claude", "claude-haiku-5-5", "economy", "low"]},
     {"id": "D05-keep-coordination-overhead",
      "request": {**DISCOVERY, "unit_tokens": 8999},
      "expect": {"decision": "keep_root", "reasons": ["coordination_overhead"]}},
@@ -86,7 +89,7 @@ CORPUS: list[dict] = [
                  "independent_units": 3, "write_scopes": [["a"], ["b"], ["c"]], "unit_tokens": 30000},
      "expect": {"decision": "delegate", "fan_out": 2, "write_scopes": [["a"], ["b"]],
                 "reasons": ["fan_out_limit", "delegate"]},
-     "route": ["codex", "gpt-6.1-sol", "standard", "medium"]},
+     "route": ["codex", CODEX_STANDARD, "standard", "medium"]},
     {"id": "D14-write-scope-overlap-serializes",
      "request": {"signals": ["bounded_implementation"], "providers": ["claude"], "agent_tier": "strong",
                  "independent_units": 2, "write_scopes": [["src"], ["src/a.py", "docs"]], "unit_tokens": 30000},
@@ -111,7 +114,7 @@ CORPUS: list[dict] = [
     {"id": "D20-provider-not-in-catalog-ignored",
      "request": {**DISCOVERY, "providers": ["acme", "codex"]},
      "expect": {"decision": "delegate", "fan_out": 4},
-     "route": ["codex", "gpt-6-luna", "economy", "low"]},
+     "route": ["codex", "gpt-6.2-sol", "economy", "low"]},
 ]
 
 

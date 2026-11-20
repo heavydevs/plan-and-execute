@@ -36,7 +36,8 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "planned_new_files": [
         "test/optimization/baseline_contracts.py",
@@ -82,12 +83,21 @@
         [
           "python",
           "test/optimization/task_002_self_test.py"
+        ],
+        [
+          "python",
+          "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07",
+        "AC08"
       ],
       "planned_new_files": [
         "test/optimization/baseline_contracts.py",
@@ -121,7 +131,8 @@
         "test/optimization/baseline_contracts.py",
         "test/optimization/task_002_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/002-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/002-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/002-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md"
@@ -136,12 +147,18 @@
         [
           "python",
           "test/optimization/task_002_self_test.py"
+        ],
+        [
+          "python",
+          "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "planned_new_files": [
         "test/optimization/baseline_contracts.py",
@@ -171,6 +188,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/002-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "002"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -204,7 +225,9 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "planned_new_files": [
         "test/optimization/shared_fixtures.py",
@@ -237,7 +260,8 @@
         "test/optimization/shared_fixtures.py",
         "test/optimization/task_004_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/004-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/004-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/004-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md"
@@ -257,7 +281,9 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "planned_new_files": [
         "test/optimization/shared_fixtures.py",
@@ -287,6 +313,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/004-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "004"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -334,6 +364,10 @@
         [
           "python",
           "skill/plan-and-execute/scripts/promotion_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -404,7 +438,8 @@
         "skill/plan-and-execute/scripts/routing_self_test.py",
         "test/optimization/activation_intake_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/006-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/006-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/006-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md"
@@ -434,12 +469,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/promotion_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "fad2e623f58bb20cf8975bd05524373cefae915b03fd4802b28305f43c5c3313",
       "research_revision": 2,
@@ -477,6 +518,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/006-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "006"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -581,7 +626,8 @@
         "skill/plan-and-execute/scripts/preplan_self_test.py",
         "test/optimization/primary_planning_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/008-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/008-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/008-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md"
@@ -608,7 +654,8 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "0f302adf224cc940c7380e657af6d1acad781cba522a16c0acd04ff1f150766b",
       "research_revision": 2,
@@ -642,6 +689,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/008-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "008"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -680,6 +731,10 @@
         [
           "python",
           "skill/plan-and-execute/scripts/study_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -749,7 +804,8 @@
         "skill/plan-and-execute/scripts/study_self_test.py",
         "test/optimization/adaptive_study_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/010-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/010-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/010-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md"
@@ -770,12 +826,17 @@
         [
           "python",
           "skill/plan-and-execute/scripts/study_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "f837c59d2121e4ef4b7388cf7fc4f628a5276e67fddc6c8c7f4d2bb93bfbd399",
       "research_revision": 2,
@@ -809,6 +870,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/010-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "010"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -848,6 +913,22 @@
         [
           "python",
           "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/context_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/task_memory_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -919,7 +1000,8 @@
         "skill/plan-and-execute/scripts/artifact_contract.py",
         "test/optimization/plan_contract_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/012-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/012-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/012-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md"
@@ -941,12 +1023,29 @@
         [
           "python",
           "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/context_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/task_memory_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "75e9d987f0bef96d9085c561aa90c306b131869e5fe7bac2e6c32b425dfb65a9",
       "research_revision": 2,
@@ -980,6 +1079,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/012-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "012"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -1024,6 +1127,22 @@
         [
           "python",
           "skill/plan-and-execute/scripts/task_memory_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/pattern_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -1096,7 +1215,8 @@
         "skill/plan-and-execute/scripts/runner_contract.py",
         "test/optimization/context_learning_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/014-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/014-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/014-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md"
@@ -1123,12 +1243,30 @@
         [
           "python",
           "skill/plan-and-execute/scripts/task_memory_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/pattern_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "29ed7ba03768a1f474f880bf649f270a88545af804fbc7abc3edb866f58548fe",
       "research_revision": 2,
@@ -1166,6 +1304,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/014-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "014"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -1215,8 +1357,7 @@
         "AC04",
         "AC05",
         "AC06",
-        "AC07",
-        "AC08"
+        "AC07"
       ],
       "feature_id": "F006",
       "former_kind": "research",
@@ -1267,7 +1408,8 @@
         "skill/plan-and-execute/scripts/pattern_runner_contract.py",
         "test/optimization/shared_patterns_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/016-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/016-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/016-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/016-shared-patterns.md"
@@ -1297,7 +1439,9 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "8df870d8de064061b128287d18957a1d7e54140a7fdeb73a6cb4fb8a475578d1",
       "research_revision": 2,
@@ -1331,6 +1475,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/016-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "016"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -1368,6 +1516,26 @@
         [
           "python",
           "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/keepalivectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/preplan_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/task_memory_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -1434,7 +1602,8 @@
         "skill/plan-and-execute/scripts/planctl.py",
         "test/optimization/lifecycle_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/018-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/018-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/018-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/018-lifecycle.md"
@@ -1455,12 +1624,33 @@
         [
           "python",
           "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/keepalivectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/preplan_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/task_memory_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "ae7b31c8a7f412c68ecec805e389b4619b270f33cdd95ea08cc0c5dd66ff4726",
       "research_revision": 2,
@@ -1494,6 +1684,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/018-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "018"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -1530,6 +1724,30 @@
         [
           "python",
           "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/rollout_gate_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -1541,7 +1759,8 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10"
       ],
       "feature_id": "F008",
       "former_kind": "research",
@@ -1596,7 +1815,8 @@
         "skill/plan-and-execute/scripts/routingctl.py",
         "test/optimization/escalation_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/020-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/020-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/020-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/020-escalation.md"
@@ -1616,12 +1836,38 @@
         [
           "python",
           "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/rollout_gate_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "27b040332909e96ed8427f5104c3f01d085d4b0a4f538e87ce9e45f7fcb9961f",
       "research_revision": 2,
@@ -1651,6 +1897,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/020-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "020"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -1687,6 +1937,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/observer_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -1698,7 +1960,9 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10",
+        "AC11"
       ],
       "feature_id": "F009",
       "former_kind": "research",
@@ -1749,7 +2013,8 @@
         "skill/plan-and-execute/scripts/workload_routing.py",
         "test/optimization/availability_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/022-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/022-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/022-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/022-availability.md"
@@ -1770,12 +2035,26 @@
         [
           "python",
           "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/observer_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "55fac7654cad04f7b340bc3bc0d7969540b273b18363b185c4b113704618568b",
       "research_revision": 2,
@@ -1809,6 +2088,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/022-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "022"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -1845,6 +2128,30 @@
         [
           "python",
           "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/configure_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/observer_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -1856,7 +2163,10 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10",
+        "AC11",
+        "AC12"
       ],
       "feature_id": "F010",
       "former_kind": "research",
@@ -1907,7 +2217,8 @@
         "skill/plan-and-execute/scripts/configure.py",
         "test/optimization/workload_affinity_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/024-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/024-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/024-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md"
@@ -1928,14 +2239,40 @@
         [
           "python",
           "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/configure_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/observer_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
-      "research_sha256": "fe809bf424c45fe27bca2410f34ec6b2f33cf269cb852c6744cd524655263118",
+      "research_sha256": "e2747d6c96173285b1d6d2ee50d71aa87756c7188934722d5e46843134022ddc",
       "research_revision": 2,
       "planned_new_files": [
         "test/optimization/workload_affinity_self_test.py"
@@ -1967,6 +2304,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/024-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "024"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -2007,6 +2348,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/model_matrix_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_catalog_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -2018,7 +2371,8 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10"
       ],
       "feature_id": "F011",
       "former_kind": "research",
@@ -2069,7 +2423,8 @@
         "skill/plan-and-execute/scripts/model_catalogctl.py",
         "test/optimization/catalog_snapshots_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/026-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/026-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/026-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/026-catalog-snapshots.md"
@@ -2094,14 +2449,28 @@
         [
           "python",
           "skill/plan-and-execute/scripts/model_matrix_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_catalog_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
-      "research_sha256": "9282f4795658aa07fb544eae6b89f491e1eaac876571ff096df800b913fd8b14",
+      "research_sha256": "bfd027f508680eb995590ab784296a652fad0a69ab3fb97fa80f7fa305f7dcb2",
       "research_revision": 2,
       "planned_new_files": [
         "test/optimization/catalog_snapshots_self_test.py"
@@ -2133,6 +2502,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/026-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "026"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -2170,6 +2543,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -2181,7 +2566,8 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10"
       ],
       "feature_id": "F012",
       "former_kind": "research",
@@ -2237,7 +2623,8 @@
         "skill/plan-and-execute/scripts/runner_contract.py",
         "test/optimization/delegation_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/028-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/028-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/028-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/028-delegation.md"
@@ -2258,12 +2645,26 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "9b5d29e05968f7fad06595a6d49c8c3e84a6bbac85e0f78c2aa6ee216709b0f8",
       "research_revision": 2,
@@ -2297,6 +2698,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/028-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "028"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -2333,6 +2738,26 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -2344,7 +2769,10 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10",
+        "AC11",
+        "AC12"
       ],
       "feature_id": "F013",
       "former_kind": "research",
@@ -2395,7 +2823,8 @@
         "skill/plan-and-execute/scripts/provider_self_test.py",
         "test/optimization/claude_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/030-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/030-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/030-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/030-claude.md"
@@ -2416,12 +2845,34 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "a9c2193b7404d9873a6b1decc51e45e76dcef60438d3bc7c1e4203746df92a46",
       "research_revision": 2,
@@ -2455,6 +2906,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/030-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "030"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -2481,7 +2936,8 @@
         "skill/plan-and-execute/scripts/run_isolated.py",
         "skill/plan-and-execute/scripts/provider_self_test.py",
         "test/optimization/codex_self_test.py",
-        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md"
+        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+        "skill/plan-and-execute/references/PRIMARY_PLANNING.md"
       ],
       "required_checks": [
         [
@@ -2491,6 +2947,26 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -2502,7 +2978,9 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10",
+        "AC11"
       ],
       "feature_id": "F014",
       "former_kind": "research",
@@ -2553,7 +3031,8 @@
         "skill/plan-and-execute/scripts/provider_self_test.py",
         "test/optimization/codex_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/032-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/032-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/032-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/032-codex.md"
@@ -2564,7 +3043,8 @@
         "skill/plan-and-execute/scripts/run_isolated.py",
         "skill/plan-and-execute/scripts/provider_self_test.py",
         "test/optimization/codex_self_test.py",
-        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md"
+        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+        "skill/plan-and-execute/references/PRIMARY_PLANNING.md"
       ],
       "required_checks": [
         [
@@ -2574,12 +3054,34 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "9f30b9ec843d3e9ddcef7eb3ba6a77877129c2d9631638d7e51fe0e1f076c017",
       "research_revision": 2,
@@ -2613,6 +3115,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/032-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "032"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -2652,6 +3158,30 @@
         [
           "python",
           "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -2663,7 +3193,10 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10",
+        "AC11",
+        "AC12"
       ],
       "feature_id": "F015",
       "former_kind": "research",
@@ -2720,7 +3253,8 @@
         "skill/plan-and-execute/scripts/workload_routing.py",
         "test/optimization/antigravity_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/034-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/034-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/034-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/034-antigravity.md"
@@ -2743,12 +3277,38 @@
         [
           "python",
           "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "bff334f0504929e0540fca4410888563316a5ca37fef2b134b859a5629f0462e",
       "research_revision": 2,
@@ -2786,6 +3346,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/034-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "034"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -2822,6 +3386,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -2879,7 +3455,8 @@
         "skill/plan-and-execute/scripts/provider_self_test.py",
         "test/optimization/qwen_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/036-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/036-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/036-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/036-qwen.md"
@@ -2901,12 +3478,25 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "7db26a9c742c8bd874ac2e522d4d4ad79ccf5cbb218741502230949b8f3dae68",
       "research_revision": 2,
@@ -2940,6 +3530,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/036-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "036"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -2976,6 +3570,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -3033,7 +3639,8 @@
         "skill/plan-and-execute/scripts/provider_self_test.py",
         "test/optimization/kimi_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/038-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/038-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/038-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/038-kimi.md"
@@ -3055,12 +3662,25 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "ef1a2d065f37ec94b56ce6d25b60858c4f6ccad97d94eacdf3aeb3c748d15010",
       "research_revision": 2,
@@ -3094,6 +3714,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/038-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "038"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -3130,6 +3754,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -3187,7 +3823,8 @@
         "skill/plan-and-execute/scripts/provider_self_test.py",
         "test/optimization/trae_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/040-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/040-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/040-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/040-trae.md"
@@ -3209,12 +3846,25 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "62b6fd8d1c40fdd38a4be6e23b82804b91b3be0d071716e8e4c7d49e24729541",
       "research_revision": 2,
@@ -3248,6 +3898,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/040-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "040"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -3284,6 +3938,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/muse_provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -3346,7 +4012,8 @@
         "skill/plan-and-execute/scripts/muse_provider_self_test.py",
         "test/optimization/muse_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/042-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/042-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/042-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/042-muse.md"
@@ -3367,12 +4034,25 @@
         [
           "python",
           "skill/plan-and-execute/scripts/muse_provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "ba611507f2f3ea2f2549fcf39e799d16e168907d2fb3d20edf1b31cf445a71fe",
       "research_revision": 2,
@@ -3406,6 +4086,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/042-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "042"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -3432,7 +4116,8 @@
         "skill/plan-and-execute/scripts/routing_config.py",
         "skill/plan-and-execute/scripts/glm_provider_self_test.py",
         "test/optimization/glm_self_test.py",
-        "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md"
+        "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md",
+        "skill/plan-and-execute/scripts/workload_routing.py"
       ],
       "required_checks": [
         [
@@ -3442,6 +4127,22 @@
         [
           "python",
           "skill/plan-and-execute/scripts/glm_provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -3453,7 +4154,8 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10"
       ],
       "feature_id": "F020",
       "former_kind": "research",
@@ -3504,7 +4206,8 @@
         "skill/plan-and-execute/scripts/glm_provider_self_test.py",
         "test/optimization/glm_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/044-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/044-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/044-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/044-glm.md"
@@ -3515,7 +4218,8 @@
         "skill/plan-and-execute/scripts/routing_config.py",
         "skill/plan-and-execute/scripts/glm_provider_self_test.py",
         "test/optimization/glm_self_test.py",
-        "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md"
+        "skill/plan-and-execute/references/MODEL_ROUTING_GLM.md",
+        "skill/plan-and-execute/scripts/workload_routing.py"
       ],
       "required_checks": [
         [
@@ -3525,12 +4229,30 @@
         [
           "python",
           "skill/plan-and-execute/scripts/glm_provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "1ef9593ef1e0dfcaafe09b68447336222866eba840d53ca843dfe20ab352f0b8",
       "research_revision": 2,
@@ -3564,6 +4286,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/044-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "044"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -3590,7 +4316,8 @@
         "skill/plan-and-execute/scripts/routing_config.py",
         "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
         "test/optimization/deepseek_self_test.py",
-        "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md"
+        "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md",
+        "skill/plan-and-execute/scripts/workload_routing.py"
       ],
       "required_checks": [
         [
@@ -3600,6 +4327,22 @@
         [
           "python",
           "skill/plan-and-execute/scripts/deepseek_provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -3611,7 +4354,8 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10"
       ],
       "feature_id": "F021",
       "former_kind": "research",
@@ -3662,7 +4406,8 @@
         "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
         "test/optimization/deepseek_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/046-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/046-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/046-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/046-deepseek.md"
@@ -3673,7 +4418,8 @@
         "skill/plan-and-execute/scripts/routing_config.py",
         "skill/plan-and-execute/scripts/deepseek_provider_self_test.py",
         "test/optimization/deepseek_self_test.py",
-        "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md"
+        "skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md",
+        "skill/plan-and-execute/scripts/workload_routing.py"
       ],
       "required_checks": [
         [
@@ -3683,12 +4429,30 @@
         [
           "python",
           "skill/plan-and-execute/scripts/deepseek_provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "d36607d5f0fd390d033e7cf96a322eb26882cca19315b07d7fe182f253818b73",
       "research_revision": 2,
@@ -3722,6 +4486,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/046-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "046"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -3764,6 +4532,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -3832,7 +4612,8 @@
         "skill/plan-and-execute/scripts/artifact_contract.py",
         "test/optimization/validation_evidence_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/048-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/048-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/048-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/048-validation-evidence.md"
@@ -3858,12 +4639,25 @@
         [
           "python",
           "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "e9a4848a3e7d7edef3be22250460287bde4e00abd6e56067946cf053b76adabb",
       "research_revision": 2,
@@ -3901,6 +4695,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/048-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "048"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -3937,6 +4735,22 @@
         [
           "python",
           "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_watch_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/jobctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -3948,7 +4762,8 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10"
       ],
       "feature_id": "F023",
       "former_kind": "research",
@@ -3999,7 +4814,8 @@
         "skill/plan-and-execute/scripts/resource_watch.py",
         "test/optimization/resource_map_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/050-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/050-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/050-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/050-resource-map.md"
@@ -4020,12 +4836,30 @@
         [
           "python",
           "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_watch_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/jobctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "074b53602823aa8cb777af19c449389dffbbcd8afde86d966c3663bed8517146",
       "research_revision": 2,
@@ -4059,6 +4893,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/050-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "050"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -4101,6 +4939,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/progress_signal_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -4164,7 +5010,8 @@
         "skill/plan-and-execute/scripts/process_tree.py",
         "test/optimization/progress_processes_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/052-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/052-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/052-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/052-progress-processes.md"
@@ -4191,12 +5038,21 @@
         [
           "python",
           "skill/plan-and-execute/scripts/progress_signal_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "a7326e679b7072e5fe7b5c11584d000757af279eaafaa4fd873eef3686c61004",
       "research_revision": 2,
@@ -4234,6 +5090,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/052-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "052"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -4270,6 +5130,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/jobctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -4281,7 +5149,8 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10"
       ],
       "feature_id": "F025",
       "former_kind": "research",
@@ -4332,7 +5201,8 @@
         "skill/plan-and-execute/scripts/run_isolated.py",
         "test/optimization/supervised_jobs_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/054-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/054-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/054-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/054-supervised-jobs.md"
@@ -4353,12 +5223,22 @@
         [
           "python",
           "skill/plan-and-execute/scripts/jobctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "8273d9544baf3d421d4765e0ea6c9e543745a49170b8dcc9f37b5b3810481107",
       "research_revision": 2,
@@ -4392,6 +5272,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/054-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "054"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -4494,7 +5378,8 @@
         "skill/plan-and-execute/scripts/keepalivectl.py",
         "test/optimization/watchdog_keepalive_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/056-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/056-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/056-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/056-watchdog-keepalive.md"
@@ -4524,7 +5409,8 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "e43192cfe3fa2aae3672daab4ac3106389fa0ad539e253c087adb65360085e0a",
       "research_revision": 2,
@@ -4558,6 +5444,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/056-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "056"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -4594,6 +5484,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/log_watch_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_watch_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/jobctl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -4656,7 +5558,8 @@
         "skill/plan-and-execute/scripts/resource_watch.py",
         "test/optimization/log_lifecycle_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/058-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/058-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/058-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/058-log-lifecycle.md"
@@ -4677,12 +5580,25 @@
         [
           "python",
           "skill/plan-and-execute/scripts/log_watch_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_watch_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/jobctl_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "9009162eedf9a0e0d6ea018cd3a09fed87989fb151a9c0c2f3d4d452db5b82ec",
       "research_revision": 2,
@@ -4716,6 +5632,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/058-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "058"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -4818,7 +5738,8 @@
         "skill/plan-and-execute/scripts/assistant_triage.py",
         "test/optimization/advisory_observer_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/060-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/060-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/060-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/060-advisory-observer.md"
@@ -4848,7 +5769,8 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "aee5816bbdc04e7ca8da1e66b81e267593ef8ae31925048eb72d8f4d64c9b02e",
       "research_revision": 2,
@@ -4882,6 +5804,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/060-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "060"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -4895,7 +5821,6 @@
       "inputs": [
         "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.md",
         "skill/plan-and-execute/scripts/validatectl.py",
-        "skill/plan-and-execute/scripts/companion_validation_self_test.py",
         "test/optimization/validate_or_fix_self_test.py",
         "skill/plan-and-execute/scripts/companion_self_test.py",
         "skill/validate-or-fix/SKILL.md"
@@ -4907,7 +5832,6 @@
       "report": "docs/research/20261028-skill-optimization/implementation/062-outcome.md",
       "write_scope": [
         "skill/plan-and-execute/scripts/validatectl.py",
-        "skill/plan-and-execute/scripts/companion_validation_self_test.py",
         "test/optimization/validate_or_fix_self_test.py",
         "skill/validate-or-fix/SKILL.md",
         "skill/validate-or-fix/agents/openai.yaml",
@@ -4921,6 +5845,19 @@
         [
           "python",
           "test/optimization/validate_or_fix_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/companion_self_test.py"
+        ],
+        [
+          "node",
+          "--test",
+          "test/companion.test.js"
         ]
       ],
       "acceptance_ids": [
@@ -4945,7 +5882,6 @@
       ],
       "research_revision": 2,
       "planned_new_files": [
-        "skill/plan-and-execute/scripts/companion_validation_self_test.py",
         "test/optimization/validate_or_fix_self_test.py"
       ],
       "input_contract": [
@@ -4956,10 +5892,6 @@
         {
           "path": "skill/plan-and-execute/scripts/validatectl.py",
           "availability": "existing_baseline_or_current_file"
-        },
-        {
-          "path": "skill/plan-and-execute/scripts/companion_validation_self_test.py",
-          "availability": "create_in_this_task"
         },
         {
           "path": "test/optimization/validate_or_fix_self_test.py",
@@ -4985,10 +5917,10 @@
       "inputs": [
         "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.md",
         "skill/plan-and-execute/scripts/validatectl.py",
-        "skill/plan-and-execute/scripts/companion_validation_self_test.py",
         "test/optimization/validate_or_fix_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/062-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/062-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/062-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/062-validate-or-fix.md"
@@ -4997,7 +5929,6 @@
       "report": "docs/research/20261028-skill-optimization/implementation/063-outcome.md",
       "write_scope": [
         "skill/plan-and-execute/scripts/validatectl.py",
-        "skill/plan-and-execute/scripts/companion_validation_self_test.py",
         "test/optimization/validate_or_fix_self_test.py",
         "skill/validate-or-fix/SKILL.md",
         "skill/validate-or-fix/agents/openai.yaml",
@@ -5011,17 +5942,30 @@
         [
           "python",
           "test/optimization/validate_or_fix_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/companion_self_test.py"
+        ],
+        [
+          "node",
+          "--test",
+          "test/companion.test.js"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "research_sha256": "2a291ab2f2c00f436b002288c6c791729690dd03ce7c49e1ae7c2bc5ac3554dd",
       "research_revision": 2,
       "planned_new_files": [
-        "skill/plan-and-execute/scripts/companion_validation_self_test.py",
         "test/optimization/validate_or_fix_self_test.py"
       ],
       "input_contract": [
@@ -5032,11 +5976,6 @@
         {
           "path": "skill/plan-and-execute/scripts/validatectl.py",
           "availability": "existing_baseline_or_current_file"
-        },
-        {
-          "path": "skill/plan-and-execute/scripts/companion_validation_self_test.py",
-          "availability": "prerequisite_output",
-          "producer_task": "062"
         },
         {
           "path": "test/optimization/validate_or_fix_self_test.py",
@@ -5052,6 +5991,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/062-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "062"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -5090,6 +6033,23 @@
         [
           "python",
           "skill/plan-and-execute/scripts/telemetry_self_test.py"
+        ],
+        [
+          "python",
+          "tools/routing_eval_self_test.py"
+        ],
+        [
+          "python",
+          "tools/routing_eval_predeclaration_self_test.py"
+        ],
+        [
+          "python",
+          "tools/skill_benchmark_self_test.py"
+        ],
+        [
+          "python",
+          "tools/routing_eval.py",
+          "validate-predeclaration"
         ]
       ],
       "acceptance_ids": [
@@ -5101,7 +6061,8 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10"
       ],
       "feature_id": "F030",
       "former_kind": "research",
@@ -5153,7 +6114,8 @@
         "tools/routing_eval.py",
         "test/optimization/economic_evaluation_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/064-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/064-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/064-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/064-economic-evaluation.md"
@@ -5176,12 +6138,31 @@
         [
           "python",
           "skill/plan-and-execute/scripts/telemetry_self_test.py"
+        ],
+        [
+          "python",
+          "tools/routing_eval_self_test.py"
+        ],
+        [
+          "python",
+          "tools/routing_eval_predeclaration_self_test.py"
+        ],
+        [
+          "python",
+          "tools/skill_benchmark_self_test.py"
+        ],
+        [
+          "python",
+          "tools/routing_eval.py",
+          "validate-predeclaration"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "bded38a609dced26ea890eea74153458d4046a3130703c89aa56c4a9d3793bfc",
       "research_revision": 2,
@@ -5219,6 +6200,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/064-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "064"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -5285,7 +6270,8 @@
         "AC06",
         "AC07",
         "AC08",
-        "AC09"
+        "AC09",
+        "AC10"
       ],
       "feature_id": "F031",
       "former_kind": "research",
@@ -5373,7 +6359,8 @@
         "package.json",
         "test/optimization/distribution_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/066-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/066-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/066-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/066-distribution.md"
@@ -5411,7 +6398,9 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "f56bd57f2a4391a70c1599eecee49e18a77a95d1e4ec22f0faf7cfa76a58f32f",
       "research_revision": 2,
@@ -5457,6 +6446,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/066-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "066"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -5483,7 +6476,8 @@
       "output": "docs/research/20261028-skill-optimization/implementation/068-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/068-outcome.md",
       "write_scope": [
-        "test/optimization/provider_switch_handoff_self_test.py"
+        "test/optimization/provider_switch_handoff_self_test.py",
+        "test/optimization/provider_switch_cases.json"
       ],
       "required_checks": [
         [
@@ -5494,7 +6488,12 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07",
+        "AC08"
       ],
       "feature_id": "F032",
       "former_kind": "research",
@@ -5510,7 +6509,8 @@
       ],
       "research_revision": 2,
       "planned_new_files": [
-        "test/optimization/provider_switch_handoff_self_test.py"
+        "test/optimization/provider_switch_handoff_self_test.py",
+        "test/optimization/provider_switch_cases.json"
       ],
       "input_contract": [
         {
@@ -5558,7 +6558,8 @@
         "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md",
         "test/optimization/provider_switch_handoff_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/068-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/068-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/068-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
@@ -5566,7 +6567,8 @@
       "output": "docs/research/20261028-skill-optimization/implementation/069-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/069-outcome.md",
       "write_scope": [
-        "test/optimization/provider_switch_handoff_self_test.py"
+        "test/optimization/provider_switch_handoff_self_test.py",
+        "test/optimization/provider_switch_cases.json"
       ],
       "required_checks": [
         [
@@ -5577,7 +6579,9 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_sha256": "b17c132943ee46900bd0ea0f944af536e51973dbd185b0305bbd2855bb4427fb",
       "research_revision": 2,
@@ -5603,6 +6607,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/068-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "068"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -5645,6 +6653,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/configure_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -5695,7 +6711,8 @@
         "skill/plan-and-execute/scripts/configure.py",
         "test/optimization/provider_switch_070_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/070-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/070-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/070-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
@@ -5721,11 +6738,22 @@
         [
           "python",
           "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/configure_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
-        "AC02"
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_revision": 2,
       "research_sha256": "671eb8087a9f775c171eb82669361ac97a213949c6259c7dcf7458a35df0aab3",
@@ -5759,6 +6787,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/070-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "070"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -5800,6 +6832,22 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -5808,7 +6856,12 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07",
+        "AC08",
+        "AC09",
+        "AC10",
+        "AC11"
       ],
       "research_revision": 2,
       "research_sha256": "671eb8087a9f775c171eb82669361ac97a213949c6259c7dcf7458a35df0aab3",
@@ -5851,7 +6904,8 @@
         "skill/plan-and-execute/scripts/run_isolated.py",
         "test/optimization/provider_switch_072_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/072-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/072-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/072-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
@@ -5876,11 +6930,29 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/snapshot_runner_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
-        "AC02"
+        "AC02",
+        "AC03",
+        "AC04"
       ],
       "research_revision": 2,
       "research_sha256": "671eb8087a9f775c171eb82669361ac97a213949c6259c7dcf7458a35df0aab3",
@@ -5914,6 +6986,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/072-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "072"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -5959,6 +7035,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -5967,7 +7055,9 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07",
+        "AC08"
       ],
       "research_revision": 2,
       "research_sha256": "671eb8087a9f775c171eb82669361ac97a213949c6259c7dcf7458a35df0aab3",
@@ -6020,7 +7110,8 @@
         "skill/plan-and-execute/scripts/planctl.py",
         "test/optimization/provider_switch_074_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/074-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/074-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/074-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
@@ -6047,11 +7138,26 @@
         [
           "python",
           "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
-        "AC02"
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "research_revision": 2,
       "research_sha256": "671eb8087a9f775c171eb82669361ac97a213949c6259c7dcf7458a35df0aab3",
@@ -6093,6 +7199,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/074-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "074"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -6126,6 +7236,18 @@
         [
           "python",
           "test/optimization/provider_switch_076_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/assistant_triage_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -6178,7 +7300,8 @@
         "skill/plan-and-execute/scripts/run_isolated.py",
         "test/optimization/provider_switch_076_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/076-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/076-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/076-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
@@ -6195,11 +7318,24 @@
         [
           "python",
           "test/optimization/provider_switch_076_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/assistant_triage_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
-        "AC02"
+        "AC02",
+        "AC03"
       ],
       "research_revision": 2,
       "research_sha256": "671eb8087a9f775c171eb82669361ac97a213949c6259c7dcf7458a35df0aab3",
@@ -6234,6 +7370,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/076-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "076"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -6278,6 +7418,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/pattern_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/telemetry_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -6333,7 +7485,8 @@
         "skill/plan-and-execute/scripts/pattern_runner_contract.py",
         "test/optimization/provider_switch_078_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/078-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/078-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/078-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
@@ -6360,11 +7513,24 @@
         [
           "python",
           "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/pattern_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/telemetry_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
-        "AC02"
+        "AC02",
+        "AC03"
       ],
       "research_revision": 2,
       "research_sha256": "671eb8087a9f775c171eb82669361ac97a213949c6259c7dcf7458a35df0aab3",
@@ -6402,6 +7568,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/078-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "078"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -6456,6 +7626,18 @@
         [
           "python",
           "tools/skill_benchmark_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -6541,7 +7723,8 @@
         "skill/plan-and-execute/references/PLAN_SPEC.md",
         "README.md",
         "README.pt-BR.md",
-        "CHANGELOG.md"
+        "CHANGELOG.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md"
@@ -6572,11 +7755,24 @@
         [
           "python",
           "tools/skill_benchmark_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/provider_switch_handoff_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
-        "AC02"
+        "AC02",
+        "AC03"
       ],
       "research_revision": 2,
       "research_sha256": "671eb8087a9f775c171eb82669361ac97a213949c6259c7dcf7458a35df0aab3",
@@ -6638,6 +7834,10 @@
         {
           "path": "CHANGELOG.md",
           "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -6660,14 +7860,14 @@
       "output": "docs/research/20261028-skill-optimization/implementation/087-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/087-outcome.md",
       "write_scope": [
-        "skill/plan-and-execute/scripts/direct_route.py",
         "skill/plan-and-execute/scripts/validatectl.py",
         "skill/plan-and-execute/scripts/workload_routing.py",
         "skill/plan-and-execute/references/ROUTING.md",
         "skill/plan-and-execute/references/DELEGATION.md",
         "skill/plan-and-execute/references/MODEL_ROUTING.md",
         "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
-        "test/optimization/direct_architecture_handoff_self_test.py"
+        "test/optimization/direct_architecture_handoff_self_test.py",
+        "skill/plan-and-execute/scripts/routingctl.py"
       ],
       "required_checks": [
         [
@@ -6677,6 +7877,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -6717,7 +7925,8 @@
         "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/direct_architecture_handoff_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/087-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/087-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/087-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
@@ -6726,14 +7935,14 @@
       "output": "docs/research/20261028-skill-optimization/implementation/088-receipt.json",
       "report": "docs/research/20261028-skill-optimization/implementation/088-outcome.md",
       "write_scope": [
-        "skill/plan-and-execute/scripts/direct_route.py",
         "skill/plan-and-execute/scripts/validatectl.py",
         "skill/plan-and-execute/scripts/workload_routing.py",
         "skill/plan-and-execute/references/ROUTING.md",
         "skill/plan-and-execute/references/DELEGATION.md",
         "skill/plan-and-execute/references/MODEL_ROUTING.md",
         "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
-        "test/optimization/direct_architecture_handoff_self_test.py"
+        "test/optimization/direct_architecture_handoff_self_test.py",
+        "skill/plan-and-execute/scripts/routingctl.py"
       ],
       "required_checks": [
         [
@@ -6743,6 +7952,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -6752,7 +7969,8 @@
         "AC04",
         "AC05",
         "AC06",
-        "AC07"
+        "AC07",
+        "AC08"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -6778,6 +7996,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/087-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "087"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
@@ -6815,6 +8037,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "node",
+          "tools/validate-skill.js"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/token_efficiency_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -6854,7 +8084,8 @@
         "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/skill_activation_negatives_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/089-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/089-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/089-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
@@ -6878,6 +8109,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "node",
+          "tools/validate-skill.js"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/token_efficiency_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -6886,7 +8125,9 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07",
+        "AC08"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -6912,6 +8153,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/089-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "089"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
@@ -6950,7 +8195,15 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/routing_self_test.py"
+          "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -6958,7 +8211,8 @@
         "AC02",
         "AC03",
         "AC04",
-        "AC05"
+        "AC05",
+        "AC06"
       ],
       "planned_new_files": [
         "test/optimization/blocked_task_split_self_test.py"
@@ -6990,7 +8244,8 @@
         "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/blocked_task_split_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/091-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/091-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/091-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
@@ -7015,7 +8270,15 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/routing_self_test.py"
+          "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -7024,7 +8287,9 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07",
+        "AC08"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -7050,6 +8315,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/091-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "091"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
@@ -7089,6 +8358,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/configure_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -7097,7 +8374,8 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [
         "test/optimization/full_access_delegation_self_test.py"
@@ -7129,7 +8407,8 @@
         "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/full_access_delegation_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/093-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/093-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/093-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
@@ -7155,6 +8434,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/provider_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/configure_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -7164,7 +8451,9 @@
         "AC04",
         "AC05",
         "AC06",
-        "AC07"
+        "AC07",
+        "AC08",
+        "AC09"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -7190,6 +8479,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/093-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "093"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
@@ -7230,6 +8523,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/preplan_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/configure_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_catalogctl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -7238,7 +8543,8 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [
         "test/optimization/provider_readiness_gate_self_test.py"
@@ -7270,7 +8576,8 @@
         "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/provider_readiness_gate_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/095-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/095-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/095-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
@@ -7297,6 +8604,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/preplan_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/configure_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_catalogctl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -7306,7 +8625,9 @@
         "AC04",
         "AC05",
         "AC06",
-        "AC07"
+        "AC07",
+        "AC08",
+        "AC09"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -7332,6 +8653,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/095-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "095"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
@@ -7362,7 +8687,6 @@
         "skill/plan-and-execute/references/INSTALLATION.md",
         "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
         "skill/validate-or-fix/references/OPERATIONS.md",
-        "test/optimization/concise_communication_self_test.py",
         "test/optimization/concise_communication_self_test.py"
       ],
       "required_checks": [
@@ -7372,7 +8696,11 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/routing_self_test.py"
+          "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/token_efficiency_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -7385,7 +8713,9 @@
         "AC07"
       ],
       "planned_new_files": [
-        "test/optimization/concise_communication_self_test.py"
+        "test/optimization/concise_communication_self_test.py",
+        "skill/plan-and-execute/references/USER_COMMUNICATION.md",
+        "skill/plan-and-execute/scripts/process_io.py"
       ],
       "input_contract": [
         {
@@ -7414,7 +8744,8 @@
         "docs/research/20261028-skill-optimization/prepared-research/ADDITIONAL_12_TASKS_20261031.md",
         "test/optimization/concise_communication_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/097-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/097-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/097-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md",
@@ -7431,7 +8762,6 @@
         "skill/plan-and-execute/references/INSTALLATION.md",
         "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
         "skill/validate-or-fix/references/OPERATIONS.md",
-        "test/optimization/concise_communication_self_test.py",
         "test/optimization/concise_communication_self_test.py"
       ],
       "required_checks": [
@@ -7441,7 +8771,11 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/routing_self_test.py"
+          "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/token_efficiency_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -7452,7 +8786,9 @@
         "AC05",
         "AC06",
         "AC07",
-        "AC08"
+        "AC08",
+        "AC09",
+        "AC10"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -7478,6 +8814,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/097-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "097"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read not-yet-created task files; reviews require actual prerequisite receipts."
@@ -7531,6 +8871,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_watch_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/jobctl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -7544,7 +8892,9 @@
         "AC08",
         "AC09",
         "AC10",
-        "AC11"
+        "AC11",
+        "AC12",
+        "AC13"
       ],
       "planned_new_files": [
         "test/optimization/semantic_progress_recovery_self_test.py"
@@ -7571,7 +8921,8 @@
         "docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md",
         "test/optimization/semantic_progress_recovery_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/099-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/099-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/099-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md"
@@ -7612,6 +8963,14 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_watch_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/jobctl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -7626,7 +8985,10 @@
         "AC09",
         "AC10",
         "AC11",
-        "AC12"
+        "AC12",
+        "AC13",
+        "AC14",
+        "AC15"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -7648,6 +9010,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/099-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "099"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read future test or receipt files before their producing task completes; reviewers require actual source hashes and executed tests."
@@ -7713,9 +9079,17 @@
         "AC03",
         "AC04",
         "AC05",
+        "AC06",
         "AC07",
+        "AC08",
         "AC09",
-        "AC11"
+        "AC10",
+        "AC11",
+        "AC12",
+        "AC13",
+        "AC14",
+        "AC15",
+        "AC16"
       ],
       "planned_new_files": [
         "skill/plan-and-execute/scripts/power_inhibit.py",
@@ -7767,7 +9141,7 @@
     },
     {
       "id": "102",
-      "kind": "implementation",
+      "kind": "review",
       "work_type": "review_and_fix",
       "review_of": "101",
       "requires_independent_review": true,
@@ -7783,7 +9157,8 @@
         "skill/plan-and-execute/references/INSTALLATION.pt-BR.md",
         "test/optimization/plan_sleep_inhibition_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/101-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/101-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/101-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md"
@@ -7828,9 +9203,16 @@
         "AC03",
         "AC04",
         "AC05",
+        "AC06",
         "AC07",
+        "AC08",
         "AC09",
-        "AC11"
+        "AC10",
+        "AC11",
+        "AC12",
+        "AC13",
+        "AC14",
+        "AC15"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -7885,6 +9267,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/101-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "101"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read future generated source, test or receipt files; independent review requires real completed outputs."
@@ -7910,7 +9296,9 @@
         "docs/research/20261028-skill-optimization/implementation/106-receipt.json",
         "docs/research/20261028-skill-optimization/implementation/106-outcome.md",
         "docs/research/20261028-skill-optimization/prepared-research/127-project-coding-standards-and-first-use-research.md",
-        "docs/research/20261028-skill-optimization/implementation/130-receipt.json"
+        "docs/research/20261028-skill-optimization/implementation/130-receipt.json",
+        "docs/research/20261028-skill-optimization/prepared-research/131-manager-tier-delegation.md",
+        "docs/research/20261028-skill-optimization/implementation/132-receipt.json"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
@@ -7948,12 +9336,28 @@
         [
           "python",
           "test/optimization/frontier_model_tier_self_test.py"
+        ],
+        [
+          "python",
+          "test/optimization/manager_delegation_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07",
+        "AC08",
+        "AC09",
+        "AC10",
+        "AC11",
+        "AC12",
+        "AC13",
+        "AC14",
+        "AC15"
       ],
       "planned_new_files": [
         "test/optimization/integration_082_self_test.py"
@@ -8025,6 +9429,15 @@
           "path": "docs/research/20261028-skill-optimization/implementation/130-receipt.json",
           "availability": "prerequisite_output",
           "producer_task": "130"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/131-manager-tier-delegation.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/132-receipt.json",
+          "availability": "prerequisite_output",
+          "producer_task": "132"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -8043,7 +9456,8 @@
         "CHANGELOG.md",
         "tools/run-repo-checks.js",
         "docs/research/20261028-skill-optimization/implementation/082-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/082-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/082-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
@@ -8073,7 +9487,10 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06"
       ],
       "planned_new_files": [
         "test/optimization/integration_082_self_test.py"
@@ -8112,6 +9529,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/082-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "082"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -8162,7 +9583,8 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -8207,7 +9629,8 @@
         "CHANGELOG.md",
         "tools/run-repo-checks.js",
         "docs/research/20261028-skill-optimization/implementation/084-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/084-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/084-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
@@ -8241,7 +9664,9 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -8278,6 +9703,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/084-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "084"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -8298,7 +9727,8 @@
         "docs/research/20261028-skill-optimization/implementation/085-receipt.json",
         "docs/research/20261028-skill-optimization/implementation/085-outcome.md",
         "docs/research/20261028-skill-optimization/prepared-research/127-project-coding-standards-and-first-use-research.md",
-        "docs/research/20261028-skill-optimization/implementation/130-receipt.json"
+        "docs/research/20261028-skill-optimization/implementation/130-receipt.json",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
@@ -8332,7 +9762,14 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07",
+        "AC08",
+        "AC09",
+        "AC10"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -8378,6 +9815,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/130-receipt.json",
           "availability": "prerequisite_output",
           "producer_task": "130"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not try to read not-yet-created own test files. Before implementation, require declared prerequisite outputs from completed dependencies; no fabricated placeholder is evidence."
@@ -8425,14 +9866,29 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/routing_self_test.py"
+          "skill/plan-and-execute/scripts/keepalivectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/lifecycle_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
         "AC03",
-        "AC04"
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07",
+        "AC08",
+        "AC09",
+        "AC10",
+        "AC11"
       ],
       "planned_new_files": [
         "skill/plan-and-execute/scripts/keepalive_schedule.py",
@@ -8502,7 +9958,8 @@
         "skill/plan-and-execute/references/LIFECYCLE.md",
         "test/optimization/keepalive_schedule_lifecycle_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/103-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/103-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/103-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/103-opt-in-keepalive-scheduler.md"
@@ -8516,7 +9973,10 @@
         "skill/plan-and-execute/scripts/planctl.py",
         "skill/plan-and-execute/references/WATCHDOG.md",
         "skill/plan-and-execute/references/LIFECYCLE.md",
-        "test/optimization/keepalive_schedule_lifecycle_self_test.py"
+        "test/optimization/keepalive_schedule_lifecycle_self_test.py",
+        "skill/plan-and-execute/scripts/run_concise.py",
+        "skill/plan-and-execute/references/INSTALLATION.md",
+        "skill/plan-and-execute/references/INSTALLATION.pt-BR.md"
       ],
       "required_checks": [
         [
@@ -8525,14 +9985,25 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/routing_self_test.py"
+          "skill/plan-and-execute/scripts/keepalivectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/lifecycle_self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
         "AC03",
-        "AC04"
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -8577,6 +10048,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/103-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "103"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read future files; use actual prerequisite receipts."
@@ -8600,7 +10075,8 @@
         "skill/plan-and-execute/references/MODEL_CATALOG.md",
         "skill/plan-and-execute/references/ROUTING_CONFIG.md",
         "skill/plan-and-execute/references/PLAN_SPEC.md",
-        "test/optimization/frontier_model_tier_self_test.py"
+        "test/optimization/frontier_model_tier_self_test.py",
+        "docs/research/MODEL_REFRESH_20261120.md"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md"
@@ -8619,7 +10095,10 @@
         "skill/plan-and-execute/references/MODEL_CATALOG.md",
         "skill/plan-and-execute/references/ROUTING_CONFIG.md",
         "skill/plan-and-execute/references/PLAN_SPEC.md",
-        "test/optimization/frontier_model_tier_self_test.py"
+        "test/optimization/frontier_model_tier_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+        "skill/plan-and-execute/scripts/run_isolated.py"
       ],
       "required_checks": [
         [
@@ -8629,13 +10108,52 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_catalog_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_catalogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_matrix_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
         "AC03",
-        "AC04"
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [
         "test/optimization/frontier_model_tier_self_test.py"
@@ -8692,6 +10210,10 @@
         {
           "path": "test/optimization/frontier_model_tier_self_test.py",
           "availability": "create_in_this_task"
+        },
+        {
+          "path": "docs/research/MODEL_REFRESH_20261120.md",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read future files; use actual prerequisite receipts."
@@ -8717,7 +10239,9 @@
         "skill/plan-and-execute/references/PLAN_SPEC.md",
         "test/optimization/frontier_model_tier_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/105-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/105-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/105-outcome.md",
+        "docs/research/MODEL_REFRESH_20261120.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md"
@@ -8736,7 +10260,10 @@
         "skill/plan-and-execute/references/MODEL_CATALOG.md",
         "skill/plan-and-execute/references/ROUTING_CONFIG.md",
         "skill/plan-and-execute/references/PLAN_SPEC.md",
-        "test/optimization/frontier_model_tier_self_test.py"
+        "test/optimization/frontier_model_tier_self_test.py",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md",
+        "skill/plan-and-execute/scripts/run_isolated.py"
       ],
       "required_checks": [
         [
@@ -8746,13 +10273,52 @@
         [
           "python",
           "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/route_selector_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_catalog_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_catalogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/workload_routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/model_matrix_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
         "AC03",
-        "AC04"
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -8817,6 +10383,14 @@
           "path": "docs/research/20261028-skill-optimization/implementation/105-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "105"
+        },
+        {
+          "path": "docs/research/MODEL_REFRESH_20261120.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Do not read future files; use actual prerequisite receipts."
@@ -8870,8 +10444,7 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/planctl.py",
-          "--help"
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -8882,7 +10455,9 @@
         "AC05",
         "AC06",
         "AC07",
-        "AC08"
+        "AC08",
+        "AC09",
+        "AC10"
       ],
       "planned_new_files": [
         "test/optimization/architecture_security_performance_review_self_test.py"
@@ -8960,7 +10535,8 @@
         "skill/plan-and-execute/references/SKILL_MAINTENANCE_REVIEW.md",
         "test/optimization/architecture_security_performance_review_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/107-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/107-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/107-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/107-architecture-security-performance-review.md"
@@ -8991,8 +10567,7 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/planctl.py",
-          "--help"
+          "skill/plan-and-execute/scripts/self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -9000,7 +10575,9 @@
         "AC02",
         "AC03",
         "AC04",
-        "AC05"
+        "AC05",
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -9063,6 +10640,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/107-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "107"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Read only real assigned existing files and accepted prerequisite outputs, never future tests or fake reviewer receipts."
@@ -9123,6 +10704,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/validatectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -9228,7 +10821,8 @@
         "docs/plans/20261028-skill-optimization/support/run_task_checks.py",
         "test/optimization/batch_test_failure_cycle_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/109-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/109-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/109-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md"
@@ -9263,6 +10857,18 @@
         [
           "python",
           "skill/plan-and-execute/scripts/validatectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/failure_evidence_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -9271,7 +10877,8 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -9346,6 +10953,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/109-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "109"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Read only current existing files and completed prerequisite outputs. Future files are created by 109 and never fabricated in preparation."
@@ -9395,7 +11006,15 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/reliability_self_test.py"
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -9484,7 +11103,8 @@
         "skill/plan-and-execute/references/TEST_STRATEGY.md",
         "test/optimization/impact_aware_test_strategy_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/111-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/111-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/111-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/111-impact-aware-test-design-and-selection.md"
@@ -9511,7 +11131,15 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/reliability_self_test.py"
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/validatectl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -9519,7 +11147,9 @@
         "AC02",
         "AC03",
         "AC04",
-        "AC05"
+        "AC05",
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -9583,6 +11213,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/111-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "111"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Use real preceding task outputs; do not pre-create or fabricate future evidence."
@@ -9637,6 +11271,10 @@
         [
           "python",
           "skill/plan-and-execute/scripts/context_self_test.py"
+        ],
+        [
+          "node",
+          "tools/validate-skill.js"
         ]
       ],
       "acceptance_ids": [
@@ -9647,7 +11285,12 @@
         "AC05",
         "AC06",
         "AC07",
-        "AC08"
+        "AC08",
+        "AC09",
+        "AC10",
+        "AC11",
+        "AC12",
+        "AC13"
       ],
       "planned_new_files": [
         "skill/plan-and-execute/scripts/test_audit.py",
@@ -9737,7 +11380,8 @@
         "skill/plan-and-execute/references/TEST_REVIEW_REFACTOR.md",
         "test/optimization/test_suite_refactor_scope_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/113-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/113-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/113-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/113-opt-in-test-suite-review-refactor.md"
@@ -9767,6 +11411,10 @@
         [
           "python",
           "skill/plan-and-execute/scripts/context_self_test.py"
+        ],
+        [
+          "node",
+          "tools/validate-skill.js"
         ]
       ],
       "acceptance_ids": [
@@ -9775,7 +11423,9 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07",
+        "AC08"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -9847,6 +11497,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/113-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "113"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Use real preceding task outputs; do not pre-create or fabricate future evidence."
@@ -9890,7 +11544,11 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/reliability_self_test.py"
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/keepalivectl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -9899,7 +11557,10 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07",
+        "AC08",
+        "AC09"
       ],
       "planned_new_files": [
         "skill/plan-and-execute/scripts/quota_resume.py",
@@ -9963,7 +11624,8 @@
         "skill/plan-and-execute/references/QUOTA_RECOVERY.md",
         "test/optimization/quota_recovery_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/115-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/115-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/115-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/115-quota-auto-recovery.md"
@@ -9987,7 +11649,11 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/reliability_self_test.py"
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/keepalivectl_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -9996,7 +11662,10 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07",
+        "AC08",
+        "AC09"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -10048,6 +11717,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/115-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "115"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Future sources/tests must not be read before producer task; review uses real source and dispatch evidence."
@@ -10091,7 +11764,7 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/reliability_self_test.py"
+          "skill/plan-and-execute/scripts/context_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -10166,7 +11839,8 @@
         "skill/plan-and-execute/references/TEST_AUTHORING.md",
         "test/optimization/ai_test_quality_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/117-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/117-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/117-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/117-ai-test-oracle-quality.md"
@@ -10190,7 +11864,7 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/reliability_self_test.py"
+          "skill/plan-and-execute/scripts/context_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -10199,7 +11873,8 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -10253,6 +11928,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/117-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "117"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Future sources/tests must not be read before producer task; review uses real source and dispatch evidence."
@@ -10294,7 +11973,11 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/reliability_self_test.py"
+          "skill/plan-and-execute/scripts/token_efficiency_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -10303,7 +11986,8 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [
         "skill/plan-and-execute/scripts/task_context_router.py",
@@ -10362,7 +12046,8 @@
         "skill/plan-and-execute/references/TASK_CONTEXT_ROUTING.md",
         "test/optimization/route_aware_context_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/119-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/119-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/119-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/119-task-wide-lazy-routing.md"
@@ -10385,7 +12070,11 @@
         ],
         [
           "python",
-          "skill/plan-and-execute/scripts/reliability_self_test.py"
+          "skill/plan-and-execute/scripts/token_efficiency_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
         ]
       ],
       "acceptance_ids": [
@@ -10394,7 +12083,9 @@
         "AC03",
         "AC04",
         "AC05",
-        "AC06"
+        "AC06",
+        "AC07",
+        "AC08"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -10442,6 +12133,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/119-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "119"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Future sources/tests must not be read before producer task; review uses real source and dispatch evidence."
@@ -10481,16 +12176,18 @@
           "test/optimization/ux_context_self_test.py"
         ],
         [
-          "python",
-          "docs/plans/20261028-skill-optimization/support/check_delivery.py",
-          "--structure"
+          "node",
+          "tools/validate-skill.js"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
         "AC03",
-        "AC04"
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07"
       ],
       "planned_new_files": [
         "skill/plan-and-execute/scripts/design_context.py",
@@ -10550,7 +12247,8 @@
         "skill/plan-and-execute/SKILL.md",
         "test/optimization/ux_context_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/121-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/121-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/121-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md"
@@ -10578,7 +12276,10 @@
       ],
       "acceptance_ids": [
         "AC01",
-        "AC02"
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -10626,6 +12327,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/121-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "121"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Only read existing source or real accepted prerequisite output. No simulated browser, review or approval; never write production during prototype sync-plan."
@@ -10670,16 +12375,17 @@
           "test/optimization/ux_prototype_lab_self_test.py"
         ],
         [
-          "python",
-          "docs/plans/20261028-skill-optimization/support/check_delivery.py",
-          "--structure"
+          "node",
+          "tools/validate-skill.js"
         ]
       ],
       "acceptance_ids": [
         "AC01",
         "AC02",
         "AC03",
-        "AC04"
+        "AC04",
+        "AC05",
+        "AC06"
       ],
       "planned_new_files": [
         "skill/plan-and-execute/scripts/ux_prototype.py",
@@ -10754,7 +12460,8 @@
         "skill/plan-and-execute/assets/ux-lab-template/README.md",
         "test/optimization/ux_prototype_lab_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/123-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/123-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/123-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md"
@@ -10785,7 +12492,11 @@
       ],
       "acceptance_ids": [
         "AC01",
-        "AC02"
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -10847,6 +12558,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/123-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "123"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Only read existing source or real accepted prerequisite output. No simulated browser, review or approval; never write production during prototype sync-plan."
@@ -10894,7 +12609,8 @@
         "AC01",
         "AC02",
         "AC03",
-        "AC04"
+        "AC04",
+        "AC05"
       ],
       "planned_new_files": [
         "skill/plan-and-execute/scripts/ux_review.py",
@@ -10949,7 +12665,8 @@
         "test/optimization/ux_visual_acceptance_self_test.py",
         "test/cli.test.js",
         "docs/research/20261028-skill-optimization/implementation/125-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/125-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/125-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md"
@@ -10978,7 +12695,9 @@
       "acceptance_ids": [
         "AC01",
         "AC02",
-        "AC03"
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -11025,6 +12744,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/125-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "125"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Only read existing source or real accepted prerequisite output. No simulated browser, review or approval; never write production during prototype sync-plan."
@@ -11150,7 +12873,8 @@
         "test/optimization/standards_onboarding_self_test.py",
         "test/cli.test.js",
         "docs/research/20261028-skill-optimization/implementation/127-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/127-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/127-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/127-project-coding-standards-and-first-use-research.md"
@@ -11181,7 +12905,10 @@
       ],
       "acceptance_ids": [
         "AC01",
-        "AC02"
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -11240,6 +12967,10 @@
           "path": "docs/research/20261028-skill-optimization/implementation/127-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "127"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Read P066 and existing sources only; do not read not-yet-created files until the producing task actually generated them; do not re-run broad project research, fabricate reviews or approve unknown patterns."
@@ -11340,7 +13071,8 @@
         "skill/plan-and-execute/references/PROJECT_STANDARDS_GATES.md",
         "test/optimization/standards_guard_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/129-receipt.json",
-        "docs/research/20261028-skill-optimization/implementation/129-outcome.md"
+        "docs/research/20261028-skill-optimization/implementation/129-outcome.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/127-project-coding-standards-and-first-use-research.md"
@@ -11367,7 +13099,10 @@
       ],
       "acceptance_ids": [
         "AC01",
-        "AC02"
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
       ],
       "planned_new_files": [],
       "input_contract": [
@@ -11414,9 +13149,356 @@
           "path": "docs/research/20261028-skill-optimization/implementation/129-outcome.md",
           "availability": "prerequisite_output",
           "producer_task": "129"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
         }
       ],
       "input_rule": "Read P066 and existing sources only; do not read not-yet-created files until the producing task actually generated them; do not re-run broad project research, fabricate reviews or approve unknown patterns."
+    },
+    {
+      "id": "131",
+      "kind": "implementation",
+      "work_type": "implementation",
+      "review_of": null,
+      "requires_independent_review": false,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/131-manager-tier-delegation.md",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "skill/plan-and-execute/references/DELEGATION.md",
+        "skill/plan-and-execute/references/WATCHDOG.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "test/optimization/manager_delegation_self_test.py",
+        "docs/research/MODEL_REFRESH_20261120.md"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/131-manager-tier-delegation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/131-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/131-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "skill/plan-and-execute/references/DELEGATION.md",
+        "skill/plan-and-execute/references/WATCHDOG.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "test/optimization/manager_delegation_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/manager_delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/frontier_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/keepalivectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/telemetry_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "node",
+          "tools/validate-skill.js"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05",
+        "AC06",
+        "AC07",
+        "AC08",
+        "AC09",
+        "AC10",
+        "AC11",
+        "AC12"
+      ],
+      "planned_new_files": [
+        "test/optimization/manager_delegation_self_test.py"
+      ],
+      "input_contract": [
+        {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/131-manager-tier-delegation.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/routingctl.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/routing_config.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/watchdogctl.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/run_isolated.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/keepalivectl.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/routing_telemetry.py",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/DELEGATION.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/WATCHDOG.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "test/optimization/manager_delegation_self_test.py",
+          "availability": "create_in_this_task"
+        },
+        {
+          "path": "docs/research/MODEL_REFRESH_20261120.md",
+          "availability": "existing_baseline_or_current_file"
+        }
+      ],
+      "input_rule": "Read P067 research and existing sources only; do not read not-yet-created files until the producing task generated them; never call a live model in tests or fabricate reviews."
+    },
+    {
+      "id": "132",
+      "kind": "review",
+      "work_type": "review",
+      "review_of": "131",
+      "requires_independent_review": true,
+      "inputs": [
+        "docs/research/20261028-skill-optimization/prepared-research/131-manager-tier-delegation.md",
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "skill/plan-and-execute/references/DELEGATION.md",
+        "skill/plan-and-execute/references/WATCHDOG.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "test/optimization/manager_delegation_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/131-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/131-outcome.md",
+        "docs/research/MODEL_REFRESH_20261120.md",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
+      ],
+      "prepared_reports": [
+        "docs/research/20261028-skill-optimization/prepared-research/131-manager-tier-delegation.md"
+      ],
+      "output": "docs/research/20261028-skill-optimization/implementation/132-receipt.json",
+      "report": "docs/research/20261028-skill-optimization/implementation/132-outcome.md",
+      "write_scope": [
+        "skill/plan-and-execute/scripts/routingctl.py",
+        "skill/plan-and-execute/scripts/routing_config.py",
+        "skill/plan-and-execute/scripts/watchdogctl.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/keepalivectl.py",
+        "skill/plan-and-execute/scripts/routing_telemetry.py",
+        "skill/plan-and-execute/references/DELEGATION.md",
+        "skill/plan-and-execute/references/WATCHDOG.md",
+        "skill/plan-and-execute/references/MODEL_ROUTING.md",
+        "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+        "test/optimization/manager_delegation_self_test.py"
+      ],
+      "required_checks": [
+        [
+          "python",
+          "test/optimization/manager_delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/delegation_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/frontier_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/routing_config_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/watchdogctl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/keepalivectl_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/telemetry_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/availability_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+        ],
+        [
+          "python",
+          "skill/plan-and-execute/scripts/self_test.py"
+        ],
+        [
+          "node",
+          "tools/validate-skill.js"
+        ]
+      ],
+      "acceptance_ids": [
+        "AC01",
+        "AC02",
+        "AC03",
+        "AC04",
+        "AC05"
+      ],
+      "planned_new_files": [],
+      "input_contract": [
+        {
+          "path": "docs/research/20261028-skill-optimization/prepared-research/131-manager-tier-delegation.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/routingctl.py",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/routing_config.py",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/watchdogctl.py",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/run_isolated.py",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/keepalivectl.py",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "skill/plan-and-execute/scripts/routing_telemetry.py",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "skill/plan-and-execute/references/DELEGATION.md",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "skill/plan-and-execute/references/WATCHDOG.md",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "skill/plan-and-execute/references/MODEL_ROUTING.md",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "skill/plan-and-execute/references/ROUTING_CONFIG.md",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "test/optimization/manager_delegation_self_test.py",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/131-receipt.json",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/131-outcome.md",
+          "availability": "prerequisite_output",
+          "producer_task": "131"
+        },
+        {
+          "path": "docs/research/MODEL_REFRESH_20261120.md",
+          "availability": "existing_baseline_or_current_file"
+        },
+        {
+          "path": "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+          "availability": "existing_baseline_or_current_file"
+        }
+      ],
+      "input_rule": "Read P067 research and existing sources only; do not read not-yet-created files until the producing task generated them; never call a live model in tests or fabricate reviews."
     }
   ],
   "research_revision": 2

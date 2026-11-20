@@ -37,6 +37,8 @@ VAGUE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("facilmente", re.compile(r"\bfacilmente\b", re.I)),
 )
 
+COMPLETION_FIELDS = ("completion_summary", "completion_risks", "completion_follow_ups")
+
 PLAN_BUDGETS = {
     "title": 120,
     "summary": 320,
@@ -61,6 +63,8 @@ PLAN_BUDGETS = {
     "completion_summary": 360,
     "completion_item": 240,
     "validation_detail": 600,
+    "supersession_note": 240,
+    "amendment": 320,
 }
 
 STUDY_BUDGETS = {
@@ -169,6 +173,12 @@ def _md(items: Iterable[str], empty: str = "- None") -> str:
 
 def _validate_plan_text(planctl: Any, manifest: dict[str, Any]) -> list[str]:
     errors: list[str] = []
+    try:
+        schema_version = int(manifest.get("schema_version", 4) or 4)
+    except (TypeError, ValueError):
+        schema_version = 4
+    if schema_version < 2:
+        return errors
 
     def check(func: Any, *args: Any, **kwargs: Any) -> None:
         try:
@@ -203,6 +213,14 @@ def _validate_plan_text(planctl: Any, manifest: dict[str, Any]) -> list[str]:
             PLAN_BUDGETS["requirement"],
             planctl.PlanError,
         )
+        if req.get("supersession_note"):
+            check(
+                concise_line,
+                req.get("supersession_note"),
+                f"requirements[{index}].supersession_note",
+                PLAN_BUDGETS["supersession_note"],
+                planctl.PlanError,
+            )
     for field, budget, limit in (
         ("repository_findings", "finding", "findings"),
         ("research_findings", "finding", "findings"),
@@ -313,65 +331,66 @@ def _validate_plan_text(planctl: Any, manifest: dict[str, Any]) -> list[str]:
             max_items=MAX_LIST_ITEMS["validations"],
             vague=False,
         )
-        boundary = task.get("context_boundary", {})
-        check(
-            concise_line,
-            boundary.get("why_one_todo"),
-            f"Task {task_id} context_boundary.why_one_todo",
-            360,
-            planctl.PlanError,
-        )
-        check(
-            concise_list,
-            boundary.get("shared_context", []),
-            f"Task {task_id} context_boundary.shared_context",
-            200,
-            planctl.PlanError,
-            max_items=6,
-        )
-        check(
-            concise_list,
-            boundary.get("separate_from", []),
-            f"Task {task_id} context_boundary.separate_from",
-            200,
-            planctl.PlanError,
-            max_items=6,
-        )
-        for subtask in task.get("subtasks", []):
-            sid = str(subtask.get("id", "?"))
+        if schema_version >= 4:
+            boundary = task.get("context_boundary", {})
             check(
                 concise_line,
-                subtask.get("title"),
-                f"Task {task_id} subtask {sid} title",
-                120,
-                planctl.PlanError,
-            )
-            objective = str(subtask.get("objective", "")).strip()
-            if objective:
-                check(
-                    concise_line,
-                    objective,
-                    f"Task {task_id} subtask {sid} objective",
-                    280,
-                    planctl.PlanError,
-                )
-        for target in task.get("learning_targets", []):
-            tid = str(target.get("task_id", "?"))
-            check(
-                concise_line,
-                target.get("reason"),
-                f"Task {task_id} learning target {tid} reason",
-                280,
+                boundary.get("why_one_todo"),
+                f"Task {task_id} context_boundary.why_one_todo",
+                360,
                 planctl.PlanError,
             )
             check(
                 concise_list,
-                target.get("topics", []),
-                f"Task {task_id} learning target {tid} topics",
-                80,
+                boundary.get("shared_context", []),
+                f"Task {task_id} context_boundary.shared_context",
+                200,
                 planctl.PlanError,
                 max_items=6,
             )
+            check(
+                concise_list,
+                boundary.get("separate_from", []),
+                f"Task {task_id} context_boundary.separate_from",
+                200,
+                planctl.PlanError,
+                max_items=6,
+            )
+            for subtask in task.get("subtasks", []):
+                sid = str(subtask.get("id", "?"))
+                check(
+                    concise_line,
+                    subtask.get("title"),
+                    f"Task {task_id} subtask {sid} title",
+                    120,
+                    planctl.PlanError,
+                )
+                objective = str(subtask.get("objective", "")).strip()
+                if objective:
+                    check(
+                        concise_line,
+                        objective,
+                        f"Task {task_id} subtask {sid} objective",
+                        280,
+                        planctl.PlanError,
+                    )
+            for target in task.get("learning_targets", []):
+                tid = str(target.get("task_id", "?"))
+                check(
+                    concise_line,
+                    target.get("reason"),
+                    f"Task {task_id} learning target {tid} reason",
+                    280,
+                    planctl.PlanError,
+                )
+                check(
+                    concise_list,
+                    target.get("topics", []),
+                    f"Task {task_id} learning target {tid} topics",
+                    80,
+                    planctl.PlanError,
+                    max_items=6,
+                )
     return errors
 
 
@@ -503,8 +522,9 @@ def _compact_plan_renderers(planctl: Any) -> None:
         for req in manifest["requirements"]:
             parts = ",".join(req.get("request_part_ids", [])) or "derived"
             tasks = ",".join(req_to_tasks[req["id"]])
+            note = f" _(superseded: {req['supersession_note']})_" if req.get("supersession_note") else ""
             requirements.append(
-                f"- **{req['id']}** [{req['priority']}; {req['source']}; {parts} -> {tasks}] {req['text']}"
+                f"- **{req['id']}** [{req['priority']}; {req['source']}; {parts} -> {tasks}] {req['text']}{note}"
             )
         context = (
             render_execution_context_strategy(manifest["execution_context"])
@@ -640,9 +660,16 @@ def _compact_plan_renderers(planctl: Any) -> None:
         declaration: dict[str, Any],
         learnings: list[dict[str, Any]],
     ) -> str:
+        contract_digest = str(source_task.get("contract_digest") or "unpinned")[:12]
         lines = [
             f"# Learning {source_task['id']} -> {target_task['id']}",
             "",
+            (
+                f"Trust: `{planctl.TRUST_CLASS_VALIDATED_LEARNING}` · "
+                f"Producer: `{source_task['id']}` · "
+                f"Consumers: `{target_task['id']}` · "
+                f"Contract: `{contract_digest}`"
+            ),
             f"Topics: {', '.join(declaration['topics'])}",
             f"Reason: {declaration['reason']}",
             "",
@@ -686,8 +713,11 @@ def install_plan_contract() -> Any:
     planctl.MAX_LEARNING_TOPIC_CHARS = min(planctl.MAX_LEARNING_TOPIC_CHARS, 80)
     planctl.MAX_LEARNING_GUIDANCE_CHARS = min(planctl.MAX_LEARNING_GUIDANCE_CHARS, 320)
     planctl.MAX_LEARNING_FILE_CHARS = min(planctl.MAX_LEARNING_FILE_CHARS, 2200)
+    planctl.MAX_HYPOTHESIS_CHARS = min(planctl.MAX_HYPOTHESIS_CHARS, 240)
+    planctl.MAX_HYPOTHESIS_REASON_CHARS = min(planctl.MAX_HYPOTHESIS_REASON_CHARS, 200)
 
     original_create_plan = planctl.create_plan
+    original_revise_plan = planctl.revise_plan
     original_validate_plan = planctl.validate_plan
     original_complete_task = planctl.complete_task
     original_reset_task = planctl.reset_task
@@ -725,6 +755,20 @@ def install_plan_contract() -> Any:
         preflight_spec(spec)
         return original_create_plan(*args, **kwargs)
 
+    def revise_plan(*args: Any, **kwargs: Any):
+        spec = args[1] if len(args) > 1 else kwargs.get("spec")
+        if not isinstance(spec, dict):
+            raise planctl.PlanError("Plan spec root must be an object")
+        preflight_spec(spec)
+        if "amendment" in kwargs and kwargs["amendment"] is not None:
+            concise_line(
+                kwargs["amendment"],
+                "amendment",
+                PLAN_BUDGETS["amendment"],
+                planctl.PlanError,
+            )
+        return original_revise_plan(*args, **kwargs)
+
     def validate_plan(plan_dir: Any, manifest: dict[str, Any] | None = None) -> list[str]:
         errors = original_validate_plan(plan_dir, manifest)
         if manifest is None:
@@ -732,7 +776,8 @@ def install_plan_contract() -> Any:
                 _loaded_dir, manifest = planctl.load_plan(plan_dir)
             except planctl.PlanError:
                 return errors
-        errors.extend(_validate_plan_text(planctl, manifest))
+        if int(manifest.get("schema_version", 0) or 0) >= 2:
+            errors.extend(_validate_plan_text(planctl, manifest))
         return errors
 
     def complete_task(
@@ -742,23 +787,32 @@ def install_plan_contract() -> Any:
         report: dict[str, Any],
         result_file: str | None,
     ) -> dict[str, Any]:
-        if isinstance(report, dict):
-            _validate_completion_report(planctl, report)
-        task = original_complete_task(plan_dir, manifest, task_id, report, result_file)
-        if isinstance(report, dict):
-            task["completion_summary"] = str(report.get("summary") or "").strip()
-            task["completion_risks"] = list(report.get("risks") or [])
-            task["completion_follow_ups"] = list(report.get("follow_ups") or [])
-            planctl.save_manifest(plan_dir, manifest)
-        return task
+        if not isinstance(report, dict):
+            return original_complete_task(plan_dir, manifest, task_id, report, result_file)
+        _validate_completion_report(planctl, report)
+        # Stage the summary fields on the task so the completion and its summary land in
+        # the same locked manifest save; restore them if completion is rejected.
+        target = planctl.find_task(manifest, task_id)
+        previous = {field: target[field] for field in COMPLETION_FIELDS if field in target}
+        target["completion_summary"] = str(report.get("summary") or "").strip()
+        target["completion_risks"] = list(report.get("risks") or [])
+        target["completion_follow_ups"] = list(report.get("follow_ups") or [])
+        try:
+            return original_complete_task(plan_dir, manifest, task_id, report, result_file)
+        except BaseException:
+            for field in COMPLETION_FIELDS:
+                target.pop(field, None)
+            target.update(previous)
+            raise
 
     def reset_task(plan_dir: Any, manifest: dict[str, Any], task_id: str) -> dict[str, Any]:
-        task = original_reset_task(plan_dir, manifest, task_id)
-        task.pop("completion_summary", None)
-        task.pop("completion_risks", None)
-        task.pop("completion_follow_ups", None)
-        planctl.save_manifest(plan_dir, manifest)
-        return task
+        target = planctl.find_task(manifest, task_id)
+        previous = {field: target.pop(field) for field in COMPLETION_FIELDS if field in target}
+        try:
+            return original_reset_task(plan_dir, manifest, task_id)
+        except BaseException:
+            target.update(previous)
+            raise
 
     def fail_task(
         plan_dir: Any,
@@ -772,6 +826,7 @@ def install_plan_contract() -> Any:
         validation_stalled: bool = False,
         validation_idle_seconds: int = 0,
         validation_log: str | None = None,
+        hypothesis: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         clipped = planctl.bounded_failure_reason(str(reason), 1400)
         return original_fail_task(
@@ -785,6 +840,7 @@ def install_plan_contract() -> Any:
             validation_stalled=validation_stalled,
             validation_idle_seconds=validation_idle_seconds,
             validation_log=validation_log,
+            hypothesis=hypothesis,
         )
 
     def deterministic_summary(manifest: dict[str, Any]) -> str:
@@ -801,6 +857,7 @@ def install_plan_contract() -> Any:
 
     _compact_plan_renderers(planctl)
     planctl.create_plan = create_plan
+    planctl.revise_plan = revise_plan
     planctl.validate_plan = validate_plan
     planctl.complete_task = complete_task
     planctl.reset_task = reset_task

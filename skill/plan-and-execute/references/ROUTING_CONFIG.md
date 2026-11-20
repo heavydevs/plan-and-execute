@@ -48,6 +48,24 @@ These preferences are configurable, not built-in defaults or model quality ranki
 
 An explicit task/CLI provider is first; declared alternatives remain subject to `allow_provider_fallback`. A pinned provider plus fallback disabled never silently switches. Existing `provider_order` behavior remains when no tier-specific chain is present.
 
+### Frontier level (`routing_policy.frontier`)
+
+The frontier level L6/F6 (Claude Fable 5.2, GPT-6.2 Astra) sits above `max` and is never a `models` tier. Defaults (enabled per owner decision 2026-11-20):
+
+```json
+{
+  "routing_policy": {"frontier": {"enabled": true, "min_top_failures": 2}},
+  "codex": {"frontier": {"model": "gpt-6.2-astra", "effort": "high"}},
+  "claude": {"frontier": {"model": "claude-fable-5-2", "effort": "high"}},
+  "antigravity": {"frontier": {"model": "gemini-4-carbon-high"}}
+}
+```
+
+- `enabled` (boolean): `false` restores the plain `ladder_exhausted` block. `min_top_failures` (1-10, default 2): functional failures (`semantic`, `mechanical`, `unknown`) at the max/xhigh rung before the next dispatch becomes the frontier route.
+- `<provider>.frontier`: `model` (`""` disables that provider's frontier level) and `effort` (`high` or `xhigh`; `max` and Codex `ultra` are rejected). Claude and Codex have built-in values; set the Antigravity line only when `agy models` lists a `gemini-4-carbon-*` id (never preset). Providers behind a non-native profile (glm, deepseek) have no frontier level. `models.frontier` is rejected: the level is never a tier.
+- The frontier chain is the `max` chain (`tier_routes.max`, else `provider_order`) with the same explicit-provider and `allow_provider_fallback` rules. Quota/credits, auth, capacity and a CLI too old for the model (Claude Code < 2.1.321 for Fable 5.2) are availability: the next provider's frontier model runs and no escalation is recorded.
+- Persisted routes keep `tier: "max"` and add `level: "frontier"`, `frontier: true`; plans cannot pin `model_tier: frontier`.
+
 ## Provider profiles and harnesses
 
 Harness (which CLI adapter builds argv: `claude`, `codex` or `native` = the provider's own adapter) and profile (endpoint and credentials) are independent axes. A profile on a compatible API reuses an existing adapter; the provider keeps its own `models`, caps and `extra_args`.

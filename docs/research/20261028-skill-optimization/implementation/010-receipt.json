@@ -1,0 +1,113 @@
+{
+  "schema_version": 2,
+  "task_id": "010",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Implemented decision-oriented adaptive study evidence ledger, reading-scope separation, domain/contradiction guards, CLI refresh flags, and selective invalidation in studyctl.py, updated ADAPTIVE_STUDY.md, and verified all 7 acceptance criteria plus prepared-research non-proof via declared regression checks.",
+  "outcome_sha256": "92a6a0d216e1c26f36220ad1306a66e9ca75416336e3f2d1be038466d43b2f0a",
+  "checks_sha256": "a2feb7865b7880f5bf5f2dc3646ada174719a058c5fba36d84f0fefe4cf98e7e",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md",
+      "sha256": "1324b55081d8719cf284cab62296ecc935dd8df31c63c92b33e2854c8b85d72e"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "skill/plan-and-execute/scripts/studyctl.py",
+      "sha256": "07cfca7e82ce1b22eeeaf4f16894380071c761012ea6d6115cbab0b2c66f045b"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/study_self_test.py",
+      "sha256": "e3cc3d381cb86a121a6d279a9d491f4a4da08766ab2a820f2188919861a6a5f7"
+    },
+    {
+      "path": "test/optimization/adaptive_study_self_test.py",
+      "sha256": "029051096ee015dc60ad628b37097057e193675ff2273134d58c1594b9735857"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+      "sha256": "d4dcbcb852dbe4f26968f2931347775d9bd1af21d7c93942e2ba9a041e375f82"
+    }
+  ],
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "test/optimization/adaptive_study_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/010-outcome.md"
+      ]
+    },
+    {
+      "id": "AC02",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "test/optimization/adaptive_study_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/010-outcome.md"
+      ]
+    },
+    {
+      "id": "AC03",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "skill/plan-and-execute/scripts/study_self_test.py",
+        "test/optimization/adaptive_study_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-02.log"
+      ]
+    },
+    {
+      "id": "AC04",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "skill/plan-and-execute/scripts/study_self_test.py",
+        "test/optimization/adaptive_study_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-02.log"
+      ]
+    },
+    {
+      "id": "AC05",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "skill/plan-and-execute/scripts/study_self_test.py",
+        "test/optimization/adaptive_study_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-02.log"
+      ]
+    },
+    {
+      "id": "AC06",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "test/optimization/adaptive_study_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/010-outcome.md"
+      ]
+    },
+    {
+      "id": "AC07",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/studyctl.py",
+        "test/optimization/adaptive_study_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/010-outcome.md"
+      ]
+    }
+  ],
+  "limitations": [
+    "No live authenticated provider invocation or live subscription-quota benchmark was executed.",
+    "Vendor publications remain bounded external evidence rather than measured savings on this repository.",
+    "Independent fresh-context max-capability code review remains pending in task 011."
+  ]
+}

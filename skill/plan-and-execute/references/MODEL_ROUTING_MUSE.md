@@ -4,7 +4,7 @@ Read only when Muse Code will execute the current work. `MODEL_ROUTING.md` owns 
 
 ## Status and evidence
 
-Muse is an optional native provider (`harness: native`, adapter `muse`). It is never in the default `provider_order`: an environment without Muse configured, installed and available gets no Muse candidate and no behavior change. Bootstrap data is dated evidence, not placement. The model id, tier and effort vocabulary below come from the portable-routing request (PR #17 scope: `docs/requests/portable-model-routing-dynamic-provider-catalog.md` s2.4, s12, s78) and have **not** been verified against an installed `muse` CLI; refresh the catalog from the CLI before relying on them.
+Muse is an optional native provider (`harness: native`, adapter `muse`). It is never in the default `provider_order`: an environment without Muse configured, installed and available gets no Muse candidate and no behavior change. Bootstrap data is dated evidence, not placement. Model ids, prices and the effort vocabulary were re-verified on 2026-11-20 against Meta's developer docs (dev.meta.ai: muse-code, reasoning, pricing; `docs/research/model-refresh-20261120/other-providers.md`), not against an installed `muse` CLI. Muse Code (headless `muse exec`) defaults to `muse-spark-1.2`, so the runner always passes `--model`. Effort values are `minimal`..`max` (`none` returns HTTP 400); `xhigh` is not documented, so the catalog maps it to `max`, but the runner passes logical efforts through — do not pin `xhigh` on a Muse route.
 
 ## Catalog mapping
 
@@ -12,11 +12,13 @@ Concrete ids live in the bootstrap catalog (`scripts/model_catalog.py`, current 
 
 | Tier | Model | Starting effort | Effort cap |
 |---|---|---|---|
-| `advanced` | `muse-spark-1.3` | `medium` | `high` |
+| `economy` | `muse-ember-1.0` | `low` | `max` |
+| `standard` | `muse-spark-1.3` | `medium` | `max` |
+| `advanced` | `muse-wonder-1.0` (preview) | `medium` | `max` |
 
-Muse serves only `advanced`; every other tier is empty for it. An empty tier is skipped upward and never filled by invention or downgraded below the floor, so a `standard` floor reaches Muse at `advanced` and a `strong` floor has no Muse candidate. A model that the catalog marks `accepts_effort: false` gets no `--reasoning-effort` flag. Efforts above the cap are clamped (`xhigh`/`max` become `high`). `Muse Spark 1.3` is a release, not an eternal default: treat it as updatable catalog data.
+Evidence (Artificial Analysis Intelligence Index v5.0.1, list prices per 1M in / cached / out): Ember 36 at about $0.14/task ($0.10 / $0.004 / $0.50; $0.30 / $0.012 / $1.50 above 200K prompt tokens); Spark 1.3 37 at $2.39 ($1.25 / $0.15 / $4.25), deprecated by AA in favour of Wonder, so it moved from `advanced` to `standard`; Wonder 44 at $6.95 ($4 / $0.20 / $20; Wonder Full only on the Power/Maximum plans per a secondary source). `muse-spark-1.3-contributor` (prompts used for training) is never routed. `strong` and `max` have no Muse candidate. A model that the catalog marks `accepts_effort: false` gets no `--reasoning-effort` flag. Efforts above a configured cap are clamped. Model names are releases, not eternal defaults: treat them as updatable catalog data.
 
-Muse is a candidate for `advanced` work only when it is configured and a local eval confirms non-inferiority; it does not replace the standard or strong routes globally.
+Muse is a candidate only when it is configured and a local eval confirms non-inferiority; it does not replace the standard or strong routes globally.
 
 ## Worker argv
 

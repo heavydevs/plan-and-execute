@@ -2,7 +2,7 @@
 task_id: "099"
 status: "pending"
 requirements: "R052"
-dependencies: "053,055,057,061,063,075,088,092"
+dependencies: "053,055,057,061,063,075,088,092,094,096,098"
 allowed_related_task_reads: "none"
 ---
 
@@ -54,6 +54,8 @@ Files: `skill/plan-and-execute/scripts/progress_signal.py`, `skill/plan-and-exec
 - DIRECT validate-only remains read-only and plan-free; authorized DIRECT repair and ORCHESTRATED retries share the monitoring engine, attempts, source hashes, budgets and cancellation guards.
 - Tests cover simulated 299/300/301-second boundaries, stage resets/replayed counters, process descendants, crash/restart, dependency health, safe probes, and no per-tick LLM cost.
 - No existing task or independent review is considered complete until its own runtime and source-hash evidence exists.
+- A confirmed stall raises effort first on the same eligible route, then the next tier up to max; frontier is never chosen for implementation repair.
+- Effective top tier is max; frontier is never a ladder or switch rung and is never reached for implementation, quota, auth or environment outcomes.
 
 ## Validate
 

@@ -53,8 +53,9 @@ Files: `skill/plan-and-execute/scripts/model_catalog.py`, `skill/plan-and-execut
 - An in-progress task retains its model while pending tasks can rebase with an audit entry.
 - An alias backend change invalidates the relevant candidate evidence while keeping the old attempt record intact.
 - Failed partial refresh leaves valid prior facets readable with explicit age.
-- Legacy config snapshots do not inherit a newly enabled global switch policy.
+- An existing plan's catalog snapshot binding is unchanged when a newer catalog snapshot or policy version is published; config-snapshot inheritance is owned by 070.
 - Unknown prices cannot win a cost comparison by being treated as zero.
+- The v8 map is preserved: Opus 5.5 / Sol 6.2 xhigh at max, Fable 5.2 / Astra 6.2 absent from the tier map, Antigravity Claude capped at advanced, Gemini 4 Hydrogen/Neon preset ordered first, Carbon not routed.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

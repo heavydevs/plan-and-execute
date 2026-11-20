@@ -55,6 +55,9 @@ Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute
 - No-session-persistence does not trigger an automatic resume attempt.
 - Unsupported permission restrictions fail closed without global settings changes.
 - A restricted reviewer cannot invoke inherited write tools.
+- A model whose minimum Claude Code version is unmet (fixture claude-fable-5-2 on 2.1.283 -> HTTP 400) is a version/environment block skipped before dispatch, never a semantic failure or effort escalation.
+- An alias whose resolved backend differs from the requested id (fable -> 5.1, haiku -> Haiku 4.5 without effort) is recorded with requested and resolved ids.
+- The v8 map is preserved: Opus 5.5 / Sol 6.2 xhigh at max, Fable 5.2 / Astra 6.2 absent from the tier map, Antigravity Claude capped at advanced, Gemini 4 Hydrogen/Neon preset ordered first, Carbon not routed.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

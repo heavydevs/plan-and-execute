@@ -92,6 +92,12 @@ RATE_LIMIT_PATTERNS = [
         r"insufficient_quota",
         r"too many requests",
         r"credits? (?:exhausted|depleted|used|limit)",
+        r"spend(?:ing)?[ -]cap",
+        r"prepaid (?:credit )?balance",
+        r"weekly (?:usage )?(?:quota|limit)",
+        r"out of (?:usage )?credits",
+        r"insufficient credits",
+        r"no credits (?:left|remaining)",
         r"capacity limit",
     )
 ]
@@ -378,7 +384,7 @@ def resolve_snapshot_route(
     config: dict[str, Any],
     catalog_models: dict[str, dict[str, str]] | None = None,
 ) -> dict[str, str]:
-    if route.get("route_profile") or not snapshot_resolution(config):
+    if route.get("route_profile") or route.get("frontier") or not snapshot_resolution(config):
         return route
     matrix, _warning = model_catalogctl.load_matrix(plan_dir)
     provider, tier = route["provider"], route["tier"]
@@ -622,7 +628,8 @@ def refresh_model_snapshot(plan_dir: Path, provider: str) -> None:
         print(f"[model-refresh] {provider}: {str(exc)[:200]}", file=sys.stderr)
 
 
-def release_for_model_refresh(plan_dir: Path, manifest: dict[str, Any], task_id: str, reason: str) -> None:
+def release_for_model_refresh(plan_dir: Path, manifest: dict[str, Any], task_id: str, reason: str,
+                              event: str = "model_refresh") -> None:
     """Return the claimed attempt to pending without recording failure evidence."""
     task = planctl.find_task(manifest, task_id)
     if task.get("status") != "in_progress":
@@ -630,8 +637,8 @@ def release_for_model_refresh(plan_dir: Path, manifest: dict[str, Any], task_id:
     recovered = planctl.recover_in_progress_subtasks(task, reason)
     task["status"] = "pending"
     task["last_error"] = planctl.bounded_failure_reason(reason)
-    task["history"].append({"at": planctl.now_utc(), "event": "model_refresh", "recovered_subtasks": recovered})
-    planctl.append_event(manifest, "task_model_refresh", task_id=task["id"])
+    task["history"].append({"at": planctl.now_utc(), "event": event, "recovered_subtasks": recovered})
+    planctl.append_event(manifest, f"task_{event}", task_id=task["id"])
     planctl.save_manifest(plan_dir, manifest)
 
 
@@ -744,6 +751,7 @@ Mandatory isolation rules:
 11. Report `context_files_read` and `learning_files_read` using the exact plan-relative names from task frontmatter; use empty lists when none are assigned.
 12. Report every completed checklist id in `completed_subtask_ids`. Report reusable learnings only for predeclared downstream targets and only with concrete references.
 13. For long execution or validation, refactor code to emit meaningful PROGRESS/ERROR before raising fixed timeouts; HEARTBEAT is not progress.
+14. Never start background or async agents or detached processes that report back later; this headless session ends when you stop calling tools. Run long work synchronously or as a jobctl validation job.
 
 For declared validation_jobs, launch the named job through jobctl with meaningful progress sources, then return the implemented task's completion report. The runner supervises and validates it without a model. Do not invent detached jobs or unbounded polling loops. On a retry restart a terminal failed job explicitly with --restart.
 Return only the completion report requested by the configured JSON schema. Use status "completed" when implementation and synchronous checks pass and declared jobs are started; otherwise use "blocked". The runner owns final acceptance.
@@ -986,12 +994,38 @@ def is_budget_exhausted(text: str) -> bool:
     return any(pattern.search(text) for pattern in BUDGET_PATTERNS)
 
 
-def classify_report_failure(report: dict[str, Any] | None, text: str) -> str:
-    """Map worker/report evidence to a routing failure class."""
+def abandoned_background_work(stdout: str) -> bool:
+    """True when a Claude `--output-format json` envelope says the turn ended with background agents unfinished.
+
+    `subagent_stats` counts agents started in the background and their completion; a system kill or
+    fewer completed/failed than started means the headless session closed over pending work.
+    """
+    if "subagent_stats" not in (stdout or ""):
+        return False
+    for value in decode_json_candidates(stdout, maximum=20):
+        stats = value.get("subagent_stats") if isinstance(value, dict) else None
+        if not isinstance(stats, dict):
+            continue
+        count = lambda item: item if type(item) is int and item > 0 else 0  # noqa: E731
+        started = count(stats.get("started_in_background"))
+        killed = stats.get("killed") if isinstance(stats.get("killed"), dict) else {}
+        if started and (count(killed.get("system")) or count(stats.get("completed")) + count(stats.get("failed")) < started):
+            return True
+    return False
+
+
+def classify_report_failure(report: dict[str, Any] | None, text: str, stdout: str = "") -> str:
+    """Map worker/report evidence to a routing failure class.
+
+    A turn that ended over unfinished background work is a process fault, recorded as `budget`
+    (same-rung retry, then +1) whatever the worker declared, so it never counts toward frontier.
+    """
     if "provider_ceiling=" in text:
         return "timeout_ceiling"
     if "provider_stalled=" in text:
         return "semantic"
+    if abandoned_background_work(stdout):
+        return "budget"
     if isinstance(report, dict):
         declared = str(report.get("failure_class") or "").strip().lower()
         if declared in routingctl.FAILURE_CLASSES:
@@ -1841,6 +1875,33 @@ def normalized_result_file(plan_dir: Path, task: dict[str, Any], route: dict[str
     return plan_dir / "results" / name
 
 
+def _ladder_route(
+    plan_dir: Path, repo_root: Path, routing_task: dict[str, Any], config: dict[str, Any], provider_override: str | None,
+    phase: str, visited: dict[str, set[str]], dry_run: bool, catalog_models: dict[str, dict[str, str]] | None,
+) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    """Ordinary evidence-ladder route (availability, snapshot, shadow/auto) for one dispatch."""
+    intent = choose_route(routing_task, config, provider_override, check_availability=False)
+    route = availability.select(
+        plan_dir, routing_task, config, intent, provider_override, phase, visited[phase],
+        lambda provider: executable_available(provider_prefix(provider, config)),
+        clamp_effort, persist=not dry_run,
+    )
+    route = resolve_snapshot_route(plan_dir, routing_task, route, config, catalog_models)
+    shadow = shadow_candidate(routing_task, route, config, provider_override, phase=phase) if shadow_enabled(config) else None
+    if shadow is not None and auto_select_mode(config) == "on" and not route.get("route_profile"):
+        ladder = route
+        route, shadow["auto"] = auto_route(
+            plan_dir, repo_root, routing_task, route, config, shadow, phase=phase, catalog_models=catalog_models
+        )
+        if shadow["auto"]["applied"]:
+            shadow["ladder"] = {key: ladder.get(key) for key in SHADOW_ROUTE_KEYS}
+            shadow["executed"] = {key: route.get(key) for key in SHADOW_ROUTE_KEYS}
+    if shadow is not None and not dry_run:
+        record_shadow(plan_dir, shadow, repo_root)
+    visited[phase].add(workload_routing.identity(route))
+    return route, shadow
+
+
 def execute_one_task(
     plan_dir: Path,
     manifest: dict[str, Any],
@@ -1875,11 +1936,25 @@ def execute_one_task(
     while True:
         if dispatches >= maximum:
             raise availability.AvailabilityPaused(f"Task {task['id']} pending: availability dispatch budget reached; resume later")
-        if not dry_run and ladder_exhausted(task, config, provider_override, check_availability=False):
+        stage = frontier_stage(task, config, provider_override)
+        frontier = None
+        if stage == "due":
+            frontier, cooling = frontier_route(plan_dir, task, config, provider_override, visited["implementation"])
+            if frontier is None and cooling:
+                raise availability.AvailabilityPaused(
+                    f"Task {task['id']} pending: its frontier route is cooling down (availability); resume later")
+            if frontier is None:
+                stage = "off"  # no frontier model reachable: the ordinary ladder decides
+        # `pending` defers an exhausted ladder: the top rung repeats until the
+        # frontier threshold of functional top-rung failures is met.
+        if not dry_run and (stage == "spent" or (stage == "off" and ladder_exhausted(
+                task, config, provider_override, check_availability=False))):
             planctl.block_task(
                 plan_dir,
                 manifest,
                 task["id"],
+                "Frontier route also failed after repeated top-rung failures; replan the TODO or repair the evidence."
+                if stage == "spent" else
                 "Escalation ladder exhausted on the last available provider; "
                 "replan the TODO or repair the evidence before retrying.",
                 event="ladder_exhausted",
@@ -1888,25 +1963,12 @@ def execute_one_task(
             return False
         phase = "design" if needs_design_phase(task) else "implementation"
         routing_task = design_route_task(task) if phase == "design" else task
-        intent = choose_route(routing_task, config, provider_override, check_availability=False)
-        route = availability.select(
-            plan_dir, routing_task, config, intent, provider_override, phase, visited[phase],
-            lambda provider: executable_available(provider_prefix(provider, config)),
-            clamp_effort, persist=not dry_run,
-        )
-        route = resolve_snapshot_route(plan_dir, routing_task, route, config, catalog_models)
-        shadow = shadow_candidate(routing_task, route, config, provider_override, phase=phase) if shadow_enabled(config) else None
-        if shadow is not None and auto_select_mode(config) == "on" and not route.get("route_profile"):
-            ladder = route
-            route, shadow["auto"] = auto_route(
-                plan_dir, repo_root, routing_task, route, config, shadow, phase=phase, catalog_models=catalog_models
-            )
-            if shadow["auto"]["applied"]:
-                shadow["ladder"] = {key: ladder.get(key) for key in SHADOW_ROUTE_KEYS}
-                shadow["executed"] = {key: route.get(key) for key in SHADOW_ROUTE_KEYS}
-        if shadow is not None and not dry_run:
-            record_shadow(plan_dir, shadow, repo_root)
-        visited[phase].add(workload_routing.identity(route))
+        if frontier is not None:
+            route, shadow = frontier, None
+            visited[phase].add(f"frontier:{route['provider']}")
+        else:
+            route, shadow = _ladder_route(plan_dir, repo_root, routing_task, config, provider_override, phase,
+                                          visited, dry_run, catalog_models)
         dispatches += 1
         if phase == "design":
             outcome = run_design_phase(
@@ -1932,7 +1994,8 @@ def execute_one_task(
 
         env = spawn_env(route["provider"], config)
         print(
-            f"[task {task['id']}] {task['title']} — {route['provider']} / {route['model']} / {route['effort']}",
+            f"[task {task['id']}] {task['title']} — {route['provider']} / {route['model']} / {route['effort']}"
+            + (" [frontier]" if route.get("frontier") else ""),
             flush=True,
         )
         claimed = planctl.claim_task(plan_dir, manifest, task["id"], route)
@@ -1976,6 +2039,17 @@ def execute_one_task(
         if return_code in (130, 143, -2, -15):
             release_interrupted_task(plan_dir, manifest, task["id"])
             raise KeyboardInterrupt
+        if route.get("frontier") and return_code != 0 and FRONTIER_UNSUPPORTED.search(combined[-16000:]):
+            # e.g. Claude Code < 2.1.321 answers HTTP 400 for claude-fable-5-2: skip it, no escalation.
+            record_attempt("model_unavailable")
+            availability.unavailable(plan_dir, task["id"], "implementation", route, "model_unavailable", config)
+            release_for_model_refresh(plan_dir, manifest, task["id"],
+                                      f"Frontier model {route['model']} is not served by this {route['provider']} CLI; skipped",
+                                      event="frontier_unavailable")
+            task = planctl.find_task(manifest, task["id"])
+            print(f"[task {task['id']}] frontier model {route['model']} unavailable on this CLI; trying the next provider",
+                  file=sys.stderr)
+            continue
         category = availability.classify(return_code, combined, configured_retry_exit_codes(route["provider"], config))
         if (category == "configuration" and not route.get("route_profile") and not model_refreshed and snapshot_resolution(config)
                 and INVALID_MODEL.search(combined[-16000:])):
@@ -2003,14 +2077,14 @@ def execute_one_task(
         report = parse_provider_report(route["provider"], stdout, result_path)
         if return_code != 0:
             reason = f"Provider exited with {return_code}: {output_tail(combined)}"
-            cls = classify_report_failure(report, combined)
+            cls = classify_report_failure(report, combined, stdout)
             record_attempt("provider_error", cls)
             planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
             print(f"[task {task['id']}] provider failure ({cls}); next route follows the evidence ladder", file=sys.stderr)
             return False
         if not report:
             reason = f"Provider returned no valid completion report. Output: {output_tail(combined)}"
-            cls = classify_report_failure(None, combined)
+            cls = classify_report_failure(None, combined, stdout)
             record_attempt("invalid_report", cls)
             planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
             print(f"[task {task['id']}] invalid report ({cls}); next route follows the evidence ladder", file=sys.stderr)
@@ -2046,7 +2120,7 @@ def execute_one_task(
                 planctl.fail_task(plan_dir, manifest, task["id"], "Worker reported provider quota exhaustion", rate_limited=True)
                 task = planctl.find_task(manifest, task["id"])
                 continue
-            cls = classify_report_failure(report, reason)
+            cls = classify_report_failure(report, reason, stdout)
             record_attempt("blocked", cls)
             planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class=cls)
             atomic = {**report, "orchestrator_status": "failed"}
@@ -2168,6 +2242,79 @@ def finish_task_validation(
     validation_checkpoint_path(plan_dir, task).unlink(missing_ok=True)
     print(f"[task {task['id']}] completed and validated", flush=True)
     return True
+
+
+# Frontier level (routingctl.FRONTIER_MODELS): Fable 5.2 / Astra 6.2 above `max`.
+# The runner reaches it only from failure evidence: once Opus 5.5 / Sol 6.2 failed
+# `routing_policy.frontier.min_top_failures` times (default 2) at the max/xhigh rung
+# with a semantic, mechanical or unknown class, the next dispatch is the frontier
+# route instead of a `ladder_exhausted` block. Availability outcomes (quota,
+# credits, auth, capacity, a CLI too old for the model) never count and never
+# escalate: they skip to the next provider's frontier model. The route keeps
+# tier `max` and carries `frontier: true` into the manifest, telemetry and ledger.
+FRONTIER_UNSUPPORTED = re.compile(routingctl.FRONTIER_UNSUPPORTED, re.I)
+
+
+def frontier_candidate(provider: str, config: dict[str, Any]) -> dict[str, str] | None:
+    """Frontier model for one provider; never through a non-native profile (glm, deepseek)."""
+    provider_cfg = config.get(provider)
+    if not isinstance(provider_cfg, dict) or provider_cfg.get("profile"):
+        return None
+    return routingctl.frontier_model(provider, config)
+
+
+def frontier_stage(task: dict[str, Any], config: dict[str, Any], override: str | None) -> str:
+    """off | pending | due | spent for this task (pure; see routingctl.frontier_stage)."""
+    classes = task.get("failure_classes")
+    if not isinstance(classes, list) or not classes or needs_design_phase(task):
+        return "off"
+    try:
+        frontier_chain = routing_config.provider_chain(task, config, override, tier="max")
+        chain = routing_config.provider_chain(task, config, override)
+    except routing_config.ConfigError:
+        return "off"
+    if not any(frontier_candidate(provider, config) for provider in frontier_chain):
+        return "off"
+    failures_per_provider = max(1, int(config.get("functional_failures_per_provider", 4)))
+    slot = int(task.get("functional_failures", 0)) // failures_per_provider
+    rungs = routingctl.route_rungs(
+        config[chain[min(slot, len(chain) - 1)]],
+        str(task.get("model_tier", "standard")),
+        str(task.get("reasoning_effort", "medium")),
+    )
+    return routingctl.frontier_stage(classes, rungs, config)
+
+
+def frontier_route(
+    plan_dir: Path, task: dict[str, Any], config: dict[str, Any], override: str | None, visited: set[str],
+    *, now: float | None = None,
+) -> tuple[dict[str, Any] | None, bool]:
+    """First allowed frontier route in the max-tier provider chain, or (None, cooling).
+
+    Honors explicit provider overrides and allow_provider_fallback=false exactly
+    like the ordinary chain; skips providers in cooldown (Codex credits exhausted),
+    with a frontier model this CLI cannot serve, already tried, or without a CLI.
+    """
+    now = time.time() if now is None else now
+    state = availability.read(plan_dir, task["id"])
+    cooling = False
+    for provider in routing_config.provider_chain(task, config, override, tier="max"):
+        spec = frontier_candidate(provider, config)
+        if not spec or f"frontier:{provider}" in visited:
+            continue
+        route: dict[str, Any] = {
+            "provider": provider, "tier": "max", "model": spec["model"],
+            "effort": clamp_effort(config[provider], "max", spec["effort"]),
+            "requested_effort": spec["effort"], "level": routingctl.FRONTIER_LEVEL, "frontier": True,
+        }
+        keys = (provider, workload_routing.model_key(route))
+        if any(state["cooldowns"].get(key, {}).get("until", 0) > now for key in keys):
+            cooling = True
+            continue
+        if not executable_available(provider_prefix(provider, config)):
+            continue
+        return route, False
+    return None, cooling
 
 
 def ladder_exhausted(task: dict[str, Any], config: dict[str, Any], override: str | None, *, check_availability: bool = True) -> bool:

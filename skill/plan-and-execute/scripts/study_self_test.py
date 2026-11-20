@@ -538,6 +538,195 @@ def test_v2_simple_attach_preserves_skip_decision() -> None:
         else:
             raise AssertionError("Missing adaptive skip finding should be rejected")
 
+def test_v2_reading_scopes_and_capability_probes() -> None:
+    spec = v2_medium_spec()
+    spec["external_research"]["decision"] = "required"
+    spec["external_research"]["depth"] = "focused"
+    spec["external_research"]["trigger_assessment"]["version_sensitive"] = True
+    spec["external_research"]["rationale"] = (
+        "Focused external check verifies provider CLI interface compatibility."
+    )
+    located_only = copy.deepcopy(external_spec()["external_research"]["sources"][0])
+    located_only["reading_scope"] = "discovery_only"
+    spec["external_research"]["sources"] = [located_only]
+    spec["material_questions"][0]["evidence_ids"] = ["E001"]
+    spec["material_questions"][0]["claim_type"] = "verified_interface"
+    assert_rejected(spec, "verified_interface")
+
+    # High-impact question with contradiction requires capability_probe rather than invented resolution
+    probed = v2_medium_spec()
+    probed["external_research"]["decision"] = "required"
+    probed["external_research"]["depth"] = "focused"
+    probed["external_research"]["trigger_assessment"]["conflicting_evidence"] = True
+    probed["external_research"]["rationale"] = (
+        "Two official provider documents conflict on CLI schema flags, requiring an implementation probe."
+    )
+    src_a = copy.deepcopy(external_spec()["external_research"]["sources"][0])
+    src_b = copy.deepcopy(src_a)
+    src_b["id"] = "E002"
+    src_b["title"] = "Delivery CLI release notes"
+    src_b["url"] = "https://example.com/docs/delivery-cli-notes"
+    probed["external_research"]["sources"] = [src_a, src_b]
+    probed["material_questions"][0]["evidence_ids"] = ["E001", "E002"]
+    probed["material_questions"][0]["contradictions"] = [
+        {
+            "source_ids": ["E001", "E002"],
+            "conflict": "API reference states flag accepts file path; release notes state stdin only.",
+        }
+    ]
+    assert_rejected(probed, "probe_required")
+
+    probed["material_questions"][0]["status"] = "probe_required"
+    probed["material_questions"][0]["resolution"] = ""
+    probed["material_questions"][0]["capability_probe"] = {
+        "check": "Run provider CLI --help and a dry-run fixture invocation.",
+        "falsification_condition": "CLI exits non-zero when passed schema file path.",
+        "conservative_fallback": "Use stdin JSON payload and mark file-flag unsupported.",
+        "changes_acceptance_silently": False,
+    }
+    normalized = studyctl.normalize_study(probed)
+    assert normalized["material_questions"][0]["status"] == "probe_required"
+    assert normalized["external_research"]["reading_scope_summary"]["inspected_section"] == [
+        "E001",
+        "E002",
+    ]
+
+
+def test_v2_prepared_reports_avoid_restarting_research() -> None:
+    spec = v2_medium_spec()
+    spec["external_research"]["trigger_assessment"]["version_sensitive"] = True
+    spec["external_research"]["depth"] = "none"
+    spec["external_research"]["decision"] = "not_needed"
+    spec["prepared_reports"] = [
+        {
+            "report_id": "010",
+            "task_id": "010",
+            "path": "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md",
+            "research_revision": 2,
+            "source_ids": ["W-COST", "W-CONTEXT"],
+            "implementation_status": "pending",
+            "independent_review_status": "pending",
+        }
+    ]
+    normalized = studyctl.normalize_study(spec)
+    assert len(normalized["prepared_reports"]) == 1
+    assert normalized["external_research"]["depth"] == "none"
+
+    bad = copy.deepcopy(spec)
+    bad["prepared_reports"][0]["implementation_status"] = "completed"
+    assert_rejected(bad, "not proof of implementation")
+
+    # Review 011 F04: a report cannot waive security-sensitive or conflicting-evidence triggers,
+    # and a report that names no sources waives nothing.
+    for trigger in ("security_sensitive", "conflicting_evidence"):
+        excluded = copy.deepcopy(spec)
+        excluded["external_research"]["trigger_assessment"][trigger] = True
+        assert_rejected(excluded, "must perform focused research")
+    sourceless = copy.deepcopy(spec)
+    sourceless["prepared_reports"][0]["source_ids"] = []
+    assert_rejected(sourceless, "must perform focused research")
+
+
+def test_undated_unlabelled_source_rejected_in_v1_and_v2() -> None:
+    """Review 011 F02: an undated source must declare whether it affects CLI behavior."""
+    for value in (None, "", "unknown", "latest"):
+        spec = external_spec()
+        source = spec["external_research"]["sources"][0]
+        if value is None:
+            source.pop("version_or_date")
+        else:
+            source["version_or_date"] = value
+        assert_rejected(spec, "explicit version or date")
+    v2 = v2_medium_spec()
+    v2["external_research"].update(
+        {
+            "decision": "required",
+            "depth": "focused",
+            "rationale": "The exact provider version changes the supported behavior, so focused documentation is required.",
+        }
+    )
+    v2["external_research"]["trigger_assessment"]["version_sensitive"] = True
+    v2["external_research"]["sources"] = copy.deepcopy(external_spec()["external_research"]["sources"])
+    v2["external_research"]["sources"][0].pop("version_or_date")
+    assert_rejected(v2, "explicit version or date")
+
+    declared = external_spec()
+    declared["external_research"]["sources"][0]["version_or_date"] = "unknown"
+    declared["external_research"]["sources"][0]["affects_cli_behavior"] = False
+    normalized = studyctl.normalize_study(declared)
+    assert normalized["external_research"]["sources"][0]["refresh_required"] is False
+
+    cli = copy.deepcopy(declared)
+    cli["external_research"]["sources"][0]["affects_cli_behavior"] = True
+    assert_rejected(cli, "flagged for refresh")
+
+
+def contradicted_v2_spec() -> dict:
+    spec = v2_medium_spec()
+    spec["external_research"].update(
+        {
+            "decision": "required",
+            "depth": "focused",
+            "rationale": "Two official provider documents conflict on CLI schema flags, requiring an implementation probe.",
+        }
+    )
+    spec["external_research"]["trigger_assessment"]["conflicting_evidence"] = True
+    src_a = copy.deepcopy(external_spec()["external_research"]["sources"][0])
+    src_b = copy.deepcopy(src_a)
+    src_b.update({"id": "E002", "title": "Delivery CLI release notes", "url": "https://example.com/docs/delivery-cli-notes"})
+    spec["external_research"]["sources"] = [src_a, src_b]
+    question = spec["material_questions"][0]
+    question["evidence_ids"] = ["E001", "E002"]
+    question["contradictions"] = [
+        {
+            "source_ids": ["E001", "E002"],
+            "conflict": "API reference states flag accepts file path; release notes state stdin only.",
+        }
+    ]
+    return spec
+
+
+def test_v2_contradiction_cannot_be_assumed_or_self_verified() -> None:
+    """Review 011 F03: a contradicted question needs a probe, not an assumption or a bare flag."""
+    assumed = contradicted_v2_spec()
+    assumed["material_questions"][0]["importance"] = "medium"
+    assumed["material_questions"][0]["status"] = "assumed"
+    assert_rejected(assumed, "probe_required")
+
+    bare = contradicted_v2_spec()
+    bare["material_questions"][0]["probe_verified"] = True
+    assert_rejected(bare, "probe_verified requires")
+
+    observed = contradicted_v2_spec()
+    question = observed["material_questions"][0]
+    question["probe_verified"] = True
+    question["evidence_ids"] = ["I001", "E001", "E002"]
+    question["capability_probe"] = {
+        "check": "Run the installed delivery CLI with a fixture schema file path.",
+        "falsification_condition": "CLI exits non-zero when passed a schema file path.",
+        "conservative_fallback": "Use stdin JSON payload and mark the file flag unsupported.",
+        "changes_acceptance_silently": False,
+    }
+    normalized = studyctl.normalize_study(observed)
+    assert normalized["material_questions"][0]["probe_verified"] is True
+
+
+def test_high_question_needs_inspected_or_internal_evidence() -> None:
+    """Review 011 F07: abstract-only evidence cannot resolve a high-impact question."""
+    spec = external_spec()
+    inspected = copy.deepcopy(spec["external_research"]["sources"][0])
+    inspected.update({"id": "E002", "url": "https://example.com/docs/delivery-api-v2"})
+    spec["external_research"]["sources"][0]["reading_scope"] = "abstract_only"
+    spec["external_research"]["sources"].append(inspected)
+    spec["material_questions"][0]["evidence_ids"] = ["E001"]
+    assert_rejected(spec, "without internal or inspected evidence")
+
+    fact = external_spec()
+    fact["external_research"]["sources"][0]["reading_scope"] = "abstract_only"
+    fact["external_research"]["sources"][0]["evidence_kind"] = "verified_source_fact"
+    assert_rejected(fact, "verified_source_fact")
+
+
 def main() -> int:
     test_ready_internal_only_study()
     test_trigger_requires_research()
@@ -552,6 +741,11 @@ def main() -> int:
     test_v2_medium_external_trigger_requires_focused_research()
     test_v2_complex_requires_both_user_choices()
     test_v2_simple_attach_preserves_skip_decision()
+    test_v2_reading_scopes_and_capability_probes()
+    test_v2_prepared_reports_avoid_restarting_research()
+    test_undated_unlabelled_source_rejected_in_v1_and_v2()
+    test_v2_contradiction_cannot_be_assumed_or_self_verified()
+    test_high_question_needs_inspected_or_internal_evidence()
     print("All adaptive study gate self-tests passed.")
     return 0
 

@@ -1,7 +1,7 @@
 ---
 task_id: "084"
 status: "pending"
-requirements: "R001,R003,R004,R005,R033,R034,R039,R041,R042,R043,R044"
+requirements: "R001,R003,R004,R005,R033,R034,R039,R041,R042,R043,R044,R053"
 dependencies: "083"
 allowed_related_task_reads: "none"
 ---
@@ -43,14 +43,15 @@ Files: `README.md`, `README.pt-BR.md`, `CHANGELOG.md`, `tools/run-repo-checks.js
 - Write actual changed-file, test and acceptance evidence to docs/research/20261028-skill-optimization/implementation/084-receipt.json.
 - Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
 - If integration exposes a defect outside this write scope, reopen its owning TODO and correction review with native controllers; do not silently expand scope.
+- Document opt-out, require-awake and OS/host physical sleep limits.
 
 ## Acceptance
 
 - All implementation acceptance cases and required independent code reviews have current evidence.
 - Final npm checks and actual package file lists pass or the task remains incomplete.
 - The Portuguese final report distinguishes verified behavior, untested platforms and live-provider limitations.
-- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 - Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.
+- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
 ## Validate
 

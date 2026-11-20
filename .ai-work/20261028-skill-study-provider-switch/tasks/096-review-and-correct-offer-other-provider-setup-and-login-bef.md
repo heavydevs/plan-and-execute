@@ -21,7 +21,7 @@ Objective: Independently review and correct offer other-provider setup and login
 ## Checkpoints
 
 - [ ] **S001** Read implementation — Review the actual code, test results and receipt from task 095, not a previous conversation.
-- [ ] **S002** Independent review — Dispatch a real fresh maximum-qualified reviewer and preserve provider, model, effort and reviewed hashes.
+- [ ] **S002** Independent review — Run `python docs/plans/20261028-skill-optimization/support/review_dispatch.py --repo-root . --task 096` in the foreground (rerun on exit 75); use only its DISPATCH line and compact findings.
 - [ ] **S003** Correct high-risk defects — Correct critical/high findings or leave the task pending with evidence.
 - [ ] **S004** Rerun regressions — Run test/optimization/provider_readiness_gate_self_test.py and all feature acceptance and negative cases through mapped validation.
 - [ ] **S005** Record review — Record actual review/validation results in docs/research/20261028-skill-optimization/implementation/096-receipt.json and docs/research/20261028-skill-optimization/implementation/096-outcome.md.
@@ -37,8 +37,9 @@ Files: `skill/plan-and-execute/scripts/preplanctl.py`, `skill/plan-and-execute/s
 - Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.
 - Follow task 096 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.
 - Preserve exact user intent, bounded context, security floors and real deterministic tests.
-- Use an actual fresh independent maximum-qualified reviewer; never fabricate model execution.
+- Review only via review_dispatch.py (synchronous; max route; writes dispatch evidence); fix blocking findings, rerun declared checks, re-dispatch if a reviewed file changed, copy its RECEIPT_REVIEWER fields into the receipt.
 - Preserve evidence in docs/research/20261028-skill-optimization/implementation/096-receipt.json and docs/research/20261028-skill-optimization/implementation/096-outcome.md; do not mark a pending task done without validation.
+- Never launch background or asynchronous agents or processes: this headless session ends when you stop calling tools, so anything unfinished is lost.
 
 ## Acceptance
 
@@ -49,6 +50,8 @@ Files: `skill/plan-and-execute/scripts/preplanctl.py`, `skill/plan-and-execute/s
 - Verify: Existing-plan resume, running TODOs, DIRECT changes and shell commands never run this questionnaire.
 - Verify: Unknown availability cannot silently widen a forbidden provider chain or lower capability.
 - No unresolved critical/high finding or missing required reviewer may be marked complete.
+- A frontier (Fable 5.2 / Astra 6.2) reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.
+- Every 2026-11-20 acceptance addition of task 095 has actual test evidence on the final reviewed hashes.
 
 ## Validate
 

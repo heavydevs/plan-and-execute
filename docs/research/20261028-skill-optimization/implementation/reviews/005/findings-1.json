@@ -1,0 +1,57 @@
+{
+  "task_id": "005",
+  "dispatch": 1,
+  "session_id": "85a08a33-7df2-4a8b-a287-a50826af6446",
+  "verdict": "approved",
+  "summary": "I found no critical or high defects, so the verdict is approved. All three of task 004's 2026-11-20 additions have passing offline tests in check-01.log: the fake-provider fixture (test_ac01), the report-aware loader (test_ac02) and the credit-exhaustion fixture (test_ac03). The fixture's claude/codex/agy argv matches the default worker argv in run_isolated.build_worker_command. Outcome categories come from the real availability.classify. Importing the modules writes nothing at load time. I found two medium and four low defects; the medium ones are a gap in the loader's handling of the task's own files and fixture argv that is copied by hand. I did not recompute the SHA-256 hashes: they match the receipt, but I took them as given. The 005 worker must re-pin them after any correction.",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "location": "test/optimization/shared_fixtures.py:217-234,247-248",
+      "title": "Default load does not exclude the task's own create_in_this_task files from prepared_reports",
+      "detail": "The function only filters own_new_files out of readable_contract_paths. prepared_reports goes into allowed_ordered unfiltered. When requested_paths is None, the default branch returns allowed_ordered without the own-file check that the explicit-request branch runs at line 238. A catalog entry can list an own create_in_this_task path in prepared_reports, or list the same path twice in input_contract with different availability values. Such a file is then returned as an input once it exists, for example on a retry attempt. Before it exists, it is rejected only as 'Missing declared input'. The two branches therefore enforce the 'rejects the task's own not-yet-created files' criterion inconsistently. The live 004 catalog does not trigger this.",
+      "fix": "Build allowed_ordered as (prepared_reports + readable_contract_paths) minus own_new_files. Better, raise ReportAwareInputError when any own file appears in prepared_reports or in a non-create contract entry. Add a test that uses a temporary catalog with that overlap."
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "location": "test/optimization/task_004_self_test.py:79-91",
+      "title": "Own-file rejection test passes for the wrong reason",
+      "detail": "The own files are never in allowed_set, so the 'unlisted' branch (line 242) raises ReportAwareInputError even if the own-file branch (lines 238-241) is deleted. The test uses assertRaises on the shared exception class and does not check the message. Neither the specific rejection reason nor the overlap case from F1 is tested. The receipt's AC02 'passed' therefore does not prove the own-file guard.",
+      "fix": "Assert the message, e.g. assertRaisesRegex(..., 'own not-yet-created'). Add a temporary-catalog case where an own file is also listed in prepared_reports or in a readable contract entry. Use a separate exception subclass or a reason code so the rejection reason can be checked."
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "location": "test/optimization/shared_fixtures.py:42-105",
+      "title": "Fixture argv is a hand-copied snapshot, not tied to the production command builder",
+      "detail": "build_provider_argv copies run_isolated.build_worker_command (skill/plan-and-execute/scripts/run_isolated.py:1079-1151) by hand. It omits the conditional --bare from claude_bare_flags and the budget/extra_args/ignore_user_config variants. No test compares it with the real builder or with the golden table in provider_self_test.py:150-169. Later tasks will consume this fixture, and it can silently drift from the real argv while still passing test_ac01. test_ac01 only checks argv[0] and one flag (task_004_self_test.py:38-47).",
+      "fix": "Derive the argv from run_isolated.build_worker_command with a minimal in-memory config. Otherwise, add a parity test against the provider_self_test default worker argv. Also assert where --model, the effort and the prompt sit."
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:222-228",
+      "title": "Unknown or malformed input_contract entries are not rejected",
+      "detail": "Any availability value other than create_in_this_task is treated as readable, including typos and unknown values. In contrast, baseline_contracts.run_preflight (baseline_contracts.py:246-247) rejects them. If an item lacks 'path', item['path'] raises a bare KeyError. A prepared_reports value given as a string is split into characters by list(). The loader should reject all of these and does not.",
+      "fix": "Allow only the availability values {existing_baseline_or_current_file, prerequisite_output, create_in_this_task}. Require prepared_reports to be a list of non-empty strings and each contract item to have a string path; otherwise raise ReportAwareInputError."
+    },
+    {
+      "id": "F5",
+      "severity": "low",
+      "location": "docs/research/20261028-skill-optimization/implementation/004-outcome.md:14",
+      "title": "Outcome overstates test coverage",
+      "detail": "The outcome says the unit tests cover AC01-AC05 with subprocess/socket patched. Only three tests exist (ac01-ac03), and only test_ac01 installs the subprocess and socket patches. test_ac03 and credit_exhaustion_fixture run unguarded. AC04's 'no user-global configuration write' is not asserted anywhere: there is no HOME/APPDATA isolation and no write guard. It holds only because the code paths are pure.",
+      "fix": "Correct the outcome text. Wrap all tests in the same subprocess/socket guard, e.g. in setUp. Add an AC04 assertion: point HOME/USERPROFILE/APPDATA at a temporary directory and check that it stays empty, or patch the file-open/write calls to fail."
+    },
+    {
+      "id": "F6",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:16-17,108-139,179",
+      "title": "Hard-coded classification labels and an implicit sys.path dependency",
+      "detail": "FakeProviderResult.classification is taken from _OUTCOME_SPECS rather than computed from the classifier, so the test's classification assertions are tautological. Only availability_category comes from the real classifier. Separately, the module needs test/optimization on sys.path for 'import baseline_contracts' but never adds it. A later task in another directory that imports this shared fixture will fail with ImportError.",
+      "fix": "Derive classification: 'success' when rc==0, 'availability' when avail_cat is set, otherwise 'functional'. Also insert Path(__file__).parent into sys.path next to SCRIPTS_DIR."
+    }
+  ]
+}

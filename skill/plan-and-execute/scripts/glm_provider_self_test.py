@@ -18,6 +18,7 @@ from routingctl import EFFORT_ORDER  # noqa: E402
 CATALOG = model_catalog.bootstrap_catalog()
 MODELS = CATALOG["providers"]["glm"]["models"]
 PRO, FLASH = MODELS["glm-5.3"]["economics"], MODELS["glm-5.3-flash"]["economics"]
+FLASH_ENTRY = MODELS["glm-5.3-flash"]
 
 
 def test_profile_reuses_claude_harness_with_env_names_only() -> None:
@@ -94,7 +95,9 @@ def test_api_pricing_and_invalid_tokens() -> None:
 def test_catalog_validates_and_tiers_fall_upward() -> None:
     model_catalog.validate(CATALOG)
     mapping = model_catalog.provider_config_mapping("glm", CATALOG)
-    assert mapping["models"] == {"economy": "glm-5.3-flash", "standard": "glm-5.3-flash", "advanced": "glm-5.3"}
+    # 2026-11-20: Flash is economy only (AA IQ 28, slow, multimodal); GLM-5.3 demoted from advanced to standard.
+    assert mapping["models"] == {"economy": "glm-5.3-flash", "standard": "glm-5.3"}
+    assert "vision" in FLASH_ENTRY["capability"]["capabilities"] and "advanced" not in mapping["models"]
     assert "strong" not in mapping["models"] and "max" not in mapping["models"], "GLM never fills strong by name"
     assert model_catalog.provider_config_mapping("claude", CATALOG)["models"]["standard"] == "claude-sonnet-5-5"
 

@@ -1,0 +1,17 @@
+test_ac01_fixture_argv_matches_production_worker_builder (__main__.Task004SharedFixturesTest.test_ac01_fixture_argv_matches_production_worker_builder)
+Fixture flags and order equal run_isolated.build_worker_command under the default config (no --bare). ... ok
+test_ac01_shared_fake_provider_argv_and_outcomes_offline (__main__.Task004SharedFixturesTest.test_ac01_shared_fake_provider_argv_and_outcomes_offline) ... ok
+test_ac02_malformed_catalog_entries_rejected (__main__.Task004SharedFixturesTest.test_ac02_malformed_catalog_entries_rejected) ... ok
+test_ac02_noncanonical_and_unsafe_paths_rejected (__main__.Task004SharedFixturesTest.test_ac02_noncanonical_and_unsafe_paths_rejected) ... ok
+test_ac02_own_file_overlap_rejected_for_default_and_requested_load (__main__.Task004SharedFixturesTest.test_ac02_own_file_overlap_rejected_for_default_and_requested_load) ... ok
+test_ac02_report_aware_loader_bounds_and_rejections (__main__.Task004SharedFixturesTest.test_ac02_report_aware_loader_bounds_and_rejections) ... ok
+test_ac03_classification_covers_every_classifier_category (__main__.Task004SharedFixturesTest.test_ac03_classification_covers_every_classifier_category)
+Labels follow availability.classify for every category it can return, not a hand-kept table. ... ok
+test_ac03_credit_exhaustion_distinct_from_auth_and_functional (__main__.Task004SharedFixturesTest.test_ac03_credit_exhaustion_distinct_from_auth_and_functional) ... ok
+test_ac04_offline_guard_detects_processes_sockets_and_writes (__main__.Task004SharedFixturesTest.test_ac04_offline_guard_detects_processes_sockets_and_writes)
+The guard wrapped around every fixture test is not vacuous. ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.465s
+
+OK

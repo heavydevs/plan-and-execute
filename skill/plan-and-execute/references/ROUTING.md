@@ -70,3 +70,15 @@ A routing eval must not judge implementation quality. Its only question is wheth
 ## Plan-free validation is not promotion
 
 DIRECT may invoke `validate-or-fix` for mapped, long-running or uncertain tests. It creates only the shared resource map and bounded receipts in `.ai-work/validation/`, not a plan, study, manifest, TODO or active pointer. Do not load orchestration references for this exception. Simple fast checks remain direct. See [VALIDATION_WORKLOADS.md](VALIDATION_WORKLOADS.md) only when supervision is needed.
+
+## Route decision and capability separation
+
+- **No extra classifier call:** `requestctl.py evaluate-route` evaluates request and repository metadata deterministically without spending an LLM classifier call.
+- **Bounded reason codes in selected workflows only:** Record bounded `reason_codes`, `estimated_working_set`, and `remaining_outcomes` only inside an activated `ORCHESTRATED` or `PROMOTE` workflow. A rejected implicit match (`DIRECT` or exact lifecycle/config command) creates no plan, ledger, study, or reason-code files and loads no orchestration references.
+- **Routing mode vs. capability tier:** Keep `DIRECT` vs. `ORCHESTRATED` independent of `model_tier` and `reasoning_effort`. A small cohesive security-sensitive fix stays `DIRECT` without creating plan artifacts while preserving a qualified (`strong`/`high`) capability route.
+
+## Offline and host evaluation
+
+`requestctl.py eval-corpus` and `routing_self_test.py` measure entrypoint bytes and an **offline cue-extractor proxy**: plan-creation false positives/negatives of selective, explicit-only, all-direct and always-orchestrate routing on the tuning and held-out splits of `routing-evals.json`. Hosts select the skill from metadata, so the proxy is not host activation. The paid classifier and all cost terms stay unmeasured, not zero. Exact lifecycle/config commands (`$plan-and-execute status`, `pae current`, ...) are checked before invocation; a file path containing the skill name is not an invocation.
+
+The held-out split is valid only for the cue table hash recorded in `held_out_protocol`. Never tune cues to a held-out miss; after a cue change, move seen cases to tuning, have fresh prompts written without the table, and re-record the hash and ceilings. Live host skill loading and latency require owner-confirmed authenticated runs; otherwise record them as an unmeasured limitation.

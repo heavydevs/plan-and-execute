@@ -65,6 +65,38 @@ class RunnerProgressTests(unittest.TestCase):
                 self.assertEqual(prefixes[0].count(rule), 1)
                 self.assertIn(rule, prefixes[0].split('rules:', 1)[-1])
 
+    def test_both_worker_prompts_forbid_background_work_in_stable_rules(self):
+        rule = ('Never start background or async agents or detached processes that report back later; this '
+                'headless session ends when you stop calling tools. Run long work synchronously or as a jobctl '
+                'validation job.')
+        concise = runner_contract.install_runner_contract(SimpleNamespace(**vars(runner)))
+        manifest = {'repo_root': str(self.root)}
+        for prompt_factory in (runner.worker_prompt, concise.worker_prompt):
+            with self.subTest(prompt=prompt_factory.__module__):
+                prompts = [prompt_factory(self.root, manifest, {'id': task_id, 'file': f'tasks/{task_id}.md',
+                           'attempts': attempts}, {'provider': provider, 'model': 'synthetic', 'effort': 'high'})
+                           for task_id, attempts, provider in (('001', 0, 'codex'), ('117', 3, 'claude'))]
+                prefixes = [prompt.split('Subtask controller:', 1)[0] for prompt in prompts]
+                self.assertEqual(prefixes[0], prefixes[1])
+                self.assertEqual(prefixes[0].count(rule), 1)
+                self.assertIn(rule, prefixes[0].split('rules:', 1)[-1])
+
+    def test_turn_ended_over_background_agents_is_budget_not_frontier_evidence(self):
+        # Shape of the real Claude envelope from task 003 attempt 6 (stop_reason tool_use, agent killed by system).
+        stats = {'spawned': 1, 'requested': {'background': 1, 'foreground': 0, 'unset': 0},
+                 'started_in_background': 1, 'max_depth': 1, 'completed': 0, 'failed': 0,
+                 'killed': {'parent': 0, 'user': 0, 'system': 1}}
+        envelope = json.dumps({'type': 'result', 'stop_reason': 'tool_use', 'session_id': 's',
+                               'subagent_stats': stats, 'structured_output': {'status': 'blocked'}})
+        report = {'status': 'blocked', 'failure_class': 'mechanical'}
+        self.assertTrue(runner.abandoned_background_work(envelope))
+        self.assertEqual(runner.classify_report_failure(report, 'blocked', envelope), 'budget')
+        self.assertNotIn('budget', routingctl.FRONTIER_COUNTED_CLASSES)
+        finished = json.dumps({'type': 'result', 'subagent_stats': {**stats, 'completed': 1, 'killed': {'system': 0}}})
+        self.assertFalse(runner.abandoned_background_work(finished))
+        self.assertEqual(runner.classify_report_failure(report, 'blocked', finished), 'mechanical')
+        self.assertEqual(runner.classify_report_failure(report, 'blocked'), 'mechanical')
+
     def test_completed_tests_keep_single_command_alive_beyond_idle(self):
         code = 'import time\nfor i in range(9):\n print("test class", i, "passed", flush=True); time.sleep(.1)'
         passed, results, reason = self.validate([command(code)])

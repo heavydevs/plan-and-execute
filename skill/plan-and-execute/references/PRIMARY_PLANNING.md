@@ -34,8 +34,9 @@ The defaults are **economic guardrails**, not claims about model context limits:
 - `direct_final`: estimated request <= 12,000 tokens and no strong breadth signal;
 - `primary_plan`: estimated request >= 24,000 tokens;
 - between those bounds, choose `primary_plan` when structural breadth suggests many independently constrainable sections (default: >= 30 detected headings at >= 8,000 estimated tokens), or when the host/provider credit budget makes one-shot planning unsafe;
-- thresholds apply to the **working set** (exact-duplicate blocks counted once), so a large repetitive request does not select `primary_plan` by size alone; also trigger on dependency density (default: >= 40 cross-reference phrases such as `depends on`/`conflicts with` at >= 8,000 working-set tokens);
+- thresholds apply to the **working set** (exact-duplicate blocks counted once for routing economics only; authoritative fragments never delete repeated blocks), so a large repetitive request does not select `primary_plan` by size alone; also trigger on dependency density (default: >= 40 cross-reference phrases such as `depends on`/`conflicts with` at >= 8,000 working-set tokens);
 - digest batches group fragments by top-level heading (cohesion) within the token/fragment caps; the final planner retrieves fragments by id per material question, and every fragment still receives coverage;
+- thresholds remain tunable operational estimates rather than universal long-context failure assumptions; measure obligation recall, contradiction coverage, and repeated reads against one-shot and staged baselines before changing defaults or introducing fan-out. `preplanctl.py compare-baselines` is only the deterministic part of that measurement: it checks that fragmentation loses none of the regex-extracted obligations and, with `--package`, that digests cover them and carry contradiction ids. It does not measure model digest quality;
 - callers may override thresholds for a provider/project-specific measured budget.
 
 Never classify solely from file count. A 30k-token repetitive log can be mechanically filtered; a smaller architecture document with many interacting normative sections may deserve staged preparation.
@@ -49,13 +50,13 @@ Run `preplanctl split` (or `prepare`, which includes splitting). Prefer natural 
 - preserve source text faithfully inside each fragment;
 - assign stable fragment ids (`F001`, `F002`, ...);
 - preserve source order and heading ancestry when available;
-- record source block/paragraph anchors and SHA-256 hashes;
+- record ordered source block/paragraph/table anchors, raw source SHA-256, extracted block-stream SHA-256, and per-fragment `file_sha256` and `source_text_sha256` hashes;
 - target compact fragments (roughly 3k–6k estimated tokens) and split oversized sections without silently dropping text;
 - never paraphrase, deduplicate, or resolve contradictions during mechanical splitting.
 
-For `.docx`, extraction may use OOXML paragraph/style information without invoking a model. For unsupported binary formats, export/materialize readable text first rather than using an expensive model as a byte parser.
+For `.docx`, extraction uses a bounded, deterministic OOXML walker that runs without a model. It enforces limits on archive size, entry count, uncompressed XML bytes, compression ratio, XML depth and table width (64 grid columns for `gridSpan`, `gridBefore` and row extent). It accepts only UTF-8 `document.xml` and rejects DTD/ENTITY declarations. The walker traverses body paragraphs, tables, nested tables, and horizontally/vertically merged cells in document order with nonduplicated anchors. It also descends through `w:sdt` content controls and `w:customXml` wrappers at block, row, cell and run level. Unsupported structures are recorded explicitly in `SOURCE_INDEX.json` rather than silently omitted. These include tracked insertions, deletions and moves; drawings and text boxes, including run-level `mc:AlternateContent`; Office Math; `w:altChunk`; embedded objects; headers, footers, footnotes, comments and media parts; and any other element carrying `w:t`, `m:t` or DrawingML `a:t` text that the walker does not traverse. For unsupported binary formats, export/materialize readable text first rather than using an expensive model as a byte parser.
 
-Immutable fragments are the anti-loss layer. All later summaries must point back to them.
+Immutable fragments are the anti-loss layer. All later summaries must point back to them. `validate-digest`, `validate-coverage`, `validate-package` and `validate-consumption` recompute fragment SHA-256 hashes from disk from a single read, never trusting timestamps or file sizes. Every schema-v2 integrity pin is mandatory: a missing hash is an error, never a skipped check. Those pins live inside the package, so on their own they detect only naive mutation. `validate-package` and `validate-consumption` therefore also re-hash the raw source (`--source`, or `package.json` `source.original_path`) and re-derive blocks, fragments, obligations, unsupported structures and contradictions with the recorded extractor version and fragmentation parameters. A changed source, stale extractor or re-pinned `SOURCE_INDEX.json` is rejected. When the raw source is gone, the result reports `source_verification.status=unavailable` instead of claiming verification. `original_path` itself is not pinned, so final consumers should pass `--source <raw source> --require-source` to make an unavailable source fatal.
 
 ## 4. Create the primary plan
 
@@ -98,10 +99,14 @@ Use a fresh context. Default route: `strong` low/medium because silent omission 
 
 The reviewer verifies:
 
-- every immutable fragment has a completed digest;
+- every immutable fragment has a completed, non-duplicated digest;
+- every unique source obligation (including requirements appearing only inside table cells) is represented in validated digests and in `covered_obligation_ids`. A digest item that references the obligation's own fragment covers it in one of two ways. It may carry the obligation's `canonical_id`/`obligation_id`, or have that explicit id as the first id in its text, together with a restatement of at least three words besides ids, or four letters in an unspaced script such as CJK or Thai. An explicit id that several clauses share is ambiguous, so it never identifies one of them; only the `canonical_id` or the text does. Or it may restate the obligation's text, either in full or as a same-polarity substring of at least 60% of it. A missing id, a later cross-reference or a bare id echo is never coverage, and errors name a reason per id. This deterministic audit proves acknowledgement plus a restatement, not semantic fidelity. `validate-digest` applies the same audit to the obligations held only by its own batch, so an incomplete digest fails its own TODO and `resume-status` keeps it pending;
+- every `SOURCE_INDEX.json` `detected_contradictions` id and every digest contradiction is carried by id into `WORKSTREAM_INDEX.json` and, when approving, `recorded_contradictions`. Each digest contradiction must carry an `id`. A new id must start with its digest id (`D002-C1`) and be unique, and `validate-digest` enforces this;
+- the obligation floor is a deterministic heuristic. It recognises English modals (`must`, `shall`, `required`, `never`, `cannot`, ...) and `REQ`/`FR`/`NFR`/`OBL`/`CLAUSE`/`RULE`/`R###` ids only, including hierarchical forms such as `REQ-7.1` or `REQ-007-A`. A source it extracts no obligations from (for example pt-BR `RF-012 ... deve ...`) can be approved only with `acknowledged_obligation_floor` explaining how requirements were checked;
 - every material source section is represented in the compact index;
 - pattern seeds cite at least two real source/task domains or a clear cross-cutting normative source;
-- contradictions are recorded rather than silently reconciled;
+- contradictions are recorded without resolving them in cheap extraction workers;
+- every unsupported source structure recorded in `SOURCE_INDEX.json` is listed, one acknowledgement per entry, by `kind` and `location` in `acknowledged_unsupported_structures` before approval; otherwise the review blocks. One example is a requirement that exists only inside a tracked insertion. Text inside tracked insertions and moves is excluded from blocks, so the remaining paragraph can read with inverted meaning (an inserted `not`), and moved text appears in neither position. Check each tracked-change `preview` against its paragraph;
 - no digest has become a lossy replacement for primary evidence;
 - the final handoff can be consumed without loading all fragments.
 
@@ -111,7 +116,7 @@ Write `COVERAGE_REVIEW.json`. Unresolved material contradictions block automatic
 
 Default route: `economy` low. Create `FINAL_PLAN_INPUT.md` from validated compact state. It contains pointers, not copied raw documents.
 
-The primary plan is complete only when `preplanctl validate-package` succeeds.
+The primary plan is complete only when `preplanctl validate-package` succeeds, and final planning must re-verify content digests at consumption via `preplanctl validate-consumption` before relying on package artifacts.
 
 ## 5. Primary-plan model routing is independent
 
@@ -180,7 +185,7 @@ This is the main safety property the staged route adds: credits may run out, but
 Digest tasks are independent, uniform, and schema-checked, which is exactly what host fan-out primitives are built for. When the host offers them, the orchestrator may dispatch primary-plan stages through them instead of one fresh CLI process per TODO; the durable checklist, `validate-digest`, coverage review, and `validate-package` remain the authority, so a fan-out only replaces the *dispatch*, never the state:
 
 - **Claude Code dynamic workflows**: `pipeline(fragmentBatches, batch => agent(digestPrompt(batch), {model: 'haiku', schema: DIGEST_SCHEMA}))`, then one `agent(..., {model: 'sonnet'})` synthesis and one fresh `agent(..., {model: 'opus'})` coverage review. Same-prefix siblings share the prompt cache (uniform model/effort/tools/schema/cwd); `schema` output is validated with retries; intermediate results stay outside the conversation; runs are resumable within the session. Draft the script with the `/workflow-authoring` skill; keep it under `.claude/workflows/` only if the project will reuse it.
-- **Codex subagents**: `spawn_agent` per batch with the `explorer` role, `model: gpt-6-luna`, `model_reasoning_effort: low`, bounded by `agents.max_concurrent_threads_per_session`; synthesis on Sol Medium; review on Sol High.
+- **Codex subagents**: `spawn_agent` per batch with the `explorer` role, `model: gpt-6-luna`, `model_reasoning_effort: high` (OpenAI: start Luna at High), bounded by `agents.max_concurrent_threads_per_session`; synthesis on Sol Medium; review on Sol High.
 - **Antigravity**: `invoke_subagent` with `model: flash` per batch and `model: pro` for review.
 
 Each worker must still write its digest to the package and pass `preplanctl validate-digest`; the orchestrator marks TODOs complete only from those files. Do not use a fan-out when the host lacks it or when fewer than three batches exist — the portable runner is cheaper than the orchestration overhead.

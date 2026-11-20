@@ -23,7 +23,11 @@ MAX_STATE_BYTES = 32768
 CONFIGURATION = re.compile(r'unknown (?:argument|option)|unrecognized arguments|invalid (?:argument|option|model)|unsupported (?:argument|option|effort)|unexpected argument', re.I)
 CATEGORIES = {
     'authentication': re.compile(r'not authenticated|authentication (?:required|failed)|login required|please (?:log|sign) in|invalid api key|\bunauthorized\b', re.I),
-    'quota': re.compile(r'\b429\b|rate[ -]?limit|usage limit|quota exceeded|insufficient_quota|too many requests|credits? (?:exhausted|depleted|used|limit)', re.I),
+    # Antigravity CLI >= 1.5.10 stops the turn at once on spend-cap, prepaid-balance and
+    # weekly-quota errors: availability (credits), never capability evidence.
+    'quota': re.compile(r'\b429\b|rate[ -]?limit|usage limit|quota exceeded|insufficient_quota|too many requests|credits? (?:exhausted|depleted|used|limit)'
+                        r'|spend(?:ing)?[ -]cap|prepaid (?:credit )?balance|weekly (?:usage )?(?:quota|limit)'
+                        r'|out of (?:usage )?credits|ran out of credits|insufficient credits|no credits (?:left|remaining)', re.I),
     'capacity': re.compile(r'capacity limit|service unavailable|server overloaded|\bHTTP\s*503\b', re.I),
 }
 
@@ -94,7 +98,8 @@ def _save(plan_dir: Path, task_id: str, state: dict[str, Any]) -> None:
 
 def unavailable(plan_dir: Path, task_id: str, phase: str, route: dict[str, str],
                 category: str, config: dict[str, Any], *, now: float | None = None) -> None:
-    if phase not in {'design', 'implementation'} or category not in {*CATEGORIES, 'configured_exit', 'missing_cli'}:
+    # `model_unavailable`: a frontier model this CLI version cannot serve (cooled down per model).
+    if phase not in {'design', 'implementation'} or category not in {*CATEGORIES, 'configured_exit', 'missing_cli', 'model_unavailable'}:
         raise AvailabilityError('Invalid availability event')
     state = read(plan_dir, task_id)
     now = time.time() if now is None else now
@@ -108,6 +113,7 @@ def unavailable(plan_dir: Path, task_id: str, phase: str, route: dict[str, str],
     state['events'] = (state['events'] + [{
         'at': now, 'phase': phase, 'provider': provider, 'category': category,
         **({'route_profile': route['route_profile'], 'quota_pool': route['quota_pool']} if route.get('route_profile') else {}),
+        **({'frontier': True, 'model': route['model']} if route.get('frontier') else {}),
         'tier': route['tier'], 'requested_effort': route.get('requested_effort', route['effort']),
     }])[-32:]
     _save(plan_dir, task_id, state)

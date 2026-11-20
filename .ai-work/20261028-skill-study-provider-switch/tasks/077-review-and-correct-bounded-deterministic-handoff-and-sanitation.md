@@ -21,7 +21,7 @@ Objective: Independently review, correct and revalidate the preceding provider-s
 ## Checkpoints
 
 - [ ] **S001** Read assigned decision and pin baseline — Read docs/research/20261028-skill-optimization/prepared-research/068-provider-switch-handoff.md. Confirm source applicability; do not repeat broad research.
-- [ ] **S002** Implement change 1 — Obtain actual independent max-capability review evidence for the current diff.
+- [ ] **S002** Dispatch the independent reviewer — Run `python docs/plans/20261028-skill-optimization/support/review_dispatch.py --repo-root . --task 077` in the foreground (rerun on exit 75); use only its DISPATCH line and compact findings.
 - [ ] **S003** Implement change 2 — Correct blocking findings and rerun all assigned checks.
 - [ ] **S004** Run declared regression checks — Run the declared targeted tests through the resource watcher. Implement every assigned acceptance case and preserve failures and limitations.
 - [ ] **S005** Record acceptance evidence — Write the implementation receipt and outcome report with changed-file hashes, acceptance coverage and actual test logs. Leave unresolved work pending.
@@ -38,13 +38,15 @@ Files: `skill/plan-and-execute/scripts/assistant_triage.py`, `skill/plan-and-exe
 - Use only task 077 inputs and declared checks in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.
 - Implement the assigned recommendations, preserving already-satisfied invariants with regression tests rather than duplicate code.
 - Write actual changed-file, test and acceptance evidence to docs/research/20261028-skill-optimization/implementation/077-receipt.json.
-- Dispatch an actual fresh maximum-qualified reviewer; record its real route and input hashes, then correct and revalidate every blocking finding.
+- Review only via review_dispatch.py (synchronous; max route; writes dispatch evidence); fix blocking findings, rerun declared checks, re-dispatch if a reviewed file changed, copy its RECEIPT_REVIEWER fields into the receipt.
 - Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
+- Never launch background or asynchronous agents or processes: this headless session ends when you stop calling tools, so anything unfinished is lost.
 
 ## Acceptance
 
 - The reviewed implementation meets its original acceptance cases.
 - Current input hashes, actual reviewer metadata and correction validation are preserved.
+- A frontier (Fable 5.2 / Astra 6.2) reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.
 - The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
 ## Validate

@@ -544,6 +544,9 @@
   "post_conversion_refinements": [
     "Task068 implements fixture contracts only; tasks070-080 own provider-switch runtime changes.",
     "Security, persistence and dispatch implementation leaves use strong/high; independent reviews use max/xhigh.",
-    "All active task definitions are native generated projections; no status is manually marked complete."
+    "All active task definitions are native generated projections; no status is manually marked complete.",
+    "2026-11-20 architecture review applied (PLAN_ARCHITECTURE_REVIEW_20261120.md sections A/B): checks, scope, dependencies and acceptance corrected; tasks 127-130 projected into the spec; task definitions re-rendered from the manifest; every task stays pending.",
+    "2026-11-20 review dispatch: every independent review task dispatches its fresh max reviewer only through support/review_dispatch.py (synchronous, read-only, evidence under implementation/reviews/<id>/) and never launches background agents; ids, statuses and acceptance unchanged (apply_review_dispatch_20261120.py).",
+    "2026-11-20 P067 manager-tier delegation added as implementation/review pair 131/132 (R073) before 082; 082 gains the 131/132 dependencies and the 132 structural gate, 082/086 gain R073; no other task, id or status changed (apply_task_131_132.py)."
   ]
 }

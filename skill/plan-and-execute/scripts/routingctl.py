@@ -16,7 +16,7 @@ import json
 import math
 from typing import Any
 
-MODEL_MAP_VERSION = "2026-10-09-v7"
+MODEL_MAP_VERSION = "2026-11-20-v11"
 
 TIER_ORDER = ["economy", "standard", "advanced", "strong", "max"]
 EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"]
@@ -36,32 +36,56 @@ def normalize_tier(value: Any) -> str:
     return TIER_ALIASES.get(name, name)
 
 CURRENT_MODELS: dict[str, dict[str, str]] = {
+    # Final remap 2026-11-20 (map v11; evidence in docs/research/model-refresh-20261120/
+    # and docs/research/MODEL_REFRESH_20261120.md). Opus 5.5 (Claude) and GPT-6.2 Sol
+    # (Codex) are the usual ceiling: they carry strong and max by effort. Claude Fable
+    # 5.2 and GPT-6.2 Astra are one level ABOVE this map (see FRONTIER_MODELS): never a
+    # tier, never a ladder rung.
+    # Claude (Artificial Analysis Coding Agent Index v2.1 2026-11-14, CursorBench 4.0,
+    # Bito replay 2026-11-18): Sonnet 5.5 clearly beats Haiku 5.5 on agentic coding
+    # (CAI 56 vs 30 at max; Terminal-Bench 4.0 70.6% vs 39.2%), so Haiku stays economy
+    # (read-only discovery, summaries; `medium` when an exploration miss is costly)
+    # and Sonnet medium serves standard. Opus 5.5 gains are steep to medium/high and
+    # flat after (CursorBench high 56.0% = xhigh 56.0%; max dominated): strong starts
+    # medium/high, max is xhigh, `max` effort is never a default.
+    # Haiku 5.5 (`claude-haiku-5-5`) accepts effort. The bare `haiku` alias resolved
+    # to Haiku 4.5 on CLI 2.1.283 (< 2.1.293, the Haiku 5.5 minimum); always pin the id.
     "claude": {
-        "economy": "haiku",
+        "economy": "claude-haiku-5-5",
         "standard": "claude-sonnet-5-5",
         "strong": "claude-opus-5-5",
-        "max": "claude-fable-5-1",
+        "max": "claude-opus-5-5",
     },
-    # Codex catalog (`codex debug models`, CLI 0.159.2): GPT-6.1 Sol = "the latest
-    # workhorse for coding and everyday work", GPT-6 Astra = "frontier intelligence
-    # for the most demanding work", GPT-6 Luna = "fast and affordable, easier
-    # tasks". Owner decision 2026-10-09: GPT-6.1 Sol is clearly better than Astra
-    # in practice, so Sol takes standard, strong and max; Astra is not routed.
-    # Tiers above standard differ by effort, not by model. Keep effort separate
-    # from model tier so the agent spends only the reasoning depth justified by
-    # verifiability, risk, and failure evidence.
+    # Codex catalog (`codex debug models`, CLI 0.171.0, observed 2026-11-20):
+    # GPT-6.2 Sol = "fast, go-to model for coding and everyday work", GPT-6.2 Astra =
+    # "most capable model for complex coding and professional work", GPT-6.1 Terra =
+    # "visual understanding and computer use" (no 6.2 Terra exists), GPT-6 Luna =
+    # "fast and affordable, easier tasks".
+    # GPT-6.2 Sol serves every Codex tier, differing by effort (low/medium/high/xhigh).
+    # AA Coding Agent Index v2.1 (Codex harness): Sol 6.2 low 37 $0.33/task, medium 45
+    # $0.57, high 47 $0.76, xhigh 50 $0.90, max 49 $1.22 (dominated by xhigh).
+    # - Terra 6.1 is no longer routed: Terra max 49 at $1.53 and 4.4x Sol's tokens vs
+    #   Sol 6.2 xhigh 50 at $0.90; Terminal-Bench 4.1 53.3% vs 61.5%; Vals TB 4.0 49.5%
+    #   at $2.16 vs 60.6% at $1.13. Terra is half Sol's price per token, so it only wins
+    #   below 2x Sol's tokens at equal quality, which no coding measurement shows.
+    # - Luna is not a tier model: CAI 26 at max, Terminal-Bench 13-15%, OpenAI says start
+    #   it at High, and economy floors dispatch `low`. It stays a native read-only
+    #   explorer at `high` (MODEL_ROUTING_CODEX.md). Sol 6.2 low covers economy edits.
+    # Weak-validation, architecture and risk floors start at strong. Keep effort
+    # separate from model tier so the agent spends only the reasoning depth justified
+    # by verifiability, risk, and failure evidence.
     "codex": {
-        "economy": "gpt-6-luna",
-        "standard": "gpt-6.1-sol",
-        "strong": "gpt-6.1-sol",
-        "max": "gpt-6.1-sol",
+        "economy": "gpt-6.2-sol",
+        "standard": "gpt-6.2-sol",
+        "strong": "gpt-6.2-sol",
+        "max": "gpt-6.2-sol",
     },
 }
 
 # Provider/model compatibility guards, not user budget ceilings.
 CURRENT_EFFORT_CAPS: dict[str, dict[str, str]] = {
     "claude": {
-        "economy": "medium",
+        "economy": "max",
         "standard": "max",
         "strong": "max",
         "max": "max",
@@ -83,29 +107,163 @@ MODELS_WITHOUT_EFFORT: dict[str, list[str]] = {
 
 # Ordered (tier, effort) rungs climbed from failure evidence. Rungs are chosen
 # by verified cost per solved task, not price per token:
-# - Claude: Haiku accepts no effort, so an economy failure moves straight to
-#   Sonnet; Opus Medium is a valid first strong rung when validation is strong.
-# - Codex: GPT-6.1 Sol serves standard, strong and max, so a retry climbs by effort
-#   (Medium -> High -> XHigh) instead of switching model. The ladder carries one
-#   High rung (strong): a standard/high rung would be the same model and effort.
+# - Claude: Haiku 5.5 accepts effort, so economy gets Low then Medium before
+#   Sonnet Medium -> High. Opus 5.5 serves strong (Medium -> High) and max, so the
+#   max rung differs by effort only (XHigh) and never repeats a strong rung.
+# - Codex: Sol 6.2 serves every tier, so the ladder is one model climbing effort
+#   Low -> Medium -> High -> XHigh (CAI v2.1 37 -> 45 -> 47 -> 50); no two rungs
+#   resolve to the same model and effort. Effort `max` is dominated (CAI 49 at
+#   $1.22) and `ultra` (automatic delegation, outside EFFORT_ORDER) is never routed.
+# The top of every ladder is `max` at XHigh. The frontier level (Fable 5.2 / Astra 6.2) is
+# never a rung: it is reached only by `frontier_stage` after repeated functional
+# failures at the max/xhigh rung, or by an extreme read-only review leaf.
 ESCALATION_LADDERS: dict[str, list[list[str]]] = {
     "claude": [
         ["economy", "low"],
+        ["economy", "medium"],
         ["standard", "medium"],
         ["standard", "high"],
         ["strong", "medium"],
         ["strong", "high"],
-        ["max", "high"],
         ["max", "xhigh"],
     ],
     "codex": [
         ["economy", "low"],
-        ["economy", "medium"],
         ["standard", "medium"],
         ["strong", "high"],
         ["max", "xhigh"],
     ],
 }
+
+# --- Frontier level L6/F6 (above `max`) ---------------------------------------
+# Owner policy (final, 2026-11-20): Claude Fable 5.2 and GPT-6.2 Astra form a sixth,
+# first-class level `frontier` (aliases L6/F6) above `max`/L5. It is reachable ONLY
+# (1) for architecture and code review of extremely hard demands (`FRONTIER_SIGNALS`
+# on read-only analyst/verifier roles) and (2) after Opus 5.5 / Sol 6.2 failed
+# repeatedly on the task at their top (max/xhigh) rung (`frontier_stage`). Never by
+# floor lifting, never as an ordinary ladder rung, never by the selector, never for
+# implementation, exploration, monitoring or DIRECT work, never on quota, auth,
+# billing, environment, budget or timeout outcomes. No per-task approval is needed.
+#
+# Representation (compatibility): `TIER_ORDER` stays the five persisted tiers, so
+# ladders, `lift_tier`, the selector, `planctl.VALID_TIERS` and schema 1-4 manifests
+# are untouched and a plan cannot pin `frontier`. `LEVEL_ORDER` adds the sixth level
+# for aliases, documentation and validation. A frontier dispatch persists
+# `tier: "max"` plus the markers `level: "frontier"` and `frontier: true`.
+#
+# Fable 5.2 needs Claude Code >= 2.1.321 (Anthropic model-config page and changelog,
+# 2026-11-20; older CLIs answer HTTP 400 "does not support this model"): version
+# unavailability, skipped without escalation. Astra needs Codex >= 0.171.0 and never
+# uses effort `ultra`. Efforts (CAI v2.1): Fable 5.2 high 58.24 at $7.51 vs xhigh 58.47
+# at $15.47 and max 55.74 at $44.22; Astra high 52 at $2.37 vs xhigh 53 at $3.20, low 36
+# and max 53 dominated. So both start at `high`; `xhigh` only where measured.
+# Gemini 4 Carbon is never preset (CAI v2.1 55.5 at $9.75 vs Neon xhigh 58.6 at $6.86):
+# set `antigravity.frontier.model` only when `agy models` lists a `gemini-4-carbon-*` id.
+FRONTIER_LEVEL = "frontier"
+LEVEL_ORDER = [*TIER_ORDER, FRONTIER_LEVEL]
+LEVEL_ALIASES: dict[str, str] = {**TIER_ALIASES, "f6": FRONTIER_LEVEL, "l6": FRONTIER_LEVEL}
+# Provider order = preference order for the frontier level (Codex Astra, then Claude Fable).
+FRONTIER_MODELS: dict[str, dict[str, str]] = {
+    "codex": {"model": "gpt-6.2-astra", "effort": "high"},
+    "claude": {"model": "claude-fable-5-2", "effort": "high"},
+}
+FRONTIER_MIN_CLI = {"claude": "2.1.321", "codex": "0.171.0"}
+FRONTIER_EFFORTS = ("high", "xhigh")
+FRONTIER_DEFAULTS: dict[str, Any] = {"enabled": True, "min_top_failures": 2}
+FRONTIER_POLICY_KEYS = ("enabled", "min_top_failures")
+# Only functional evidence counts. Quota, auth, billing and capacity are availability
+# events (never failure classes); environmental, budget, timeout_ceiling and
+# plan_defect never count either.
+FRONTIER_COUNTED_CLASSES = ("semantic", "mechanical", "unknown")
+FRONTIER_SIGNALS = ("extreme_architecture", "extreme_code_review")
+FRONTIER_ROLES = ("analyst", "verifier")
+FRONTIER_STAGES = ("off", "pending", "due", "spent")
+FRONTIER_UNSUPPORTED = (r"does not support (?:this|the) model|unrecognized[_ ]model|unsupported model"
+                        r"|model[^\n]{0,80}(?:not supported|not available|does not exist|not found)"
+                        r"|invalid model|requires a newer (?:version|cli)")
+
+
+def normalize_level(value: Any) -> str:
+    """Like `normalize_tier`, but also maps L6/F6 to `frontier` (never persisted as a task tier)."""
+    name = str(value or "").strip().lower()
+    return LEVEL_ALIASES.get(name, name)
+
+
+def frontier_policy(config: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Effective `routing_policy.frontier` (defaults: enabled, two top-rung failures)."""
+    raw = ((config or {}).get("routing_policy") or {}).get("frontier") if isinstance(config, dict) else None
+    policy: dict[str, Any] = dict(FRONTIER_DEFAULTS)
+    if isinstance(raw, dict):
+        if isinstance(raw.get("enabled"), bool):
+            policy["enabled"] = raw["enabled"]
+        value = raw.get("min_top_failures")
+        if type(value) is int and value >= 1:
+            policy["min_top_failures"] = value
+    return policy
+
+
+def frontier_model(provider: str, config: dict[str, Any] | None = None) -> dict[str, str] | None:
+    """The frontier model and effort for one provider, or None.
+
+    `<provider>.frontier = {model, effort}` in the configuration overrides the
+    built-in map; an empty model disables the provider's frontier level.
+    """
+    default = FRONTIER_MODELS.get(provider) or {}
+    override = ((config or {}).get(provider) or {}).get("frontier") if isinstance(config, dict) else None
+    override = override if isinstance(override, dict) else {}
+    model = str(override.get("model", default.get("model", "")) or "").strip()
+    if not model:
+        return None
+    effort = override.get("effort") if override.get("effort") in FRONTIER_EFFORTS else default.get("effort", "high")
+    return {"model": model, "effort": effort}
+
+
+def frontier_model_ids(config: dict[str, Any] | None = None) -> set[str]:
+    providers = set(FRONTIER_MODELS) | {p for p, cfg in (config or {}).items() if isinstance(cfg, dict) and "frontier" in cfg}
+    return {spec["model"] for spec in (frontier_model(p, config) for p in providers) if spec}
+
+
+def level_map(provider: str, config: dict[str, Any] | None = None) -> dict[str, str]:
+    """The provider's six-level view: the five tier models plus `frontier` (documentation/CLI)."""
+    models = dict(((config or {}).get(provider) or {}).get("models") or CURRENT_MODELS.get(provider, {}))
+    spec = frontier_model(provider, config)
+    if spec:
+        models[FRONTIER_LEVEL] = spec["model"]
+    return models
+
+
+def top_rung_failures(failure_classes: list[str], rungs: list[tuple[str, str]]) -> int:
+    """Functional failures recorded while the ladder already stood at its top rung.
+
+    Replays the same evidence semantics as `escalation_step`, so the count needs
+    no per-attempt route history and works for every manifest schema.
+    """
+    top = max(0, len(rungs) - 1)
+    count = 0
+    for index, raw in enumerate(failure_classes):
+        cls = str(raw or "unknown").strip().lower()
+        cls = cls if cls in FAILURE_CLASSES else "unknown"
+        if cls in FRONTIER_COUNTED_CLASSES and _uncapped_step(failure_classes[:index], rungs) >= top:
+            count += 1
+    return count
+
+
+def frontier_stage(failure_classes: Any, rungs: list[tuple[str, str]], config: dict[str, Any] | None = None) -> str:
+    """off | pending | due | spent for the failure-driven frontier step.
+
+    `pending`: fewer than `min_top_failures` functional failures at the max top
+    rung; an exhausted ladder retries the top rung instead of blocking. `due`:
+    the threshold is met, so the next dispatch is the frontier route. `spent`:
+    the frontier attempt failed too; the task blocks for replanning.
+    """
+    policy = frontier_policy(config)
+    if not policy["enabled"] or not rungs or rungs[-1][0] != "max" or not isinstance(failure_classes, list):
+        return "off"
+    failures = top_rung_failures(failure_classes, rungs)
+    threshold = policy["min_top_failures"]
+    if failures > threshold:
+        return "spent"
+    return "due" if failures == threshold else "pending"
 
 # Generic ladder for optional providers whose catalog is user-configured.
 DEFAULT_LADDER: list[list[str]] = [
@@ -164,12 +322,19 @@ def configure_config(raw: dict[str, Any]) -> dict[str, Any]:
 
         provider_cfg["models_without_effort"] = list(MODELS_WITHOUT_EFFORT[provider])
         provider_cfg["escalation_ladder"] = [list(rung) for rung in ESCALATION_LADDERS[provider]]
+        # Sixth level (L6/F6): never a `models` tier, so ladders and lifts cannot reach it.
+        if provider in FRONTIER_MODELS:
+            provider_cfg["frontier"] = dict(FRONTIER_MODELS[provider])
 
-    # Replaces legacy routing-policy state, including any retired ceiling data.
+    # Replaces legacy routing-policy state, including any retired ceiling data;
+    # an explicit frontier policy is the only user setting carried over.
+    previous = raw.get("routing_policy") if isinstance(raw.get("routing_policy"), dict) else {}
+    frontier = previous.get("frontier")
     config["routing_policy"] = {
         "model_map_version": MODEL_MAP_VERSION,
         "selection": "adaptive",
         "escalation": "evidence",
+        "frontier": copy.deepcopy(frontier) if isinstance(frontier, dict) else dict(FRONTIER_DEFAULTS),
     }
     return config
 
@@ -310,6 +475,10 @@ PRIMARY_SIGNALS: dict[str, tuple[str, str]] = {
     "silent_failure_costly": ("strong", "high"),
     "frontier_long_horizon": ("max", "high"),
     "repeated_strong_failure": ("max", "xhigh"),
+    # Extremely hard architecture / code review only. Floor max/xhigh (Opus 5.5 / Sol 6.2);
+    # the leaf is also frontier-eligible, which only read-only analyst/verifier roles use.
+    "extreme_architecture": ("max", "xhigh"),
+    "extreme_code_review": ("max", "xhigh"),
 }
 MODIFIER_SIGNALS = ("weak_validation", "strong_validation", "implementation")
 ROUTE_TIERS = ["tool", *TIER_ORDER]
@@ -328,6 +497,9 @@ def minimum_route(signals: list[str]) -> dict[str, str]:
     - `strong_validation` lets `strong` start at `medium` and `standard` at `medium`;
     - `implementation` forbids `low`: a worker that must run validation needs at
       least `medium` unless the edit is mechanical with deterministic checks.
+    - an extreme architecture/review signal adds `frontier_eligible: true`; only a
+      read-only analyst/verifier role turns that into a frontier route (never
+      implementation, exploration, monitoring or DIRECT work).
     Escalation above the floor comes only from failure evidence.
     """
     names = [str(item).strip().lower() for item in signals if str(item).strip()]
@@ -357,6 +529,8 @@ def minimum_route(signals: list[str]) -> dict[str, str]:
         mechanical_and_checked = "mechanical_edit" in names and "strong_validation" in names
         if not mechanical_and_checked:
             effort = "medium"
+    if any(name in FRONTIER_SIGNALS for name in primaries):
+        return {"tier": tier, "effort": effort, "frontier_eligible": True}
     return {"tier": tier, "effort": effort}
 
 
@@ -583,7 +757,8 @@ def select_route(request: Any, catalog: dict[str, Any] | None = None) -> dict[st
         for model_id in sorted(body["models"]):
             entry = body["models"][model_id]
             cache_hit = previous is None or (previous["provider"] == provider and previous["model"] == model_id)
-            for tier in sorted(entry["tiers"], key=TIER_ORDER.index):
+            # The frontier level (L6/F6) is never a selector candidate.
+            for tier in sorted((t for t in entry["tiers"] if t in TIER_ORDER), key=TIER_ORDER.index):
                 candidates.append({
                     "provider": provider, "model": model_id, "tier": tier, "provider_order": order, "entry": entry,
                     "quality_rank": entry["quality"]["rank"],
@@ -719,7 +894,7 @@ DELEGATE_SCHEMA = "delegation-decision/1"
 DELEGATE_REQUEST_KEYS = {
     "signals", "providers", "agent_tier", "depth", "independent_units", "read_only", "write_scopes", "unit_tokens",
     "token_budget", "rollup", "role", "previous_route", "cache_affinity", "required_capabilities", "availability",
-    "billing",
+    "billing", "frontier",
 }
 DELEGATION_ROLES: dict[str, dict[str, Any]] = {
     "scout": {"read_only": True, "purpose": "read-only discovery; returns located facts with file/line evidence"},
@@ -800,11 +975,14 @@ def _delegate_request(request: Any) -> dict[str, Any]:
     rollup = request.get("rollup")
     if rollup is not None and not (isinstance(rollup, dict) and isinstance(rollup.get("totals"), dict)):
         raise RoutingError("rollup must be a routing_telemetry rollup object")
+    frontier = request.get("frontier", {})
+    if not isinstance(frontier, dict) or set(frontier) - set(FRONTIER_POLICY_KEYS):
+        raise RoutingError(f"frontier must be a routing_policy.frontier object ({', '.join(FRONTIER_POLICY_KEYS)})")
     return {
         "floor": floor, "names": names, "agent_tier": agent_tier, "read_only": read_only,
         "depth": _int_field(request, "depth", 0, 0), "units": units, "scopes": scopes, "role": role,
         "unit_tokens": _int_field(request, "unit_tokens", 0, 0), "token_budget": _int_field(request, "token_budget", None, 0),
-        "rollup": rollup,
+        "rollup": rollup, "frontier": {"routing_policy": {"frontier": frontier}},
     }
 
 
@@ -911,11 +1089,20 @@ def delegate_decision(request: Any, catalog: dict[str, Any] | None = None) -> di
         if fan_out == 0:
             return block("token_budget_exhausted") if capability_gap else keep("token_budget_exhausted")
         reasons.append("token_budget_limit")
-    route = selection["route"]
+    route = {key: selection["route"][key] for key in ("provider", "model", "tier", "effort", "effort_flag", "native_effort")}
+    # Way (1) into the frontier level: an extreme architecture/code-review leaf on a
+    # read-only analyst/verifier role. Implementation roles keep Opus 5.5 / Sol 6.2.
+    spec_frontier = frontier_model(route["provider"], spec["frontier"]) if (
+        floor.get("frontier_eligible") and spec["read_only"] and spec["role"] in FRONTIER_ROLES
+        and frontier_policy(spec["frontier"])["enabled"]) else None
+    if spec_frontier:
+        route.update(model=spec_frontier["model"], tier="max", effort=spec_frontier["effort"], effort_flag=True,
+                     native_effort=spec_frontier["effort"], level=FRONTIER_LEVEL, frontier=True)
+        reasons.append("frontier_extreme_review")
     reasons.append("delegate")
     result.update(
         decision="delegate", role=spec["role"], fan_out=fan_out,
-        route={key: route[key] for key in ("provider", "model", "tier", "effort", "effort_flag", "native_effort")},
+        route=route,
         budgets={"tokens_per_worker": tokens_per_worker, "brief_max_tokens": BRIEF_MAX_TOKENS,
                  "result_max_tokens": RESULT_MAX_TOKENS, "result_max_bytes": RESULT_MAX_BYTES},
         write_scopes=scopes[:fan_out],

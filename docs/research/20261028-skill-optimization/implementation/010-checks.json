@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "task_id": "010",
+  "input_fingerprint": "47fcc0509b3af7a29c1ea5e9f5aa77c69a7791839854f20cbdf49bd24d949372",
+  "inputs_unchanged": true,
+  "run_id": "20261120T095239-18232",
+  "checks": [
+    {
+      "argv": [
+        "python",
+        "test/optimization/adaptive_study_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.937,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-01.log",
+      "log_sha256": "02b1a6517ba3b759aea027e9e55667beea81be6cca1d661f9a5572970e825d32"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/study_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.344,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-02.log",
+      "log_sha256": "8df0a53d10040d475a7b2a2066310eaab1151b4241144d164dee59b440310de8"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.813,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/010/20261120T095239-18232/check-03.log",
+      "log_sha256": "56335873cd320b4942e345c6438df9cdd648b23fabc154744e7e218328467e74"
+    }
+  ]
+}

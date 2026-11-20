@@ -54,13 +54,13 @@ For repository work the order is search filenames/symbols/keywords, rank likely 
 
 ## 10. Minimize shared orchestrated context
 
-Default to no `CONTEXT.md`. Create global/scoped context only for non-obvious facts truly reused by assigned TODOs. Keep single-task facts in the task definition. Reuse cross-task learnings only when they are expensive, validated, directional, and predeclared.
+Default to no `CONTEXT.md`. Create global/scoped context only for non-obvious facts reused by assigned TODOs, within budget. Keep single-task facts in the task definition. Reuse directional learnings only when predeclared, validated, and provenance-pinned (`trust_class`, producer, consumers, contract/file digests); repeated multi-task rules belong in versioned patterns (`patternctl.py`). Track assigned context with compact receipts (`planctl.py context-receipt`: file IDs, bytes, inclusion reasons, stale counts; no prompts/secrets). Measure bytes and stale-learning errors offline; live task-success and cache-hit metrics require owner-authorized runs and stay unmeasured offline.
 
 ## 11. Preserve stable provider prefixes and logical routing
 
-Keep shared rules before task-specific evidence. Reuse a stable model/tool/schema configuration when it meets the task's floor; do not switch the root route solely to chase a cheaper nominal token price. Provider cache keys, TTLs and effort exceptions change: verify the active provider documentation before tuning them. Do not claim every fresh worker starts cold or that all effort changes invalidate all caches.
+Keep shared rules before task-specific evidence and bound failure/hypothesis suffixes so the prefix stays byte-stable across tasks and retries. Prefix stability is structural; actual cache reuse is an observed host/model metric, never proven by byte equality alone. Reuse a stable model/tool/schema configuration when it meets the task's floor; do not switch the root route solely to chase nominal price. Verify active provider docs before tuning cache keys, TTLs, or effort exceptions.
 
-Availability fallback preserves the declared logical tier and requested effort, subject only to provider capability caps. It is independent of semantic escalation (`ROUTING_CONFIG.md`). Optional diagnostics load only the latest bounded evidence (`ASSISTANTS.md`); disabled assistants and routine deterministic diagnostics make zero advisory calls. Character limits bound supplied text, not billed tokens or internal provider context.
+Availability fallback preserves the declared logical tier and requested effort, subject to provider capability caps, independent of semantic escalation (`ROUTING_CONFIG.md`). Optional diagnostics load only latest bounded evidence (`ASSISTANTS.md`); disabled assistants make zero calls. Character limits bound supplied text, not billed tokens.
 
 ## 12. Route by verified task cost, not price per token
 
@@ -68,9 +68,9 @@ Route each semantic leaf to the cheapest model/effort credibly able to solve it.
 
 ## 13. Compact superseded validation evidence
 
-Validation output streams directly to the per-attempt raw log, so a verbose 10-minute run does not need to stay in runner memory. Only a bounded tail is read back; the latest excerpt is kept as `last_error`. A deterministic normalized fingerprint identifies repeated failures without comparing or resummarizing old logs. After the first matching event, manifest history stores the signature, repeat count, and age instead of duplicating the full excerpt; the live `last_error` still holds only the newest bounded evidence. The next worker sees that capsule at the end of its prompt and may open only the immediately preceding validation log if needed. Never delete a log while its task is pending/blocked or while it is the current evidence for a failure. Normal plan cleanup removes per-plan logs after completion; the shared service map and monitor reports stay outside that directory.
+Validation output streams to the per-attempt raw log; only a bounded tail is read back (`last_error`). A deterministic fingerprint tracks repeated failures in manifest history (signature, repeat count, age) without duplicating full excerpts. Next attempts see that capsule last and may open only the immediately preceding validation log if needed. Never delete an active failure log; normal cleanup removes per-plan logs after completion, keeping the shared service map and monitor reports.
 
-Resource probes should write compact JSONL with timestamps, check ID, status, and only explicitly safe bounded excerpts. Use `log_watch.py`'s persistent byte cursor for growing service logs so each interval and retry filters only new lines; it stores no log text and never modifies the source. Delete one cursor deliberately only when replaying its recent tail. Do not copy full service logs, MySQL process lists, browser traces, or Node diagnostic reports into prompts. Preserve those artifacts and pass their paths only when they are relevant to the newest failure.
+Resource probes write compact JSONL with timestamps, check ID, status, and safe bounded excerpts. Use `log_watch.py`'s byte cursor so retries filter only new log lines without storing log text or modifying sources. Never copy full service logs, process lists, browser traces, or Node reports into prompts; pass paths only for the newest failure.
 
 ## 14. Bound tool/report output
 

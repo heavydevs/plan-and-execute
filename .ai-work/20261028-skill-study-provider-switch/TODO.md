@@ -1,19 +1,19 @@
 # TODO — Single implementation plan - evidence-backed skill optimization
 
-- [ ] **001** — Implement deterministic preflight and baseline fixtures
-- [ ] **002** — Implement source and contract coverage checks
-- [ ] **003** — Review and correct source coverage implementation
-- [ ] **004** — Implement shared acceptance fixtures and report-aware task inputs
-- [ ] **005** — Review and correct shared acceptance fixtures
-- [ ] **006** — Implement selective activation, intake and late promotion
-- [ ] **007** — Review and correct selective activation, intake and late promotion
-- [ ] **008** — Implement oversized request fragmentation and prepared packages
-- [ ] **009** — Review and correct oversized request fragmentation and prepared packages
-- [ ] **010** — Implement adaptive internal and external study
-- [ ] **011** — Review and correct adaptive internal and external study
-- [ ] **012** — Implement requirements, task decomposition and schema-v4 state
-- [ ] **013** — Review and correct requirements, task decomposition and schema-v4 state
-- [ ] **014** — Implement assigned context, learned facts and token budgets
+- [x] **001** — Implement deterministic preflight and baseline fixtures
+- [x] **002** — Implement source and contract coverage checks
+- [x] **003** — Review and correct source coverage implementation
+- [x] **004** — Implement shared acceptance fixtures and report-aware task inputs
+- [x] **005** — Review and correct shared acceptance fixtures
+- [x] **006** — Implement selective activation, intake and late promotion
+- [x] **007** — Review and correct selective activation, intake and late promotion
+- [x] **008** — Implement oversized request fragmentation and prepared packages
+- [x] **009** — Review and correct oversized request fragmentation and prepared packages
+- [x] **010** — Implement adaptive internal and external study
+- [x] **011** — Review and correct adaptive internal and external study
+- [x] **012** — Implement requirements, task decomposition and schema-v4 state
+- [x] **013** — Review and correct requirements, task decomposition and schema-v4 state
+- [x] **014** — Implement assigned context, learned facts and token budgets
 - [ ] **015** — Review and correct assigned context, learned facts and token budgets
 - [ ] **016** — Implement versioned shared contracts and selective invalidation
 - [ ] **017** — Review and correct versioned shared contracts and selective invalidation
@@ -78,7 +78,7 @@
 - [ ] **076** — Implement bounded deterministic handoff and sanitation
 - [ ] **077** — Review and correct bounded deterministic handoff and sanitation
 - [ ] **078** — Integrate attempt-bound handoff in both worker prompts
-- [ ] **079** — Review and correct provider-switch evidence
+- [ ] **079** — Review and correct attempt-bound handoff in both worker prompts
 - [ ] **080** — Complete provider-switch documentation, replay and cost evidence
 - [ ] **081** — Review and correct provider-switch evidence
 - [ ] **087** — Implement direct architecture delegation with economical implementation
@@ -99,7 +99,7 @@
 - [ ] **102** — Review and correct plan-scoped sleep inhibition
 - [ ] **103** — Implement opt-in plan-scoped 20-minute recovery scheduler
 - [ ] **104** — Review and correct opt-in plan-scoped keepalive scheduler
-- [ ] **105** — Implement updated provider model catalog and sixth frontier tier
+- [ ] **105** — Add the opt-in frontier tier L6/F6 on top of map 2026-11-20-v8
 - [ ] **106** — Review and correct updated model catalog and frontier routing
 - [ ] **107** — Implement risk-based security/performance architecture review and code-review lenses
 - [ ] **108** — Independently review and correct architecture security/performance gates
@@ -125,6 +125,8 @@
 - [ ] **128** — Independently review coding-standard discovery, consent, documentation and CLI safety
 - [ ] **129** — Integrate pattern-first code reuse, scoped retrieval and architectural drift checks into implementation and review
 - [ ] **130** — Independently review source-backed pattern enforcement, safe exceptions and token economy
+- [ ] **131** — Implement manager-tier delegation for plan supervision decisions
+- [ ] **132** — Independently review manager-tier delegation for plan supervision
 - [ ] **082** — Integrate all implemented contracts and close cross-feature gaps
 - [ ] **083** — Review and correct end-to-end integration
 - [ ] **084** — Validate release contents, documentation and migration

@@ -135,6 +135,41 @@ class WorkloadTests(unittest.TestCase):
         self.assertEqual(wr.inventory_models({'models':[{'id':'gemini-3.8-flash-medium'}]}),['gemini-3.8-flash-medium'])
         with self.assertRaises(wr.WorkloadError): wr.inventory_models('some prose')
 
+    def test_gemini4_preset_puts_neon_first_at_standard(self):
+        # Map 2026-11-20-v11: Neon serves standard..strong ahead of Hydrogen; Hydrogen keeps economy and is the
+        # standard fallback; Flash only monitors; Antigravity Claude stays capped at advanced; no Carbon/Argon.
+        listed = [f'gemini-4-{family}-{effort}' for family in ('neon', 'hydrogen') for effort in ('low', 'medium', 'high', 'xhigh')]
+        listed += ['gemini-4-argon-high', 'gemini-4-carbon-high', 'gemini-3.8-flash-medium', 'claude-opus-5-5-high']
+        section = wr.antigravity_preset(listed)['workload_routing']
+        wr.validate(section, routing_config.PROVIDERS)
+        profiles = section['profiles']
+        self.assertFalse(any('carbon' in p['model'] or 'argon' in p['model'] for p in profiles.values()))
+        self.assertEqual((profiles['agy-neon-low']['min_tier'], profiles['agy-neon-xhigh']['max_tier']), ('standard', 'strong'))
+        self.assertEqual((profiles['agy-hydrogen-low']['min_tier'], profiles['agy-hydrogen-xhigh']['max_tier']), ('economy', 'standard'))
+        self.assertEqual(profiles['agy-claude-intermediate']['max_tier'], 'advanced')
+        self.assertEqual(section['routes']['log_monitoring'], ['agy-flash-monitor'])
+        cfg = routing_config.merge(planctl.default_config(), routing_config.EXTRA_DEFAULTS)
+        cfg['provider_order'] = ['antigravity', 'codex', 'claude']
+        cfg['workload_routing'] = section
+        clamp = lambda provider_cfg, tier, effort: effort
+        def first(tier, effort):
+            task = {'provider': 'auto', 'workload': 'implementation', 'model_tier': tier}
+            return wr.candidates(task, cfg, ['antigravity', 'codex', 'claude'], tier, effort, clamp)[0]['route_profile']
+        self.assertEqual(first('economy', 'low'), 'agy-hydrogen-low')
+        self.assertEqual(first('standard', 'low'), 'agy-neon-low')
+        self.assertEqual(first('standard', 'medium'), 'agy-neon-medium')
+        self.assertEqual(first('standard', 'high'), 'agy-neon-high')
+        self.assertEqual(first('advanced', 'high'), 'agy-neon-high')
+        self.assertEqual(first('strong', 'xhigh'), 'agy-neon-xhigh')
+        task = {'provider': 'auto', 'workload': 'implementation', 'model_tier': 'standard'}
+        order = [r.get('route_profile') for r in wr.candidates(task, cfg, ['antigravity', 'codex', 'claude'], 'standard', 'medium', clamp)]
+        # Hydrogen medium is the cheaper same-effort fallback after the Neon variants, before the Claude profile.
+        self.assertLess(order.index('agy-neon-xhigh'), order.index('agy-hydrogen-medium'))
+        self.assertLess(order.index('agy-hydrogen-xhigh'), order.index('agy-claude-intermediate'))
+        # Max is not an Antigravity tier: the overlay offers no profile there.
+        self.assertFalse([r for r in wr.candidates({**task, 'model_tier': 'max'}, cfg, ['antigravity'], 'max', 'xhigh', clamp)
+                          if r.get('route_profile')])
+
     def test_absent_section_preserves_old_routes_and_keys(self):
         self.cfg.pop('workload_routing')
         first=self.select()

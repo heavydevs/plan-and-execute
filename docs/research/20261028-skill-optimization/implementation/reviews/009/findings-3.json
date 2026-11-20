@@ -1,0 +1,73 @@
+{
+  "task_id": "009",
+  "dispatch": 3,
+  "session_id": "15e6beb3-9f12-4159-a7a0-b28e3f58991b",
+  "verdict": "approved",
+  "summary": "Round-2 fixes verified against the current code. R2-01 (raw-line locator), R2-02 (acknowledged_unsupported_structures gate), R2-04 (per-batch audit in validate-digest, mandatory v2 fragment_hashes), R2-05 (digest contradictions need ids) and R2-07 (--require-source and handoff guidance) are correct. Each has a test that would fail if its fix were reverted. R2-03 is fixed for REQ- style ids but has a residual gap. R2-06 docs now match the code, though no test covers a:t. No critical or high finding remains. Remaining mediums: the content-word rule can falsely reject faithful digests and its errors are not actionable; inline tracked insertions can invert extracted obligations; the obligation floor only recognises English modals and a fixed id set. No 009 test logs exist yet.",
+  "findings": [
+    {
+      "id": "R3-01",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1057-1059,1465-1467,1838-1849",
+      "title": "R2-03 content-word rule can falsely reject faithful digests; guidance and error do not explain it",
+      "detail": "An id match now also needs `stems & _content_tokens(item_norm)` (1059), and validate_digest applies the same audit (1838-1849). Tokens are ASCII runs of 4+ characters, so the item must reuse a literal source word. Paraphrases and translations are rejected even with the correct canonical_id. Examples: 'REQ-7: The service shall respond within 200ms' digested as 'p95 latency under 200 ms', or a Portuguese row digested in English ('sistema' vs 'system'). An item must also cite the obligation's own fragment (`refs & obl_frags`), not just any assigned fragment. The digest guidance (1465-1467) states neither rule, and the error lists only ids. A worker that set canonical_id correctly cannot tell why it failed, which causes retry loops in economy-tier digest TODOs. This fails closed, so it is not high.",
+      "fix": "Add one guidance line: each obligation item cites the fragment listing its id and keeps the source wording (quote key words, do not translate). Make the validate-digest/validate-coverage error give a reason per id: no shared content word, wrong fragment ref, or no id. Add a test where an item with the correct id and translated text gets that reason."
+    },
+    {
+      "id": "R3-02",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:809-811,1047,1057-1059",
+      "title": "Id strings count as content words, so content-free echoes still cover RULE-/CLAUSE-/R### obligations",
+      "detail": "_content_tokens runs on the whole normalized text, ids included. 'rule-12' yields 'rule', 'clause-3' yields 'clause', and 'r100' yields 'r100'. So for 'RULE-12: Operators must rotate keys quarterly.', the item {obligation_id:'RULE-12', text:'RULE-12'} passes the stems check. So does text 'RULE-12' with no id fields, through first_id. Any other id cited in the obligation text ('...follow RULE-3 rounding') behaves the same way. Two obligations can share one explicit id (conflicting_explicit_id). Then an item restating clause A also covers clause B through the shared id plus overlapping words. The R2-03 regression test uses only REQ- ids, so it misses this.",
+      "fix": "Strip EXPLICIT_OBLIGATION_ID_RE matches and OBL-* canonical ids from both texts before _content_tokens. For ids listed in duplicate_explicit_ids, require a canonical_id match or a text match. Add RULE-/CLAUSE-/R100 echo cases to the F01 unit test."
+    },
+    {
+      "id": "R3-03",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:391-392,555-563,661-662",
+      "title": "Inline tracked insertions are dropped from paragraph text, so the remaining text can enter evidence with inverted meaning",
+      "detail": "walk_inline records w:ins/w:moveTo but never appends their text. 'Passwords must <w:ins>not </w:ins>be logged' is extracted as 'Passwords must be logged.' That positive obligation enters the fragment, SOURCE_INDEX.obligations, digests and the coverage map, and can trigger a spurious polarity_conflict. Word's current text includes insertions, so the authoritative evidence misstates the document rather than just omitting part of it. The R2-02 gate only requires acknowledging (kind, location). Nothing marks the affected obligation, and the paragraph looks complete (see the AC07 fixture). It is recorded and gated, so it is not high.",
+      "fix": "Walk w:ins/w:moveTo content inline (accept-all view) while still recording the tracked change. Keep w:del/w:moveFrom excluded, and bump EXTRACTION_VERSION. At minimum, flag blocks with tracked changes and propagate the flag to their obligations. Add a fixture with an inserted 'not'."
+    },
+    {
+      "id": "R3-04",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:785-791,1009-1019; skill/plan-and-execute/references/PRIMARY_PLANNING.md:103",
+      "title": "Obligation floor recognises only English modals and fixed id prefixes; other sources get a vacuous audit with no warning",
+      "detail": "NORMATIVE_MODAL_RE recognises must/shall/required/never/cannot. It misses 'should'/'will' and non-English modals such as Portuguese 'deve'/'não deve'/'obrigatório'. EXPLICIT_OBLIGATION_ID_RE covers REQ/FR/NFR/OBL/CLAUSE/RULE/R## but not RF-/RNF-/RN- (pt-BR), US-, UC-, BR- or SEC-. So a table row 'RF-012 | O sistema deve mascarar o CPF' produces no obligation. With zero obligations the audit returns recall 1.0, so a digest can drop the row and no gate notices. AC08 holds only for sources this heuristic recognises. Yet PRIMARY_PLANNING.md:103 says 'every unique source obligation', and no document or SOURCE_INDEX field records the limit.",
+      "fix": "Document the heuristic's scope in PRIMARY_PLANNING.md and PLANNING_INPUT_CONTRACT.md. Record obligation_count and the recognised patterns in SOURCE_INDEX, and require the coverage review to acknowledge a zero or low count relative to block count. Consider adding pt-BR modals and RF/RNF/RN/US/UC prefixes, with a version bump. Add a test with a zero-obligation table source."
+    },
+    {
+      "id": "R3-05",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1468,1834-1835,1905-1908",
+      "title": "Digest contradiction ids are not unique, so colliding ids let one carrier satisfy several contradictions",
+      "detail": "R2-05 requires an id and matches only by id, but uniqueness is never checked, within a digest or across digests. Parallel economy workers that each number their local conflicts C1, C2 will collide. One WORKSTREAM_INDEX or recorded_contradictions item with id C1 then satisfies every digest's distinct C1, and the others can be dropped silently, reopening the F04 gap. The guidance asks for 'a new unique id' but nothing enforces it.",
+      "fix": "In all_digests, reject a contradiction id that is not in SOURCE_INDEX and appears more than once, within one digest or across digests. Alternatively, require new ids to carry the digest prefix (D002-C1). Add a collision test."
+    },
+    {
+      "id": "R3-06",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:2024-2027,2587",
+      "title": "Unsupported-structure acknowledgement collapses entries and can crash with TypeError",
+      "detail": "Matching uses the key (kind, location). Several entries of the same kind at one anchor, such as two insertions in one paragraph or several tracked_change_table entries at one table, are cleared by a single acknowledgement. A non-hashable reviewer value such as \"location\": [\"tbl:1\"] raises TypeError. main() catches only PreplanError/PlanError, so the CLI exits with a traceback instead of a gate error.",
+      "fix": "Require string kind/location on each acknowledged item and raise PreplanError otherwise. Optionally match by count per key, or by kind+location+preview hash."
+    },
+    {
+      "id": "R3-07",
+      "severity": "info",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:244,2559,2565; test/optimization/primary_planning_self_test.py:930,1128",
+      "title": "R2-06 a:t and the R2-07 CLI flag have no reverting regression test",
+      "detail": "Removing the DrawingML a:t entry from _TEXT_TAGS fails no test. The F03 drawing fixture uses w:t, and the drawing branch records the element regardless of _has_text. --require-source is tested only through the Python API and the guidance string, never through the CLI.",
+      "fix": "Add an unknown element carrying only <a:t> text and assert an unhandled_*_element record. Add a CLI run of validate-consumption --require-source on a moved source that expects exit code 2."
+    },
+    {
+      "id": "R3-08",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/008-receipt.json:14-35; docs/research/20261028-skill-optimization/implementation/008-outcome.md:10-25",
+      "title": "Evidence state for the 009 gate",
+      "detail": "No implementation/logs/009 directory exists. The 008 receipt's artifact hashes (preplanctl.py 5c15…) predate the corrections (reviewed input 5508…). 008-outcome.md still says ooxml-text-v2 and repeats pre-fix claims. This reviewer had no shell: tests were not run and hashes were not recomputed. The prepared report and the 008 receipt are input evidence only, not proof that the implementation or its review passed.",
+      "fix": "The 009 receipt must record this reviewer's provider/model/effort and the reviewed-input hashes. It must pin the current file hashes and attach fresh resource-watched logs for primary_planning_self_test.py and preplan_self_test.py. It must also state that it supersedes the 008 outcome's claims."
+    }
+  ]
+}

@@ -1,0 +1,306 @@
+{
+  "schema_version": 2,
+  "task_id": "005",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Independently reviewed task 004 via three fresh read-only max-tier dispatches (claude-opus-5-5 xhigh; codex unavailable for quota). Corrected the loader (fail-closed own-file exclusion, catalog/path validation, distinct error types), derived classification from availability.classify, and expanded task_004_self_test to 9 offline-guarded tests including argv parity with run_isolated.build_worker_command. Final dispatch 3 approved the final hashes with 0 blocking findings; the declared check passes on those hashes. Low/info findings R3-F2..R3-F6 are deferred.",
+  "outcome_sha256": "d049e402e36b2419fbb572606a73b22687533f5c3c17c9b85c6488318feefdf5",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+      "sha256": "300a1adcfc903e555f106543861a5ee96d6aac4631a6289bf210af265c67d379"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "test/optimization/shared_fixtures.py",
+      "sha256": "f14fbad1e9297364f5205b476bd3e23f5f4d6b631f65e97ecac0efadfcc72f69"
+    },
+    {
+      "path": "test/optimization/task_004_self_test.py",
+      "sha256": "efce2bf53df89d9e916c869ea1f3bc596c0d7e18259c90fdd88b9a0a68d2dd7f"
+    }
+  ],
+  "checks_sha256": "9896d604d71f96ec50416c388db81a6df4c5616aa9a0c535c20881854d44e663",
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/reviews/005/dispatch-3.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/005/findings-3.json",
+        "docs/research/20261028-skill-optimization/implementation/005-outcome.md"
+      ]
+    },
+    {
+      "id": "AC02",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/reviews/005/findings-1.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/005/findings-2.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/005/findings-3.json",
+        "test/optimization/shared_fixtures.py",
+        "test/optimization/task_004_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/005-checks.json",
+        "docs/research/20261028-skill-optimization/implementation/logs/005/20261120T073226-19016/check-01.log"
+      ]
+    },
+    {
+      "id": "AC03",
+      "result": "passed",
+      "evidence": [
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/005-outcome.md"
+      ]
+    },
+    {
+      "id": "AC04",
+      "result": "passed",
+      "evidence": [
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/005-outcome.md",
+        "docs/research/20261028-skill-optimization/implementation/reviews/005/dispatch-3.json"
+      ]
+    },
+    {
+      "id": "AC05",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/shared_fixtures.py",
+        "test/optimization/task_004_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/005-checks.json",
+        "docs/research/20261028-skill-optimization/implementation/logs/005/20261120T073226-19016/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/005-outcome.md"
+      ]
+    }
+  ],
+  "limitations": [
+    "Offline contract tests only; tests run no live provider CLI. The three review dispatches called Claude Opus 5.5 read-only through the plan's review helper (reported usd ~3.91).",
+    "Python 3.10 (CI minimum) was not run: no 3.10 interpreter on this host. Manual runs passed on 3.12.13 and 3.13.15; the declared check ran on 3.11.15.",
+    "Supporting delivery-gate (55 tests, 1 skipped: symlink not permitted) and review-dispatch (14 tests, 1 skipped: opt-in live smoke) self-test runs are recorded only in 005-outcome.md.",
+    "004-receipt.json, 004-outcome.md and logs/004 describe the superseded task 004 files; 004-outcome.md overstated coverage and is outside the 005 write scope.",
+    "Deferred non-blocking findings: R3-F2 interrupt exit codes labelled functional; R3-F3 Windows own-file aliases beyond case; R3-F4 untested catalog-load error branches; R3-F5 hand-copied availability event set; R3-F6 remaining guard gaps.",
+    "The prepared report is input evidence, not proof that this implementation or its independent review passed."
+  ],
+  "reviewer": {
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "native_effort": "xhigh",
+    "model_tier": "max",
+    "fresh_context": true,
+    "session_id": "402b84ec-5447-4c55-bcbd-b7c882ebf6e5",
+    "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/005/dispatch-3.json",
+    "dispatch_sha256": "e7aac8db96e33fc06fae588b483049318e8c05af8b846399bdf0397d91998317"
+  },
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/004-receipt.json",
+      "sha256": "58054376ff54b60196d13cb8cd60ef59268274c5f0ece9e2389cf03b1f82eb39"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/004-outcome.md",
+      "sha256": "910d9942841e5a66535febc0a9d7d079b1099cf9805b4d0eb79d142785b9ea56"
+    },
+    {
+      "path": "test/optimization/shared_fixtures.py",
+      "sha256": "f14fbad1e9297364f5205b476bd3e23f5f4d6b631f65e97ecac0efadfcc72f69"
+    },
+    {
+      "path": "test/optimization/task_004_self_test.py",
+      "sha256": "efce2bf53df89d9e916c869ea1f3bc596c0d7e18259c90fdd88b9a0a68d2dd7f"
+    }
+  ],
+  "prior_dispatches": [
+    {
+      "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/005/dispatch-1.json",
+      "dispatch_sha256": "7f573a37b04529aadb1de4e0ea78e68515ee92bf617583a83ac61e4832ffd049",
+      "session_id": "85a08a33-7df2-4a8b-a287-a50826af6446",
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "verdict": "approved",
+      "blocking_findings": 0,
+      "superseded_by_correction": true
+    },
+    {
+      "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/005/dispatch-2.json",
+      "dispatch_sha256": "c8a5c6a54e397ba24f4bba85937ee30b14a702168e93638a0c4d38c760b14564",
+      "session_id": "9666cc8f-2531-4503-903a-eec8dac2a306",
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "verdict": "approved",
+      "blocking_findings": 0,
+      "superseded_by_correction": true
+    }
+  ],
+  "verdict": "approved",
+  "findings": [
+    {
+      "dispatch": 1,
+      "id": "F1",
+      "severity": "medium",
+      "location": "test/optimization/shared_fixtures.py:217-234,247-248",
+      "title": "Default load does not exclude the task's own create_in_this_task files from prepared_reports",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 1,
+      "id": "F2",
+      "severity": "medium",
+      "location": "test/optimization/task_004_self_test.py:79-91",
+      "title": "Own-file rejection test passes for the wrong reason",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 1,
+      "id": "F3",
+      "severity": "medium",
+      "location": "test/optimization/shared_fixtures.py:42-105",
+      "title": "Fixture argv is a hand-copied snapshot, not tied to the production command builder",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 1,
+      "id": "F4",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:222-228",
+      "title": "Unknown or malformed input_contract entries are not rejected",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 1,
+      "id": "F5",
+      "severity": "low",
+      "location": "docs/research/20261028-skill-optimization/implementation/004-outcome.md:14",
+      "title": "Outcome overstates test coverage",
+      "status": "partially_resolved_tests_fixed_004_outcome_text_out_of_scope"
+    },
+    {
+      "dispatch": 1,
+      "id": "F6",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:16-17,108-139,179",
+      "title": "Hard-coded classification labels and an implicit sys.path dependency",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-F1",
+      "severity": "medium",
+      "location": "test/optimization/task_004_self_test.py:88,238 (also :55-70)",
+      "title": "The corrected tests need Python 3.11+, but the repo supports Python 3.10",
+      "status": "resolved_not_run_on_python_3_10"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-F2",
+      "severity": "medium",
+      "location": "docs/research/20261028-skill-optimization/implementation/004-receipt.json:14-24,32; 004-outcome.md:14,20; logs/004/20261120T053944-28680/check-01.log:6",
+      "title": "No test evidence exists for the reviewed hashes; the 004 receipt and log describe the old files",
+      "status": "addressed_by_005_evidence"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-F3",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:256-277,280-292",
+      "title": "The own-file and allow-list checks compare raw path strings, so a differently spelled path gets past OwnTaskFileError",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-F4",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:235-241,294-297",
+      "title": "Some malformed catalogs are still accepted or raise a different exception class",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-F5",
+      "severity": "low",
+      "location": "test/optimization/task_004_self_test.py:39-74,136-152",
+      "title": "offline_guard misses some write and process calls, and two setup steps run outside it",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-F6",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:155-161",
+      "title": "classify_outcome treats other availability categories as functional failures",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-F7",
+      "severity": "info",
+      "location": "test/optimization/shared_fixtures.py:155-161; test/optimization/task_004_self_test.py:127-128,229-233",
+      "title": "Auth and credit-exhaustion failures get the same classification label",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-F8",
+      "severity": "info",
+      "location": "test/optimization/shared_fixtures.py:64,66-71,82-84",
+      "title": "The build_provider_argv docstring overstates how closely it matches production",
+      "status": "resolved"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-F1",
+      "severity": "medium",
+      "location": "docs/research/20261028-skill-optimization/implementation/004-receipt.json:14-24,32,41,50,59; 004-outcome.md:14,20; 004-checks.json:7-17",
+      "title": "No test evidence yet at the reviewed hashes; the 004 receipt, outcome and log describe superseded files",
+      "status": "addressed_by_005_evidence"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-F2",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:167-179; skill/plan-and-execute/scripts/availability.py:45-46; skill/plan-and-execute/scripts/run_isolated.py:2039-2041",
+      "title": "classify_outcome labels a cancelled or interrupted run as a functional failure",
+      "status": "deferred"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-F3",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:311-321,329",
+      "title": "On Windows, own-file aliases other than letter case still get past OwnTaskFileError",
+      "status": "deferred"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-F4",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:267-282,324-326; test/optimization/task_004_self_test.py:269-286",
+      "title": "Several new error branches in the loader have no test, so a mutation there goes undetected",
+      "status": "deferred"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-F5",
+      "severity": "info",
+      "location": "test/optimization/shared_fixtures.py:27-28; test/optimization/task_004_self_test.py:322-323; skill/plan-and-execute/scripts/availability.py:102",
+      "title": "AVAILABILITY_EVENTS copies production's event set by hand, and its test checks the constant against itself",
+      "status": "deferred"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-F6",
+      "severity": "info",
+      "location": "test/optimization/task_004_self_test.py:39-49,326-349",
+      "title": "Remaining gaps in offline_guard, and the Python 3.10 claim has not been run",
+      "status": "deferred"
+    }
+  ]
+}

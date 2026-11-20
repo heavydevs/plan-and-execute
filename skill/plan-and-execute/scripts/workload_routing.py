@@ -96,6 +96,8 @@ def model_key(route: dict[str, Any]) -> str:
 def cooldown_key(route: dict[str, Any], category: str) -> str:
     # Authentication and missing binaries are host-wide. Quota is credential-
     # family scoped, capacity model-scoped. Legacy routes retain old semantics.
+    if category == 'model_unavailable':
+        return model_key(route)
     if not route.get('quota_pool') or category in ('authentication', 'missing_cli'):
         return route['provider']
     if category == 'capacity':
@@ -190,6 +192,32 @@ def inventory_models(raw: Any) -> list[str]:
     return out
 
 
+# Gemini 4 families observed in `agy models` (2026-11-20). One profile per observed effort
+# variant, ascending, so a route takes the cheapest variant that still meets the requested
+# effort. Route order is family order: Neon first, then Hydrogen, then the capped Claude profile.
+# Map 2026-11-20-v11 (docs/research/model-refresh-20261120/google-antigravity.md):
+# - Neon serves standard..strong. At equal cost per Intelligence Index task Neon one effort
+#   lower beats Hydrogen (Neon low 44 $0.75 vs Hydrogen medium 41 $0.80; Neon medium 55 $1.90
+#   vs Hydrogen high 51 $1.87), and Neon xhigh leads the Coding Agent Index (58.64 at $6.86,
+#   177 steps vs Hydrogen xhigh 52.32 at $4.45, 405 steps). Medium-low confidence: the index
+#   is not coding-specific and Neon has the least independent coding data.
+# - Hydrogen keeps economy (low: $0.29/task) and is the standard fallback after Neon
+#   (faster, ~160 vs ~100 tokens/s; separate model id, so a Neon capacity cooldown skips to it).
+# Carbon is deliberately absent (CAI 55.47 at $9.75, dominated by Neon xhigh; not on this
+# account): frontier planner/reviewer at most, never routed here. Argon is dominated (Neon
+# medium 55 $1.90 vs Argon high 50 $4.97) and unrouted.
+GEMINI4_FAMILIES = (
+    ('agy-neon', 'gemini-4-neon', ('low', 'medium', 'high', 'xhigh'), 'standard', 'strong',
+     ['implementation', 'validation_repair'],
+     'Best Gemini 4 per cost: AA Intelligence Index v5.0.1 Neon one effort lower beats Hydrogen at equal cost; '
+     'Coding Agent Index v2.1 Neon xhigh 58.64 at $6.86 (2026-11-19). Not a quality guarantee.'),
+    ('agy-hydrogen', 'gemini-4-hydrogen', ('low', 'medium', 'high', 'xhigh'), 'economy', 'standard',
+     ['implementation', 'validation_repair'],
+     'Cheapest Gemini 4 for routine execution (Hydrogen low $0.29 per AA index task); standard fallback '
+     'after Neon. Artificial Analysis 2026-11-19. Not a quality guarantee.'),
+)
+
+
 def antigravity_preset(models: list[str], manager: str = 'claude') -> dict[str, Any]:
     """Generate an explicit opt-in policy from account discovery, never a live claim.
 
@@ -210,6 +238,16 @@ def antigravity_preset(models: list[str], manager: str = 'claude') -> dict[str, 
                           'min_tier': lo, 'max_tier': hi, 'max_effort': native, 'native_effort': native,
                           'workloads': roles, 'observed_models': [model],
                           'evidence': 'User-selected conservative policy; ID observed in account CLI inventory. Not a cross-host quality benchmark.'}
+    for prefix, stem, efforts, lo, hi, roles, why in GEMINI4_FAMILIES:
+        for native in efforts:
+            model = f'{stem}-{native}'
+            if model not in models:
+                continue
+            profiles[f'{prefix}-{native}'] = {'provider': 'antigravity', 'model': model, 'quota_pool': 'antigravity-gemini',
+                                              'min_tier': lo, 'max_tier': hi, 'max_effort': native, 'native_effort': native,
+                                              'workloads': roles, 'observed_models': [model], 'evidence': why}
+    # Owner order: Gemini 4 first, then the capped Antigravity Claude profile (stable sort).
+    profiles = dict(sorted(profiles.items(), key=lambda item: item[0].startswith('agy-claude')))
     return {'workload_routing': {'enabled': True, 'manager_provider': manager, 'preserve_manager_quota': True,
             'profiles': profiles, 'routes': {role: [n for n, p in profiles.items() if role in p['workloads']] for role in WORKLOADS}}}
 

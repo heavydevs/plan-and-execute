@@ -31,7 +31,7 @@ Objective: Resolve GLM backend identity independently of Claude role aliases, wi
 
 In: Implement gLM provider profiles
 Out: No new broad research phase or second-plan generation.; Do not change installed copies, user-global settings or publish without permission.
-Files: `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execute/scripts/glm_provider_self_test.py`, `test/optimization/glm_self_test.py`, `skill/plan-and-execute/references/MODEL_ROUTING_GLM.md`, `docs/research/20261028-skill-optimization/implementation/044-receipt.json`, `docs/research/20261028-skill-optimization/implementation/044-outcome.md`
+Files: `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execute/scripts/glm_provider_self_test.py`, `test/optimization/glm_self_test.py`, `skill/plan-and-execute/references/MODEL_ROUTING_GLM.md`, `skill/plan-and-execute/scripts/workload_routing.py`, `docs/research/20261028-skill-optimization/implementation/044-receipt.json`, `docs/research/20261028-skill-optimization/implementation/044-outcome.md`
 
 ## Guidance
 
@@ -55,6 +55,7 @@ Files: `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execu
 - Child profile settings cannot leak into another provider process.
 - Coding Plan quota exhaustion cannot enable an API-paid route implicitly.
 - Unknown native effort support causes an explicit skip rather than guessed equivalence.
+- cooldown_key/cooldown_keys include the provider profile/backend, so quota exhaustion of that backend never cools down native Claude/Codex routes; legacy no-profile keys stay valid.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

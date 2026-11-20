@@ -2,7 +2,7 @@
 task_id: "089"
 status: "pending"
 requirements: "R047"
-dependencies: "007,063"
+dependencies: "007,063,088"
 allowed_related_task_reads: "none"
 ---
 
@@ -23,7 +23,7 @@ Objective: Reduce implicit plan-and-execute activation for simple commands and t
 - [ ] **S001** Read evidence — Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md, assigned prepared research and materially affected source files.
 - [ ] **S002** Implement contract 1 — Narrow host-visible skill description/trigger language without requiring the full instruction body for a negative decision.
 - [ ] **S003** Implement contract 2 — Test negative activation for git status, one-file read, short shell commands and trivial edits, plus positive explicit plan invocations.
-- [ ] **S004** Implement contract 3 — Measure false activation, missed activation and prompt bytes on real host traces; do not add a paid classifier.
+- [ ] **S004** Implement contract 3 — Measure false activation, missed activation and prompt bytes on deterministic eval fixtures; live host traces only with explicit owner confirmation (G002); do not add a paid classifier.
 - [ ] **S005** Run tests — Implement test/optimization/skill_activation_negatives_self_test.py and run mapped validation plus feature negative cases.
 - [ ] **S006** Record implementation — Record real implementation and test evidence in docs/research/20261028-skill-optimization/implementation/089-receipt.json and docs/research/20261028-skill-optimization/implementation/089-outcome.md.
 
@@ -46,7 +46,7 @@ Files: `skill/plan-and-execute/SKILL.md`, `skill/plan-and-execute/agents/openai.
 - Simple shell commands, one-file reads and trivial edits do not implicitly load the full skill.
 - Explicit plan/lifecycle commands and genuine multi-workstream jobs still activate.
 - Tiny discoverable metadata cost is acknowledged; there is no claim of zero skill-related tokens.
-- Held-out host evaluations measure false positives/negatives and token impact, not keyword assertions alone.
+- Deterministic positive/negative eval fixtures pass; live host traces run only with explicit owner confirmation (G002), and unavailable/no-quota hosts are recorded not_verified, not passed.
 - Implementation and review remain pending until actual execution evidence exists.
 
 ## Validate

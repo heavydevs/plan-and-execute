@@ -2,7 +2,7 @@
   "schema_version": 1,
   "purpose": "Leaf-level routing corpus. Each case names the observable signals a small root model can identify and the minimum credible tier/effort the skill must assign. routingctl.minimum_route is the deterministic reference; the corpus protects it against regressions in both directions: paying frontier tokens for cheap leaves and under-routing risky small leaves.",
   "signals": {
-    "primary": ["deterministic_lookup", "log_monitoring", "log_diagnosis", "frontend_design", "validation_repair", "exploration", "mechanical_edit", "bounded_implementation", "subtle_debugging", "architecture_decision", "cross_cutting_risk", "silent_failure_costly", "frontier_long_horizon", "repeated_strong_failure"],
+    "primary": ["deterministic_lookup", "log_monitoring", "log_diagnosis", "frontend_design", "validation_repair", "exploration", "mechanical_edit", "bounded_implementation", "subtle_debugging", "architecture_decision", "cross_cutting_risk", "silent_failure_costly", "frontier_long_horizon", "repeated_strong_failure", "extreme_architecture", "extreme_code_review"],
     "modifiers": ["weak_validation", "strong_validation", "implementation"]
   },
   "cases": [
@@ -37,6 +37,9 @@
     {"id":"T029","near_miss":false,"leaf":"Fix one deterministic failing validation without weakening its acceptance assertions.","signals":["validation_repair","strong_validation","implementation"],"expected":{"tier":"standard","effort":"medium"}},
     {"id":"T030","near_miss":true,"leaf":"Repair a validation failure involving a security-sensitive migration.","signals":["validation_repair","cross_cutting_risk","implementation"],"expected":{"tier":"strong","effort":"high"}},
     {"id":"T031","near_miss":true,"leaf":"An anomaly diagnosis has weak evidence and cannot be verified mechanically.","signals":["log_diagnosis","weak_validation"],"expected":{"tier":"standard","effort":"high"}},
-    {"id":"T032","near_miss":true,"leaf":"Monitoring reveals an architecture decision; the cheap observation role must not lower that floor.","signals":["log_monitoring","architecture_decision"],"expected":{"tier":"strong","effort":"high"}}
+    {"id":"T032","near_miss":true,"leaf":"Monitoring reveals an architecture decision; the cheap observation role must not lower that floor.","signals":["log_monitoring","architecture_decision"],"expected":{"tier":"strong","effort":"high"}},
+    {"id":"T033","near_miss":false,"leaf":"Choose the consistency model for a multi-region ledger rewrite where every option has failed reviews before.","signals":["extreme_architecture"],"expected":{"tier":"max","effort":"xhigh","frontier_eligible":true}},
+    {"id":"T034","near_miss":false,"leaf":"Independent code review of a lock-free scheduler change that two strong reviews could not settle.","signals":["extreme_code_review","cross_cutting_risk"],"expected":{"tier":"max","effort":"xhigh","frontier_eligible":true}},
+    {"id":"T035","near_miss":true,"leaf":"Ordinary architecture review of a module split; hard, but not extreme: no frontier level.","signals":["architecture_decision","weak_validation"],"expected":{"tier":"strong","effort":"high"}}
   ]
 }

@@ -2,7 +2,7 @@
 task_id: "062"
 status: "pending"
 requirements: "R002,R003,R004,R005,R007,R032,R037,R038,R039,R042,R044"
-dependencies: "001,051,061"
+dependencies: "001,051,055,061"
 allowed_related_task_reads: "none"
 ---
 
@@ -31,7 +31,7 @@ Objective: Keep validate-or-fix as a thin plan-free entrypoint into the shared m
 
 In: Implement plan-free monitored validation and repair
 Out: No new broad research phase or second-plan generation.; Do not change installed copies, user-global settings or publish without permission.
-Files: `skill/plan-and-execute/scripts/validatectl.py`, `skill/plan-and-execute/scripts/companion_validation_self_test.py`, `test/optimization/validate_or_fix_self_test.py`, `skill/validate-or-fix/SKILL.md`, `skill/validate-or-fix/agents/openai.yaml`, `skill/validate-or-fix/scripts/validatectl.py`, `skill/validate-or-fix/scripts/service_map.py`, `skill/validate-or-fix/scripts/workload_routing.py`, `skill/validate-or-fix/references/ROUTING.md`, `skill/validate-or-fix/references/OPERATIONS.md`, `docs/research/20261028-skill-optimization/implementation/062-receipt.json`, `docs/research/20261028-skill-optimization/implementation/062-outcome.md`
+Files: `skill/plan-and-execute/scripts/validatectl.py`, `test/optimization/validate_or_fix_self_test.py`, `skill/validate-or-fix/SKILL.md`, `skill/validate-or-fix/agents/openai.yaml`, `skill/validate-or-fix/scripts/validatectl.py`, `skill/validate-or-fix/scripts/service_map.py`, `skill/validate-or-fix/scripts/workload_routing.py`, `skill/validate-or-fix/references/ROUTING.md`, `skill/validate-or-fix/references/OPERATIONS.md`, `docs/research/20261028-skill-optimization/implementation/062-receipt.json`, `docs/research/20261028-skill-optimization/implementation/062-outcome.md`
 
 ## Guidance
 

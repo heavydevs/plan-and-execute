@@ -21,7 +21,7 @@ Objective: Independently review and correct direct architecture delegation with 
 ## Checkpoints
 
 - [ ] **S001** Read implementation — Review the actual code, test results and receipt from task 087, not a previous conversation.
-- [ ] **S002** Independent review — Dispatch a real fresh maximum-qualified reviewer and preserve provider, model, effort and reviewed hashes.
+- [ ] **S002** Independent review — Run `python docs/plans/20261028-skill-optimization/support/review_dispatch.py --repo-root . --task 088` in the foreground (rerun on exit 75); use only its DISPATCH line and compact findings.
 - [ ] **S003** Correct high-risk defects — Correct critical/high findings or leave the task pending with evidence.
 - [ ] **S004** Rerun regressions — Run test/optimization/direct_architecture_handoff_self_test.py and all feature acceptance and negative cases through mapped validation.
 - [ ] **S005** Record review — Record actual review/validation results in docs/research/20261028-skill-optimization/implementation/088-receipt.json and docs/research/20261028-skill-optimization/implementation/088-outcome.md.
@@ -30,15 +30,16 @@ Objective: Independently review and correct direct architecture delegation with 
 
 In: Review and correct direct architecture delegation with economical implementation
 Out: No second plan or unrelated changes.; No installation, provider login, publishing or user-global configuration changes without permission.
-Files: `skill/plan-and-execute/scripts/direct_route.py`, `skill/plan-and-execute/scripts/validatectl.py`, `skill/plan-and-execute/scripts/workload_routing.py`, `skill/plan-and-execute/references/ROUTING.md`, `skill/plan-and-execute/references/DELEGATION.md`, `skill/plan-and-execute/references/MODEL_ROUTING.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `test/optimization/direct_architecture_handoff_self_test.py`, `docs/research/20261028-skill-optimization/implementation/088-receipt.json`, `docs/research/20261028-skill-optimization/implementation/088-outcome.md`
+Files: `skill/plan-and-execute/scripts/validatectl.py`, `skill/plan-and-execute/scripts/workload_routing.py`, `skill/plan-and-execute/references/ROUTING.md`, `skill/plan-and-execute/references/DELEGATION.md`, `skill/plan-and-execute/references/MODEL_ROUTING.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `test/optimization/direct_architecture_handoff_self_test.py`, `skill/plan-and-execute/scripts/routingctl.py`, `docs/research/20261028-skill-optimization/implementation/088-receipt.json`, `docs/research/20261028-skill-optimization/implementation/088-outcome.md`
 
 ## Guidance
 
 - Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.
 - Follow task 088 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.
 - Preserve exact user intent, bounded context, security floors and real deterministic tests.
-- Use an actual fresh independent maximum-qualified reviewer; never fabricate model execution.
+- Review only via review_dispatch.py (synchronous; max route; writes dispatch evidence); fix blocking findings, rerun declared checks, re-dispatch if a reviewed file changed, copy its RECEIPT_REVIEWER fields into the receipt.
 - Preserve evidence in docs/research/20261028-skill-optimization/implementation/088-receipt.json and docs/research/20261028-skill-optimization/implementation/088-outcome.md; do not mark a pending task done without validation.
+- Never launch background or asynchronous agents or processes: this headless session ends when you stop calling tools, so anything unfinished is lost.
 
 ## Acceptance
 
@@ -49,6 +50,7 @@ Files: `skill/plan-and-execute/scripts/direct_route.py`, `skill/plan-and-execute
 - Verify: Stateful DIRECT validations use project resource mapping and log monitoring without creating a TODO plan.
 - Verify: Compare complete validated cost (read, design, implementation, retries, reviews) to a single qualified model; preserve security floors.
 - No unresolved critical/high finding or missing required reviewer may be marked complete.
+- A frontier (Fable 5.2 / Astra 6.2) reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.
 
 ## Validate
 

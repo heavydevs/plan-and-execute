@@ -50,9 +50,9 @@ Files: `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-exec
 - Append only the next-dispatch capsule after stable rules and deterministic evidence.
 - Retain failure_context with the evidence packet; handoff cannot change class, route or task status.
 - The targeted contract is validated through the production run_concise composition.
-- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 - Append the capsule after stable rules and deterministic evidence in both prompt compositions; include the real evidence-packet path.
 - Record switch reason, actual source/destination identity and handoff overhead without secret values.
+- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
 ## Validate
 

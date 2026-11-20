@@ -44,15 +44,16 @@ Files: `skill/plan-and-execute/scripts/routing_telemetry.py`, `tools/skill_bench
 - Write actual changed-file, test and acceptance evidence to docs/research/20261028-skill-optimization/implementation/080-receipt.json.
 - Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
 - Use the normative blueprint in report068 for exact entry-rung, repeat, reset, byte-bound and budget semantics; record deviations before changing that contract.
+- Preserve the 2026-11-20 owner-preference section of MODEL_ROUTING.md; keep model facts consistent with MODEL_REFRESH_20261120.md (Fable/Astra above the tier map; bare haiku is Haiku 4.5 without effort; Codex ultra never routed).
 
 ## Acceptance
 
 - Run all twelve original acceptance cases and preserve disabled-mode compatibility.
 - Report reachability and duplicate dispatches separately from unmeasured live quality/cost.
 - The targeted contract is validated through the production run_concise composition.
-- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 - Compare counterfactual dispatch counts on the original twelve cases; do not present replay as measured model quality or dollar savings.
 - Document account-dependent quota, conditional effort capabilities, fallback-disabled behavior and unverified platforms.
+- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
 ## Validate
 

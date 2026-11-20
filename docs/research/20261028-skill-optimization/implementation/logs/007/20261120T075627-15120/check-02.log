@@ -1,0 +1,1 @@
+routing self-test passed (58 cases: 39 tuning, 19 held-out; SKILL.md=6967B; offline proxy held-out FP=0.0 FN=0.5714 accuracy=0.7368; all-direct FN=1.0, always-orchestrate FP=0.9167).

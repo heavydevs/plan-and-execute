@@ -24,7 +24,7 @@ Objective: Maintain a content-fingerprinted, least-privilege resource map with e
 - [ ] **S002** Implement revised contract 1 — Separate startup readiness, runtime health and task progress in resource observations.
 - [ ] **S003** Implement revised contract 2 — Reject stale content fingerprints and unsafe or unbounded probes; unknown observations never mean healthy.
 - [ ] **S004** Implement revised contract 3 — Measure probe count and duration per validation and reuse only generation-valid scoped inventory.
-- [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
+- [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample, plus run_task_checks.py --task 050 directly because resource_watch.py is under change. Preserve logs, hashes, failures and limits.
 - [ ] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
 
 ## Scope
@@ -55,6 +55,7 @@ Files: `skill/plan-and-execute/scripts/service_map.py`, `skill/plan-and-execute/
 - A same-size build configuration change invalidates the map.
 - Probe timeout or permission denial is explicit unknown/environment evidence.
 - A map probe cannot silently run a service repair command.
+- Existing schema_version 1 maps (.ai-work/SERVICE_MAP.md, sha256-path-content-v2-streamed) stay valid; new readiness/health fields are optional.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

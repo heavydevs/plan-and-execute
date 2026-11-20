@@ -1,0 +1,89 @@
+{
+  "task_id": "007",
+  "dispatch": 2,
+  "session_id": "a4cc33d8-ff48-4445-b39c-77d8cb222f60",
+  "verdict": "approved",
+  "summary": "The round-2 corrections hold in the code. H2: lifecycle verbs are checked first and file paths no longer count as invocations. M1: the CLI runs in a snapshotted temp repo, and --spec rejects unknown keys. M2: the metric is labeled as a proxy, with four alternatives and null costs. M3: risk signals merge into overrides. M4: the shared near_finished rule holds. L1/L2 are fixed. Tracing the 58 cases by hand reproduces check-02 (held-out FP 0, FN 0.5714, accuracy 0.7368), and the misses look honest. No critical or high finding remains. Medium gaps: mention-based explicit invocation, unanchored lifecycle matching, a hash guard that covers only the cue table, no held-out provenance, and stale 006 outcome claims.",
+  "findings": [
+    {
+      "id": "M1",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/requestctl.py:688-691,790; test/optimization/activation_intake_self_test.py:224-230; skill/plan-and-execute/references/routing-evals.json:47",
+      "title": "A plain mention of the skill name after run/with/via/using still counts as explicit invocation and creates an ORCHESTRATED plan",
+      "detail": "explicit_invocation pattern 2 is `\\b(?:use|using|run|invoke|via|with)\\s+(?:the\\s+)?[$/]?plan-and-execute`. It also matches mentions where the skill is not the object being invoked. 'Run the plan-and-execute self tests and fix the failures' and 'Fix the Windows path bug with plan-and-execute installs' both set explicit_invocation=True. Each returns route=orchestrated, persist_plan=True, persisted_reason_codes=['EXPLICIT_INVOCATION'] and loads ORCHESTRATION.md. 'with', 'via' and 'using' are prepositions, not directive verbs, so this does not meet the stated rule (a sigil or a directive verb). Such mentions are common in this repository, which is plan-and-execute itself. The round-1 H2 mention false positive is therefore only fixed for file paths. The tests and D020 cover only path mentions such as bin/plan-and-execute.js and skill/plan-and-execute/SKILL.md.",
+      "fix": "Accept a bare skill name only after a directive verb (use/invoke, optionally 'please') at the start of a clause, and not when a noun such as tests/self-tests/installer/CLI/repo/skill/scripts follows it. Require a $ or / sigil after with/via/using. Add tuning near-miss cases: 'Run the plan-and-execute self tests…' and '…bug with plan-and-execute installs' → direct."
+    },
+    {
+      "id": "M2",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/requestctl.py:683-687,788-790,578-588; skill/plan-and-execute/references/ROUTING.md:82",
+      "title": "Lifecycle detection matches anywhere in the prompt, so work requests that mention `pae status` route to lifecycle with tool/none capability",
+      "detail": "ROUTING.md:82 says that exact lifecycle/config commands are checked first. In the code, the lifecycle cues are unanchored `search` patterns. Pattern 1 matches `pae <verb>` or `plan-and-execute <verb>` after any whitespace, quote or backtick, and patterns 2-3 match 'resume|continue|cancel|reset the active …' anywhere. Example: 'Fix the crash in `pae status` when no plan is active' gives lifecycle_command='status' and route=lifecycle with no implementation. evaluate_activation then returns early with deterministic_lookup and never looks at the risk flags. For example, 'The JWT signature verification is skipped by `pae configure`; fix it' gives capability tool/none even though security_sensitive was detected. That lowers the security model floor (006 AC02) for this prompt shape. The installer commands (`pae status`, `pae configure`) are often named in this repository's own bug reports.",
+      "fix": "Anchor the lifecycle cues to a command-shaped prompt, e.g. `^\\s*(?:[$/]?plan-and-execute|pae)\\s+(verb)\\b[^.\\n]{0,40}$`, and match the resume/continue phrases only at the start of the prompt. In evaluate_activation, when security_sensitive, cross_cutting_risk or weak_validation is set, never return a tool/none lifecycle route; treat the prompt as work instead. Add near-miss cases for a bug fix that mentions `pae status` and for a security fix that mentions `pae configure`."
+    },
+    {
+      "id": "M3",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/requestctl.py:767-770,880-889; skill/plan-and-execute/scripts/routing_self_test.py:136-143,159-162; skill/plan-and-execute/references/routing-evals.json:3",
+      "title": "The frozen-hash guard covers only the cue patterns: decision logic and held-out labels can change without detection",
+      "detail": "cue_table_sha256() hashes only ACTIVATION_CUES. Held-out predictions also depend on other code that can be tuned without changing that hash: extract_prompt_signals' combination logic (:791-819: the nearly_finished AND, cohesive, remaining_outcomes=[text]), _WORD_NUMBERS, the evaluate_activation thresholds (count>=5, ctx>=75), near_finished_stays_direct, _capability_signals and routingctl.PRIMARY_SIGNALS. No hash of the held-out cases themselves (prompt, expected_route, expected_min_tier) is recorded. Relabeling H012-H018 to match the proxy, or editing a prompt, would keep status 'frozen' and pass the ceilings. In addition, the known_misses entries 'H002:tier' and 'H003:tier' are never used: held_out_errors contains only route misses, so tier regressions are caught only through the aggregate min_capability_floor_hits=1.",
+      "fix": "Hash a canonical payload: the cue table, plus inspect.getsource of extract_prompt_signals, evaluate_activation, near_finished_stays_direct and _capability_signals, plus routingctl.PRIMARY_SIGNALS. Record a separate held_out_cases_sha256 over the canonical held-out cases. Fail when either hash differs. Check tier misses per case ID instead of only by aggregate count."
+    },
+    {
+      "id": "M4",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/references/routing-evals.json:3 (held_out_protocol.authoring)",
+      "title": "Independent authorship of the held-out cases is asserted but never recorded, so the claim cannot be checked",
+      "detail": "The honesty of the held-out split depends on the claim that 'H001-H019 were written by a separate agent session from a route-definition brief only, without access to requestctl.py…, after the cue table was frozen.' Neither docs/research/.../implementation nor .ai-work/.../reviews/007 contains the brief, the authoring session's provider/model/session ID, start and finish times, its raw output, or the cue hash at authoring time. The review dispatches record those details for reviewers (dispatch-1.json). The measured result looks plausibly honest: 5 route misses and 2 tier misses were recorded, and the cues that match only held-out prompts ('passwords?/secrets?' for H001, 'across sessions' for H017) are generic. Still, nothing lets an auditor tell this apart from cases written after looking at the table.",
+      "fix": "Commit the route-definition brief and an authoring record (provider, model, session ID, timestamps, tool access, raw output and the cue_table_sha256 at authoring time) under docs/research/.../reviews/007/. Reference it with a sha256 from held_out_protocol, and cite it in the 007 receipt as the AC04 evidence."
+    },
+    {
+      "id": "M5",
+      "severity": "medium",
+      "location": "docs/research/20261028-skill-optimization/implementation/006-outcome.md:10,17-19; docs/research/20261028-skill-optimization/implementation/006-receipt.json:82-89",
+      "title": "The 006 outcome and the AC04 receipt entry still state results that the corrected code contradicts",
+      "detail": "The reviewed 006-outcome.md (hash still 34608c…, unchanged) still claims 8 held-out cases (D016-D019, O011, O012, P004, P005), selective FP=0.0, FN=0.0, accuracy=1.0 against an invented 'catch-all baseline', E[C]=0.0, and SKILL.md=6963 B. In the current code, those cases are in the tuning split. The held-out split has 19 cases with FP 0.0, FN 0.5714 and accuracy 0.7368, SKILL.md is 6967 B (007 check-02.log), and the costs are unmeasured. Round-1 M2 explicitly asked for lines 18-19 to be corrected. The 006 receipt still marks AC04 'passed' based on the overfit 20261120T054702 run. No 007 receipt or outcome exists yet that supersedes these claims.",
+      "fix": "In the 007 receipt and outcome, mark the 006 AC04 evidence and outcome lines 10 and 17-19 as superseded. Record the honest held-out numbers, the known misses, the cue hash and the 6967 B SKILL.md, with the 20261120T075627 logs. Alternatively, append a superseded note to 006-outcome.md and re-pin outcome_sha256."
+    },
+    {
+      "id": "L1",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/requestctl.py:495-507; skill/plan-and-execute/scripts/routingctl.py:526-527; test/optimization/activation_intake_self_test.py:115-119",
+      "title": "A strong_validation override still lowers the security floor's effort from high to medium",
+      "detail": "_capability_signals keeps silent_failure_costly, but a caller override of ['strong_validation'] with security_sensitive=True yields strong/medium, because routingctl lets strong_validation drop strong/high to medium. That matches the global SKILL.md:61 rule. It contradicts the docstring ('never drop a risk signal') and the test comment ('can never drop the security/risk floor'), and the test checks only mechanical_edit, bounded_implementation and deterministic_lookup.",
+      "fix": "Either remove strong_validation when security_sensitive is set (silent failure means validation cannot be trusted), or document the exception and add a test that asserts the intended strong/medium result."
+    },
+    {
+      "id": "L2",
+      "severity": "low",
+      "location": "test/optimization/activation_intake_self_test.py:172-201; skill/plan-and-execute/scripts/promotectl.py:128-141",
+      "title": "The cross-module agreement test claims more than it checks: promotectl accepts promotions that requestctl keeps DIRECT",
+      "detail": "The test always sets durable_resume_value=True, so 'when it keeps DIRECT, it is rejected' is exercised only for the near-finished case. promotectl.normalize_spec accepts a spec with nearly_finished=false and reason_codes [] or only ['LATE_PROMOTION_REMAINING_WORK']. requestctl would route that case DIRECT because there is no strong reason (requestctl.py:636-664).",
+      "fix": "Add durable_resume_value (True/False) to the product and assert agreement in both directions. Alternatively, require promotectl to receive at least one trigger code (EXPLICIT_INVOCATION, INDEPENDENT_WORKSTREAMS, BROAD_STUDY, CROSS_CUTTING_RISK, DURABLE_RESUME_VALUE or ISOLATION_VALUE)."
+    },
+    {
+      "id": "L3",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/requestctl.py:996-1007",
+      "title": "evaluate-route --spec does not type-check values, and load errors print a traceback",
+      "detail": "Flag values are used for truthiness only: {\"explicit_invocation\": \"false\"} routes ORCHESTRATED and persists a plan, and {\"nearly_finished\": \"no\"} counts as true. json.loads and read_text run outside the try block, so malformed JSON or a missing file prints a Python traceback instead of 'ERROR:' with exit code 2.",
+      "fix": "Check types against the evaluate_activation parameters (bool, int, list[str], float or None), and wrap the read and parse errors in RequestError."
+    },
+    {
+      "id": "L4",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/routing_self_test.py:116-119",
+      "title": "The label-leak guard matches only a short list of literal phrases",
+      "detail": "LABEL_LEAK catches promote/orchestrate/'stay direct'/'plan files'/'no plan', but paraphrased labels pass: 'keep it direct', 'without a plan', 'set up a durable plan', 'lifecycle command'. The current H001-H019 prompts contain no label text, so this is a future-proofing gap.",
+      "fix": "Add the common paraphrases, or require the authoring record (M4) to confirm that prompts were written without route labels."
+    },
+    {
+      "id": "L5",
+      "severity": "low",
+      "location": "skill/plan-and-execute/references/ROUTING.md:76,82; skill/plan-and-execute/references/PROMOTION.md:43",
+      "title": "Small mismatches between the docs and the code",
+      "detail": "ROUTING.md:76 says evaluate-route evaluates 'request and repository metadata'; it reads no repository state (requestctl.py:996-1017). ROUTING.md:82 says 'exact' lifecycle commands; matching is by substring (see M2). PROMOTION.md:43 says transcript turns are rejected 'in any field'; context_pressure.source is not scanned (promotectl.py:120-124,158-163).",
+      "fix": "Change ROUTING.md to 'structured request metadata or prompt cues', fix the lifecycle wording once M2 is resolved, and either scan context_pressure.source or narrow the PROMOTION.md wording."
+    }
+  ]
+}

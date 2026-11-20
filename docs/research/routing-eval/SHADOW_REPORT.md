@@ -16,7 +16,7 @@ project-shared; retention: keep, regenerated in place (PAT004). Telemetry units 
 | `corpus/telemetry/cold.jsonl` | `8d7c79f8804e520d56e5e50e55c40359d3f673145ce2f3417a3048b613cee390` |
 | `corpus/telemetry/warm.jsonl` | `ebec98647a5aded369b3928c086bf3f3bf783862050e47961716530e3f079a5b` |
 
-Selector catalog: `2026-10-09-bootstrap-v5`.
+Selector catalog: `2026-11-20-bootstrap-v9`.
 
 ## Execution invariance
 
@@ -82,19 +82,19 @@ Matched cold and warm runs of the main route; cached and cache-write tokens are 
 
 | Case | Category | Segment | Provider fixture | Minimum | Main route | Main | Candidate route | Candidate | Selector explanation |
 |---|---|---|---|---|---|---|---|---|---|
-| K01 | mechanical | deterministic_low_blast | default | economy/low | claude/claude-sonnet-5-5@standard/medium | over | claude/haiku@economy/low | exact | route; target economy; lifted False; providers claude,codex |
+| K01 | mechanical | deterministic_low_blast | default | economy/low | claude/claude-sonnet-5-5@standard/medium | over | claude/claude-haiku-5-5@economy/low | exact | route; target economy; lifted False; providers claude,codex |
 | K02 | bounded_implementation | deterministic_low_blast | default | standard/medium | claude/claude-sonnet-5-5@standard/medium | exact | claude/claude-sonnet-5-5@standard/medium | exact | route; target standard; lifted False; providers claude,codex |
 | K03 | subtle_debugging | guarded | default | strong/medium | claude/claude-opus-5-5@strong/medium | exact | claude/claude-opus-5-5@strong/medium | exact | route; target strong; lifted False; providers claude,codex |
 | K04 | architecture | floor_locked | default | strong/high | claude/claude-opus-5-5@strong/high | exact | claude/claude-opus-5-5@strong/high | exact | route; target strong; lifted False; providers claude,codex |
 | K05 | security_concurrency_migration | floor_locked | default | strong/high | claude/claude-opus-5-5@strong/high | exact | claude/claude-opus-5-5@strong/high | exact | route; target strong; lifted False; providers claude,codex |
 | K06 | weak_validation | floor_locked | default | strong/high | claude/claude-sonnet-5-5@standard/medium | under | claude/claude-opus-5-5@strong/high | exact | route; target strong; lifted False; providers claude,codex |
 | K07 | strong_validation | deterministic_low_blast | default | standard/medium | claude/claude-opus-5-5@strong/medium | over | claude/claude-sonnet-5-5@standard/medium | exact | route; target standard; lifted False; providers claude,codex |
-| K08 | long_horizon | floor_locked | default | max/high | claude/claude-fable-5-1@max/high | exact | claude/claude-fable-5-1@max/high | exact | route; target max; lifted False; providers claude,codex |
+| K08 | long_horizon | floor_locked | default | max/high | claude/claude-opus-5-5@max/high | exact | claude/claude-opus-5-5@max/high | exact | route; target max; lifted False; providers claude,codex |
 | K09 | vision_ui | guarded | default | standard/medium | claude/claude-sonnet-5-5@standard/medium | exact | none | none | no_candidate; target None; lifted False; providers claude,codex |
-| K10 | quota_provider_failures | resilience | default | standard/medium | codex/gpt-6.1-sol@standard/medium | exact | codex/gpt-6.1-sol@standard/medium | exact | route; target standard; lifted False; providers codex,claude |
+| K10 | quota_provider_failures | resilience | default | standard/medium | codex/gpt-6.2-sol@standard/medium | exact | codex/gpt-6.2-sol@standard/medium | exact | route; target standard; lifted False; providers codex,claude |
 | K11 | direct_vs_orchestrated | deterministic_low_blast | default | standard/medium | claude/claude-sonnet-5-5@standard/high | over | claude/claude-sonnet-5-5@standard/medium | exact | route; target standard; lifted False; providers claude,codex |
 | K12 | large_request | guarded | default | strong/high | claude/claude-opus-5-5@strong/high | exact | claude/claude-opus-5-5@strong/high | exact | route; target strong; lifted False; providers claude,codex |
 | K13 | stall_resource_failures | resilience | default | strong/medium | claude/claude-opus-5-5@strong/medium | exact | claude/claude-opus-5-5@strong/medium | exact | route; target strong; lifted False; providers claude,codex |
-| K14 | bounded_implementation | deterministic_low_blast | muse | standard/medium | muse/muse-spark-1.3@advanced/high | over | claude/claude-sonnet-5-5@standard/medium | exact | route; target standard; lifted False; providers muse,claude |
+| K14 | bounded_implementation | deterministic_low_blast | muse | standard/medium | muse/muse-wonder-1.0@advanced/high | over | muse/muse-spark-1.3@standard/medium | exact | route; target standard; lifted False; providers muse,claude |
 | K15 | mechanical | deterministic_low_blast | glm | economy/low | claude/glm-5.3-flash@standard/medium | over | glm/glm-5.3-flash@economy/low | exact | route; target economy; lifted False; providers glm |
 | K16 | bounded_implementation | deterministic_low_blast | deepseek | standard/medium | claude/deepseek-flash@standard/medium | exact | deepseek/deepseek-flash@standard/medium | exact | route; target standard; lifted False; providers deepseek |

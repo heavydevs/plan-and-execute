@@ -39,7 +39,7 @@ Files: `skill/plan-and-execute/scripts/power_inhibit.py`, `skill/plan-and-execut
 - Offer auto-on, opt-out, strict overnight require-awake and honest unsupported/policy/status diagnostics.
 - Implement safe platform/CI tests and record real source/test hashes in task 101 receipt/outcome.
 
-## Acceptance criteria
+## Acceptance
 
 - Verified host-owned OS-native idle-sleep inhibitor is acquired before first RUNNING worker and stays active gaplessly across multiple TODOs/providers/reviews/validations over 300 seconds.
 - Windows checked native thread or handle requests with correct lifetime, cleanup and screen-off allowance; account for Modern Standby DC and system policy.
@@ -53,6 +53,10 @@ Files: `skill/plan-and-execute/scripts/power_inhibit.py`, `skill/plan-and-execut
 - Preflight treats power, runner session survival, credentials, approvals, quota, network and durable resume as distinct readiness checks.
 - Deterministic OS mocks, two-provider 310-second semantic validation, lifecycle regression and safe available CI/native smoke tests record actual hashes; no per-tick model calls.
 - Real independent qualified reviewer corrects high/critical issues before 082; no invented execution evidence.
+- A detached jobctl supervisor holds its own job-scoped OS request until the job exits; runner death during supervised validation leaves no sleep gap.
+- Each sleep request is released only by its owner.
+- On Windows the request is held on a dedicated thread in the long-lived runner (run_concise), not in a helper that exits.
+- A keepalive relaunch acquires a fresh request before dispatching.
 
 ## Validate
 

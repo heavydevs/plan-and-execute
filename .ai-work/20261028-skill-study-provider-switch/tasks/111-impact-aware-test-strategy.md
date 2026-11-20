@@ -13,11 +13,10 @@ Objective: Choose faithful test levels and conservative impact-selected task val
 ## Context
 
 - `.ai-work/20261028-skill-study-provider-switch/CONTEXT.md`
-- Read the assigned implementation-ready architecture only when working on this task.
 
 ## Validated learnings
 
-- None. Research is not product code or independent acceptance.
+- None
 
 ## Checkpoints
 
@@ -29,13 +28,11 @@ Objective: Choose faithful test levels and conservative impact-selected task val
 
 ## Scope
 
-**In:** Implement architecture, policy, safe selectors and required guarded integration.
+In: Implement architecture, policy, safe selectors and required guarded integration.
+Out: No unrequested legacy test edits, full-suite per every unrelated task or false green.
+Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/resource_watch.py`, `skill/plan-and-execute/scripts/service_map.py`, `skill/plan-and-execute/references/WORKFLOW.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `skill/plan-and-execute/scripts/test_impact.py`, `skill/plan-and-execute/references/TEST_STRATEGY.md`, `test/optimization/impact_aware_test_strategy_self_test.py`, `docs/research/20261028-skill-optimization/implementation/111-receipt.json`, `docs/research/20261028-skill-optimization/implementation/111-outcome.md`
 
-**Out:** No unrequested legacy test edits, full-suite per every unrelated task or false green.
-
-**Expected files:** `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/resource_watch.py`, `skill/plan-and-execute/scripts/service_map.py`, `skill/plan-and-execute/references/WORKFLOW.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `skill/plan-and-execute/scripts/test_impact.py`, `skill/plan-and-execute/references/TEST_STRATEGY.md`, `test/optimization/impact_aware_test_strategy_self_test.py`, `docs/research/20261028-skill-optimization/implementation/111-receipt.json`, `docs/research/20261028-skill-optimization/implementation/111-outcome.md`
-
-## Implementation architecture and instructions
+## Guidance
 
 - Read implementation-ready `docs/research/20261028-skill-optimization/prepared-research/111-impact-aware-test-design-and-selection.md` only for this task; its alternatives, algorithms and fixtures are mandatory.
 - Read only the assigned 111 research and relevant current source; write a lazy TEST_STRATEGY.md reference, never inflate the default worker prompt.
@@ -46,20 +43,19 @@ Objective: Choose faithful test levels and conservative impact-selected task val
 - Complete all mapped impacted task suites on current source; P057 collects all safe failures and repairs targeted cases; full global repository suites run at final integration or earlier on risk/CI requirement.
 - Reuse existing monitor, job and runner controls and current tier routing; cache deterministic graph and pass bounded reasons/evidence, not all raw logs.
 - Adversarial tests must include 45-rule form, 1000 tests with 100 E2E, cross-cutting shared change, hidden regression, crash/resume, missing selectors and honest measured overhead.
+- Expose a selection contract (exact argv, reasons, source/map fingerprint) for 109 to consume later; do not import or assume test_failure_cycle.py.
 
-## Acceptance criteria
+## Acceptance
 
 - Each behavior has coverage at the cheapest faithful level with all expected field-validation cases in parameterized unit/API tests.
 - E2E cover critical min/max success and representative UI errors without one test per input combination or a rigid quota.
 - Changed/new tests, reverse dependents, contracts and relevant real-user E2E selected with exact verified runner argv and reasons.
 - Unknown/shared/dynamic dependencies, missing shards, zero selectors, stale source and global auth/schema changes trigger broader checks or block.
 - Focused failures alone never finish a task; all selected mapped tests pass on current code, and global all-suite passes at final plan source.
-- Resource watcher, P057 failure collection, cancellation, bounded worker context and true nonzero exits remain intact.
+- Resource watcher, cancellation, bounded worker context and true nonzero exits remain intact.
 - Adversarial selector/quality fixtures prove no false-green regression and no fabricated performance/token saving.
 
-## Validate via owned watcher
+## Validate
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_111`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_111`
-
-**State: pending.** No code, suite migration or independent model review is completed by preparing this task.

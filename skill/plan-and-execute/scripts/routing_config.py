@@ -166,6 +166,8 @@ def validate(config: dict, *, partial: bool = False) -> None:
         for key in ('extra_args', 'models_without_effort'):
             if key in cfg and (not isinstance(cfg[key], list) or any(not isinstance(x, str) or not x.strip() for x in cfg[key])):
                 raise ConfigError(f'{provider}.{key} must be an array of nonempty strings')
+        if 'frontier' in cfg:
+            _provider_frontier(cfg['frontier'], provider)
         for tier, model in _object(cfg.get('models', {}), f'{provider}.models').items():
             if tier not in TIER_ORDER or not isinstance(model, str) or not model.strip() or len(model) > 200 or any(c.isspace() for c in model):
                 raise ConfigError(f'{provider}.models contains an invalid tier or model')
@@ -194,6 +196,7 @@ def validate(config: dict, *, partial: bool = False) -> None:
             raise ConfigError('routing.allowlist must contain distinct segment ids')
     if 'gate_dir' in routing and (not isinstance(routing['gate_dir'], str) or not routing['gate_dir'].strip()):
         raise ConfigError('routing.gate_dir must be a nonempty path')
+    _frontier(_object(config.get('routing_policy', {}), 'routing_policy').get('frontier'))
     availability = _object(config.get('availability', {}), 'availability')
     if set(availability) - {'cooldown_seconds', 'max_attempts_per_run'}:
         raise ConfigError('Unknown availability setting')
@@ -211,6 +214,33 @@ def validate(config: dict, *, partial: bool = False) -> None:
     for key, bounds in {'max_calls_per_task': (1, 3), 'max_input_chars': (512, 12000), 'max_output_chars': (256, 4000), 'timeout_seconds': (1, 120), 'idle_timeout_seconds': (0, 120), 'repetition_threshold': (2, 20), 'unhealthy_threshold': (1, 20), 'stall_seconds': (1, 3600)}.items():
         if key in assistant:
             _integer(assistant[key], f'assistant.{key}', *bounds)
+
+
+def _frontier(value: Any) -> None:
+    """routing_policy.frontier: the failure-driven / extreme-review level above `max` (never a tier)."""
+    if value is None:
+        return
+    import routingctl
+    frontier = _object(value, 'routing_policy.frontier')
+    if set(frontier) - set(routingctl.FRONTIER_POLICY_KEYS):
+        raise ConfigError('Unknown routing_policy.frontier setting')
+    if 'enabled' in frontier:
+        _boolean(frontier['enabled'], 'routing_policy.frontier.enabled')
+    if 'min_top_failures' in frontier:
+        _integer(frontier['min_top_failures'], 'routing_policy.frontier.min_top_failures', 1, 10)
+
+
+def _provider_frontier(value: Any, provider: str) -> None:
+    """`<provider>.frontier = {model, effort}`: the L6/F6 model; "" disables it. Never a `models` tier."""
+    import routingctl
+    frontier = _object(value, f'{provider}.frontier')
+    if set(frontier) - {'model', 'effort'}:
+        raise ConfigError(f'{provider}.frontier accepts only model and effort')
+    model = frontier.get('model', '')
+    if not isinstance(model, str) or len(model) > 200 or any(c.isspace() for c in model):
+        raise ConfigError(f'{provider}.frontier.model must be a model id ("" disables the frontier level)')
+    if 'effort' in frontier and frontier['effort'] not in routingctl.FRONTIER_EFFORTS:
+        raise ConfigError(f'{provider}.frontier.effort must be high or xhigh (never max or ultra)')
 
 
 def _command(value: Any, name: str) -> None:

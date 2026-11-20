@@ -1,0 +1,4 @@
+# Plan files whose SHA-256 is recorded in the plan manifest (request_source, study_gate):
+# keep them byte-identical to the LF blobs on every checkout, regardless of core.autocrlf.
+.ai-work/*/REQUEST.md text eol=lf
+.ai-work/*/study.json text eol=lf

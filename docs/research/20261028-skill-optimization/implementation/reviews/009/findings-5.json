@@ -1,0 +1,57 @@
+{
+  "task_id": "009",
+  "dispatch": 5,
+  "session_id": "10395237-a60e-42b7-8e2b-cdd03ca32974",
+  "verdict": "approved",
+  "summary": "Round-4 fixes hold in the current code, and no critical or high finding remains. R4-01: the id regex consumes hierarchical ids whole and EXTRACTION_VERSION is ooxml-text-v4. A shared explicit id is ambiguous in the audit, in validate-digest and in covered_obligation_ids, and missing reasons fall back to the canonical id. R4-02 (CJK/Thai), R4-03 (D###- prefix and in-digest uniqueness), R4-04 (floor gate on fragments, block_count re-derived) and R4-06 (move warning) are in place. Remaining: one medium (one item can still satisfy several obligations through mismatched id fields), plus lows on substring coverage, missing reverting tests and Indic scripts. No 009 logs or receipt exist. I ran no tests (read-only review).",
+  "findings": [
+    {
+      "id": "R5-01",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1061-1067,1090-1095,1865-1878",
+      "title": "One digest item can still satisfy several obligations through mismatched canonical_id, obligation_id and leading text id",
+      "detail": "item_ids() returns both canonical_id and obligation_id, and first_id adds the item's leading text id. Each obligation is checked on its own and nothing consumes the item. Example: obligations REQ-7.1 (OBL-a) and REQ-7.2 (OBL-b) are both in F001. The item {canonical_id:'OBL-a', obligation_id:'REQ-7.2', text:'Users must log in with MFA.', source_refs:['F001']} covers both. The same happens with {canonical_id:OBL-b, text:'REQ-7.1: Users must log in with MFA.'}. REQ-7.2's content is in no digest, yet validate-digest, resume-status and validate-coverage all pass. validate_digest never checks that an item's id fields exist in SOURCE_INDEX or refer to the same obligation. This needs a mislabelled item (the guidance asks only for canonical_id), so it is not high. Still, it is the 'one item covers many' class, and it breaks the documented 'id plus a restatement' rule per obligation (PRIMARY_PLANNING.md:103).",
+      "fix": "In validate_digest, reject an item whose canonical_id, obligation_id or leading explicit text id resolve to different SOURCE_INDEX obligations, or to an unknown id. Alternatively, in the audit let an id-matched item count for one obligation only, preferring canonical_id. Add a test where the REQ-7.1 item also carries obligation_id REQ-7.2: validate_digest and validate_coverage must report REQ-7.2 missing."
+    },
+    {
+      "id": "R5-02",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1100-1107; skill/plan-and-execute/references/PRIMARY_PLANNING.md:103",
+      "title": "The 60% substring path lets one truncated item cover sibling clauses and drop their qualifier",
+      "detail": "Take two obligations: 'admins must not export customer data.' and 'admins must not export customer data without approval.'. The item 'Admins must not export customer data' (36 chars) is a same-polarity substring of both. It clears both 60% floors (22.2 and 32.4), so one item covers both. The conditional exception disappears, and the digest states an absolute ban. This is the R2-03 trade-off, and the docs state it ('same-polarity substring of at least 60%'). It is recorded because it is the remaining text-based way for one item to cover several obligations.",
+      "fix": "Optionally have a substring match cover only the longest obligation it fits, or require the substring to reach the end of the clause (only the id prefix or trailing punctuation may be dropped). Otherwise, list this as a known limitation in the coverage-review guidance."
+    },
+    {
+      "id": "R5-03",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:2064-2068,2121-2124,1903-1905; test/optimization/primary_planning_self_test.py:169-173,1098-1100",
+      "title": "Two R4 fixes have no test that fails when they are reverted; one test comment is stale",
+      "detail": "(a) The ambiguity rule for covered_obligation_ids (2067) is untested. populate_valid_package_artifacts always writes canonical ids, and the R4-01 package test fails earlier, at the digest audit. Accepting the explicit id again fails no test. (b) The R4-04 change of the floor gate from block_count to fragments (2122) is untested. The R3-04 fixture has block_count>0, so going back to `block_count > 0` still passes. (c) Passing duplicate_explicit_ids into validate_digest's batch audit (1904) is untested for an id that is shared across batches. The comment at test:1098 still says the floor gate relies on block_count.",
+      "fix": "Add three checks. First, a validate_coverage case on the REQ-9 shared-id fixture where covered_obligation_ids lists 'REQ-9' instead of the canonical ids, and must fail. Second, a zero-obligation package with block_count re-pinned to 0 that is checked without the source: validate_coverage must still require acknowledged_obligation_floor. Third, a shared id split across two batches whose digest uses the explicit id. Update the stale comment."
+    },
+    {
+      "id": "R5-04",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:813-822,1120,1511",
+      "title": "The 'any language' restatement rule still falsely rejects short Indic-script restatements",
+      "detail": "`[^\\W\\d_]+` stops at combining vowel signs (Mn/Mc), which Python does not treat as word characters. Devanagari, Bengali and Tamil words therefore split into one-letter runs. 'REQ-1 डेटा छिपाएँ' becomes ड, ट, छ, प, ए: no run of 2+ letters, and no CJK/Thai character. A faithful restatement is rejected as a bare id. The guidance (1511) still says 'any language', while the reason text names only CJK/Thai. This fails closed and longer sentences pass, so it is low.",
+      "fix": "Count letters with combining marks included (for example `[^\\W\\d_][̀-ͯऀ-෿]*`-style runs, or a total letter count of at least 8). Otherwise, scope the guidance to space-delimited scripts plus CJK/Thai. Add a Devanagari case to the R3-01 test."
+    },
+    {
+      "id": "R5-05",
+      "severity": "info",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:786-790,1015-1027,1070-1076,1879-1894,2183-2196; skill/plan-and-execute/references/PRIMARY_PLANNING.md:103-109; skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md:50",
+      "title": "R4-01 to R4-06 are fixed in the current code, and R4-01/02/03 have reverting tests",
+      "detail": "Hierarchical ids (REQ-7.1, FR-1.2.3, REQ-007-A) are consumed whole, and the polarity stem uses the same regex. Leftover truncations such as 'REQ-007-AB' or 'REQ-7.x' collapse to a shared id, which is now ambiguous: canonical id or text only. The fallback therefore closes the sibling bypass for any id shape. The R4-01 test asserts the extracted ids and that omitting REQ-7.2 fails both validate_digest and validate_coverage, and the REQ-9 audit case pins the ambiguity rule. R4-02 and R4-03 tests (test:1329, 1386-1398) would fail if their fixes were reverted. The prefix rule produces no false rejection for SOURCE_INDEX ids carried via id or contradiction_ids. The tracked-move docs match _TRACKED_TAGS.",
+      "fix": "No change required."
+    },
+    {
+      "id": "R5-06",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/008-receipt.json:14-35; docs/research/20261028-skill-optimization/implementation/008-outcome.md:10",
+      "title": "Evidence state for the 009 gate",
+      "detail": "There is no implementation/logs/009 directory and no 009 receipt. The 008 receipt pins preplanctl.py 5c15…, but the reviewed input is d87f…. 008-outcome.md still says ooxml-text-v2, while the code is ooxml-text-v4 (preplanctl.py:37). This reviewer ran no tests and recomputed no hashes. The prepared report and the 008 receipt are input evidence only. They do not prove that the implementation or its independent review passed.",
+      "fix": "The 009 receipt must record this reviewer's provider/model/effort and the reviewed-input hashes, and pin the final file hashes. It must attach fresh resource-watched logs for primary_planning_self_test.py and preplan_self_test.py, and state that it supersedes the 008 outcome's claims."
+    }
+  ]
+}

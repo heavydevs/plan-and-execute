@@ -1,0 +1,115 @@
+{
+  "schema_version": 2,
+  "task_id": "012",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Implemented staged plan generations, single-writer lock and optimistic generation CAS, projection lag recovery (recover_projections), transitive contract_digest with selective invalidation and immutable receipt_history, the single extensible receipt-validity function (validate_receipt owned by 012 for 018 extension), strict JSON decoding, research_metadata/supersession_note/plan_mode/review_of guards, legacy schema v1-v3 preservation, and full AC01-AC08 regression coverage.",
+  "outcome_sha256": "50528a0fcb9252d6451f632a49d175e3f09b734efda5d4471759a67762cf35e8",
+  "checks_sha256": "fd08b8cc3d64834c01d978bdda96d507ad82ffef6750e87b012cd86a619ac1bd",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md",
+      "sha256": "3f20c7f8da4049e6a6be31e1a3984e3bb7678887d963599cc6bb8ece15306d38"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "04966b451c85a3e16621c9be999ce6dfac31e83dabcc96db2931356d2e20ab06"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+      "sha256": "efc5d0c5c9ecb81f2c8b3edec29c44944eec419c8778da5f66c3c7bbe3b34500"
+    },
+    {
+      "path": "test/optimization/plan_contract_self_test.py",
+      "sha256": "0548f8e706d065ed3076b96d3194807396aa04cbcf43d644de9edb21816462b7"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLAN_SPEC.md",
+      "sha256": "6ce32f121c369f0d916f87df93e4004862c59716c2352b9a2e34edeb1b10d6d1"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+      "sha256": "a94c01f504dcc9e3515fc0a1060cd6ac0a198e81b05d10e64bcdd0065e12ea6b"
+    }
+  ],
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/012-outcome.md"
+      ]
+    },
+    {
+      "id": "AC02",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/012-outcome.md"
+      ]
+    },
+    {
+      "id": "AC03",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/012-outcome.md"
+      ]
+    },
+    {
+      "id": "AC04",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/012-outcome.md"
+      ]
+    },
+    {
+      "id": "AC05",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/012-outcome.md"
+      ]
+    },
+    {
+      "id": "AC06",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/012-outcome.md"
+      ]
+    },
+    {
+      "id": "AC07",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/012-outcome.md"
+      ]
+    },
+    {
+      "id": "AC08",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/012-outcome.md"
+      ]
+    }
+  ],
+  "limitations": [
+    "Crash-consistency tests use deterministic Python-level fault injection after authority publication rather than OS power-loss or disk fsync fault injection.",
+    "No live authenticated provider invocation or independent code review (task 013) was performed in this task."
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "schema_version": 2,
+  "task_id": "006",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Implemented deterministic zero-classifier selective activation routing and capability-tier separation in requestctl.py, transcript-free bounded promotion guards in promotectl.py, extended held-out routing-evals.json (36 cases, 8 held-out) with offline FP/FN and entrypoint byte metrics, and added acceptance/regression tests in test/optimization/activation_intake_self_test.py and routing_self_test.py. All declared P1_TESTS_006 checks passed.",
+  "outcome_sha256": "34608cb3ce1da1e23b14f9630aaf48b51addfb72dc63485873665d4c8d86c5dc",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md",
+      "sha256": "01463c79e0765cd02c63f42c5538b0b927a8c52e60843a401c3a4689089dbd7f"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "skill/plan-and-execute/scripts/requestctl.py",
+      "sha256": "352e7b14d1c71e975b5b76f670fd4f67dc2b1a844f07ca5954449514e6db2c2d"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/promotectl.py",
+      "sha256": "2e2ecf7a48d821a721054abde4be62fb03c9ccdf5b597a47414cc754e1bf85e6"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routing_self_test.py",
+      "sha256": "f48275119a832bf81c66663487f083e2e2139a34fc17536e3c854c8198d4fa5e"
+    },
+    {
+      "path": "test/optimization/activation_intake_self_test.py",
+      "sha256": "b217de6e29dbad80760eab4f32b14107ed828577022ab7580d3e0b63c3552bcf"
+    },
+    {
+      "path": "skill/plan-and-execute/SKILL.md",
+      "sha256": "ee0983f6268f6cc5055761751c6775b724b248f7d8a3582f626ec69ab4b3c8f9"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ROUTING.md",
+      "sha256": "dca5fa50fd29da949f34ca203619b07f1c23bc463ea2fc069e86109dc84219a4"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PROMOTION.md",
+      "sha256": "d2cc14e241893fc4e29379bd42941aeacc435a0057807e8623d342851ca5cda0"
+    },
+    {
+      "path": "skill/plan-and-execute/references/routing-evals.json",
+      "sha256": "11a00b284ad45c632bd7f87ea1920ff4df04d2e4dfc71ffffa1c9e58b679a604"
+    }
+  ],
+  "preserved_artifacts": [
+    {
+      "path": "skill/plan-and-execute/agents/openai.yaml",
+      "sha256": "e60055f3d6bb5b39aa4f310591b4efe2b4d52fbdb7d31b57c1d6bae39b7475e0"
+    }
+  ],
+  "checks_sha256": "aa8944eba63f3308872c652f7ae096f3139318ce807fbb1290b13d891f7d384f",
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/activation_intake_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/006/20261120T054702-28916/check-01.log"
+      ]
+    },
+    {
+      "id": "AC02",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/requestctl.py",
+        "test/optimization/activation_intake_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/006/20261120T054702-28916/check-01.log"
+      ]
+    },
+    {
+      "id": "AC03",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/promotectl.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/006/20261120T054702-28916/check-03.log"
+      ]
+    },
+    {
+      "id": "AC04",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/references/routing-evals.json",
+        "skill/plan-and-execute/scripts/routing_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/006/20261120T054702-28916/check-02.log"
+      ]
+    },
+    {
+      "id": "AC05",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/activation_intake_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/006/20261120T054702-28916/check-01.log"
+      ]
+    },
+    {
+      "id": "AC06",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/requestctl.py",
+        "skill/plan-and-execute/scripts/routing_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/006/20261120T054702-28916/check-02.log"
+      ]
+    },
+    {
+      "id": "AC07",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/promotectl.py",
+        "test/optimization/activation_intake_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/006/20261120T054702-28916/check-01.log"
+      ]
+    }
+  ],
+  "limitations": [
+    "Live host skill loading, token usage, and latency require owner-confirmed authenticated provider runs and remain unmeasured offline.",
+    "Independent max-capability code review (task 007) remains pending and is not claimed by this receipt."
+  ]
+}

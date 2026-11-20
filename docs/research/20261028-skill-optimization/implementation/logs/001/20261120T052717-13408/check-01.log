@@ -1,0 +1,12 @@
+test_current_tree_preflight_passes_and_reports_inventory_drift (__main__.Task001PreflightTests.test_current_tree_preflight_passes_and_reports_inventory_drift) ... ok
+test_missing_authenticated_provider_is_limitation_not_failure_or_fake_review (__main__.Task001PreflightTests.test_missing_authenticated_provider_is_limitation_not_failure_or_fake_review) ... ok
+test_negative_broad_context_loading_rejected (__main__.Task001PreflightTests.test_negative_broad_context_loading_rejected) ... ok
+test_negative_missing_resource_rejected (__main__.Task001PreflightTests.test_negative_missing_resource_rejected) ... ok
+test_negative_stale_input_contract_hash_rejected (__main__.Task001PreflightTests.test_negative_stale_input_contract_hash_rejected) ... ok
+test_negative_stale_prepared_report_hash_rejected (__main__.Task001PreflightTests.test_negative_stale_prepared_report_hash_rejected) ... ok
+test_negative_unsupported_cli_version_rejected (__main__.Task001PreflightTests.test_negative_unsupported_cli_version_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.565s
+
+OK

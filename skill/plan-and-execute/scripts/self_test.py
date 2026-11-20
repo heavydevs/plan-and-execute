@@ -554,12 +554,13 @@ def test_route_escalation() -> None:
         task["functional_failures"] = failures
         routes.append(run_isolated.choose_route(task, config, None))
     assert routes[0]["tier"] == "economy" and routes[0]["effort"] == "low"
-    # Haiku accepts no effort flag, so the first Claude rung above economy is Sonnet.
-    assert routes[1]["tier"] == "standard" and routes[1]["effort"] == "medium"
-    assert routes[2]["tier"] == "standard" and routes[2]["effort"] == "high"
-    assert routes[3]["tier"] == "strong" and routes[3]["effort"] == "medium"
-    assert routes[4]["tier"] == "strong" and routes[4]["effort"] == "high"
-    assert routes[5]["tier"] == "max"
+    # Haiku 5.5 accepts effort: economy Low, economy Medium, then Sonnet.
+    assert routes[1]["tier"] == "economy" and routes[1]["effort"] == "medium"
+    assert routes[2]["tier"] == "standard" and routes[2]["effort"] == "medium"
+    assert routes[3]["tier"] == "standard" and routes[3]["effort"] == "high"
+    assert routes[4]["tier"] == "strong" and routes[4]["effort"] == "medium"
+    assert routes[5]["tier"] == "strong" and routes[5]["effort"] == "high"
+    assert routes[6]["tier"] == "max" and routes[6]["effort"] == "xhigh"
     assert routes[7] == routes[6], "A single locked provider must stay at its highest route"
 
     task["provider"] = "auto"
@@ -589,10 +590,11 @@ def test_evidence_based_escalation() -> None:
     # one mechanical slip repeats the rung; the second moves one rung up
     assert (route(["mechanical"])["tier"], route(["mechanical"])["effort"]) == ("standard", "medium")
     two_mech = route(["mechanical", "mechanical"])
-    assert (two_mech["tier"], two_mech["effort"]) == ("strong", "high"), two_mech
+    # Map v11: Codex is Sol 6.2 on every tier, so the next rung is Sol High (strong).
+    assert (two_mech["tier"], two_mech["effort"], two_mech["model"]) == ("strong", "high", "gpt-6.2-sol"), two_mech
     # a semantic failure on Codex jumps to the next tier boundary: Sol High at strong
     semantic = route(["semantic"])
-    assert (semantic["tier"], semantic["effort"], semantic["model"]) == ("strong", "high", "gpt-6.1-sol")
+    assert (semantic["tier"], semantic["effort"], semantic["model"]) == ("strong", "high", "gpt-6.2-sol")
     # environmental failures never change the route
     assert route(["environmental", "environmental"]) == route([])
     # a second semantic failure jumps to the next tier boundary again
@@ -600,7 +602,7 @@ def test_evidence_based_escalation() -> None:
     assert twice["tier"] == "max"
     # budget exhaustion behaves like mechanical: repeat, then climb
     assert route(["budget"]) == route([])
-    assert route(["budget", "budget"])["tier"] == "strong"
+    assert (route(["budget", "budget"])["tier"], route(["budget", "budget"])["effort"]) == ("strong", "high")
 
     claude = {**base, "provider": "claude", "functional_failures": 1, "failure_classes": ["semantic"]}
     claude_route = run_isolated.choose_route(claude, config, None)
@@ -617,14 +619,16 @@ def test_ladder_exhaustion_blocks_instead_of_burning_attempts() -> None:
         "model_tier": "strong",
         "reasoning_effort": "high",
     }
-    # strong/high on Claude leaves two rungs above (Fable High, Fable XHigh).
+    # strong/high on Claude leaves one rung above (Opus XHigh at the max tier).
     one = {**base, "functional_failures": 1, "failure_classes": ["semantic"]}
     assert not run_isolated.ladder_exhausted(one, config, None)
     assert run_isolated.choose_route(one, config, None)["tier"] == "max"
-    # mechanical slips at the top tier still climb effort before giving up
-    mech = {**base, "functional_failures": 3, "failure_classes": ["semantic", "mechanical", "mechanical"]}
+    # a mechanical slip at the top rung repeats it once, then the ladder is exhausted (replan/frontier)
+    mech = {**base, "functional_failures": 2, "failure_classes": ["semantic", "mechanical"]}
     assert not run_isolated.ladder_exhausted(mech, config, None)
     assert run_isolated.choose_route(mech, config, None)["effort"] == "xhigh"
+    mech_twice = {**base, "functional_failures": 3, "failure_classes": ["semantic", "mechanical", "mechanical"]}
+    assert run_isolated.ladder_exhausted(mech_twice, config, None)
     # a semantic failure at the strongest tier has no stronger tier to jump to: replan
     two = {**base, "functional_failures": 2, "failure_classes": ["semantic", "semantic"]}
     assert run_isolated.ladder_exhausted(two, config, None)

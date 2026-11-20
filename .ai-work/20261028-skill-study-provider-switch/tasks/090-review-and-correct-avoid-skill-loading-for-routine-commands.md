@@ -21,7 +21,7 @@ Objective: Independently review and correct avoid skill loading for routine comm
 ## Checkpoints
 
 - [ ] **S001** Read implementation — Review the actual code, test results and receipt from task 089, not a previous conversation.
-- [ ] **S002** Independent review — Dispatch a real fresh maximum-qualified reviewer and preserve provider, model, effort and reviewed hashes.
+- [ ] **S002** Independent review — Run `python docs/plans/20261028-skill-optimization/support/review_dispatch.py --repo-root . --task 090` in the foreground (rerun on exit 75); use only its DISPATCH line and compact findings.
 - [ ] **S003** Correct high-risk defects — Correct critical/high findings or leave the task pending with evidence.
 - [ ] **S004** Rerun regressions — Run test/optimization/skill_activation_negatives_self_test.py and all feature acceptance and negative cases through mapped validation.
 - [ ] **S005** Record review — Record actual review/validation results in docs/research/20261028-skill-optimization/implementation/090-receipt.json and docs/research/20261028-skill-optimization/implementation/090-outcome.md.
@@ -37,8 +37,9 @@ Files: `skill/plan-and-execute/SKILL.md`, `skill/plan-and-execute/agents/openai.
 - Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.
 - Follow task 090 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.
 - Preserve exact user intent, bounded context, security floors and real deterministic tests.
-- Use an actual fresh independent maximum-qualified reviewer; never fabricate model execution.
+- Review only via review_dispatch.py (synchronous; max route; writes dispatch evidence); fix blocking findings, rerun declared checks, re-dispatch if a reviewed file changed, copy its RECEIPT_REVIEWER fields into the receipt.
 - Preserve evidence in docs/research/20261028-skill-optimization/implementation/090-receipt.json and docs/research/20261028-skill-optimization/implementation/090-outcome.md; do not mark a pending task done without validation.
+- Never launch background or asynchronous agents or processes: this headless session ends when you stop calling tools, so anything unfinished is lost.
 
 ## Acceptance
 
@@ -48,6 +49,8 @@ Files: `skill/plan-and-execute/SKILL.md`, `skill/plan-and-execute/agents/openai.
 - Verify: Tiny discoverable metadata cost is acknowledged; there is no claim of zero skill-related tokens.
 - Verify: Held-out host evaluations measure false positives/negatives and token impact, not keyword assertions alone.
 - No unresolved critical/high finding or missing required reviewer may be marked complete.
+- A frontier (Fable 5.2 / Astra 6.2) reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.
+- Every 2026-11-20 acceptance addition of task 089 has actual test evidence on the final reviewed hashes.
 
 ## Validate
 

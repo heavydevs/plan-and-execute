@@ -1,0 +1,65 @@
+{
+  "task_id": "003",
+  "dispatch": 1,
+  "session_id": "b6c3bd44-99ba-4090-906b-d43ec0f3551a",
+  "verdict": "approved",
+  "summary": "Task 002 meets its acceptance criteria. It imports check_delivery.structural and verified_files directly, and all 5 negative fixtures plus the provider-limitation case behave as required (7/7 tests pass offline in check-01.log). No critical or high defects. Four medium/low issues: (1) the prepared_report hash check in run_source_and_contract_coverage compares each file with itself, so it can never fail; (2) only the test-side wrapper rejects an empty prepared_reports list; check_delivery still accepts it; (3) the fixture-contract dicts are never checked against real behaviour; (4) two fixtures duplicate existing tests, and the outcome says 130 tasks, not 132. Hashes were not recomputed and checks were not rerun (read-only file tools only).",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "location": "test/optimization/baseline_contracts.py:298-306",
+      "title": "prepared_reports hash check compares each file with itself, so it can never fail",
+      "detail": "run_source_and_contract_coverage builds each record as {path: p, sha256: lf_sha256(file)} and then calls verified_files(..., text=True), which compares text_sha(file) against that value. text_sha and lf_sha256 are the same function (CRLF->LF, then sha256), so the 'Stale prepared_report hash' branch can never fire. The loop only checks that the file exists, has no symlink or traversal, and is not listed twice. Yet the docstring says it verifies the prepared_reports contract. This matters most for ARCHITECTURE_AND_SCOPE.md, the prepared report for tasks 001-003: no INDEX.json or TASK_INPUTS.json entry pins its hash, so content drift there is never detected. AC05 still holds for INDEX-pinned reports, but only because structural() checks them, not because of this loop.",
+      "fix": "Check each file against an independent pin instead: use INDEX report_sha256/decision_sha256, or TASK_INPUTS research_sha256 when p equals research_report, the same lookup run_preflight does with _index_report_hashes. For paths with no pin, check existence only and say so in the docstring. Add a test: pin a prepared report, change its bytes in a temporary copy, and assert the wrapper rejects it."
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "location": "test/optimization/baseline_contracts.py:299-300; test/optimization/task_002_self_test.py:103-122; docs/plans/20261028-skill-optimization/support/check_delivery.py:149,313",
+      "title": "Only the test-side wrapper rejects a task with no prepared_report; the delivery gate accepts it, and a missing key is untested",
+      "detail": "The test only passes because structural() lets prepared_reports=[] through: an empty loop at check_delivery.py:149 raises nothing, and check() at :313 accepts set() <= reviewed. The rejection exists only in the new wrapper, which nothing runs except task_002_self_test. So `check_delivery.py --structure` and the P1_xxx receipt gates still accept a task entry with no prepared_report. If the prepared_reports key is missing entirely, structural raises a bare KeyError at check_delivery.py:149 before the wrapper's own check runs. That error is neither GateError nor PreflightError, and no test covers this case. check_delivery.py is outside 002's write scope, so this is an unrecorded limitation rather than a broken criterion.",
+      "fix": "Record in the receipt and outcome limitations that AC07 is enforced by baseline_contracts.run_source_and_contract_coverage, not by check_delivery.structural/check. Add a fixture that deletes the key and assert a deterministic rejection. Optionally, before calling structural(), pre-validate prepared_reports so a missing key raises PreflightError."
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "location": "test/optimization/task_002_self_test.py:41-48,56-61,70-75,90-95,104-109,125-130,140-145",
+      "title": "Fixture contracts are inert, and current_code describes the changed test input instead of current code behaviour",
+      "detail": "AC02 requires every fixture to distinguish historical baseline, current code and expected new behaviour. Each fixture_contract dict is only checked with assertions that always pass, such as assertTrue(<non-empty literal>) and assertIn('check_delivery', <literal containing it>). No test runs or compares the historical or current-code states. Several 'current_code' values describe the changed input instead, e.g. 'Task 002 entry has empty prepared_reports list'. Meanwhile the real current-code fact goes unrecorded and unasserted: check_delivery.structural accepts that input. The task-count and provider-history baselines are unverified claims. The AC02 evidence in the receipt is just the 'ok' lines in check-01.log.",
+      "fix": "Make each fixture's three states assertable. For example, in the prepared_reports case, assert that cd.structural(REPO_ROOT, native=False) passes on the changed input (current code) and that the wrapper raises PreflightError (new behaviour). Set current_code to the behaviour of the code under test, not the changed input. Remove the assertions that always pass."
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "location": "test/optimization/task_002_self_test.py:55-87; docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py:219-224",
+      "title": "Two 'new' negative fixtures duplicate existing delivery_gate_self_test cases",
+      "detail": "Subtask S003 says to add only the fixtures delivery_gate_self_test.py lacks. That file already has test_unknown_source (E999 appended to INDEX source_ids) and test_stale_report_hash (zeroed INDEX report_sha256). Task 002 repeats both, adding only message regexes. Separately, the drift fixture changes the stored pins rather than the report's bytes. The TASK_INPUTS variant therefore exercises the INDEX/TASK_INPUTS cross-link check ('Stale task/report link'), not a file-versus-pin comparison.",
+      "fix": "Either drop the duplicates and cite delivery_gate_self_test as the existing regression for AC04/AC05, or keep them and state that they only add message-level specificity. For AC05, consider a fixture that changes report bytes in a temporary copy, so real content drift is tested."
+    },
+    {
+      "id": "F5",
+      "severity": "low",
+      "location": "docs/research/20261028-skill-optimization/implementation/002-outcome.md:6; test/optimization/task_002_self_test.py:44",
+      "title": "Outcome and fixture say 130 tasks; the catalog has 132",
+      "detail": "TASK_INPUTS.json has 132 task entries, and structural() requires review gates up to 132. The outcome report and the positive fixture both say '130 tasks'. The test itself asserts tasks_checked == structural['tasks'], so it passes, but the recorded evidence text is wrong.",
+      "fix": "Change the text to 132 tasks, or avoid hard-coding the count in prose."
+    },
+    {
+      "id": "F6",
+      "severity": "info",
+      "location": "test/optimization/baseline_contracts.py:2",
+      "title": "Module docstring still says task 001 only",
+      "detail": "The module now also holds task 002's coverage entry point, but the docstring reads 'helpers for task 001'.",
+      "fix": "Update the docstring to mention the task 002 source/contract coverage function."
+    },
+    {
+      "id": "F7",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/002-receipt.json:14-24; docs/research/20261028-skill-optimization/implementation/002-checks.json:4",
+      "title": "Pinned hashes and input fingerprint not recomputed in this review",
+      "detail": "This review had read-only file tools only and could not run sha256 or the checks. The changed-artifact hashes, outcome_sha256, checks_sha256, log hashes and input_fingerprint were read but not recomputed. The receipt also cites whole logs as evidence for each acceptance case without mapping each case to a test name. AC07 and AC08, for example, are proven only by single test lines in check-01.log.",
+      "fix": "Have the 003 worker run the P1_TESTS_003 and P1_003 gates (check_delivery --task) against the final hashes and record which test proves each acceptance case in the 003 receipt."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+test_imports_check_delivery_helpers_and_passes_on_repo (__main__.Task002CoverageTests.test_imports_check_delivery_helpers_and_passes_on_repo) ... ok
+test_missing_authenticated_provider_is_limitation_not_failure_or_fake_review (__main__.Task002CoverageTests.test_missing_authenticated_provider_is_limitation_not_failure_or_fake_review) ... ok
+test_negative_index_pinned_report_byte_drift_rejected (__main__.Task002CoverageTests.test_negative_index_pinned_report_byte_drift_rejected) ... ok
+test_negative_missing_082_review_gate_rejected (__main__.Task002CoverageTests.test_negative_missing_082_review_gate_rejected) ... ok
+test_negative_report_hash_drift_rejected (__main__.Task002CoverageTests.test_negative_report_hash_drift_rejected) ... ok
+test_negative_requirement_without_consumer_rejected (__main__.Task002CoverageTests.test_negative_requirement_without_consumer_rejected) ... ok
+test_negative_task_inputs_pinned_report_byte_drift_rejected (__main__.Task002CoverageTests.test_negative_task_inputs_pinned_report_byte_drift_rejected)
+The wrapper's own pin check is live: structural() never reads a non-INDEX research pin. ... ok
+test_negative_task_without_prepared_report_rejected (__main__.Task002CoverageTests.test_negative_task_without_prepared_report_rejected)
+AC07 is enforced by this wrapper; check_delivery.structural accepts or crashes on these inputs. ... ok
+test_negative_unknown_sources_id_rejected (__main__.Task002CoverageTests.test_negative_unknown_sources_id_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 16.579s
+
+OK

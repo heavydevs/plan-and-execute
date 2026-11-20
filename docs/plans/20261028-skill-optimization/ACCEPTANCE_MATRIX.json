@@ -147,10 +147,12 @@
       "id": "A11",
       "requirement": "Manifest schemas 1-4, absent failure_classes, full v1 config snapshots and existing availability ledgers remain compatible.",
       "owner_tasks": [
+        "072",
         "074",
         "078"
       ],
       "review_tasks": [
+        "073",
         "075",
         "079"
       ],

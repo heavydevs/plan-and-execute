@@ -98,7 +98,8 @@ def test_credentials_reach_child_env_only() -> None:
 def test_effort_map_and_capability_difference() -> None:
     for model in MODELS:
         got = {e: model_catalog.native_effort("deepseek", model, e, CATALOG) for e in EFFORT_ORDER}
-        assert got == {"low": "high", "medium": "high", "high": "high", "xhigh": "max", "max": "max"}, (model, got)
+        # Native low|high|max (2026-11-20 docs): skill low keeps native low; medium/xhigh follow DeepSeek's own mapping.
+        assert got == {"low": "low", "medium": "high", "high": "high", "xhigh": "max", "max": "max"}, (model, got)
     assert "vision" in FLASH["capability"]["capabilities"]
     assert "vision" not in PRO["capability"]["capabilities"]
     for entry in MODELS.values():
@@ -106,26 +107,29 @@ def test_effort_map_and_capability_difference() -> None:
 
 
 def test_off_peak_window_boundaries() -> None:
+    # Vendor peak (2026-11-20): 01:00-04:00 and 06:00-10:00 UTC Mon-Fri. The daily window is the span that is
+    # off-peak every day (10:00-01:00); 04:00-06:00 is priced at peak, which overstates cost (conservative).
     eco = FLASH["economics"]
+    assert eco["off_peak"]["window_utc"] == {"start": "10:00", "end": "01:00"}
     cases = [
-        (utc(16, 29, 59), False), (utc(16, 30), True), (utc(23, 59), True),
-        (utc(0, 0), True), (utc(0, 29, 59), True), (utc(0, 30), False), (utc(12, 0), False),
+        (utc(9, 59, 59), False), (utc(10, 0), True), (utc(16, 29, 59), True), (utc(23, 59), True),
+        (utc(0, 0), True), (utc(0, 59, 59), True), (utc(1, 0), False), (utc(5, 0), False), (utc(12, 0), True),
     ]
     for when, expected in cases:
         assert model_catalog.is_off_peak(eco, when) is expected, when
     # A non-UTC instant is converted before the window check.
     brt = timezone(timedelta(hours=-3))
-    assert model_catalog.is_off_peak(eco, datetime(2026, 10, 1, 13, 30, tzinfo=brt)) is True
-    assert model_catalog.is_off_peak(eco, datetime(2026, 10, 1, 13, 29, tzinfo=brt)) is False
+    assert model_catalog.is_off_peak(eco, datetime(2026, 10, 1, 7, 0, tzinfo=brt)) is True
+    assert model_catalog.is_off_peak(eco, datetime(2026, 10, 1, 6, 59, tzinfo=brt)) is False
 
 
 def test_prices_on_both_sides_of_each_boundary() -> None:
-    assert abs(model_catalog.api_cost_usd(FLASH["economics"], M, 0, 0, at=utc(16, 29, 59)) - 0.30) < 1e-9
-    assert abs(model_catalog.api_cost_usd(FLASH["economics"], M, 0, 0, at=utc(16, 30)) - 0.15) < 1e-9
-    assert abs(model_catalog.api_cost_usd(FLASH["economics"], 0, 0, M, at=utc(0, 29, 59)) - 0.60) < 1e-9
-    assert abs(model_catalog.api_cost_usd(FLASH["economics"], 0, 0, M, at=utc(0, 30)) - 1.20) < 1e-9
-    assert abs(model_catalog.api_cost_usd(PRO["economics"], M, 0, 0, at=utc(16, 29, 59)) - 1.32) < 1e-9
-    assert abs(model_catalog.api_cost_usd(PRO["economics"], M, 0, 0, at=utc(16, 30)) - 0.66) < 1e-9
+    assert abs(model_catalog.api_cost_usd(FLASH["economics"], M, 0, 0, at=utc(9, 59, 59)) - 0.30) < 1e-9
+    assert abs(model_catalog.api_cost_usd(FLASH["economics"], M, 0, 0, at=utc(10, 0)) - 0.15) < 1e-9
+    assert abs(model_catalog.api_cost_usd(FLASH["economics"], 0, 0, M, at=utc(0, 59, 59)) - 0.60) < 1e-9
+    assert abs(model_catalog.api_cost_usd(FLASH["economics"], 0, 0, M, at=utc(1, 0)) - 1.20) < 1e-9
+    assert abs(model_catalog.api_cost_usd(PRO["economics"], M, 0, 0, at=utc(9, 59, 59)) - 1.32) < 1e-9
+    assert abs(model_catalog.api_cost_usd(PRO["economics"], M, 0, 0, at=utc(10, 0)) - 0.66) < 1e-9
     # Without a timestamp the peak (list) rate applies.
     assert abs(model_catalog.api_cost_usd(PRO["economics"], M, 0, 0) - 1.32) < 1e-9
 
@@ -137,19 +141,21 @@ def test_cache_hit_vs_miss_matches_pricing_table() -> None:
     }
     for model, (miss, hit, out) in table.items():
         eco = MODELS[model]["economics"]
-        for index, when in ((0, utc(20, 0)), (1, utc(12, 0))):
+        for index, when in ((0, utc(20, 0)), (1, utc(8, 0))):
             assert abs(model_catalog.api_cost_usd(eco, M, 0, 0, at=when) - miss[index]) < 1e-9, (model, "miss")
             assert abs(model_catalog.api_cost_usd(eco, 0, M, 0, at=when) - hit[index]) < 1e-9, (model, "hit")
             assert abs(model_catalog.api_cost_usd(eco, 0, 0, M, at=when) - out[index]) < 1e-9, (model, "out")
             assert model_catalog.api_cost_usd(eco, 0, M, 0, at=when) < model_catalog.api_cost_usd(eco, M, 0, 0, at=when)
-    mixed = model_catalog.api_cost_usd(FLASH["economics"], 100_000, 900_000, 50_000, at=utc(12, 0))
+    mixed = model_catalog.api_cost_usd(FLASH["economics"], 100_000, 900_000, 50_000, at=utc(8, 0))
     assert abs(mixed - (100_000 * 0.30 + 900_000 * 0.006 + 50_000 * 1.20) / M) < 1e-9
 
 
 def test_catalog_validates_and_eligibility_by_capability() -> None:
     model_catalog.validate(CATALOG)
     mapping = model_catalog.provider_config_mapping("deepseek", CATALOG)
-    assert mapping["models"] == {"economy": "deepseek-flash", "standard": "deepseek-flash", "advanced": "deepseek-v4-pro"}
+    # V4 Pro was demoted to a standard fallback (AA IQ 23 at $1.77/task vs Flash 33 at ~$0.60): Flash keeps both tiers.
+    assert mapping["models"] == {"economy": "deepseek-flash", "standard": "deepseek-flash"}
+    assert PRO["tiers"] == ["standard"]
     assert "strong" not in mapping["models"] and "max" not in mapping["models"]
     vision = [m for m, e in MODELS.items() if "vision" in e["capability"]["capabilities"]]
     assert vision == ["deepseek-flash"], vision
@@ -160,7 +166,7 @@ def test_schema_rejects_bad_off_peak() -> None:
     for mutate in (
         lambda e: e["economics"]["off_peak"].pop("window_utc"),
         lambda e: e["economics"]["off_peak"]["window_utc"].update(start="25:00"),
-        lambda e: e["economics"]["off_peak"]["window_utc"].update(end="16:30"),
+        lambda e: e["economics"]["off_peak"]["window_utc"].update(end="10:00"),
         lambda e: e["economics"]["off_peak"].update(cached_input_per_mtok=-1),
         lambda e: e["economics"]["off_peak"].update(surprise=1),
         lambda e: e["capability"]["effort_map"].pop("max"),

@@ -29,6 +29,7 @@ Name the leaf's observable signals and let `python <skill-dir>/scripts/routingct
 | `silent_failure_costly` — a wrong result would not be caught and would cost materially | `strong` high |
 | `frontier_long_horizon` — unusually broad reasoning or very long autonomous loops | `max` high |
 | `repeated_strong_failure` — the strong route failed with useful evidence | `max` xhigh |
+| `extreme_architecture` / `extreme_code_review` — architecture or code review of an extremely hard demand | `max` xhigh, `frontier_eligible` (L6 only for a read-only analyst/verifier role) |
 
 Modifiers: `weak_validation` raises the tier one step and the effort floor to `high`; `strong_validation` lets `standard`/`strong` start at `medium`; `implementation` forbids `low` unless the edit is mechanical **and** deterministically checked, because a worker at `low` effort tends to skip reading and validation.
 
@@ -76,17 +77,29 @@ DIRECT means **no planning harness**, not "one expensive model does everything":
 | `standard` | ordinary bounded implementation/debugging/tests |
 | `advanced` | between standard and strong; no signal floor returns it, but a TODO or the selector may use it; a provider without an `advanced` model skips upward to `strong` |
 | `strong` | difficult, subtle, high-risk, or weakly verifiable engineering |
-| `max` | frontier/long-horizon escalation after semantic need or failure evidence |
+| `max` | long-horizon escalation after semantic need or failure evidence; Opus 5.5 / Sol 6.2, the usual ceiling |
+| `frontier` (L6/F6) | **level above every tier**: Fable 5.2 / Astra 6.2 for special cases only (access rules below); never persisted as a task tier |
 
-Concrete models are provider-specific. Model generation and reasoning effort are independent axes: a newer model at low/medium effort can dominate an older model at high effort (Codex: GPT-6.1 Sol serves standard, strong and max, so those tiers differ by effort only; Claude: Opus Medium is a valid first strong rung under strong validation).
+Concrete models are provider-specific. Model generation and reasoning effort are independent axes: a newer model at low/medium effort can dominate an older model at high effort (Codex: GPT-6.2 Sol serves strong and max, so those tiers differ by effort only; Claude: Opus 5.5 serves strong and max, so max differs from strong by effort only).
+
+**Frontier level L6/F6** (`routingctl.FRONTIER_MODELS`: `claude-fable-5-2` high, `gpt-6.2-astra` high and never `ultra`; `gemini-4-carbon-*` only when `agy models` lists it and you set `antigravity.frontier.model`). Owner policy (final, 2026-11-20), no per-task approval:
+
+1. **Extreme architecture / code review**: the signals `extreme_architecture` or `extreme_code_review` give a `max`/`xhigh` floor plus `frontier_eligible`; `routingctl.py delegate` turns that into a frontier route only for a read-only `analyst` or `verifier`. Implementers of the same leaf stay on Opus 5.5 / Sol 6.2.
+2. **Repeated top-rung failure**: after `routing_policy.frontier.min_top_failures` (default 2) failures classed `semantic`, `mechanical` or `unknown` at the max/xhigh rung, the runner's next dispatch is the frontier route instead of `ladder_exhausted`; until then an exhausted ladder retries the top rung. A failed frontier attempt blocks the TODO for replanning.
+
+Never by floor lifting (`weak_validation`, `lift_tier`), never as an ordinary ladder rung, never by the selector, never for implementation, exploration, monitoring or DIRECT work, never because of quota, auth, billing, environment, budget or timeout outcomes. Codex credit exhaustion on Astra is availability: the runner skips to the next provider's frontier model (Fable 5.2) and records no escalation; a Claude Code older than 2.1.321 answering HTTP 400 for Fable is version unavailability, skipped the same way. Explicit provider overrides and `allow_provider_fallback: false` restrict the frontier chain exactly like ordinary routes. A frontier dispatch persists `tier: "max"` plus `level: "frontier"` and `frontier: true` (manifest route, telemetry, availability ledger), so schema 1-4 manifests and five-tier validators are unchanged. `routing_policy.frontier.enabled: false` restores the previous `ladder_exhausted` behaviour.
 
 ### Configured global provider preference
 
 The following host preference requires global configuration (see [ROUTING_CONFIG.md](ROUTING_CONFIG.md) for paths/precedence). Built-in provider order remains Claude then Codex; explicit plan/task/CLI routes and legacy snapshots retain their documented precedence. Model examples require corresponding provider `models`; bootstrap `advanced` is empty for Claude/Codex and skips upward when not configured.
 
-- **`economy`**: **Antigravity** primary (`gemini-3.8-flash-high`, omitting `--effort` because the model ID embeds high reasoning effort) -> **Claude** fallback (`haiku`, without `--effort`) -> **Codex** fallback (`gpt-6-luna`, effort `low`). Used for exploration, mechanical edits, cheap summaries, and the execution watchkeeper agent.
-- **`standard`+ (`standard`, `advanced`, `strong`, `max`)**: **Codex** primary (`gpt-6.1-sol` across configured tiers, differentiated by reasoning effort: medium for standard/advanced, high for strong, xhigh for max) -> **Claude** fallback (`claude-sonnet-5-5` for standard, `claude-opus-5-5` for advanced, strong and max) -> **Antigravity** fallback (`gemini-3.1-pro-high` for standard, `claude-sonnet-4-6` for advanced, `claude-opus-4-6-thinking` for strong/max). These are preferences; configured overrides may select another primary.
-- **Watchdog and diagnosis**: Routine watchdog execution runs without a model (`watchdogctl.py status --quiet`); watchkeeper agent runs on economy (Antigravity `gemini-3.8-flash-high` without `--effort`); investigating `blocked` task failure capsules runs in the `strong` tier at `high` reasoning effort on Codex (`gpt-6.1-sol`, strong/high) with Claude Opus 5.5 fallback.
+Owner preference, 2026-11-20 (global config, not a built-in default or a quality ranking):
+
+- **Implementation** (`economy`, `standard`, `advanced`): **Antigravity** first -> **Codex** -> **Claude**. Antigravity models come from the opt-in workload overlay generated from `agy models` (`pae workloads preset`): Gemini 4 Neon first for standard/advanced/strong, Gemini 4 Hydrogen for economy and as the standard fallback, one profile per observed effort variant so the cheapest sufficient variant is used; Gemini 3.8 Flash only for log monitoring. Codex: `gpt-6.2-sol` on every tier by effort (Low economy, Medium standard, High strong, XHigh max; `gpt-6.1-terra` and `gpt-6-luna` are not routed). Claude: `claude-haiku-5-5`, `claude-sonnet-5-5`, `claude-opus-5-5`. Map `2026-11-20-v11`; evidence in `MODEL_MAPPING.md` §6.
+- **Architecture and hard decisions** (`strong`, `max`): **Codex** first (`gpt-6.2-sol`, High, XHigh for `max`) -> **Claude** (`claude-opus-5-5`, High, XHigh for `max`); Antigravity only through the implementation overlay. Very hard demands normally run on Sol 6.2 / Opus 5.5.
+- **Frontier** (L6/F6, above `max`): Codex `gpt-6.2-astra` -> Claude `claude-fable-5-2` (and `gemini-4-carbon-*` only when `agy models` lists it) under the access rules in §4: extreme architecture/code review, or after Sol/Opus failed repeatedly at max/xhigh. Never for ordinary work, quota, or environment faults.
+- **Watchdog and diagnosis**: Routine watchdog execution runs without a model (`watchdogctl.py status --quiet`); the optional diagnostic assistant runs on economy (Gemini 3.8 Flash Medium, or Hydrogen when Flash is absent); investigating `blocked` task failure capsules runs in the `strong` tier at `high` on Codex (`gpt-6.2-sol`, strong/high) with Claude Opus 5.5 fallback.
+- Antigravity's Claude 4.6 models were removed on 2026-11-18; the overlay never maps tiers to them, and Antigravity Claude (Opus 5.5 / Sonnet 5.5) stays capped at advanced.
 
 ## 5. Effort: thoroughness, not only thinking time
 
@@ -98,7 +111,7 @@ Effort controls how much work the model does per request — files read, tools u
 - `xhigh`: demanding long-running loops or repeated hard failures;
 - `max`: exceptional; test before adopting, it is prone to overthinking.
 
-Some models accept no effort parameter (Claude Haiku); the runner omits the flag for them.
+Some models accept no effort parameter (the bare `haiku` alias, which resolves to Haiku 4.5); the runner omits the flag for them. Haiku 5.5 accepts effort.
 
 ## 6. Escalate from classified evidence
 
@@ -118,7 +131,7 @@ Diagnostic for choosing the class: *did the worker not know enough (semantic -> 
 
 `budget` classification is pattern-matched against provider output (`routingctl`/`run_isolated` budget patterns). Claude Code's turn/spend-limit result envelope (`"subtype": "error_max_turns" | "error_max_budget_usd"`) is published and confirmed by an end-to-end self-test; Codex's rollout-budget abort message is not published, so an unmatched phrasing there falls back to `unknown` (safe: +1 rung) rather than `budget`. Recalibrate the patterns from real provider output if a project observes a mismatch.
 
-Provider fallback (quota, rate limit, capacity, CLI interruption) is availability, not evidence: state is preserved and the equivalent logical rung runs on the fallback provider. When the evidence asks for a rung above the ladder's top on the last available provider (for example a `semantic` failure at the `max` tier), the runner blocks the TODO (`ladder_exhausted`) for replanning instead of spending the remaining attempts at the strongest route. Stop as soon as acceptance and independent validation pass.
+Provider fallback (quota, rate limit, capacity, CLI interruption) is availability, not evidence: state is preserved and the equivalent logical rung runs on the fallback provider. When the evidence asks for a rung above the ladder's top on the last available provider (for example a `semantic` failure at the `max` tier), the frontier level decides (§4): below its threshold the top rung is retried, at the threshold the frontier route runs, and after a failed frontier attempt — or with `routing_policy.frontier.enabled: false` or no reachable frontier model — the runner blocks the TODO (`ladder_exhausted`) for replanning instead of spending the remaining attempts at the strongest route. Stop as soon as acceptance and independent validation pass.
 
 ### Validation stagnation: promote from missing progress
 

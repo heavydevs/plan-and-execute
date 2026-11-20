@@ -13,11 +13,10 @@ Objective: Create audit-only-by-default and user-authorized refactoring for lega
 ## Context
 
 - `.ai-work/20261028-skill-study-provider-switch/CONTEXT.md`
-- Read the assigned implementation-ready architecture only when working on this task.
 
 ## Validated learnings
 
-- None. Research is not product code or independent acceptance.
+- None
 
 ## Checkpoints
 
@@ -29,13 +28,11 @@ Objective: Create audit-only-by-default and user-authorized refactoring for lega
 
 ## Scope
 
-**In:** Implement architecture, policy, safe selectors and required guarded integration.
+In: Implement architecture, policy, safe selectors and required guarded integration.
+Out: No automatic existing-project test refactor or forged edit consent.
+Files: `skill/plan-and-execute/SKILL.md`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/resource_watch.py`, `skill/plan-and-execute/scripts/service_map.py`, `skill/plan-and-execute/references/WORKFLOW.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `skill/plan-and-execute/scripts/test_impact.py`, `skill/plan-and-execute/scripts/test_audit.py`, `skill/plan-and-execute/references/TEST_REVIEW_REFACTOR.md`, `test/optimization/test_suite_refactor_scope_self_test.py`, `docs/research/20261028-skill-optimization/implementation/113-receipt.json`, `docs/research/20261028-skill-optimization/implementation/113-outcome.md`
 
-**Out:** No automatic existing-project test refactor or forged edit consent.
-
-**Expected files:** `skill/plan-and-execute/SKILL.md`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/resource_watch.py`, `skill/plan-and-execute/scripts/service_map.py`, `skill/plan-and-execute/references/WORKFLOW.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `skill/plan-and-execute/scripts/test_impact.py`, `skill/plan-and-execute/scripts/test_audit.py`, `skill/plan-and-execute/references/TEST_REVIEW_REFACTOR.md`, `test/optimization/test_suite_refactor_scope_self_test.py`, `docs/research/20261028-skill-optimization/implementation/113-receipt.json`, `docs/research/20261028-skill-optimization/implementation/113-outcome.md`
-
-## Implementation architecture and instructions
+## Guidance
 
 - Read implementation-ready `docs/research/20261028-skill-optimization/prepared-research/113-opt-in-test-suite-review-refactor.md` only for this task; its alternatives, algorithms and fixtures are mandatory.
 - Read only assigned 113 architecture, 111 selection contract, and current plan provenance; lazily load TEST_REVIEW_REFACTOR.md only on explicit user review/refactor request.
@@ -47,7 +44,7 @@ Objective: Create audit-only-by-default and user-authorized refactoring for lega
 - No production-code edits, disabled tests, assertion weakening, bypassed CI, unsanctioned repository-wide test migration or separate test orchestrator.
 - Reuse existing impact selector, P057 failure cycle, watcher and model routes; bounded per-case findings and actual timing/token evidence only.
 
-## Acceptance criteria
+## Acceptance
 
 - Ordinary feature work never activates a legacy test suite audit/refactor.
 - Existing repository test review/refactor requires explicit user intent; audit_only cannot modify tests.
@@ -57,10 +54,13 @@ Objective: Create audit-only-by-default and user-authorized refactoring for lega
 - Equivalent cheaper tests must pass before removal of redundant scoped E2E; unique UI/security flows and final regression remain.
 - No production-code, skip/quarantine or CI weakening; precise case report and genuine before/after measurements provided.
 - 500-legacy-E2E no-op, scoped mixed-file, read-only review, permission spoof and rollback fixture cases pass.
+- node tools/validate-skill.js passes.
+- SKILL.md stays <= 7167 normalized characters (baseline 6826 x 1.05) with at most one lazy pointer line.
+- TOKEN_EFFICIENCY.md stays <= 10000 characters (currently 9975); 113 detail lives in TEST_REVIEW_REFACTOR.md.
+- The orchestrator enforces audit-only and ownership limits: test files are hashed before/after and any change outside the authorized case set is rolled back and rejected.
+- A fixture where a full-access unsandboxed worker writes outside the authorized case set anyway is rolled back and rejected.
 
-## Validate via owned watcher
+## Validate
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_113`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_113`
-
-**State: pending.** No code, suite migration or independent model review is completed by preparing this task.

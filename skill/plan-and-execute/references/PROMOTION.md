@@ -40,7 +40,7 @@ Write `/tmp/pae-promotion-spec.json` with schema v1:
 }
 ```
 
-Keep every list concise. Include only validated/current facts that a fresh planner or worker would otherwise have to rediscover.
+Keep every list concise. Include only validated/current facts that a fresh planner or worker would otherwise have to rediscover. Optional `reason_codes` (bounded), `estimated_working_set`, and `evidence_pointers` are recorded only in the promoted handoff; use source/test pointers rather than copied conversation transcripts (transcript files or `user:`/`assistant:` turns in any field are rejected). `promotectl.py` and `requestctl.py evaluate-route` share one rule: a `nearly_finished: true` cohesive spec with at most one remaining outcome stays DIRECT unless `EXPLICIT_INVOCATION` is recorded, so high context alone creates no control files.
 
 Validate and render the durable request handoff:
 

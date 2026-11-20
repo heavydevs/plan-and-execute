@@ -35,7 +35,7 @@ A versão 0.10 introduz o watchdog de execução, contrato explícito de sinais 
 - **Watchdog de execução (`watchdogctl`)**: `status --quiet` observa planos e jobs somente para leitura; `watch --interval 300` grava apenas um cache de observações para desduplicação. Ambos preservam o estado de planos, jobs e processos. Detectam anomalias (`blocked`, `runner_dead`, `silent`, `awaiting_next`, `quota_resume_due`, `job_failed`) e aceitam agendamento no host (Windows Task Scheduler, cron, loop).
 - **Contrato de progresso e erro (`progress_signal`)**: Emissão padronizada de linhas `PROGRESS`, `ERROR` e `HEARTBEAT` via `progress_signal.py`. Configure uma sonda de contador crescente (`probe_file`) para renovar janelas de validação; workers também usam saída, CPU e mudanças no repositório. Heartbeats indicam atividade.
 - **Digest de log token-eficiente (`log_watch.py digest`)**: Agrega assinaturas redigidas de erros e progresso de um prefixo limitado do log. O [benchmark sintético](docs/research/LOG_DIGEST.md) supera 99% de redução usando a estimativa de tokens `chars/4`; o resultado depende do log. Confira `truncated` e `omitted_records` para avaliar a cobertura.
-- **Política de roteamento atualizada**: A preferência global documentada usa Codex `gpt-6.1-sol` acima de economy e Antigravity `gemini-3.8-flash-high` em economy/vigilância, com Claude como alternativa. Essas cadeias exigem configuração; a ordem embutida continua Claude e depois Codex. Configure cadeias globais e por plano via `pae configure`.
+- **Política de roteamento atualizada**: A preferência global documentada (2026-11-20) executa implementação primeiro no Antigravity (Gemini 4 Hydrogen/Neon), depois Codex `gpt-6.2-sol`, depois Claude; arquitetura usa Codex e depois Claude; demandas muito difíceis usam Opus 5.5 e Sol 6.2 (o teto usual), e Fable 5.2 e Astra 6.2 formam o nível `frontier` (L6/F6) acima de tudo: só arquitetura/revisão de código extremamente difícil ou depois de falhas repetidas de Opus/Sol em max/xhigh (`routing_policy.frontier`). Essas cadeias exigem configuração; a ordem embutida continua Claude e depois Codex. Configure cadeias globais e por plano via `pae configure`.
 - **Instalador e verificação**: Suporte nativo ao Antigravity (`~/.gemini/config/skills` no escopo do usuário, `.agents/skills` no escopo do workspace). Utilize `install all` (via `pae install all`) para instalar simultaneamente no Claude Code, Codex e Antigravity. Valide a integridade das instalações comparando com os hashes embutidos da skill via `status --verify` (ex.: `pae status all --verify`).
 
 ### Roteamento configurável e diagnóstico auxiliar
@@ -72,7 +72,7 @@ A 0.9 torna o roteamento de modelo baseado em evidência de ponta a ponta, em ve
 - **Um modelo raiz pequeno é um delegador, não um teto.** A skill nunca troca o modelo/effort da sessão raiz — isso preserva uma rota estável; as chaves exatas de cache dependem do provedor — então uma folha cujo piso excede o tier raiz é delegada a um worker fresco. `routingctl.py route --signals ...` e uma tabela de sinais no `SKILL.md` dão a um modelo raiz barato os mesmos pisos que um modelo raiz frontier usaria, protegidos por um corpus de regressão (`tier-evals.json`).
 - **Folha em duas fases** (`design_route`): um TODO `high` pode ter um worker mais forte escrevendo uma nota de design bounded primeiro, e depois implementar na sua própria rota mais barata com essa nota.
 - **Planejamento "decisões primeiro"** (`request_analysis.hard_decisions`): quando só algumas decisões do plano são difíceis, resolvê-las com workers fortes antes de um planner padrão escrever o plano mecânico.
-- **Um único catálogo de modelos** (`routingctl.py`) alimenta todos os entrypoints; o effort é omitido para modelos que o rejeitam (Claude Haiku); orçamentos opcionais por worker (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) transformam workers descontrolados em falhas `budget` retomáveis em vez de técnicas.
+- **Um único catálogo de modelos** (`routingctl.py`) alimenta todos os entrypoints; o effort é omitido para modelos que o rejeitam (o alias `haiku`, legado; o Haiku 5.5 aceita effort); orçamentos opcionais por worker (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) transformam workers descontrolados em falhas `budget` retomáveis em vez de técnicas.
 - **Um adapter para a Antigravity CLI do Google (`agy`)** se junta ao Claude Code e ao Codex como backend de execução; o adapter da Gemini CLI agora é marcado como legado (classificação interna de compatibilidade, não uma afirmação de descontinuação do produto).
 - Documenta a mecânica concreta de elevação por host (`model`/`effort` de subagente, `isolation: worktree`, `opusplan`, papéis `spawn_agent` do Codex, fatos de cache de prompt) e corrige diversos bugs de despacho específicos do Windows (resolução de shims `.cmd`, o alias Python da Store, liveness do lease do runner).
 
@@ -305,7 +305,18 @@ Cada definição mantém algo como:
 }
 ```
 
-Os IDs concretos dos modelos ficam em `orchestrator.config.json`, vindos de um único catálogo (`scripts/routingctl.py`): Claude `haiku`/`sonnet`/`opus`/`claude-fable-5-1`, Codex `gpt-6-luna`/`gpt-6.1-sol` (o Sol atende todos os tiers acima de economy; os tiers diferem pelo esforço). Assim, se os créditos de um provider acabarem, outro provider/modelo compatível pode resolver o mesmo nível lógico sem perder o contrato da tarefa.
+Os IDs concretos dos modelos ficam em `orchestrator.config.json`, vindos de um único catálogo (`scripts/routingctl.py`): Claude `claude-haiku-5-5`/`claude-sonnet-5-5`/`claude-opus-5-5` (o Opus atende strong e max), Codex `gpt-6.2-sol` em todos os tiers (os tiers diferem pelo esforço; GPT-6.1 Terra e GPT-6 Luna não são mais roteados, mapa `2026-11-20-v11`). Fable 5.2 (`claude-fable-5-2`) e Astra 6.2 (`gpt-6.2-astra`) são o nível `frontier` L6/F6, de primeira classe, acima de `max`: nunca rota comum, alcançado só por uma folha extrema de arquitetura/revisão somente leitura ou depois de falhas repetidas de Opus/Sol no degrau do topo.
+
+| Nível | Claude Code | Codex |
+|---|---|---|
+| economy / L1 | `claude-haiku-5-5` low (medium em exploração cujo erro custa caro) | `gpt-6.2-sol` low |
+| standard / L2 | `claude-sonnet-5-5` medium | `gpt-6.2-sol` medium |
+| advanced / L3 | sobe para strong | sobe para strong |
+| strong / L4 | `claude-opus-5-5` medium/high | `gpt-6.2-sol` medium/high |
+| max / L5 | `claude-opus-5-5` xhigh | `gpt-6.2-sol` xhigh |
+| frontier / L6 | `claude-fable-5-2` high | `gpt-6.2-astra` high (nunca `ultra`) |
+
+Esforço `max` e o `ultra` do Codex nunca são padrão; o overlay opcional do Antigravity põe o Gemini 4 Neon primeiro de standard a strong e mantém o Hydrogen em economy (evidência: `skill/plan-and-execute/references/MODEL_MAPPING.md` §6). Assim, se os créditos de um provider acabarem, outro provider/modelo compatível pode resolver o mesmo nível lógico sem perder o contrato da tarefa.
 
 ### Rota por sinais da folha, elevação por delegação
 
@@ -320,7 +331,7 @@ A skill **nunca troca o modelo/effort da sessão raiz** (isso preserva uma rota 
 
 ### Escalada por evidência classificada
 
-Cada tentativa falha registra um `failure_class` (campo do report do worker ou `planctl fail --failure-class`): `mechanical` repete o degrau uma vez e depois sobe um; `semantic` pula para o próximo tier mais forte (no Codex, Sol Medium → Sol High); `environmental` mantém a rota; `budget` retoma dos checkpoints; `plan_defect` bloqueia o TODO para replanejamento. Rate limit e quota nunca são evidência. As escadas por provider ficam no catálogo; o Haiku, que não aceita parâmetro de effort, é despachado sem `--effort`.
+Cada tentativa falha registra um `failure_class` (campo do report do worker ou `planctl fail --failure-class`): `mechanical` repete o degrau uma vez e depois sobe um; `semantic` pula para o próximo tier mais forte (no Codex, Sol Medium → Sol High); `environmental` mantém a rota; `budget` retoma dos checkpoints; `plan_defect` bloqueia o TODO para replanejamento. Rate limit e quota nunca são evidência. Depois de duas falhas funcionais no degrau max/xhigh, o próximo passo é o nível frontier (Astra 6.2 / Fable 5.2) em vez do bloqueio `ladder_exhausted`; se a tentativa frontier falhar, o TODO bloqueia para replanejamento. As escadas por provider ficam no catálogo; o Haiku, que não aceita parâmetro de effort, é despachado sem `--effort`.
 
 ### Folha em duas fases e planejamento "decisões primeiro"
 

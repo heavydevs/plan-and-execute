@@ -23,7 +23,7 @@ Objective: Use one coherent allowed-provider chain and a bounded availability po
 - [ ] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/022-availability.md. Verify the current source and only material version/account conflicts.
 - [ ] **S002** Implement revised contract 1 — Track quota scope and observation expiry independently from functional failure evidence and provider capability.
 - [ ] **S003** Implement revised contract 2 — Document and cap the combined runner, CLI and SDK retry budget; report unobservable internal retries as unknown.
-- [ ] **S004** Implement revised contract 3 — Include allowed-provider, privacy, workload, snapshot and effective-routing settings in the availability fingerprint.
+- [ ] **S004** Implement revised contract 3 — Include allowed-provider, privacy, workload, snapshot and effective-routing settings, the per-tier chain (tier_routes) and the provider permission/sandbox mode in the availability fingerprint.
 - [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
 - [ ] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
 
@@ -56,6 +56,8 @@ Files: `skill/plan-and-execute/scripts/availability.py`, `skill/plan-and-execute
 - A fallback that violates required capabilities or data policy is rejected with a reason.
 - SDK retry fixtures cannot multiply an unbounded runner wait.
 - Availability pauses preserve subtasks without adding a functional failure.
+- Credit exhaustion is a long-lived quota-scope observation with reset/expiry, not a 300-second retry loop, and never a functional or capability failure.
+- With one provider's credits exhausted the chain continues Antigravity > Codex > Claude for implementation and Codex > Claude for review.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

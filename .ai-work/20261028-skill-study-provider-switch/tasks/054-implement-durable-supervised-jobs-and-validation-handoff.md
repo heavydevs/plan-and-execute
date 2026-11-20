@@ -43,6 +43,7 @@ Files: `skill/plan-and-execute/scripts/jobctl.py`, `skill/plan-and-execute/scrip
 - Treat vendor results as bounded evidence, not measured savings here. Refresh only a material version/account mismatch.
 - Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
 - Complete all owned report instructions. The checkpoints group correlated changes; they do not waive any instruction or acceptance case.
+- Stale-success rejection and validation-only resume call 048's receipt/generation binding in runner_contract.py/artifact_contract.py; no second digest in jobctl.py.
 
 ## Acceptance
 
@@ -55,6 +56,7 @@ Files: `skill/plan-and-execute/scripts/jobctl.py`, `skill/plan-and-execute/scrip
 - A successful receipt with an outdated map/input digest is rejected.
 - Validation-only resume performs zero model dispatches.
 - Cleanup cannot delete state while an owned job termination remains uncertain.
+- A receipt that 048's binding invalidates is rejected by jobctl with the same reason.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

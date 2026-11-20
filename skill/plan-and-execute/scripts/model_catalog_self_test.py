@@ -38,8 +38,47 @@ class ModelCatalogTests(unittest.TestCase):
             return {tier for entry in catalog['providers'][name]['models'].values() for tier in entry['tiers']}
         for name in ('claude', 'codex'):
             self.assertNotIn('advanced', tiers_of(name))
-        self.assertEqual(tiers_of('claude') | tiers_of('codex'), {'economy', 'standard', 'strong', 'max'})
-        self.assertEqual(tiers_of('muse'), {'advanced'})
+        self.assertEqual(tiers_of('claude') | tiers_of('codex'), {'economy', 'standard', 'strong', 'max', 'frontier'})
+        # The frontier level (L6/F6) is exclusive per model and never reaches a tier mapping.
+        for name in ('claude', 'codex'):
+            frontier = {m for m, e in catalog['providers'][name]['models'].items() if 'frontier' in e['tiers']}
+            self.assertEqual(len(frontier), 1)
+            self.assertTrue(all(catalog['providers'][name]['models'][m]['tiers'] == ['frontier'] for m in frontier))
+            mapping = mc.provider_config_mapping(name, catalog)
+            self.assertNotIn('frontier', mapping['models'])
+            self.assertFalse(frontier & set(mapping['models'].values()))
+        mixed = copy.deepcopy(catalog)
+        mixed['providers']['claude']['models']['claude-fable-5-2']['tiers'] = ['max', 'frontier']
+        with self.assertRaises(mc.CatalogError):
+            mc.validate(mixed)
+        # 2026-11-20-bootstrap-v9: Ember economy, Spark 1.3 demoted to standard, Wonder advanced.
+        self.assertEqual(tiers_of('muse'), {'economy', 'standard', 'advanced'})
+
+    def test_final_remap_v9_catalog(self):
+        catalog = mc.bootstrap_catalog()
+        self.assertEqual(catalog['catalog_version'], '2026-11-20-bootstrap-v9')
+        codex = catalog['providers']['codex']['models']
+        # GPT-6.2 Sol is the only Codex tier model; Terra 6.1 and Luna are not catalog tier models any more.
+        self.assertEqual(set(codex), {'gpt-6.2-sol', 'gpt-6.2-astra'})
+        self.assertEqual(codex['gpt-6.2-sol']['tiers'], ['economy', 'standard', 'strong', 'max'])
+        self.assertEqual(mc.provider_config_mapping('codex', catalog)['models'],
+                         {'economy': 'gpt-6.2-sol', 'standard': 'gpt-6.2-sol', 'strong': 'gpt-6.2-sol', 'max': 'gpt-6.2-sol'})
+        # Re-verified facets carry the 2026-11-20 stamp and a non-bootstrap source; unknown prices stay bootstrap.
+        sol = codex['gpt-6.2-sol']
+        self.assertEqual((sol['capability']['observed_at'], sol['capability']['evidence']['source']),
+                         ('2026-11-20T00:00:00Z', 'provider_cli'))
+        self.assertEqual(sol['quality']['evidence']['source'], 'benchmark')
+        self.assertEqual((sol['economics']['observed_at'], sol['economics']['input_per_mtok']), ('2026-09-30T00:00:00Z', None))
+        self.assertEqual(catalog['providers']['claude']['models']['haiku']['capability']['evidence']['source'], 'bootstrap')
+        # Optional providers follow the 2026-11-20 report: DeepSeek Flash leads economy/standard, GLM/DeepSeek/Muse
+        # flagships are demoted, Kimi/Qwen are not added (CLI ids unverified), and nothing optional serves strong/max.
+        self.assertEqual(set(catalog['providers']), {'claude', 'codex', 'muse', 'glm', 'deepseek'})
+        for name in ('muse', 'glm', 'deepseek'):
+            mapping = mc.provider_config_mapping(name, catalog)['models']
+            self.assertFalse({'strong', 'max'} & set(mapping), name)
+            for entry in catalog['providers'][name]['models'].values():
+                self.assertEqual(entry['economics']['observed_at'], '2026-11-20T00:00:00Z', name)
+        self.assertEqual(catalog['providers']['deepseek']['models']['deepseek-flash']['capability']['effort_map']['low'], 'low')
 
     def test_round_trip_and_key_order_keep_digest(self):
         first = mc.digest(self.catalog)
@@ -98,7 +137,8 @@ class ModelCatalogTests(unittest.TestCase):
         self.assertEqual(mc.facet_freshness(stamp, 'capability', at(11)), 'expired')
         self.assertEqual(mc.facet_freshness(stamp, 'economics', at(9)), 'fresh')
         report = mc.catalog_freshness(self.catalog, now=at(9))
-        self.assertEqual(report['codex']['gpt-6.1-sol'], {'capability': 'stale', 'economics': 'fresh', 'quality': 'fresh'})
+        # The legacy `haiku` alias keeps the 2026-09-30 bootstrap stamp on every facet.
+        self.assertEqual(report['claude']['haiku'], {'capability': 'stale', 'economics': 'fresh', 'quality': 'fresh'})
 
     def test_override_merges_and_rejects_bad_values(self):
         policy = mc.freshness_policy({'capability': {'grace_days': 10}})

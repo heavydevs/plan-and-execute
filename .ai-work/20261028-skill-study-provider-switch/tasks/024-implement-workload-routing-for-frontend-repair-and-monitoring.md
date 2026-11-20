@@ -48,13 +48,16 @@ Files: `skill/plan-and-execute/scripts/workload_routing.py`, `skill/plan-and-exe
 
 - A preferred intermediate profile is excluded from a maximum-capability task when its validated range is lower.
 - An observer profile cannot be selected for a source-writing task or gain write tools on fallback.
-- Frontend evaluation detects broken keyboard navigation even when screenshots match.
+- Routing evidence marks a frontend task whose keyboard check fails as failed even when screenshots match; the browser harness belongs to 125.
 - A depleted Gemini pool can use another configured pool without assuming all accounts have independent allocations.
 - Unknown economics remains unknown; ties use stable policy instead of invented prices.
 - A visual-only success cannot satisfy a task with keyboard and functional acceptance checks.
 - A cheap observer route is never selected to implement an architecture-sensitive repair.
 - A manager quota preference cannot lower the minimum effective capability.
 - Unknown quota or cost values do not become zero-cost priority.
+- Ties resolve Antigravity > Codex > Claude for implementation/repair and Codex > Claude for architecture/review.
+- Fable 5.2, Astra 6.2 and gemini-4-carbon-* never appear in implementation, repair or monitoring routes.
+- The v8 map is preserved: Opus 5.5 / Sol 6.2 xhigh at max, Fable 5.2 / Astra 6.2 absent from the tier map, Antigravity Claude capped at advanced, Gemini 4 Hydrogen/Neon preset ordered first, Carbon not routed.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

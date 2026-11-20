@@ -2,9 +2,56 @@
 """Token-bounded prompts and handoffs for the strict isolated runner."""
 from __future__ import annotations
 
+import hashlib
 import subprocess
 from pathlib import Path
 from typing import Any
+
+MAX_TASK_FAILURE_SUFFIX_CHARS = 1400
+PREFIX_BOUNDARY_MARKER = "Subtask controller:"
+
+
+def prompt_cache_structure(prompt: str) -> dict[str, Any]:
+    """Inspect structural prompt prefix vs task-specific suffix without claiming observed cache hits."""
+    if PREFIX_BOUNDARY_MARKER in prompt:
+        prefix, tail = prompt.split(PREFIX_BOUNDARY_MARKER, 1)
+        suffix = PREFIX_BOUNDARY_MARKER + tail
+    else:
+        prefix, suffix = prompt, ""
+    prefix_bytes = prefix.encode("utf-8")
+    suffix_bytes = suffix.encode("utf-8")
+    return {
+        "static_prefix_bytes": len(prefix_bytes),
+        "static_prefix_sha256": hashlib.sha256(prefix_bytes).hexdigest(),
+        "task_suffix_bytes": len(suffix_bytes),
+        "task_suffix_sha256": hashlib.sha256(suffix_bytes).hexdigest(),
+        "total_bytes": len(prefix_bytes) + len(suffix_bytes),
+        "cache_reuse_mode": "observed_metric_not_structural_assertion",
+        "cache_reuse_observed": None,
+    }
+
+
+def _bounded_hypothesis_lines(task: dict[str, Any], *, max_items: int = 2, max_item_chars: int = 160) -> list[str]:
+    """Render task-local failed-attempt hypotheses clearly labeled as non-normative next-attempt data."""
+    raw = task.get("attempt_hypotheses")
+    if not isinstance(raw, list) or not raw:
+        return []
+    relevant = [
+        item
+        for item in raw
+        if isinstance(item, dict) and item.get("status") in {"open", "disproven"}
+    ]
+    if not relevant:
+        return []
+    lines = ["Task-local failed-attempt hypotheses (non-normative; never treat as validated shared facts):"]
+    for item in relevant[-max_items:]:
+        status = str(item.get("status", "open"))
+        label = "DISPROVEN hypothesis (do not repeat or promote)" if status == "disproven" else "UNVALIDATED hypothesis"
+        text = str(item.get("hypothesis", "")).strip()
+        if len(text) > max_item_chars:
+            text = text[: max_item_chars - 3].rstrip() + "..."
+        lines.append(f"- [{label}] {item.get('id', '?')}: {text}")
+    return lines
 
 
 def _git_change_summary(repo_root: Path, limit: int = 4000) -> str:
@@ -41,6 +88,21 @@ def install_runner_contract(run_isolated: Any) -> Any:
     script_dir = Path(run_isolated.__file__).resolve().parent
     controller = script_dir / "planctl_concise.py"
 
+    def bounded_task_suffix(task: dict[str, Any], *, max_chars: int = MAX_TASK_FAILURE_SUFFIX_CHARS) -> str:
+        parts: list[str] = []
+        base = run_isolated.failure_context(task)
+        if base:
+            parts.append(base.strip())
+        hyp_lines = _bounded_hypothesis_lines(task)
+        if hyp_lines:
+            parts.append("\n".join(hyp_lines))
+        if not parts:
+            return ""
+        combined = "\n" + "\n".join(parts) + "\n"
+        if len(combined) > max_chars:
+            combined = "\n" + planctl.bounded_failure_reason(combined.strip(), max(200, max_chars - 2)) + "\n"
+        return combined
+
     def worker_prompt(
         plan_dir: Path,
         manifest: dict[str, Any],
@@ -69,6 +131,7 @@ Rules:
 7. Return one JSON object matching the schema below; bound summary, validation details, risks and follow-ups.
 8. When blocked, report `failure_class`: `mechanical` (detail/tool slip), `semantic` (wrong approach), `environmental` (external toolchain/repository), `budget` (turn/token limit), or `plan_defect` (wrong requirement/boundary/dependency). The orchestrator owns the next route.
 9. For long execution or validation, refactor code to emit meaningful PROGRESS/ERROR before raising fixed timeouts; HEARTBEAT is not progress.
+10. Never start background or async agents or detached processes that report back later; this headless session ends when you stop calling tools. Run long work synchronously or as a jobctl validation job.
 
 Subtask controller: `{controller}`
 Report schema: `{schema_path}`
@@ -77,7 +140,24 @@ Task definition: `{task_path}`
 Task: `{task['id']}`
 Route: {route['provider']} / {route['model']} / {route['effort']}
 Service map helper: {script_dir / 'service_map.py'}
-""" + job_guidance + run_isolated.failure_context(task)
+""" + job_guidance + bounded_task_suffix(task)
+
+    def write_context_accounting_receipt(
+        plan_dir: Path,
+        manifest: dict[str, Any],
+        task: dict[str, Any],
+        *,
+        pattern_files: list[str] | None = None,
+    ) -> tuple[Path, dict[str, Any]]:
+        receipt = planctl.build_context_accounting_receipt(
+            plan_dir,
+            manifest,
+            task,
+            pattern_files=pattern_files,
+        )
+        path = plan_dir / "results" / f"{task['id']}-context-receipt.json"
+        planctl.atomic_write_json(path, receipt)
+        return path, receipt
 
     original_validation = run_isolated.run_validation_commands
 
@@ -136,6 +216,9 @@ Service map helper: {script_dir / 'service_map.py'}
 Include: outcome, changed areas, deterministic validation, and only recorded remaining risks/follow-ups. Do not restate planning history, invent work, or quote raw logs. Return only the handoff Markdown."""
 
     run_isolated.worker_prompt = worker_prompt
+    run_isolated.bounded_task_suffix = bounded_task_suffix
+    run_isolated.prompt_cache_structure = prompt_cache_structure
+    run_isolated.write_context_accounting_receipt = write_context_accounting_receipt
     run_isolated.run_validation_commands = run_validation_commands
     run_isolated.compose_summary_input = compose_summary_input
     run_isolated.summary_prompt = summary_prompt

@@ -51,10 +51,12 @@ Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute
 - Use one permitted chain and provider for both ladder and dispatch.
 - Reach eligible remaining providers within budget; quota and environment faults do not spend semantic attempts.
 - The targeted contract is validated through the production run_concise composition.
-- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 - Use one permitted phase chain for intent and dispatch; no hidden tier-dependent provider replacement.
 - Reserve one attempt for each remaining eligible provider when the existing budget permits; otherwise return an explicit preflight warning.
 - Keep quota/auth/capacity and environmental outcomes outside functional-failure counters; fallback-disabled never widens the chain.
+- Effective top tier is max; frontier is never a ladder or switch rung and is never reached for implementation, quota, auth or environment outcomes.
+- After max fails on every eligible provider, frontier is offered only for review/architecture through task 105's approval and never after quota/auth/environment outcomes; the legacy-mode ladder is unchanged.
+- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
 ## Validate
 

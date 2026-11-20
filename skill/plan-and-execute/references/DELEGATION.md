@@ -10,7 +10,7 @@ Output schema `delegation-decision/1`: `decision` (`tool` | `keep_root` | `deleg
 
 ## Request
 
-`signals` (leaf signals as for `route`), `providers` (configured ids in preference order), `agent_tier` (tier of the agent asking; root at depth 0), optional `depth` (0), `independent_units` (1), `read_only` (false), `write_scopes` (one non-empty path list per unit when writing), `unit_tokens` (estimated work per unit, 0), `token_budget`, `rollup`, `role`, `previous_route`, `cache_affinity`, `required_capabilities`, `availability`, `billing`.
+`signals` (leaf signals as for `route`), `providers` (configured ids in preference order), `agent_tier` (tier of the agent asking; root at depth 0), optional `depth` (0), `independent_units` (1), `read_only` (false), `write_scopes` (one non-empty path list per unit when writing), `unit_tokens` (estimated work per unit, 0), `token_budget`, `rollup`, `role`, `previous_route`, `cache_affinity`, `required_capabilities`, `availability`, `billing`, `frontier` (`routing_policy.frontier` object; `{"enabled": false}` turns the frontier level off).
 
 ## Rules, in order
 
@@ -18,7 +18,7 @@ Output schema `delegation-decision/1`: `decision` (`tool` | `keep_root` | `deleg
 2. Capability gap: the floor tier is above `agent_tier`. The work must be delegated; overhead, affinity and sticky rules do not apply, and the agent never keeps it (that would lower the floor).
 3. Depth: `MAX_DEPTH = 1` — the root (depth 0) spawns workers; workers do not spawn. The only depth>1 exception: a depth-1 worker facing a capability gap may spawn exactly one read-only worker at `EXCEPTION_DEPTH = 2`, never deeper. Otherwise a depth limit returns `keep_root`, or a blocked `delegate` when there is a gap (the worker reports a `semantic` failure for escalation).
 4. Without a gap, keep the work at the agent when the selector applies sticky routing (`sticky_route`: warm cache on the current route), when one sequential unit has high cache affinity (`high_affinity_sequential`), or when coordination overhead dominates. Per-worker overhead is `WORKER_OVERHEAD_TOKENS = 3000` (brief 2000 + compact result 1000); delegate only while `overhead / (overhead + unit_tokens)` stays at or below `COORDINATION_OVERHEAD_MAX = 0.25`, i.e. `unit_tokens >= 9000`.
-5. Route comes from `select_route`, so floors, configured providers and empty tiers follow the selector: no candidate keeps the work (no gap) or blocks it (gap). Providers outside the request are never listed.
+5. Route comes from `select_route`, so floors, configured providers and empty tiers follow the selector: no candidate keeps the work (no gap) or blocks it (gap). Providers outside the request are never listed. Only a `frontier_eligible` floor (`extreme_architecture` / `extreme_code_review`) on a read-only `analyst` or `verifier` swaps the chosen provider's model for its frontier level L6 (Codex `gpt-6.2-astra`, Claude `claude-fable-5-2`, effort `high`; route `tier: max`, `level: frontier`, `frontier: true`, reason `frontier_extreme_review`). Implementers and debuggers of the same leaf keep the max/xhigh route.
 6. Limits: fan-out `read_only: 4`, `write: 2` workers, and 1 at the exception depth. Overlapping write scopes collapse to one worker owning their union. `tokens_per_worker = min(unit_tokens + 3000, MAX_WORKER_TOKENS = 200000)`; fan-out also shrinks to `remaining_tokens // tokens_per_worker`, and zero affordable workers keeps the work (no gap) or blocks (gap).
 
 ## Token accounting

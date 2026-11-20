@@ -68,14 +68,15 @@ Rules:
   "text": "When X occurs, component Y returns Z.",
   "source": "user",
   "priority": "must",
-  "request_part_ids": ["P001"]
+  "request_part_ids": ["P001"],
+  "supersession_note": "Optional: records why a superseded clause (such as a removed second-plan deliverable) remains tracked under its original ID."
 }
 ```
 
 Allowed source: `user`, `repository`, `research`, `inferred`.
 Allowed priority: `must`, `should`, `could`.
 
-Every user requirement maps to at least one `request_part_id`; every request part must receive requirement coverage. Write an observable contract, not implementation commentary.
+Every user requirement maps to at least one `request_part_id`; every request part must receive requirement coverage. Write an observable contract, not implementation commentary. Preserve stable requirement IDs across plan revisions; attach `supersession_note` when an amendment narrows or supersedes a clause rather than silently deleting the requirement ID.
 
 ## `execution_context`
 
@@ -225,9 +226,22 @@ These are maximums, not targets. Prefer shorter text when it remains unambiguous
 python <skill-dir>/scripts/planctl_concise.py create --repo-root . --spec /tmp/plan-spec.json
 python <skill-dir>/scripts/planctl_concise.py validate --plan <plan-path>
 python <skill-dir>/scripts/planctl_concise.py audit --plan <plan-path>
+python <skill-dir>/scripts/planctl_concise.py revise --plan <plan-path> --spec /tmp/revised-spec.json --amendment "..." --expected-generation 1
+python <skill-dir>/scripts/planctl_concise.py recover-projections --plan <plan-path>
+python <skill-dir>/scripts/planctl_concise.py validate-receipt --plan <plan-path> --task 001 --receipt /tmp/receipt.json
 ```
 
 If a field fails for size or vague wording, rewrite it as a smaller precise semantic unit. Do not silently truncate requirements.
+
+## Staged generations, revisions, receipt validity and legacy schemas
+
+- **Strict JSON**: `planctl.py` rejects duplicate JSON object keys and non-finite JSON constants (`NaN`, `Infinity`, `-Infinity`).
+- **Single authority and writer lock**: `manifest.json` is the single authority; `TODO.md`, `PLAN.md`, `ANALYSIS.md`, `PLAN_REVIEW.md`, context files and schema-v4 `tasks/*.md` are derived projections. Plan writes serialize through `.plan-writer.lock` (O_EXCL; a lock is taken over only when its same-host owner exited or its PID was reused, or when another host's lock is older than 300 s, and takeover runs under a guard file) and check `manifest.generation`: a writer holding an older generation cannot overwrite a newer one. `revise` requires `--expected-generation` (the generation the spec was written against; `0` for a schema-v4 manifest without a counter). A schema-v4 manifest written before generation counters is upgraded once by `recover-projections` (or by its first `revise`); until then it has no stale-writer check.
+- **Staged creation and revision**: `create` builds and validates the full workspace in a staging directory and publishes it by renaming that directory into place (the plan directory must not exist yet). `revise` stages and audits the next generation under the writer lock before replacing `manifest.json`. A failed revision discards its staging directory and leaves the previous manifest and projections readable. Each revision appends a record to `revisions[]` (`revision`, `generation`, `previous_generation`, `previous_spec_sha256`, `new_spec_sha256`, `amendment`, `task_id_mapping`, `changed_tasks`, `invalidated_tasks`, `preserved_completed_tasks`, `carried_scoped_input_digests`) and a `plan_revised` event. Top-level manifest state the spec does not own (`request_source`, `git_exclude`, an attached `study_gate`) is carried forward; task `model_tier`/`reasoning_effort` are rebuilt from the spec, so restate any audited reclassification in the revised spec.
+- **Crash recovery**: `.projection-state.json` records the last synced projection generation. If execution crashes after `manifest.json` replacement and before projection rendering completes, `recover-projections` cleans abandoned `.staging/` directories (and `.staging-<plan-id>-*` leftovers of an interrupted `create`), rebuilds every projection strictly from `manifest.json` and removes obsolete projections from prior generations without marking any task complete or combining generations. Lag detection compares generations only; a writer that bypasses `save_manifest` (such as `studyctl` attaching a study gate) is not detected.
+- **Contract digest and single receipt-validity function**: Each schema-v4 task carries a deterministic `contract_digest` covering its objective, requirements, acceptance criteria, validation commands/jobs, scope, context files, scoped inputs, research contract, subtask contract and transitive dependency digests (learning edges are not included). `planctl.validate_receipt` is the single receipt-validity function (extensible via `planctl.register_receipt_validator`). Completion validates the receipt before reconciling subtasks or publishing learnings, binds it to the recomputed contract actually executed (refreshing only the completing task's stored digest, so out-of-band edits of other tasks still reopen them on `revise`), hashes each declared scoped input on disk (an LF-pinned file in a CRLF checkout matches) and rejects drift; `validate-receipt` re-hashes them by default. Receipt `validations` come from the runner's own validation results; checks a worker reports as failed are recorded as `worker_reported_failed_validations` and do not refuse runner-validated work. `scoped_input_digests` bound with `revise --scoped-input-digests` are carried forward by later revisions that do not restate them; spec-bound digests are unbound by omitting them from the spec. An explicit pending or non-approved review verdict invalidates a receipt; a missing verdict is rejected only with `--require-review-verdict`, because the completion report schema has no verdict field: a review task's approval is gated by its declared validation commands and its dependency on the reviewed task. Changing one task contract invalidates that task and its dependents while preserving unrelated completed tasks and archiving superseded receipts immutably in `receipt_history`.
+- **Research metadata, single-implementation mode and review tasks**: Optional `plan_mode: "single_implementation"` rejects active tasks that schedule a second plan (`Plan 2`) with create/generate/produce/draft/build/write/prepare/author wording. Optional task `research_metadata` (`former_kind`, `prepared_report`, `prepared_report_sha256`, `source_reports`, `research_status`) is separate from execution `status`: prepared research never marks a task completed or independent review approved, missing research outputs are rejected, and transformed research tasks (`former_kind: "research"`) remain `pending` with subtasks referencing their assigned report. Optional `review_of` requires an existing non-self task ID listed in `dependencies` (orphan reviews are rejected).
+- **Legacy schema v1-v3 compatibility**: Schema v1-v3 workspaces remain readable and validatable; `save_manifest`, `recover-projections` and `revise` never silently rewrite legacy task files with schema-v4 projection rules.
 
 ## Optional workload affinity
 

@@ -2,50 +2,54 @@
 task_id: "105"
 status: "pending"
 requirements: "R055"
-dependencies: "021,025,027,047,081"
+dependencies: "021,025,027,047,081,100"
 allowed_related_task_reads: "none"
 ---
 
-# 105 — Refresh every provider model mapping and add a sixth frontier capability tier above max
+# 105 — Add the opt-in frontier tier L6/F6 on top of map 2026-11-20-v8
 
-Objective: Refresh every provider model mapping and add a sixth frontier capability tier above max.
+Objective: Add an opt-in frontier tier (aliases L6/F6) above max for architecture and code review only, outside TIER_ORDER, without changing the v8 map, routes or argv while it is disabled.
 
 ## Context
 
 - `.ai-work/20261028-skill-study-provider-switch/CONTEXT.md`
 
+## Validated learnings
+
+- None
+
 ## Checkpoints
 
-- [ ] **S001** Read docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md and original 020/024/026 studies; do not duplicate catalog machinery.
-- [ ] **S002** Refresh official current models, exact installed CLI IDs and effort modes for Claude, Codex, Antigravity and every other configured provider; treat unavailable/unknown as explicit states.
-- [ ] **S003** Introduce canonical frontier L6/F6 above economy, standard, advanced, strong, max; extend schema, selectors, workload matrices, escalation ladders, compatibility and docs without altering old L1–L5 task routes by default.
-- [ ] **S004** Candidate examples conditioned on real availability and permissions: Claude Fable 5.2, OpenAI GPT-6 Astra, Google Antigravity Gemini 4 Carbon High; screen out access-limited Mythos and unverified IDs; evaluate Argon, Sol, Opus and other providers at proper lower tiers.
-- [ ] **S005** Use isolated qualified frontier on truly extraordinary/high-risk or failed-max work, only when approved; never auto-escalate due to quota, environment, elapsed idle time or unknown rate; provider restrictions and accounting remain intact.
-- [ ] **S006** Benchmark independently validated outcomes, including tokens/credits, subscription/API differentiation, actual cost, retries, latency and failures; record unknown or no live access, never invent quality rankings.
-- [ ] **S007** Add schema and cross-provider regressions and bilingual model mapping, with exact evidence source dates.
+- [ ] **S001** Read the 2026-11-20 refresh and pin its baseline — Read docs/research/MODEL_REFRESH_20261120.md (it overrides prepared report 105 on conflict; report 105 stays hash-pinned and unedited); record a baseline hash of the uncommitted refresh files so 106 can separate the 105 diff.
+- [ ] **S002** Keep the v8 refresh byte-identical — Do not redo the refresh: CURRENT_MODELS, ESCALATION_LADDERS, MODEL_MAP_VERSION=2026-11-20-v8, bootstrap catalog and Gemini 4 preset stay byte-identical while L6 is off. Verify only observed ids: claude-fable-5-2, gpt-6.2-astra; Carbon is not listed.
+- [ ] **S003** Add FRONTIER_TIER outside TIER_ORDER — Add FRONTIER_TIER='frontier' (aliases l6/f6) outside TIER_ORDER plus an opt-in FRONTIER_MODELS with its own version, so apply_current_models, lift_tier, provider_ladder, selector min(eligible), the stagnation floor and planctl.VALID_TIERS never reach it.
+- [ ] **S004** Define frontier candidates, roles and order — Candidates: claude-fable-5-2 (high; xhigh only where measured), gpt-6.2-astra (high/xhigh, never ultra), gemini-4-carbon-* only if agy models lists it. Roles: architecture, code_review. Order Codex > Claude > Antigravity; Codex credit exhaustion skips to Fable.
+- [ ] **S005** Gate entry at ladder_exhausted with approval — Offer frontier only at the ladder_exhausted event (run_isolated.py) with a recorded task-scoped approval after >=2 semantic/plan_defect failures at the max/xhigh rung; environmental, budget, timeout_ceiling, quota and unknown never count.
+- [ ] **S006** Benchmark only after owner confirmation — Run benchmarks only after owner confirmation; Astra stays unmeasured; cite the secondary replay in MODEL_REFRESH_20261120.md and record cost/quality unknowns honestly.
 
 ## Scope
 
-Files: `skill/plan-and-execute/scripts/routingctl.py`, `skill/plan-and-execute/scripts/model_catalog.py`, `skill/plan-and-execute/scripts/model_catalogctl.py`, `skill/plan-and-execute/scripts/workload_routing.py`, `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execute/scripts/availability.py`, `skill/plan-and-execute/references/MODEL_ROUTING.md`, `skill/plan-and-execute/references/MODEL_MAPPING.md`, `skill/plan-and-execute/references/MODEL_CATALOG.md`, `skill/plan-and-execute/references/ROUTING_CONFIG.md`, `skill/plan-and-execute/references/PLAN_SPEC.md`, `test/optimization/frontier_model_tier_self_test.py`.
-
-In: Refresh every provider model mapping and add a sixth frontier capability tier above max within one existing implementation plan.
-
-Out: No additional plan, unauthorized provider execution, global host power modifications, parallel competing supervisor or publishing.
+In: Add the opt-in frontier tier L6/F6 on top of map 2026-11-20-v8
+Out: No second plan, OS policy changes or unauthorised provider charges
+Files: `skill/plan-and-execute/scripts/routingctl.py`, `skill/plan-and-execute/scripts/model_catalog.py`, `skill/plan-and-execute/scripts/model_catalogctl.py`, `skill/plan-and-execute/scripts/workload_routing.py`, `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execute/scripts/availability.py`, `skill/plan-and-execute/references/MODEL_ROUTING.md`, `skill/plan-and-execute/references/MODEL_MAPPING.md`, `skill/plan-and-execute/references/MODEL_CATALOG.md`, `skill/plan-and-execute/references/ROUTING_CONFIG.md`, `skill/plan-and-execute/references/PLAN_SPEC.md`, `test/optimization/frontier_model_tier_self_test.py`, `skill/plan-and-execute/references/MODEL_ROUTING_CLAUDE.md`, `skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md`, `skill/plan-and-execute/scripts/run_isolated.py`, `docs/research/20261028-skill-optimization/implementation/105-receipt.json`, `docs/research/20261028-skill-optimization/implementation/105-outcome.md`
 
 ## Guidance
 
-- Read `docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md` and `docs/plans/20261028-skill-optimization/TASK_INPUTS.json` before work.
-- Preserve existing artifacts/checkpoints and only modify declared scope, with actual tests and real independent reviewer on review tasks.
-- Record actual receipts under `docs/research/20261028-skill-optimization/implementation/105-receipt.json` and outcomes under `docs/research/20261028-skill-optimization/implementation/105-outcome.md`.
+- Read docs/research/MODEL_REFRESH_20261120.md first; docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md is background and loses on conflict.
+- Version floors: claude-fable-5-2 needs Claude Code >= 2.1.290; gpt-6.2-astra needs Codex >= 0.171.0; gemini-4-carbon-* is Ultra/Enterprise only and is not listed on this account.
+- No PRIMARY_SIGNALS entry maps to frontier; frontier_long_horizon stays ('max','high'); Codex credit exhaustion is availability (skip to Fable, record no escalation).
+- Touch run_isolated.py only in its ladder_exhausted/route-resolution branch; keep the ESCALATION_LADDERS comment saying frontier needs this task's explicit approval.
+- Use only task 105 inputs, checks and write scope in TASK_INPUTS.json; record actual receipts/outcomes and leave the task pending until verified.
 
 ## Acceptance
 
-- All six tier names and L/F1–6 aliases validate, and legacy routing tests/argv output remain unchanged with new tier disabled.
-- Current 2026-11-12 official catalog source links and exact observed CLI IDs/effort compatibility recorded; no hallucinated provider model IDs.
-- Eligible Fable 5.2, Astra and Antigravity Gemini 4 Carbon can occupy frontier only when host and account actually list/authorize them; alternatives only where measured and admissible.
-- No forced price conversion between API cash and subscription credits; unknown model cost is never zero.
-- Frontier retries require semantic/architectural evidence or explicit opt-in and cannot bypass provider/permission/cost floors.
-- Live account uncertainty and benchmark limitations explicitly reported, and independently reviewed task 106 is a mandatory integration gate.
+- The 2026-11-20 sources and the observed CLI ids (claude-fable-5-2, gpt-6.2-astra; no gemini-4-carbon-*) are recorded in the receipt.
+- When every max candidate is unavailable the selector returns no_candidate, never frontier.
+- A config escalation_ladder containing frontier or l6 is rejected.
+- A plan spec with model_tier: frontier is rejected.
+- A frontier route for workload implementation is rejected.
+- With L6 disabled, routes, argv and the v8 map hash are identical to the recorded baseline.
+- Effective top tier is max; frontier is never a ladder or switch rung and is never reached for implementation, quota, auth or environment outcomes.
 
 ## Validate
 

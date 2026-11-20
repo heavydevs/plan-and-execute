@@ -11,11 +11,28 @@ import datetime as dt
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
 import check_delivery as gate
+
+
+def load_packet(path: Path) -> dict:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def stable(packet: dict) -> dict:
+    """Outcome-defining projection of a checks packet; excludes run_id, durations and log paths."""
+    checks = packet.get("checks")
+    return {"schema_version": packet.get("schema_version"), "task_id": packet.get("task_id"),
+            "input_fingerprint": packet.get("input_fingerprint"), "inputs_unchanged": packet.get("inputs_unchanged"),
+            "checks": [{"argv": c.get("argv"), "exit_code": c.get("exit_code")} for c in checks] if isinstance(checks, list) else None}
 
 
 def run(root: Path, task_id: str) -> int:
@@ -25,10 +42,10 @@ def run(root: Path, task_id: str) -> int:
     before = gate.code_fingerprint(root, entry)
     run_id = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%S") + f"-{os.getpid()}"
     logs = gate.OUTPUT / "logs" / task_id / run_id
-    gate.local(root, str(logs)).mkdir(parents=True, exist_ok=False)
+    gate.local(root, logs.as_posix()).mkdir(parents=True, exist_ok=False)
     results = []
     for n, argv in enumerate(entry["required_checks"], 1):
-        relative = str(logs / f"check-{n:02}.log")
+        relative = (logs / f"check-{n:02}.log").as_posix()
         path = gate.local(root, relative)
         start = time.monotonic()
         with path.open("wb") as output:
@@ -52,14 +69,20 @@ def run(root: Path, task_id: str) -> int:
     after = gate.code_fingerprint(root, entry)
     packet = {"schema_version": 1, "task_id": task_id, "input_fingerprint": before,
               "inputs_unchanged": before == after, "run_id": run_id, "checks": results}
-    target = gate.local(root, str(gate.OUTPUT / f"{task_id}-checks.json"))
-    descriptor, tmp = tempfile.mkstemp(prefix=".checks-", dir=target.parent)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8") as out:
-            json.dump(packet, out, indent=2); out.write("\n")
-        os.replace(tmp, target)
-    finally:
-        Path(tmp).unlink(missing_ok=True)
+    target = gate.local(root, (gate.OUTPUT / f"{task_id}-checks.json").as_posix())
+    if target.is_file() and stable(load_packet(target)) == stable(packet):
+        # Idempotent: identical task, input fingerprint and check outcomes keep the existing
+        # file byte for byte, so a receipt that already binds its sha256 stays valid when the
+        # runner re-runs this step. Volatile fields (run_id, durations, log paths) never decide.
+        shutil.rmtree(gate.local(root, logs.as_posix()), ignore_errors=True)
+    else:
+        descriptor, tmp = tempfile.mkstemp(prefix=".checks-", dir=target.parent)
+        try:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as out:
+                json.dump(packet, out, indent=2); out.write("\n")
+            os.replace(tmp, target)
+        finally:
+            Path(tmp).unlink(missing_ok=True)
     good = before == after and len(results) == len(entry["required_checks"]) and all(x["exit_code"] == 0 for x in results)
     return 0 if good else 1
 

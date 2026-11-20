@@ -1,0 +1,113 @@
+{
+  "task_id": "009",
+  "dispatch": 1,
+  "session_id": "3d0c2726-6747-4228-baa8-d194fe55c53f",
+  "verdict": "changes_requested",
+  "summary": "Task 008 adds fragment hashing, consumption checks and a bounded OOXML walker, and the logged tests pass. Changes are requested for three high-severity defects. (1) A digest item without obligation_id marks every obligation lacking an explicit ID as covered. (2) An unbounded w:gridSpan hangs extraction or exhausts memory on a hostile DOCX. (3) Valid OOXML wrappers, including content controls around table rows or cells, drop text silently and are not recorded as unsupported, which breaks AC08. Medium issues: presence-only contradiction checks, wrong fragment for obligations in split blocks, a UTF-16 DTD bypass, hashes checked only against in-package copies, and weak tests. Neither the prepared research nor the 008 receipt shows that review passed.",
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:894-898",
+      "title": "Coverage audit treats a missing obligation_id as a match for every obligation without an explicit ID",
+      "detail": "`item_oid = item.get(\"obligation_id\")` is None when the field is absent. For an obligation without an explicit ID, `eid` is also None, so `item_oid in {cid, eid}` becomes `None in {cid, None}`, which is True. Any digest item that lacks obligation_id and references the obligation's fragment therefore covers every modal-only obligation in that fragment. validate_digest does not require obligation_id, and the digest guidance at preplanctl.py:1278-1279 asks only for text and source_refs, so real worker output will hit this path. A table-only obligation such as 'Exports must mask PII' with no REQ-ID can disappear from the coverage map, which breaks AC08. The tests miss it: the helper always sets obligation_id (test/optimization/primary_planning_self_test.py:82) and AC08 uses only explicit IDs. The package-mode comparator recall at preplanctl.py:1865-1866 is inflated by the same bug.",
+      "fix": "Compare IDs only when they are non-empty strings, e.g. `if (item_cid and item_cid == cid) or (isinstance(item_oid, str) and item_oid and item_oid in {cid, eid})`. Add a regression test: a table-cell obligation with no explicit ID, a digest that omits it but has another item without obligation_id on the same fragment, and validate_coverage must fail."
+    },
+    {
+      "id": "F02",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:475-480,488,498-500,512-517",
+      "title": "Unbounded w:gridSpan lets a tiny DOCX hang extraction or exhaust memory",
+      "detail": "grid_span = max(1, int(val)) has no upper limit. col_cols = range(col_cursor, col_cursor + grid_span) is then looped over for every cell: `active_vmerge.pop(col)` for ordinary cells, and `active_vmerge[col] = set(...)` for vMerge restart cells. A single cell with `<w:gridSpan w:val=\"9223372036854775807\"/>` makes the loop effectively endless. With vMerge restart it tries to allocate billions of dict entries. The archive, entry-count, XML-size, compression-ratio and depth limits all pass for such a file. This defeats the decision's 'bound ZIP/XML input' instruction and the receipt's AC07 claim of 'bounded ZIP/XML limits'.",
+      "fix": "Cap gridSpan, e.g. at the w:tblGrid column count or a constant such as 64, and either reject or record larger values as unsupported. Also cap the total cells/columns per table. Add a hostile fixture with a huge gridSpan, with and without vMerge, that must fail fast with PreplanError."
+    },
+    {
+      "id": "F03",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:452-469,536-567,273-358",
+      "title": "Valid OOXML wrappers silently drop text, including whole table rows and cells, with no unsupported_structures record",
+      "detail": "walk_table skips every non-w:tr child of w:tbl and every non-w:tc child of w:tr, recording only w:ins and w:del. Rows or cells wrapped in w:sdt (for example Word repeating-section content controls) or w:customXml are therefore lost without any record. walk_container likewise ignores block-level w:customXml and w:altChunk. walk_inline ignores w:customXml, w:moveTo, w:dir, w:bdo and m:oMath. Inside w:r it ignores mc:AlternateContent, which is the usual Word 2010+ serialization for text boxes, even though the docs and receipt say text boxes are recorded explicitly. A requirement that exists only in such a table row is missing from blocks, obligations and the coverage map, and nothing is surfaced. This breaks AC08 and decision instruction 7.",
+      "fix": "Treat w:sdt (descend into w:sdtContent) and w:customXml as transparent wrappers at the row, cell, block and inline levels. Recurse into w:dir, w:bdo and w:moveTo. Record mc:AlternateContent inside runs, plus m:oMath, w:altChunk, w:moveFrom and w:subDoc. Add a default branch that records any unhandled element containing w:t text as unsupported. Add fixtures with an sdt-wrapped row, an sdt-wrapped cell and a run-level AlternateContent text box."
+    },
+    {
+      "id": "F04",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1639-1645,1689-1702,1870-1873",
+      "title": "Contradictions are only checked for presence, so individual contradictions can be dropped",
+      "detail": "validate_synthesis only requires WORKSTREAM_INDEX.contradictions to be non-empty. validate_coverage only requires recorded_contradictions to be non-empty, with text and valid refs. Neither checks that each SOURCE_INDEX detected_contradictions[].id, or each digest contradiction, is carried forward. With N detected contradictions, recording one unrelated item and approving passes. In package mode the comparator's contradiction_coverage is a count ratio, `max(len(work), len(digest))/len(one_shot)`, not identity-based. 008-outcome.md:23 claims contradictions are 'preserved ... across WORKSTREAM_INDEX.json, and COVERAGE_REVIEW.json'; the code does not enforce this.",
+      "fix": "Require every detected_contradictions id to appear in WORKSTREAM_INDEX.contradictions and in COVERAGE_REVIEW.recorded_contradictions, or in unresolved findings with status=blocked. Compute comparator contradiction coverage by ID intersection. Add a test where one of two source contradictions is dropped and validation must fail."
+    },
+    {
+      "id": "F05",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1118-1127,723,892",
+      "title": "Obligations from blocks split across fragments are assigned to the first fragment only",
+      "detail": "block_to_fragment uses setdefault, so a block that split_long_text spreads over F001 and F002 maps entirely to F001. extract_obligations runs on whole blocks, so a clause located in F002 gets fragment_ids [F001], and SOURCE_INDEX.fragments[].obligation_ids points the F001 digest worker at text that worker never sees. The audit filter at line 892 then rejects F002 digest items that correctly capture the clause, so validation fails closed. The only way such clauses pass is via the F01 bypass. A clause that straddles a split boundary is also not present verbatim in any fragment. No test covers a single oversized block containing obligations.",
+      "fix": "Assign obligations per expanded part (anchor#partN), or to every fragment the block spans. Keep sentences intact when splitting where possible. Add a test with one block larger than max_fragment_tokens that has a late obligation, where a digest for the second fragment must satisfy the audit."
+    },
+    {
+      "id": "F06",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:410-416",
+      "title": "DTD/ENTITY check can be bypassed with UTF-16 encoded document.xml",
+      "detail": "_DTD_RE searches the raw bytes for ASCII `<!DOCTYPE` and `<!ENTITY`. ET.fromstring hands those bytes to expat, which honors a UTF-16 BOM or encoding declaration. In UTF-16, `<\\x00!\\x00D...` does not match the regex, so an internal DTD with nested entities gets parsed and expanded. Expat's billion-laughs protection still allows roughly 100x amplification of an input of up to 20 MiB, which is enough to exhaust memory. The DTD test (primary_planning_self_test.py:654-657) uses only UTF-8.",
+      "fix": "Reject document.xml unless it is UTF-8: no FE FF / FF FE BOM, and an encoding declaration that is absent or utf-8. Alternatively, parse with xml.parsers.expat and set StartDoctypeDeclHandler and EntityDeclHandler to raise. Add a UTF-16 DOCTYPE fixture."
+    },
+    {
+      "id": "F07",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1476-1531,1753-1757,1483-1488",
+      "title": "Integrity checks are optional when fields are absent, and the raw source and block stream are not re-verified at consumption",
+      "detail": "For a schema_version 2 package, verify_fragments skips a check whenever file_sha256, file_bytes, fragments_manifest_sha256 or source_index_sha256 is absent. validate_consumption skips the integrity pins when 'integrity' is missing. block_stream_sha256 is only compared between package.json and SOURCE_INDEX.json and is never recomputed. The raw source at source.original_path is never re-hashed, so a changed source is not detected as stale at consumption. SOURCE_INDEX obligations are not re-derived from the verified fragments. A worker that removes an uncovered obligation from SOURCE_INDEX and updates the hashes in package.json passes every gate. Decision instructions 1 and 6 ask for the source hash to be recomputed and stale state rejected at consumption.",
+      "fix": "Make the v2 hash fields and integrity pins mandatory. At consumption, re-derive obligations from the verified fragment text and compare them with SOURCE_INDEX. If original_path exists, re-hash it and reject or warn on mismatch. Document that the in-package hash chain only detects naive mutation."
+    },
+    {
+      "id": "F08",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1274-1280,1355-1359,1393-1397",
+      "title": "Primary-plan task guidance does not tell workers about the new validator contracts",
+      "detail": "Digest TODOs still ask only for text and source_refs. They do not mention canonical_id or obligation_id, fragment_hashes, or SOURCE_INDEX fragments[].obligation_ids. The coverage-review TODO lists only status, covered_fragment_ids, unresolved_material_findings and notes; it omits covered_obligation_ids and the recorded_contradictions required when contradictions exist. The handoff TODO does not mention validate-consumption. Real workers will therefore omit the fields the audit relies on, so coverage passes only through the F01 bypass or fails without telling the worker what is expected.",
+      "fix": "Update make_primary_spec so each digest TODO lists its expected obligation canonical IDs and requires canonical_id or obligation_id plus fragment_hashes, and so the review TODO requires covered_obligation_ids and per-ID recorded_contradictions. Add a schema test that checks the guidance."
+    },
+    {
+      "id": "F09",
+      "severity": "medium",
+      "location": "test/optimization/primary_planning_self_test.py:503-531,664-706,284-405",
+      "title": "Several negative tests would not fail if the guard they target were removed",
+      "detail": "In AC08, removing audit_obligation_coverage would still raise an error containing 'REQ-901', because the helper also drops the obligation from covered_obligation_ids. The digest audit is therefore never tested on its own, and no table-only obligation without an explicit ID is tested. AC05 never builds a package or runs validate_coverage: it compares the regex extractor against a re-run of the same extractor, so it does not test 'final requirement coverage' or obligation-to-fragment mapping. AC03 has no test for duplicate fragment IDs or paths in SOURCE_INDEX, or for duplicate fragment IDs requested at consumption. There are no hostile gridSpan, sdt-row or UTF-16 fixtures.",
+      "fix": "Test the digest audit separately with covered_obligation_ids intact. Rewrite AC05 to build a real package for each position and compare validate_coverage audit results. Add tests for duplicate fragment IDs and paths, duplicate consumption requests, and fixtures for F02, F03 and F06."
+    },
+    {
+      "id": "F10",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:890-904,725-731",
+      "title": "Coverage matching heuristics can drop polarity and match on mere ID references",
+      "detail": "Any mention of an explicit ID in an item's text counts as coverage. For example, 'REQ-002 depends on REQ-001' covers REQ-001. Any item text of 20 or more characters that is a substring of the obligation also counts, so 'store plaintext passwords' covers 'must not store plaintext passwords'. extract_obligations takes the first ID in a clause as its explicit_id, so clauses that merely reference another requirement create false duplicates or conflicting_explicit_id contradictions.",
+      "fix": "Prefer an exact canonical_id or obligation_id match. For text matches, require containment of the full normalized text plus matching polarity. Ignore IDs that are preceded by reference phrases when assigning explicit_id."
+    },
+    {
+      "id": "F11",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1785-1801",
+      "title": "read_fragment returns text from a later read that is not checked against the recorded hash",
+      "detail": "verify_fragments hashes the file, then read_fragment reads it again and hashes it a third time. The returned file_sha256 is recomputed rather than compared, and the returned text comes from an unverified read, so a concurrent rewrite can return text that does not match the index.",
+      "fix": "Read the bytes once, compare their hash with entry['file_sha256'] and the body hash with source_text_sha256, then decode and return that same buffer."
+    },
+    {
+      "id": "F12",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:464-466",
+      "title": "w:gridBefore/w:gridAfter are ignored, so column anchors and vMerge tracking are misaligned",
+      "detail": "col_cursor always starts at 1 and ignores w:trPr/w:gridBefore. In rows with leading skipped grid columns, cell anchors (c:N) point to the wrong column, and vMerge continuation lookups check the wrong column. Source anchors become inaccurate and duplicate suppression is unreliable.",
+      "fix": "Start col_cursor at 1 + gridBefore, bounded as in F02, and add a fixture with gridBefore and a vMerge continuation."
+    },
+    {
+      "id": "F13",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/008-outcome.md:23-25; skill/plan-and-execute/references/PRIMARY_PLANNING.md:39,57",
+      "title": "Recall, contradiction-preservation and unsupported-structure claims go beyond what the code delivers",
+      "detail": "The offline comparator measures the deterministic regex extractor against itself, so it says nothing about model-digest recall. Its package-mode figures inherit F01 and use count-based contradiction coverage (F04). The outcome and docs also say all drawings and text boxes are recorded, which F03 contradicts. The outcome does correctly state that no live model comparison was run, and no measured cost savings are claimed.",
+      "fix": "Describe compare-baselines as a fragmentation-losslessness check of the deterministic extractor. Correct the contradiction-preservation and unsupported-structure claims once F01, F03 and F04 are fixed."
+    }
+  ]
+}

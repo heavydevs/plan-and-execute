@@ -43,6 +43,7 @@ Files: `lib/installer.js`, `tools/package-skills.js`, `tools/validate-skill.js`,
 - Treat vendor results as bounded evidence, not measured savings here. Refresh only a material version/account mismatch.
 - Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
 - Complete all owned report instructions. The checkpoints group correlated changes; they do not waive any instruction or acceptance case.
+- Edit package-lock.json only with npm install --package-lock-only --ignore-scripts after owner confirmation; no npm publish, no -g install; npm pack only with --dry-run or --pack-destination <tmp>.
 
 ## Acceptance
 
@@ -55,6 +56,7 @@ Files: `lib/installer.js`, `tools/package-skills.js`, `tools/validate-skill.js`,
 - Both skills resolve shared runtime resources after clean temporary installation.
 - An edited installed SKILL.md prevents overwrite without explicit force authorization.
 - Metadata-only pack evidence cannot be reported as a full prepack or test pass.
+- Temporary installs use an isolated npm prefix and HOME/USERPROFILE/APPDATA; hashes of the real installed skill dirs and %APPDATA%/plan-and-execute/orchestrator.config.json are identical before and after.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

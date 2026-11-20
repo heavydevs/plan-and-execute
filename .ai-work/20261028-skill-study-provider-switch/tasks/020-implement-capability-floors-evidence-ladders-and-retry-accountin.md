@@ -56,6 +56,7 @@ Files: `skill/plan-and-execute/scripts/routingctl.py`, `test/optimization/escala
 - The default disabled option preserves existing argv and routing fixtures.
 - Changing only quota pool, request nonce or log path cannot create a new capability rung.
 - Non-adjacent aliases for the same effective dispatch do not recreate a failed top attempt.
+- Effective top tier is max; frontier is never a ladder or switch rung and is never reached for implementation, quota, auth or environment outcomes.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

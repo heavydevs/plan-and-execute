@@ -1,0 +1,109 @@
+{
+  "schema": "review-dispatch/1",
+  "task_id": "007",
+  "review_of": "006",
+  "dispatch": 2,
+  "provider": "claude",
+  "model": "claude-opus-5-5",
+  "native_effort": "xhigh",
+  "requested_effort": "xhigh",
+  "model_tier": "max",
+  "fresh_context": true,
+  "read_only": true,
+  "session_id": "a4cc33d8-ff48-4445-b39c-77d8cb222f60",
+  "observed_models": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+  ],
+  "brief_path": "docs/research/20261028-skill-optimization/implementation/reviews/007/brief-2.md",
+  "brief_sha256": "5484e37e35c80151211e560522816fbb654e0654f4d73b5f74056e38ca1459cf",
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/006-receipt.json",
+      "sha256": "e8a89fdc43b52a6f342e5e5d232ed1f06d2392e1a5d4287ce54bd9218709a997"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/006-outcome.md",
+      "sha256": "34608cb3ce1da1e23b14f9630aaf48b51addfb72dc63485873665d4c8d86c5dc"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/requestctl.py",
+      "sha256": "e276e152c9705a3541f7aaa27bf22171ac3186a2fabb9c3433949de21478873b"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/promotectl.py",
+      "sha256": "148c5c547c6d01aa630e1b701136240646bf3852c3d4a0ae5cdd9a05003f7532"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routing_self_test.py",
+      "sha256": "092593be00fb927bd22b360949e6881111e9fcfeb5c755aa618626ea3f20a0f2"
+    },
+    {
+      "path": "test/optimization/activation_intake_self_test.py",
+      "sha256": "b88a4c133b5d5d2c59696cb3a4ba70e97316be73b5c23f0f1828f0f105ee9482"
+    },
+    {
+      "path": "skill/plan-and-execute/SKILL.md",
+      "sha256": "cda3a0bcc6e28543de3b59bec29f85b8bccdddda411f72622fc6566bf6f228d8"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ROUTING.md",
+      "sha256": "de94299128fb54223fdcb960f8dd90846df70f76cb0c11a24a3aee1ac1e3b01f"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PROMOTION.md",
+      "sha256": "993f52344f5886b252a1cbe18d03e5e193f97317ab6ace19f608c9fc5d10c74c"
+    },
+    {
+      "path": "skill/plan-and-execute/references/routing-evals.json",
+      "sha256": "86ed90a252a6a1168ced9a3eb53cd57d64a9f82fae44688d5936f2e82c79238b"
+    },
+    {
+      "path": "skill/plan-and-execute/agents/openai.yaml",
+      "sha256": "e60055f3d6bb5b39aa4f310591b4efe2b4d52fbdb7d31b57c1d6bae39b7475e0"
+    }
+  ],
+  "argv_redacted": [
+    "C:/Users/luizc/.local/bin/claude-pae-2.1.322.exe",
+    "--print",
+    "--no-session-persistence",
+    "--output-format",
+    "json",
+    "--permission-mode",
+    "plan",
+    "--model",
+    "claude-opus-5-5",
+    "--effort",
+    "xhigh",
+    "--tools",
+    "Read,Grep,Glob",
+    "--json-schema",
+    "{\"type\":\"object\",\"properties\":{\"verdict\":{\"type\":\"string\",\"enum\":[\"approved\",\"changes_requested\"]},\"summary\":{\"type\":\"string\",\"maxLength\":800},\"findings\":{\"type\":\"array\",\"maxItems\":20,\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"maxLength\":16},\"severity\":{\"type\":\"string\",\"enum\":[\"critical\",\"high\",\"medium\",\"low\",\"info\"]},\"location\":{\"type\":\"string\",\"maxLength\":300},\"title\":{\"type\":\"string\",\"maxLength\":200},\"detail\":{\"type\":\"string\",\"maxLength\":1200},\"fix\":{\"type\":\"string\",\"maxLength\":800}},\"required\":[\"id\",\"severity\",\"location\",\"title\",\"detail\",\"fix\"],\"additionalProperties\":false}}},\"required\":[\"verdict\",\"summary\",\"findings\"],\"additionalProperties\":false}",
+    "<prompt>"
+  ],
+  "started_at": "2026-11-20T07:57:15Z",
+  "finished_at": "2026-11-20T08:04:03Z",
+  "exit_code": 0,
+  "usage": {
+    "input_tokens": 26,
+    "cached_tokens": 1095958,
+    "cache_write_tokens": 125079,
+    "output_tokens": 45758,
+    "credits": null,
+    "usd": 2.1354984999999997
+  },
+  "verdict": "approved",
+  "findings_count": 10,
+  "blocking_findings": 0,
+  "findings_path": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json",
+  "findings_sha256": "947a42036ac7a6b0ede80e66d0aa4b9961357f7706439e72ea32c1d3f65806db",
+  "skipped_attempts": [
+    {
+      "provider": "codex",
+      "model": "gpt-6.2-sol",
+      "outcome": "quota",
+      "exit_code": 1
+    }
+  ],
+  "helper": "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
+}

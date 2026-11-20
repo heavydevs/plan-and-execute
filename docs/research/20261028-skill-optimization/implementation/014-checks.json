@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "task_id": "014",
+  "input_fingerprint": "22dd5df61b68b2266a66738787d3ba5bf7464ec7f8de90ac0590c190ef6d9c9c",
+  "inputs_unchanged": true,
+  "run_id": "20261120T115340-26140",
+  "checks": [
+    {
+      "argv": [
+        "python",
+        "test/optimization/context_learning_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 6.282,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-01.log",
+      "log_sha256": "697f55f7e60f27b0bf1599cf3c74d7a1a03df5680724e08f1563b4c569b18e9f"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/context_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.703,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-02.log",
+      "log_sha256": "32889f574824009d66fbe5a2f1a6e53b5003dd26c421f720b60a3f3827dd649c"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/task_memory_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 4.516,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-03.log",
+      "log_sha256": "fdd642c0fa7fe857059637252a54784fbbdc538b05d10cffcbd254e9dbf3bfa7"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.078,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-04.log",
+      "log_sha256": "56335873cd320b4942e345c6438df9cdd648b23fabc154744e7e218328467e74"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/progress_runner_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 12.672,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-05.log",
+      "log_sha256": "bfe2b81c18b1962f79ed7a35484b1658be4841240994f41732ac5f570f0eb22a"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/pattern_runner_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.5,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-06.log",
+      "log_sha256": "b5752355a97a1c295c29b7258e10a2e7c03a01224bed0a196a5c4d17b015a24c"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 15.75,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-07.log",
+      "log_sha256": "4de25a52c8adc2689faca379cfaf3e4988c020139c76a31986e8ca41c77cd00d"
+    }
+  ]
+}

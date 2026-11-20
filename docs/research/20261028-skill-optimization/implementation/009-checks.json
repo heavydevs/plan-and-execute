@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "009",
+  "input_fingerprint": "d23bc5744eddc69a5b28c3453c23d59b78abc622e6fdc5c8bd3ae0aeb9f3e1cc",
+  "inputs_unchanged": true,
+  "run_id": "20261120T093711-16256",
+  "checks": [
+    {
+      "argv": [
+        "python",
+        "test/optimization/primary_planning_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 14.985,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/009/20261120T093711-16256/check-01.log",
+      "log_sha256": "6a2fe9f83f4c022b73c00f7b1623428a4597dfa045b4542bbf362861f401d33a"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/preplan_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 12.875,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/009/20261120T093711-16256/check-02.log",
+      "log_sha256": "dba4dd6c5a9a51f4dfdfb6b778e394c45d04195c0759fb41704677a2bc6d6ef8"
+    }
+  ]
+}

@@ -21,7 +21,7 @@ Objective: Use a measured delegation gate with explicit input revision and isola
 ## Checkpoints
 
 - [ ] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/028-delegation.md. Verify the current source and only material version/account conflicts.
-- [ ] **S002** Implement revised contract 1 — Compare delegation with a single qualified model at lower effort on held-out tasks, including review and repair cost.
+- [ ] **S002** Implement revised contract 1 — Define the delegate-vs-single-qualified-model comparison as a fixture-backed decision record (cost fields, unknowns null) handed to 064; no live run (G002).
 - [ ] **S003** Implement revised contract 2 — Pin worker base revision and uncommitted-input policy; verify isolated worktree starts from the intended source.
 - [ ] **S004** Implement revised contract 3 — Bound in-memory output while preserving independently parsed final reports and owned diagnostic logs.
 - [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
@@ -55,6 +55,7 @@ Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute
 - Concurrent writers never share an overlapping scope without serialization.
 - Multi-megabyte output does not grow the diagnostic buffer without bound.
 - Native fork support cannot silently claim fresh-context isolation.
+- With an uncommitted tracked change in the parent checkout and no commit authorization, in-place execution preserves it; isolated-worktree mode carries the declared uncommitted inputs or refuses with a reason, never starting from HEAD.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

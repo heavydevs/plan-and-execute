@@ -26,7 +26,7 @@
 
 Rules (violations raise `CatalogError` with one `(field path, message)` per problem, e.g. `$.providers.claude.models.haiku.economics.input_per_mtok`):
 
-- `tiers`: non-empty, unique, canonical only — `economy`, `standard`, `advanced`, `strong`, `max`. F1-F5/L1-L5 aliases and case variants are input-only and rejected here.
+- `tiers`: non-empty, unique, canonical only — `economy`, `standard`, `advanced`, `strong`, `max`, or the sixth level `frontier`. F1-F6/L1-L6 aliases and case variants are input-only and rejected here. `frontier` must be a model's only level: tier mappings (`provider_config_mapping`, MODEL_MATRIX), ladders and the selector skip it, so a frontier model is reachable only through the frontier access rules (`MODEL_ROUTING.md` §4).
 - `capability.capabilities`: unique names from `code`, `reasoning`, `tool_use`, `long_context`, `vision`. `max_effort` is null or one of `low|medium|high|xhigh|max`. Optional `effort_map` maps every skill effort to the provider's native value; optional `thinking` declares the thinking mode.
 - `economics`: `currency` is `USD`; prices per million tokens are non-negative numbers or `null` (unknown); unpublished prices stay `null`, not guesses. Optional: `cached_input_per_mtok`, `plan_credits` (credit multipliers, divisor and off-peak factor; see `MODEL_ROUTING_GLM.md`) and `off_peak` (rates plus a daily `window_utc`; see `MODEL_ROUTING_DEEPSEEK.md`).
 - `quality`: `rank` is null or 1-5; `score` is null or in [0, 1].
@@ -51,7 +51,30 @@ Defaults are conservative: availability drifts fastest, so it ages first. `fresh
 
 ## Bootstrap
 
-`bootstrap_catalog()` returns the embedded dated evidence (`catalog_version` in `scripts/model_catalog.py`) for `claude` (haiku, claude-sonnet-5-5, claude-opus-5-5, claude-fable-5-1), `codex` (gpt-6-luna for economy, gpt-6.1-sol for standard, strong and max), and the opt-in `muse`, `glm` and `deepseek` entries described in their provider guides. The `advanced` tier is intentionally empty for Claude and Codex: an empty tier is skipped upward, never filled by invention and never downgraded below the floor.
+`bootstrap_catalog()` returns the embedded dated evidence (`catalog_version` in `scripts/model_catalog.py`) for `claude` (claude-haiku-5-5 and the legacy `haiku` alias for economy, claude-sonnet-5-5 for standard, claude-opus-5-5 for strong and max, claude-fable-5-2 for `frontier`), `codex` (gpt-6.2-sol for economy, standard, strong and max, gpt-6.2-astra for `frontier`), and the opt-in `muse`, `glm` and `deepseek` entries described in their provider guides. The frontier entries (L6/F6) are evidence only: no tier, selector or snapshot binding can choose them.
+
+Catalog `2026-11-20-bootstrap-v9` (final remap, `docs/research/model-refresh-20261120/`): facets re-verified that day carry `observed_at` 2026-11-20 and a non-bootstrap `evidence.source` (`provider_cli` for Claude/Codex capability, `provider_docs` for optional-provider capability and prices, `benchmark` for quality rank); facets not re-verified keep the 2026-09-30 `bootstrap` stamp and report `expired` (Claude/Codex prices stay `null`, the legacy `haiku` alias was not re-observed). Codex `gpt-6.1-terra` and `gpt-6-luna` are still listed by the CLI but are no longer catalog tier models.
+
+| Level | claude | codex |
+|---|---|---|
+| economy / L1 | `claude-haiku-5-5` | `gpt-6.2-sol` |
+| standard / L2 | `claude-sonnet-5-5` | `gpt-6.2-sol` |
+| advanced / L3 | — (skipped upward) | — (skipped upward) |
+| strong / L4 | `claude-opus-5-5` | `gpt-6.2-sol` |
+| max / L5 | `claude-opus-5-5` | `gpt-6.2-sol` |
+| frontier / L6 | `claude-fable-5-2` | `gpt-6.2-astra` |
+
+The `advanced` tier is intentionally empty for Claude and Codex: an empty tier is skipped upward, never filled by invention and never downgraded below the floor.
+
+Optional providers (opt-in, never in the default `provider_order`), per the 2026-11-20 report `other-providers.md`:
+
+| Provider | economy / L1 | standard / L2 | advanced / L3 | Change in v9 |
+|---|---|---|---|---|
+| deepseek | `deepseek-flash` | `deepseek-flash` (`deepseek-v4-pro` fallback) | — | V4 Pro demoted from advanced (AA IQ 23 at $1.77/task vs Flash 33 at ~$0.60); native effort `low` restored; off-peak window corrected |
+| glm | `glm-5.3-flash` (multimodal) | `glm-5.3` | — | Flash economy only (IQ 28, slow); GLM-5.3 demoted from advanced (IQ 32 at $5.01) |
+| muse | `muse-ember-1.0` | `muse-spark-1.3` | `muse-wonder-1.0` (preview) | Ember and Wonder added; Spark 1.3 demoted from advanced; `max` effort supported |
+
+Not added: `kimi-k3.1-pro` (AA IQ 46, the strongest open-weight option, medium-high confidence) and `qwen4-max` (IQ 43, medium-low): their CLIs select subscription aliases that differ from the platform ids, and a catalog entry would bind those ids into plan snapshots for the `kimi`/`qwen` adapters, which dispatch `default` today. Add them once `kimi -m` / `qwen -m` ids are verified. Trae Agent: no model news and no measured result, so it gets no catalog entry or routing prior; the `trae` adapter stays for existing configurations. Mistral Large 4 is watch-only (no independent coding index).
 
 ## Shared cache and refresh controller
 

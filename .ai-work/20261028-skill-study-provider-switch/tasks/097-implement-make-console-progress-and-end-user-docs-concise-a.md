@@ -2,7 +2,7 @@
 task_id: "097"
 status: "pending"
 requirements: "R051"
-dependencies: "007,029,061,063,067"
+dependencies: "007,029,061,063,067,096,073"
 allowed_related_task_reads: "none"
 ---
 
@@ -24,7 +24,7 @@ Objective: Reduce redundant user-facing AI outputs, status messages and manuals 
 - [ ] **S002** Implement contract 1 — Define answer-first, literal, specific adult-professional language; do not confuse autism with reduced intelligence or uniform preferences.
 - [ ] **S003** Implement contract 2 — Cut greetings, repeated recaps, filler, generic praise, unasked tangents and redundant progress without omitting important decisions.
 - [ ] **S004** Implement contract 3 — Separate concise human output from full machine-readable JSON, diagnostics and logs; expose details/verbose on request.
-- [ ] **S005** Implement contract 4 — Measure output tokens and repeated-text rate together with accuracy, necessary caveats, actionability, accessibility and actual human comprehension.
+- [ ] **S005** Implement contract 4 — Measure output tokens and repeated-text rate with accuracy, necessary caveats, actionability and accessibility on paired old/new scenarios; human comprehension is not_verified without consented user evidence.
 - [ ] **S006** Run tests — Implement test/optimization/concise_communication_self_test.py and run mapped validation plus feature negative cases.
 - [ ] **S007** Record implementation — Record real implementation and test evidence in docs/research/20261028-skill-optimization/implementation/097-receipt.json and docs/research/20261028-skill-optimization/implementation/097-outcome.md.
 
@@ -32,7 +32,7 @@ Objective: Reduce redundant user-facing AI outputs, status messages and manuals 
 
 In: Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
 Out: No second plan or unrelated changes.; No installation, provider login, publishing or user-global configuration changes without permission.
-Files: `skill/plan-and-execute/references/USER_COMMUNICATION.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `skill/plan-and-execute/references/ARTIFACT_WRITING.md`, `skill/plan-and-execute/scripts/process_io.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/references/INSTALLATION.md`, `skill/plan-and-execute/references/INSTALLATION.pt-BR.md`, `skill/validate-or-fix/references/OPERATIONS.md`, `test/optimization/concise_communication_self_test.py`, `test/optimization/concise_communication_self_test.py`, `docs/research/20261028-skill-optimization/implementation/097-receipt.json`, `docs/research/20261028-skill-optimization/implementation/097-outcome.md`
+Files: `skill/plan-and-execute/references/USER_COMMUNICATION.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `skill/plan-and-execute/references/ARTIFACT_WRITING.md`, `skill/plan-and-execute/scripts/process_io.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/references/INSTALLATION.md`, `skill/plan-and-execute/references/INSTALLATION.pt-BR.md`, `skill/validate-or-fix/references/OPERATIONS.md`, `test/optimization/concise_communication_self_test.py`, `docs/research/20261028-skill-optimization/implementation/097-receipt.json`, `docs/research/20261028-skill-optimization/implementation/097-outcome.md`
 
 ## Guidance
 
@@ -49,7 +49,7 @@ Files: `skill/plan-and-execute/references/USER_COMMUNICATION.md`, `skill/plan-an
 - Do not restate earlier concepts unless necessary for the present decision, apparent confusion or explicit user request.
 - User-facing bytes/tokens fall without losing correct steps, safety warnings, machine output or diagnostic evidence.
 - The tone respects adult autistic users, avoids overgeneralization and supports individual preference and detail expansion.
-- Independent test and human feedback verify non-inferior comprehension, accuracy and completeness, not word count alone.
+- Automated paired old/new scenarios show accuracy and completeness no worse; human comprehension is not_verified unless consented user evidence exists.
 - Implementation and review remain pending until actual execution evidence exists.
 
 ## Validate

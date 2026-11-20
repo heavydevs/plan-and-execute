@@ -8,53 +8,55 @@ allowed_related_task_reads: "none"
 
 # 123 — Implement optional real-component or Node Vite HTML JavaScript SCSS prototype lab and safe transfer plan
 
-**Objective:** Implement optional real-component or Node Vite HTML JavaScript SCSS prototype lab and safe transfer plan. Read P065 architecture and accepted 122/112 receipts, inspect only relevant real frontend source.
+Objective: Implement optional real-component or Node Vite HTML JavaScript SCSS prototype lab and safe transfer plan. Read P065 architecture and accepted 122/112 receipts, inspect only relevant real frontend source.
 
-**Pre-decided architecture:** docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md. Implement these decisions without a new broad research phase. All functionality and reviews are PENDING.
+## Context
 
+- `.ai-work/20261028-skill-study-provider-switch/CONTEXT.md`
 
-**P066 first-use rule:** The only broad UI/UX code + external best-practices research is during explicitly approved first relevant skill use in the project or via manual pae ux init/refresh. Reuse shared onboarding approval from 127/128; thereafter consume compact approved design indexes, current affected components and hashes, never repeat study on each feature. Node lab is separate explicit opt-in. Non-UI/backend tasks and CI incur zero UI study or paid model calls. Permission denial and stale samples must remain visible, not silently green.
+## Validated learnings
 
-## Internal implementation checklist
-- [ ] **S001** — Read P065 architecture and accepted 122/112 receipts, inspect only relevant real frontend source.
-- [ ] **S002** — Implement deterministic mode: in-app/stories with REAL components when capable, otherwise optional isolated Vite vanilla HTML/JS/SCSS lab; no mandatory Figma or npm install.
-- [ ] **S003** — Build versioned local scaffold template with pinned dependency lockfile, localhost-only dev and sanitized mock data, generated tokens, no production credentials or remote assets.
-- [ ] **S004** — Create selected-route real->prototype read-only import with component/variant/token mapping and source_sha256/fidelity warnings; prevent symlink and URL leaks.
-- [ ] **S005** — Implement prototype->real sync-plan with affected real components, UX decisions, acceptance tests, hashes, conflicts, rollback and required user approval; NO automatic production writes.
-- [ ] **S006** — Run actual tests for legacy, existing, new, offline, stale hash, malicious path and permissions; record evidence only.
+- None
 
-## Design and execution constraints
+## Checkpoints
+
+- [ ] **S001** Inspect scoped source architecture — Read P065 architecture and accepted 122/112 receipts, inspect only relevant real frontend source.
+- [ ] **S002** Implement or genuinely review contract — Implement deterministic mode: in-app/stories with REAL components when capable, otherwise optional isolated Vite vanilla HTML/JS/SCSS lab; no mandatory Figma or npm install.
+- [ ] **S003** Enforce consent/source-of-truth/safety — Build a versioned scaffold template with exact-version pins in package.json and no shipped lockfile (created only in the target project by npm install after explicit confirmation, G002); localhost-only dev, sanitized mocks, no remote assets.
+- [ ] **S004** Run adversarial validation — Create selected-route real->prototype read-only import with component/variant/token mapping and source_sha256/fidelity warnings; prevent symlink and URL leaks.
+- [ ] **S005** Record actual acceptance evidence — Implement prototype->real sync-plan with affected real components, UX decisions, acceptance tests, hashes, conflicts, rollback and required user approval; NO automatic production writes.
+- [ ] **S006** Close current-source final check — Run actual tests for legacy, existing, new, offline, stale hash, malicious path and permissions; record evidence only.
+
+## Scope
+
+In: Implement optional real-component or Node Vite HTML JavaScript SCSS prototype lab and safe transfer plan
+Out: No automatic production frontend edits, unrelated test changes, second plan or paid agent use.
+Files: `skill/plan-and-execute/scripts/ux_prototype.py`, `skill/plan-and-execute/scripts/uxctl.py`, `skill/plan-and-execute/references/UI_UX_PROTOTYPING.md`, `skill/plan-and-execute/assets/ux-lab-template/package.json`, `skill/plan-and-execute/assets/ux-lab-template/index.html`, `skill/plan-and-execute/assets/ux-lab-template/src/main.js`, `skill/plan-and-execute/assets/ux-lab-template/src/styles/main.scss`, `skill/plan-and-execute/assets/ux-lab-template/README.md`, `test/optimization/ux_prototype_lab_self_test.py`, `docs/research/20261028-skill-optimization/implementation/123-receipt.json`, `docs/research/20261028-skill-optimization/implementation/123-outcome.md`
+
+## Guidance
+
 - Read docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md only while implementing task 123 and examine only current affected source/dependency receipts.
 - Read P065 architecture and accepted 122/112 receipts, inspect only relevant real frontend source.
 - Implement deterministic mode: in-app/stories with REAL components when capable, otherwise optional isolated Vite vanilla HTML/JS/SCSS lab; no mandatory Figma or npm install.
-- Build versioned local scaffold template with pinned dependency lockfile, localhost-only dev and sanitized mock data, generated tokens, no production credentials or remote assets.
+- Template package.json uses exact-version pins and ships no lockfile; the lockfile is created only in the target project by npm install after explicit user confirmation (G002); localhost-only dev, sanitized mocks.
 - Create selected-route real->prototype read-only import with component/variant/token mapping and source_sha256/fidelity warnings; prevent symlink and URL leaks.
 - Implement prototype->real sync-plan with affected real components, UX decisions, acceptance tests, hashes, conflicts, rollback and required user approval; NO automatic production writes.
 - Run actual tests for legacy, existing, new, offline, stale hash, malicious path and permissions; record evidence only.
 - Reuse routingctl, task_context_router, planctl, existing validators and P056 security/performance gates; no parallel orchestration.
 - Produce real source hashes/test results and genuine independent review where required; never call prepared research executed implementation.
+- P066: broad UX study strictly on first approved relevant project use or explicit pae ux init/refresh. Shared coding+UX consent from 127/128; subsequent UX tasks load approved scoped design index only; no repeated research.
+- Cross-check applicable negative cases A–P and provenance in P065 research; screenshot matching never overrides keyboard/functional failures; an unsupported tool is not a green run.
 
-## Exact write ownership
-- skill/plan-and-execute/scripts/ux_prototype.py
-- skill/plan-and-execute/scripts/uxctl.py
-- skill/plan-and-execute/references/UI_UX_PROTOTYPING.md
-- skill/plan-and-execute/assets/ux-lab-template/package.json
-- skill/plan-and-execute/assets/ux-lab-template/index.html
-- skill/plan-and-execute/assets/ux-lab-template/src/main.js
-- skill/plan-and-execute/assets/ux-lab-template/src/styles/main.scss
-- skill/plan-and-execute/assets/ux-lab-template/README.md
-- test/optimization/ux_prototype_lab_self_test.py
+## Acceptance
 
-## Testable acceptance
-- [ ] Mature frontend prefers real component workbench, not duplicate HTML lab.
-- [ ] Explicit opt-in creates usable isolated Node/Vite HTML/JS/SCSS lab with safe fixtures.
-- [ ] Import reads only selected existing UI; sync generates PLAN not unauthorized write; stale SHA blocks.
-- [ ] Missing Node/Figma/permissions yields honest skip, not green test.
+- Mature frontend prefers real component workbench, not duplicate HTML lab.
+- Explicit opt-in creates usable isolated Node/Vite HTML/JS/SCSS lab with safe fixtures.
+- Import reads only selected existing UI; sync generates PLAN not unauthorized write; stale SHA blocks.
+- Missing Node/Figma/permissions yields honest skip, not green test.
+- No recurring UX external study or model calls after setup; explicit refresh and one-time opt-in work with durable project state.
+- No install runs in the skill repo or its tests; lab setup without install confirmation reports an honest skip.
 
-Cross-check applicable negative cases A–P and provenance in P065 research. Screenshot matching never overrides keyboard/functional failures; unsupported tool is not a green run.
+## Validate
 
-## Validation (only after code)
-- python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_123
-- python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_123
-
-No real code, independent review, paid agent or browser validation has run in this planning task.
+- `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_123`
+- `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_123`

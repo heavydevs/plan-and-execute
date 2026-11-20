@@ -51,10 +51,10 @@ Files: `skill/plan-and-execute/scripts/assistant_triage.py`, `skill/plan-and-exe
 - Validate paths, command evidence and subtask IDs; sanitize before byte-bounded truncation.
 - Missing prior reports use deterministic evidence; no extra model call or transcript retention by default.
 - The targeted contract is validated through the production run_concise composition.
-- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 - Build a deterministic capsule from checked evidence; redact secrets before truncation and bound serialized UTF-8 bytes.
 - Bind the capsule to source state, destination and next attempt; stale, missing or malformed evidence cannot approve or redirect execution.
 - Keep previous-worker hypotheses unverified; additional paid summarization and native transcript retention remain disabled by default.
+- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
 ## Validate
 

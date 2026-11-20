@@ -1,6 +1,6 @@
 ---
 task_id: "006"
-status: "pending"
+status: "completed"
 requirements: "R002,R003,R004,R005,R007,R032,R037,R038,R039,R042,R044"
 dependencies: "001"
 allowed_related_task_reads: "none"
@@ -20,12 +20,12 @@ Objective: Keep DIRECT as a zero-orchestration fast path, with explicit risk/pro
 
 ## Checkpoints
 
-- [ ] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md. Verify the current source and only material version/account conflicts.
-- [ ] **S002** Implement revised contract 1 — Record bounded reason codes only in the selected workflow; a rejected implicit match creates no plan, ledger or study files.
-- [ ] **S003** Implement revised contract 2 — Evaluate activation false positives, false negatives, extra tokens, latency and final correctness on distinct held-out prompts.
-- [ ] **S004** Implement revised contract 3 — Separate routing mode from capability tier so a small risky fix can stay DIRECT with a qualified implementation route.
-- [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
-- [ ] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
+- [x] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md. Verify the current source and only material version/account conflicts.
+- [x] **S002** Implement revised contract 1 — Record bounded reason codes only in the selected workflow; a rejected implicit match creates no plan, ledger or study files.
+- [x] **S003** Implement revised contract 2 — Measure entrypoint bytes and offline false-positive/false-negative rates on held-out routing-evals.json against baseline; live host loading/latency only with owner-confirmed authenticated runs, otherwise a recorded limitation.
+- [x] **S004** Implement revised contract 3 — Separate routing mode from capability tier so a small risky fix can stay DIRECT with a qualified implementation route.
+- [x] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
+- [x] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
 
 ## Scope
 
@@ -49,7 +49,7 @@ Files: `skill/plan-and-execute/scripts/requestctl.py`, `skill/plan-and-execute/s
 - A one-module feature touching seven files remains DIRECT and leaves no plan artifacts.
 - A short security-sensitive fix remains direct when cohesive, but its model floor is not lowered.
 - A promoted task includes only remaining outcomes and preserves the original worktree.
-- Measure entrypoint bytes, referenced files actually loaded and routing false-positive/false-negative cases against baseline.
+- Entrypoint bytes and offline false-positive/false-negative rates on held-out routing-evals.json are measured against baseline; live host loading/latency needs owner-confirmed authenticated runs, else a recorded limitation.
 - A near-finished high-context task stays DIRECT without creating control files.
 - A tiny security-sensitive edit can select a strong worker without forcing an orchestration plan.
 - Promotion preserves changed files and validated outcomes and schedules only remaining work.

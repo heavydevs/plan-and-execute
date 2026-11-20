@@ -25,6 +25,9 @@ import routingctl  # noqa: E402
 
 TIERS = routingctl.TIER_ORDER
 EFFORTS = routingctl.EFFORT_ORDER
+# Per-tier model choices live only in routingctl.CURRENT_MODELS (and the bootstrap catalog).
+CODEX_STANDARD = routingctl.CURRENT_MODELS["codex"]["standard"]
+CODEX_STRONG = routingctl.CURRENT_MODELS["codex"]["strong"]
 
 
 def _synthetic_catalog() -> dict:
@@ -49,7 +52,38 @@ def _synthetic_catalog() -> dict:
     }}}}
 
 
+def _economics_catalog() -> dict:
+    """GLM/DeepSeek prices from the bootstrap catalog with GLM Flash pinned at economy+standard.
+
+    The API/subscription/off-peak fixtures exercise cost mechanics (cache hits, quota windows,
+    overage, off-peak credits), not placement. Catalog v9 moved GLM Flash to economy only, so
+    these fixtures keep a frozen placement and the live placement is asserted separately.
+    """
+    catalog = copy.deepcopy(model_catalog.BOOTSTRAP_CATALOG)
+    catalog["catalog_version"] = "selector-economics-fixture-v1"
+    catalog["providers"]["glm"]["models"]["glm-5.3-flash"]["tiers"] = ["economy", "standard"]
+    catalog["providers"]["glm"]["models"]["glm-5.3-flash"]["quality"]["rank"] = 2
+    catalog["providers"]["glm"]["models"].pop("glm-5.3")
+    return catalog
+
+
+def _legacy_effort_cap_catalog() -> dict:
+    """A model whose max effort is below xhigh (Muse Spark 1.3 was capped at high before 2026-11-20)."""
+    catalog = copy.deepcopy(model_catalog.BOOTSTRAP_CATALOG)
+    catalog["catalog_version"] = "selector-effort-cap-fixture-v1"
+    muse = catalog["providers"]["muse"]["models"]
+    muse["muse-spark-1.3"]["tiers"] = ["advanced"]
+    muse["muse-spark-1.3"]["capability"]["max_effort"] = "high"
+    muse["muse-spark-1.3"]["quality"]["rank"] = 3
+    muse.pop("muse-wonder-1.0")
+    catalog["providers"]["glm"]["models"]["glm-5.3"]["tiers"] = ["advanced"]
+    catalog["providers"]["glm"]["models"]["glm-5.3"]["quality"]["rank"] = 3
+    return catalog
+
+
 SYNTHETIC = _synthetic_catalog()
+ECONOMICS = _economics_catalog()
+EFFORT_CAP = _legacy_effort_cap_catalog()
 TOKENS = {"input_tokens": 200000, "cached_input_tokens": 150000, "output_tokens": 20000}
 API = {"glm": {"mode": "api"}, "deepseek": {"mode": "api"}}
 
@@ -57,9 +91,9 @@ API = {"glm": {"mode": "api"}, "deepseek": {"mode": "api"}}
 CORPUS: list[dict] = [
     # --- floors
     {"id": "F01-floor-economy", "request": {"signals": ["exploration"], "providers": ["claude"]},
-     "floor": ["economy", "low"], "expect": {"route": ["claude", "haiku", "economy", "low"], "effort_flag": False}},
+     "floor": ["economy", "low"], "expect": {"route": ["claude", "claude-haiku-5-5", "economy", "low"], "effort_flag": True}},
     {"id": "F02-floor-standard-codex", "request": {"signals": ["bounded_implementation"], "providers": ["codex"]},
-     "floor": ["standard", "medium"], "expect": {"route": ["codex", "gpt-6.1-sol", "standard", "medium"]}},
+     "floor": ["standard", "medium"], "expect": {"route": ["codex", CODEX_STANDARD, "standard", "medium"]}},
     {"id": "F03-floor-weak-validation", "request": {"signals": ["bounded_implementation", "weak_validation"], "providers": ["claude"]},
      "floor": ["strong", "high"], "expect": {"route": ["claude", "claude-opus-5-5", "strong", "high"]}},
     {"id": "F04-floor-tool", "request": {"signals": ["deterministic_lookup"], "providers": ["claude"]},
@@ -67,15 +101,16 @@ CORPUS: list[dict] = [
     {"id": "F05-empty-advanced-lifts", "request": {"route": {"tier": "advanced", "effort": "medium"}, "providers": ["claude"]},
      "floor": ["advanced", "medium"], "expect": {"route": ["claude", "claude-opus-5-5", "strong", "medium"], "tier_lifted": True}},
     {"id": "F06-advanced-muse", "request": {"route": {"tier": "advanced", "effort": "medium"}, "providers": ["claude", "muse"]},
-     "floor": ["advanced", "medium"], "expect": {"route": ["muse", "muse-spark-1.3", "advanced", "medium"], "tier_lifted": False}},
+     "floor": ["advanced", "medium"], "expect": {"route": ["muse", "muse-wonder-1.0", "advanced", "medium"], "tier_lifted": False}},
     {"id": "F07-alias-tier", "request": {"route": {"tier": "L4", "effort": "medium"}, "providers": ["codex"]},
-     "floor": ["strong", "medium"], "expect": {"route": ["codex", "gpt-6.1-sol", "strong", "medium"]}},
+     "floor": ["strong", "medium"], "expect": {"route": ["codex", CODEX_STRONG, "strong", "medium"]}},
     # --- capability
     {"id": "F08-capability-vision", "request": {"signals": ["bounded_implementation"], "providers": ["claude", "deepseek"],
                                                 "required_capabilities": ["vision"]},
      "floor": ["standard", "medium"], "expect": {"route": ["deepseek", "deepseek-flash", "standard", "medium"],
                                                  "dropped": {"claude/claude-sonnet-5-5@standard": "missing_capability:vision"}}},
-    {"id": "F09-capability-effort-cap", "request": {"route": {"tier": "advanced", "effort": "xhigh"}, "providers": ["muse", "glm"]},
+    {"id": "F09-capability-effort-cap", "catalog": "effort_cap",
+     "request": {"route": {"tier": "advanced", "effort": "xhigh"}, "providers": ["muse", "glm"]},
      "floor": ["advanced", "xhigh"], "expect": {"route": ["glm", "glm-5.3", "advanced", "xhigh"],
                                                 "dropped": {"muse/muse-spark-1.3@advanced": "effort_above_max:high"}}},
     {"id": "F10-capability-none", "request": {"signals": ["bounded_implementation"], "providers": ["claude"],
@@ -84,16 +119,16 @@ CORPUS: list[dict] = [
     # --- availability
     {"id": "F11-outage-same-tier", "request": {"signals": ["subtle_debugging"], "providers": ["claude", "codex"],
                                                "availability": {"claude": "outage"}},
-     "floor": ["strong", "medium"], "expect": {"route": ["codex", "gpt-6.1-sol", "strong", "medium"], "tier_lifted": False,
+     "floor": ["strong", "medium"], "expect": {"route": ["codex", CODEX_STRONG, "strong", "medium"], "tier_lifted": False,
                                                "dropped": {"claude/claude-opus-5-5@strong": "outage"}}},
     {"id": "F12-model-outage-equivalent-first", "request": {"signals": ["bounded_implementation"], "providers": ["claude", "codex"],
                                                             "availability": {"claude/claude-sonnet-5-5": "outage"}},
-     "floor": ["standard", "medium"], "expect": {"route": ["codex", "gpt-6.1-sol", "standard", "medium"], "tier_lifted": False}},
+     "floor": ["standard", "medium"], "expect": {"route": ["codex", CODEX_STANDARD, "standard", "medium"], "tier_lifted": False}},
     {"id": "F13-model-outage-lifts-last", "request": {"signals": ["bounded_implementation"], "providers": ["claude"],
                                                       "availability": {"claude/claude-sonnet-5-5": "quota_exhausted"}},
      "floor": ["standard", "medium"], "expect": {"route": ["claude", "claude-opus-5-5", "strong", "medium"], "tier_lifted": True}},
     {"id": "F14-unconfigured-provider-skipped", "request": {"route": {"tier": "advanced", "effort": "low"}, "providers": ["codex"]},
-     "floor": ["advanced", "low"], "expect": {"route": ["codex", "gpt-6.1-sol", "strong", "low"], "tier_lifted": True}},
+     "floor": ["advanced", "low"], "expect": {"route": ["codex", CODEX_STRONG, "strong", "low"], "tier_lifted": True}},
     # --- quality constraint and tie-break (synthetic catalog)
     {"id": "F15-quality-rank-below-tier", "catalog": "synthetic", "request": {"signals": ["bounded_implementation"], "providers": ["p"]},
      "floor": ["standard", "medium"], "expect": {"route": ["p", "m-c", "standard", "medium"],
@@ -105,7 +140,7 @@ CORPUS: list[dict] = [
                                                                                 "min_quality_score": 0.5},
      "floor": ["standard", "medium"], "expect": {"decision": "no_candidate"}},
     {"id": "F18-tie-provider-order-codex", "request": {"signals": ["bounded_implementation"], "providers": ["codex", "claude"]},
-     "floor": ["standard", "medium"], "expect": {"route": ["codex", "gpt-6.1-sol", "standard", "medium"]}},
+     "floor": ["standard", "medium"], "expect": {"route": ["codex", CODEX_STANDARD, "standard", "medium"]}},
     {"id": "F19-tie-provider-order-claude", "request": {"signals": ["bounded_implementation"], "providers": ["claude", "codex"]},
      "floor": ["standard", "medium"], "expect": {"route": ["claude", "claude-sonnet-5-5", "standard", "medium"]}},
     # --- API economics with cache tokens
@@ -148,12 +183,12 @@ CORPUS: list[dict] = [
     # --- sticky routing / cache affinity
     {"id": "F28-sticky-high-affinity", "request": {
         "signals": ["bounded_implementation"], "providers": ["claude", "codex"], "cache_affinity": "high",
-        "previous_route": {"provider": "codex", "model": "gpt-6.1-sol", "tier": "standard", "effort": "medium"}},
-     "floor": ["standard", "medium"], "expect": {"route": ["codex", "gpt-6.1-sol", "standard", "medium"], "sticky": True}},
+        "previous_route": {"provider": "codex", "model": CODEX_STANDARD, "tier": "standard", "effort": "medium"}},
+     "floor": ["standard", "medium"], "expect": {"route": ["codex", CODEX_STANDARD, "standard", "medium"], "sticky": True}},
     {"id": "F29-sticky-broken-by-semantic-failure", "request": {
         "signals": ["bounded_implementation"], "providers": ["claude", "codex"], "cache_affinity": "high",
         "last_failure_class": "semantic",
-        "previous_route": {"provider": "codex", "model": "gpt-6.1-sol", "tier": "standard", "effort": "medium"}},
+        "previous_route": {"provider": "codex", "model": CODEX_STANDARD, "tier": "standard", "effort": "medium"}},
      "floor": ["standard", "medium"], "expect": {"route": ["claude", "claude-sonnet-5-5", "standard", "medium"], "sticky": False,
                                                  "sticky_reason": "failure:semantic"}},
     {"id": "F30-sticky-below-floor", "request": {
@@ -163,12 +198,12 @@ CORPUS: list[dict] = [
                                                  "sticky_reason": "previous_route_ineligible"}},
     {"id": "F31-sticky-above-floor", "request": {
         "signals": ["bounded_implementation"], "providers": ["claude", "codex"], "cache_affinity": "high",
-        "previous_route": {"provider": "codex", "model": "gpt-6.1-sol", "tier": "strong", "effort": "medium"}},
-     "floor": ["standard", "medium"], "expect": {"route": ["codex", "gpt-6.1-sol", "strong", "medium"], "sticky": True}},
+        "previous_route": {"provider": "codex", "model": CODEX_STRONG, "tier": "strong", "effort": "medium"}},
+     "floor": ["standard", "medium"], "expect": {"route": ["codex", CODEX_STRONG, "strong", "medium"], "sticky": True}},
     {"id": "F32-sticky-previous-outage", "request": {
         "signals": ["bounded_implementation"], "providers": ["claude", "codex"], "cache_affinity": "high",
         "availability": {"codex": "rate_limited"},
-        "previous_route": {"provider": "codex", "model": "gpt-6.1-sol", "tier": "standard", "effort": "medium"}},
+        "previous_route": {"provider": "codex", "model": CODEX_STANDARD, "tier": "standard", "effort": "medium"}},
      "floor": ["standard", "medium"], "expect": {"route": ["claude", "claude-sonnet-5-5", "standard", "medium"], "sticky": False,
                                                  "sticky_reason": "previous_route_ineligible"}},
     {"id": "F33-sticky-cheaper-alternative", "request": {
@@ -179,14 +214,28 @@ CORPUS: list[dict] = [
                                                  "sticky_reason": "cheaper_alternative"}},
     {"id": "F34-sticky-effort-below-floor", "request": {
         "signals": ["bounded_implementation", "weak_validation"], "providers": ["claude", "codex"], "cache_affinity": "high",
-        "previous_route": {"provider": "codex", "model": "gpt-6.1-sol", "tier": "strong", "effort": "medium"}},
+        "previous_route": {"provider": "codex", "model": CODEX_STRONG, "tier": "strong", "effort": "medium"}},
      "floor": ["strong", "high"], "expect": {"route": ["claude", "claude-opus-5-5", "strong", "high"], "sticky": False,
                                              "sticky_reason": "previous_route_ineligible"}},
 ]
 
 
 def _catalog(fixture: dict) -> dict | None:
-    return SYNTHETIC if fixture.get("catalog") == "synthetic" else None
+    if fixture.get("catalog") is None and set(fixture["request"].get("providers", ())) & {"glm", "deepseek"}:
+        return ECONOMICS
+    return {"synthetic": SYNTHETIC, "effort_cap": EFFORT_CAP}.get(fixture.get("catalog"))
+
+
+def test_live_optional_placement() -> None:
+    # Catalog v9 (2026-11-20): at standard, the live GLM candidate is GLM-5.3 and DeepSeek Flash is cheaper,
+    # so DeepSeek Flash wins the API comparison; GLM Flash is an economy model only.
+    request = {"signals": ["bounded_implementation"], "providers": ["glm", "deepseek"], "billing": API, "tokens": TOKENS}
+    result = routingctl.select_route(copy.deepcopy(request))
+    assert [result["route"][k] for k in ("provider", "model", "tier")] == ["deepseek", "deepseek-flash", "standard"], result["route"]
+    economy = routingctl.select_route({**copy.deepcopy(request), "signals": ["exploration"]})
+    assert economy["route"]["tier"] == "economy" and economy["route"]["provider"] in ("glm", "deepseek"), economy["route"]
+    advanced = routingctl.select_route({"route": {"tier": "advanced", "effort": "xhigh"}, "providers": ["muse", "glm"]})
+    assert [advanced["route"][k] for k in ("provider", "model", "tier", "effort")] == ["muse", "muse-wonder-1.0", "advanced", "xhigh"]
 
 
 def _close(actual, expected) -> bool:
@@ -339,11 +388,11 @@ def test_cli_select() -> None:
         assert proc.returncode == 0, proc.stderr
         outputs.append(proc.stdout)
     assert outputs[0] == outputs[1]
-    assert json.loads(outputs[0])["route"]["model"] == "gpt-6.1-sol"
+    assert json.loads(outputs[0])["route"]["model"] == CODEX_STANDARD
     proc = subprocess.run([sys.executable, str(SCRIPTS / "routingctl.py"), "select", "--signals", "exploration",
                            "--providers", "claude"], capture_output=True, text=True, encoding="utf-8", timeout=60)
     assert proc.returncode == 0, proc.stderr
-    assert json.loads(proc.stdout)["route"]["model"] == "haiku"
+    assert json.loads(proc.stdout)["route"]["model"] == "claude-haiku-5-5"
 
 
 def test_catalog_is_bootstrap_by_default() -> None:

@@ -55,6 +55,9 @@ Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute
 - Embedded-effort aliases that yield identical dispatch are collapsed.
 - A separate quota pool cannot bypass disabled paid-overage policy.
 - Workspace-write sandbox support does not qualify a route as read-only.
+- Antigravity Claude 4.6 ids (removed 2026-11-18) and unlisted Carbon variants are skipped as unavailable with a reason.
+- agy-flash-monitor stays advisory-only and is disabled in favor of deterministic monitoring when no read-only boundary is proven.
+- The v8 map is preserved: Opus 5.5 / Sol 6.2 xhigh at max, Fable 5.2 / Astra 6.2 absent from the tier map, Antigravity Claude capped at advanced, Gemini 4 Hydrogen/Neon preset ordered first, Carbon not routed.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

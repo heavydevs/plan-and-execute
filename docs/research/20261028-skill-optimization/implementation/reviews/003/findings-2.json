@@ -1,0 +1,65 @@
+{
+  "task_id": "003",
+  "dispatch": 2,
+  "session_id": "33acc38c-0a60-4513-b1a0-89d7c700096e",
+  "verdict": "approved",
+  "summary": "Task 002's corrected code meets all its acceptance criteria. No critical or high finding.\n- F1 is fixed: the wrapper checks reports against independent TASK_INPUTS/INDEX pins. The temporary-copy fixture shows its own pin check catches drift that structural() accepts.\n- F2 is fixed: a missing, empty or duplicate prepared_reports raises PreflightError before structural() runs.\n- F3 is fixed: each fixture asserts its baseline, the observed structural() outcome and the wrapper's outcome.\n- The temporary copies never write to the repository. The run_preflight change is backward compatible.\n- check-01.log lists exactly the 9 current tests, all passing.\nOpen items are low/info only: stale task 002 evidence, limits the 003 receipt must record, task 001 tests not re-run. No sha256 was recomputed.",
+  "findings": [
+    {
+      "id": "R2-1",
+      "severity": "low",
+      "location": "docs/research/20261028-skill-optimization/implementation/002-receipt.json:14-24; docs/research/20261028-skill-optimization/implementation/002-outcome.md:5-6",
+      "title": "Task 002's receipt and outcome no longer match the reviewed code; P1_002 will now reject them as stale",
+      "detail": "The 002 receipt pins changed_artifacts 640c…/8c08…. The reviewed files are now a574… (baseline_contracts.py) and 5b11… (task_002_self_test.py). 002-checks.json's input_fingerprint was computed over the old test/ tree. As a result, check_delivery.check('002') will now fail with 'Stale changed project artifact hash' / 'Tests are stale for current code'. The 002 outcome still claims 7 tests and '130 tasks'. Every acceptance case in the receipt cites logs/002/… from the old code. None of this blocks task 003: check() only requires 002's output/report paths among the reviewed inputs. But the only valid evidence for the final code is the logs/003/20261120T065707-15636 run.",
+      "fix": "In 003-receipt.json, pin the final hashes of both test files. Map each of task 002's AC01-AC08 to the test names in logs/003/20261120T065707-15636/check-01.log. Add a limitation stating that the 002 receipt, outcome and checks are superseded by 003 and that P1_002 is expected to be stale. Do not edit or re-pin 002's files."
+    },
+    {
+      "id": "R2-2",
+      "severity": "low",
+      "location": "test/optimization/baseline_contracts.py:300-317; docs/plans/20261028-skill-optimization/support/check_delivery.py:149,313",
+      "title": "Only the test-side wrapper rejects a task with no prepared_report (AC07)",
+      "detail": "The new pre-check is correct. task_002_self_test.py:282-315 shows its three cases: empty list (structural accepts), missing key (structural raises KeyError) and duplicate path (structural accepts). But only task_002_self_test calls run_source_and_contract_coverage, and only tasks 002/003 declare that check. `check_delivery.py --structure` and the per-task check() gates (check_delivery.py:313, where set() <= reviewed) still accept an empty prepared_reports. The docstring at baseline_contracts.py:300-302 says so, but no receipt records it yet. check_delivery.py is outside the write scope, so this is a limitation, not a broken criterion.",
+      "fix": "Add a 003 receipt/outcome limitation: AC07 is enforced by baseline_contracts.run_source_and_contract_coverage (run by task_002_self_test.py), not by check_delivery.structural/check. Optionally queue a follow-up for the owner of check_delivery.py."
+    },
+    {
+      "id": "R2-3",
+      "severity": "low",
+      "location": "test/optimization/baseline_contracts.py:157,212,319",
+      "title": "Task 001's tests were not re-run after the shared _index_report_hashes signature changed",
+      "detail": "_index_report_hashes gained a `loader=_load_json` keyword. The default binds the same function as before, and run_preflight (line 212) still calls it as `_index_report_hashes(root)`. No test patches bc._load_json; I checked task_001_self_test.py and shared_fixtures.py:207. So I expect no regression. However, the declared 003 checks run only task_002_self_test and delivery_gate_self_test, so nothing proves run_preflight still passes on the final hash a574… of this shared file.",
+      "fix": "Run `python test/optimization/task_001_self_test.py` through the resource watcher against the final hashes. Record its log as extra regression evidence in the 003 receipt, or add a limitation saying it was not run."
+    },
+    {
+      "id": "R2-4",
+      "severity": "info",
+      "location": "test/optimization/task_002_self_test.py:10-11,317-335; docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py:246-248",
+      "title": "Overlap note leaves out the 082 review-gate fixture",
+      "detail": "S003 says to add only the fixtures that delivery_gate_self_test lacks. The docstring lists overlap with test_unknown_source and test_stale_report_hash only. delivery_gate_self_test.test_missing_132_review_gate already removes a gate from 082's dependencies. The new fixture removes 088 and adds message-level and wrapper-path assertions, so it adds value, but the overlap is undocumented.",
+      "fix": "Name test_missing_132_review_gate in the overlap sentence of the module docstring."
+    },
+    {
+      "id": "R2-5",
+      "severity": "info",
+      "location": "test/optimization/baseline_contracts.py:324; test/optimization/baseline_contracts.py:222",
+      "title": "Pin lookup never falls back to the INDEX pin when a report is research_report but has no research_sha256",
+      "detail": "`entry.get('research_sha256') if rep == entry.get('research_report') else index_hashes.get(rep)` counts a research_report as unpinned when research_sha256 is missing, even if INDEX pins it. This is harmless today. All 32 entries with a research_report are INDEX tasks, and structural() requires research_sha256 == report_sha256 and verifies every INDEX report/decision with text=True. In the real repo, every pinned prepared report is therefore also checked by structural(). The wrapper's own comparison adds coverage only for TASK_INPUTS-only pins, which the temporary-copy fixture proves.",
+      "fix": "Optional: use `(entry.get('research_sha256') if rep == entry.get('research_report') else None) or index_hashes.get(rep)` in both helpers."
+    },
+    {
+      "id": "R2-6",
+      "severity": "info",
+      "location": "test/optimization/task_002_self_test.py:245-246,256",
+      "title": "Baseline for the TASK_INPUTS-pin drift fixture is asserted only during setup",
+      "detail": "The contract says 'A prepared report pinned only by TASK_INPUTS research_sha256 matches its pin', but baseline_holds checks only ARCH.is_file(). The 'matches its pin' state is proven indirectly: the wrapper passes with prepared_reports_pinned == baseline + 1 before the bytes change. This is correct, but the historical-baseline argument says less than the contract text.",
+      "fix": "Optional: describe the baseline as existence plus a pin added in the temporary copy, or make the pre-drift wrapper result part of the asserted baseline."
+    },
+    {
+      "id": "R2-7",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/003-checks.json:4; docs/research/20261028-skill-optimization/implementation/logs/003/20261120T065707-15636/check-01.log:1-16",
+      "title": "Reviewed-input hashes and input fingerprint not recomputed",
+      "detail": "This review had read-only file tools and could not compute sha256. The log fits the reviewed test file: 9 tests, with names and the two docstrings matching task_002_self_test.py exactly. check-02.log shows 55 delivery-gate tests OK (1 symlink skip). The argv in 003-checks.json matches the 003 required_checks. Whether the log hashes and input_fingerprint match the final tree is unverified.",
+      "fix": "Before writing the 003 receipt, run `check_delivery.py --task 003` or verify the hashes and fingerprint against the final tree."
+    }
+  ]
+}

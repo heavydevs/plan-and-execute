@@ -1,0 +1,73 @@
+{
+  "task_id": "009",
+  "dispatch": 2,
+  "session_id": "ef211661-7a07-4abc-b5d8-cb8d48beb84b",
+  "verdict": "approved",
+  "summary": "Re-review after the dispatch-1 corrections. F01 (non-empty id matching), F02 (bounded gridSpan/gridBefore/row extent) and F03 (sdt/customXml wrappers at row, cell, block and inline level, run-level AlternateContent, catch-all recording) are fixed. Each new test would fail or hang if its fix were reverted. F04, F06-F09, F11 and F12 are correct, and create_package and verify_source_derivation share one deterministic pipeline. No critical or high finding remains. Residual mediums: split Markdown tables still map every row to every spanned fragment (F05 gap), and recorded unsupported structures such as tracked insertions are not gated by coverage review. Fresh 009 test logs and current hashes are still required.",
+  "findings": [
+    {
+      "id": "R2-01",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:810-816,826-831,1033,1443",
+      "title": "Split Markdown requirement tables map every row obligation to every spanned fragment",
+      "detail": "A Markdown table with no blank lines is a single table_cell block (text_blocks, line 733). When it exceeds max_fragment_tokens, split_long_text spreads it over several fragments. _split_block_clauses rebuilds each multi-cell row as its cells joined with spaces (810-816), which is never a substring of the raw '| a | b |' fragment text, so _clause_fragments falls back to every candidate fragment (830-831). Every row obligation then gets fragment_ids for the whole table, and every spanned fragment's obligation_ids lists every row. The digest guidance (1443) tells each worker to emit an item for every listed id, including rows it cannot see, and the audit's `refs & obl_frags` (1033) accepts an id echo from any of those workers. The digest that actually holds a row can therefore omit it without validate-coverage failing. This is the AC08 table-only scenario that F05 targeted, for Markdown sources. The F05 test covers only prose.",
+      "fix": "Attribute clauses per split piece: run _split_block_clauses on each expanded part's text, or match the raw table line, in derive_fragment_evidence, so a Markdown row maps only to the fragment holding that line. Add a test with a multi-cell Markdown requirements table larger than max_fragment_tokens. Assert that each row's fragment_ids has exactly one entry, and that omitting a row from its own digest fails validate_coverage even when another batch's digest echoes the id."
+    },
+    {
+      "id": "R2-02",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:315-324,355-364,390-391,1521-1527,1918-1980; skill/plan-and-execute/references/PRIMARY_PLANNING.md:108",
+      "title": "Recorded unsupported structures, including tracked insertions in table cells, are never gated by coverage review",
+      "detail": "Text inside w:ins/w:moveTo, run-level text boxes, Office Math and other unsupported elements is recorded only in SOURCE_INDEX.unsupported_structures, with a 160-character preview. It never becomes a block or obligation. validate_coverage never reads unsupported_structures, and the coverage-review TODO guidance does not mention them. PRIMARY_PLANNING.md:108, however, says the reviewer surfaces them, and the decision asks for them to be surfaced 'as explicit coverage limitations'. A requirement row added with Track Changes on (every run wrapped in w:ins) is therefore absent from the coverage map, and COVERAGE_REVIEW can be approved without acknowledging it. Specs with tracked changes are common. Because the text is recorded rather than silently dropped, this is not high, but AC08 holds only on paper for this case.",
+      "fix": "When unsupported_structures has text-bearing entries, require COVERAGE_REVIEW to list them (for example acknowledged_unsupported_structures by kind and location) or to set status=blocked. Add this to the review TODO guidance. Alternatively, extract w:ins/moveTo text into blocks with a tracked flag so its obligations enter the map. Add a test with a requirement that exists only inside w:ins in a table cell."
+    },
+    {
+      "id": "R2-03",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1035-1048,1443",
+      "title": "Coverage audit still accepts content-free id echoes and short substrings",
+      "detail": "A digest item covers an obligation when it echoes the canonical_id, which the guidance tells workers to copy from SOURCE_INDEX, with any non-empty text. Any item text of 20 or more characters that is a same-polarity substring of the obligation also covers it (1046). One generic item such as 'users must be able to' therefore covers every obligation in its fragment that contains that phrase. The audit proves that ids were acknowledged, not that content was captured. This is the matching side of F10; only the extraction-side explicit_id handling was deferred.",
+      "fix": "For an id match, also require a minimum normalized-token overlap between the item text and the obligation. Remove the short-substring path, or require the substring to include the modal and its object stem. Document the remaining limitation."
+    },
+    {
+      "id": "R2-04",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1784-1791,2188-2193",
+      "title": "validate-digest does not audit its own batch's obligations, so resume marks incomplete digests complete",
+      "detail": "validate_digest checks only schema and references. fragment_hashes stays optional, and the digest is not checked against SOURCE_INDEX fragments[].obligation_ids for its fragments. resume_status therefore counts a digest that omits obligations as completed. The omission surfaces only at validate-coverage, after synthesis, and fixing it means reprocessing raw fragments that resume reported as done.",
+      "fix": "In validate_digest, run audit_obligation_coverage limited to the batch's obligation_ids, and require fragment_hashes for schema-v2 packages, so the digest TODO's own validation command fails fast."
+    },
+    {
+      "id": "R2-05",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1868-1874",
+      "title": "Digest contradictions without an id are carried by any carrier that shares a source ref",
+      "detail": "`any(_string_refs(item) & refs for refs in carried_refs)` lets N id-less digest contradictions on F001 all be satisfied by one WORKSTREAM_INDEX or recorded_contradictions item that cites F001. Source contradictions are now checked by identity, which was the main F04 gap; this fallback is the remaining presence-style check.",
+      "fix": "Require digest contradictions to carry an id (enforce it in validate_digest), or match id-less items one to one."
+    },
+    {
+      "id": "R2-06",
+      "severity": "low",
+      "location": "skill/plan-and-execute/references/PRIMARY_PLANNING.md:57,103; skill/plan-and-execute/scripts/preplanctl.py:243,252-253,1038-1042",
+      "title": "Two documentation claims slightly exceed the code",
+      "detail": "PRIMARY_PLANNING.md:103 says an item covers an obligation by its 'leading explicit id', but the code uses the first id found anywhere in the item text. PRIMARY_PLANNING.md:57 says 'any other element that carries text' is recorded, but _has_text recognizes only w:t, w:delText and m:t, so DrawingML a:t or text in other namespaces inside an unhandled element is not recorded.",
+      "fix": "Reword the docs. Alternatively, anchor the id check to a leading position and extend _TEXT_TAGS to include the DrawingML a:t tag."
+    },
+    {
+      "id": "R2-07",
+      "severity": "info",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:2013-2021,1565",
+      "title": "Source re-verification can be downgraded through the unpinned package.json original_path",
+      "detail": "This extends the known deferral. package.json is covered by no pin, so pointing source.original_path at a missing path makes validate-package and validate-consumption report status=unavailable and pass. The handoff guidance runs validate-consumption without --source.",
+      "fix": "Have the handoff guidance pass --source when the raw source is available. Consider a non-zero exit for an unavailable source unless an explicit --allow-unverified-source flag is given."
+    },
+    {
+      "id": "R2-08",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/008-outcome.md:10-25; docs/research/20261028-skill-optimization/implementation/008-receipt.json:14-35",
+      "title": "Evidence state for the 009 gate",
+      "detail": "008-outcome.md is stale. It still says EXTRACTION_VERSION ooxml-text-v2 (the code now uses v3) and repeats the pre-fix contradiction and text-box claims. That file is outside task 009's write scope. The 008 receipt's changed_artifacts hashes (preplanctl.py 5c15...) predate the 009 corrections (reviewed input dd94...). No logs/009 directory exists yet, so there is no post-correction test evidence. This reviewer had no shell, so tests were not run and reviewed-input hashes were not recomputed.",
+      "fix": "The 009 receipt must pin the current file hashes and attach fresh logs for both test/optimization/primary_planning_self_test.py and preplan_self_test.py. It must also state that it supersedes the 008 outcome's claims."
+    }
+  ]
+}

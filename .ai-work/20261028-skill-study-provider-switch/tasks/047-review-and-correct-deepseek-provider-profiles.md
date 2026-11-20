@@ -21,7 +21,7 @@ Objective: Review the actual implementation against the assigned prepared decisi
 ## Checkpoints
 
 - [ ] **S001** Read assigned decision and pin baseline — Read docs/research/20261028-skill-optimization/prepared-research/046-deepseek.md. Confirm source applicability; do not repeat broad research.
-- [ ] **S002** Implement change 1 — Use a real fresh maximum-qualified code reviewer with the changed diff, report and acceptance evidence; do not send unrelated task histories.
+- [ ] **S002** Dispatch the independent reviewer — Run `python docs/plans/20261028-skill-optimization/support/review_dispatch.py --repo-root . --task 047` in the foreground (rerun on exit 75); use only its DISPATCH line and compact findings.
 - [ ] **S003** Implement change 2 — Correct every blocking finding or leave the gate incomplete with a recorded reason.
 - [ ] **S004** Implement change 3 — Re-run declared checks after corrections and pin the final reviewed source state.
 - [ ] **S005** Run declared regression checks — Run the declared targeted tests through the resource watcher. Implement every assigned acceptance case and preserve failures and limitations.
@@ -31,7 +31,7 @@ Objective: Review the actual implementation against the assigned prepared decisi
 
 In: Review and correct deepSeek provider profiles
 Out: No new broad research phase or second-plan generation.; Do not change installed copies, user-global settings or publish without permission.
-Files: `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execute/scripts/deepseek_provider_self_test.py`, `test/optimization/deepseek_self_test.py`, `skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md`, `docs/research/20261028-skill-optimization/implementation/047-receipt.json`, `docs/research/20261028-skill-optimization/implementation/047-outcome.md`
+Files: `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execute/scripts/deepseek_provider_self_test.py`, `test/optimization/deepseek_self_test.py`, `skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md`, `skill/plan-and-execute/scripts/workload_routing.py`, `docs/research/20261028-skill-optimization/implementation/047-receipt.json`, `docs/research/20261028-skill-optimization/implementation/047-outcome.md`
 
 ## Guidance
 
@@ -39,15 +39,18 @@ Files: `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execu
 - Use only task 047 inputs and declared checks in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.
 - Implement the assigned recommendations, preserving already-satisfied invariants with regression tests rather than duplicate code.
 - Write actual changed-file, test and acceptance evidence to docs/research/20261028-skill-optimization/implementation/047-receipt.json.
-- Dispatch an actual fresh maximum-qualified reviewer; record its real route and input hashes, then correct and revalidate every blocking finding.
+- Review only via review_dispatch.py (synchronous; max route; writes dispatch evidence); fix blocking findings, rerun declared checks, re-dispatch if a reviewed file changed, copy its RECEIPT_REVIEWER fields into the receipt.
 - Review the revision-2 alternatives, scope boundary and negative tests against the actual changed code; report unsupported cost/quality claims.
 - Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
+- Never launch background or asynchronous agents or processes: this headless session ends when you stop calling tools, so anything unfinished is lost.
 
 ## Acceptance
 
 - Actual fresh reviewer provider/model/effort and reviewed input hashes are recorded.
 - No unresolved critical/high finding remains; the assigned acceptance cases have actual test evidence.
 - A reused or fabricated review receipt is rejected.
+- A frontier (Fable 5.2 / Astra 6.2) reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.
+- Every 2026-11-20 acceptance addition of task 046 has actual test evidence on the final reviewed hashes.
 - The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
 ## Validate

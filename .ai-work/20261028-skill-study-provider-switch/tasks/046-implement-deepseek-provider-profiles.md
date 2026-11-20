@@ -31,7 +31,7 @@ Objective: Keep DeepSeek compatibility, resolved model identity and billing evid
 
 In: Implement deepSeek provider profiles
 Out: No new broad research phase or second-plan generation.; Do not change installed copies, user-global settings or publish without permission.
-Files: `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execute/scripts/deepseek_provider_self_test.py`, `test/optimization/deepseek_self_test.py`, `skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md`, `docs/research/20261028-skill-optimization/implementation/046-receipt.json`, `docs/research/20261028-skill-optimization/implementation/046-outcome.md`
+Files: `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execute/scripts/deepseek_provider_self_test.py`, `test/optimization/deepseek_self_test.py`, `skill/plan-and-execute/references/MODEL_ROUTING_DEEPSEEK.md`, `skill/plan-and-execute/scripts/workload_routing.py`, `docs/research/20261028-skill-optimization/implementation/046-receipt.json`, `docs/research/20261028-skill-optimization/implementation/046-outcome.md`
 
 ## Guidance
 
@@ -55,6 +55,7 @@ Files: `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execu
 - A retired alias serving a replacement triggers evidence requalification without rewriting past attempts.
 - Missing usage remains null and positive infinity is rejected.
 - No automatic paid endpoint or off-peak waiting policy is enabled.
+- cooldown_key/cooldown_keys include the provider profile/backend, so quota exhaustion of that backend never cools down native Claude/Codex routes; legacy no-profile keys stay valid.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

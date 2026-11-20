@@ -1,0 +1,387 @@
+{
+  "schema_version": 2,
+  "task_id": "007",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Independent max review of 006 (claude-opus-5-5 xhigh) found 2 high defects: in-sample held-out routing metrics and lifecycle/skill-name mentions routed ORCHESTRATED. Fixed with a frozen hashed cue table, 19 independently authored held-out cases with honest results (FP 0.0, FN 0.5714), lifecycle-first and invocation-form matching, CLI snapshot tests, unmeasured costs, a merged security floor, one shared near-finished rule and wider transcript guards. Round-2 fresh review approved the final hashes with no critical/high finding; declared checks pass on those hashes.",
+  "outcome_sha256": "68c5d9d356e72363d414c72a7815353316dd2892a9ca1243cddbb775d4f1b1f0",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/006-activation-intake.md",
+      "sha256": "01463c79e0765cd02c63f42c5538b0b927a8c52e60843a401c3a4689089dbd7f"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "skill/plan-and-execute/scripts/requestctl.py",
+      "sha256": "e276e152c9705a3541f7aaa27bf22171ac3186a2fabb9c3433949de21478873b"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/promotectl.py",
+      "sha256": "148c5c547c6d01aa630e1b701136240646bf3852c3d4a0ae5cdd9a05003f7532"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routing_self_test.py",
+      "sha256": "092593be00fb927bd22b360949e6881111e9fcfeb5c755aa618626ea3f20a0f2"
+    },
+    {
+      "path": "test/optimization/activation_intake_self_test.py",
+      "sha256": "b88a4c133b5d5d2c59696cb3a4ba70e97316be73b5c23f0f1828f0f105ee9482"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ROUTING.md",
+      "sha256": "de94299128fb54223fdcb960f8dd90846df70f76cb0c11a24a3aee1ac1e3b01f"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PROMOTION.md",
+      "sha256": "993f52344f5886b252a1cbe18d03e5e193f97317ab6ace19f608c9fc5d10c74c"
+    },
+    {
+      "path": "skill/plan-and-execute/references/routing-evals.json",
+      "sha256": "86ed90a252a6a1168ced9a3eb53cd57d64a9f82fae44688d5936f2e82c79238b"
+    }
+  ],
+  "preserved_artifacts": [
+    {
+      "path": "skill/plan-and-execute/SKILL.md",
+      "sha256": "cda3a0bcc6e28543de3b59bec29f85b8bccdddda411f72622fc6566bf6f228d8"
+    },
+    {
+      "path": "skill/plan-and-execute/agents/openai.yaml",
+      "sha256": "e60055f3d6bb5b39aa4f310591b4efe2b4d52fbdb7d31b57c1d6bae39b7475e0"
+    }
+  ],
+  "checks_sha256": "0a92767cf2bfcc0e0d8133fa1274f2ca2988a221e2f2a4fdd3914400eb3bbe92",
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "result": "passed",
+      "statement": "Actual fresh reviewer provider/model/effort and reviewed input hashes are recorded.",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/reviews/007/dispatch-1.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/007/dispatch-2.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/007/brief-2.md"
+      ]
+    },
+    {
+      "id": "AC02",
+      "result": "passed",
+      "statement": "No unresolved critical/high finding remains; assigned acceptance cases have actual test evidence.",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-1.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json",
+        "docs/research/20261028-skill-optimization/implementation/logs/007/20261120T075627-15120/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/007/20261120T075627-15120/check-02.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/007/20261120T075627-15120/check-03.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/007/20261120T075627-15120/check-04.log"
+      ]
+    },
+    {
+      "id": "AC03",
+      "result": "passed",
+      "statement": "A reused or fabricated review receipt is rejected (gate and dispatcher refusal paths).",
+      "evidence": [
+        "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
+      ]
+    },
+    {
+      "id": "AC04",
+      "result": "passed",
+      "statement": "Frontier review is accepted only with recorded repeated max-review failure; reused sessions/dispatches are rejected. This receipt uses a max reviewer only.",
+      "evidence": [
+        "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/reviews/007/dispatch-2.json"
+      ]
+    },
+    {
+      "id": "AC05",
+      "result": "passed",
+      "statement": "Every 2026-11-20 acceptance addition of task 006 has actual test evidence on the final reviewed hashes (honest held-out proxy metrics; superseded 006 AC04 claims recorded).",
+      "evidence": [
+        "test/optimization/activation_intake_self_test.py",
+        "skill/plan-and-execute/scripts/routing_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/007/20261120T075627-15120/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/007/20261120T075627-15120/check-02.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/007/20261120T075627-15120/check-03.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/007/20261120T075627-15120/check-04.log",
+        "docs/research/20261028-skill-optimization/implementation/007-outcome.md"
+      ]
+    }
+  ],
+  "supplementary_validations": [
+    {
+      "validation": "P1_TESTS_007",
+      "result": "passed",
+      "run_id": "20261120T075627-15120",
+      "report": ".ai-work/resource-watch/20261120T045626-P1_TESTS_007-29612-1795161386631863000.jsonl"
+    },
+    {
+      "validation": "P1_GATE_TESTS",
+      "result": "passed",
+      "tests": 55,
+      "skipped": 1,
+      "report": ".ai-work/resource-watch/20261120T050509-P1_GATE_TESTS-10796-1795161909184329800.jsonl"
+    }
+  ],
+  "measured_offline_proxy": {
+    "metric": "offline_cue_extractor_proxy",
+    "cue_table_sha256": "54d5c6df29048222cd81cd35500aec55fabbb60d979479b0589f9534772c9564",
+    "tuning": {
+      "cases": 39,
+      "exact_match": 39
+    },
+    "held_out": {
+      "cases": 19,
+      "selective": {
+        "accuracy": 0.7368,
+        "fp_rate": 0.0,
+        "fn_rate": 0.5714
+      },
+      "explicit_only": {
+        "fn_rate": 0.7143
+      },
+      "all_direct": {
+        "fn_rate": 1.0
+      },
+      "always_orchestrate": {
+        "fp_rate": 0.9167
+      },
+      "paid_classifier": "unmeasured",
+      "capability_floor_hits": "1/3"
+    },
+    "skill_md_lf_bytes": 6967,
+    "supersedes": "006-outcome.md lines 10, 17-19 and 006-receipt AC04 evidence (in-sample held-out claims)"
+  },
+  "limitations": [
+    "Offline proxy rates measure requestctl's regex cue extractor, not host skill selection; live host loading, tokens, latency and activation FP/FN remain unmeasured without owner-confirmed authenticated runs.",
+    "Held-out cases (19) come from one separate model session, not a human or external author; rates are coarse.",
+    "Round-2 medium/low findings are deferred (see findings list and outcome); M1/M2 need a cue change and therefore a fresh held-out set.",
+    "006 receipt/outcome were not edited (outside write scope); 007-outcome.md records which 006 claims are superseded.",
+    "The prepared research report is input evidence only, not proof of implementation or review."
+  ],
+  "reviewer": {
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "native_effort": "xhigh",
+    "model_tier": "max",
+    "fresh_context": true,
+    "session_id": "a4cc33d8-ff48-4445-b39c-77d8cb222f60",
+    "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/dispatch-2.json",
+    "dispatch_sha256": "ecc7aa772b7a5e6dae82a2e4dff8fe771679ae365a84decdf3bf289e0aca35ae"
+  },
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/006-receipt.json",
+      "sha256": "e8a89fdc43b52a6f342e5e5d232ed1f06d2392e1a5d4287ce54bd9218709a997"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/006-outcome.md",
+      "sha256": "34608cb3ce1da1e23b14f9630aaf48b51addfb72dc63485873665d4c8d86c5dc"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/requestctl.py",
+      "sha256": "e276e152c9705a3541f7aaa27bf22171ac3186a2fabb9c3433949de21478873b"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/promotectl.py",
+      "sha256": "148c5c547c6d01aa630e1b701136240646bf3852c3d4a0ae5cdd9a05003f7532"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/routing_self_test.py",
+      "sha256": "092593be00fb927bd22b360949e6881111e9fcfeb5c755aa618626ea3f20a0f2"
+    },
+    {
+      "path": "test/optimization/activation_intake_self_test.py",
+      "sha256": "b88a4c133b5d5d2c59696cb3a4ba70e97316be73b5c23f0f1828f0f105ee9482"
+    },
+    {
+      "path": "skill/plan-and-execute/SKILL.md",
+      "sha256": "cda3a0bcc6e28543de3b59bec29f85b8bccdddda411f72622fc6566bf6f228d8"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ROUTING.md",
+      "sha256": "de94299128fb54223fdcb960f8dd90846df70f76cb0c11a24a3aee1ac1e3b01f"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PROMOTION.md",
+      "sha256": "993f52344f5886b252a1cbe18d03e5e193f97317ab6ace19f608c9fc5d10c74c"
+    },
+    {
+      "path": "skill/plan-and-execute/references/routing-evals.json",
+      "sha256": "86ed90a252a6a1168ced9a3eb53cd57d64a9f82fae44688d5936f2e82c79238b"
+    },
+    {
+      "path": "skill/plan-and-execute/agents/openai.yaml",
+      "sha256": "e60055f3d6bb5b39aa4f310591b4efe2b4d52fbdb7d31b57c1d6bae39b7475e0"
+    }
+  ],
+  "prior_review_rounds": [
+    {
+      "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/dispatch-1.json",
+      "dispatch_sha256": "f1df60abfd36f45ac0e4530af1e0aacbb7984bcb43478cda7bea2f7984f18b34",
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "session_id": "f4843e41-99c2-49f3-93db-8f0305664596",
+      "verdict": "changes_requested",
+      "blocking_findings": 2
+    }
+  ],
+  "verdict": "approved",
+  "findings": [
+    {
+      "round": 1,
+      "id": "H1",
+      "severity": "high",
+      "title": "Held-out routing cases are not held out: the cue extractor was tuned on them, and two prompts contain their own labels",
+      "status": "resolved",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-1.json"
+    },
+    {
+      "round": 1,
+      "id": "H2",
+      "severity": "high",
+      "title": "Lifecycle commands and plain mentions of the skill name route to ORCHESTRATED and persist reason codes",
+      "status": "resolved",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-1.json"
+    },
+    {
+      "round": 1,
+      "id": "M1",
+      "severity": "medium",
+      "title": "'No plan artifacts' checks are tautological; created_artifacts is hard-coded and prompt is ignored",
+      "status": "resolved",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-1.json"
+    },
+    {
+      "round": 1,
+      "id": "M2",
+      "severity": "medium",
+      "title": "Baseline, E[C] and alternative comparisons in the outcome are not supported",
+      "status": "resolved",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-1.json"
+    },
+    {
+      "round": 1,
+      "id": "M3",
+      "severity": "medium",
+      "title": "Passing capability_signals silently drops the security floor",
+      "status": "resolved",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-1.json"
+    },
+    {
+      "round": 1,
+      "id": "M4",
+      "severity": "medium",
+      "title": "promotectl rejects promotions that requestctl prescribes",
+      "status": "resolved",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-1.json"
+    },
+    {
+      "round": 1,
+      "id": "L1",
+      "severity": "low",
+      "title": "Transcript-copy rejection is narrow and easy to bypass",
+      "status": "resolved",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-1.json"
+    },
+    {
+      "round": 1,
+      "id": "L2",
+      "severity": "low",
+      "title": "Promotion test never checks that completed work stays out of the scheduled outcomes",
+      "status": "resolved",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-1.json"
+    },
+    {
+      "round": 1,
+      "id": "I1",
+      "severity": "info",
+      "title": "006 test evidence is pinned to an older SKILL.md",
+      "status": "resolved",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-1.json"
+    },
+    {
+      "round": 2,
+      "id": "M1",
+      "severity": "medium",
+      "title": "A plain mention of the skill name after run/with/via/using still counts as explicit invocation and creates an ORCHESTRATED plan",
+      "status": "deferred",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json"
+    },
+    {
+      "round": 2,
+      "id": "M2",
+      "severity": "medium",
+      "title": "Lifecycle detection matches anywhere in the prompt, so work requests that mention `pae status` route to lifecycle with tool/none capability",
+      "status": "deferred",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json"
+    },
+    {
+      "round": 2,
+      "id": "M3",
+      "severity": "medium",
+      "title": "The frozen-hash guard covers only the cue patterns: decision logic and held-out labels can change without detection",
+      "status": "deferred",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json"
+    },
+    {
+      "round": 2,
+      "id": "M4",
+      "severity": "medium",
+      "title": "Independent authorship of the held-out cases is asserted but never recorded, so the claim cannot be checked",
+      "status": "deferred",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json"
+    },
+    {
+      "round": 2,
+      "id": "M5",
+      "severity": "medium",
+      "title": "The 006 outcome and the AC04 receipt entry still state results that the corrected code contradicts",
+      "status": "resolved_in_outcome",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json"
+    },
+    {
+      "round": 2,
+      "id": "L1",
+      "severity": "low",
+      "title": "A strong_validation override still lowers the security floor's effort from high to medium",
+      "status": "deferred",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json"
+    },
+    {
+      "round": 2,
+      "id": "L2",
+      "severity": "low",
+      "title": "The cross-module agreement test claims more than it checks: promotectl accepts promotions that requestctl keeps DIRECT",
+      "status": "deferred",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json"
+    },
+    {
+      "round": 2,
+      "id": "L3",
+      "severity": "low",
+      "title": "evaluate-route --spec does not type-check values, and load errors print a traceback",
+      "status": "deferred",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json"
+    },
+    {
+      "round": 2,
+      "id": "L4",
+      "severity": "low",
+      "title": "The label-leak guard matches only a short list of literal phrases",
+      "status": "deferred",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json"
+    },
+    {
+      "round": 2,
+      "id": "L5",
+      "severity": "low",
+      "title": "Small mismatches between the docs and the code",
+      "status": "deferred",
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/007/findings-2.json"
+    }
+  ]
+}

@@ -15,30 +15,56 @@ REFERENCES = SKILL_DIR / "references"
 
 def test_current_model_map() -> None:
     configured = routingctl.configure_config(planctl.default_config())
-    assert configured["codex"]["models"] == {
-        "economy": "gpt-6-luna",
-        "standard": "gpt-6.1-sol",
-        "strong": "gpt-6.1-sol",
-        "max": "gpt-6.1-sol",
-    }
-    assert configured["claude"]["models"] == {
-        "economy": "haiku",
-        "standard": "claude-sonnet-5-5",
-        "strong": "claude-opus-5-5",
-        "max": "claude-fable-5-1",
-    }
+    # Per-tier choices live once in CURRENT_MODELS; the owner ceiling is fixed policy:
+    # Opus 5.5 / Sol 6.2 carry strong and max, Fable 5.2 / Astra 6.2 sit above as L6/F6.
+    for provider in ("claude", "codex"):
+        assert configured[provider]["models"] == routingctl.CURRENT_MODELS[provider], provider
+        assert set(configured[provider]["models"]) == {"economy", "standard", "strong", "max"}
+    assert configured["claude"]["models"]["strong"] == configured["claude"]["models"]["max"] == "claude-opus-5-5"
+    assert configured["codex"]["models"]["strong"] == configured["codex"]["models"]["max"] == "gpt-6.2-sol"
+    assert configured["claude"]["frontier"] == {"model": "claude-fable-5-2", "effort": "high"}
+    assert configured["codex"]["frontier"] == {"model": "gpt-6.2-astra", "effort": "high"}
     assert configured["routing_policy"] == {
         "model_map_version": routingctl.MODEL_MAP_VERSION,
         "selection": "adaptive",
         "escalation": "evidence",
+        "frontier": {"enabled": True, "min_top_failures": 2},
     }
     # planctl.default_config is itself catalog-backed: no second source of truth.
-    assert planctl.default_config()["claude"]["models"]["max"] == "claude-fable-5-1"
-    assert planctl.default_config()["codex"]["models"]["strong"] == "gpt-6.1-sol"
+    assert planctl.default_config()["claude"]["models"]["max"] == "claude-opus-5-5"
+    assert planctl.default_config()["codex"]["models"]["strong"] == "gpt-6.2-sol"
     assert planctl.default_config()["claude"]["models_without_effort"] == ["haiku"]
     assert routingctl.model_supports_effort(configured["claude"], "haiku") is False
     assert routingctl.model_supports_effort(configured["claude"], "sonnet") is True
     assert routingctl.model_supports_effort(configured["codex"], "gpt-6-luna") is True
+
+
+def test_final_remap_v11_decisions() -> None:
+    # Map 2026-11-20-v11 (docs/research/model-refresh-20261120/): GPT-6.2 Sol serves every Codex tier by
+    # effort; GPT-6.1 Terra and GPT-6 Luna are not tier models (Terra max 49 at 4.4x Sol 6.2 xhigh's tokens on
+    # the AA Coding Agent Index v2.1; Luna 26). Claude keeps Haiku / Sonnet / Opus.
+    assert routingctl.MODEL_MAP_VERSION == "2026-11-20-v11"
+    codex = routingctl.CURRENT_MODELS["codex"]
+    assert codex["standard"] == codex["economy"] == codex["strong"] == codex["max"] == "gpt-6.2-sol"
+    for provider in ("claude", "codex"):
+        assert not {"gpt-6.1-terra", "gpt-6-luna"} & set(routingctl.CURRENT_MODELS[provider].values()), provider
+    assert routingctl.CURRENT_MODELS["claude"] == {"economy": "claude-haiku-5-5", "standard": "claude-sonnet-5-5",
+                                                  "strong": "claude-opus-5-5", "max": "claude-opus-5-5"}
+    # One model climbing effort: no duplicated (model, effort) rung, never `max` effort or `ultra`.
+    assert routingctl.ESCALATION_LADDERS["codex"] == [["economy", "low"], ["standard", "medium"],
+                                                       ["strong", "high"], ["max", "xhigh"]]
+    for provider, ladder in routingctl.ESCALATION_LADDERS.items():
+        assert ladder[-1] == ["max", "xhigh"], provider
+        assert all(effort != "max" for _tier, effort in ladder), provider
+    # Frontier minimum CLIs from the vendor docs (Claude Code changelog adds Fable 5.2 in 2.1.321).
+    assert routingctl.FRONTIER_MIN_CLI == {"claude": "2.1.321", "codex": "0.171.0"}
+    assert routingctl.FRONTIER_MODELS == {"codex": {"model": "gpt-6.2-astra", "effort": "high"},
+                                          "claude": {"model": "claude-fable-5-2", "effort": "high"}}
+    # A semantic failure at Sol Medium moves to Sol High, and mechanical slips climb one effort at a time.
+    cfg = routingctl.configure_config({})["codex"]
+    rungs = routingctl.route_rungs(cfg, "economy", "low")
+    assert [(cfg["models"][t], e) for t, e in rungs] == [("gpt-6.2-sol", "low"), ("gpt-6.2-sol", "medium"),
+                                                          ("gpt-6.2-sol", "high"), ("gpt-6.2-sol", "xhigh")]
 
 
 def test_legacy_ceiling_state_is_replaced() -> None:
@@ -52,8 +78,8 @@ def test_legacy_ceiling_state_is_replaced() -> None:
         "max_effort": "high",
     }
     configured = routingctl.configure_config(legacy)
-    assert configured["codex"]["models"]["strong"] == "gpt-6.1-sol"
-    assert configured["codex"]["models"]["max"] == "gpt-6.1-sol"
+    assert configured["codex"]["models"]["strong"] == "gpt-6.2-sol"
+    assert configured["codex"]["models"]["max"] == "gpt-6.2-sol"
     assert configured["codex"]["max_effort_by_tier"]["max"] == "max"
     assert "hard_ceiling" not in configured["routing_policy"]
     assert "max_tier" not in configured["routing_policy"]
@@ -66,23 +92,28 @@ def test_catalog_installer_is_idempotent() -> None:
     module = routingctl.install_current_model_catalog(module)
     second = module.default_config()
     assert first == second
-    assert second["codex"]["models"]["strong"] == "gpt-6.1-sol"
+    assert second["codex"]["models"]["strong"] == "gpt-6.2-sol"
 
 
 def test_escalation_ladders_follow_calibration() -> None:
     codex = routingctl.configure_config({})["codex"]
     rungs = routingctl.route_rungs(codex, "standard", "medium")
-    # Codex climbs by effort on one model: Sol Medium -> Sol High -> Sol XHigh.
+    # Codex: Sol 6.2 serves every tier and climbs effort Medium -> High -> XHigh.
     assert rungs[0] == ("standard", "medium")
     assert rungs == [("standard", "medium"), ("strong", "high"), ("max", "xhigh")], rungs
     models = routingctl.configure_config({})["codex"]["models"]
-    assert len({models[tier] for tier in ("standard", "strong", "max")}) == 1
+    assert models["standard"] == models["strong"] == models["max"]
+    # a semantic failure moves to the next tier boundary (Sol High)
+    assert rungs[routingctl.escalation_step(["semantic"], rungs)] == ("strong", "high")
     # no two consecutive rungs resolve to the same model and effort
     assert len({(models[tier], effort) for tier, effort in rungs}) == len(rungs), rungs
     claude = routingctl.configure_config({})["claude"]
     rungs = routingctl.route_rungs(claude, "economy", "low")
-    # Haiku accepts no effort, so the rung above economy/low is Sonnet Medium.
-    assert rungs[1] == ("standard", "medium"), rungs
+    # Haiku 5.5 accepts effort: Low, then Medium, then Sonnet Medium.
+    assert rungs[:3] == [("economy", "low"), ("economy", "medium"), ("standard", "medium")], rungs
+    # Opus 5.5 serves strong and max: the max rung differs by effort, never repeats a strong rung.
+    assert len({(claude["models"][tier], effort) for tier, effort in rungs}) == len(rungs), rungs
+    assert rungs[-1] == ("max", "xhigh"), rungs
     # Evidence semantics.
     assert routingctl.escalation_step([], rungs) == 0
     assert routingctl.escalation_step(["mechanical"], rungs) == 0
@@ -165,10 +196,11 @@ def test_legacy_schema_fixtures_route_unchanged() -> None:
     # Pre-advanced (schema 1-4) expectations for the built-in ladders.
     configured = routingctl.configure_config({})
     legacy = {
-        ("claude", "economy", "low"): [("economy", "low"), ("standard", "medium"), ("standard", "high"),
-                                       ("strong", "medium"), ("strong", "high"), ("max", "high"), ("max", "xhigh")],
+        ("claude", "economy", "low"): [("economy", "low"), ("economy", "medium"), ("standard", "medium"), ("standard", "high"),
+                                       ("strong", "medium"), ("strong", "high"), ("max", "xhigh")],
         ("claude", "standard", "medium"): [("standard", "medium"), ("standard", "high"), ("strong", "medium"),
-                                           ("strong", "high"), ("max", "high"), ("max", "xhigh")],
+                                           ("strong", "high"), ("max", "xhigh")],
+        # Map v11: Codex is one model (Sol 6.2) climbing effort, so the old standard/high rung is gone.
         ("codex", "standard", "medium"): [("standard", "medium"), ("strong", "high"), ("max", "xhigh")],
         ("codex", "strong", "high"): [("strong", "high"), ("max", "xhigh")],
     }
@@ -203,6 +235,10 @@ def test_tier_eval_corpus() -> None:
         near_misses += bool(case.get("near_miss"))
     assert per_tier.get("tool", 0) >= 2 and per_tier.get("economy", 0) >= 5
     assert per_tier.get("standard", 0) >= 3 and per_tier.get("strong", 0) >= 6 and per_tier.get("max", 0) >= 2
+    # Extreme architecture/review leaves are the only frontier-eligible floors.
+    eligible = {case["id"] for case in cases if case["expected"].get("frontier_eligible")}
+    assert eligible and all(set(next(c for c in cases if c["id"] == i)["signals"]) & set(routingctl.FRONTIER_SIGNALS)
+                            for i in eligible)
     assert near_misses >= 8, "corpus needs near-miss leaves (small-but-risky and large-but-cheap)"
     # The user-facing guarantee: a small edit with weak validation and costly silent
     # failure is routed strong even when the root model is small.
@@ -233,9 +269,11 @@ def test_provider_guidance_is_split_and_lazy() -> None:
     codex = (REFERENCES / "MODEL_ROUTING_CODEX.md").read_text(encoding="utf-8")
     claude = (REFERENCES / "MODEL_ROUTING_CLAUDE.md").read_text(encoding="utf-8")
     assert "exactly one" in generic
-    assert "gpt-6.1-sol" in codex and "gpt-6-astra" not in codex
+    assert "gpt-6.2-sol" in codex and "gpt-6-astra" not in codex
     assert "Sol High" in codex and "Sol XHigh" in codex
     assert "Explore/Haiku" in claude
+    assert "claude-haiku-5-5" in claude and "claude-fable-5-2" in claude
+    assert "gpt-6.2-astra" in codex
     assert "Opus High" in claude
 
 
@@ -277,6 +315,7 @@ def main() -> int:
     test_legacy_ceiling_state_is_replaced()
     test_catalog_installer_is_idempotent()
     test_escalation_ladders_follow_calibration()
+    test_final_remap_v11_decisions()
     test_five_tier_lattice_and_aliases()
     test_empty_tiers_are_skipped_upward()
     test_legacy_schema_fixtures_route_unchanged()

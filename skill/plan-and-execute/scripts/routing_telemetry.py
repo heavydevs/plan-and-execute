@@ -116,7 +116,11 @@ def build_record(
         "validation_pass": validation_pass,
         "retry_count": int(retry_count),
     }
-    return {name: record[name] for name in RECORD_FIELDS}
+    out = {name: record[name] for name in RECORD_FIELDS}
+    if route.get("frontier"):
+        # Explicit L6/F6 marker; the persisted tier stays `max` (ordinary records are unchanged).
+        out["level"], out["frontier"] = "frontier", True
+    return out
 
 
 def telemetry_path(plan_dir: Path) -> Path:

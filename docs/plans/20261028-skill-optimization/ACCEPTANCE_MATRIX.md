@@ -15,7 +15,7 @@ Every case is pending. Exact requirements remain in `REQUEST_ORIGINAL.md`.
 | A08 | Quota/capacity fallback and exit 75 stay separate from functional failures; fallback-disabled remains pinned. Exercise provider, quota_pool and model cooldown identities. | 074 | 075 |
 | A09 | Available-predecessor handoff is redacted before truncation, bounded, validated, unverified and valid for exactly the next attempt. Inject synthetic sk-token and Authorization headers; preserve byte-stable prompt prefixes. | 076, 078 | 077, 079 |
 | A10 | Missing, invalid or unavailable predecessor output falls back to deterministic evidence without a model call. Crash, timeout and quota fixtures must retain useful current work-tree evidence. | 076, 078 | 077, 079 |
-| A11 | Manifest schemas 1-4, absent failure_classes, full v1 config snapshots and existing availability ledgers remain compatible. Include design-phase counters, reset, snapshots and strict report schema adapters. | 074, 078 | 075, 079 |
+| A11 | Manifest schemas 1-4, absent failure_classes, full v1 config snapshots and existing availability ledgers remain compatible. Include design-phase counters, reset, snapshots and strict report schema adapters. | 072, 074, 078 | 073, 075, 079 |
 | A12 | Switch reason and handoff cost telemetry contain no secrets and preserve rollup/benchmark contracts. Unknown native usage is null; deterministic replay is not measured real-world cost. | 080 | 081 |
 
 Final validation belongs to TODO 080: affected self-tests, `npm ci`, `npm run check`, and

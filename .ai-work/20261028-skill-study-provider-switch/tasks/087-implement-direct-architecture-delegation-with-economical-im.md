@@ -2,7 +2,7 @@
 task_id: "087"
 status: "pending"
 requirements: "R046"
-dependencies: "007,025,029,051,061,063"
+dependencies: "007,025,029,051,061,063,081"
 allowed_related_task_reads: "none"
 ---
 
@@ -22,7 +22,7 @@ Objective: For cohesive multi-file DIRECT work, inspect relevant files cheaply, 
 
 - [ ] **S001** Read evidence — Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md, assigned prepared research and materially affected source files.
 - [ ] **S002** Implement contract 1 — Inventory and read all materially relevant files with the current affordable model; forward only decision-relevant evidence to stronger context.
-- [ ] **S003** Implement contract 2 — Classify architecture complexity independently of plan need; delegate high-risk architecture to a qualified stronger tier with durable design.
+- [ ] **S003** Implement contract 2 — Extend PRIMARY_SIGNALS/minimum_route in routingctl.py with a DIRECT staged handoff (no parallel router); delegate high-risk architecture to a qualified stronger tier with durable design.
 - [ ] **S004** Implement contract 3 — Return bounded implementation to the current or intermediate tier when testability and capability floors justify it; reroute expensive silent-failure work upward.
 - [ ] **S005** Implement contract 4 — Run meaningful DIRECT tests through shared resource/log/progress watchers, optionally using a cheap, read-only event-triggered observer.
 - [ ] **S006** Run tests — Implement test/optimization/direct_architecture_handoff_self_test.py and run mapped validation plus feature negative cases.
@@ -32,7 +32,7 @@ Objective: For cohesive multi-file DIRECT work, inspect relevant files cheaply, 
 
 In: DIRECT architecture handoff: economical file study, qualified strong design, economical implementation and mapped tests.
 Out: No second plan or unrelated changes.; No installation, provider login, publishing or user-global configuration changes without permission.
-Files: `skill/plan-and-execute/scripts/direct_route.py`, `skill/plan-and-execute/scripts/validatectl.py`, `skill/plan-and-execute/scripts/workload_routing.py`, `skill/plan-and-execute/references/ROUTING.md`, `skill/plan-and-execute/references/DELEGATION.md`, `skill/plan-and-execute/references/MODEL_ROUTING.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `test/optimization/direct_architecture_handoff_self_test.py`, `docs/research/20261028-skill-optimization/implementation/087-receipt.json`, `docs/research/20261028-skill-optimization/implementation/087-outcome.md`
+Files: `skill/plan-and-execute/scripts/validatectl.py`, `skill/plan-and-execute/scripts/workload_routing.py`, `skill/plan-and-execute/references/ROUTING.md`, `skill/plan-and-execute/references/DELEGATION.md`, `skill/plan-and-execute/references/MODEL_ROUTING.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `test/optimization/direct_architecture_handoff_self_test.py`, `skill/plan-and-execute/scripts/routingctl.py`, `docs/research/20261028-skill-optimization/implementation/087-receipt.json`, `docs/research/20261028-skill-optimization/implementation/087-outcome.md`
 
 ## Guidance
 
@@ -41,6 +41,7 @@ Files: `skill/plan-and-execute/scripts/direct_route.py`, `skill/plan-and-execute
 - Preserve exact user intent, bounded context, security floors and real deterministic tests.
 - Refresh only materially changed facts from assigned prepared reports 006, 028, 060, 062.
 - Preserve evidence in docs/research/20261028-skill-optimization/implementation/087-receipt.json and docs/research/20261028-skill-optimization/implementation/087-outcome.md; do not mark a pending task done without validation.
+- Architecture stage Codex > Claude (Sol 6.2 / Opus 5.5 high/xhigh); implementation stage Antigravity > Codex > Claude; unavailable providers are skipped without lowering the floor; frontier never serves DIRECT implementation.
 
 ## Acceptance
 

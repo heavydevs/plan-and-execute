@@ -1,0 +1,8 @@
+test_ac01_shared_fake_provider_argv_and_outcomes_offline (__main__.Task004SharedFixturesTest.test_ac01_shared_fake_provider_argv_and_outcomes_offline) ... ok
+test_ac02_report_aware_loader_bounds_and_rejections (__main__.Task004SharedFixturesTest.test_ac02_report_aware_loader_bounds_and_rejections) ... ok
+test_ac03_credit_exhaustion_distinct_from_auth_and_functional (__main__.Task004SharedFixturesTest.test_ac03_credit_exhaustion_distinct_from_auth_and_functional) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.031s
+
+OK

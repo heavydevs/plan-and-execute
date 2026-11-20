@@ -50,9 +50,9 @@ Files: `skill/plan-and-execute/scripts/routing_config.py`, `skill/plan-and-execu
 - Strict mode/subkey validation and fingerprints; legacy default stays unchanged.
 - Version1 full snapshots do not inherit global options; schema1-4 remain readable.
 - The targeted contract is validated through the production run_concise composition.
+- A05: the third provider of a strong chain is reachable at max_attempts=8, or a documented budget rule rejects the case.
+- A06: ladder and dispatch use one chain derived from tier_routes when present, else provider_order.
 - The prepared report is input evidence, not proof that this implementation or its independent review has passed.
-- Strictly validate provider_switch.mode and handoff subkeys; default legacy mode keeps previous behavior.
-- Fingerprint every route-affecting option; full version1 config snapshots do not inherit new global settings.
 
 ## Validate
 

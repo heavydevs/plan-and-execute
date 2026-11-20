@@ -1,6 +1,6 @@
 ---
 task_id: "010"
-status: "pending"
+status: "completed"
 requirements: "R002,R003,R004,R005,R007,R032,R037,R038,R039,R042,R044"
 dependencies: "001"
 allowed_related_task_reads: "none"
@@ -20,12 +20,12 @@ Objective: Maintain a decision-oriented evidence ledger with explicit applicabil
 
 ## Checkpoints
 
-- [ ] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md. Verify the current source and only material version/account conflicts.
-- [ ] **S002** Implement revised contract 1 — Record discovery-only, abstract-only and inspected-section scopes separately; do not count inaccessible sources as verified support.
-- [ ] **S003** Implement revised contract 2 — Attach every recommended change to a material question, repository applicability and a falsification condition.
-- [ ] **S004** Implement revised contract 3 — Refresh evidence only on explicit invalidation signals; a task begins from its assigned report rather than restarting the literature survey.
-- [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
-- [ ] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
+- [x] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md. Verify the current source and only material version/account conflicts.
+- [x] **S002** Implement revised contract 1 — Record discovery-only, abstract-only and inspected-section scopes separately; do not count inaccessible sources as verified support.
+- [x] **S003** Implement revised contract 2 — Attach every recommended change to a material question, repository applicability and a falsification condition.
+- [x] **S004** Implement revised contract 3 — Refresh evidence only on explicit invalidation signals; a task begins from its assigned report rather than restarting the literature survey.
+- [x] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
+- [x] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
 
 ## Scope
 

@@ -1,6 +1,6 @@
 # Single implementation plan - evidence-backed skill optimization
 
-Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews, integration checks, and the 2026-10-31/11-02 additions.
+Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews and integration checks, plus the pending 2026-10-31 to 2026-11-20 additions 087-132 (P052-P067), each an implementation and independent review pair gating integration 082.
 
 ## Requirements -> TODOs
 
@@ -49,7 +49,6 @@ Implement 32 researched optimization topics and provider switching in one resuma
 - **R043** [must; user; P043 -> 082,083,084,085,086] Replace former second-plan tasks with integration, regression, packaging and final acceptance of this single implementation.
 - **R044** [must; user; P044 -> 004,005,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069,082,083,084,085,086] Record a newly discovered material gap with provenance and a bounded contract amendment; do not restart broad research by default.
 - **R045** [must; user; P045 -> 080,081,086] Report decisions, changed files, actual validation, unverified platforms and risks in Brazilian Portuguese.
-
 - **R046** [must; user; P046 -> 087,088,082,086] For cohesive multi-file DIRECT work, inspect relevant files cheaply, delegate difficult architecture to a stronger model only when justified, then choose a qualified economical executor and monitored tests.
 - **R047** [must; user; P047 -> 089,090,082,086] Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests.
 - **R048** [must; user; P048 -> 091,092,082,086] When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints.
@@ -57,12 +56,27 @@ Implement 32 researched optimization topics and provider switching in one resuma
 - **R050** [must; user; P050 -> 095,096,082,086] Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.
 - **R051** [must; user; P051 -> 097,098,082,086] Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
 - **R052** [must; user; P052 -> 099,100,082,086] For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
-
-- **R053** [must; user; P053 -> 101,102,082,084,086] Prevent automatic idle sleep/hibernation of the actual local host during an entire RUNNING ORCHESTRATED plan through one verified OS-native lease spanning all task/provider gaps and validations, release on stop/pause/cancel, offer opt-out and strict overnight readiness, without overriding OS power policy or safety.
-
-- **R056** [must; user; P056 -> 107,108,082,086] Independent material architecture security/performance review before coding and both lenses in final code review; no mandatory performance benchmarks.
-
-- **R057** [must; user; P057 -> 109,110,082,086] Collect all safe test failures first, preserve per-test evidence, rerun failed/affected tests during fixes and recheck the whole suite on final code.
+- **R053** [must; user; P053 -> 101,102,082,084,086] Keep the local host from idle sleep/hibernation for a whole RUNNING ORCHESTRATED plan via one verified OS-native lease over task/provider gaps and validations; release on stop/pause/cancel; offer opt-out and strict overnight readiness; never override OS power policy or safety.
+- **R054** [must; user; P054 -> 103,104,082,086] Offer an opt-in 20-minute OS scheduler for ORCHESTRATED plans with >=6 executable pending tasks and auto-unregister it at plan termination; preserve native continuous power inhibitor separately.
+- **R055** [must; user; P055 -> 105,106,082,086] Refresh 2026 provider model mapping and add opt-in frontier tier L6/F6 above max, including only actually available Fable, Astra, Carbon and other eligible frontier models.
+- **R056** [must; user; P056 -> 107,108,082,086] Review material architecture/design for security and performance before implementation and again in final independent code review; no automated performance tests unless requested.
+- **R057** [must; user; P057 -> 109,110,082,086] Collect all safe automated test failures with case-specific evidence, repair only failed/affected cases during iteration, and require complete final full-suite passing validation.
+- **R058** [must; user; P058 -> 111,112,113,114,082,086] Choose the cheapest faithful test level for each behavior and validation rule; preserve representative and unique high-risk browser journeys.
+- **R059** [must; user; P059 -> 109,110,111,112,082,086] Select task-level tests through conservative dependency/risk evidence; full mapped checks and final current-source global test suite remain required.
+- **R060** [must; user; P060 -> 113,114,082,086] Allow legacy-wide or current-plan-test review/refactor only on explicit user request and exact scope; read-only by default and edits separately authorized.
+- **R061** [must; user; P061 -> 115,116,082,086] After provider quota recovery, next safe dispatch selects highest-priority configured eligible agent, respecting pins, capability and security.
+- **R062** [must; user; P062 -> 115,116,082,086] When all allowed providers run out of quota, persist plan pause and one durable bounded automatic recheck/resume, without paid polling or duplicate workers.
+- **R063** [must; user; P063 -> 117,118,082,086] AI-generated tests must have independent contract-grounded oracles, meaningful defect-detection checks and risk-proportional unit/contract/integration/E2E.
+- **R064** [must; user; P064 -> 117,118,119,120,082,086] All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics.
+- **R065** [must; user; P065 -> 121,122,126,082,086] Create opt-in durable visual identity, design tokens and source-indexed agent context respecting real existing frontend standards.
+- **R066** [must; user; P065 -> 123,124,126,082,086] Create optional in-app or isolated Node HTML/JavaScript/SCSS prototype workflows, scoped existing-project import and guarded prototype-to-production implementation plans.
+- **R067** [must; user; P065 -> 125,126,082,086] Enforce evidence-based beautiful consistent UI and accessible functional UX acceptance including visual, responsive, keyboard, forms and explicit human review.
+- **R068** [must; user; P065 -> 121,122,123,124,125,126,082,086] Use lazy UX activation and qualified economical per-phase routing with minimal source-indexed context and no repeated broad study.
+- **R069** [must; user; P066 -> 127,128,129,130,082,086] Generation in existing projects must reuse established module-specific architecture, ORM/repositories, existing libraries/helpers, naming, packages and tests; changes of stack need explicit rationale.
+- **R070** [must; user; P066 -> 127,128,082,086] Provide explicit one-time and proactive init/refresh commands for researching project and modern best practices and generating concise source-backed documentation for agents.
+- **R071** [must; user; P066 -> 129,130,082,086] Apply pattern-first context, static architecture drift checking and approved exception reviews with security/performance and focused testing.
+- **R072** [must; user; P066 -> 127,128,129,130,082,086] Share opt-in first-project-use activation for coding and UX/design; repeat deep study only by explicit command, with lazy source-scoped context and economical routing.
+- **R073** [must; user; P067 -> 131,132,082,086] Supervisory decisions use a configurable routing_policy.manager_tier and one deterministic routingctl entry point; diagnoses are read-only, deduplicated per blocker fingerprint and budgeted, and never switch the root model, auto-edit the manifest or escalate availability faults.
 
 ## Constraints
 
@@ -73,18 +87,9 @@ Implement 32 researched optimization topics and provider switching in one resuma
 - Keep new provider-switch behavior opt-in and preserve disabled-mode and legacy contracts.
 - Keep real independent code reviews before acceptance; missing reviewers are not simulated.
 - Load only assigned reports and source paths; preserve source evidence outside disposable plan controls.
-
-- Additional approved execution contract: `docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md`. Implement 087–098 before integrating 082; final review 086 remains last.
-
-- P052: `docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md` supplies task 099/100; integrate via 082 and review via 086. The new tasks remain pending.
-
-- P053: `docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md` describes new 101 OS sleep inhibitor and independent review 102 before 082. Both remain pending; overnight host limitations apply.
-
-## Amendment — 2026-11-12: P054/P055
-
-- R054 / P054 → TODO 103/104: Opt-in 20-minute per-plan scheduler only for six or more executable pending tasks, owned host scheduler, lease-safe dead-runner resume, terminal self-cleanup; keep existing sleep inhibitor 101/102 as independent continuous host lease.
-- R055 / P055 → TODO 105/106: Update the 2026-11-12 catalog across all supported providers and add opt-in frontier tier L6/F6 above max with qualified Fable 5.2, GPT-6 Astra, Gemini 4 Carbon and other verified variants; preserve L1–L5 legacy routing and billing guardrails.
-- Before 082 require genuine independent reviews 104 and 106; integrate with 101/102 and 091/092 without duplicate monitors. No feature or model runtime test is marked completed by research.
+- Do not automatically refactor preexisting application tests; obtain explicit test-case scope and user edit authorization.
+- Enforce task-specific phase routing, provider capability floors and lazy indexed context on every task; never preload unrelated research/TODOs/logs.
+- UX capability is opt-in and lazily loaded; existing production components and human approvals outrank prototype inventions; no automatic production migration.
 
 ## Context
 
@@ -93,48 +98,3 @@ Implement 32 researched optimization topics and provider switching in one resuma
 Evidence: `ANALYSIS.md` · `PLAN_REVIEW.md` · attached study when present
 
 Autostart: no · cleanup: no
-
-## Amendment P056 — 2026-11-14
-
-Research `docs/research/20261028-skill-optimization/prepared-research/107-architecture-security-performance-review.md`. New pending task 107 implementation and 108 independent review gate before 082 integration; final 086 last. Risk-based distinct read-only design reviewer before coding; existing independent end-of-task code reviewer covers both security and performance alongside correctness. Never require automated application performance/load/stress benchmarks without explicit user request. Planning is not real reviewer execution.
-
-## P057 — 2026-11-14 batch failure discovery
-
-Study `docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md`, pending 109 implementation and genuine independent 110 review. Continue independent safe tests to collect all failures, preserving stacks, logs and E2E artifacts; stop unsafe infra/build chains. After focused fixes, full current-code validation is mandatory. 110 gates 082; 086 last. No product/runtime/reviewer evidence yet.
-
-## P058–P060 — 2026-11-19 testing and refactor architecture
-
-- **R058** [must; user; P058 -> 111,112,113,114,082,086] Create tests at the cheapest faithful unit/contract/integration level; use E2E for critical min/max and browser validation behavior.
-- **R059** [must; user; P059 -> 111,112,109,110,082,086] Select task tests by proven impact and conservative fallback. Task gate reruns mapped selection; final plan gate reruns all global suites.
-- **R060** [must; user; P060 -> 113,114,082,086] Review/refactor legacy or current-plan-created tests only upon explicit scope request; audit-only by default and case edits separately authorized.
-- Implementation-ready sources: `docs/research/20261028-skill-optimization/prepared-research/111-impact-aware-test-design-and-selection.md` and `docs/research/20261028-skill-optimization/prepared-research/113-opt-in-test-suite-review-refactor.md`.
-- 111/112 implement/review test portfolio and impact selection; 109 now depends on 112; 113/114 implement/review on-demand audit after 110; 114 gates integration 082 and 086 remains final.
-- All 114 tasks pending. No runtime skill code, project tests, independent model review or benchmark has been executed by this plan amendment.
-
-
-## P061–P064 — Additional pending work (2026-11-19)
-
-- **R061** [must; user; P061 -> 115,116,082,086] After provider quota recovery, next safe dispatch selects highest-priority configured eligible agent, respecting pins, capability and security.
-- **R062** [must; user; P062 -> 115,116,082,086] When all allowed providers run out of quota, persist plan pause and one durable bounded automatic recheck/resume, without paid polling or duplicate workers.
-- **R063** [must; user; P063 -> 117,118,082,086] AI-generated tests must have independent contract-grounded oracles, meaningful defect-detection checks and risk-proportional unit/contract/integration/E2E.
-- **R064** [must; user; P064 -> 117,118,119,120,082,086] All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics.
-
-Tasks 115–120 follow implementation/independent review pairs, staged before integration 082; final 086 remains last. Research is loaded only on matching task. No implementation or external review has occurred; commit/push of plan authorized.
-
-- **R065** [must; user; P065 -> 121,122,082,086] Durable opt-in design identity, approved tokens, real component reuse and small source-indexed agent docs.
-- **R066** [must; user; P065 -> 123,124,082,086] Optional standalone Node prototype, safe existing project import and approval-gated real frontend transfer plan.
-- **R067** [must; user; P065 -> 125,126,082,086] Scope-correct visual/UX/accessibility, interaction and responsive review with real evidence.
-- **R068** [must; user; P065 -> 121,122,123,124,125,126,082,086] Lazy activation, qualified phase routing and minimal UX context.
-
-## P065 — 2026-11-20 UI/UX
-
-R065 121/122: identity, semantic tokens and source-indexed agent memory. R066 123/124: optional in-app or isolated Node Vite vanilla HTML/JS/SCSS prototypes, read-only existing-project import and guarded sync PLAN. R067 125/126: visual/interactive/responsive/accessible quality evidence. R068 all: lazy low-token routing with 024, 107, 109–114, 119. Reference docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md. New independent reviews 122,124,126 precede 082, final 086 unchanged. **126 tasks remain pending.** No product implementation or real reviewer/test executed; only plan authorized for commit/push.
-
-## P066 — 2026-11-20 Coding standards + unified first-use UX gate
-
-- **R069** [must; user; P066 -> 127,128,129,130,082,086] Retain existing module ORM/JPA, used libraries, architecture, naming, helpers and tests by source-backed rules.
-- **R070** [must; user; P066 -> 127,128,082,086] Provide documented proactive init/refresh CLI, project study and source-indexed agent docs.
-- **R071** [must; user; P066 -> 129,130,082,086] Pattern-first implementation/review and verifiable approved architecture-drift and waiver guards.
-- **R072** [must; user; P066 -> 127,128,121–126,129,130,082,086] First relevant use or explicit command only for deep coding and UX research; one persistent opt-in gate, economical scope routing.
-
-Architecture: docs/research/20261028-skill-optimization/prepared-research/127-project-coding-standards-and-first-use-research.md. Implement 127 then independently review 128 before UI/UX 121; implement 129 then independently review 130; 082 depends on 128/130, 086 remains final. **All 130 tasks remain PENDING.** Only plan/research docs have been committed, not actual feature implementation or real independent review.

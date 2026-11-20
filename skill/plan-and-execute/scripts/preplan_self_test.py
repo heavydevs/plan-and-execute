@@ -4,10 +4,13 @@
 from __future__ import annotations
 
 import io
+import json
+import os
 import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 from argparse import Namespace
 from contextlib import ExitStack, redirect_stdout
 from pathlib import Path
@@ -290,6 +293,111 @@ def test_batches_follow_top_level_section_cohesion() -> None:
     assert [[f["id"] for f in b] for b in batches] == [["F1", "F2"], ["F3", "F4"]], batches
 
 
+def test_docx_nested_tables_merged_cells_and_zip_bounds() -> None:
+    w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+    body = (
+        '<w:p><w:r><w:t>REQ-001: Outer paragraph must stay first.</w:t></w:r></w:p>'
+        '<w:tbl>'
+        '<w:tr>'
+        '<w:tc><w:tcPr><w:gridSpan w:val="2"/></w:tcPr><w:p><w:r><w:t>REQ-002: Merged header must appear once.</w:t></w:r></w:p></w:tc>'
+        '<w:tc><w:tcPr><w:vMerge w:val="restart"/></w:tcPr><w:p><w:r><w:t>REQ-003: Vertical merge must appear once.</w:t></w:r></w:p></w:tc>'
+        '</w:tr>'
+        '<w:tr>'
+        '<w:tc><w:tbl><w:tr><w:tc><w:p><w:r><w:t>REQ-004: Nested cell must be ordered.</w:t></w:r></w:p></w:tc></w:tr></w:tbl></w:tc>'
+        '<w:tc><w:p><w:r><w:t>REQ-005: Sibling cell must keep anchor.</w:t></w:r></w:p></w:tc>'
+        '<w:tc><w:tcPr><w:vMerge/></w:tcPr><w:p/></w:tc>'
+        '</w:tr>'
+        '</w:tbl>'
+    )
+    xml = f'<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="{w}"><w:body>{body}</w:body></w:document>'.encode("utf-8")
+    with tempfile.TemporaryDirectory() as temp:
+        docx = Path(temp) / "nested.docx"
+        with zipfile.ZipFile(docx, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("word/document.xml", xml)
+            zf.writestr("word/comments.xml", b"<w:comments/>")
+        extracted = preplanctl.extract_document(docx)
+        anchors = [b["anchor"] for b in extracted["blocks"]]
+        texts = [b["text"] for b in extracted["blocks"]]
+        assert len(anchors) == len(set(anchors)), anchors
+        assert [next(i for i, t in enumerate(texts) if f"REQ-00{n}:" in t) for n in range(1, 6)] == [0, 1, 2, 3, 4]
+        assert any(u["kind"] == "non_body_part" for u in extracted["unsupported_structures"])
+        try:
+            preplanctl.extract_docx(docx, max_xml_bytes=100)
+        except preplanctl.PreplanError:
+            pass
+        else:
+            raise AssertionError("extract_docx must reject XML exceeding max_xml_bytes")
+
+
+def test_consumption_gate_rejects_same_size_rewrite_with_preserved_mtime() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        root = Path(temp)
+        repository = repo(root)
+        source = root / "spec.md"
+        source.write_text("# Spec\n\nREQ-001: Service must verify signature token-001.\n", encoding="utf-8")
+        assessment = preplanctl.assess_source(source)
+        package, _ = preplanctl.create_package(repository, source, assessment)
+        index = preplanctl.read_json(package / "SOURCE_INDEX.json")
+        frag = index["fragments"][0]
+        obl = index["obligations"][0]
+        preplanctl.write_json(
+            package / "digests" / "D001.json",
+            {
+                "digest_id": "D001",
+                "fragment_ids": ["F001"],
+                "fragment_hashes": {"F001": frag["file_sha256"]},
+                "obligations": [{"canonical_id": obl["canonical_id"], "text": obl["text_preview"], "source_refs": ["F001"]}],
+                "constraints": [],
+                "interfaces": [],
+                "dependencies": [],
+                "validation_implications": [],
+                "pattern_candidates": [],
+                "material_questions": [],
+                "contradictions": [],
+            },
+        )
+        preplanctl.write_json(package / "PATTERN_SEEDS.json", {"patterns": []})
+        preplanctl.write_json(package / "WORKSTREAM_INDEX.json", {"workstreams": [], "dependencies": [], "contradictions": []})
+        preplanctl.write_json(
+            package / "COVERAGE_REVIEW.json",
+            {
+                "status": "approved",
+                "covered_fragment_ids": ["F001"],
+                "covered_obligation_ids": [obl["canonical_id"]],
+                "unresolved_material_findings": [],
+                "notes": ["ok"],
+            },
+        )
+        (package / "FINAL_PLAN_INPUT.md").write_text("# Handoff\n\n" + ("Compact pointer summary for final planning. " * 4) + "\n", encoding="utf-8")
+        preplanctl.validate_package(package)
+        assert preplanctl.validate_consumption(package)["verified_fragment_count"] == 1
+        script = str(Path(__file__).with_name("preplanctl.py"))
+        cli = subprocess.run(
+            [sys.executable, script, "validate-package", "--package", str(package), "--source", str(source)],
+            check=True, capture_output=True, text=True,
+        )
+        assert "source_verification=verified" in cli.stdout, cli.stdout
+        cli = subprocess.run(
+            [sys.executable, script, "validate-consumption", "--package", str(package), "--source", str(source), "--fragment", "F001"],
+            check=True, capture_output=True, text=True,
+        )
+        consumed = json.loads(cli.stdout)
+        assert consumed["source_verification"]["status"] == "verified" and consumed["requested_fragments"][0]["id"] == "F001", consumed
+        frag_path = package / frag["path"]
+        stat = frag_path.stat()
+        raw = frag_path.read_bytes()
+        mutated = raw.replace(b"token-001", b"token-999", 1)
+        assert len(mutated) == len(raw)
+        frag_path.write_bytes(mutated)
+        os.utime(frag_path, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+        try:
+            preplanctl.validate_consumption(package)
+        except preplanctl.PreplanError:
+            pass
+        else:
+            raise AssertionError("validate_consumption must reject same-size rewrite with unchanged mtime")
+
+
 def main() -> int:
     test_small_request_routes_directly_to_final_plan()
     test_large_structured_request_routes_to_primary_plan_and_preserves_source()
@@ -301,6 +409,8 @@ def main() -> int:
     test_repetitive_large_request_does_not_route_by_size_alone()
     test_dependency_dense_request_routes_to_primary_plan()
     test_batches_follow_top_level_section_cohesion()
+    test_docx_nested_tables_merged_cells_and_zip_bounds()
+    test_consumption_gate_rejects_same_size_rewrite_with_preserved_mtime()
     print("All staged primary-planning self-tests passed.")
     return 0
 

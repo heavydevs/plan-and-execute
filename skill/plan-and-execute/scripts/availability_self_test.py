@@ -71,7 +71,10 @@ class AvailabilityTests(unittest.TestCase):
 
     def test_categories_do_not_confuse_cancellation_budget_or_bad_arguments(self):
         for text, category in [('429 too many requests','quota'), ('login required','authentication'),
-                               ('HTTP 503 service unavailable','capacity'), ('unknown option --effort; 429','configuration')]:
+                               ('HTTP 503 service unavailable','capacity'), ('unknown option --effort; 429','configuration'),
+                               ('ERROR: Your workspace is out of credits. Ask your workspace owner to refill in order to continue.','quota'),
+                               ('You have insufficient credits','quota'), ('no credits remaining','quota'),
+                               ('Spend cap reached','quota'), ('prepaid balance exhausted','quota'), ('weekly quota exceeded','quota')]:
             self.assertEqual(av.classify(1, text, []), category)
         self.assertEqual(av.classify(75, '', [75]), 'configured_exit')
         for code in (0, 130, 143, -2, -15, 124):

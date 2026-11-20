@@ -2,7 +2,7 @@
 task_id: "016"
 status: "pending"
 requirements: "R002,R003,R004,R005,R007,R032,R037,R038,R039,R042,R044"
-dependencies: "001,015"
+dependencies: "001,015,019"
 allowed_related_task_reads: "none"
 ---
 
@@ -46,12 +46,11 @@ Files: `skill/plan-and-execute/scripts/patternctl.py`, `skill/plan-and-execute/s
 
 ## Acceptance
 
-- Two writers using the same starting revision cannot both silently succeed.
+- Two writers using the same starting revision or digest cannot both silently succeed or overwrite the registry.
 - An unaffected completed task remains completed after an unrelated pattern change.
 - A stale completed signatory is reopened exactly once with a reason.
 - Malformed or escaping pattern paths cannot be read or deleted.
 - A worker receives only assigned current contracts, not the entire registry/history.
-- Two writers with the same starting digest cannot both overwrite the registry.
 - A formatting-only change does not reopen completed consumers.
 - A semantic revision reopens exactly its stale signatories and preserves their prior evidence as history.
 - Prepared research is not proof of implementation or independent-review completion.

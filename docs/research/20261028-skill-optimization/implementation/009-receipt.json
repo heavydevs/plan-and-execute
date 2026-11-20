@@ -1,0 +1,598 @@
+{
+  "schema_version": 2,
+  "task_id": "009",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Independent max-tier review of task 008 (5 fresh read-only dispatches; codex in quota cooldown, so claude-opus-5-5 xhigh) found 4 blocking defects across rounds, all corrected with reverting regression tests: id-less items covering any obligation (F01), unbounded gridSpan DoS (F02), sdt/customXml-wrapped rows/cells dropped (F03), hierarchical ids truncated so one item covered siblings (R4-01). Also fixed: identity-based contradictions, split-block obligation mapping, UTF-8-only XML, mandatory v2 pins with raw-source re-derivation at package/consumption, fail-fast digest audit, unsupported-structure and zero-obligation acknowledgements, worker guidance and docs. Final dispatch 5 approved with 0 blocking; declared checks pass. Remaining non-blocking findings are recorded as open.",
+  "outcome_sha256": "31c1fa8fea183445e4559a264f1880f4b9947bef613cba02ce933fc802ba3849",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/008-primary-planning.md",
+      "sha256": "1862a226b1ea4c132af94d759179c25eaa1949f063e2520b0c6679f0345c0580"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "skill/plan-and-execute/scripts/preplanctl.py",
+      "sha256": "d87f06249f12b68dca2a7ed3abf0018bcb79592a1ed20ca9ccfcee22eb2cd6d0"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/preplan_self_test.py",
+      "sha256": "ad5b87cc461c9365cc4954f301f92ea8f4e53e9e55b4cd5f3c534f2ad83f83a6"
+    },
+    {
+      "path": "test/optimization/primary_planning_self_test.py",
+      "sha256": "53ff68a506d6fd899eab4970e0265f276cb4b1b721114e6df5e673233ce2523e"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+      "sha256": "4762e4fd5c88162bd9501f1ca0892ca6142e6bd22c09521643e50c4db72f904c"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md",
+      "sha256": "73c9e90bbe1f90fbcadeca57cc2737d04e8f7b91dcb8d4df3ea18cba2b25fd12"
+    }
+  ],
+  "checks_sha256": "4f4df0c01cd7808cb8ef6754b5747d50d8977ddb7b33f57df315632448e6fcb0",
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "description": "Actual fresh reviewer provider/model/effort and reviewed input hashes are recorded.",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-5.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-5.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/009/brief-5.md"
+      ]
+    },
+    {
+      "id": "AC02",
+      "description": "No unresolved critical/high finding remains; the assigned acceptance cases have actual test evidence.",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-5.json",
+        "docs/research/20261028-skill-optimization/implementation/logs/009/20261120T093711-16256/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/009/20261120T093711-16256/check-02.log",
+        "test/optimization/primary_planning_self_test.py"
+      ]
+    },
+    {
+      "id": "AC03",
+      "description": "A reused or fabricated review receipt is rejected.",
+      "result": "passed",
+      "evidence": [
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+        "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-1.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-2.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-3.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-4.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-5.json"
+      ]
+    },
+    {
+      "id": "AC04",
+      "description": "A frontier reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.",
+      "result": "passed",
+      "evidence": [
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-5.json"
+      ]
+    }
+  ],
+  "reviewer": {
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "native_effort": "xhigh",
+    "model_tier": "max",
+    "fresh_context": true,
+    "session_id": "10395237-a60e-42b7-8e2b-cdd03ca32974",
+    "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-5.json",
+    "dispatch_sha256": "5507814f9fd30c70aa79aed06f75661c2e2736eb7ac4e065f75185b41a64b580"
+  },
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/008-receipt.json",
+      "sha256": "c0d2e5e3b999e08da4692fd7619e6e9084f2796cc9d1d8f535613bea6013c4eb"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/008-outcome.md",
+      "sha256": "bdb0ce5ebe1d1e548a41754abf1d9517055a0c23d538f898e32cd8b68b3fa968"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/preplanctl.py",
+      "sha256": "d87f06249f12b68dca2a7ed3abf0018bcb79592a1ed20ca9ccfcee22eb2cd6d0"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/preplan_self_test.py",
+      "sha256": "ad5b87cc461c9365cc4954f301f92ea8f4e53e9e55b4cd5f3c534f2ad83f83a6"
+    },
+    {
+      "path": "test/optimization/primary_planning_self_test.py",
+      "sha256": "53ff68a506d6fd899eab4970e0265f276cb4b1b721114e6df5e673233ce2523e"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+      "sha256": "4762e4fd5c88162bd9501f1ca0892ca6142e6bd22c09521643e50c4db72f904c"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md",
+      "sha256": "73c9e90bbe1f90fbcadeca57cc2737d04e8f7b91dcb8d4df3ea18cba2b25fd12"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-1.json",
+      "sha256": "be51ccc66bb67dca0af33baafe1efe1f3676574813ac8e920869de13a8ff6d73"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-2.json",
+      "sha256": "ab0d1dadc74cb14f7d969e73c7a8243c19ff5d69a24666dda6428e129a956176"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-3.json",
+      "sha256": "e25890d02b3100b540e94fb392cea4325bfc78910521382ec95947a65c12b0e8"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-4.json",
+      "sha256": "37828bf08d8a6aa332df4c8f02b67e73858e2f225c32e15ce0be72d697a6223f"
+    }
+  ],
+  "verdict": "approved",
+  "findings": [
+    {
+      "dispatch": 1,
+      "id": "F01",
+      "severity": "high",
+      "title": "Coverage audit treats a missing obligation_id as a match for every obligation without an explicit ID",
+      "status": "resolved",
+      "resolution": "Only non-empty ids match; per-id reasons"
+    },
+    {
+      "dispatch": 1,
+      "id": "F02",
+      "severity": "high",
+      "title": "Unbounded w:gridSpan lets a tiny DOCX hang extraction or exhaust memory",
+      "status": "resolved",
+      "resolution": "gridSpan/gridBefore/row extent capped at 64; fail fast"
+    },
+    {
+      "dispatch": 1,
+      "id": "F03",
+      "severity": "high",
+      "title": "Valid OOXML wrappers silently drop text, including whole table rows and cells, with no unsupported_structures record",
+      "status": "resolved",
+      "resolution": "sdt/customXml wrappers traversed; run AlternateContent, math, altChunk, moves, unhandled text recorded"
+    },
+    {
+      "dispatch": 1,
+      "id": "F04",
+      "severity": "medium",
+      "title": "Contradictions are only checked for presence, so individual contradictions can be dropped",
+      "status": "resolved",
+      "resolution": "Identity-based carry-forward and comparator"
+    },
+    {
+      "dispatch": 1,
+      "id": "F05",
+      "severity": "medium",
+      "title": "Obligations from blocks split across fragments are assigned to the first fragment only",
+      "status": "resolved",
+      "resolution": "Clause located in the fragment that holds it"
+    },
+    {
+      "dispatch": 1,
+      "id": "F06",
+      "severity": "medium",
+      "title": "DTD/ENTITY check can be bypassed with UTF-16 encoded document.xml",
+      "status": "resolved",
+      "resolution": "UTF-8-only document.xml"
+    },
+    {
+      "dispatch": 1,
+      "id": "F07",
+      "severity": "medium",
+      "title": "Integrity checks are optional when fields are absent, and the raw source and block stream are not re-verified at consumption",
+      "status": "resolved",
+      "resolution": "Mandatory v2 pins; raw-source re-derivation at package/consumption"
+    },
+    {
+      "dispatch": 1,
+      "id": "F08",
+      "severity": "medium",
+      "title": "Primary-plan task guidance does not tell workers about the new validator contracts",
+      "status": "resolved",
+      "resolution": "Guidance names validator contracts"
+    },
+    {
+      "dispatch": 1,
+      "id": "F09",
+      "severity": "medium",
+      "title": "Several negative tests would not fail if the guard they target were removed",
+      "status": "resolved",
+      "resolution": "Negative tests added"
+    },
+    {
+      "dispatch": 1,
+      "id": "F10",
+      "severity": "low",
+      "title": "Coverage matching heuristics can drop polarity and match on mere ID references",
+      "status": "accepted_limitation",
+      "resolution": "Extraction-side explicit_id = first id in clause (fail-safe over-reporting); deferred"
+    },
+    {
+      "dispatch": 1,
+      "id": "F11",
+      "severity": "low",
+      "title": "read_fragment returns text from a later read that is not checked against the recorded hash",
+      "status": "resolved",
+      "resolution": "Single verified read"
+    },
+    {
+      "dispatch": 1,
+      "id": "F12",
+      "severity": "low",
+      "title": "w:gridBefore/w:gridAfter are ignored, so column anchors and vMerge tracking are misaligned",
+      "status": "resolved",
+      "resolution": "gridBefore alignment"
+    },
+    {
+      "dispatch": 1,
+      "id": "F13",
+      "severity": "info",
+      "title": "Recall, contradiction-preservation and unsupported-structure claims go beyond what the code delivers",
+      "status": "resolved",
+      "resolution": "Docs reworded; 009 outcome supersedes 008 claims"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-01",
+      "severity": "medium",
+      "title": "Split Markdown requirement tables map every row obligation to every spanned fragment",
+      "status": "resolved",
+      "resolution": "Markdown rows located by raw line"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-02",
+      "severity": "medium",
+      "title": "Recorded unsupported structures, including tracked insertions in table cells, are never gated by coverage review",
+      "status": "resolved",
+      "resolution": "acknowledged_unsupported_structures gate"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-03",
+      "severity": "low",
+      "title": "Coverage audit still accepts content-free id echoes and short substrings",
+      "status": "resolved",
+      "resolution": "Restatement required with id match"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-04",
+      "severity": "low",
+      "title": "validate-digest does not audit its own batch's obligations, so resume marks incomplete digests complete",
+      "status": "resolved",
+      "resolution": "validate-digest batch audit; fragment_hashes required"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-05",
+      "severity": "low",
+      "title": "Digest contradictions without an id are carried by any carrier that shares a source ref",
+      "status": "resolved",
+      "resolution": "Digest contradiction ids required"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-06",
+      "severity": "low",
+      "title": "Two documentation claims slightly exceed the code",
+      "status": "resolved",
+      "resolution": "Docs and DrawingML a:t"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-07",
+      "severity": "info",
+      "title": "Source re-verification can be downgraded through the unpinned package.json original_path",
+      "status": "resolved",
+      "resolution": "--require-source"
+    },
+    {
+      "dispatch": 2,
+      "id": "R2-08",
+      "severity": "info",
+      "title": "Evidence state for the 009 gate",
+      "status": "resolved",
+      "resolution": "Fresh logs and pinned hashes in this receipt"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-01",
+      "severity": "medium",
+      "title": "R2-03 content-word rule can falsely reject faithful digests; guidance and error do not explain it",
+      "status": "resolved",
+      "resolution": "Language-neutral restatement rule; per-id reasons; guidance"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-02",
+      "severity": "low",
+      "title": "Id strings count as content words, so content-free echoes still cover RULE-/CLAUSE-/R### obligations",
+      "status": "resolved",
+      "resolution": "Ids stripped before counting words"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-03",
+      "severity": "medium",
+      "title": "Inline tracked insertions are dropped from paragraph text, so the remaining text can enter evidence with inverted meaning",
+      "status": "accepted_limitation",
+      "resolution": "Tracked insertions/moves recorded, not merged, as the decision allows; inverted-polarity warning documented"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-04",
+      "severity": "medium",
+      "title": "Obligation floor recognises only English modals and fixed id prefixes; other sources get a vacuous audit with no warning",
+      "status": "resolved",
+      "resolution": "acknowledged_obligation_floor gate; scope documented"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-05",
+      "severity": "low",
+      "title": "Digest contradiction ids are not unique, so colliding ids let one carrier satisfy several contradictions",
+      "status": "resolved",
+      "resolution": "Unique digest contradiction ids"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-06",
+      "severity": "low",
+      "title": "Unsupported-structure acknowledgement collapses entries and can crash with TypeError",
+      "status": "resolved",
+      "resolution": "Typed, per-entry acknowledgements"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-07",
+      "severity": "info",
+      "title": "R2-06 a:t and the R2-07 CLI flag have no reverting regression test",
+      "status": "resolved",
+      "resolution": "a:t and CLI exit tests"
+    },
+    {
+      "dispatch": 3,
+      "id": "R3-08",
+      "severity": "info",
+      "title": "Evidence state for the 009 gate",
+      "status": "resolved",
+      "resolution": "This receipt"
+    },
+    {
+      "dispatch": 4,
+      "id": "R4-01",
+      "severity": "high",
+      "title": "Hierarchical ids (REQ-7.1, FR-1.2.3, REQ-007-A) are truncated to a shared explicit_id, so one digest item covers every sibling obligation",
+      "status": "resolved",
+      "resolution": "Hierarchical ids extracted whole; shared ids ambiguous (canonical id or text only)"
+    },
+    {
+      "dispatch": 4,
+      "id": "R4-02",
+      "severity": "low",
+      "title": "'Any language' restatement rule falsely rejects CJK/Thai paraphrases",
+      "status": "resolved",
+      "resolution": "CJK/Thai restatements accepted"
+    },
+    {
+      "dispatch": 4,
+      "id": "R4-03",
+      "severity": "low",
+      "title": "Contradiction-id prefix is documented as a rule but not enforced; collisions surface only at synthesis",
+      "status": "resolved",
+      "resolution": "Digest-prefixed contradiction ids enforced in validate-digest"
+    },
+    {
+      "dispatch": 4,
+      "id": "R4-04",
+      "severity": "low",
+      "title": "Obligation-floor gate is keyed to unpinned block_count and only to zero obligations",
+      "status": "resolved",
+      "resolution": "Floor gate keyed to fragments; block_count re-derived"
+    },
+    {
+      "dispatch": 4,
+      "id": "R4-05",
+      "severity": "info",
+      "title": "Restatement check is a word count; filler with the right id passes",
+      "status": "accepted_limitation",
+      "resolution": "Word-count restatement is a documented trade-off; semantic fidelity is the coverage reviewer's job"
+    },
+    {
+      "dispatch": 4,
+      "id": "R4-06",
+      "severity": "info",
+      "title": "R3-03 accepted as a recorded limitation; docs match code",
+      "status": "resolved",
+      "resolution": "Move warning documented"
+    },
+    {
+      "dispatch": 4,
+      "id": "R4-07",
+      "severity": "info",
+      "title": "Evidence state for the 009 gate",
+      "status": "resolved",
+      "resolution": "This receipt"
+    },
+    {
+      "dispatch": 5,
+      "id": "R5-01",
+      "severity": "medium",
+      "title": "One digest item can still satisfy several obligations through mismatched canonical_id, obligation_id and leading text id",
+      "status": "open",
+      "resolution": "Non-blocking; recorded as follow-up"
+    },
+    {
+      "dispatch": 5,
+      "id": "R5-02",
+      "severity": "low",
+      "title": "The 60% substring path lets one truncated item cover sibling clauses and drop their qualifier",
+      "status": "open",
+      "resolution": "Non-blocking; recorded as follow-up"
+    },
+    {
+      "dispatch": 5,
+      "id": "R5-03",
+      "severity": "low",
+      "title": "Two R4 fixes have no test that fails when they are reverted; one test comment is stale",
+      "status": "open",
+      "resolution": "Non-blocking; recorded as follow-up"
+    },
+    {
+      "dispatch": 5,
+      "id": "R5-04",
+      "severity": "low",
+      "title": "The 'any language' restatement rule still falsely rejects short Indic-script restatements",
+      "status": "open",
+      "resolution": "Non-blocking; recorded as follow-up"
+    },
+    {
+      "dispatch": 5,
+      "id": "R5-05",
+      "severity": "info",
+      "title": "R4-01 to R4-06 are fixed in the current code, and R4-01/02/03 have reverting tests",
+      "status": "informational",
+      "resolution": "No code change required"
+    },
+    {
+      "dispatch": 5,
+      "id": "R5-06",
+      "severity": "info",
+      "title": "Evidence state for the 009 gate",
+      "status": "informational",
+      "resolution": "No code change required"
+    }
+  ],
+  "review_history": [
+    {
+      "dispatch": 1,
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "model_tier": "max",
+      "session_id": "3d0c2726-6747-4228-baa8-d194fe55c53f",
+      "verdict": "changes_requested",
+      "findings": 13,
+      "blocking": 3,
+      "usd": 2.3283709999999997,
+      "skipped_attempts": [],
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-1.json",
+      "evidence_sha256": "4e3528e88cf151861ca624d13bad2a2dec269ea54dfe345442708ab54a7e736f"
+    },
+    {
+      "dispatch": 2,
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "model_tier": "max",
+      "session_id": "ef211661-7a07-4abc-b5d8-cb8d48beb84b",
+      "verdict": "approved",
+      "findings": 8,
+      "blocking": 0,
+      "usd": 2.6333893,
+      "skipped_attempts": [
+        {
+          "provider": "codex",
+          "model": "gpt-6.2-sol",
+          "outcome": "quota",
+          "exit_code": 1
+        }
+      ],
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-2.json",
+      "evidence_sha256": "2e3f801005c841612e093f2eb8458f592deeced56fe12adc0910df54740c50b5"
+    },
+    {
+      "dispatch": 3,
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "model_tier": "max",
+      "session_id": "15e6beb3-9f12-4159-a7a0-b28e3f58991b",
+      "verdict": "approved",
+      "findings": 8,
+      "blocking": 0,
+      "usd": 2.4417276,
+      "skipped_attempts": [
+        {
+          "provider": "codex",
+          "model": "gpt-6.2-sol",
+          "outcome": "quota",
+          "exit_code": 1
+        }
+      ],
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-3.json",
+      "evidence_sha256": "dc1ed114c04bab9d1611b3d0405c2c952d6be793d7ddaa3058672f307e9d955f"
+    },
+    {
+      "dispatch": 4,
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "model_tier": "max",
+      "session_id": "9f279a29-a8c4-4d40-a8fb-252553a9e511",
+      "verdict": "changes_requested",
+      "findings": 7,
+      "blocking": 1,
+      "usd": 2.0316474,
+      "skipped_attempts": [
+        {
+          "provider": "codex",
+          "model": "gpt-6.2-sol",
+          "outcome": "quota",
+          "exit_code": 1
+        }
+      ],
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-4.json",
+      "evidence_sha256": "6a1593f068a582732cfad2b489ebf40f8316103f18cd67c0c1412004a574b48a"
+    },
+    {
+      "dispatch": 5,
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "model_tier": "max",
+      "session_id": "10395237-a60e-42b7-8e2b-cdd03ca32974",
+      "verdict": "approved",
+      "findings": 6,
+      "blocking": 0,
+      "usd": 1.7042323000000006,
+      "skipped_attempts": [
+        {
+          "provider": "codex",
+          "model": "gpt-6.2-sol",
+          "outcome": "quota",
+          "exit_code": 1
+        }
+      ],
+      "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/009/dispatch-5.json",
+      "evidence_sha256": "5507814f9fd30c70aa79aed06f75661c2e2736eb7ac4e065f75185b41a64b580"
+    }
+  ],
+  "supersedes": {
+    "path": "docs/research/20261028-skill-optimization/implementation/008-outcome.md",
+    "note": "008 outcome claims (ooxml-text-v2, count-based contradiction preservation, text-box recording) are stale; this receipt and 009-outcome.md describe the reviewed code."
+  },
+  "limitations": [
+    "No live model digest comparison or paid benchmark (G002); compare-baselines measures deterministic fragmentation losslessness only; no cost/quality gain is claimed.",
+    "Reviewers were read-only and ran no tests; codex was unavailable (quota) for every dispatch, so all reviews used claude-opus-5-5 xhigh.",
+    "Obligation floor is a heuristic (English modals, fixed id prefixes); zero-obligation sources require acknowledged_obligation_floor.",
+    "Tracked insertions/moves are recorded, not merged; reviewers must check previews for inverted polarity.",
+    "Raw-source re-derivation reports 'unavailable' when the source is gone unless --require-source is passed.",
+    "Open non-blocking findings: R5-01 (medium) and R5-02/R5-03/R5-04 (low); F10 extraction side deferred.",
+    "The prepared report is input evidence only, not proof that this implementation or its review passed."
+  ]
+}

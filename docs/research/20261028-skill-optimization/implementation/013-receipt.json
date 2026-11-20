@@ -1,0 +1,423 @@
+{
+  "schema_version": 2,
+  "task_id": "013",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Independent max-tier review of task 012 (4 fresh read-only claude-opus-5-5 xhigh dispatches; codex skipped for quota). Corrected both high findings (review tasks could not complete through the runner; revise generation check was opt-in) plus medium/low findings: explicit pre-generation upgrade, guarded writer-lock takeover with PID-reuse detection, on-disk scoped-input binding, flag-digest carry-forward, study_gate preservation, runner-authoritative receipt validations, receipt check before side effects, generation restore on write failure. Final dispatch 4 approved with no critical/high finding; remaining medium/low findings are recorded as limitations and follow-ups.",
+  "outcome_sha256": "0f2e5d7ea73781ef79ae8b97f8833f654b93bff4e6250d28718035b9c96f1d52",
+  "checks_sha256": "abf3f520b4f949bd0e61741ea8524112b68016ccf84946f6ae7674ee56c5e692",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md",
+      "sha256": "3f20c7f8da4049e6a6be31e1a3984e3bb7678887d963599cc6bb8ece15306d38"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/012-receipt.json",
+      "sha256": "2f787a86bd445d24c007d1a83b9dca8c2748b087710b04b8ca84221f5797ca49"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/012-outcome.md",
+      "sha256": "50528a0fcb9252d6451f632a49d175e3f09b734efda5d4471759a67762cf35e8"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "174830bac307b117fba5831e11e0ede268a52ae88bbb8cbfd13e7f5fa0924a7d"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+      "sha256": "20492b6e95f6346cb545c9d94acb56d746a307ac74deb89322230f98d852a812"
+    },
+    {
+      "path": "test/optimization/plan_contract_self_test.py",
+      "sha256": "86a687abbc82e2dff9bce7cd7ff71c32f79436ce884e4a82761eb4de3fc220f5"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLAN_SPEC.md",
+      "sha256": "97075ae9b7f15f5fc05d273c4df12d424596083afcad75816917e548a128fb82"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+      "sha256": "0682cdd82149f8fbb65a6c3437b2048856d9549a453a3ee6a5f7eaf2623dd190"
+    }
+  ],
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "result": "passed",
+      "case": "A failed revision leaves the previous manifest and task projections readable.",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/013/20261120T113403-24540/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/013-outcome.md"
+      ]
+    },
+    {
+      "id": "AC02",
+      "result": "passed",
+      "case": "Every requirement has a consumer; every implementation has explicit acceptance and validation.",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/013/20261120T113403-24540/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/013-outcome.md"
+      ]
+    },
+    {
+      "id": "AC03",
+      "result": "passed",
+      "case": "A transformed research task remains pending with subtasks instructing implementation from its report.",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/013/20261120T113403-24540/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/013-outcome.md"
+      ]
+    },
+    {
+      "id": "AC04",
+      "result": "passed",
+      "case": "Legacy schema 1-3 files are not silently rewritten using schema-4 projection rules.",
+      "evidence": [
+        "test/optimization/plan_contract_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/013/20261120T113403-24540/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/013-outcome.md"
+      ]
+    }
+  ],
+  "limitations": [
+    "D4-F01 (medium): complete/reset write or delete learning/design files before the stale-generation check in save_manifest; only stale writers reach it.",
+    "D4-F02 (medium): a dependent completed after an out-of-band (hand-edited) dependency change is not reopened by revise; hand-editing manifest.json is unsupported.",
+    "Tier/effort reclassifications are rebuilt from the spec on revise; planners must restate them (D2-N01 partial).",
+    "The live .ai-work plan is not migrated to generation counters; run recover-projections once while no runner is active (D2-N06).",
+    "Crash tests use process-level interruption (os._exit) and injected exceptions, not power-loss or fsync fault injection.",
+    "Bytes-read and rebuild-duration measurements asked for by the prepared decision were not taken; no cost/latency claim is made.",
+    "Remaining low findings (narrow double-fault guard races, unmarked pre-013 flag digests, CLI complete without runner validation evidence, studyctl direct manifest writes, requirement-ID preservation not enforced, digest excludes requirement text) are recorded in 013-outcome.md."
+  ],
+  "reviewer": {
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "native_effort": "xhigh",
+    "model_tier": "max",
+    "fresh_context": true,
+    "session_id": "96a82f16-2be3-4ccd-ab66-3807838923bf",
+    "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/013/dispatch-4.json",
+    "dispatch_sha256": "5b7dd8e47e52f3f5b270c1d114866ab9e23b31a12596af843337486e5649e437"
+  },
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/012-receipt.json",
+      "sha256": "2f787a86bd445d24c007d1a83b9dca8c2748b087710b04b8ca84221f5797ca49"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/012-outcome.md",
+      "sha256": "50528a0fcb9252d6451f632a49d175e3f09b734efda5d4471759a67762cf35e8"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "174830bac307b117fba5831e11e0ede268a52ae88bbb8cbfd13e7f5fa0924a7d"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+      "sha256": "20492b6e95f6346cb545c9d94acb56d746a307ac74deb89322230f98d852a812"
+    },
+    {
+      "path": "test/optimization/plan_contract_self_test.py",
+      "sha256": "86a687abbc82e2dff9bce7cd7ff71c32f79436ce884e4a82761eb4de3fc220f5"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLAN_SPEC.md",
+      "sha256": "97075ae9b7f15f5fc05d273c4df12d424596083afcad75816917e548a128fb82"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_PROTOCOL.md",
+      "sha256": "0682cdd82149f8fbb65a6c3437b2048856d9549a453a3ee6a5f7eaf2623dd190"
+    }
+  ],
+  "verdict": "approved",
+  "findings": [
+    {
+      "id": "D1-F01",
+      "dispatch": 1,
+      "severity": "high",
+      "title": "Tasks with requires_independent_review can never complete through the runner",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F02",
+      "dispatch": 1,
+      "severity": "high",
+      "title": "A stale plan revision can replace a newer generation by default (generation check is opt-in)",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F03",
+      "dispatch": 1,
+      "severity": "medium",
+      "title": "Pre-012 schema-4 manifests never get a generation, so the live plan has no stale-writer check or lag detection",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F04",
+      "dispatch": 1,
+      "severity": "medium",
+      "title": "Writer lock: stale-takeover race, live locks can be stolen, Windows edge cases",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F05",
+      "dispatch": 1,
+      "severity": "medium",
+      "title": "Scoped-input binding only restates the plan's declared hashes and never hashes the real files",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F06",
+      "dispatch": 1,
+      "severity": "medium",
+      "title": "Scoped digests passed with --scoped-input-digests are not carried into later revisions, so unrelated completed tasks get reopened",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F07",
+      "dispatch": 1,
+      "severity": "medium",
+      "title": "Negative tests never reach the staged-audit rollback; some checks pass vacuously",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F08",
+      "dispatch": 1,
+      "severity": "low",
+      "title": "complete/reset wrappers make two separate locked saves",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F09",
+      "dispatch": 1,
+      "severity": "low",
+      "title": "Saves with bump_generation=False reuse a generation; lag detection checks only the generation number",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F10",
+      "dispatch": 1,
+      "severity": "low",
+      "title": "Leftover create-staging directories are not cleaned; MODEL_MATRIX is not rebuilt on revise",
+      "status": "partially_resolved"
+    },
+    {
+      "id": "D1-F11",
+      "dispatch": 1,
+      "severity": "low",
+      "title": "Gaps in the dependency and research-output checks",
+      "status": "partially_resolved"
+    },
+    {
+      "id": "D2-N01",
+      "dispatch": 2,
+      "severity": "medium",
+      "title": "revise rebuilds the manifest from the spec and silently drops study_gate and audited tier/effort reclassifications",
+      "status": "partially_resolved"
+    },
+    {
+      "id": "D2-N02",
+      "dispatch": 2,
+      "severity": "medium",
+      "title": "Completion builds the receipt from the stored contract_digest but validates it against a recomputed one, so out-of-band contract edits block completion",
+      "status": "resolved"
+    },
+    {
+      "id": "D2-N03",
+      "dispatch": 2,
+      "severity": "medium",
+      "title": "A failed worker-reported validation now blocks completion even after the runner's own validation passed",
+      "status": "resolved"
+    },
+    {
+      "id": "D2-N04",
+      "dispatch": 2,
+      "severity": "low",
+      "title": "Writer-lock takeover loop skips the deadline and the sleep: it busy-spins, and hangs if the stale lock cannot be removed",
+      "status": "resolved"
+    },
+    {
+      "id": "D2-N05",
+      "dispatch": 2,
+      "severity": "low",
+      "title": "Digest carry-forward is not limited to flag-bound digests, so removing a binding from the spec is silently ignored",
+      "status": "resolved"
+    },
+    {
+      "id": "D2-N06",
+      "dispatch": 2,
+      "severity": "info",
+      "title": "The live plan is still unmigrated; a minor doc mismatch",
+      "status": "follow_up"
+    },
+    {
+      "id": "D3-F01",
+      "dispatch": 3,
+      "severity": "medium",
+      "title": "N02 rewrites stored digests for all tasks, so a later revise re-binds a stale receipt",
+      "status": "resolved"
+    },
+    {
+      "id": "D3-F02",
+      "dispatch": 3,
+      "severity": "medium",
+      "title": "Completion side effects run before the receipt check and persist if it fails",
+      "status": "resolved"
+    },
+    {
+      "id": "D3-F03",
+      "dispatch": 3,
+      "severity": "low",
+      "title": "A failed write leaves the in-memory generation ahead of disk",
+      "status": "resolved"
+    },
+    {
+      "id": "D3-F04",
+      "dispatch": 3,
+      "severity": "low",
+      "title": "Narrow lock races remain in guard removal and in lock release",
+      "status": "accepted_limitation"
+    },
+    {
+      "id": "D3-F05",
+      "dispatch": 3,
+      "severity": "low",
+      "title": "Older flag-bound digests are silently unbound",
+      "status": "accepted_limitation"
+    },
+    {
+      "id": "D3-F06",
+      "dispatch": 3,
+      "severity": "low",
+      "title": "A CLI `complete` receipt has no validation evidence and ignores failed checks",
+      "status": "accepted_limitation"
+    },
+    {
+      "id": "D3-F07",
+      "dispatch": 3,
+      "severity": "info",
+      "title": "studyctl writes the manifest without the lock or a generation bump",
+      "status": "follow_up"
+    },
+    {
+      "id": "D3-F08",
+      "dispatch": 3,
+      "severity": "info",
+      "title": "The 012 receipt's file hashes no longer match the corrected files",
+      "status": "superseded"
+    },
+    {
+      "id": "D4-F01",
+      "dispatch": 4,
+      "severity": "medium",
+      "title": "Generation check runs after complete_task/reset_task have already changed files",
+      "status": "follow_up"
+    },
+    {
+      "id": "D4-F02",
+      "dispatch": 4,
+      "severity": "medium",
+      "title": "Dependent task completed after an out-of-band dependency edit is not reopened by revise",
+      "status": "follow_up"
+    },
+    {
+      "id": "D4-F03",
+      "dispatch": 4,
+      "severity": "low",
+      "title": "A completion rejected during subtask reconciliation still changes subtask state",
+      "status": "follow_up"
+    },
+    {
+      "id": "D4-F04",
+      "dispatch": 4,
+      "severity": "low",
+      "title": "revise silently moves an in_progress task back to pending when its contract changes",
+      "status": "follow_up"
+    },
+    {
+      "id": "D4-F05",
+      "dispatch": 4,
+      "severity": "low",
+      "title": "Renaming a task ID with task_id_mapping makes revise fail when that task has a preserved learning artifact",
+      "status": "follow_up"
+    },
+    {
+      "id": "D4-F06",
+      "dispatch": 4,
+      "severity": "low",
+      "title": "Requirement IDs are not preserved across revisions",
+      "status": "follow_up"
+    },
+    {
+      "id": "D4-F07",
+      "dispatch": 4,
+      "severity": "low",
+      "title": "Contract digest leaves out requirement text and implementation guidance",
+      "status": "follow_up"
+    },
+    {
+      "id": "D4-F08",
+      "dispatch": 4,
+      "severity": "low",
+      "title": "revise creates a receipt for tasks completed before 012 using unverified declared input hashes",
+      "status": "follow_up"
+    },
+    {
+      "id": "D4-F09",
+      "dispatch": 4,
+      "severity": "info",
+      "title": "The 012 receipt and log no longer match the reviewed code",
+      "status": "follow_up"
+    }
+  ],
+  "review_history": [
+    {
+      "dispatch": 1,
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "session_id": "4fd8e325-6f4d-48c7-8ea8-eb8afb98b296",
+      "verdict": "changes_requested",
+      "blocking_findings": 2,
+      "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/013/dispatch-1.json",
+      "dispatch_sha256": "0567570b994efc115a0b2223caa4a259301a49d97f540f9701215e45c8185114"
+    },
+    {
+      "dispatch": 2,
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "session_id": "a3fdb72a-66e9-4eaf-ac2d-b00d74d1914b",
+      "verdict": "approved",
+      "blocking_findings": 0,
+      "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/013/dispatch-2.json",
+      "dispatch_sha256": "a3f8679c336811f6d29650cb087cb3b45eed7ae5cc133d6d126d3025c71c8001"
+    },
+    {
+      "dispatch": 3,
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "session_id": "247a20c5-f181-41c8-9333-bed448c4c5dd",
+      "verdict": "approved",
+      "blocking_findings": 0,
+      "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/013/dispatch-3.json",
+      "dispatch_sha256": "6914c9ae6cbf907cba7ef285a4a039eec2ed827df107fc3693d4c1a0d292f9cf"
+    },
+    {
+      "dispatch": 4,
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "session_id": "96a82f16-2be3-4ccd-ab66-3807838923bf",
+      "verdict": "approved",
+      "blocking_findings": 0,
+      "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/013/dispatch-4.json",
+      "dispatch_sha256": "5b7dd8e47e52f3f5b270c1d114866ab9e23b31a12596af843337486e5649e437"
+    }
+  ]
+}

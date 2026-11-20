@@ -1,0 +1,81 @@
+{
+  "task_id": "007",
+  "dispatch": 1,
+  "session_id": "f4843e41-99c2-49f3-93db-8f0305664596",
+  "verdict": "changes_requested",
+  "summary": "Task 006 partly delivers. With hand-set flags, requestctl.evaluate_activation keeps a cohesive 7-file feature and a short security fix DIRECT, and the security fix keeps a strong/high floor. promotectl only reads git and never changes the worktree. The current SKILL.md still holds the 006 contract (DIRECT EXIT, routing separate from capability tier, late promotion, validate-or-fix pointer). Two high defects remain. The held-out FP/FN result is in-sample because the cue extractor was tuned on those cases. Lifecycle commands and plain skill-name mentions route to ORCHESTRATED with plan persistence. Medium issues: tautological artifact tests, an invented baseline and cost model, a path that drops the security floor, and conflicting promote rules in promotectl and requestctl.",
+  "findings": [
+    {
+      "id": "H1",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/requestctl.py:665,670,677,693,703-704,708; skill/plan-and-execute/references/routing-evals.json:35-42; docs/research/20261028-skill-optimization/implementation/006-outcome.md:19",
+      "title": "Held-out routing cases are not held out: the cue extractor was tuned on them, and two prompts contain their own labels",
+      "detail": "Several extract_prompt_signals cues match phrases that appear only in held-out prompts. 'jwt' and 'signature verification' appear only in D016. 'already-implemented' appears only in P004, 'schema migration' only in P005, 'pae status' only in D019, and 'repetitive'+'log' only in D017. 'do not promote' at :670 is the expected answer written into P003/P004 themselves. The D016 strong-tier check works only because of the held-out-only 'jwt' cue. So held-out FP=0.0, FN=0.0, accuracy=1.0 and E[C]=0.0 are in-sample results. The prepared decision requires 'distinct held-out prompts', and AC04 ('measured on held-out routing-evals.json') is not genuinely met. In addition, D019's `pae status` is the installer status command (bin/plan-and-execute.js:84, README.md:15), not plan lifecycle state. The tests then lock in the overfit result: activation_intake_self_test.py:252-253 and routing_self_test.py:107-111 assert exactly 0.0.",
+      "fix": "Freeze the extractor, then write new held-out prompts (written by someone else or before the cue changes) that share no cue phrases with the extractor. Remove any held-out-only literal from the cue list or move that case to the training split. Strip label text such as 'do not promote' and 'without creating any plan files' from the prompts. Report the honest held-out FP/FN (non-zero if that is the result), and replace the exact `== 0.0` assertions with a regression threshold. Fix D019 to use a real lifecycle command (`pae current`, or in-chat status)."
+    },
+    {
+      "id": "H2",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/requestctl.py:659-667",
+      "title": "Lifecycle commands and plain mentions of the skill name route to ORCHESTRATED and persist reason codes",
+      "detail": "The explicit-invocation check is `re.search(r\"\\b(?:use|\\$)?plan-and-execute\\b\", lower)`. Because the prefix group is optional, any mention of 'plan-and-execute' counts as explicit, and line 664 then skips lifecycle detection entirely. Examples: '$plan-and-execute status', '/plan-and-execute resume', and 'resume the active plan-and-execute…' (coded explicitly at :661; corpus O010). All return route=orchestrated, persist_plan=True, persisted_reason_codes=['EXPLICIT_INVOCATION'] and load ORCHESTRATION.md. That breaks the 006 contract: lifecycle/config commands stay outside semantic routing and persist no plan or reason codes (ROUTING.md:77, SKILL.md:12). A mention-only request such as 'fix the typo in bin/plan-and-execute.js' is also a false positive. The corpus has no near-miss case for either pattern, so the test suite cannot catch the problem.",
+      "fix": "Check for lifecycle verbs first: if the prompt is '[$|/]plan-and-execute <current|status|resume|continue|cancel|reset|configure>' (or `pae <verb>`), return the lifecycle route. Require a real invocation form for explicit invocation ('use plan-and-execute', '$plan-and-execute' or '/plan-and-execute' at the start or as a directive), not any substring. Add near-miss cases: '$plan-and-execute status' → lifecycle/direct, and an edit of a file under plan-and-execute/ → direct. Relabel O010 or route it to lifecycle."
+    },
+    {
+      "id": "M1",
+      "severity": "medium",
+      "location": "test/optimization/activation_intake_self_test.py:31-55,76-88; skill/plan-and-execute/scripts/requestctl.py:459,520,555,573,593,608,639",
+      "title": "'No plan artifacts' checks are tautological; created_artifacts is hard-coded and prompt is ignored",
+      "detail": "evaluate_activation is a pure function. It never receives the temp repo path, so the before/after directory comparison and `not (repo/'.ai-work').exists()` can never fail. Every branch returns the literal `created_artifacts: []`, including orchestrated and promote. The `prompt` parameter is accepted but never read, so tests that pass prompts look like prompt-level checks but only test hand-set flags (cohesive_single_outcome=True and so on). The near-finished 'without creating control files' claim has the same problem. These tests would still pass if DIRECT handling regressed into plan creation anywhere outside this pure function.",
+      "fix": "Run the actual path in the temp repo: `requestctl.py evaluate-route --prompt …` with cwd=repo, plus any helper the DIRECT path calls. Assert a recursive file snapshot is identical, and for the acceptance prompts assert on extract_prompt_signals(prompt) output instead of hand-set flags. Either remove `created_artifacts` and the unused `prompt` parameter, or compute them."
+    },
+    {
+      "id": "M2",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/requestctl.py:733-738,831-838; docs/research/20261028-skill-optimization/implementation/006-outcome.md:18-19",
+      "title": "Baseline, E[C] and alternative comparisons in the outcome are not supported",
+      "detail": "baseline_catchall_route is an invented keyword trigger (`implement|refactor|…|files`). The actual baseline is product 0.11.0, which has had the selective description since 0.8.0 (CHANGELOG.md:94), so 'FP 0.6 → 0.0' is not an effect of 006. Task 006 changed SKILL.md by only +8 bytes. The measured 'selective metadata gate' is a Python cue extractor. SKILL.md never routes through it, so these numbers say nothing about host activation. E[C] uses invented constants (C_unneeded_plan=1.0, C_recovery=0.6, classifier=0.15) and sets C_select=0. That conflicts with the prepared decision, which requires measured task strata and keeping unknown costs unknown rather than zero. The no-orchestration and explicit-only alternatives are never computed, and the paid classifier is a constant, not a measured option.",
+      "fix": "Label the metric as the offline cue-extractor proxy. Compare against the 0.11.0 SKILL.md description (or say that no offline proxy exists for it), and compute all four alternatives on the corpus: all-direct, explicit-only, selective, and the classifier marked unmeasured. Mark the E[C] weights as illustrative and unmeasured, or remove them. Correct 006-outcome.md lines 18-19."
+    },
+    {
+      "id": "M3",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/requestctl.py:490-502",
+      "title": "Passing capability_signals silently drops the security floor",
+      "detail": "When capability_signals is supplied, line 491 uses it as-is and ignores security_sensitive, cross_cutting_risk and weak_validation. For example, `{\"security_sensitive\": true, \"capability_signals\": [\"mechanical_edit\"]}` (reachable through `evaluate-route --spec`) returns economy/medium while still emitting DIRECT_WITH_STRONG_CAPABILITY. That violates 'its model floor is not lowered'. No test covers this path.",
+      "fix": "Always merge the risk-derived signals into capability_signals: add silent_failure_costly when security_sensitive is set, cross_cutting_risk when that flag is set, and weak_validation when that flag is set. Add a regression test showing the override cannot drop below strong/high."
+    },
+    {
+      "id": "M4",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/promotectl.py:116-119 vs skill/plan-and-execute/scripts/requestctl.py:536-541,559",
+      "title": "promotectl rejects promotions that requestctl prescribes",
+      "detail": "For explicit invocation with already_direct, requestctl returns route=promote and loads PROMOTION.md even when nearly_finished is true. promotectl then rejects any nearly_finished cohesive spec unless the reason codes include INDEPENDENT_WORKSTREAMS, BROAD_STUDY or CROSS_CUTTING_RISK. EXPLICIT_INVOCATION, DURABLE_RESUME_VALUE and ISOLATION_VALUE are not exempt. So an explicit user request to promote (ROUTING.md:7, 'explicit user invocation -> ORCHESTRATED') cannot be validated or rendered. The two guards also disagree on the outcome count: requestctl requires <=1 remaining outcome, promotectl ignores the count.",
+      "fix": "Exempt EXPLICIT_INVOCATION, and decide whether DURABLE_RESUME_VALUE and ISOLATION_VALUE should also be exempt, in promotectl's nearly_finished guard. Align both modules on a single rule and add a cross-module test: when requestctl says promote, the matching spec must pass promotectl validate."
+    },
+    {
+      "id": "L1",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/promotectl.py:67-73,136-137",
+      "title": "Transcript-copy rejection is narrow and easy to bypass",
+      "detail": "Only completed_work, validated_results, decisions and evidence_pointers are scanned. original_goal (1600 chars), remaining_outcomes, relevant_code, risks, blockers and estimated_working_set are not. Chat history is detected only when 'user:' and 'assistant:' appear in the same item, so splitting turns across items gets past it. The test covers only the 'transcript.jsonl' pointer.",
+      "fix": "Scan every text field, including original_goal. Detect role markers across the whole list, e.g. any item starting with a role prefix. Add negative tests for split-turn and original_goal pastes."
+    },
+    {
+      "id": "L2",
+      "severity": "low",
+      "location": "test/optimization/activation_intake_self_test.py:228-236",
+      "title": "Promotion test never checks that completed work stays out of the scheduled outcomes",
+      "detail": "The test asserts that the directive text and the remaining outcomes appear in the output. It does not parse the '## Remaining outcomes' section to confirm that completed_work and validated_results items are absent there. A regression that merged completed work into the remaining outcomes would still pass.",
+      "fix": "Extract the Remaining outcomes section and assert it equals exactly the spec's remaining_outcomes, and that completed_work items appear only under '## Completed work'."
+    },
+    {
+      "id": "I1",
+      "severity": "info",
+      "location": "skill/plan-and-execute/SKILL.md (receipt ee0983… vs current cda3a0…); docs/research/20261028-skill-optimization/implementation/006-checks.json",
+      "title": "006 test evidence is pinned to an older SKILL.md",
+      "detail": "The current SKILL.md still meets the 006 contract: DIRECT EXIT creates no .ai-work state (:22), 'DIRECT exits the harness, not adaptive model routing' (:24), the silent_failure_costly→strong/high floor (:57), promote-late with remaining outcomes only (:71), and the validate-or-fix pointer. However, the outcome claims SKILL.md documents reason-code persistence and offline/live evaluation limits; that text now exists only in ROUTING.md:74-82. The 6963-byte figure and the check logs apply to the old hash. Run 20261120T054702 does not cover the final reviewed hashes, and the P1_006 receipt gate is not reported.",
+      "fix": "After the corrections, re-run P1_TESTS_006 and P1_006 through resource_watch on the final hashes. Record the new SKILL.md byte count and hash, and point the outcome text at ROUTING.md where appropriate."
+    }
+  ]
+}

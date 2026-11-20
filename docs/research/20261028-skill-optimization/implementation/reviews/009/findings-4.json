@@ -1,0 +1,65 @@
+{
+  "task_id": "009",
+  "dispatch": 4,
+  "session_id": "9f279a29-a8c4-4d40-a8fb-252553a9e511",
+  "verdict": "changes_requested",
+  "summary": "Round-3 fixes checked against the current code. R3-01/R3-02 id stripping, the 3-word restatement rule and per-id reasons are in place (preplanctl.py:805-811, 1053-1092, guidance at 1481). Also in place: R3-04 floor gate and docs (2072-2081, PRIMARY_PLANNING.md:105), R3-05 cross-digest id uniqueness (1897-1909), R3-06 string-shape and per-entry counting (2056-2071), R3-07 a:t and the CLI exit test (244; test 1353, 1392-1408). R3-03 is documented as a recorded limitation, as the prepared decision allows. One new high finding: the id regex truncates hierarchical ids, so one item covers all its siblings. That repeats the F01 bypass class. No 009 logs or receipt exist yet. I ran no tests (read-only review).",
+  "findings": [
+    {
+      "id": "R4-01",
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:785,880,1047,1060-1061,2019",
+      "title": "Hierarchical ids (REQ-7.1, FR-1.2.3, REQ-007-A) are truncated to a shared explicit_id, so one digest item covers every sibling obligation",
+      "detail": "EXPLICIT_OBLIGATION_ID_RE ends `[-_]\\d+...\\b`, and `\\b` matches before '.' or '-'. So 'REQ-7.1' and 'REQ-7.2' both get explicit_id 'REQ-7' (880). In the audit, `accepted` includes that eid (1047). `first_id` (1060-1061) also truncates the item's 'REQ-7.1: ...' to 'REQ-7'. One item {canonical_id: OBL-a, text: 'REQ-7.1: Users must log in with MFA.', source_refs:[F001]} therefore covers REQ-7.2 ('Sessions must expire after 15 minutes') in the same fragment, though no digest mentions it. validate-digest passes, resume marks the batch complete and validate-coverage passes. covered_obligation_ids accepts 'REQ-7' for both (2019). Markdown table rows and DOCX prose/cells that hold id plus text are affected. This is the F01 bypass class (one item covering many obligations) and breaks AC08 for a common id convention. It also creates a spurious conflicting_explicit_id contradiction per major number (AC03 noise), and missing_reasons keys collide. No test uses dotted or suffixed ids.",
+      "fix": "Make the id grammar consume hierarchical suffixes in both regexes, e.g. `(?:REQ|FR|NFR|OBL|CLAUSE|RULE)[-_]\\d+(?:[.\\-_]\\d+)*(?:[-_]?[A-Za-z])?\\b` and `R\\d{2,4}(?:\\.\\d+)*`, and bump EXTRACTION_VERSION. Also, for ids in duplicate_explicit_ids, accept only canonical_id or a text match. Add a test with REQ-7.1/REQ-7.2 rows in one fragment: omitting 7.2 must fail validate-digest and validate-coverage."
+    },
+    {
+      "id": "R4-02",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:809-811,1481; skill/plan-and-execute/references/PRIMARY_PLANNING.md:103",
+      "title": "'Any language' restatement rule falsely rejects CJK/Thai paraphrases",
+      "detail": "_substantive counts runs of 2+ letters (`[^\\W\\d_]{2,}`). Unspaced scripts make one run per clause: 'REQ-1 加密所有数据' has 1 word and is rejected as a bare id. The error says 'needs 3+ words besides ids', which such a worker cannot act on. Only a verbatim copy passes, through the text-match path. Code comment, digest guidance and docs all claim 'any language'. Fails closed, so low.",
+      "fix": "Count CJK/Thai characters (e.g. 4+ letters from those blocks count as a restatement) or use a letter-count threshold. Otherwise scope the docs/guidance claim to space-delimited languages. Add a CJK case to the R3-01 test."
+    },
+    {
+      "id": "R4-03",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1849-1850,1897-1909; skill/plan-and-execute/references/PRIMARY_PLANNING.md:104",
+      "title": "Contradiction-id prefix is documented as a rule but not enforced; collisions surface only at synthesis",
+      "detail": "Docs say a new digest contradiction id 'is prefixed with its digest id'. validate_digest checks only that an id exists. Uniqueness, even within one digest, is checked only in all_digests. A digest with C1 passes its own TODO and resume-status marks it complete. Then validate-synthesis fails with 'prefix new ids with the digest id' inside the synthesis TODO, whose scope does not cover rewriting digests. That can cause a retry loop instead of failing fast in the defective digest.",
+      "fix": "In validate_digest, require each contradiction id that is not a SOURCE_INDEX id to start with f'{digest_id}-' and to be unique within the digest. Keep the all_digests check as the backstop."
+    },
+    {
+      "id": "R4-04",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:2072-2081,2102-2177",
+      "title": "Obligation-floor gate is keyed to unpinned block_count and only to zero obligations",
+      "detail": "The gate requires `block_count > 0`. verify_source_derivation never re-derives block_count, so a re-pinned SOURCE_INDEX with block_count 0 (or the key removed) skips the gate. Docs claim a re-pinned index is rejected. A non-numeric block_count raises ValueError, a traceback instead of PreplanError. Separately, one incidental English 'must' line or an 'R100' token gives obligations > 0 and disables the floor for an otherwise unrecognised pt-BR source. PLANNING_INPUT_CONTRACT.md:50 documents this as a heuristic limit.",
+      "fix": "Base the condition on non-empty fragments (always true for a valid package), or compare block_count in verify_source_derivation. Optionally also require the acknowledgement when obligations are far fewer than table rows or blocks."
+    },
+    {
+      "id": "R4-05",
+      "severity": "info",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:1062-1066; skill/plan-and-execute/references/PRIMARY_PLANNING.md:103",
+      "title": "Restatement check is a word count; filler with the right id passes",
+      "detail": "'REQ-7 is fully covered' with the right canonical_id counts as coverage (3 words besides ids). Docs say 'proves acknowledgement plus a restatement, not semantic fidelity', so this is the accepted R3-01 trade-off. Only the semantic check by the strong coverage reviewer catches it.",
+      "fix": "No code change required. Optionally have the coverage reviewer spot-check id-matched items against text_preview."
+    },
+    {
+      "id": "R4-06",
+      "severity": "info",
+      "location": "skill/plan-and-execute/scripts/preplanctl.py:391-392,555-563; skill/plan-and-execute/references/PRIMARY_PLANNING.md:109; skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md:50",
+      "title": "R3-03 accepted as a recorded limitation; docs match code",
+      "detail": "Inline and table w:ins/w:moveTo text is still excluded and recorded with a preview. Both docs warn about inverted polarity and require comparing previews. This meets the prepared decision ('surface tracked changes ... as explicit coverage limitations'). Moved text (moveFrom/moveTo) is missing from both positions. The approval gate covers it, but the polarity warning names only insertions.",
+      "fix": "Optionally extend the warning sentence to moves."
+    },
+    {
+      "id": "R4-07",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/008-receipt.json:14-35; docs/research/20261028-skill-optimization/implementation/008-outcome.md:10",
+      "title": "Evidence state for the 009 gate",
+      "detail": "No implementation/logs/009 directory and no 009 receipt exist. The 008 receipt pins preplanctl.py 5c15…, but the reviewed input is cfeb…. 008-outcome.md still says ooxml-text-v2, while the code is v3 (preplanctl.py:36). This reviewer ran no tests and recomputed no hashes. The prepared report and the 008 receipt are input evidence only, not proof of implementation or review completion.",
+      "fix": "After fixing R4-01, the 009 receipt must record this reviewer's provider/model/effort and the reviewed-input hashes, pin the final file hashes, and attach fresh resource-watched logs for primary_planning_self_test.py and preplan_self_test.py. It must also state that it supersedes the 008 outcome's claims."
+    }
+  ]
+}

@@ -1,0 +1,309 @@
+{
+  "schema_version": 2,
+  "task_id": "011",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Independent max-tier review of task 010 (adaptive study) via review_dispatch.py. Dispatch 1 (claude-opus-5-5 xhigh) requested changes with 3 high findings; all were corrected in studyctl.py (recommendation guards follow their own claim, undated sources must declare CLI impact, contradiction probes need recorded evidence) together with 7 lower findings, with counterexample tests and updated ADAPTIVE_STUDY.md. Fresh dispatch 3 approved the final hashes with 0 blocking findings; 9 medium/low findings remain open and non-blocking. Declared checks pass under resource_watch P1_TESTS_011.",
+  "outcome_sha256": "f5ce76c763be508e5768103f1ff9fa300317a94d470dcb1ec7eda0c5eebe89cf",
+  "checks_sha256": "16703bd4284fd056c040cd3f07b2b1bb0a325a9325754949d3a66784586cbe7b",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/010-adaptive-study.md",
+      "sha256": "1324b55081d8719cf284cab62296ecc935dd8df31c63c92b33e2854c8b85d72e"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "skill/plan-and-execute/scripts/studyctl.py",
+      "sha256": "dc4b944cf4fdd5fd6be6e26db205f502a81f57c299e666359246ce3087c76ef5"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/study_self_test.py",
+      "sha256": "d0e6c32dd7ed32a4c7e8051613f4e1e1a814d0024296d805e7e74b6d411c4664"
+    },
+    {
+      "path": "test/optimization/adaptive_study_self_test.py",
+      "sha256": "7121f82b8ecfb7493c50eb7fa233b2c30d0403baaaaacb4f905d93ed0b8ca7d2"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+      "sha256": "a345f36320cd861d0dba62f8397cbaf9404d2f0373aa2c37ff1bcc2f09b9addd"
+    }
+  ],
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/reviews/011/dispatch-3.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/011/findings-3.json",
+        "docs/research/20261028-skill-optimization/implementation/011-outcome.md"
+      ]
+    },
+    {
+      "id": "AC02",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/reviews/011/findings-1.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/011/findings-3.json",
+        "test/optimization/adaptive_study_self_test.py",
+        "skill/plan-and-execute/scripts/study_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/011/20261120T102111-14436/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/011/20261120T102111-14436/check-02.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/011/20261120T102111-14436/check-03.log"
+      ]
+    },
+    {
+      "id": "AC03",
+      "result": "passed",
+      "evidence": [
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/reviews/011/dispatch-3.json",
+        "docs/research/20261028-skill-optimization/implementation/011-outcome.md"
+      ]
+    },
+    {
+      "id": "AC04",
+      "result": "passed",
+      "evidence": [
+        "docs/plans/20261028-skill-optimization/support/check_delivery.py",
+        "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
+        "docs/plans/20261028-skill-optimization/support/review_dispatch_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/reviews/011/dispatch-3.json",
+        "docs/research/20261028-skill-optimization/implementation/011-outcome.md"
+      ]
+    }
+  ],
+  "limitations": [
+    "No live authenticated provider probe or subscription-quota benchmark was executed.",
+    "The reviewer read code statically; test execution evidence comes from this worker's resource_watch run.",
+    "Nine dispatch-3 medium/low findings remain open (non-blocking) and are listed in 011-outcome.md.",
+    "Dispatch 2 was lost to a review_dispatch.py stale-heartbeat race (transient run.json read falls back to spawned_at); the helper is outside this task's write scope.",
+    "The prepared report is input evidence only, not proof of implementation or review."
+  ],
+  "reviewer": {
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "native_effort": "xhigh",
+    "model_tier": "max",
+    "fresh_context": true,
+    "session_id": "15c28c29-6ba9-4ca7-ba39-86b56f430cee",
+    "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/011/dispatch-3.json",
+    "dispatch_sha256": "0947e8c31aaa2c94b65c3a730be8c06f6e2c69fed5852024fb972236d35c2a11"
+  },
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/010-receipt.json",
+      "sha256": "31eb3655184acae09d34b51e3cd75ca43e1d02863d827e99363d6b986bd1441e"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/010-outcome.md",
+      "sha256": "92a6a0d216e1c26f36220ad1306a66e9ca75416336e3f2d1be038466d43b2f0a"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/studyctl.py",
+      "sha256": "dc4b944cf4fdd5fd6be6e26db205f502a81f57c299e666359246ce3087c76ef5"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/study_self_test.py",
+      "sha256": "d0e6c32dd7ed32a4c7e8051613f4e1e1a814d0024296d805e7e74b6d411c4664"
+    },
+    {
+      "path": "test/optimization/adaptive_study_self_test.py",
+      "sha256": "7121f82b8ecfb7493c50eb7fa233b2c30d0403baaaaacb4f905d93ed0b8ca7d2"
+    },
+    {
+      "path": "skill/plan-and-execute/references/ADAPTIVE_STUDY.md",
+      "sha256": "a345f36320cd861d0dba62f8397cbaf9404d2f0373aa2c37ff1bcc2f09b9addd"
+    }
+  ],
+  "superseded_dispatches": [
+    {
+      "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/011/dispatch-1.json",
+      "dispatch_sha256": "5c5fca81964f584598ece4313621526f81120095ff3eabbb9fa9b201c3c4352b",
+      "verdict": "changes_requested",
+      "blocking_findings": 3
+    }
+  ],
+  "verdict": "approved",
+  "findings": [
+    {
+      "id": "D1-F01",
+      "dispatch": 1,
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1788-1801",
+      "title": "Recommendation guards are skipped when the linked question is probe_required, so AC05 and AC06 can be bypassed",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F02",
+      "dispatch": 1,
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:513-515,521-525,543-545 (also 1500-1502)",
+      "title": "version_or_date is no longer required in v1/v2 studies, and CLI refresh flagging only works if the author labels the source",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F03",
+      "dispatch": 1,
+      "severity": "high",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:993-1002, 1102-1168",
+      "title": "AC03 contradiction guard can be bypassed with status 'assumed' or a self-declared probe_verified=true",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F04",
+      "dispatch": 1,
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:742-750, 1240-1249, 1336-1404",
+      "title": "Any prepared_reports entry waives the medium-trigger focused-research rule, and reports are never checked",
+      "status": "partially_resolved"
+    },
+    {
+      "id": "D1-F05",
+      "dispatch": 1,
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1313-1333, 1366-1369",
+      "title": "Prepared-research non-proof check can be skipped by changing evidence_origin, and any string counts as a receipt",
+      "status": "partially_resolved"
+    },
+    {
+      "id": "D1-F06",
+      "dispatch": 1,
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1875-1907, 2043-2061, 2129-2143",
+      "title": "Invalidation signals that target nothing are silently treated as no-ops (fail-open)",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F07",
+      "dispatch": 1,
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:854-861, 1945-1985; skill/plan-and-execute/references/ADAPTIVE_STUDY.md:136",
+      "title": "High-impact questions can be marked resolved without any verified-scope evidence, contradicting the documented stopping rule",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F08",
+      "dispatch": 1,
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:866-882",
+      "title": "Subscription-quota guard accepts api_pricing evidence plus an unread quota source",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F09",
+      "dispatch": 1,
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:2054-2058, 2104-2111",
+      "title": "Invalidation over-reports which sources and recommendations are affected",
+      "status": "partially_resolved"
+    },
+    {
+      "id": "D1-F10",
+      "dispatch": 1,
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1374, 1395, 1684, 1858",
+      "title": "Unchecked type coercion: invalid research_revision crashes the CLI, and the string 'false' becomes True",
+      "status": "resolved"
+    },
+    {
+      "id": "D1-F11",
+      "dispatch": 1,
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1654-1658, 1836-1857",
+      "title": "The article-copy limit applies only to source_register.summary",
+      "status": "deferred"
+    },
+    {
+      "id": "D1-F12",
+      "dispatch": 1,
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:847, 2214-2219",
+      "title": "Citing any internal source satisfies a verified_interface claim",
+      "status": "deferred"
+    },
+    {
+      "id": "D1-F13",
+      "dispatch": 1,
+      "severity": "low",
+      "location": "docs/research/20261028-skill-optimization/implementation/010-receipt.json:33-106",
+      "title": "Receipt has no acceptance_coverage entry for the eighth acceptance criterion",
+      "status": "not_in_write_scope"
+    },
+    {
+      "id": "D3-F01",
+      "dispatch": 3,
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:104-107,227-233,236-257; .ai-work/20261028-skill-study-provider-switch/study.json:95; docs/research/20261028-skill-optimization/INITIAL_SOURCES.json:22",
+      "title": "AC01: a retrieval/access date alone counts as an explicit version/date, so undated live CLI docs are never flagged",
+      "status": "open_non_blocking"
+    },
+    {
+      "id": "D3-F02",
+      "dispatch": 3,
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1042-1052,565-573",
+      "title": "probe_verified can be backed by an external URL self-labelled observed_repository_behavior, even an unread one",
+      "status": "open_non_blocking"
+    },
+    {
+      "id": "D3-F03",
+      "dispatch": 3,
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1880-1888,1914-1923,890-892",
+      "title": "AC06: recommendations don't inherit the linked question's subscription_quota claim, so the api_pricing guard is bypassed by defaults",
+      "status": "open_non_blocking"
+    },
+    {
+      "id": "D3-F04",
+      "dispatch": 3,
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:2434-2443,2075-2122,2334-2339",
+      "title": "Ledger readiness ignores its own invalidation_result; consumed_reports still lists invalidated reports",
+      "status": "open_non_blocking"
+    },
+    {
+      "id": "D3-F05",
+      "dispatch": 3,
+      "severity": "medium",
+      "location": "docs/research/20261028-skill-optimization/implementation/010-receipt.json:15-31,40; docs/research/20261028-skill-optimization/implementation/010-outcome.md:22-24,41-43",
+      "title": "Recorded test evidence and hashes predate the corrections; the corrected suites have no run log",
+      "status": "open_non_blocking"
+    },
+    {
+      "id": "D3-F06",
+      "dispatch": 3,
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:2263-2271,2233-2237",
+      "title": "Invalidation is imprecise in two places: report metadata is ignored once any recommendation links to it, and missing_date_or_version ignores the named source_ids",
+      "status": "open_non_blocking"
+    },
+    {
+      "id": "D3-F07",
+      "dispatch": 3,
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:1488-1498,1408,1431-1447; skill/plan-and-execute/references/ADAPTIVE_STUDY.md:156",
+      "title": "Prepared-report completion rule can be relabelled outside the exact path marker; 'implementation_proven' rests on an unverified string",
+      "status": "open_non_blocking"
+    },
+    {
+      "id": "D3-F08",
+      "dispatch": 3,
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:870-888,1332,766-777",
+      "title": "Located-only guards apply only to status 'resolved'; prepared-report waiver isn't tied to the task",
+      "status": "open_non_blocking"
+    },
+    {
+      "id": "D3-F09",
+      "dispatch": 3,
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/studyctl.py:2597-2601,2913-2915,249-255",
+      "title": "Backward compatibility: plain render format and version_or_date rule changed for previously valid studies",
+      "status": "open_non_blocking"
+    }
+  ]
+}

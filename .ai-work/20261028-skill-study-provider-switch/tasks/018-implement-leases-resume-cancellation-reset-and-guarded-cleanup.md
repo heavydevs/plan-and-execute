@@ -23,7 +23,7 @@ Objective: Use owned, generation-aware leases and scoped receipt validity for re
 - [ ] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/018-lifecycle.md. Verify the current source and only material version/account conflicts.
 - [ ] **S002** Implement revised contract 1 — Fence task completion by lease generation and verify process-start identity before process actions.
 - [ ] **S003** Implement revised contract 2 — Represent ambiguous post-crash effects as uncertain and require reconciliation before replay.
-- [ ] **S004** Implement revised contract 3 — Use scoped contract/input fingerprints for task receipts and reserve whole-repository fingerprints for integration checks.
+- [ ] **S004** Implement revised contract 3 — Extend 012's receipt-validity function with scoped contract/input fingerprints (no second fingerprint); reserve whole-repository fingerprints for integration checks.
 - [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
 - [ ] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
 

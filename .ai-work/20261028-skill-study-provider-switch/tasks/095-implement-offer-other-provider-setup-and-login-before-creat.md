@@ -2,7 +2,7 @@
 task_id: "095"
 status: "pending"
 requirements: "R050"
-dependencies: "007,009,023,027,031,033,035,037,039,041,043,045,047"
+dependencies: "007,009,023,027,031,033,035,037,039,041,043,045,047,094,073"
 allowed_related_task_reads: "none"
 ---
 
@@ -22,7 +22,7 @@ Objective: Only at new ORCHESTRATED plan creation, discover alternate provider a
 
 - [ ] **S001** Read evidence — Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md, assigned prepared research and materially affected source files.
 - [ ] **S002** Implement contract 1 — Discover alternate provider agents, installed versions, config and auth readiness with bounded non-generative probes.
-- [ ] **S003** Implement contract 2 — Classify ready, needs_config, needs_login, unsupported and unknown without exposing secrets.
+- [ ] **S003** Implement contract 2 — Classify ready, needs_config, needs_login, unsupported and unknown without exposing secrets; add a read-only availability field from the availability.py ledger.
 - [ ] **S004** Implement contract 3 — Ask separately for each discovered agent needing setup/login before new-plan tasks are created; persist choices.
 - [ ] **S005** Implement contract 4 — Exclude unavailable providers without capability downgrade; do not ask again on resume, task runs or simple requests.
 - [ ] **S006** Run tests — Implement test/optimization/provider_readiness_gate_self_test.py and run mapped validation plus feature negative cases.
@@ -50,6 +50,7 @@ Files: `skill/plan-and-execute/scripts/preplanctl.py`, `skill/plan-and-execute/s
 - Existing-plan resume, running TODOs, DIRECT changes and shell commands never run this questionnaire.
 - Unknown availability cannot silently widen a forbidden provider chain or lower capability.
 - Implementation and review remain pending until actual execution evidence exists.
+- A logged-in provider with exhausted quota/credits is not prompted to log in, not marked unsupported, and is skipped by routing until its cooldown ends.
 
 ## Validate
 

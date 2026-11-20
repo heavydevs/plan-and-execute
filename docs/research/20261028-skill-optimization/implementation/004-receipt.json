@@ -1,0 +1,75 @@
+{
+  "schema_version": 2,
+  "task_id": "004",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Implemented shared offline fake-provider fixtures (claude/codex/antigravity argv; success, quota, auth, functional, and credit_exhaustion outcomes) and bounded report-aware task input loading in test/optimization/shared_fixtures.py, verified by test/optimization/task_004_self_test.py.",
+  "outcome_sha256": "910d9942841e5a66535febc0a9d7d079b1099cf9805b4d0eb79d142785b9ea56",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+      "sha256": "300a1adcfc903e555f106543861a5ee96d6aac4631a6289bf210af265c67d379"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "test/optimization/shared_fixtures.py",
+      "sha256": "1486a8e854d93659a1a58de54d8ddc06b6527586d86516ab31958f93cec1ed7a"
+    },
+    {
+      "path": "test/optimization/task_004_self_test.py",
+      "sha256": "1c72c3c787f0f4d99316a851ec05adc7654ab3cc7b57d07236ab55b86f1db5c9"
+    }
+  ],
+  "checks_sha256": "3f0bf57886480a92e8281eae18504c5e11d6e18a4a92d4d15de8fa177608a082",
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/shared_fixtures.py",
+        "test/optimization/task_004_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/004/20261120T053944-28680/check-01.log"
+      ]
+    },
+    {
+      "id": "AC02",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/shared_fixtures.py",
+        "test/optimization/task_004_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/004/20261120T053944-28680/check-01.log"
+      ]
+    },
+    {
+      "id": "AC03",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/shared_fixtures.py",
+        "test/optimization/task_004_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/004/20261120T053944-28680/check-01.log"
+      ]
+    },
+    {
+      "id": "AC04",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/task_004_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/004-checks.json",
+        "docs/research/20261028-skill-optimization/implementation/logs/004/20261120T053944-28680/check-01.log"
+      ]
+    },
+    {
+      "id": "AC05",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/004-outcome.md",
+        "docs/research/20261028-skill-optimization/implementation/004-checks.json"
+      ]
+    }
+  ],
+  "limitations": [
+    "Offline contract tests only; no live provider CLI or authenticated model call was executed.",
+    "Independent code review of task 004 is not claimed by this receipt and remains pending."
+  ]
+}

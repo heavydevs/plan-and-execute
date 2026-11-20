@@ -146,7 +146,8 @@ def test_compact_projection_and_completion_memory() -> None:
 
         route = {"provider": "codex", "model": "test", "tier": "economy", "effort": "low"}
         prompt = run_isolated.worker_prompt(plan_dir, manifest, task, route)
-        assert len(prompt) < 2600, len(prompt)
+        # 2600 plus the static ~200-char rule 10 (no background agents/processes in a headless worker).
+        assert len(prompt) < 2800, len(prompt)
         assert "ANALYSIS.md" not in prompt
         assert "PLAN.md" not in prompt
         assert "TODO.md" not in prompt

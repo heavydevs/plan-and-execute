@@ -89,10 +89,15 @@ def test_opt_in_keys_must_be_booleans() -> None:
 def test_catalog_drives_model_and_effort_mapping() -> None:
     catalog = model_catalog.bootstrap_catalog()
     entry = catalog["providers"]["muse"]["models"][MODEL]
-    assert entry["tiers"] == ["advanced"]
-    assert entry["capability"]["evidence"]["source"] == "bootstrap"
+    # 2026-11-20 (dev.meta.ai): Spark 1.3 demoted to standard, `max` effort supported; Ember economy, Wonder advanced.
+    assert entry["tiers"] == ["standard"]
+    assert entry["capability"]["evidence"]["source"] == "provider_docs"
+    assert entry["capability"]["max_effort"] == "max"
+    assert model_catalog.native_effort("muse", MODEL, "xhigh", catalog) == "max"
     mapping = model_catalog.provider_config_mapping("muse")
-    assert mapping == {"models": {"advanced": MODEL}, "max_effort_by_tier": {"advanced": "high"}, "models_without_effort": []}
+    assert mapping == {"models": {"economy": "muse-ember-1.0", "standard": MODEL, "advanced": "muse-wonder-1.0"},
+                       "max_effort_by_tier": {"economy": "max", "standard": "max", "advanced": "max"},
+                       "models_without_effort": []}, mapping
     assert model_catalog.provider_config_mapping("absent") == {"models": {}, "max_effort_by_tier": {}, "models_without_effort": []}
     config = planctl.default_config()
     assert config["muse"]["models"] == mapping["models"]
@@ -102,7 +107,7 @@ def test_catalog_drives_model_and_effort_mapping() -> None:
     custom = copy.deepcopy(catalog)
     custom["providers"]["muse"]["models"][MODEL]["capability"].update(accepts_effort=False, max_effort=None)
     derived = model_catalog.provider_config_mapping("muse", custom)
-    assert derived["models_without_effort"] == [MODEL] and derived["max_effort_by_tier"] == {}
+    assert derived["models_without_effort"] == [MODEL] and "standard" not in derived["max_effort_by_tier"]
     config["muse"].update(derived)
     assert worker(config) == ["muse", "exec", "--json", "--model", MODEL, "PROMPT"]
 
@@ -123,7 +128,10 @@ def test_configured_muse_routes_to_catalog_model_with_capped_effort() -> None:
     task = {"provider": "auto", "model_tier": "standard", "reasoning_effort": "medium", "functional_failures": 4}
     with patch.object(run_isolated, "executable_available", lambda prefix: True):
         route = run_isolated.choose_route(task, config, None)
-        assert route["provider"] == "muse" and route["model"] == MODEL and route["tier"] == "advanced", route
+        # Catalog 2026-11-20-bootstrap-v9: Spark 1.3 is the Muse standard model (no upward lift needed).
+        assert route["provider"] == "muse" and route["model"] == MODEL and route["tier"] == "standard", route
+        # The catalog cap is now `max`; a configured lower cap still clamps the dispatched effort.
+        config["muse"]["max_effort_by_tier"]["standard"] = "high"
         task.update(reasoning_effort="max")
         assert run_isolated.choose_route(task, config, None)["effort"] == "high"
     with patch.object(run_isolated, "executable_available", lambda prefix: prefix[0] != "muse"):

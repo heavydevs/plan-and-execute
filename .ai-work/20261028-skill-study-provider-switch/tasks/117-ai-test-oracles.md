@@ -2,25 +2,37 @@
 task_id: "117"
 status: "pending"
 requirements: "R063,R064"
-dependencies: "110,112,108"
+dependencies: "110,112,108,114"
 allowed_related_task_reads: "none"
 ---
 
 # 117 — Implement contract-grounded AI test oracles and defect-detection checks
 
-**Objective:** Require independent expected-outcome contract, meaningful assertions, mapped risk, source and layer for each newly created/changed test.
+Objective: Require independent expected-outcome contract, meaningful assertions, mapped risk, source and layer for each newly created/changed test.
 
-**Architecture:** read only [assigned study](../../../docs/research/20261028-skill-optimization/prepared-research/117-ai-test-oracle-quality.md) and actual affected source. No work is yet implemented.
+## Context
+
+- `.ai-work/20261028-skill-study-provider-switch/CONTEXT.md`
+
+## Validated learnings
+
+- None
 
 ## Checkpoints
 
-- [ ] S001 — Inspect assigned architecture and relevant source symbols: Inspect assigned architecture and relevant source symbols using only task-specific research, current code and current acceptance evidence.
-- [ ] S002 — Implement bounded contract without duplicate framework: Implement bounded contract without duplicate framework using only task-specific research, current code and current acceptance evidence.
-- [ ] S003 — Integrate monitoring, permissions and route: Integrate monitoring, permissions and route using only task-specific research, current code and current acceptance evidence.
-- [ ] S004 — Execute adversarial focused validation: Execute adversarial focused validation using only task-specific research, current code and current acceptance evidence.
-- [ ] S005 — Record real product evidence or stay pending: Record real product evidence or stay pending using only task-specific research, current code and current acceptance evidence.
+- [ ] **S001** Inspect assigned architecture and relevant source symbols — Inspect assigned architecture and relevant source symbols using only task-specific research, current code and current acceptance evidence.
+- [ ] **S002** Implement bounded contract without duplicate framework — Implement bounded contract without duplicate framework using only task-specific research, current code and current acceptance evidence.
+- [ ] **S003** Integrate monitoring, permissions and route — Integrate monitoring, permissions and route using only task-specific research, current code and current acceptance evidence.
+- [ ] **S004** Execute adversarial focused validation — Execute adversarial focused validation using only task-specific research, current code and current acceptance evidence.
+- [ ] **S005** Record real product evidence or stay pending — Record real product evidence or stay pending using only task-specific research, current code and current acceptance evidence.
 
-## Implementation and review contract
+## Scope
+
+In: Implement contract-grounded AI test oracles and defect-detection checks
+Out: No second orchestrator, unrelated legacy test edits, runtime implementation in this planning amendment or paid model polling.
+Files: `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/test_impact.py`, `skill/plan-and-execute/scripts/test_failure_cycle.py`, `skill/plan-and-execute/scripts/test_oracle.py`, `skill/plan-and-execute/references/TEST_AUTHORING.md`, `test/optimization/ai_test_quality_self_test.py`, `docs/research/20261028-skill-optimization/implementation/117-receipt.json`, `docs/research/20261028-skill-optimization/implementation/117-outcome.md`
+
+## Guidance
 
 - Read docs/research/20261028-skill-optimization/prepared-research/117-ai-test-oracle-quality.md only for this task; architecture and negative cases are mandatory.
 - Require independent expected-outcome contract, meaningful assertions, mapped risk, source and layer for each newly created/changed test.
@@ -40,11 +52,7 @@ allowed_related_task_reads: "none"
 - Actual source-bound tests, negative fixtures and compact cost evidence establish behavior without inventing savings.
 - No unauthorized provider/legacy test edits, leaked secrets, duplicate scheduler or lost global validation gate.
 
-## Validation
+## Validate
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_117`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_117`
-
-Expected files: `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/test_impact.py`, `skill/plan-and-execute/scripts/test_failure_cycle.py`, `skill/plan-and-execute/scripts/test_oracle.py`, `skill/plan-and-execute/references/TEST_AUTHORING.md`, `test/optimization/ai_test_quality_self_test.py`, `docs/research/20261028-skill-optimization/implementation/117-receipt.json`, `docs/research/20261028-skill-optimization/implementation/117-outcome.md`.
-
-**Pending:** only architectural specifications; no executed product tests or independent review.

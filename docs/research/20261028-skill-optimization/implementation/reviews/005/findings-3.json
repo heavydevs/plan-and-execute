@@ -1,0 +1,57 @@
+{
+  "task_id": "005",
+  "dispatch": 3,
+  "session_id": "402b84ec-5447-4c55-bcbd-b7c882ebf6e5",
+  "verdict": "approved",
+  "summary": "Approved: no critical or high findings. All R2 corrections are present and correct by code trace: addCleanup, class-level Path patches that make the guard independent of 3.10's accessor, canonical/unsafe path rejection for every path, wrapped errors, schema_version 2, duplicate ids, casefolded own files, the extra os/shutil guards, redirected dirs for the parity setup, and the classify_outcome mapping with AC03 pairs. One medium item remains: the 9-test suite has no run log at the reviewed hashes yet. There are also 3 lows and 2 info items. I had no shell, so I did not run the tests, recompute SHA-256 hashes or run anything on Python 3.10; the hashes are as given.",
+  "findings": [
+    {
+      "id": "R3-F1",
+      "severity": "medium",
+      "location": "docs/research/20261028-skill-optimization/implementation/004-receipt.json:14-24,32,41,50,59; 004-outcome.md:14,20; 004-checks.json:7-17",
+      "title": "No test evidence yet at the reviewed hashes; the 004 receipt, outcome and log describe superseded files",
+      "detail": "004-receipt.json pins shared_fixtures.py as 1486a8e8… and task_004_self_test.py as 1c72c3c7…, but the reviewed files are f14fbad1… and efce2bf5…. AC01–AC04 cite check-01.log, which ran the original 3 tests. The current file has 9 tests, including argv parity, own-file overlap, non-canonical and unsafe paths, malformed catalog, classifier coverage and the guard self-test. None of these has a recorded run. 004-outcome.md:14 still says the tests cover AC05 and patch only 4 calls, and line 20 says 'Ran 3 tests'. The 005 acceptance requires evidence for every 2026-11-20 addition at the final reviewed hashes. Until the 005 receipt exists, that requirement is unmet. Reusing check-01.log or the 004 receipt would count as fabricated evidence.",
+      "fix": "Run P1_TESTS_005 through resource_watch on the final files. In 005-receipt.json, pin the final SHA-256 of both files and link the new log, which must show 'Ran 9 tests … OK' (more if tests are added). Record the reviewer provider, model and effort, and the reviewed-input hashes. If the files change after this review, record that the final hashes differ from the reviewed ones (f14fbad1…/efce2bf5…), or get a re-review. In 005-outcome.md, state that the 004 receipt, outcome and check-01.log cover only the superseded files and that 004-outcome.md:14 overstated coverage."
+    },
+    {
+      "id": "R3-F2",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:167-179; skill/plan-and-execute/scripts/availability.py:45-46; skill/plan-and-execute/scripts/run_isolated.py:2039-2041",
+      "title": "classify_outcome labels a cancelled or interrupted run as a functional failure",
+      "detail": "availability.classify returns None for exit codes 130, 143, -2 and -15, the same value it returns for an unclassified failure. classify_outcome maps None with a non-zero exit to 'functional'. In production, run_isolated.py:2039-2041 treats those four codes as an interruption: it releases the task and raises KeyboardInterrupt, so they never count as functional evidence. The docstring says 'only an unclassified non-zero exit is a functional failure', and test_ac03_classification_covers_every_classifier_category claims to cover every value classify can return, but None has two meanings and only one is tested. None of the fixture's own outcomes hit this today. It matters because this module is meant to be shared by later tasks.",
+      "fix": "Before the availability lookup, return a separate label (e.g. 'interrupted') for return_code in (130, 143, -2, -15), matching run_isolated.py:2039. Add a case such as (130, '', [], 'interrupted') to the AC03 coverage test and update the docstring."
+    },
+    {
+      "id": "R3-F3",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:311-321,329",
+      "title": "On Windows, own-file aliases other than letter case still get past OwnTaskFileError",
+      "detail": "Own files are compared by casefolded string. On Windows, other spellings of an existing file also pass both PurePosixPath canonicalisation and _safe_local (whose resolve() returns the real file): a trailing dot or space ('test/own.py.'), an 8.3 short name ('test/OWN~1.PY') or a ::$DATA stream suffix. Suppose such a spelling is listed in prepared_reports or as a readable input while the canonical path is create_in_this_task. On a retry where the file exists, is_file() is True and the task's own file is returned as an input. The live catalog has no such spelling, and catalogs are written by the plan, so this is a robustness gap, not an exploit.",
+      "fix": "For each allowed path that exists, also compare os.path.normcase(str((root / rel).resolve())) with the same key for every own file, or use os.path.samefile, and raise OwnTaskFileError on a match. Alternatively, reject path components that end in '.' or ' ' or contain ':' or '~'. Add a temporary-catalog test using a trailing-dot spelling, skipped where os.name != 'nt'."
+    },
+    {
+      "id": "R3-F4",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:267-282,324-326; test/optimization/task_004_self_test.py:269-286",
+      "title": "Several new error branches in the loader have no test, so a mutation there goes undetected",
+      "detail": "Several new branches have no test: wrapping a missing or invalid-JSON catalog as ReportAwareInputError (267-272), a non-dict catalog (273), a non-list 'tasks' (276-277), an unknown task id (279-280) and a non-list requested_paths (325-326). catalog_root always writes valid JSON with a task list. If the try/except at 267-272 is deleted, a missing catalog raises a bare PreflightError instead, and all 9 tests still pass. That contradicts the worker's note that each new check fails under mutation. R2-F4 asked for exactly this wrapping, so its regression protection is missing.",
+      "fix": "Extend test_ac02_malformed_catalog_entries_rejected with these cases: no catalog file, invalid JSON, a top-level JSON list, 'tasks' as a dict, an unknown task id, and requested_paths='docs/report.md' (a string). For each, assert ReportAwareInputError and not UnlistedInputError. Optionally drop the dead 'except ReportAwareInputError: raise' at shared_fixtures.py:243-244."
+    },
+    {
+      "id": "R3-F5",
+      "severity": "info",
+      "location": "test/optimization/shared_fixtures.py:27-28; test/optimization/task_004_self_test.py:322-323; skill/plan-and-execute/scripts/availability.py:102",
+      "title": "AVAILABILITY_EVENTS copies production's event set by hand, and its test checks the constant against itself",
+      "detail": "AVAILABILITY_EVENTS repeats the inline set from availability.unavailable(). The loop at task_004_self_test.py:322-323 iterates over that same constant, so it cannot detect drift. If production adds an event that is not a CATEGORIES key, as happened with missing_cli and model_unavailable, the fixture would label it 'functional' and no test would notice. The superset check on line 324 only catches new CATEGORIES keys.",
+      "fix": "Outside the guard, patch availability.read so it returns an empty state and availability._save so it does nothing. Then assert that availability.unavailable(...) accepts every member of AVAILABILITY_EVENTS and raises AvailabilityError for 'configuration' and for an unknown name. Production is then the source of truth, and the probe writes no files."
+    },
+    {
+      "id": "R3-F6",
+      "severity": "info",
+      "location": "test/optimization/task_004_self_test.py:39-49,326-349",
+      "title": "Remaining gaps in offline_guard, and the Python 3.10 claim has not been run",
+      "detail": "The R2-F5 additions work as intended. All 12 probes in test_ac04 each record exactly one violation. Because write_text, mkdir, touch and the others are patched on the Path class, the guard no longer depends on 3.10's accessor; by trace, Path.open and read_text dispatch through the class on 3.10–3.13. The guard still does not intercept os.link/Path.hardlink_to, os.truncate, os.chmod/os.utime, os.fork/os.posix_spawnp, or _winapi.CreateProcess (used by multiprocessing on Windows). Probes for Popen, socket.socket, os.unlink/rmdir/symlink and the Path rename/replace/unlink methods are missing. The code under test makes none of these calls, so AC04 holds. The 3.10 behaviour has been checked only by reasoning, because this host has no 3.10 interpreter and test/optimization is not in the 3.10 CI job.",
+      "fix": "Optionally add os.link, os.truncate, os.chmod, os.utime, os.fork, os.posix_spawnp and Path.hardlink_to to FORBIDDEN_CALLS, and add probes for Popen, socket.socket and os.unlink. Record in the 005 outcome that 3.10 was not run, or add test/optimization to the CI 3.10 job."
+    }
+  ]
+}

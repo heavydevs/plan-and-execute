@@ -1,0 +1,278 @@
+{
+  "schema_version": 2,
+  "task_id": "003",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Two fresh max-tier read-only reviews (Claude Opus 5.5 xhigh) approved task 002 with no critical/high finding. Fixed the medium findings in test/optimization: the prepared-report check had compared each file with itself (F1); a missing or duplicate prepared_reports was not rejected (F2); fixture contracts asserted nothing (F3). Re-dispatched the review on the final hashes and passed P1_TESTS_003 (9 + 55 tests).",
+  "outcome_sha256": "bf8aaa3bee9d2866ef6f026656f32b9a1b4e410dfc5e49e5e1cd4f37acd8546c",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md",
+      "sha256": "300a1adcfc903e555f106543861a5ee96d6aac4631a6289bf210af265c67d379"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "test/optimization/baseline_contracts.py",
+      "sha256": "a57463a78480c5a15edd92722c2a5e6ee65c22a62606f79813d7273fc5bf83e4"
+    },
+    {
+      "path": "test/optimization/task_002_self_test.py",
+      "sha256": "5b111da7597d6afbbf45416f392ec2aef62ca950df7ff27de00ab11aecbdbb08"
+    }
+  ],
+  "checks_sha256": "c702e2db09de3d99689c544a689bc646eac350777603cb821f651019656b7ac8",
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/reviews/003/dispatch-2.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/003/brief-2.md",
+        "docs/research/20261028-skill-optimization/implementation/reviews/003/findings-2.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/003/dispatch-1.json"
+      ],
+      "proof": "Reviewer provider/model/native_effort/session and reviewed-input hashes recorded by review_dispatch.py."
+    },
+    {
+      "id": "AC02",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/reviews/003/findings-1.json",
+        "docs/research/20261028-skill-optimization/implementation/reviews/003/findings-2.json",
+        "docs/research/20261028-skill-optimization/implementation/003-checks.json",
+        "docs/research/20261028-skill-optimization/implementation/logs/003/20261120T065707-15636/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/003/20261120T065707-15636/check-02.log"
+      ],
+      "proof": "0 blocking findings in both dispatches; declared checks exit 0 on the final reviewed hashes."
+    },
+    {
+      "id": "AC03",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/logs/003/20261120T065707-15636/check-02.log"
+      ],
+      "proof": "delivery_gate_self_test: test_fake_review_rejected, test_reused_review_from_other_receipt_rejected, test_review_dispatch_session_claimed_by_other_receipt_rejected, test_review_dispatch_stale_reviewed_input_rejected, test_dispatch_naming_other_task_rejected, test_dispatch_outside_task_review_dir_rejected, test_dispatch_without_reviewed_hashes_rejected."
+    },
+    {
+      "id": "AC04",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/logs/003/20261120T065707-15636/check-02.log"
+      ],
+      "proof": "delivery_gate_self_test: test_valid_frontier_review, test_frontier_without_evidence_rejected, test_frontier_single_failure_rejected, test_frontier_for_quota_rejected, test_frontier_for_availability_class_rejected, test_frontier_after_non_max_failures_rejected, test_frontier_reusing_failed_dispatch_rejected."
+    },
+    {
+      "id": "AC05",
+      "result": "passed",
+      "evidence": [
+        "docs/research/20261028-skill-optimization/implementation/logs/003/20261120T065707-15636/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/003-checks.json",
+        "docs/research/20261028-skill-optimization/implementation/003-outcome.md"
+      ],
+      "proof": "Task 002 AC01-AC08 mapped to the 9 task_002_self_test names in check-01.log, which ran on the final hashes a57463.../5b111d...; mapping in 003-outcome.md."
+    }
+  ],
+  "limitations": [
+    "Task 002 receipt/outcome/checks are superseded by this run; P1_002 is expected to report them stale (not edited: outside write scope).",
+    "AC07 (task without prepared_report) is enforced by baseline_contracts.run_source_and_contract_coverage, not by check_delivery.structural/check (out of scope).",
+    "task_001_self_test run directly: 6/7 pass; the failure asserts inventory drift 131 but finds 140 (repository drift outside test/optimization, unrelated).",
+    "R2-4/R2-5/R2-6 (info, optional) were not applied; applying them would need a third paid review.",
+    "Service map stamped with --confirm-reconciled after reviewing changed offline discovery inputs; no validation or resource changed.",
+    "dispatch-2 observed_models also lists claude-haiku-5-5 (CLI auxiliary use); a JSON receipt cannot prove model identity.",
+    "The prepared report is input evidence only; no user-global config write, install, publish or commit."
+  ],
+  "reviewer": {
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "native_effort": "xhigh",
+    "model_tier": "max",
+    "fresh_context": true,
+    "session_id": "33acc38c-0a60-4513-b1a0-89d7c700096e",
+    "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/003/dispatch-2.json",
+    "dispatch_sha256": "a825769d15525ff889871fa770341058b6c8fe719c7b20aa63143e61b73ed896"
+  },
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/002-receipt.json",
+      "sha256": "fd72360fb27dce55ba6a87e166dd56ae851c6cc5e22a8380a55326aa30f5bcb5"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/002-outcome.md",
+      "sha256": "2e9583e59ac9ca2d4e9ed9e3d84cb11653aef52980e00b64a834bc64a2e20afb"
+    },
+    {
+      "path": "test/optimization/baseline_contracts.py",
+      "sha256": "a57463a78480c5a15edd92722c2a5e6ee65c22a62606f79813d7273fc5bf83e4"
+    },
+    {
+      "path": "test/optimization/task_002_self_test.py",
+      "sha256": "5b111da7597d6afbbf45416f392ec2aef62ca950df7ff27de00ab11aecbdbb08"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/logs/003/20261120T065707-15636/check-01.log",
+      "sha256": "36fd6f2a43c3fee0d74d32c7db0e64ec343a5643df8506cd1114ddc3c4a5a0b5"
+    }
+  ],
+  "verdict": "approved",
+  "findings": [
+    {
+      "dispatch": "dispatch-1",
+      "id": "F1",
+      "severity": "medium",
+      "location": "test/optimization/baseline_contracts.py:298-306",
+      "title": "prepared_reports hash check compares each file with itself, so it can never fail",
+      "status": "resolved",
+      "resolution": "Wrapper verifies independent TASK_INPUTS/INDEX pins; temp-copy byte-drift fixture proves it."
+    },
+    {
+      "dispatch": "dispatch-1",
+      "id": "F2",
+      "severity": "medium",
+      "location": "test/optimization/baseline_contracts.py:299-300; test/optimization/task_002_self_test.py:103-122; docs/plans/20261028-skill-optimization/support/check_delivery.py:149,313",
+      "title": "Only the test-side wrapper rejects a task with no prepared_report; the delivery gate accepts it, and a missing key is untested",
+      "status": "resolved",
+      "resolution": "PreflightError before structural() for missing/empty/non-string/duplicate prepared_reports; check_delivery.py unchanged (out of scope, see limitations)."
+    },
+    {
+      "dispatch": "dispatch-1",
+      "id": "F3",
+      "severity": "medium",
+      "location": "test/optimization/task_002_self_test.py:41-48,56-61,70-75,90-95,104-109,125-130,140-145",
+      "title": "Fixture contracts are inert, and current_code describes the changed test input instead of current code behaviour",
+      "status": "resolved",
+      "resolution": "Each fixture asserts baseline invariant, observed structural() outcome and wrapper outcome."
+    },
+    {
+      "dispatch": "dispatch-1",
+      "id": "F4",
+      "severity": "low",
+      "location": "test/optimization/task_002_self_test.py:55-87; docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py:219-224",
+      "title": "Two 'new' negative fixtures duplicate existing delivery_gate_self_test cases",
+      "status": "resolved",
+      "resolution": "Overlap documented; real byte-drift fixtures added in a temporary copy."
+    },
+    {
+      "dispatch": "dispatch-1",
+      "id": "F5",
+      "severity": "low",
+      "location": "docs/research/20261028-skill-optimization/implementation/002-outcome.md:6; test/optimization/task_002_self_test.py:44",
+      "title": "Outcome and fixture say 130 tasks; the catalog has 132",
+      "status": "resolved",
+      "resolution": "Test no longer hard-codes 130; 002-outcome.md text not edited (outside write scope)."
+    },
+    {
+      "dispatch": "dispatch-1",
+      "id": "F6",
+      "severity": "info",
+      "location": "test/optimization/baseline_contracts.py:2",
+      "title": "Module docstring still says task 001 only",
+      "status": "resolved",
+      "resolution": "Module docstring updated."
+    },
+    {
+      "dispatch": "dispatch-1",
+      "id": "F7",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/002-receipt.json:14-24; docs/research/20261028-skill-optimization/implementation/002-checks.json:4",
+      "title": "Pinned hashes and input fingerprint not recomputed in this review",
+      "status": "resolved",
+      "resolution": "Hashes recomputed by the worker; acceptance cases mapped to test names in 003-outcome.md."
+    },
+    {
+      "dispatch": "dispatch-2",
+      "id": "R2-1",
+      "severity": "low",
+      "location": "docs/research/20261028-skill-optimization/implementation/002-receipt.json:14-24; docs/research/20261028-skill-optimization/implementation/002-outcome.md:5-6",
+      "title": "Task 002's receipt and outcome no longer match the reviewed code; P1_002 will now reject them as stale",
+      "status": "accepted_limitation"
+    },
+    {
+      "dispatch": "dispatch-2",
+      "id": "R2-2",
+      "severity": "low",
+      "location": "test/optimization/baseline_contracts.py:300-317; docs/plans/20261028-skill-optimization/support/check_delivery.py:149,313",
+      "title": "Only the test-side wrapper rejects a task with no prepared_report (AC07)",
+      "status": "accepted_limitation"
+    },
+    {
+      "dispatch": "dispatch-2",
+      "id": "R2-3",
+      "severity": "low",
+      "location": "test/optimization/baseline_contracts.py:157,212,319",
+      "title": "Task 001's tests were not re-run after the shared _index_report_hashes signature changed",
+      "status": "accepted_limitation"
+    },
+    {
+      "dispatch": "dispatch-2",
+      "id": "R2-4",
+      "severity": "info",
+      "location": "test/optimization/task_002_self_test.py:10-11,317-335; docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py:246-248",
+      "title": "Overlap note leaves out the 082 review-gate fixture",
+      "status": "open_non_blocking"
+    },
+    {
+      "dispatch": "dispatch-2",
+      "id": "R2-5",
+      "severity": "info",
+      "location": "test/optimization/baseline_contracts.py:324; test/optimization/baseline_contracts.py:222",
+      "title": "Pin lookup never falls back to the INDEX pin when a report is research_report but has no research_sha256",
+      "status": "open_non_blocking"
+    },
+    {
+      "dispatch": "dispatch-2",
+      "id": "R2-6",
+      "severity": "info",
+      "location": "test/optimization/task_002_self_test.py:245-246,256",
+      "title": "Baseline for the TASK_INPUTS-pin drift fixture is asserted only during setup",
+      "status": "open_non_blocking"
+    },
+    {
+      "dispatch": "dispatch-2",
+      "id": "R2-7",
+      "severity": "info",
+      "location": "docs/research/20261028-skill-optimization/implementation/003-checks.json:4; docs/research/20261028-skill-optimization/implementation/logs/003/20261120T065707-15636/check-01.log:1-16",
+      "title": "Reviewed-input hashes and input fingerprint not recomputed",
+      "status": "resolved"
+    }
+  ],
+  "review_history": [
+    {
+      "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/003/dispatch-1.json",
+      "dispatch_sha256": "2c99b002b1e8335b1681a69f23917f97c627df78d22010626ebe95da435ea04d",
+      "session_id": "b6c3bd44-99ba-4090-906b-d43ec0f3551a",
+      "provider": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "verdict": "approved",
+      "blocking_findings": 0,
+      "reviewed_inputs": [
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/002-receipt.json",
+          "sha256": "fd72360fb27dce55ba6a87e166dd56ae851c6cc5e22a8380a55326aa30f5bcb5"
+        },
+        {
+          "path": "docs/research/20261028-skill-optimization/implementation/002-outcome.md",
+          "sha256": "2e9583e59ac9ca2d4e9ed9e3d84cb11653aef52980e00b64a834bc64a2e20afb"
+        },
+        {
+          "path": "test/optimization/baseline_contracts.py",
+          "sha256": "640c2634a0560b31360adcea35a3fdc103260b339651dc0b66e6db1d355c0fca"
+        },
+        {
+          "path": "test/optimization/task_002_self_test.py",
+          "sha256": "8c0852f477faa86709b3b945cf21b9780e2f2f9f8aebd0099d5c77b890b4a1db"
+        }
+      ],
+      "note": "Reviewed task 002 as delivered; superseded by dispatch-2 after corrections."
+    }
+  ],
+  "skipped_review_attempts": [
+    {
+      "provider": "codex",
+      "model": "gpt-6.2-sol",
+      "outcome": "quota",
+      "exit_code": 1
+    }
+  ]
+}

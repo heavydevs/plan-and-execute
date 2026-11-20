@@ -1,8 +1,8 @@
 ---
 task_id: "082"
 status: "pending"
-requirements: "R001,R003,R004,R005,R041,R042,R043,R044,R046,R047,R048,R049,R050,R051,R052"
-dependencies: "003,005,007,009,011,013,015,017,019,021,023,025,027,029,031,033,035,037,039,041,043,045,047,049,051,053,055,057,059,061,063,065,067,069,071,073,075,077,079,081,088,090,092,094,096,098,100,102,104,106,108,110,114,116,118,120,122,124,126,128,130"
+requirements: "R001,R003,R004,R005,R041,R042,R043,R044,R046,R047,R048,R049,R050,R051,R052,R053,R054,R055,R056,R057,R058,R059,R060,R061,R062,R063,R064,R065,R066,R067,R068,R069,R070,R071,R072,R073"
+dependencies: "003,005,007,009,011,013,015,017,019,021,023,025,027,029,031,033,035,037,039,041,043,045,047,049,051,053,055,057,059,061,063,065,067,069,071,073,075,077,079,081,088,090,092,094,096,098,100,102,104,106,108,110,114,116,118,120,122,124,126,128,130,112,131,132"
 allowed_related_task_reads: "none"
 ---
 
@@ -36,30 +36,37 @@ Files: `README.md`, `README.pt-BR.md`, `CHANGELOG.md`, `tools/run-repo-checks.js
 
 ## Guidance
 
-- P066: Integrate reviewed 128/130 project coding standards, CLI docs in README EN/PT-BR/help, and shared first-use UX state from 121. Validate ORM/JDBC drift, justified exceptions, no repetitive project/UX research and source-indexed minimal agent guidance. Do not assert functioning CLI before implementation.
-
-- Require genuine independent 112 impact selection and 114 audit/refactor permission reviews before integration. Test completion uses complete mapped source-specific suites; full unit/integration/contract/E2E global suite runs at final plan revision, repeat on later fixes.
-
-- Read docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md.
-- Read docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md.
-- Use only task 082 inputs and declared checks in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.
+- Read docs/research/20261028-skill-optimization/prepared-research/ARCHITECTURE_AND_SCOPE.md and docs/plans/20261028-skill-optimization/IMPLEMENTATION_INTEGRATION.md.
+- Use only task 082 inputs, declared checks and write scope in TASK_INPUTS.json; write evidence to docs/research/20261028-skill-optimization/implementation/082-receipt.json.
 - Implement the assigned recommendations, preserving already-satisfied invariants with regression tests rather than duplicate code.
-- Write actual changed-file, test and acceptance evidence to docs/research/20261028-skill-optimization/implementation/082-receipt.json.
-- Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
 - If integration exposes a defect outside this write scope, reopen its owning TODO and correction review with native controllers; do not silently expand scope.
-- Keep historical receipt integrity separate from current source/command/map validation.
-- Every changed implementation and correction gate needs actual acceptance evidence; prepared research never counts as a pass.
+- Keep historical receipt integrity separate from current source/command/map validation. Every changed implementation and correction gate needs actual acceptance evidence; prepared research never counts as a pass.
 - Integrate all six feature pairs from docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md; require actual independent review receipts.
+- Integrate verified P053 101/102 host sleep guard and tests across providers, OS backends, WSL, long validation and strict preflight.
+- Integrate P054 timer cleanup, P055 L6 model routing and P067 manager-tier delegation after genuine independent reviews 104/106/132.
+- Require genuine 112 impact-selection and 114 audit/refactor reviews; mapped source-specific suites gate tasks and the full global suite runs at the final plan revision, again after later fixes.
+- Integrate independently reviewed 115-120 quota restoration/resume, oracle-strength tests and every-task lazy routing without losing global final suite.
+- Integrate actual independently reviewed P065 tasks 121-126, source-of-truth design memory, optional prototype lab and accessible UX validation without lost final-suite gate.
+- P066: integrate reviewed 128/130 standards and 121's shared first-use UX state; validate ORM/JDBC drift and justified exceptions; document CLI in README.md, README.pt-BR.md and --help only after implementation.
 
 ## Acceptance
 
 - All implementation acceptance cases and required independent code reviews have current evidence.
 - Final npm checks and actual package file lists pass or the task remains incomplete.
 - The Portuguese final report distinguishes verified behavior, untested platforms and live-provider limitations.
-- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 - Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.
 - All six added feature contracts have independently reviewed current-tree evidence.
 - P052 semantic five-minute stall diagnosis, reliable progress percentages and authorized higher-capability repair have actual independently reviewed mapped integration evidence.
+- P053 OS lease and release tests, accurate supported-host caveats and independent acceptance are evidenced.
+- New reviewed 103/104 twenty-minute timer, 105/106 sixth frontier-tier and 131/132 manager-tier delegation work have actual acceptance evidence.
+- Task 107 design-security/performance and final-code-review lenses are implemented and independently reviewed by 108 with no default benchmarks.
+- P057 109/110 real implementation and independent review prove full-safe failure inventory, targeted fix cycles and mandatory final full-suite gate.
+- Complete global unit/contract/integration/E2E suite passes at plan closure on final source; opt-in review authorization is proven.
+- All quota, test-oracle and lazy-context requirements have current executable negative tests and genuine review evidence.
+- P065 identity, guarded lab import/sync and accessible visual/keyboard check contracts have real 122/124/126 review evidence and current integration tests.
+- P066 commands, ORM drift checks, agent docs and UX first-use contract function with end-to-end test evidence.
+- tools/run-repo-checks.js runs every test/optimization/*_self_test.py from tasks 068-132, and integration_082_self_test.py proves it.
+- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
 ## Validate
 

@@ -9,5 +9,41 @@
   "qwen": {},
   "kimi": {},
   "trae": {},
-  "muse": {}
+  "muse": {},
+  "tier_routes": {
+    "economy": {
+      "primary": "antigravity",
+      "fallbacks": [
+        "codex",
+        "claude"
+      ]
+    },
+    "standard": {
+      "primary": "antigravity",
+      "fallbacks": [
+        "codex",
+        "claude"
+      ]
+    },
+    "advanced": {
+      "primary": "antigravity",
+      "fallbacks": [
+        "codex",
+        "claude"
+      ]
+    },
+    "strong": {
+      "primary": "antigravity",
+      "fallbacks": [
+        "codex",
+        "claude"
+      ]
+    },
+    "max": {
+      "primary": "codex",
+      "fallbacks": [
+        "claude"
+      ]
+    }
+  }
 }

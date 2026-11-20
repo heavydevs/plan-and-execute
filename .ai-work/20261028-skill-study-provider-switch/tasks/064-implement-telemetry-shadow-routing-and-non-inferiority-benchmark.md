@@ -55,6 +55,7 @@ Files: `skill/plan-and-execute/scripts/routing_telemetry.py`, `tools/skill_bench
 - NaN, infinity and negative usage are rejected; missing values remain null.
 - A zero-success arm cannot report zero cost per validated result.
 - Cold/warm cache and subscription/API modes remain distinct in rollups.
+- If docs/research/routing-eval/measurements.jsonl exists, thresholds.json stays byte-identical; otherwise any edit updates predeclared_on and the regenerated SHADOW_REPORT digest.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

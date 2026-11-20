@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -21,6 +22,19 @@ MAX_ITEM_CHARS = 420
 MAX_SOURCE_CHARS = 120
 MAX_GIT_LINES = 80
 MAX_GIT_CHARS = 6000
+MAX_REASON_CODES = 6
+PROMOTION_REASON_CODES = frozenset(
+    {
+        "EXPLICIT_INVOCATION",
+        "INDEPENDENT_WORKSTREAMS",
+        "BROAD_STUDY",
+        "CROSS_CUTTING_RISK",
+        "DURABLE_RESUME_VALUE",
+        "ISOLATION_VALUE",
+        "LATE_PROMOTION_REMAINING_WORK",
+        "HIGH_CONTEXT_SUBSTANTIAL_WORK",
+    }
+)
 
 
 class PromotionError(RuntimeError):
@@ -51,6 +65,40 @@ def _list(value: Any, field: str, *, required: bool = False) -> list[str]:
     return items
 
 
+TRANSCRIPT_FILES = ("transcript.jsonl", "transcript_full.jsonl")
+CHAT_ROLE_PREFIX = re.compile(r"^\s*(?:user|assistant|human)\s*:", re.I | re.M)
+
+
+def _reject_transcript_copy(items: list[str], field: str) -> None:
+    """Handoffs keep source evidence pointers; reject transcript files and pasted chat turns in any item."""
+    for item in items:
+        lower = item.lower()
+        if any(name in lower for name in TRANSCRIPT_FILES):
+            raise PromotionError(f"{field} must use source evidence pointers, not transcript files")
+        if CHAT_ROLE_PREFIX.search(item) or "conversation history:" in lower:
+            raise PromotionError(f"{field} must use source evidence pointers, not copied chat history")
+
+
+def _near_finished_stays_direct(**kwargs: Any) -> bool:
+    """The single late-promotion rule shared with requestctl.evaluate_activation."""
+    scripts_dir = str(Path(__file__).resolve().parent)
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+    from requestctl import near_finished_stays_direct  # noqa: E402
+
+    return near_finished_stays_direct(**kwargs)
+
+
+def _reason_codes(value: Any) -> list[str]:
+    codes = _list(value, "reason_codes")
+    if len(codes) > MAX_REASON_CODES:
+        raise PromotionError(f"reason_codes exceeds {MAX_REASON_CODES} items")
+    for code in codes:
+        if code not in PROMOTION_REASON_CODES:
+            raise PromotionError(f"unsupported promotion reason_code: {code}")
+    return codes
+
+
 def normalize_spec(raw: Any) -> dict[str, Any]:
     if not isinstance(raw, dict):
         raise PromotionError("promotion spec must be a JSON object")
@@ -77,6 +125,21 @@ def normalize_spec(raw: Any) -> dict[str, Any]:
         if used is None and pressure["source"] is None:
             pressure = None
 
+    nearly_finished = bool(raw.get("nearly_finished", False))
+    cohesive_remaining = bool(raw.get("cohesive_remaining", True))
+    reason_codes = _reason_codes(raw.get("reason_codes"))
+    remaining_outcomes = _list(raw.get("remaining_outcomes"), "remaining_outcomes", required=True)
+    if _near_finished_stays_direct(
+        nearly_finished=nearly_finished,
+        cohesive=cohesive_remaining,
+        remaining_count=len(remaining_outcomes),
+        reason_codes=reason_codes,
+    ):
+        raise PromotionError(
+            "nearly finished cohesive work with at most one remaining outcome should stay DIRECT without "
+            "promotion unless EXPLICIT_INVOCATION is recorded"
+        )
+
     normalized = {
         "schema_version": SCHEMA_VERSION,
         "original_goal": _text(raw.get("original_goal"), "original_goal", MAX_GOAL_CHARS),
@@ -84,16 +147,25 @@ def normalize_spec(raw: Any) -> dict[str, Any]:
         "validated_results": _list(raw.get("validated_results"), "validated_results"),
         "decisions": _list(raw.get("decisions"), "decisions"),
         "relevant_code": _list(raw.get("relevant_code"), "relevant_code"),
-        "remaining_outcomes": _list(raw.get("remaining_outcomes"), "remaining_outcomes", required=True),
+        "remaining_outcomes": remaining_outcomes,
         "blockers": _list(raw.get("blockers"), "blockers"),
         "risks": _list(raw.get("risks"), "risks"),
+        "reason_codes": reason_codes,
+        "estimated_working_set": _list(raw.get("estimated_working_set"), "estimated_working_set"),
+        "evidence_pointers": _list(raw.get("evidence_pointers"), "evidence_pointers"),
         "context_pressure": pressure,
     }
+    _reject_transcript_copy([normalized["original_goal"]], "original_goal")
+    for field in (
+        "completed_work", "validated_results", "decisions", "relevant_code", "remaining_outcomes",
+        "blockers", "risks", "estimated_working_set", "evidence_pointers",
+    ):
+        _reject_transcript_copy(normalized[field], field)
     total_items = sum(
         len(normalized[field])
         for field in (
             "completed_work", "validated_results", "decisions", "relevant_code",
-            "remaining_outcomes", "blockers", "risks"
+            "remaining_outcomes", "blockers", "risks", "estimated_working_set", "evidence_pointers"
         )
     )
     if total_items > MAX_TOTAL_ITEMS:
@@ -169,6 +241,12 @@ def render_markdown(spec: dict[str, Any], snapshot: dict[str, str]) -> str:
         _section("Blockers", spec["blockers"]),
         _section("Risks", spec["risks"]),
     ]
+    if spec.get("reason_codes"):
+        parts.append(_section("Promotion reason codes", spec["reason_codes"]))
+    if spec.get("estimated_working_set"):
+        parts.append(_section("Estimated working set", spec["estimated_working_set"]))
+    if spec.get("evidence_pointers"):
+        parts.append(_section("Source evidence pointers", spec["evidence_pointers"]))
 
     pressure = spec.get("context_pressure")
     if pressure:

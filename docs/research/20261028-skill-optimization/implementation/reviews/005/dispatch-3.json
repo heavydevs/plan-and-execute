@@ -1,0 +1,81 @@
+{
+  "schema": "review-dispatch/1",
+  "task_id": "005",
+  "review_of": "004",
+  "dispatch": 3,
+  "provider": "claude",
+  "model": "claude-opus-5-5",
+  "native_effort": "xhigh",
+  "requested_effort": "xhigh",
+  "model_tier": "max",
+  "fresh_context": true,
+  "read_only": true,
+  "session_id": "402b84ec-5447-4c55-bcbd-b7c882ebf6e5",
+  "observed_models": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+  ],
+  "brief_path": "docs/research/20261028-skill-optimization/implementation/reviews/005/brief-3.md",
+  "brief_sha256": "c6914a3097faba5f19443682ebdfc147381e251c28ea5d879b0ad365ed6dad90",
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/004-receipt.json",
+      "sha256": "58054376ff54b60196d13cb8cd60ef59268274c5f0ece9e2389cf03b1f82eb39"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/004-outcome.md",
+      "sha256": "910d9942841e5a66535febc0a9d7d079b1099cf9805b4d0eb79d142785b9ea56"
+    },
+    {
+      "path": "test/optimization/shared_fixtures.py",
+      "sha256": "f14fbad1e9297364f5205b476bd3e23f5f4d6b631f65e97ecac0efadfcc72f69"
+    },
+    {
+      "path": "test/optimization/task_004_self_test.py",
+      "sha256": "efce2bf53df89d9e916c869ea1f3bc596c0d7e18259c90fdd88b9a0a68d2dd7f"
+    }
+  ],
+  "argv_redacted": [
+    "C:/Users/luizc/.local/bin/claude-pae-2.1.322.exe",
+    "--print",
+    "--no-session-persistence",
+    "--output-format",
+    "json",
+    "--permission-mode",
+    "plan",
+    "--model",
+    "claude-opus-5-5",
+    "--effort",
+    "xhigh",
+    "--tools",
+    "Read,Grep,Glob",
+    "--json-schema",
+    "{\"type\":\"object\",\"properties\":{\"verdict\":{\"type\":\"string\",\"enum\":[\"approved\",\"changes_requested\"]},\"summary\":{\"type\":\"string\",\"maxLength\":800},\"findings\":{\"type\":\"array\",\"maxItems\":20,\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"maxLength\":16},\"severity\":{\"type\":\"string\",\"enum\":[\"critical\",\"high\",\"medium\",\"low\",\"info\"]},\"location\":{\"type\":\"string\",\"maxLength\":300},\"title\":{\"type\":\"string\",\"maxLength\":200},\"detail\":{\"type\":\"string\",\"maxLength\":1200},\"fix\":{\"type\":\"string\",\"maxLength\":800}},\"required\":[\"id\",\"severity\",\"location\",\"title\",\"detail\",\"fix\"],\"additionalProperties\":false}}},\"required\":[\"verdict\",\"summary\",\"findings\"],\"additionalProperties\":false}",
+    "<prompt>"
+  ],
+  "started_at": "2026-11-20T07:26:35Z",
+  "finished_at": "2026-11-20T07:31:41Z",
+  "exit_code": 0,
+  "usage": {
+    "input_tokens": 28,
+    "cached_tokens": 696043,
+    "cache_write_tokens": 71972,
+    "output_tokens": 32659,
+    "credits": null,
+    "usd": 1.3686206000000003
+  },
+  "verdict": "approved",
+  "findings_count": 6,
+  "blocking_findings": 0,
+  "findings_path": "docs/research/20261028-skill-optimization/implementation/reviews/005/findings-3.json",
+  "findings_sha256": "1905ad3adc2b4f6ec9a62b6b8fc3254e58b7d0fb5023fbaf42dd88558e65613b",
+  "skipped_attempts": [
+    {
+      "provider": "codex",
+      "model": "gpt-6.2-sol",
+      "outcome": "quota",
+      "exit_code": 1
+    }
+  ],
+  "helper": "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
+}

@@ -19,7 +19,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from routingctl import EFFORT_ORDER, TIER_ORDER
+from routingctl import EFFORT_ORDER, FRONTIER_LEVEL, LEVEL_ORDER, TIER_ORDER
 
 SCHEMA_VERSION = 1
 FRESHNESS_POLICY_VERSION = "2026-10-01-v1"
@@ -240,11 +240,15 @@ def validate(catalog: Any) -> dict:
                 errors.append((f"{mpath}.tiers", "required non-empty list"))
             else:
                 for index, tier in enumerate(tiers):
-                    # Aliases (F1-F5/L1-L5) and case variants are input-only.
-                    if tier not in TIER_ORDER:
+                    # Aliases (F1-F6/L1-L6) and case variants are input-only.
+                    if tier not in LEVEL_ORDER:
                         errors.append((f"{mpath}.tiers[{index}]", f"non-canonical tier {tier!r}"))
                 if len(set(map(str, tiers))) != len(tiers):
                     errors.append((f"{mpath}.tiers", "duplicate tier"))
+                # The frontier level (L6/F6) is exclusive: a frontier model never also serves a
+                # tier, so tier maps, ladders and the selector can never reach it.
+                if FRONTIER_LEVEL in tiers and len(tiers) != 1:
+                    errors.append((f"{mpath}.tiers", "frontier must be the model's only level"))
             for facet in FACETS:
                 _FACET_CHECKS[facet](entry.get(facet), f"{mpath}.{facet}", errors)
     if errors:
@@ -333,8 +337,9 @@ def _bootstrap_entry(tiers: list[str], capabilities: list[str], accepts_effort: 
     }
 
 
-def _glm_entry(tiers: list[str], rank: int, api: tuple[float, float, float], plan: tuple[float, float, float]) -> dict:
-    entry = _bootstrap_entry(tiers, _FULL, True, "max", rank, _GLM_REF)
+def _glm_entry(tiers: list[str], rank: int, api: tuple[float, float, float], plan: tuple[float, float, float],
+               capabilities: list[str] | None = None) -> dict:
+    entry = _bootstrap_entry(tiers, capabilities or _FULL, True, "max", rank, _GLM_REF)
     entry["capability"]["effort_map"] = dict(GLM_EFFORT_MAP)
     entry["capability"]["thinking"] = "always_on"
     entry["economics"].update({
@@ -343,22 +348,45 @@ def _glm_entry(tiers: list[str], rank: int, api: tuple[float, float, float], pla
                          "output_multiplier": plan[2], "divisor": GLM_CREDIT_DIVISOR,
                          "off_peak_factor": GLM_OFF_PEAK_FACTOR},
     })
-    return entry
+    return _refresh(entry, _GLM_REF, capability="provider_docs", economics="provider_docs")
 
 
 _FULL = ["code", "reasoning", "tool_use", "long_context"]
-_DEEPSEEK_REF = ("docs/requests/portable-model-routing-dynamic-provider-catalog.md s11 (DeepSeek ids, 1M context, "
-                 "peak/off-peak pricing per 1M tokens, 2026-10-01); the 16:30-00:30 UTC off-peak window is not in the "
-                 "request and is unverified bootstrap evidence; tier placement is not a quality ranking")
-DEEPSEEK_EFFORT_MAP = {"low": "high", "medium": "high", "high": "high", "xhigh": "max", "max": "max"}
-DEEPSEEK_OFF_PEAK_WINDOW = {"start": "16:30", "end": "00:30"}
-_CLAUDE_REF = "routingctl.py MODEL_MAP_VERSION 2026-10-09-v7"
-_CODEX_REF = "codex debug models, CLI 0.159.2, 2026-09-30"
-_GLM_REF = ("docs/requests/portable-model-routing-dynamic-provider-catalog.md s10 (Z.AI GLM-5.3 pricing and "
-            "Coding Plan credit multipliers, 2026-10-01); tier placement is bootstrap evidence only")
+_DEEPSEEK_REF = ("api-docs.deepseek.com pricing and thinking_mode, read 2026-11-20 (docs/research/model-refresh-20261120/"
+                 "other-providers.md): peak 01:00-04:00 and 06:00-10:00 UTC Mon-Fri (not Chinese holidays), off-peak "
+                 "half price otherwise. One daily window cannot express that, so window_utc is 10:00-01:00, the span "
+                 "that is off-peak every day; 04:00-06:00, weekends and holidays are priced at peak (conservative). "
+                 "Native effort low|high|max; AA Intelligence Index v5.0.1: Flash 33 (max) ~$0.60/task, V4 Pro 23 at $1.77")
+# Native values are low, high and max (`none` disables thinking); DeepSeek itself maps
+# medium and xhigh to high. Skill xhigh -> max is a policy choice (stronger, never weaker).
+DEEPSEEK_EFFORT_MAP = {"low": "low", "medium": "high", "high": "high", "xhigh": "max", "max": "max"}
+DEEPSEEK_OFF_PEAK_WINDOW = {"start": "10:00", "end": "01:00"}
+_REFRESH_DOCS = "docs/research/model-refresh-20261120/"
+_CLAUDE_REF = ("routingctl.py MODEL_MAP_VERSION 2026-11-20-v11; Claude Code 2.1.329 and Anthropic model-config page "
+               "2026-11-20; AA Coding Agent Index v2.1, CursorBench 4.0, Bito replay (" + _REFRESH_DOCS + "anthropic-claude.md)")
+_CODEX_REF = ("codex debug models, CLI 0.171.0, 2026-11-20; AA Coding Agent Index v2.1 (Sol 6.2 low 37/medium 45/high 47/"
+              "xhigh 50; Terra 6.1 max 49 at 4.4x Sol's tokens, not routed; Luna max 26, not a tier model) ("
+              + _REFRESH_DOCS + "openai-codex.md)")
+_GLM_REF = ("docs.z.ai pricing, devpack and glm-5.3 pages, read 2026-11-20 (" + _REFRESH_DOCS + "other-providers.md): "
+            "effort low|high|max (default max, thinking always on), 1M context; glm-5.3-flash is multimodal. "
+            "AA Intelligence Index v5.0.1: Flash 28 at $0.58/task (slow), GLM-5.3 32 at $5.01. Coding Plan peak is "
+            "06:00-10:00 UTC Mon-Fri; off-peak factor conflicts in the docs (0.5 overview vs 0.33 notice): 0.5 kept")
 GLM_EFFORT_MAP = {"low": "low", "medium": "high", "high": "high", "xhigh": "max", "max": "max"}
 GLM_CREDIT_DIVISOR = 10000
+# Conservative of the two documented values (0.5 overview, 0.33 2026-07-30 notice): claims the smaller discount.
 GLM_OFF_PEAK_FACTOR = 0.5
+_REFRESHED = "2026-11-20T00:00:00Z"
+
+
+def _refresh(entry: dict, ref: str, *, capability: str | None = None, economics: str | None = None,
+             quality: str | None = "benchmark") -> dict:
+    """Re-stamp only the facets re-verified by the 2026-11-20 research; the others keep the
+    2026-09-30 bootstrap stamp and age to `expired` honestly (e.g. unknown Claude/Codex prices)."""
+    for facet, source in (("capability", capability), ("economics", economics), ("quality", quality)):
+        if source:
+            entry[facet]["observed_at"] = _REFRESHED
+            entry[facet]["evidence"] = {"source": source, "ref": ref}
+    return entry
 
 
 def _deepseek_entry(tiers: list[str], rank: int, capabilities: list[str], peak: tuple[float, float, float],
@@ -372,39 +400,87 @@ def _deepseek_entry(tiers: list[str], rank: int, capabilities: list[str], peak: 
         "off_peak": {"input_per_mtok": off_peak[0], "cached_input_per_mtok": off_peak[1],
                      "output_per_mtok": off_peak[2], "window_utc": dict(DEEPSEEK_OFF_PEAK_WINDOW)},
     })
-    return entry
+    return _refresh(entry, _DEEPSEEK_REF, capability="provider_docs", economics="provider_docs")
 
 
-_MUSE_REF = ("docs/requests/portable-model-routing-dynamic-provider-catalog.md s2.4/s12/s78; "
-             "Muse Spark 1.3 id and effort vocabulary not yet verified against the muse CLI")
+_MUSE_REF = ("dev.meta.ai docs (muse-code, reasoning, pricing-rate-limits), read 2026-11-20 (" + _REFRESH_DOCS
+             + "other-providers.md): ids verified; effort minimal..max (`none` is HTTP 400; xhigh not documented, so "
+             "skill xhigh maps to max); Muse Code CLI defaults to muse-spark-1.2, so --model is always passed. "
+             "AA Intelligence Index v5.0.1: Ember 36 ~$0.14/task, Spark 1.3 37 at $2.39 (deprecated for Wonder), "
+             "Wonder 44 at $6.95 (preview). Ember above 200K prompt tokens: $0.30/$0.012/$1.50")
+MUSE_EFFORT_MAP = {"low": "low", "medium": "medium", "high": "high", "xhigh": "max", "max": "max"}
 
-# Mirrors the 2026-09-30 provider evidence; the advanced tier is intentionally
-# empty for Claude and Codex (skipped upward, never filled by invention).
+
+def _muse_entry(tiers: list[str], rank: int, capabilities: list[str], api: tuple[float, float, float]) -> dict:
+    """`api` is (input, cached input, output) USD per 1M tokens (Meta list price, 2026-11-20)."""
+    entry = _bootstrap_entry(tiers, capabilities, True, "max", rank, _MUSE_REF)
+    entry["capability"]["effort_map"] = dict(MUSE_EFFORT_MAP)
+    entry["economics"].update({"input_per_mtok": api[0], "cached_input_per_mtok": api[1], "output_per_mtok": api[2]})
+    return _refresh(entry, _MUSE_REF, capability="provider_docs", economics="provider_docs")
+
+
+# Final remap 2026-11-20 (catalog v9). Facets re-verified by docs/research/model-refresh-20261120/ carry
+# observed_at 2026-11-20 and a non-bootstrap source; the rest keep the 2026-09-30 stamp (expired). The
+# advanced tier stays empty for Claude and Codex (skipped upward, never filled by invention). Not added:
+# kimi-k3.1-pro and qwen4-max (their CLIs use subscription aliases that differ from the platform ids, and
+# a catalog entry would bind those ids into plan snapshots); Trae Agent (no model news; adapter kept).
 BOOTSTRAP_CATALOG: dict = {
     "schema_version": SCHEMA_VERSION,
-    "catalog_version": "2026-10-09-bootstrap-v5",
+    "catalog_version": "2026-11-20-bootstrap-v9",
     "providers": {
         "claude": {"models": {
+            # Haiku 5.5: economy (read-only discovery, summaries). Sonnet 5.5 clearly better for
+            # agentic coding (CAI v2.1 56 vs 30 at max; Terminal-Bench 4.0 70.6% vs 39.2%).
+            "claude-haiku-5-5": _refresh(_bootstrap_entry(["economy"], ["code", "tool_use"], True, "max", 1, _CLAUDE_REF),
+                                         _CLAUDE_REF, capability="provider_cli"),
+            # Legacy alias: resolved to Haiku 4.5 without effort on CLI 2.1.283 (below Haiku 5.5's 2.1.293
+            # minimum); not re-observed, so its facets keep the bootstrap stamp. Same rank as Haiku 5.5,
+            # listed after it, so ties keep Haiku 5.5.
             "haiku": _bootstrap_entry(["economy"], ["code", "tool_use"], False, None, 1, _CLAUDE_REF),
-            "claude-sonnet-5-5": _bootstrap_entry(["standard"], _FULL, True, "max", 2, _CLAUDE_REF),
-            "claude-opus-5-5": _bootstrap_entry(["strong"], _FULL, True, "max", 4, _CLAUDE_REF),
-            "claude-fable-5-1": _bootstrap_entry(["max"], _FULL, True, "max", 5, _CLAUDE_REF),
+            "claude-sonnet-5-5": _refresh(_bootstrap_entry(["standard"], _FULL, True, "max", 2, _CLAUDE_REF),
+                                          _CLAUDE_REF, capability="provider_cli"),
+            # Owner policy 2026-11-20: Opus 5.5 / Sol 6.2 are the usual ceiling (strong and max by
+            # effort). Fable 5.2 / Astra 6.2 are the frontier level above max (routingctl.FRONTIER_MODELS):
+            # their only level is `frontier`, so no tier, selector or MODEL_MATRIX entry can pick them.
+            "claude-opus-5-5": _refresh(_bootstrap_entry(["strong", "max"], _FULL, True, "max", 5, _CLAUDE_REF),
+                                        _CLAUDE_REF, capability="provider_cli"),
+            # L6/F6 frontier level: extreme architecture/code review, or after repeated Opus 5.5
+            # failure at max/xhigh. Needs Claude Code >= 2.1.321. Start at high effort (CAI v2.1
+            # high 58.24 $7.51; xhigh +0.2 at 2.06x; max 55.74 at $44.22).
+            "claude-fable-5-2": _refresh(_bootstrap_entry(["frontier"], _FULL, True, "max", 5, _CLAUDE_REF),
+                                         _CLAUDE_REF, capability="provider_cli"),
         }},
         "codex": {"models": {
-            "gpt-6-luna": _bootstrap_entry(["economy"], ["code", "tool_use"], True, "max", 1, _CODEX_REF),
-            "gpt-6.1-sol": _bootstrap_entry(["standard", "strong", "max"], _FULL, True, "max", 5, _CODEX_REF),
+            # GPT-6.2 Sol serves every Codex tier by effort (low 37 $0.33 / medium 45 $0.57 / high 47
+            # $0.76 / xhigh 50 $0.90 on CAI v2.1). gpt-6.1-terra and gpt-6-luna are listed by the CLI
+            # but are not tier models any more (see routingctl.CURRENT_MODELS).
+            "gpt-6.2-sol": _refresh(_bootstrap_entry(["economy", "standard", "strong", "max"], _FULL, True, "max", 5,
+                                                     _CODEX_REF), _CODEX_REF, capability="provider_cli"),
+            # L6/F6 frontier level (same access rules as Fable 5.2); high, then xhigh; never low,
+            # max or `ultra`. Needs Codex >= 0.171.0.
+            "gpt-6.2-astra": _refresh(_bootstrap_entry(["frontier"], _FULL, True, "max", 5, _CODEX_REF),
+                                      _CODEX_REF, capability="provider_cli"),
         }},
         "muse": {"models": {
-            "muse-spark-1.3": _bootstrap_entry(["advanced"], _FULL, True, "high", 3, _MUSE_REF),
+            "muse-ember-1.0": _muse_entry(["economy"], 1, _FULL, (0.10, 0.004, 0.50)),
+            # Demoted from advanced: IQ 37 for 17x Ember's price; AA marks it deprecated for Wonder.
+            "muse-spark-1.3": _muse_entry(["standard"], 2, _FULL, (1.25, 0.15, 4.25)),
+            # Preview; Wonder Full only on the Muse Code Power/Maximum plans (secondary source).
+            "muse-wonder-1.0": _muse_entry(["advanced"], 3, _FULL, (4.00, 0.20, 20.00)),
         }},
         "glm": {"models": {
-            "glm-5.3-flash": _glm_entry(["economy", "standard"], 2, (0.15, 0.03, 0.50), (2.3, 0.56, 8)),
-            "glm-5.3": _glm_entry(["advanced"], 3, (1.40, 0.26, 4.40), (6.9, 1.7, 24)),
+            # Flash: economy only (IQ 28, about 41 min per index task); multimodal.
+            "glm-5.3-flash": _glm_entry(["economy"], 1, (0.15, 0.03, 0.50), (2.3, 0.56, 8), [*_FULL, "vision"]),
+            # Demoted from advanced: IQ 32 at $5.01/task, below Kimi K3.1, Qwen4-Max and Muse Wonder.
+            "glm-5.3": _glm_entry(["standard"], 2, (1.40, 0.26, 4.40), (6.9, 1.7, 24)),
         }},
         "deepseek": {"models": {
+            # Promoted as the optional providers' economy/standard default (IQ 33, ~$0.60/task).
             "deepseek-flash": _deepseek_entry(["economy", "standard"], 2, [*_FULL, "vision"],
                                               (0.30, 0.006, 1.20), (0.15, 0.003, 0.60)),
-            "deepseek-v4-pro": _deepseek_entry(["advanced"], 3, _FULL,
+            # Demoted from advanced to a standard fallback: IQ 23 at $1.77/task, below Flash on
+            # score and price; Flash wins every standard comparison unless it is unavailable.
+            "deepseek-v4-pro": _deepseek_entry(["standard"], 2, _FULL,
                                                (1.32, 0.044, 3.96), (0.66, 0.022, 1.98)),
         }},
     },
@@ -490,6 +566,8 @@ def provider_config_mapping(provider: str, catalog: dict | None = None) -> dict:
             no_effort.append(model_id)
         rank = entry["quality"]["rank"] or len(TIER_ORDER)
         for tier in entry["tiers"]:
+            if tier not in TIER_ORDER:
+                continue  # the frontier level is never a tier mapping
             if tier in models and ranks[tier] <= rank:
                 continue
             models[tier] = model_id

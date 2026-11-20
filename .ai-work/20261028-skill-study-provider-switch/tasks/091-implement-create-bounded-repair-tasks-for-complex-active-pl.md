@@ -2,7 +2,7 @@
 task_id: "091"
 status: "pending"
 requirements: "R048"
-dependencies: "019,021,049,053,057"
+dependencies: "019,021,049,053,057,090,073"
 allowed_related_task_reads: "none"
 ---
 
@@ -49,6 +49,7 @@ Files: `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scri
 - Idempotency prevents recursive task explosion; leases, cycles and interrupted writes are handled.
 - Original validated subtasks survive, and newly created tests must pass before unblocking.
 - Implementation and review remain pending until actual execution evidence exists.
+- Failures that availability classifies as quota/auth/environment never create repair tasks.
 
 ## Validate
 

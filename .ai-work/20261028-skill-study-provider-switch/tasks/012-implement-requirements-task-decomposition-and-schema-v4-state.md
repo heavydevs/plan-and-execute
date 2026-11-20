@@ -1,6 +1,6 @@
 ---
 task_id: "012"
-status: "pending"
+status: "completed"
 requirements: "R002,R003,R004,R005,R007,R032,R037,R038,R039,R042,R044"
 dependencies: "001,003,005"
 allowed_related_task_reads: "none"
@@ -20,12 +20,12 @@ Objective: Use staged plan generations, a single authoritative manifest and reco
 
 ## Checkpoints
 
-- [ ] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md. Verify the current source and only material version/account conflicts.
-- [ ] **S002** Implement revised contract 1 — Publish plan revisions as validated generations and define recovery when projections lag the authoritative manifest.
-- [ ] **S003** Implement revised contract 2 — Bind acceptance to task contract and scoped inputs; preserve old receipts as history rather than rewriting them as current.
-- [ ] **S004** Implement revised contract 3 — Test interruption before and after authority publication; recovery must not mark tasks complete or combine generations.
-- [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
-- [ ] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
+- [x] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/012-plan-contract.md. Verify the current source and only material version/account conflicts.
+- [x] **S002** Implement revised contract 1 — Publish plan revisions as validated generations and define recovery when projections lag the authoritative manifest.
+- [x] **S003** Implement revised contract 2 — Bind acceptance to task contract and scoped inputs; preserve old receipts as history rather than rewriting them as current.
+- [x] **S004** Implement revised contract 3 — Test interruption before and after authority publication; recovery must not mark tasks complete or combine generations.
+- [x] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
+- [x] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
 
 ## Scope
 
@@ -43,6 +43,7 @@ Files: `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scri
 - Treat vendor results as bounded evidence, not measured savings here. Refresh only a material version/account mismatch.
 - Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
 - Complete all owned report instructions. The checkpoints group correlated changes; they do not waive any instruction or acceptance case.
+- 012 owns the single receipt-validity function; 018 extends it and never adds a second one.
 
 ## Acceptance
 

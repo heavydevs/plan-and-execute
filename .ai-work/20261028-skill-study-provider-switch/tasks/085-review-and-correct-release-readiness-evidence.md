@@ -40,17 +40,19 @@ Files: `README.md`, `README.pt-BR.md`, `CHANGELOG.md`, `tools/run-repo-checks.js
 - Use only task 085 inputs and declared checks in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.
 - Implement the assigned recommendations, preserving already-satisfied invariants with regression tests rather than duplicate code.
 - Write actual changed-file, test and acceptance evidence to docs/research/20261028-skill-optimization/implementation/085-receipt.json.
-- Dispatch an actual fresh maximum-qualified reviewer; record its real route and input hashes, then correct and revalidate every blocking finding.
+- Review only via review_dispatch.py (synchronous; max route; writes dispatch evidence); fix blocking findings, rerun declared checks, re-dispatch if a reviewed file changed, copy its RECEIPT_REVIEWER fields into the receipt.
 - Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
 - If integration exposes a defect outside this write scope, reopen its owning TODO and correction review with native controllers; do not silently expand scope.
+- Never launch background or asynchronous agents or processes: this headless session ends when you stop calling tools, so anything unfinished is lost.
 
 ## Acceptance
 
 - All implementation acceptance cases and required independent code reviews have current evidence.
 - Final npm checks and actual package file lists pass or the task remains incomplete.
 - The Portuguese final report distinguishes verified behavior, untested platforms and live-provider limitations.
-- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 - Current integration evidence covers changed contracts; historical task receipts remain immutable evidence of their recorded revisions.
+- A frontier (Fable 5.2 / Astra 6.2) reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.
+- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
 ## Validate
 

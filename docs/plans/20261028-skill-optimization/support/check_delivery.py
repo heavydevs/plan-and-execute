@@ -15,6 +15,12 @@ PREP = Path("docs/research/20261028-skill-optimization/prepared-research")
 OUTPUT = Path("docs/research/20261028-skill-optimization/implementation")
 CONTROL = Path(".ai-work/20261028-skill-study-provider-switch")
 SECRET = re.compile(r"sk-[A-Za-z0-9_-]{12,}|Authorization\s*:\s*(?:Bearer|Basic)\s+[^\s<]+", re.I)
+# Frontier (Fable 5.2 / Astra 6.2) sits above `max`: review/architecture only, and only after
+# repeated functional max-review failure of the same diff; availability faults never qualify.
+FRONTIER_MODELS = frozenset({"claude-fable-5-2", "gpt-6.2-astra"})
+FRONTIER_PHASES = frozenset({"review", "architecture"})
+FUNCTIONAL_FAILURES = frozenset({"semantic", "architectural"})
+AVAILABILITY_CAUSES = frozenset({"quota", "auth", "billing", "environment", "timeout"})
 
 
 class GateError(ValueError):
@@ -61,13 +67,25 @@ def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def text_sha(path: Path) -> str:
+    """SHA-256 of a pinned text file as its LF git blob.
+
+    INDEX.json research reports/decision records and the request copies are pinned by the hash
+    of their LF blob; a core.autocrlf=true checkout carries CRLF in the working tree. Only
+    CRLF -> LF is folded, so any other byte change still breaks the pin.
+    """
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def catalog(root: Path):
-    data = load(local(root, str(DOC / "TASK_INPUTS.json")))
+    data = load(local(root, (DOC / "TASK_INPUTS.json").as_posix()))
     require(data.get("schema_version") == 2, "Unsupported task catalog")
     return {e["id"]: e for e in data["tasks"]}
 
 
-def verified_files(root: Path, values, label="artifact") -> set[str]:
+def verified_files(root: Path, values, label="artifact", text: bool = False) -> set[str]:
+    """Check hashed path records; `text=True` only for planning-time pins (LF-blob hashes)."""
+    digest = text_sha if text else sha
     require(isinstance(values, list) and bool(values), f"Missing hashed {label}s")
     names = set()
     for item in values:
@@ -76,7 +94,7 @@ def verified_files(root: Path, values, label="artifact") -> set[str]:
         path = local(root, name)
         require(path.is_file(), f"Missing {label}: {name}")
         require(name not in names, "Duplicate artifact")
-        require(sha(path) == item.get("sha256"), f"Stale {label} hash: {name}")
+        require(digest(path) == item.get("sha256"), f"Stale {label} hash: {name}")
         names.add(name)
     return names
 
@@ -110,10 +128,11 @@ def code_fingerprint(root: Path, entry: dict) -> str:
 
 
 def structural(root: Path, native: bool = True) -> dict:
-    spec = load(local(root, str(DOC / "PLAN1_SPEC.json")))
+    spec = load(local(root, (DOC / "PLAN1_SPEC.json").as_posix()))
     entries = catalog(root)
     tasks = {f"{t['id']:03}": t for t in spec["tasks"]}
-    require(len(tasks) == len(spec["tasks"]) == len(entries) == 126, "Expected 126 unique tasks")
+    require(len(tasks) == len(spec["tasks"]) == len(entries),
+            f"Expected {len(entries)} unique tasks (TASK_INPUTS), spec has {len(spec['tasks'])}")
     require(set(tasks) == set(entries), "Task catalog mismatch")
     require(spec["autostart"] is False, "Research preparation must not autostart workers")
     require("single implementation" in spec["title"].lower(), "Not a single implementation plan")
@@ -146,11 +165,15 @@ def structural(root: Path, native: bool = True) -> dict:
     for task_id in tasks:
         visit(task_id)
     require(f"{spec['tasks'][-1]['id']:03}" == "086", "Whole-skill review must remain last")
-    for rid in ("088", "090", "092", "094", "096", "098", "100", "102", "104", "106", "108", "110", "112", "114", "116", "118", "120", "122", "124", "126"):
-        require(rid in tasks["082"]["dependencies"], f"Missing extension review gate {rid}")
+    gates = {"088", "090", "092", "094", "096", "098", "100", "102", "104", "106", "108", "110", "112", "114",
+             "116", "118", "120", "122", "124", "126", "128", "130", "132"}
+    # Every independent review of an extension task (after the 082-086 integration block) gates 082.
+    gates |= {tid for tid, e in entries.items() if e.get("review_of") and e["review_of"] > "086"}
+    for rid in sorted(gates):
+        require(rid in tasks and rid in tasks["082"]["dependencies"], f"Missing extension review gate {rid}")
     require(tasks["001"]["model_tier"] != "max", "Global initial max-review blocker returned")
     require("whole-skill" in tasks["086"]["title"].lower(), "Whole-skill review must be last")
-    sources = load(local(root, str(PREP / "SOURCES.json")))
+    sources = load(local(root, (PREP / "SOURCES.json").as_posix()))
     source_list = sources["sources"] if isinstance(sources, dict) else sources
     source_ids = {s["id"] for s in source_list}
     require(len(source_ids) == len(source_list), "Duplicate source ID")
@@ -159,15 +182,16 @@ def structural(root: Path, native: bool = True) -> dict:
             require(isinstance(source.get(key), str) and source[key], "Incomplete source record")
         require(source["url"].startswith("https://"), "Invalid source URL")
         date.fromisoformat(source["accessed_at"])
-    index = load(local(root, str(PREP / "INDEX.json")))
-    features = load(local(root, str(DOC / "FEATURE_SEED.json")))["features"]
+    index = load(local(root, (PREP / "INDEX.json").as_posix()))
+    features = load(local(root, (DOC / "FEATURE_SEED.json").as_posix()))["features"]
     require(len(index["reports"]) == len(features) == 32, "Expected 32 topic reports")
     expected = {f["implementation_task"] for f in features}
     require(expected == {x["task_id"] for x in index["reports"]}, "Topic coverage mismatch")
     for report in index["reports"]:
         tid, rid = report["task_id"], report["review_task"]
         verified_files(root, [{"path": report["report"], "sha256": report["report_sha256"]},
-                              {"path": report["decision_record"], "sha256": report["decision_sha256"]}], "research")
+                              {"path": report["decision_record"], "sha256": report["decision_sha256"]}], "research",
+                       text=True)
         decision = load(local(root, report["decision_record"]))
         require(decision["implementation_task"] == tid, "Decision task mismatch")
         require(decision["implementation_status"] == "pending" and decision["independent_review_status"] == "pending",
@@ -187,7 +211,7 @@ def structural(root: Path, native: bool = True) -> dict:
         require(not re.search(r"(create|generate|produce) (a |the )?(second|plan 2)",
                              tasks[tid]["title"] + " " + tasks[tid]["objective"], re.I), "Second-plan work remains")
     if native:
-        manifest = load(local(root, str(CONTROL / "manifest.json")))
+        manifest = load(local(root, (CONTROL / "manifest.json").as_posix()))
         require(manifest["title"] == spec["title"], "Native manifest was not replanned")
         actual = {t["id"]: t for t in manifest["tasks"]}
         require(set(actual) == set(tasks), "Native task set mismatch")
@@ -197,11 +221,81 @@ def structural(root: Path, native: bool = True) -> dict:
             for a, b in zip(actual[tid]["subtasks"], target["subtasks"]):
                 require(a["title"] == b["title"] and a["objective"] == b["objective"], "Subtask projection mismatch")
             require(len(actual[tid]["subtasks"]) == len(target["subtasks"]), "Subtask count mismatch")
-        require(sha(local(root, str(CONTROL / "REQUEST.md"))) == sha(local(root, str(DOC / "REQUEST_CURRENT.md"))),
+        require(text_sha(local(root, (CONTROL / "REQUEST.md").as_posix()))
+                == text_sha(local(root, (DOC / "REQUEST_CURRENT.md").as_posix())),
                 "Current request mismatch")
     return {"structural_check": "passed", "tasks": len(tasks), "prepared_research_reports": len(expected),
             "source_records": len(source_list), "independent_reviews": "not performed by this check",
             "implementation": "not performed by this check"}
+
+
+def review_dir(task_id: str) -> str:
+    """The only place a task's reviewer dispatch evidence may live."""
+    return (OUTPUT / "reviews" / task_id).as_posix() + "/"
+
+
+def dispatch_record(root: Path, task_id: str, record: dict, pinned_hashes: set) -> tuple[str, str]:
+    """Verify one dispatch: own review directory, hash, task id, session and reviewed-input hashes."""
+    name = record.get("dispatch_evidence", "")
+    require(isinstance(name, str) and name.startswith(review_dir(task_id)),
+            f"Dispatch evidence must be under {review_dir(task_id)}")
+    verified_files(root, [{"path": name, "sha256": record.get("dispatch_sha256")}], "review dispatch")
+    session = record.get("session_id")
+    require(isinstance(session, str) and session, "Review dispatch session missing")
+    evidence = load(local(root, name))
+    require(isinstance(evidence, dict) and evidence.get("task_id") == task_id,
+            "Dispatch evidence does not name this task")
+    require(evidence.get("session_id") == session, "Dispatch evidence session mismatch")
+    named = evidence.get("reviewed_inputs")
+    require(isinstance(named, list) and all(isinstance(x, dict) for x in named)
+            and pinned_hashes <= {(x.get("path"), x.get("sha256")) for x in named},
+            "Dispatch evidence does not name the reviewed-input hashes")
+    return session, record["dispatch_sha256"]
+
+
+def frontier_failures(reviewer: dict) -> list:
+    """Frontier is accepted only after >=2 functional max-review failures of this diff."""
+    require(reviewer.get("model") in FRONTIER_MODELS, "Frontier reviewer must be Fable 5.2 or Astra 6.2")
+    escalation = reviewer.get("escalation")
+    require(isinstance(escalation, dict) and escalation.get("phase") in FRONTIER_PHASES,
+            "Frontier review requires a review/architecture escalation record")
+    failures = escalation.get("prior_max_failures")
+    require(isinstance(failures, list) and len(failures) >= 2,
+            "Frontier review requires at least two recorded failed max reviews")
+    for failure in failures:
+        require(isinstance(failure, dict) and failure.get("model_tier") == "max",
+                "Frontier escalation evidence is not a max review")
+        require(failure.get("failure_class") in FUNCTIONAL_FAILURES,
+                "Frontier escalation requires a semantic/architectural max failure")
+        cause = failure.get("cause")
+        require(isinstance(cause, str) and cause and cause.lower() not in AVAILABILITY_CAUSES,
+                "Availability faults (quota/auth/billing/environment/timeout) never escalate to frontier")
+    return failures
+
+
+def used_dispatches(root: Path, entries: dict, task_id: str) -> dict:
+    """Sessions and dispatch hashes already claimed by other tasks' receipts."""
+    used = {"session": set(), "dispatch": set()}
+    for other_id, other in entries.items():
+        if other_id == task_id:
+            continue
+        try:
+            path = local(root, other.get("output", ""))
+            data = load(path) if path.is_file() else None
+        except (GateError, OSError):
+            continue
+        reviewer = data.get("reviewer") if isinstance(data, dict) else None
+        if not isinstance(reviewer, dict):
+            continue
+        escalation = reviewer.get("escalation")
+        prior = escalation.get("prior_max_failures") if isinstance(escalation, dict) else None
+        for record in [reviewer] + (prior if isinstance(prior, list) else []):
+            if isinstance(record, dict):
+                if isinstance(record.get("session_id"), str):
+                    used["session"].add(record["session_id"])
+                if isinstance(record.get("dispatch_sha256"), str):
+                    used["dispatch"].add(record["dispatch_sha256"])
+    return used
 
 
 def check(root: Path, task_id: str) -> dict:
@@ -226,7 +320,7 @@ def check(root: Path, task_id: str) -> dict:
     require(any(name.startswith(("skill/", "bin/", "lib/", "test/", "tools/", ".github/"))
                 or name in {"package.json", "package-lock.json", ".npmignore", "README.md", "README.pt-BR.md", "CHANGELOG.md"} for name in changed),
             "Research report is not implementation evidence")
-    machine_path = str(OUTPUT / f"{task_id}-checks.json")
+    machine_path = (OUTPUT / f"{task_id}-checks.json").as_posix()
     machine = load(local(root, machine_path))
     require(packet.get("checks_sha256") == sha(local(root, machine_path)), "Check receipt hash mismatch")
     require(machine.get("schema_version") == 1 and machine.get("task_id") == task_id, "Wrong check receipt")
@@ -248,15 +342,24 @@ def check(root: Path, task_id: str) -> dict:
     require(isinstance(packet.get("limitations"), list), "Missing verification limits")
     if entry["requires_independent_review"]:
         reviewer = packet.get("reviewer", {})
-        require(reviewer.get("model_tier") == "max" and reviewer.get("fresh_context") is True,
+        require(isinstance(reviewer, dict), "Review route missing")
+        require(reviewer.get("model_tier") in {"max", "frontier"} and reviewer.get("fresh_context") is True,
                 "Review requires actual fresh maximum-qualified worker")
         require(reviewer.get("provider") not in (None, "", "host", "simulated", "mock", "this_session"),
                 "Independent reviewer was not dispatched")
         for field in ("provider", "model", "native_effort", "session_id"):
             require(isinstance(reviewer.get(field), str) and reviewer[field], "Review route missing")
-        verified_files(root, [{"path": reviewer.get("dispatch_evidence", ""),
-                               "sha256": reviewer.get("dispatch_sha256")}], "review dispatch")
         pinned = verified_files(root, packet.get("reviewed_inputs"), "reviewed input")
+        pinned_hashes = {(x["path"], x["sha256"]) for x in packet["reviewed_inputs"]}
+        records = [reviewer]
+        if reviewer["model_tier"] == "frontier":
+            records += frontier_failures(reviewer)
+        dispatches = [dispatch_record(root, task_id, record, pinned_hashes) for record in records]
+        sessions, hashes = {s for s, _ in dispatches}, {h for _, h in dispatches}
+        require(len(sessions) == len(hashes) == len(dispatches), "A review session or dispatch is reused")
+        used = used_dispatches(root, entries, task_id)
+        require(not (sessions & used["session"]) and not (hashes & used["dispatch"]),
+                "Review session or dispatch already used by another receipt")
         if entry.get("review_of"):
             previous = entries[entry["review_of"]]
             require({previous["output"], previous["report"]} <= pinned, "Assigned implementation was not reviewed")

@@ -31,7 +31,7 @@ Objective: Encode the prepared provider-switch decision as reusable configuratio
 
 In: Implement provider-switch contract fixtures from the prepared decision
 Out: No new broad research phase or second-plan generation.; Do not change installed copies, user-global settings or publish without permission.
-Files: `test/optimization/provider_switch_handoff_self_test.py`, `docs/research/20261028-skill-optimization/implementation/068-receipt.json`, `docs/research/20261028-skill-optimization/implementation/068-outcome.md`
+Files: `test/optimization/provider_switch_handoff_self_test.py`, `test/optimization/provider_switch_cases.json`, `docs/research/20261028-skill-optimization/implementation/068-receipt.json`, `docs/research/20261028-skill-optimization/implementation/068-outcome.md`
 
 ## Guidance
 
@@ -51,6 +51,11 @@ Files: `test/optimization/provider_switch_handoff_self_test.py`, `docs/research/
 - All twelve provider-switch acceptance cases have explicit inputs and expected outputs.
 - Fixtures distinguish provider/phase identity, unavailable candidates, duplicate dispatches and bounded attempt reservation.
 - Legacy replay remains separate from expected opt-in behavior; no runtime implementation is claimed by this fixture task.
+- Each case in test/optimization/provider_switch_cases.json names its owner task (070-080).
+- New fixtures cover the antigravity/codex/claude implementation chain and the codex/claude review chain.
+- Codex out of credits is availability: no functional failure and no escalation.
+- claude-fable-5-2, gpt-6.2-astra and gemini-4-carbon-* are never useful rungs.
+- A03: in map v8 Claude strong and max are both claude-opus-5-5; a no-op is counted only when model and effort are equal.
 - Prepared research is not proof of implementation or independent-review completion.
 
 ## Validate

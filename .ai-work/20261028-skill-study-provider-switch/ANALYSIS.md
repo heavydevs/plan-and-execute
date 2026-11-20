@@ -49,7 +49,6 @@ Request: `REQUEST.md`
 - **P043** Replace former second-plan tasks with integration, regression, packaging and final acceptance of this single implementation.
 - **P044** Record a newly discovered material gap with provenance and a bounded contract amendment; do not restart broad research by default.
 - **P045** Report decisions, changed files, actual validation, unverified platforms and risks in Brazilian Portuguese.
-
 - **P046** For cohesive multi-file DIRECT work, inspect relevant files cheaply, delegate difficult architecture to a stronger model only when justified, then choose a qualified economical executor and monitored tests.
 - **P047** Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests.
 - **P048** When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints.
@@ -57,8 +56,21 @@ Request: `REQUEST.md`
 - **P050** Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.
 - **P051** Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
 - **P052** For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
-
-- **P053/R053** Prevent automatic idle sleep/hibernation of the actual local host during an entire RUNNING ORCHESTRATED plan through one verified OS-native lease spanning all task/provider gaps and validations, release on stop/pause/cancel, offer opt-out and strict overnight readiness, without overriding OS power policy or safety.
+- **P053** Keep the local host from idle sleep/hibernation for a whole RUNNING ORCHESTRATED plan via one verified OS-native lease over task/provider gaps and validations; release on stop/pause/cancel; offer opt-out and strict overnight readiness; never override OS power policy or safety.
+- **P054** Offer an opt-in 20-minute OS scheduler for ORCHESTRATED plans with >=6 executable pending tasks and auto-unregister it at plan termination; preserve native continuous power inhibitor separately.
+- **P055** Refresh 2026 provider model mapping and add opt-in frontier tier L6/F6 above max, including only actually available Fable, Astra, Carbon and other eligible frontier models.
+- **P056** Add risk-based independent architecture security/performance review, final review two lenses and user-opt-in-only application performance testing.
+- **P057** Save time and tokens by completing safe failure collection once, grouping per-case failures and doing selective repairs before mandatory final full regression.
+- **P058** Define lower-cost trustworthy unit/contract/integration test coverage and representative minimum/maximum/validation E2E flows.
+- **P059** Select changed and impacted tests per task; run complete mapped regressions, reserving global all-suite for plan completion with risk exceptions.
+- **P060** Add explicit user-triggered review/refactor of legacy suites or just current-plan-developed tests; default review-only and separate edits.
+- **P061** After provider quota recovery, next safe dispatch selects highest-priority configured eligible agent, respecting pins, capability and security.
+- **P062** When all allowed providers run out of quota, persist plan pause and one durable bounded automatic recheck/resume, without paid polling or duplicate workers.
+- **P063** AI-generated tests must have independent contract-grounded oracles, meaningful defect-detection checks and risk-proportional unit/contract/integration/E2E.
+- **P064** All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics.
+- **P065** Research and add implementation-ready architecture for opt-in visual identity, brownfield UI standards, optional Node HTML/JS/SCSS prototype lab, safe import and transfer and validated accessible UX with low-token routing.
+- **P066** New code reuses source-backed project conventions (module architecture, ORM/repositories, used libraries, helpers, naming, tests) via concise agent docs, pattern-first drift checks and approved exceptions; deep coding/UX study only on opt-in first use or explicit init/refresh.
+- **P067** When the plan manager (root) is a smaller model, hard mid-run decisions (blocked task, plan or gate defect, replan, review conflict, manifest mutation) go to a fresh qualified read-only worker; frontier only by existing rules; availability faults never escalate.
 
 ## Repository
 
@@ -67,8 +79,12 @@ Request: `REQUEST.md`
 - All 32 research topics now have prepared reports; all implementation and independent review tasks remain pending.
 - The current user request replaces the two-plan workflow with one implementation graph.
 - All32 reports were revised with competing approaches, scoped source evidence and counterexamples. Implementation and independent reviews remain pending.
-
+- 2026-10-31: six unimplemented end-to-end contracts supplement 86 originally pending tasks.
 - Current progress_watch renews on distinct arbitrary stdout and CPU, while PROGRESS counters lack enforced stage/denominator monotonicity; long-running work already has 300-second idle monitoring and semantic escalation in the runner.
+- P053: host OS sleep lease is absent across whole-plan gaps; progress/resume alone do not block idle suspend.
+- Design phase accepts nonempty architecture note without separate security/performance reviewer; existing independent final code-review path can be reused.
+- run_isolated.run_validation_commands returns after first failed mapped command, and plan-specific run_task_checks stops at first nonzero check.
+- Existing 109/110 collects all safely runnable mapped failures but lacks test-level authoring and conservative cross-task impact selection.
 
 Research: Revision 2 evaluates primary-source alternatives for all 32 reports; workers consume the selected decision and refresh only material version or account conflicts.
 
@@ -84,14 +100,12 @@ Research: Revision 2 evaluates primary-source alternatives for all 32 reports; w
 - Unconsumed pipes can deadlock, communicate buffers output in memory, and timeout cleanup requires explicit process handling. Long-running output needs concurrent draining and bounded retention.
 - A successful same-filesystem replacement has atomic rename semantics; this is not a transaction covering multiple files or a promise of durable persistence after power loss.
 - Untrusted retrieved data and tool outputs must not be treated as instructions. Structured separation and least privilege are defense layers, not a guarantee of immunity.
-- Vendor multi-model experiments can reduce both cost and pass rate; compare total cost per independently validated task against a simpler qualified baseline.
+- Vendor multi-model experiments can reduce both cost and pass rate; compare total cost per independently validated task against a simpler qualified baseline, keeping subscription quota and cash cost as separate accounting units.
 - Effort and alias capabilities vary by model, harness and installed CLI; unknown required capability excludes a candidate rather than widening permissions.
-- API cache-write economics vary by generation and retention; subscription quota and cash cost must remain separate accounting units.
-- Qwen safe-mode is not a sandbox; Kimi prompt-mode flag compatibility is version-specific.
 - Whole-process cancellation and multi-file state publication need ownership and crash-recovery tests, not only atomic single-file writes.
 - Fixture replay proves dispatch contracts, not empirical savings; repeated identical cases do not create independent benchmark samples.
-
-- Focused P052 study: docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md; existing 052/054/062 contracts partially cover the request but not the complete semantic-percent-and-repair seam.
+- Focused studies: P052 docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md (052/054/062 lack the semantic-percent-and-repair seam); P053 OS/provider report docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md.
+- Public Google/Fowler sources favor small tests; Nx/Jest/Vitest selection misses dynamic/shared dependencies, so unknown impact needs broad fallback.
 
 ## Assumptions
 
@@ -104,14 +118,12 @@ Research: Revision 2 evaluates primary-source alternatives for all 32 reports; w
 - Current documentation can differ from installed versions; capability fixtures and bounded probes must reconcile a material mismatch.
 - Offline route replay is not a measurement of real model quality, quota consumption or dollar savings.
 - Prepared source hashes are baseline evidence; implementation deliberately changes them and must record the new validated state.
-- Public vendor cost and quality experiments are not a measurement of this repository; live model validation remains a separate authorized activity.
+- Public vendor experiments do not measure this repository; host-level skill activation, access enforcement and neuroinclusive comprehension need real tests, and live model validation is a separate authorized activity.
 - Historical task receipts retain their recorded revision; final acceptance needs current integration evidence and affected-contract revalidation.
-
-- Six supplementary contracts are pending implementation and real review; no new agents or tests were run in this amendment.
-
 - A busy-loop or changing log can resemble work; automatic escalation on ambiguous/environmental stalls can waste models or destroy useful checkpoints. P052 requires trustworthy semantic evidence and authorized repair.
-
-- P053: studied documented Windows, Apple, logind and all nine plan-supported agent paths; proposed host-owned OS lease, not physical-host guarantee. Report: `docs/research/20261028-skill-optimization/prepared-research/101-plan-scoped-sleep-inhibition.md`.
+- No idle inhibitor guarantees manual/lid/battery/thermal/policy/Modern Standby/host network/quotas and noninteractive approval.
+- Review duplication wastes model credits; require extra reviewer only for material architecture and reuse existing final code-review worker.
+- Continue only independent safe tests; missing reports, environment faults, flaky or focused-green runs cannot satisfy final acceptance, and narrow impact graphs need safe fallback plus a final global suite.
 
 ## Open questions
 
@@ -119,11 +131,4 @@ Research: Revision 2 evaluates primary-source alternatives for all 32 reports; w
 
 ## Decomposition
 
-Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan. P052 adds TODO 099 and genuinely independent review 100 before integration 082, without duplicating the existing watcher.
-
-## P054 / P055 — 2026-11-12
-
-- P054: Existing `watchdogctl.py` and `keepalivectl.py` already distinguish runner death from silent/blocked workers and can poll at 20 minutes, but conditional opt-in, host scheduler life-cycle, Linux/macOS native registration and terminal removal are not integrated. Research: `docs/research/20261028-skill-optimization/prepared-research/103-opt-in-keepalive-scheduler.md`; implementation/review: 103/104.
-- P055: Five existing capability tiers are insufficient to distinguish current premium frontier model family. The current official catalogs include Fable 5.2, GPT-6 Astra and Gemini 4 Carbon, subject to observed CLI account model IDs and permissions; do not equate unbenchmarked providers or credit units. Research: `docs/research/20261028-skill-optimization/prepared-research/105-frontier-model-routing-20261112.md`; implementation/review: 105/106.
-- Tasks 091/092 already cover creating focused repair TODOs for complex active-plan blockers; do not re-create this mechanism.
-- Threshold 6 is a deliberately configurable starting heuristic, not an independently measured optimum; acceptance must test 5/6 boundaries and report total validated cost.
+Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan. Each amendment pair from 099/100 (no duplicate watcher) to 129/130 ends in an independent review gating integration 082; 086 stays last.

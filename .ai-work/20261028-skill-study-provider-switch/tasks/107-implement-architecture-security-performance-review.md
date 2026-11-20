@@ -31,7 +31,7 @@ Objective: Add independent security and performance design review before impleme
 ## Scope
 
 In: Add independent security and performance design review before implementation on material architecture, and both lenses to existing final code review, without default performance benchmarks.
-Out: No mandatory performance benchmarks, second orchestrator, duplicated routine reviewer, unapproved provider execution or user-global edits.
+Out: No second orchestrator, forced benchmark, unauthorized model/permission changes.
 Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/artifact_contract.py`, `skill/plan-and-execute/scripts/direct_route.py`, `skill/plan-and-execute/references/PLANNING_PROTOCOL.md`, `skill/plan-and-execute/references/WORKFLOW.md`, `skill/plan-and-execute/references/PLAN_SPEC.md`, `skill/plan-and-execute/references/DELEGATION.md`, `skill/plan-and-execute/references/MODEL_ROUTING.md`, `skill/plan-and-execute/references/SKILL_MAINTENANCE_REVIEW.md`, `test/optimization/architecture_security_performance_review_self_test.py`, `docs/research/20261028-skill-optimization/implementation/107-receipt.json`, `docs/research/20261028-skill-optimization/implementation/107-outcome.md`
 
 ## Guidance
@@ -41,6 +41,7 @@ Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute
 - Reuse native orchestration/reviewer with distinct read-only approved hash-bound architecture gate; integrate security/performance in the existing final code review alongside correctness.
 - Do not create automated application performance/load/stress/benchmark tests unless the task user explicitly asks; functional tests of review mechanics required.
 - Run mapped functional regressions and record real receipts and current source hashes, not fabricated independent reviews.
+- If direct_route.py is absent, use the DIRECT entry point named in the 087 receipt.
 
 ## Acceptance
 
@@ -52,6 +53,8 @@ Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute
 - No automated performance/load/stress/benchmark tests required or generated absent explicit user request; functional tests of review mechanism remain mandatory.
 - Legacy schemas1–4, DIRECT, permissions, routing/economics, distinct reviewer and compact context remain compatible.
 - Mapped functional tests and negative fixtures pass with real implementation hashes/receipts; missing evidence leaves task pending.
+- The design reviewer is read-only through the adapter-pinned read-only argv (fail-closed table in run_isolated.py) plus a before/after worktree fingerprint; provider sandbox/skip_permissions settings never reach it.
+- The reviewer route follows Codex > Claude at strong/max; frontier only through task 105's approval.
 
 ## Validate
 

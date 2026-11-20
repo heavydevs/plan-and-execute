@@ -35,7 +35,7 @@ Version 0.10 introduces execution watchdog monitoring, an explicit progress/erro
 - **Execution Watchdog (`watchdogctl`)**: `status --quiet` observes plans and jobs read-only; `watch --interval 300` writes only an observation cache for deduplication. Both preserve plan, job and process state. They detect anomalies (`blocked`, `runner_dead`, `silent`, `awaiting_next`, `quota_resume_due`, `job_failed`) and support host scheduling (Windows Task Scheduler, cron, loop).
 - **Progress and Error Contract (`progress_signal`)**: Standardized `PROGRESS`, `ERROR`, and `HEARTBEAT` emission via `progress_signal.py`. Configure an increasing-counter probe (`probe_file`) to renew validation idle windows; worker windows also use output, CPU and repository changes. Heartbeats report liveness.
 - **Token-Efficient Log Watcher (`log_watch.py digest`)**: Aggregates redacted error signatures and progress from a bounded log prefix. The [synthetic benchmark](docs/research/LOG_DIGEST.md) achieves >99% reduction using the `chars/4` token estimate; results depend on the log. Inspect `truncated` and `omitted_records` for coverage limits.
-- **Updated Model Routing Policy**: The documented global preference uses Codex `gpt-6.1-sol` above economy and Antigravity `gemini-3.8-flash-high` for economy/watchkeeping, with Claude fallback. These chains require configuration; built-in order remains Claude then Codex. Configure user-global and per-plan chains with `pae configure`.
+- **Updated Model Routing Policy**: The documented global preference (2026-11-20) runs implementation on Antigravity (Gemini 4 Hydrogen/Neon) first, then Codex `gpt-6.2-sol`, then Claude; architecture runs on Codex then Claude; very hard work uses Opus 5.5 and Sol 6.2 (the usual ceiling), while Fable 5.2 and Astra 6.2 form the `frontier` level (L6/F6) above everything: only for extremely hard architecture/code review, or after Opus/Sol failed repeatedly at max/xhigh (`routing_policy.frontier`). These chains require configuration; built-in order remains Claude then Codex. Configure user-global and per-plan chains with `pae configure`.
 - **Installer and Verification**: Native support for Antigravity (`~/.gemini/config/skills` user scope, `.agents/skills` workspace scope). Use `install all` (via `pae install all`) to install across Claude Code, Codex, and Antigravity at once. Validate installation integrity against bundled skill hashes with `status --verify` (e.g. `pae status all --verify`).
 
 ### Configurable routing and advisory diagnosis
@@ -72,7 +72,7 @@ DIRECT by default -> ORCHESTRATE by evidence -> PROMOTE when necessary
 - **A small root model is a delegator, not a ceiling.** The skill never switches the root session's model/effort — this keeps the root route stable; exact cache keys depend on the provider — so a leaf whose floor exceeds the root tier is delegated to a fresh worker instead. `routingctl.py route --signals ...` and a leaf-signal table in `SKILL.md` give a cheap root model the same floors a frontier root would use, protected by a `tier-evals.json` regression corpus.
 - **Two-phase leaves** (`design_route`): a `high` TODO can have a stronger worker write a bounded design note first, then implement at its own cheaper route with that note.
 - **Decision-first planning** (`request_analysis.hard_decisions`): when only a few planning decisions are hard, resolve them with strong workers before a standard planner writes the mechanical plan.
-- **One model catalog** (`routingctl.py`) backs every entrypoint; effort is omitted for models that reject it (Claude Haiku); optional per-worker budgets (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway workers into resumable `budget` failures instead of technical ones.
+- **One model catalog** (`routingctl.py`) backs every entrypoint; effort is omitted for models that reject it (the legacy `haiku` alias; Haiku 5.5 accepts effort); optional per-worker budgets (`claude.max_turns`, `claude.max_budget_usd`, `codex.rollout_token_budget`) turn runaway workers into resumable `budget` failures instead of technical ones.
 - **A Google Antigravity CLI (`agy`) adapter** joins Claude Code and Codex as an execution backend; the Gemini CLI adapter is now marked legacy (an internal compatibility designation, not a product-retirement claim).
 - Documents the concrete elevation mechanics per host (subagent `model`/`effort`, `isolation: worktree`, `opusplan`, Codex `spawn_agent` roles, prompt-cache facts) and fixes several Windows-specific dispatch bugs (`.cmd` shim resolution, the Store Python alias, runner-lease liveness).
 
@@ -311,7 +311,18 @@ Each TODO keeps:
 }
 ```
 
-Concrete provider model ids are resolved through `orchestrator.config.json` from one catalog (`scripts/routingctl.py`): Claude `haiku`/`sonnet`/`opus`/`claude-fable-5-1`, Codex `gpt-6-luna`/`gpt-6.1-sol` (Sol serves every tier above economy; tiers differ by effort). This keeps the task portable when one provider runs out of quota or a different compatible model is available.
+Concrete provider model ids are resolved through `orchestrator.config.json` from one catalog (`scripts/routingctl.py`): Claude `claude-haiku-5-5`/`claude-sonnet-5-5`/`claude-opus-5-5` (Opus serves strong and max), Codex `gpt-6.2-sol` on every tier (the tiers differ by effort; GPT-6.1 Terra and GPT-6 Luna are no longer routed, map `2026-11-20-v11`). Fable 5.2 (`claude-fable-5-2`) and Astra 6.2 (`gpt-6.2-astra`) are the first-class `frontier` level L6/F6 above `max`: never an ordinary route, reached only by an extreme read-only architecture/code-review leaf or after repeated Opus/Sol failure at the top rung.
+
+| Level | Claude Code | Codex |
+|---|---|---|
+| economy / L1 | `claude-haiku-5-5` low (medium for costly-miss exploration) | `gpt-6.2-sol` low |
+| standard / L2 | `claude-sonnet-5-5` medium | `gpt-6.2-sol` medium |
+| advanced / L3 | skipped upward | skipped upward |
+| strong / L4 | `claude-opus-5-5` medium/high | `gpt-6.2-sol` medium/high |
+| max / L5 | `claude-opus-5-5` xhigh | `gpt-6.2-sol` xhigh |
+| frontier / L6 | `claude-fable-5-2` high | `gpt-6.2-astra` high (never `ultra`) |
+
+`max` effort and Codex `ultra` are never defaults; the opt-in Antigravity overlay puts Gemini 4 Neon first from standard to strong and keeps Hydrogen for economy (evidence: `skill/plan-and-execute/references/MODEL_MAPPING.md` §6). This keeps the task portable when one provider runs out of quota or a different compatible model is available.
 
 ### Routing from leaf signals, elevation by delegation
 
@@ -326,7 +337,7 @@ The skill **never switches the root session's model or effort** (that invalidate
 
 ### Escalation from classified evidence
 
-A failed attempt records a `failure_class` (worker report field or `planctl fail --failure-class`): `mechanical` repeats the rung once and then climbs one step; `semantic` jumps to the next stronger tier (on Codex, Sol Medium → Sol High); `environmental` keeps the route; `budget` resumes from checkpoints; `plan_defect` blocks the TODO for replanning. Rate limits and quota are never evidence. Provider ladders live in the catalog; Haiku, which accepts no effort parameter, is dispatched without `--effort`.
+A failed attempt records a `failure_class` (worker report field or `planctl fail --failure-class`): `mechanical` repeats the rung once and then climbs one step; `semantic` jumps to the next stronger tier (on Codex, Sol Medium → Sol High); `environmental` keeps the route; `budget` resumes from checkpoints; `plan_defect` blocks the TODO for replanning. Rate limits and quota are never evidence. After two functional failures at the max/xhigh rung the next step is the frontier level (Astra 6.2 / Fable 5.2) instead of a `ladder_exhausted` block; a failed frontier attempt blocks for replanning. Provider ladders live in the catalog; the legacy `haiku` alias, which accepts no effort parameter, is dispatched without `--effort`; Haiku 5.5 accepts it.
 
 ### Two-phase leaves and decision-first planning
 

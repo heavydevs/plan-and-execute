@@ -49,6 +49,7 @@ const testScripts = [
   'artifact_hygiene_self_test.py',
   'telemetry_self_test.py',
   'delegation_self_test.py',
+  'frontier_self_test.py',
   'failure_evidence_self_test.py',
   'rollout_gate_self_test.py'
 ].map((name) => path.join(scriptDirectory, name));

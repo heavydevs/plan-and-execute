@@ -51,10 +51,15 @@ Files: `skill/plan-and-execute/scripts/routingctl.py`, `skill/plan-and-execute/s
 - Collapse model/native-effort no-ops after profile/snapshot resolution.
 - Record provider-local evidence and actual-dispatch identity before outcomes.
 - The targeted contract is validated through the production run_concise composition.
-- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 - Persist provider/phase-local functional evidence only after pinning the actual effective dispatch identity.
 - Derive useful rungs after snapshot, profile, alias and native-effort resolution; no-op labels are not stronger routes.
 - Define reset as explicit new evidence generation with retained audit history; do not inherit another provider's failures.
+- A01: legacy-mode argv goldens are unchanged.
+- A02: a useful top on provider 1 moves the next attempt to provider 2.
+- A07: a missing tier lifts upward or skips the provider with a reason, never lowering the floor.
+- Schema 1-4 manifests without provider/phase state load and resume with legacy counters.
+- Effective top tier is max; frontier is never a ladder or switch rung and is never reached for implementation, quota, auth or environment outcomes.
+- The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
 ## Validate
 

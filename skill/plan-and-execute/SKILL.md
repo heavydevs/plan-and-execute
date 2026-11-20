@@ -19,7 +19,7 @@ Prefer DIRECT unless orchestration pays. Signals: independent workstreams, broad
 
 ### DIRECT EXIT
 
-Without those benefits, create no `.ai-work` plan, study, TODO or lifecycle state. Implement directly; do not load planning references. Optional test supervision uses **validate-or-fix**, with only a shared map and bounded validation receipts, never a plan. Only then read [VALIDATION_WORKLOADS.md](references/VALIDATION_WORKLOADS.md). Fast deterministic checks need no model observer.
+Without those benefits, create no `.ai-work` plan, study, ledger, TODO or lifecycle state. Implement directly; do not load planning references. Optional test supervision uses **validate-or-fix**, with only a shared map and bounded validation receipts, never a plan. Only then read [VALIDATION_WORKLOADS.md](references/VALIDATION_WORKLOADS.md). Fast deterministic checks need no model observer.
 
 **DIRECT exits the harness, not adaptive model routing.** A small task with no tests can deserve a stronger model when silent failure is costly.
 
@@ -44,9 +44,9 @@ Before planning, reconcile `.ai-work/SERVICE_MAP.md`: freshness, inputs, preflig
 
 ## 4. Always-on model economy
 
-Use tools for lookup, transforms, builds, tests, lint. Use at most two cheap read-only explorers and compact evidence. One grep needs no agent.
+Use tools for lookup, transforms, builds, tests, lint; at most two cheap read-only explorers, compact evidence. One grep needs no agent.
 
-Route each leaf by its own signals, not parent size or root model. Compute its floor with `python <skill-dir>/scripts/routingctl.py route --signals a,b`:
+Route each leaf by its own signals, not parent size or root model. Floor: `python <skill-dir>/scripts/routingctl.py route --signals a,b`:
 
 | Leaf signal | Floor |
 |---|---|
@@ -56,14 +56,15 @@ Route each leaf by its own signals, not parent size or root model. Compute its f
 | `subtle_debugging` | strong medium |
 | `architecture_decision`, `cross_cutting_risk`, `silent_failure_costly` | strong high |
 | `frontier_long_horizon` / `repeated_strong_failure` | max high / xhigh |
+| `extreme_architecture`, `extreme_code_review` | max xhigh; L6 reviewer |
 
-`weak_validation`: +1 tier, high effort. With `strong_validation`, strong may start medium. Implementation never uses low effort unless mechanical and deterministically checked.
+`weak_validation`: +1 tier, high effort; `strong_validation`: strong may start medium. Implementation uses low effort only when mechanical and deterministically checked.
 
-Keep the root route stable; delegate leaves above its capability, including planning, to fresh qualified workers and consume compact results. Start stronger when silent failure is costly; otherwise use cheap-first with strong validation. Escalate only from classified failure evidence; stop after acceptance plus independent validation pass.
+Keep the root route stable; delegate leaves above its capability (planning too) to fresh workers; use compact results. Start stronger when silent failure is costly; else cheap-first with strong validation. Escalate only from classified failure evidence; stop after acceptance plus independent validation pass.
 
-Planning routes: [PLANNING_ROUTING.md](references/PLANNING_ROUTING.md). Implementation: [MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus only the active provider guide. Load [MODEL_CATALOG.md](references/MODEL_CATALOG.md) or [DELEGATION.md](references/DELEGATION.md) only when needed. Do not preload other provider guides.
+Planning routes: [PLANNING_ROUTING.md](references/PLANNING_ROUTING.md). Implementation: [MODEL_ROUTING.md](references/MODEL_ROUTING.md) plus the active provider guide. Load [MODEL_CATALOG.md](references/MODEL_CATALOG.md) or [DELEGATION.md](references/DELEGATION.md) only when needed. Do not preload other provider guides.
 
-Tier priority/fallback: [ROUTING_CONFIG.md](references/ROUTING_CONFIG.md). Workload/quota profiles and observer setup: [VALIDATION_WORKLOADS.md](references/VALIDATION_WORKLOADS.md). Legacy advice: [ASSISTANTS.md](references/ASSISTANTS.md). Unsupported read-only profiles skip.
+Tier priority/fallback: [ROUTING_CONFIG.md](references/ROUTING_CONFIG.md). Workload/quota profiles, observer setup: [VALIDATION_WORKLOADS.md](references/VALIDATION_WORKLOADS.md). Legacy advice: [ASSISTANTS.md](references/ASSISTANTS.md). Unsupported read-only profiles skip.
 
 ## 5. Promote late
 

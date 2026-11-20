@@ -62,6 +62,14 @@ The orchestrator rejects missing/extra assigned reads. Workers must not browse o
 
 Plan-time context is immutable during execution. New discoveries belong in validated execution learnings, not by mutating `CONTEXT.md` for later tasks.
 
+## Trust classes and boundaries
+
+Keep three classes distinct so unverified retries never become shared rules:
+
+1. **`normative_contract`** — immutable plan context (`CONTEXT.md`, `contexts/<topic>.md`) and versioned shared patterns (`patternctl.py`). Only plan-approved constraints belong here.
+2. **`validated_learning`** — directional findings (`learnings/<src>-to-<tgt>.md`) materialized only after the producing TODO passes deterministic validation.
+3. **`failed_attempt_hypothesis`** — task-local retry hypotheses (`attempt_hypotheses` on the failing TODO). They are non-normative next-attempt data, never shared across tasks, and never upgraded into normative rules by repetition or summarization.
+
 ## Validated execution learnings
 
 A completed TODO may publish a learning only when:
@@ -71,9 +79,31 @@ A completed TODO may publish a learning only when:
 - the finding matches the declared topics;
 - source TODO deterministic validation passed;
 - the finding would save meaningful rediscovery effort;
-- the learning has concrete source references.
+- the learning has concrete source references;
+- the note does not attempt to alter acceptance criteria, validation commands, permissions, sandbox settings, or provider/routing policy.
 
 Learning kinds: `code`, `procedure`, `decision`, `pitfall`, `validation`.
+
+Each materialized learning carries provenance metadata in `manifest.json`:
+
+- `trust_class`: `validated_learning`;
+- `producer_task_id` and `consumer_task_ids` (exact assigned consumer set);
+- `source_contract_digest`: producer contract digest at completion;
+- `cited_file_digests`: SHA-256 hashes of cited repository files present on disk;
+- `invalidation_rule`: invalidates on source-contract change, source reset, or cited-file change;
+- `provenance_sha256`: canonical digest over the provenance fields and items.
+
+Changing a cited file or revising the producer's contract invalidates or flags only that learning before reuse (`planctl.py check-learnings --invalidate-stale`), without deleting unrelated knowledge. Repeated conventions needed by multiple tasks belong in a versioned shared pattern (`patternctl.py`), not copied learning prose.
+
+## Failed-attempt hypotheses
+
+Failed attempts may record bounded, task-local hypotheses with concrete evidence references. When underlying evidence files, failure signatures, or the task contract change, open hypotheses are automatically invalidated.
+
+Disproven hypotheses are explicitly labeled and bounded so retries do not repeat dead ends; they can never be promoted into `validated_learning` or `normative_contract`. Promoting an open hypothesis into a reusable learning requires passing deterministic validation evidence.
+
+## Context accounting receipts
+
+Use `planctl.py context-receipt --plan <dir> [--task <id>]` to emit a compact accounting receipt with selected file IDs, trust classes, exact byte counts, inclusion reasons, and offline stale-learning counts. Receipts never retain raw prompt text or secrets.
 
 A good item:
 
@@ -85,6 +115,8 @@ Bad items:
 - transcript/history summaries;
 - generic framework advice;
 - conclusions with no source reference;
+- unvalidated or disproven failure hypotheses;
+- notes attempting to relax acceptance, permissions, or provider policy;
 - information the target can retrieve cheaply from its own files.
 
 Learning guidance is capped at 320 chars; a target-specific learning file is capped at 2200 chars.

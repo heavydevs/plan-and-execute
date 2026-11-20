@@ -1,0 +1,74 @@
+{
+  "schema": "review-dispatch/1",
+  "task_id": "003",
+  "review_of": "002",
+  "dispatch": 1,
+  "provider": "claude",
+  "model": "claude-opus-5-5",
+  "native_effort": "xhigh",
+  "requested_effort": "xhigh",
+  "model_tier": "max",
+  "fresh_context": true,
+  "read_only": true,
+  "session_id": "b6c3bd44-99ba-4090-906b-d43ec0f3551a",
+  "observed_models": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+  ],
+  "brief_path": "docs/research/20261028-skill-optimization/implementation/reviews/003/brief-1.md",
+  "brief_sha256": "343fe46330e394b06c11f4f31b5e0907dc557de7d1b1cc95b6568a9b271bd3d2",
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/002-receipt.json",
+      "sha256": "fd72360fb27dce55ba6a87e166dd56ae851c6cc5e22a8380a55326aa30f5bcb5"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/002-outcome.md",
+      "sha256": "2e9583e59ac9ca2d4e9ed9e3d84cb11653aef52980e00b64a834bc64a2e20afb"
+    },
+    {
+      "path": "test/optimization/baseline_contracts.py",
+      "sha256": "640c2634a0560b31360adcea35a3fdc103260b339651dc0b66e6db1d355c0fca"
+    },
+    {
+      "path": "test/optimization/task_002_self_test.py",
+      "sha256": "8c0852f477faa86709b3b945cf21b9780e2f2f9f8aebd0099d5c77b890b4a1db"
+    }
+  ],
+  "argv_redacted": [
+    "C:/Users/luizc/.local/bin/claude-pae-2.1.322.exe",
+    "--print",
+    "--no-session-persistence",
+    "--output-format",
+    "json",
+    "--permission-mode",
+    "plan",
+    "--model",
+    "claude-opus-5-5",
+    "--effort",
+    "xhigh",
+    "--tools",
+    "Read,Grep,Glob",
+    "--json-schema",
+    "{\"type\":\"object\",\"properties\":{\"verdict\":{\"type\":\"string\",\"enum\":[\"approved\",\"changes_requested\"]},\"summary\":{\"type\":\"string\",\"maxLength\":800},\"findings\":{\"type\":\"array\",\"maxItems\":20,\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"maxLength\":16},\"severity\":{\"type\":\"string\",\"enum\":[\"critical\",\"high\",\"medium\",\"low\",\"info\"]},\"location\":{\"type\":\"string\",\"maxLength\":300},\"title\":{\"type\":\"string\",\"maxLength\":200},\"detail\":{\"type\":\"string\",\"maxLength\":1200},\"fix\":{\"type\":\"string\",\"maxLength\":800}},\"required\":[\"id\",\"severity\",\"location\",\"title\",\"detail\",\"fix\"],\"additionalProperties\":false}}},\"required\":[\"verdict\",\"summary\",\"findings\"],\"additionalProperties\":false}",
+    "<prompt>"
+  ],
+  "started_at": "2026-11-20T06:45:52Z",
+  "finished_at": "2026-11-20T06:49:13Z",
+  "exit_code": 0,
+  "usage": {
+    "input_tokens": 32,
+    "cached_tokens": 671346,
+    "cache_write_tokens": 66735,
+    "output_tokens": 21478,
+    "credits": null,
+    "usd": 1.0981096
+  },
+  "verdict": "approved",
+  "findings_count": 7,
+  "blocking_findings": 0,
+  "findings_path": "docs/research/20261028-skill-optimization/implementation/reviews/003/findings-1.json",
+  "findings_sha256": "a5bda294d81a37c7f3fe8bab750fbbd4c2ec48febb187063843f8d9cd051de86",
+  "skipped_attempts": [],
+  "helper": "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
+}

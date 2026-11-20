@@ -1,0 +1,97 @@
+{
+  "schema": "review-dispatch/1",
+  "task_id": "009",
+  "review_of": "008",
+  "dispatch": 2,
+  "provider": "claude",
+  "model": "claude-opus-5-5",
+  "native_effort": "xhigh",
+  "requested_effort": "xhigh",
+  "model_tier": "max",
+  "fresh_context": true,
+  "read_only": true,
+  "session_id": "ef211661-7a07-4abc-b5d8-cb8d48beb84b",
+  "observed_models": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+  ],
+  "brief_path": "docs/research/20261028-skill-optimization/implementation/reviews/009/brief-2.md",
+  "brief_sha256": "cab0f27442c4f24c72dfca0d8dbfe467c971e07dc143ce6ece46ce1242d7dd02",
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/008-receipt.json",
+      "sha256": "c0d2e5e3b999e08da4692fd7619e6e9084f2796cc9d1d8f535613bea6013c4eb"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/008-outcome.md",
+      "sha256": "bdb0ce5ebe1d1e548a41754abf1d9517055a0c23d538f898e32cd8b68b3fa968"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/preplanctl.py",
+      "sha256": "dd943d7428753629fd06eadf9df3eb2e8ad2be9fa3accf494939e393fbcc6481"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/preplan_self_test.py",
+      "sha256": "ad5b87cc461c9365cc4954f301f92ea8f4e53e9e55b4cd5f3c534f2ad83f83a6"
+    },
+    {
+      "path": "test/optimization/primary_planning_self_test.py",
+      "sha256": "bacc08278307e388d11523ed85527b02ca6c61826e06a9f023258e37566852a3"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+      "sha256": "6ef4e1624f5050b56fb177c01f105adf73301db53e7f566199b9fd607e65bfde"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md",
+      "sha256": "692fed20ee36c29bae81473dbbb8495e784215f9c112289e3aaa0066f400ab48"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-1.json",
+      "sha256": "be51ccc66bb67dca0af33baafe1efe1f3676574813ac8e920869de13a8ff6d73"
+    }
+  ],
+  "argv_redacted": [
+    "C:/Users/luizc/.local/bin/claude-pae-2.1.322.exe",
+    "--print",
+    "--no-session-persistence",
+    "--output-format",
+    "json",
+    "--permission-mode",
+    "plan",
+    "--model",
+    "claude-opus-5-5",
+    "--effort",
+    "xhigh",
+    "--tools",
+    "Read,Grep,Glob",
+    "--json-schema",
+    "{\"type\":\"object\",\"properties\":{\"verdict\":{\"type\":\"string\",\"enum\":[\"approved\",\"changes_requested\"]},\"summary\":{\"type\":\"string\",\"maxLength\":800},\"findings\":{\"type\":\"array\",\"maxItems\":20,\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"maxLength\":16},\"severity\":{\"type\":\"string\",\"enum\":[\"critical\",\"high\",\"medium\",\"low\",\"info\"]},\"location\":{\"type\":\"string\",\"maxLength\":300},\"title\":{\"type\":\"string\",\"maxLength\":200},\"detail\":{\"type\":\"string\",\"maxLength\":1200},\"fix\":{\"type\":\"string\",\"maxLength\":800}},\"required\":[\"id\",\"severity\",\"location\",\"title\",\"detail\",\"fix\"],\"additionalProperties\":false}}},\"required\":[\"verdict\",\"summary\",\"findings\"],\"additionalProperties\":false}",
+    "<prompt>"
+  ],
+  "started_at": "2026-11-20T08:55:36Z",
+  "finished_at": "2026-11-20T09:04:10Z",
+  "exit_code": 0,
+  "usage": {
+    "input_tokens": 38,
+    "cached_tokens": 1592042,
+    "cache_write_tokens": 158358,
+    "output_tokens": 52380,
+    "credits": null,
+    "usd": 2.6333893
+  },
+  "verdict": "approved",
+  "findings_count": 8,
+  "blocking_findings": 0,
+  "findings_path": "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-2.json",
+  "findings_sha256": "ab0d1dadc74cb14f7d969e73c7a8243c19ff5d69a24666dda6428e129a956176",
+  "skipped_attempts": [
+    {
+      "provider": "codex",
+      "model": "gpt-6.2-sol",
+      "outcome": "quota",
+      "exit_code": 1
+    }
+  ],
+  "helper": "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
+}

@@ -1,0 +1,134 @@
+{
+  "schema_version": 2,
+  "task_id": "014",
+  "kind": "implementation",
+  "status": "completed",
+  "summary": "Implemented provenance-bearing learnings (trust_class, producer, consumer set, source_contract_digest, cited_file_digests, invalidation_rule, provenance_sha256), policy-override guards, isolated task-local failed-attempt hypotheses with evidence invalidation and deterministic promotion gates, compact context accounting receipts, offline byte/stale-learning measurement, bounded task prompt suffixes preserving byte-stable static prefixes, and full offline acceptance tests.",
+  "outcome_sha256": "75c96fd543c1144994a434d8c2a4d9ea78eb68ae7a54ef3aca48ab3202e168aa",
+  "prepared_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
+      "sha256": "bccac26b0d6decfa3e37fd26ea065b7c94a41797471d679db931ca40f412f37e"
+    }
+  ],
+  "changed_artifacts": [
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "f1d94c4704178c102d99beddc25103ef5e37346e755556f8c7068c623375a417"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+      "sha256": "8e2ce4925ec75cfaadd23bca78aad71e4df545f9f6139281f2129af4993eb4b1"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "sha256": "b825e5d593882c05e5c723e7af632a18123253a62a3918d30e70f56dc3516a4d"
+    },
+    {
+      "path": "test/optimization/context_learning_self_test.py",
+      "sha256": "34657a6de109f3ea7776e137e9edecdace1c49b8baa4302758ad3b61c1d8e716"
+    },
+    {
+      "path": "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+      "sha256": "5eb6f9d3c4a2a57a090d0b7b846af1172df4bd2a6ca289ab7fc6c1258fd5d266"
+    },
+    {
+      "path": "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+      "sha256": "1458a8abced3713d95da974dec6b68e8a7ed6a4a6810ba99f5b2e7c0e05f6f59"
+    }
+  ],
+  "checks_sha256": "202efdcb26d4621b780466e89fefa191e9df769be4970c7ebe9aeaad44216440",
+  "acceptance_coverage": [
+    {
+      "id": "AC01",
+      "criterion": "An unrelated task cannot receive a learning merely because it ran later.",
+      "result": "passed",
+      "evidence": [
+        "test/optimization/context_learning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-03.log"
+      ]
+    },
+    {
+      "id": "AC02",
+      "criterion": "Changing a cited file invalidates or flags the learning before reuse.",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/context_learning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-01.log"
+      ]
+    },
+    {
+      "id": "AC03",
+      "criterion": "A malicious or unsupported note cannot alter acceptance, permissions or provider policy.",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/context_learning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-01.log"
+      ]
+    },
+    {
+      "id": "AC04",
+      "criterion": "The universal context contains only constraints needed by all tasks and remains within its existing budget.",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/artifact_contract.py",
+        "test/optimization/context_learning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-02.log"
+      ]
+    },
+    {
+      "id": "AC05",
+      "criterion": "Prefix stability is owned by 028; 014 changes do not regress existing byte-stable prefix fixtures and bound task suffixes.",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "test/optimization/context_learning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-05.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-04.log"
+      ]
+    },
+    {
+      "id": "AC06",
+      "criterion": "A disproven hypothesis never appears as a validated shared fact.",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/context_learning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-01.log"
+      ]
+    },
+    {
+      "id": "AC07",
+      "criterion": "A source-contract change invalidates its learning without deleting unrelated knowledge.",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/context_learning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-01.log"
+      ]
+    },
+    {
+      "id": "AC08",
+      "criterion": "The static prefix remains stable while task-specific reports and learnings are loaded only for assigned consumers.",
+      "result": "passed",
+      "evidence": [
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/planctl.py",
+        "test/optimization/context_learning_self_test.py",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-01.log",
+        "docs/research/20261028-skill-optimization/implementation/logs/014/20261120T115340-26140/check-06.log"
+      ]
+    }
+  ],
+  "limitations": [
+    "Live task-success measurement without owner authorization was not executed; offline deterministic measurements cover stale-learning errors, context bytes, and structural prefix stability.",
+    "Prompt cache reuse is an observed host/model metric and is not asserted from byte-stable prefix structure alone.",
+    "Independent maximum-capability review is not performed here and remains gated by TODO 015."
+  ]
+}

@@ -21,7 +21,7 @@ Objective: Independently review and correct make console, progress and end-user 
 ## Checkpoints
 
 - [ ] **S001** Read implementation — Review the actual code, test results and receipt from task 097, not a previous conversation.
-- [ ] **S002** Independent review — Dispatch a real fresh maximum-qualified reviewer and preserve provider, model, effort and reviewed hashes.
+- [ ] **S002** Independent review — Run `python docs/plans/20261028-skill-optimization/support/review_dispatch.py --repo-root . --task 098` in the foreground (rerun on exit 75); use only its DISPATCH line and compact findings.
 - [ ] **S003** Correct high-risk defects — Correct critical/high findings or leave the task pending with evidence.
 - [ ] **S004** Rerun regressions — Run test/optimization/concise_communication_self_test.py and all feature acceptance and negative cases through mapped validation.
 - [ ] **S005** Record review — Record actual review/validation results in docs/research/20261028-skill-optimization/implementation/098-receipt.json and docs/research/20261028-skill-optimization/implementation/098-outcome.md.
@@ -30,15 +30,16 @@ Objective: Independently review and correct make console, progress and end-user 
 
 In: Review and correct make console, progress and end-user docs concise and precise
 Out: No second plan or unrelated changes.; No installation, provider login, publishing or user-global configuration changes without permission.
-Files: `skill/plan-and-execute/references/USER_COMMUNICATION.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `skill/plan-and-execute/references/ARTIFACT_WRITING.md`, `skill/plan-and-execute/scripts/process_io.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/references/INSTALLATION.md`, `skill/plan-and-execute/references/INSTALLATION.pt-BR.md`, `skill/validate-or-fix/references/OPERATIONS.md`, `test/optimization/concise_communication_self_test.py`, `test/optimization/concise_communication_self_test.py`, `docs/research/20261028-skill-optimization/implementation/098-receipt.json`, `docs/research/20261028-skill-optimization/implementation/098-outcome.md`
+Files: `skill/plan-and-execute/references/USER_COMMUNICATION.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `skill/plan-and-execute/references/ARTIFACT_WRITING.md`, `skill/plan-and-execute/scripts/process_io.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/references/INSTALLATION.md`, `skill/plan-and-execute/references/INSTALLATION.pt-BR.md`, `skill/validate-or-fix/references/OPERATIONS.md`, `test/optimization/concise_communication_self_test.py`, `docs/research/20261028-skill-optimization/implementation/098-receipt.json`, `docs/research/20261028-skill-optimization/implementation/098-outcome.md`
 
 ## Guidance
 
 - Read docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261031.md.
 - Follow task 098 in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.
 - Preserve exact user intent, bounded context, security floors and real deterministic tests.
-- Use an actual fresh independent maximum-qualified reviewer; never fabricate model execution.
+- Review only via review_dispatch.py (synchronous; max route; writes dispatch evidence); fix blocking findings, rerun declared checks, re-dispatch if a reviewed file changed, copy its RECEIPT_REVIEWER fields into the receipt.
 - Preserve evidence in docs/research/20261028-skill-optimization/implementation/098-receipt.json and docs/research/20261028-skill-optimization/implementation/098-outcome.md; do not mark a pending task done without validation.
+- Never launch background or asynchronous agents or processes: this headless session ends when you stop calling tools, so anything unfinished is lost.
 
 ## Acceptance
 
@@ -50,6 +51,8 @@ Files: `skill/plan-and-execute/references/USER_COMMUNICATION.md`, `skill/plan-an
 - Verify: The tone respects adult autistic users, avoids overgeneralization and supports individual preference and detail expansion.
 - Verify: Independent test and human feedback verify non-inferior comprehension, accuracy and completeness, not word count alone.
 - No unresolved critical/high finding or missing required reviewer may be marked complete.
+- A frontier (Fable 5.2 / Astra 6.2) reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.
+- Every 2026-11-20 acceptance addition of task 097 has actual test evidence on the final reviewed hashes.
 
 ## Validate
 

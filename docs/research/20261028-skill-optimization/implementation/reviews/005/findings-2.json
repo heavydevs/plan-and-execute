@@ -1,0 +1,73 @@
+{
+  "task_id": "005",
+  "dispatch": 2,
+  "session_id": "9666cc8f-2531-4503-903a-eec8dac2a306",
+  "verdict": "approved",
+  "summary": "No critical or high findings, so this is approved. F1–F4 and F6 from dispatch 1 are fixed. Tracing build_worker_command by hand, the fixture argv matches it under default_config; all 1018 catalog availability values pass the loader. I could not run the tests or recompute SHA-256 hashes (no shell in this session), so the hashes above are as given. Two medium items remain. The tests use TestCase.enterContext, which needs Python 3.11; the repo supports 3.10. There is no test log for the corrected files: the 004 receipt pins the old hashes and check-01.log ran only the old 3 tests. The 005 worker must re-run the check and write a new receipt; check-01.log cannot serve as evidence. Low: the own-file check compares raw strings; the guard misses some write and spawn calls.",
+  "findings": [
+    {
+      "id": "R2-F1",
+      "severity": "medium",
+      "location": "test/optimization/task_004_self_test.py:88,238 (also :55-70)",
+      "title": "The corrected tests need Python 3.11+, but the repo supports Python 3.10",
+      "detail": "The correction added `self.enterContext(...)` in `catalog_root` (line 88) and in `test_ac04` (line 238). `unittest.TestCase.enterContext` only exists from Python 3.11. The README requires Python 3.10+, and `.github/workflows/ci.yml:20-22` runs a 3.10 job. On 3.10, three of the seven tests (`own_file_overlap`, `malformed_catalog`, `ac04`) would fail with AttributeError. A second problem on 3.10: `pathlib._NormalAccessor` stores `io.open`, `os.mkdir` and `os.replace` when the module loads, so `Path.write_text`, `Path.mkdir` and `Path.replace` would skip the patched functions in `offline_guard`. The guard would then not catch those writes. The check passes only because this host runs Python 3.11, and test/optimization is not in CI yet. `shared_fixtures.py` itself works on 3.10.",
+      "fix": "Replace `self.enterContext(tempfile.TemporaryDirectory())` with `tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup); root = Path(tmp.name)`. Alternatively, document that 3.11 is the minimum for this suite and skip it on older versions with `unittest.skipIf(sys.version_info < (3, 11), ...)`. If 3.10 must stay supported, also patch `pathlib.Path.open`, `mkdir` and `replace` (or `os.open`) in the guard."
+    },
+    {
+      "id": "R2-F2",
+      "severity": "medium",
+      "location": "docs/research/20261028-skill-optimization/implementation/004-receipt.json:14-24,32; 004-outcome.md:14,20; logs/004/20261120T053944-28680/check-01.log:6",
+      "title": "No test evidence exists for the reviewed hashes; the 004 receipt and log describe the old files",
+      "detail": "`004-receipt.json` records `shared_fixtures.py` as 1486a8e8… and `task_004_self_test.py` as 1c72c3c7…. The reviewed files are 17e9c158… and fd756886…. `check-01.log` ran the 3 old tests ('Ran 3 tests'). The current file has 7 tests, including the argv-parity, own-file-overlap, malformed-catalog and guard tests, and none of them has a recorded run. No logs/005 directory and no 005 receipt exist yet. `004-outcome.md:14` still claims every test was guarded and AC05 was covered; that was F5 in dispatch 1. Under the task-005 acceptance, every 2026-11-20 addition needs test evidence on the final hashes. If the 004 log or receipt were reused for that, the evidence would be fabricated.",
+      "fix": "After any further correction, run `python test/optimization/task_004_self_test.py` through resource_watch (S004/S005). Pin the final hashes in the 005 receipt and link the new log for AC01–AC05. In the 005 outcome, say that the 004 receipt and log cover the old files only and that `004-outcome.md:14` overstated coverage. Do not cite check-01.log as evidence for the corrected files."
+    },
+    {
+      "id": "R2-F3",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:256-277,280-292",
+      "title": "The own-file and allow-list checks compare raw path strings, so a differently spelled path gets past OwnTaskFileError",
+      "detail": "`own_new_files`, `allowed_set` and the overlap loop compare the catalog strings exactly. `baseline_contracts._safe_local` then normalizes the path through pathlib, collapsing `./` and `//`; it rejects only backslashes, `..` and absolute paths. Suppose a catalog entry lists `test/optimization//shared_fixtures.py` or `test/optimization/./shared_fixtures.py` in `prepared_reports` and `test/optimization/shared_fixtures.py` as `create_in_this_task`. The overlap check misses it, and once the file exists it is returned as an input. On Windows, a path that differs only in letter case resolves to the same file too. This does not affect the live catalog, which is written by the plan, but the loader is documented as rejecting this case unconditionally.",
+      "fix": "Normalize every catalog path and every requested path before comparing them, for example `PurePosixPath(rel).as_posix()`. Reject any path that is not already in that form. On case-insensitive filesystems, also compare lowercased (`casefold()`) keys. Add a temporary-catalog test with a `./` or `//` spelling of the own file."
+    },
+    {
+      "id": "R2-F4",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:235-241,294-297",
+      "title": "Some malformed catalogs are still accepted or raise a different exception class",
+      "detail": "Three gaps remain. (1) `tasks_by_id` keeps the last entry when task IDs repeat, so a second '004' entry quietly replaces the first and changes which files count as the task's own. (2) Unlike `run_preflight` (`baseline_contracts.py:192-195`), the loader does not check `schema_version`. (3) Unsafe paths (traversal, absolute or symlinked) are checked by `_safe_local` only for the selected paths. A requested-path load therefore accepts an entry that contains an unsafe path it does not select. When an unsafe path is selected, `_safe_local` raises the base `PreflightError`, not `ReportAwareInputError`. Callers that catch `ReportAwareInputError` miss it, despite the docstring's 'Rejects malformed catalog entries'. No test covers the 'Missing declared input' branch.",
+      "fix": "Raise `ReportAwareInputError` when task IDs repeat, and require `schema_version == 2`. Run `_safe_local` on every path in `prepared_reports` and readable contract entries before selecting any, and re-raise its `PreflightError` as `ReportAwareInputError`. Add tests for traversal, duplicate IDs and a missing listed file."
+    },
+    {
+      "id": "R2-F5",
+      "severity": "low",
+      "location": "test/optimization/task_004_self_test.py:39-74,136-152",
+      "title": "offline_guard misses some write and process calls, and two setup steps run outside it",
+      "detail": "The guard patches `subprocess.run`/`Popen`, `socket.socket`/`create_connection`, `os.replace`/`rename`/`mkdir`/`makedirs`, and `open` with write modes. These are not intercepted: `os.open`, which `Path.touch` and `tempfile.mkstemp` use; `os.remove`/`unlink`/`rmdir` and `shutil.rmtree` (deletions); `os.symlink`/`chmod`/`utime`; and `os.system`/`os.spawn*`/`os.exec*`/`os.startfile`. The empty-HOME check only catches writes that go through the redirected environment variables. Also, the parity test calls `planctl.default_config` and `build_worker_command` before entering the guard; the builder writes `codex-output-schema.json` to a temporary directory. `catalog_root` also writes before entering the guard. The receipt note says 'every test runs inside offline_guard', which is not fully accurate. The code under test makes none of these calls, so AC04 holds in practice.",
+      "fix": "Add `os.open` (for write flags), `os.remove`, `os.unlink`, `os.rmdir`, `os.system`, `os.spawnv` and `os.execv` to the forbidden calls. Apply the HOME redirection with `patch.dict(os.environ)` around the setup that builds the production argv. In the 005 outcome, describe the guard's actual coverage."
+    },
+    {
+      "id": "R2-F6",
+      "severity": "low",
+      "location": "test/optimization/shared_fixtures.py:155-161",
+      "title": "classify_outcome treats other availability categories as functional failures",
+      "detail": "`classify_outcome` labels a failure 'availability' only when the category is a key of `availability.CATEGORIES` (authentication, quota, capacity). `availability.unavailable` (`availability.py:102`) also accepts 'missing_cli' and 'configured_exit' as availability events, but `classify_outcome` labels them 'functional'. It also labels 'configuration', which production never treats as functional evidence, as 'functional'. None of the fixture's fixed outcomes reach these categories today. However, this module is meant to be shared with later tasks, and the docstring says the label comes from the production classifier.",
+      "fix": "Treat `{*availability.CATEGORIES, 'missing_cli', 'configured_exit'}` as availability. Map 'configuration' to its own label, such as 'configuration', instead of 'functional'. Add a parametrized test that covers every value `availability.classify` can return."
+    },
+    {
+      "id": "R2-F7",
+      "severity": "info",
+      "location": "test/optimization/shared_fixtures.py:155-161; test/optimization/task_004_self_test.py:127-128,229-233",
+      "title": "Auth and credit-exhaustion failures get the same classification label",
+      "detail": "Deriving the label from the classifier means the auth outcome is now labeled 'availability', the same label as credit exhaustion. AC03's 'distinct from auth' therefore depends only on `availability_category` ('quota' vs 'authentication'). The test checks that distinction at line 232. Production treats authentication as an availability category too (`availability.py:24-25`; `workload_routing.py:101`), so this is consistent and not a defect. But a consumer that looks only at `classification` cannot tell credit exhaustion from a login failure.",
+      "fix": "State in the `FakeProviderResult` docstring that `availability_category` is what separates credit exhaustion from auth. Optionally, assert in AC03 that the `(classification, availability_category)` pairs differ."
+    },
+    {
+      "id": "R2-F8",
+      "severity": "info",
+      "location": "test/optimization/shared_fixtures.py:64,66-71,82-84",
+      "title": "The build_provider_argv docstring overstates how closely it matches production",
+      "detail": "The docstring says the function mirrors the default configuration. In production, the default `print_timeout` ('auto' with `task_timeout_seconds` 0) gives '12h'; the fixture uses '120s'. The schema text and file paths also differ. The fixture always passes `--effort`, while production omits it for models in `models_without_effort`. The parity test hides these differences by replacing the four value-carrying flags' values and by using a model that accepts effort. The flags and their order are verified to match.",
+      "fix": "Say in the docstring that the flags and their order match, while the values of the four normalized flags, and the effort flag for effort-less models, intentionally differ."
+    }
+  ]
+}

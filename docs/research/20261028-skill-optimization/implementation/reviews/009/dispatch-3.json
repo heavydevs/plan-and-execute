@@ -1,0 +1,101 @@
+{
+  "schema": "review-dispatch/1",
+  "task_id": "009",
+  "review_of": "008",
+  "dispatch": 3,
+  "provider": "claude",
+  "model": "claude-opus-5-5",
+  "native_effort": "xhigh",
+  "requested_effort": "xhigh",
+  "model_tier": "max",
+  "fresh_context": true,
+  "read_only": true,
+  "session_id": "15e6beb3-9f12-4159-a7a0-b28e3f58991b",
+  "observed_models": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+  ],
+  "brief_path": "docs/research/20261028-skill-optimization/implementation/reviews/009/brief-3.md",
+  "brief_sha256": "1b44bf86e9eed10a10e0e03996772a6282c88a427d9023d885644657efb5331b",
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/008-receipt.json",
+      "sha256": "c0d2e5e3b999e08da4692fd7619e6e9084f2796cc9d1d8f535613bea6013c4eb"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/008-outcome.md",
+      "sha256": "bdb0ce5ebe1d1e548a41754abf1d9517055a0c23d538f898e32cd8b68b3fa968"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/preplanctl.py",
+      "sha256": "5508543350cbdaf6469de63b4cae6d614b1987bc1ac2518630b594ece5a40491"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/preplan_self_test.py",
+      "sha256": "ad5b87cc461c9365cc4954f301f92ea8f4e53e9e55b4cd5f3c534f2ad83f83a6"
+    },
+    {
+      "path": "test/optimization/primary_planning_self_test.py",
+      "sha256": "452ef96bc9335e1e876e6e94630dce6491275048aa0a33107fa32ee6f5f5376c"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PRIMARY_PLANNING.md",
+      "sha256": "a2556304581184cabf878c8eb74305d87f9b55a2ecf84673e17d855606f5c83c"
+    },
+    {
+      "path": "skill/plan-and-execute/references/PLANNING_INPUT_CONTRACT.md",
+      "sha256": "a2f769ae0ac7452fb13aee8cf93c5fa7377f89fc3b25eb2de8fb802e3a30fd4e"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-1.json",
+      "sha256": "be51ccc66bb67dca0af33baafe1efe1f3676574813ac8e920869de13a8ff6d73"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-2.json",
+      "sha256": "ab0d1dadc74cb14f7d969e73c7a8243c19ff5d69a24666dda6428e129a956176"
+    }
+  ],
+  "argv_redacted": [
+    "C:/Users/luizc/.local/bin/claude-pae-2.1.322.exe",
+    "--print",
+    "--no-session-persistence",
+    "--output-format",
+    "json",
+    "--permission-mode",
+    "plan",
+    "--model",
+    "claude-opus-5-5",
+    "--effort",
+    "xhigh",
+    "--tools",
+    "Read,Grep,Glob",
+    "--json-schema",
+    "{\"type\":\"object\",\"properties\":{\"verdict\":{\"type\":\"string\",\"enum\":[\"approved\",\"changes_requested\"]},\"summary\":{\"type\":\"string\",\"maxLength\":800},\"findings\":{\"type\":\"array\",\"maxItems\":20,\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"maxLength\":16},\"severity\":{\"type\":\"string\",\"enum\":[\"critical\",\"high\",\"medium\",\"low\",\"info\"]},\"location\":{\"type\":\"string\",\"maxLength\":300},\"title\":{\"type\":\"string\",\"maxLength\":200},\"detail\":{\"type\":\"string\",\"maxLength\":1200},\"fix\":{\"type\":\"string\",\"maxLength\":800}},\"required\":[\"id\",\"severity\",\"location\",\"title\",\"detail\",\"fix\"],\"additionalProperties\":false}}},\"required\":[\"verdict\",\"summary\",\"findings\"],\"additionalProperties\":false}",
+    "<prompt>"
+  ],
+  "started_at": "2026-11-20T09:10:34Z",
+  "finished_at": "2026-11-20T09:17:22Z",
+  "exit_code": 0,
+  "usage": {
+    "input_tokens": 40,
+    "cached_tokens": 1823936,
+    "cache_write_tokens": 158673,
+    "output_tokens": 40351,
+    "credits": null,
+    "usd": 2.4417276
+  },
+  "verdict": "approved",
+  "findings_count": 8,
+  "blocking_findings": 0,
+  "findings_path": "docs/research/20261028-skill-optimization/implementation/reviews/009/findings-3.json",
+  "findings_sha256": "e25890d02b3100b540e94fb392cea4325bfc78910521382ec95947a65c12b0e8",
+  "skipped_attempts": [
+    {
+      "provider": "codex",
+      "model": "gpt-6.2-sol",
+      "outcome": "quota",
+      "exit_code": 1
+    }
+  ],
+  "helper": "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
+}

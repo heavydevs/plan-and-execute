@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "task_id": "012",
+  "input_fingerprint": "e6db8964f2d86c0eb691118c501ffb0adc39fa83c976c0943d774f39917eaef1",
+  "inputs_unchanged": true,
+  "run_id": "20261120T104118-15876",
+  "checks": [
+    {
+      "argv": [
+        "python",
+        "test/optimization/plan_contract_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 9.047,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-01.log",
+      "log_sha256": "ec0edbe7dfa20e8f6a8c8e2148a5ee39cc9a39957abe97ffb22aac1ca0eaa1b1"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/artifact_concision_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.016,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-02.log",
+      "log_sha256": "56335873cd320b4942e345c6438df9cdd648b23fabc154744e7e218328467e74"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 15.266,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-03.log",
+      "log_sha256": "2993e9ab40730039b206bc5b5206acca86b5cd215ddd3ec9f0a0ab3096359ee3"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/lifecycle_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 4.984,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-04.log",
+      "log_sha256": "f3a23758036be16682e98bcc0b3f6d6048ac14cbf17c99bdfe2866785d1bdeab"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/context_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.703,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-05.log",
+      "log_sha256": "32889f574824009d66fbe5a2f1a6e53b5003dd26c421f720b60a3f3827dd649c"
+    },
+    {
+      "argv": [
+        "python",
+        "skill/plan-and-execute/scripts/task_memory_self_test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 4.344,
+      "log": "docs/research/20261028-skill-optimization/implementation/logs/012/20261120T104118-15876/check-06.log",
+      "log_sha256": "fdd642c0fa7fe857059637252a54784fbbdc538b05d10cffcbd254e9dbf3bfa7"
+    }
+  ]
+}
