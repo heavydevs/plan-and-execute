@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "task_id": "015",
+  "model": "Qwen2.5-Coder-1.5B-Instruct-Q4_K_M",
+  "max_invocations": 1,
+  "request_id": "015-openweights-poc-20261120-01",
+  "scope": "one-shot independent verification proof; no max-tier gate claim",
+  "reviewed_commit_before_request": "cdaaacbbd7a6c5982bc5e474c54cb535f1021935"
+}
