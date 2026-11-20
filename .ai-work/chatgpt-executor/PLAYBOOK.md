@@ -1,5 +1,9 @@
 # One-task playbook for ChatGPT (no native Codex/Claude requirement for edits)
 
+## `próximo` recebido em nova conversa
+
+Antes de rodar `dispatch-review`, localizar a primeira task pendente. Para 015, seguir o [handoff de revisão independente pelo próprio ChatGPT Web](HANDOFF_REVISAO_015_NOVO_CHAT.md): nova sessão diferente da implementadora, inspeção cega e primeiro parecer hash-bound publicado antes de consultar conclusões anteriores. O primeiro parecer não depende de CLI/API. Prosseguir então com correção/testes e reconciliação do gate formal. Não confundir revisão técnica genuína com sessão max-tier provada, e não usar `review_attempt_id` como `session_id` do modelo.
+
 ## Preconditions
 
 1. Use the connected GitHub app to read the exact branch ref and identify **the first pending/in-progress task** in the authoritative manifest. Inspect its dependencies, Sxxx checkpoints, permitted write scope, prepared architecture and `TASK_INPUTS.json` record. Do not advance past the selected task.
@@ -29,7 +33,7 @@ python .ai-work/chatgpt-executor/taskctl.py gate --task 015 --run-evidence .ai-w
 
 1. Use the existing approved research report as a starting architecture, not proof of working code. Edit the narrowest files in the selected task's write scope; create a regression test for every verified blocking defect. Validate code quality, security (injection, filesystem paths, process ownership) and performance.
 2. Run targeted tests to isolate failures, aggregate failures, fix locally, then run the full declared watcher validations. Save actual logs, original commands, exit codes, hashes and OS versions. Do not claim coverage across absent platforms.
-3. For an independent review task such as 015, **do not** mark `S002` complete unless `review_dispatch.py` produced verifiable evidence for the same final SHA. Any source mutation after approval requires another review. Fix blocking findings inside the write scope; out-of-scope changes require a dependency/blocker.
+3. For task 015, a **fresh ChatGPT Web conversation** must perform and publish its blind technical review when invoked by `próximo`; do not treat missing `review_dispatch.py` as a reason to skip it. **Do not** mark formal `S002` complete until a qualified reviewer under the original gate (or an expressly amended, tested equivalent) has provided verifiable session/model/effort and hashes of the final source. Any source mutation after approval requires another truly independent review. Fix blocking findings within the scope; out-of-scope changes require a dependency/blocker.
 4. Only after the original acceptance checks and independent reviewer pass, create the receipt/outcome using the original schema, validate them with the repo's delivery gate, advance task checkpoints through `planctl` and commit/push. If a gate is unavailable, publish a clearly labeled partial repair and leave status pending.
 5. For GitHub Actions observations, compare the workflow `head_sha` to your pushed commit. A success from another commit or a CI runner without the expected tests is invalid evidence.
 
