@@ -99,3 +99,45 @@ The original map was observed stale on GitHub Actions because of 36 specific cha
 ## Optional Responses API reviewer (implemented, not executed)
 
 `.ai-work/chatgpt-executor/api_review.py` implements a bounded, synchronous read-only OpenAI Responses API model review through stdlib `urllib` with fresh response ID, actual model, usage and SHA-256 inputs. It is **disabled without** `OPENAI_API_KEY` and `--dry-run` sends nothing. It sets `store=false`, demands structured JSON and rejects fabricated/contradictory verdicts, changed hashes, unavailable sources or oversized contexts. Default model `gpt-6.2-astra` from the current [OpenAI API overview](https://platform.openai.com/overview); caller may override a verified eligible model. Explicit API credentials and paid use require operator setup; ChatGPT account access does not supply an API key. This is a possible substitute for a missing CLI for **future approved plans**, but its receipt uses a distinct schema and **does not satisfy 015's existing `review_dispatch.py` contract** without a formal plan gate change. The optional adapter has only mocked/offline tests in this research/implementation session.
+
+## Atualização arquitetural — ciclo completo pesquisa → arquitetura → execução → gate (2026-11-20)
+
+**Motivação:** o procedimento antigo encerrava a sessão após pesquisar uma task, deixando desenvolvimento 015 pendente enquanto já pesquisava 020. Novo contrato: sempre retomar primeira task de desenvolvimento pendente do **manifest**. Estados de pesquisa e de execução separados no `guia_de_pesquisa_execucao_tasks.md` (118 IDs, 5 pesquisas concluídas, nenhuma execução posterior à 014 concluída). A execução da 015 precede qualquer pesquisa 020.
+
+### Gate original e alternativas avaliadas
+
+| Rota | Autenticação | Independe do chat? | Aceitação | Custo e limites |
+| --- | --- | --- | --- | --- |
+| `review_dispatch.py` Codex/Claude CLI | CLI autorizada e credenciais próprias | Sim | Preferencial/contrato original | Não existe neste runner; não simular |
+| OpenAI Responses API (`api_review.py`) | Secret `OPENAI_API_KEY` explícito | Sim | Saída suplementar até adaptação formal | Cobrada, secret ausente |
+| GitHub Models inference (histórico) | Antes via GITHUB_TOKEN | N/A | **Rejeitada** | Serviço descontinuado 2026-07-30 |
+| **GitHub Copilot CLI + `GITHUB_TOKEN` em Actions** | Permissão `copilot-requests: write`, política de Copilot e billing owner | **Sim**: sessão externa real | Alternativa autorizada por esta solicitação; exigir mesmos hashes/sessão/modelo/esforço e **gate original** | Pode consumir créditos; um modelo `claude-opus-5.5` xhigh, um request e timeout rígido |
+| ChatGPT revisar sua própria implementação e declarar independente | Nenhuma | **Não** | Rejeitada | Não produzir session_id fictício |
+| Unit tests/fuzz/CodeQL/CI | Ferramentas determinísticas | Parcial, não modelo independente | Suplementar, não substitui | Baixo custo; continuar obrigatório |
+
+### Invariantes de implementação
+
+1. **Seleção sequencial:** `manifest` manda no status; guia com duas caixas por task é índice operacional. Pesquisa não muda status de implementação. Resolução de dependências antes do despacho.
+2. **Readset e hashes:** `copilot_review.py` lê os inputs e write scope da task 015, inclui recibo e outcome reais da 014; recusa arquivos faltantes, links simbólicos, caminhos que escapem da raiz e readsets com mais de 600 KB. Recalcula SHA-256 depois da execução e recusa drift. Para arquivo grande, modelo tem ferramentas `view/grep/glob` e recebe o índice; a aprovação exige que o revisor realmente confira o readset e cite path:line.
+3. **Isolamento e segurança:** workflow `.github/workflows/chatgpt-independent-review.yml` inicia somente no branch checkpoint, por request `.ai-work/chatgpt-executor/requests/015.json` e/ou manual `workflow_dispatch`. Token GitHub Actions curto, `contents: read` + `copilot-requests: write`; `persist-credentials: false`, sem `--yolo`, ferramentas limitadas a `view,grep,glob`, negando `write`, shell e MCPs. `COPILOT_HOME` temporário. Não permitir escrita remota no job de review.
+4. **Proveniência real:** exigir uma entrada `session.start` JSONL contendo `sessionId`, `selectedModel=claude-opus-5.5`, `reasoningEffort=xhigh`; uma mensagem `assistant.message` deve conter JSON de veredito/findings. Ausência, modelo errado, esforço diferente, output inválido, aprovação com critical/high ou fonte mutante recusam gate. Nunca transformar GH Actions run ID em session ID do modelo.
+5. **Transporte da evidência:** escrever artefatos de revisão exclusivamente se a chamada **autenticada** ocorrer e o parser verificar identidades. Artefatos temporários entram no repositório por GitHub CAS **após** validar run, head SHA, sessão, hashes e ausência de segredos. O contrato do gate original (`check_delivery.py`) exige `dispatch_evidence` relativo ao `docs/research/.../reviews/015`, receipt v2, checks realmente executados e fingerprints atuais; preservá-lo sem weakening.
+6. **Fila e economia:** GitHub Actions valida código em Python 3.10 e 3.13; check P1_TESTS primeiro. O envio ao Copilot é no máximo uma invocação automática por request. Critical/high motivam correção focal e novo review do novo SHA, **não** reutilização do antigo. Limites de cron/rate/credits devem bloquear e deixar state pending. Antes de novo custo, reusar hashes e logs.
+7. **Compatibilidade:** não remover `review_dispatch.py`, `planctl`, `resource_watch`, `TASK_INPUTS`, `.ai-work/SERVICE_MAP.md`. A alternativa Copilot é caminho adicional de autenticação. Em caso de política negada, registrar `environment_blocked` verificável; não aprovar por markdown.
+8. **ChatGPT project settings:** o arquivo `INSTRUCOES_PROJETO_CHATGPT.md` contém texto copiável para Configurações → Instruções deste Projeto. Ferramentas disponíveis aqui não oferecem uma ação de edição dessa configuração do ChatGPT; o repositório e `AGENTS.md` são atualizáveis e já fazem roteamento dentro do código, mas **não** alteram automaticamente configurações do produto.
+
+### Fonte primária atual (consultada em 2026-11-20)
+
+- https://docs.github.com/en/github-models — serviço encerrado em 2026-07-30, não usar em novas implementações.
+- https://docs.github.com/en/copilot/how-tos/copilot-cli/use-copilot-cli-in-actions — `GITHUB_TOKEN`, `copilot-requests: write`, exemplo GitHub Actions.
+- https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference — `--model=claude-opus-5.5`, `--effort=xhigh`, permissão de ferramentas.
+- https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-programmatic-reference — `--output-format=json` JSONL e suporte headless.
+- https://docs.github.com/en/copilot/concepts/agent-capabilities/agent-powered-workflows-and-operations/copilot-cli-in-github-actions — cobrança ao assento/proprietário ou à organização e políticas necessárias.
+- https://docs.github.com/en/actions/tutorials/authenticate-with-github_token — permissão mínima por job e token efêmero.
+- https://docs.github.com/en/actions/concepts/billing-and-usage — runners públicos versus privados.
+- https://docs.python.org/3/library/subprocess.html — controle por timeout, stdout, stderr e exit codes; não usar shell.
+- https://docs.python.org/3/library/hashlib.html — SHA-256 por conteúdo; commit Git não é SHA-256.
+
+### Limitações não resolvidas por documentação
+
+A política de GitHub Copilot e autorização do token só podem ser testadas em invocação real no runner; a resposta JSONL e as capacidades do modelo devem ser confirmadas, não presumidas. O gate de entrega é propositalmente mais restritivo do que o êxito de CI. Nenhuma instrução deste arquivo autoriza falsificar um resultado de provedor ou diminuir segurança/performance apenas para fazer `P1_015` passar.

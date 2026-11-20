@@ -44,3 +44,11 @@ The original map was observed stale on GitHub Actions because of 36 specific cha
 ## Optional API review bridge
 
 `python .ai-work/chatgpt-executor/api_review.py --task 015 --dry-run` only verifies prepared source scope and cost/size envelope. A real invocation requires an authorized `OPENAI_API_KEY` environment variable; it contacts the OpenAI Responses API, may incur charges, and records real response/session/model/usage and exact source SHA-256. **Do not** convert that JSON into `review_dispatch` receipt metadata or mark 015 done; the original delivery contract remains authoritative unless properly revised.
+
+## Regra de ciclo completo (2026-11-20)
+
+O guia em `guia_de_pesquisa_execucao_tasks.md` substitui o fluxo antigo que parava após pesquisa. Escolher sempre a primeira task **de desenvolvimento** não concluída. Se pesquisa existe, retomá-la sem repetir estudo; se falta, pesquisar, publicar arquitetura, e **executar imediatamente a mesma task**. A 015 tem pesquisa concluída; a 020 só pode começar após as tasks anteriores passarem seus gates. Não converter sucesso de testes direcionados em status completed sem review.
+
+## Rota autenticada alternativa para o gate 015
+
+Ler `GATE_REVISAO_015.md`. A alternativa é `.github/workflows/chatgpt-independent-review.yml` → `copilot_review.py` → sessão externa real com `claude-opus-5.5`, esforço `xhigh`, ferramentas estritamente de leitura e evidência hash-bound para o gate original. O workflow é ativado somente pelo request explícito; não é um substituto de modelo simulado e pode consumir créditos. Importar artefatos/receipts por commit CAS somente após validar provedor, sessão, hashes, findings, testes e gate. Falha de autenticação/billing deixa o plano pendente.

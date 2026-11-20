@@ -1,0 +1,63 @@
+name: PAE independent reviewer - one task, one invocation
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.ai-work/chatgpt-executor/requests/015.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  copilot-requests: write
+
+concurrency:
+  group: pae-independent-review-015-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  review-015:
+    if: github.ref == 'refs/heads/checkpoint/plano1-estudo-provider-switch-20261028'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source revision, no persisted auth
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Node 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Validate adapter against offline negative tests
+        run: python .ai-work/chatgpt-executor/tests/test_copilot_review.py
+      - name: Inspect one-time request (no AI call)
+        run: |
+          git rev-parse HEAD
+          python .ai-work/chatgpt-executor/copilot_review.py --task 015 --dry-run
+      - name: Install GitHub Copilot CLI (record actual version)
+        run: |
+          npm install -g @github/copilot
+          copilot --version
+      - name: Dispatch one real max-tier read-only model review
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          COPILOT_AUTO_UPDATE: 'false'
+        run: |
+          python .ai-work/chatgpt-executor/copilot_review.py --task 015 --timeout 360
+      - name: Verify that no source or test was edited
+        run: |
+          git diff --exit-code HEAD -- skill/ test/ tools/ bin/ lib/
+      - name: Upload result (never a self-review substitute)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-review-015-${{ github.sha }}-${{ github.run_attempt }}
+          path: docs/research/20261028-skill-optimization/implementation/reviews/015/
+          if-no-files-found: warn
+          retention-days: 21

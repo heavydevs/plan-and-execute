@@ -49,6 +49,8 @@ jobs:
         env:
           PYTHONPATH: .ai-work/chatgpt-executor
         run: python .ai-work/chatgpt-executor/tests/test_api_review.py
+      - name: Copilot review adapter negative tests (no paid inference)
+        run: python .ai-work/chatgpt-executor/tests/test_copilot_review.py
       - name: Declared targeted regressions
         run: python .ai-work/chatgpt-executor/taskctl.py run-checks --task 015 --mode targeted --timeout 900
       - name: Reconcile reviewed resource-map input fingerprints
