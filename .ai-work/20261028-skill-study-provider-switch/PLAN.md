@@ -129,3 +129,12 @@ Tasks 115–120 follow implementation/independent review pairs, staged before in
 ## P065 — 2026-11-20 UI/UX
 
 R065 121/122: identity, semantic tokens and source-indexed agent memory. R066 123/124: optional in-app or isolated Node Vite vanilla HTML/JS/SCSS prototypes, read-only existing-project import and guarded sync PLAN. R067 125/126: visual/interactive/responsive/accessible quality evidence. R068 all: lazy low-token routing with 024, 107, 109–114, 119. Reference docs/research/20261028-skill-optimization/prepared-research/121-uiux-design-prototype-research.md. New independent reviews 122,124,126 precede 082, final 086 unchanged. **126 tasks remain pending.** No product implementation or real reviewer/test executed; only plan authorized for commit/push.
+
+## P066 — 2026-11-20 Coding standards + unified first-use UX gate
+
+- **R069** [must; user; P066 -> 127,128,129,130,082,086] Retain existing module ORM/JPA, used libraries, architecture, naming, helpers and tests by source-backed rules.
+- **R070** [must; user; P066 -> 127,128,082,086] Provide documented proactive init/refresh CLI, project study and source-indexed agent docs.
+- **R071** [must; user; P066 -> 129,130,082,086] Pattern-first implementation/review and verifiable approved architecture-drift and waiver guards.
+- **R072** [must; user; P066 -> 127,128,121–126,129,130,082,086] First relevant use or explicit command only for deep coding and UX research; one persistent opt-in gate, economical scope routing.
+
+Architecture: docs/research/20261028-skill-optimization/prepared-research/127-project-coding-standards-and-first-use-research.md. Implement 127 then independently review 128 before UI/UX 121; implement 129 then independently review 130; 082 depends on 128/130, 086 remains final. **All 130 tasks remain PENDING.** Only plan/research docs have been committed, not actual feature implementation or real independent review.
