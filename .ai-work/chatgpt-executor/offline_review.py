@@ -53,6 +53,8 @@ SYSTEM = (
  'verdict (approved or changes_requested), summary (string), '
  'findings (array of {id,severity,location,title,detail,fix}), '
  'where severity is critical/high/medium/low/info. '
+ 'Return no more than ONE finding: highest-risk reproducible issue. Each string must be concise. '
+ 'Summary <= 150 chars, detail <= 180 chars, fix <= 140 chars. '
  'If insufficient context for approval, return changes_requested with an info finding.'
 )
 SEVERITIES = {'critical','high','medium','low','info'}
@@ -115,9 +117,9 @@ def prompt(scopes):
 def parse_response(raw):
     if not isinstance(raw,dict):raise RuntimeError('Model result is not an object')
     if raw.get('verdict') not in {'approved','changes_requested'}:raise RuntimeError('Invalid reviewer verdict')
-    if not isinstance(raw.get('summary'),str) or not raw['summary'].strip():raise RuntimeError('Missing summary')
+    if not isinstance(raw.get('summary'),str) or not raw['summary'].strip() or len(raw['summary'])>180:raise RuntimeError('Missing or oversized summary')
     findings=raw.get('findings')
-    if not isinstance(findings,list) or len(findings)>20:raise RuntimeError('Invalid findings')
+    if not isinstance(findings,list) or len(findings)>1:raise RuntimeError('Invalid findings')
     for f in findings:
         if not isinstance(f,dict) or f.get('severity') not in SEVERITIES:raise RuntimeError('Invalid severity')
         if any(not isinstance(f.get(k),str) or not f[k].strip() for k in ('id','location','title','detail','fix')):
@@ -130,14 +132,14 @@ def parse_response(raw):
 def review_schema():
     """Small constrained schema: prevents open-ended hallucinated JSON and truncation."""
     finding = {"type":"object", "properties": {
-        "id":{"type":"string"},"severity":{"type":"string","enum":sorted(SEVERITIES)},
-        "location":{"type":"string"},"title":{"type":"string"},
-        "detail":{"type":"string"},"fix":{"type":"string"}},
+        "id":{"type":"string","maxLength":12},"severity":{"type":"string","enum":sorted(SEVERITIES)},
+        "location":{"type":"string","maxLength":140},"title":{"type":"string","maxLength":90},
+        "detail":{"type":"string","maxLength":220},"fix":{"type":"string","maxLength":160}},
         "required":["id","severity","location","title","detail","fix"],
         "additionalProperties":False}
     return {"type":"object", "properties":{
         "verdict":{"type":"string","enum":["approved","changes_requested"]},
-        "summary":{"type":"string"},"findings":{"type":"array","items":finding,"maxItems":2}},
+        "summary":{"type":"string","maxLength":180},"findings":{"type":"array","items":finding,"maxItems":1}},
         "required":["verdict","summary","findings"],"additionalProperties":False}
 
 def local_server_call(binary:Path, model:Path, system:str, user:str, timeout:int=480):
@@ -161,7 +163,7 @@ def local_server_call(binary:Path, model:Path, system:str, user:str, timeout:int
             time.sleep(2)
         else:raise RuntimeError('Model server health timeout')
         payload={'model':'local','messages':[{'role':'system','content':system},{'role':'user','content':user}],
-                 'temperature':0,'max_tokens':1400,'response_format':{'type':'json_schema','json_schema':{'schema':review_schema()}},'stream':False}
+                 'temperature':0,'max_tokens':900,'response_format':{'type':'json_schema','json_schema':{'name':'pae_independent_review','strict':True,'schema':review_schema()}},'stream':False}
         req=urllib.request.Request(f'http://127.0.0.1:{port}/v1/chat/completions',
             data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'},method='POST')
         with urllib.request.urlopen(req,timeout=timeout) as res:data=json.load(res)
@@ -171,7 +173,7 @@ def local_server_call(binary:Path, model:Path, system:str, user:str, timeout:int
         except json.JSONDecodeError as ex:
             finish = data.get('choices', [{}])[0].get('finish_reason', 'unknown')
             fingerprint = hashlib.sha256(msg.encode()).hexdigest()[:16]
-            raise RuntimeError(f'LLM response is not valid JSON (finish={finish}, chars={len(msg)}, sha256_prefix={fingerprint})') from ex
+            raise RuntimeError(f'LLM response is not valid JSON (finish={finish}, chars={len(msg)}, sha256_prefix={fingerprint}, line={ex.lineno}, column={ex.colno}, prefix={msg[:50]!r}, suffix={msg[-60:]!r})') from ex
         return parse_response(body),data.get('usage',{}),proc.pid
     finally:
         proc.terminate()

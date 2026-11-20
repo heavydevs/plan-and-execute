@@ -46,7 +46,7 @@ class OfflineReviewTests(unittest.TestCase):
     def test_constrained_review_json_schema(self):
         schema=module.review_schema()
         self.assertEqual(schema['type'],'object')
-        self.assertEqual(schema['properties']['findings']['maxItems'],2)
+        self.assertEqual(schema['properties']['findings']['maxItems'],1)
         self.assertEqual(set(schema['required']),{'verdict','summary','findings'})
         self.assertFalse(schema['additionalProperties'])
 
