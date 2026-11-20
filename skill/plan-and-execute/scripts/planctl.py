@@ -5929,8 +5929,14 @@ def build_context_accounting_receipt(
         artifact = artifact_by_file.get(rel)
         if artifact is not None:
             freshness = check_learning_artifact_freshness(artifact, manifest, repo_root=repo_root, plan_dir=plan_dir)
-            is_fresh = freshness["fresh"]
-            reasons = freshness["stale_reasons"]
+            reasons = list(freshness["stale_reasons"])
+            if (
+                artifact.get("target_task_id") != task["id"]
+                or artifact.get("consumer_task_ids") != [task["id"]]
+                or str(artifact.get("source_task_id", "")) not in learning_source_ids(manifest, task["id"])
+            ):
+                reasons.append("learning_not_assigned_to_task")
+            is_fresh = not reasons
             if not is_fresh:
                 stale_errors.extend(f"{rel}:{r}" for r in reasons)
         else:
@@ -6151,6 +6157,15 @@ def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: di
             artifact = artifact_by_file.get(rel)
             if artifact is None:
                 stale_msgs.append(f"{rel} (missing manifest provenance)")
+                continue
+            # A fresh artifact for somebody else is not authorized for this task.
+            # Check the directional edge before a worker can read the learning.
+            if (
+                artifact.get("target_task_id") != task["id"]
+                or artifact.get("consumer_task_ids") != [task["id"]]
+                or str(artifact.get("source_task_id", "")) not in learning_source_ids(manifest, task["id"])
+            ):
+                stale_msgs.append(f"{rel} (learning not assigned to task {task['id']})")
                 continue
             freshness = check_learning_artifact_freshness(artifact, manifest, plan_dir=plan_dir)
             if not freshness["fresh"]:

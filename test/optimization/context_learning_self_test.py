@@ -202,6 +202,39 @@ def test_ac01_unrelated_later_task_cannot_receive_learning() -> None:
         assert not any(f["id"].startswith("learning:") for f in receipt_003["selected_files"])
 
 
+def test_review_015_fresh_learning_cannot_cross_consumer_boundary() -> None:
+    """A different task cannot claim or count a valid learning assigned only to 002."""
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "unauthorized-consumer-015")
+        spec = three_task_spec(targets_001=[{
+            "task_id": "002",
+            "reason": "TODO 002 validates the exact marker file produced by TODO 001.",
+            "topics": ["marker format"],
+        }])
+        plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "unauthorized-consumer")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        base_planctl.claim_task(plan_dir, manifest, "001", None)
+        (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
+        base_planctl.complete_task(plan_dir, manifest, "001", completion_report(learnings=[{
+            "kind": "code",
+            "guidance": "Keep implemented.txt UTF-8 without BOM so downstream grep checks match cleanly.",
+            "references": ["implemented.txt"],
+            "target_task_ids": ["002"],
+        }]), None)
+        unrelated = base_planctl.find_task(manifest, "003")
+        unrelated["dependencies"] = []
+        unrelated["learning_files"] = ["learnings/001-to-002.md"]
+        receipt = base_planctl.build_context_accounting_receipt(plan_dir, manifest, unrelated)
+        assert receipt["stale_learning_count"] > 0
+        assert "learning_not_assigned_to_task" in str(receipt["stale_learning_errors"])
+        expect_plan_error(
+            lambda: base_planctl.claim_task(plan_dir, manifest, "003", None),
+            "learning not assigned to task 003",
+        )
+        assert unrelated["status"] == "pending"
+        assert base_planctl.find_task(manifest, "002")["learning_files"] == ["learnings/001-to-002.md"]
+
+
 def test_ac02_cited_file_change_invalidates_or_flags_learning_before_reuse() -> None:
     """AC02: Changing a cited file invalidates or flags the learning before reuse."""
     with tempfile.TemporaryDirectory() as temp:
@@ -1316,6 +1349,7 @@ def main() -> int:
     test_review_015_hypothesis_ancestor_symlink_is_stale()
     test_review_015_missing_explicit_hypothesis_reference_is_stale()
     test_ac01_unrelated_later_task_cannot_receive_learning()
+    test_review_015_fresh_learning_cannot_cross_consumer_boundary()
     test_ac02_cited_file_change_invalidates_or_flags_learning_before_reuse()
     test_review_015_symbol_reference_and_tampered_learning_are_rejected()
     test_ac03_malicious_or_unsupported_notes_cannot_alter_policy()
