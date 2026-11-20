@@ -1,0 +1,8 @@
+{
+  "schema": "chatgpt-snapshot-request/1",
+  "enabled": true,
+  "task_id": "015",
+  "request_id": "015-chatgpt-checkout-20261120-02",
+  "requested_source_head": "a67cf2e6c05aed6783a13cba424baa1d300ef9af",
+  "reason": "re-import exact complete repository snapshot for local ChatGPT validations"
+}

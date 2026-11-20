@@ -20,3 +20,7 @@ O container de código do ChatGPT pode ter Python/Node mas não resolver `github
 6. Uma segunda sessão de IA não é automaticamente criada ao materializar a pasta. Revisão independente requer um modelo realmente separado (por exemplo `OFFLINE_REVIEW.md` para pesos abertos, ou dispatcher max original); **não** aprovar a 015 por autorrevisão do mesmo ChatGPT.
 
 Este fluxo permite reproduzir todos os arquivos rastreados de uma vez sem operações repetidas de blob. O teste de segurança do importador fica em `tests/test_import_snapshot.py`.
+
+## Disparo autônomo e procedência
+
+O mecanismo agora aceita o gatilho por **commit do arquivo** `.ai-work/chatgpt-executor/requests/snapshot.json` na branch indicada, além da alteração do workflow. Assim, ChatGPT pode criar o request pelo conector GitHub e aguardar o artefato sem depender da interface manual `workflow_dispatch`. Sempre conferir que o `head_sha` real retornado pela API Actions coincide com o campo `head_sha` de `pae-snapshot.json` **e** com o SHA exigido no importador. O hash embutido no ZIP detecta corrupção interna, mas **nao autentica sozinho o remetente**: um ZIP inventado com checksum autorreferenciado ainda passaria. A garantia de origem vem da API autenticada do GitHub Actions e da identidade do run verificada separadamente.

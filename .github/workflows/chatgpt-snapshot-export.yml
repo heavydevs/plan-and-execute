@@ -6,6 +6,7 @@ on:
       - checkpoint/plano1-estudo-provider-switch-20261028
     paths:
       - '.github/workflows/chatgpt-snapshot-export.yml'
+      - '.ai-work/chatgpt-executor/requests/snapshot.json'
   workflow_dispatch:
 
 permissions:
