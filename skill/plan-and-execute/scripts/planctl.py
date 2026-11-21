@@ -4789,7 +4789,7 @@ def check_learning_artifact_freshness(
                     continue
                 for ref in item.get("references") or []:
                     source = explicit_learning_source_file(
-                        ref, require_plain_file=True
+                        ref, require_plain_file=(item.get("kind") == "code" or "/" in ref or "\\" in ref)
                     )
                     if source is not None and source not in cited_digests:
                         stale_reasons.append(f"cited_file_digest_missing:{source}")
@@ -5179,7 +5179,7 @@ def materialize_learning_artifacts(
         for learning in target_learnings:
             for reference in learning["references"]:
                 source = explicit_learning_source_file(
-                    reference, require_plain_file=True
+                    reference, require_plain_file=(learning.get("kind") == "code" or "/" in reference or "\\" in reference)
                 )
                 if source is not None and source not in cited_file_digests:
                     raise PlanError(f"Learning source reference missing or unsafe: {reference}")
