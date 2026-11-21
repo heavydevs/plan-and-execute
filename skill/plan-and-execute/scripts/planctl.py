@@ -4789,7 +4789,7 @@ def check_learning_artifact_freshness(
                     continue
                 for ref in item.get("references") or []:
                     source = explicit_learning_source_file(
-                        ref, require_plain_file=item.get("kind") == "code"
+                        ref, require_plain_file=True
                     )
                     if source is not None and source not in cited_digests:
                         stale_reasons.append(f"cited_file_digest_missing:{source}")
@@ -4937,6 +4937,14 @@ def normalize_learning_reference(value: Any, field: str) -> str:
     lowered = text.lower().replace("\\", "/")
     if "/.ai-work/" in f"/{lowered}" or lowered.startswith(".ai-work/"):
         raise PlanError(f"{field} may not reference planning artifacts")
+    # References are interpolated into Markdown inline code by both renderers.
+    # An unescaped backtick can close that delimiter and turn evidence into
+    # authoritative-looking Markdown in a validated learning artifact.
+    if "`" in text or "<" in text or ">" in text:
+        raise PlanError(f"{field} must not contain Markdown/HTML delimiters")
+    override_kind = detect_policy_override_note(text)
+    if override_kind is not None:
+        raise PlanError(f"{field} cannot alter acceptance, permissions, or provider policy ({override_kind})")
     return text
 
 
@@ -5171,7 +5179,7 @@ def materialize_learning_artifacts(
         for learning in target_learnings:
             for reference in learning["references"]:
                 source = explicit_learning_source_file(
-                    reference, require_plain_file=learning.get("kind") == "code"
+                    reference, require_plain_file=True
                 )
                 if source is not None and source not in cited_file_digests:
                     raise PlanError(f"Learning source reference missing or unsafe: {reference}")
