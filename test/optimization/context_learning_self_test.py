@@ -617,7 +617,8 @@ def test_ac05_and_ac08_prefix_stability_bounded_suffix_and_accounting_receipt() 
         plan_dir = concise_planctl.create_plan(repo, spec, ".ai-work", "prefix-and-receipt")
         _, manifest = concise_planctl.load_plan(plan_dir)
         concise_planctl.claim_task(plan_dir, manifest, "001", None)
-        concise_planctl.complete_task(
+        with patch.object(base_planctl, "require_runner_proof_for_learnings", return_value=None):
+            concise_planctl.complete_task(
             plan_dir,
             manifest,
             "001",
@@ -1870,7 +1871,67 @@ def test_review_015_unsafe_file_references_cannot_bypass_digest() -> None:
             )
             assert not manifest["learning_artifacts"]
 
+
+
+def test_review_015_special_source_paths_are_hashed() -> None:
+    """Dynamic routes and scoped modules are files, not unhashed evidence IDs."""
+    for ref in ("app/[id]/page.tsx", "src/@types/missing.d.ts", "lib/c++/missing.cpp"):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = make_repo(Path(temp), "special-path-015")
+            spec = three_task_spec(targets_001=[{
+                "task_id": "002", "reason": "Consumers require source proof for route source files.",
+                "topics": ["source path provenance"],
+            }])
+            plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "special")
+            _, manifest = base_planctl.load_plan(plan_dir)
+            base_planctl.claim_task(plan_dir, manifest, "001", None)
+            report = completion_report(learnings=[{
+                "kind": "code",
+                "guidance": "Revalidate the exact dynamic route source before reusing this rule.",
+                "references": [ref], "target_task_ids": ["002"],
+            }])
+            expect_plan_error(
+                lambda: fixture_complete_task(plan_dir, manifest, "001", report, None),
+                "Learning source reference missing or unsafe",
+            )
+            path = repo / ref
+            path.parent.mkdir(parents=True)
+            path.write_text("export const token = 1;\n", encoding="utf-8")
+            fixture_complete_task(plan_dir, manifest, "001", report, None)
+            artifact = manifest["learning_artifacts"][0]
+            assert artifact["cited_file_digests"][ref] == base_planctl.file_sha256(path)
+            path.write_text("export const token = 2;\n", encoding="utf-8")
+            assert f"cited_file_changed:{ref}" in base_planctl.check_learning_artifact_freshness(
+                artifact, manifest, plan_dir=plan_dir
+            )["stale_reasons"]
+
+
+def test_review_015_retry_invalidates_stale_source_hypothesis() -> None:
+    """Retry must not give stale source hypotheses to its next worker."""
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "hyp-retry")
+        source = repo / "implemented.txt"
+        source.write_text("first\n", encoding="utf-8")
+        plan_dir = base_planctl.create_plan(repo, three_task_spec(), ".ai-work", "hyp-retry")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        base_planctl.claim_task(plan_dir, manifest, "001", None)
+        hyp = base_planctl.record_attempt_hypothesis(
+            plan_dir, manifest, "001",
+            "The source marker may have caused the failed verification attempt.",
+            ["implemented.txt"],
+        )
+        assert hyp["evidence_digests"]["implemented.txt"] == base_planctl.file_sha256(source)
+        base_planctl.fail_task(plan_dir, manifest, "001", "Fixture validation did not pass")
+        source.write_text("second\n", encoding="utf-8")
+        assert "evidence_changed:implemented.txt" in base_planctl.check_hypothesis_freshness(
+            hyp, base_planctl.find_task(manifest, "001"), repo_root=repo
+        )
+        base_planctl.claim_task(plan_dir, manifest, "001", None)
+        assert hyp["status"] == "invalidated"
+
 def main() -> int:
+    test_review_015_special_source_paths_are_hashed()
+    test_review_015_retry_invalidates_stale_source_hypothesis()
     test_review_015_unsafe_file_references_cannot_bypass_digest()
     test_review_015_extended_source_extensions_are_pinned()
     test_review_015_plain_hypothesis_reference_needs_digest()
@@ -1926,5 +1987,4 @@ def test_review3_postclaim_context_snapshot_names_actual_attempt() -> None:
 
 if __name__ == "__main__":
     test_review_015_untrusted_manual_completion_cannot_publish_learning()
-    with patch.object(base_planctl, "require_runner_proof_for_learnings", return_value=None):
-        raise SystemExit(main())
+    raise SystemExit(main())

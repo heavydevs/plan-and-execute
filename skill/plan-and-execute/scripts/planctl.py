@@ -4671,13 +4671,11 @@ def explicit_learning_source_file(reference: Any, *, require_plain_file: bool = 
         return candidate if (anchored or require_plain_file) else None
     if anchored:
         # Anchored code references can target suffixless files such as Makefile.
-        return candidate if re.fullmatch(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", candidate) else None
+        return candidate
     if not require_plain_file:
         return None
     # Plain code references cite sources too. Otherwise "src/missing.py" silently
     # publishes an unfingerprinted learning which never becomes stale.
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", candidate):
-        return None
     # Extension allowlists are unsafe for provenance: source languages and
     # configuration formats are open-ended (Avro, protobuf, custom DSLs, etc.).
     # Preserve bare evidence IDs without a dot or separator as non-file refs.
@@ -6367,6 +6365,9 @@ def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: di
                 f"Task {task['id']} cannot reuse stale learning(s): {'; '.join(stale_msgs)}; "
                 "recheck cited files or run check-learnings --invalidate-stale first"
             )
+    # An invalidated hypothesis must not appear in the next worker prompt.
+    if task.get("attempt_hypotheses"):
+        invalidate_stale_hypotheses(plan_dir, manifest, task["id"], save=False)
     task["status"] = "in_progress"
     task["attempts"] += 1
     task["started_at"] = task["started_at"] or now_utc()
