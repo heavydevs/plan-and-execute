@@ -1,12 +1,12 @@
 {
   "schema": "pae-claude-delegation/1",
-  "attempt_id": "claude-015-review-first-20261122",
+  "attempt_id": "claude-015-review-diagnostic-20261122-002",
   "mode": "review",
   "task_id": "015",
-  "source_head": "09f94b5b48145f4508ea0333a0763a05676871a0",
+  "source_head": "b4639c217fd02f337dd41257eeb152943e4e87e5",
   "escalation": {
     "reason": "cross_cutting_high_risk",
     "evidence_ref": "docs/plans/20261028-skill-optimization/support/check_delivery.py",
-    "summary": "A task 015 requires a fresh external maximum-tier independent review of the current implementation, with provenance, session identity, input hashes and concrete security findings, before the original delivery gate can pass."
+    "summary": "Retry task 015 independent maximum-tier review once with a privacy-safe diagnostic collector after the previous real Claude session ended with is_error true and zero model usage, before any review verdict."
   }
 }
