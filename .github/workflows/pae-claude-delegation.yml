@@ -67,6 +67,9 @@ jobs:
           CLAUDE_REVIEW_SESSION: ${{ steps.claude_review.outputs.session_id }}
           CLAUDE_REVIEW_CONCLUSION: ${{ steps.claude_review.outputs.conclusion }}
         run: python .ai-work/chatgpt-executor/claude_delegate.py collect
+      - name: Diagnose failure without exposing raw Claude output or OAuth credentials
+        if: failure()
+        run: python .ai-work/chatgpt-executor/claude_diag.py
       - name: Publish bounded and hash-pinned review evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -75,6 +78,7 @@ jobs:
           path: |
             .ai-work/chatgpt-executor/claude-artifacts/input.json
             .ai-work/chatgpt-executor/claude-artifacts/result.json
+            .ai-work/chatgpt-executor/claude-artifacts/diagnostic.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -114,6 +118,9 @@ jobs:
           CLAUDE_IMPLEMENT_SESSION: ${{ steps.claude_implement.outputs.session_id }}
           CLAUDE_IMPLEMENT_CONCLUSION: ${{ steps.claude_implement.outputs.conclusion }}
         run: python .ai-work/chatgpt-executor/claude_delegate.py collect
+      - name: Diagnose failure without exposing raw Claude output or OAuth credentials
+        if: failure()
+        run: python .ai-work/chatgpt-executor/claude_diag.py
       - name: Publish patch and evidence for primary executor inspection
         if: always()
         uses: actions/upload-artifact@v4
@@ -122,6 +129,7 @@ jobs:
           path: |
             .ai-work/chatgpt-executor/claude-artifacts/input.json
             .ai-work/chatgpt-executor/claude-artifacts/result.json
+            .ai-work/chatgpt-executor/claude-artifacts/diagnostic.json
             .ai-work/chatgpt-executor/claude-artifacts/implementation.patch
           if-no-files-found: warn
           retention-days: 14

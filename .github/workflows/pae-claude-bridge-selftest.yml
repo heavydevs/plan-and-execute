@@ -7,6 +7,8 @@ on:
     paths:
       - '.ai-work/chatgpt-executor/claude_delegate.py'
       - '.ai-work/chatgpt-executor/tests/test_claude_delegate.py'
+      - '.ai-work/chatgpt-executor/claude_diag.py'
+      - '.ai-work/chatgpt-executor/tests/test_claude_diag.py'
       - '.github/workflows/pae-claude-delegation.yml'
       - '.github/workflows/pae-claude-bridge-selftest.yml'
 
@@ -26,6 +28,8 @@ jobs:
         run: python -m py_compile .ai-work/chatgpt-executor/claude_delegate.py .ai-work/chatgpt-executor/tests/test_claude_delegate.py
       - name: Offline negative/positive bridge tests (no Claude calls)
         run: python .ai-work/chatgpt-executor/tests/test_claude_delegate.py
+      - name: Offline redacted diagnostics tests
+        run: python .ai-work/chatgpt-executor/tests/test_claude_diag.py
       - name: Validate workflow structure
         run: |
           python - <<'PY'
