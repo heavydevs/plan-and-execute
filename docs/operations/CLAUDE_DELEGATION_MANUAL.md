@@ -71,6 +71,32 @@ A extensão e a CLI funcionaram com credenciais compartilhadas em um relato de 1
 
 **Segurança:** authorization `code`, `state` e token longo devem ficar privados. Se você expôs URL ou código em conversa, descarte a tentativa correspondente; não tente reutilizá-la. Se surgirem erros 429, cesse retentativas por enquanto para evitar novos limites.
 
+### Alternativa experimental sem Windows: enviar callback ao localhost do Codespace
+
+O fluxo `claude setup-token` inicia **nova autorização** mesmo se a extensão do VS Code já estiver autenticada. No browser, o callback `http://localhost:<porta>/callback?... ` acessa a máquina local, não o Codespace remoto. Há [relatos oficiais de falha no Codespaces](https://github.com/anthropics/claude-code/issues/91176). A correção abaixo é um **contorno técnico não garantido**, que deve ser tentado no mesmo Codespace e na **mesma tentativa OAuth**:
+
+1. **Terminal A:** executar `claude setup-token`, autorizar pelo navegador, manter o comando aguardando. Na aba que mostra `localhost refused to connect`, copiar a URL inteira **somente para área de transferência local**. Não enviá-la ao ChatGPT.
+2. **Terminal B:** abrir `Terminal → New Terminal` no **mesmo Codespace**, executar:
+
+```bash
+read -r -s -p "Cole aqui a URL localhost: " callback
+printf '\n'
+if [[ "$callback" == http://localhost:*"/callback?"* ]]; then
+  curl --noproxy '*' --silent --show-error \
+    --max-time 15 --output /dev/null \
+    --write-out 'Resposta HTTP: %{http_code}\n' \
+    "$callback"
+else
+  echo "URL inesperada: cancelado."
+fi
+unset callback
+```
+
+3. Na entrada solicitada por `read`, colar URL inteira e pressionar Enter. O segredo não aparece na tela nem entra no histórico do shell; o `curl` envia a requisição local ao listener OAuth, sem expor a porta para a internet. Retornar ao Terminal A e verificar **se concluiu** e gerou o token.
+4. Se `HTTP 000`, conexão recusada ou OAuth rejeitado, **não repetir o mesmo código** nem usar `code#state` novamente. O callback pode não estar escutando (o `setup-token` pode usar fluxo manual). Voltar à alternativa suportada: gerar o token uma vez no computador em que navegador e CLI executam juntos. O Claude continuará depois executando no GitHub Actions.
+
+**Segurança:** URL contém `code`/`state` temporários, deve ficar privada. Nunca publicar URL em chat, terminal histórico, arquivo de repo ou log de Actions. Um login já autenticado na extensão **não** fornece automaticamente a credencial longa exigida pelo GitHub Actions.
+
 ### O que é gratuito e o que tem franquia separada
 
 | Componente | Plano/cobrança |
