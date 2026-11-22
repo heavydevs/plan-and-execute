@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo 'fcf4802f71e02246c906d93931422a4004c5c69172b8fc7ad24d3025013f0c5a  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
+          echo '5403fc19ba28186f26c8b4c96374436e844c11290dd5aa773fc4fa1c0a10b154  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
           git diff --name-only HEAD^ HEAD | sort > /tmp/pae-request.txt
           printf '%s\n' '.github/workflows/pae-task015-apply-fixes.yml' '.ai-work/chatgpt-executor/requests/015-fixes.patch' | sort > /tmp/pae-request-allowed.txt
           diff -u /tmp/pae-request-allowed.txt /tmp/pae-request.txt
@@ -35,12 +35,10 @@ jobs:
           git diff --check
           git diff --name-only | sort > /tmp/pae-modified.txt
           printf '%s\n' \
-            docs/plans/20261028-skill-optimization/support/check_delivery.py \
-            docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py \
+            skill/plan-and-execute/references/EXECUTION_CONTEXT.md \
             skill/plan-and-execute/scripts/planctl.py \
             skill/plan-and-execute/scripts/run_isolated.py \
             skill/plan-and-execute/scripts/runner_contract.py \
-            skill/plan-and-execute/scripts/task_memory_self_test.py \
             test/optimization/context_learning_self_test.py | sort > /tmp/pae-allowed.txt
           diff -u /tmp/pae-allowed.txt /tmp/pae-modified.txt
       - name: Execute all seven task 015 declared test commands
@@ -93,19 +91,17 @@ jobs:
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = 'refs/heads/checkpoint/plano1-estudo-provider-switch-20261028'
-          echo 'fcf4802f71e02246c906d93931422a4004c5c69172b8fc7ad24d3025013f0c5a  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
+          echo '5403fc19ba28186f26c8b4c96374436e844c11290dd5aa773fc4fa1c0a10b154  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
           git apply --check '.ai-work/chatgpt-executor/requests/015-fixes.patch'
           git apply '.ai-work/chatgpt-executor/requests/015-fixes.patch'
           git diff --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -- \
-            docs/plans/20261028-skill-optimization/support/check_delivery.py \
-            docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py \
+            skill/plan-and-execute/references/EXECUTION_CONTEXT.md \
             skill/plan-and-execute/scripts/planctl.py \
             skill/plan-and-execute/scripts/run_isolated.py \
             skill/plan-and-execute/scripts/runner_contract.py \
-            skill/plan-and-execute/scripts/task_memory_self_test.py \
             test/optimization/context_learning_self_test.py
           git commit -m "fix(task-015): resolve independent review findings and add regressions"
           git push origin HEAD:checkpoint/plano1-estudo-provider-switch-20261028
