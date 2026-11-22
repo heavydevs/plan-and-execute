@@ -788,12 +788,13 @@ def test_ac06_disproven_and_stale_hypotheses_never_become_validated_facts() -> N
         )
 
         # Record fresh H003; promotion fails without passing deterministic evidence, then succeeds with it.
+        (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
         h3 = base_planctl.record_attempt_hypothesis(
             plan_dir,
             manifest,
             "001",
             "Write implemented.txt with the expected complete marker line.",
-            ["evidence.txt"],
+            ["evidence.txt", "implemented.txt"],
             verification_commands=["grep -qx implemented implemented.txt"],
         )
         expect_plan_error(
@@ -2013,9 +2014,10 @@ def test_review_015_real_concise_runner_completion_and_assigned_context() -> Non
         _, manifest = base_planctl.load_plan(plan_dir)
         task = base_planctl.claim_task(plan_dir, manifest, "001", None)
         (repo / "evidence.txt").write_text("initial diagnosis\n", encoding="utf-8")
+        (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
         base_planctl.record_attempt_hypothesis(
             plan_dir, manifest, "001",
-            "Inspect the marker source before downstream use.", ["evidence.txt"],
+            "Inspect the marker source before downstream use.", ["evidence.txt", "implemented.txt"],
             verification_commands=["grep -qx implemented implemented.txt"],
         )
         note = plan_dir / "designs" / "001.md"
@@ -2119,11 +2121,13 @@ def test_review5_cli_dedicated_hypothesis_proof_and_slug_redaction() -> None:
         _, manifest = base_planctl.load_plan(plan_dir)
         task = base_planctl.claim_task(plan_dir, manifest, "001", None)
         (repo / "evidence.txt").write_text("Previous marker was missing\n", encoding="utf-8")
+        (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
         check = "grep -qx implemented implemented.txt"
         cli = SCRIPTS_DIR / "planctl.py"
         args = [sys.executable, str(cli), "hypothesis-record", "--plan", str(plan_dir),
                 "--task", "001", "--text", "Write the implemented marker as a complete line.",
-                "--reference", "evidence.txt", "--verification-command", check]
+                "--reference", "evidence.txt", "--reference", "implemented.txt",
+                "--verification-command", check]
         recorded = subprocess.run(args, text=True, capture_output=True, check=True)
         assert json.loads(recorded.stdout)["verification_commands"] == [check]
         _, manifest = base_planctl.load_plan(plan_dir)
@@ -2177,59 +2181,61 @@ def test_review5_cli_dedicated_hypothesis_proof_and_slug_redaction() -> None:
 
 
 def test_review6_bounded_safe_independent_hypothesis_probes() -> None:
-    """Failing or mutating probes cannot mint validated knowledge or corrupt completed work."""
-    assert base_planctl.is_reused_acceptance_probe(
-        "test -f implemented.txt #h", ["test -f implemented.txt"]
-    )
-    assert base_planctl.is_reused_acceptance_probe(
-        "  test -f implemented.txt  ", ["test -f implemented.txt"]
-    )
-    assert base_planctl.RECEIPT_SECRET_PATTERN.search("sk-ant-" + "A" * 40)
-    for mode in ("failed", "mutates"):
-        with tempfile.TemporaryDirectory() as temp:
-            repo = make_repo(Path(temp), f"probe-negative-{mode}")
-            spec = three_task_spec(targets_001=[{
-                "task_id": "002", "reason": "The next task receives only verified learning.",
-                "topics": ["marker validation"],
-            }])
-            plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", f"probe-negative-{mode}")
-            _, manifest = base_planctl.load_plan(plan_dir)
-            task = base_planctl.claim_task(plan_dir, manifest, "001", None)
-            (repo / "evidence.txt").write_text("source evidence\n", encoding="utf-8")
-            (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
-            cmd = ("test -f missing-probe-evidence.txt" if mode == "failed"
-                   else "printf broken > implemented.txt")
-            base_planctl.record_attempt_hypothesis(
-                plan_dir, manifest, "001",
-                "Confirm the marker contains the required expected line.",
-                ["evidence.txt"], verification_commands=[cmd],
+    """Unsafe probes are rejected before execution; failed read-only probes never promote."""
+    for variant in ("test -f implemented.txt #h", "test -f ./implemented.txt",
+                    "[ -f implemented.txt ]", "  test -f implemented.txt  "):
+        assert base_planctl.is_reused_acceptance_probe(
+            variant, ["test -f implemented.txt"]
+        ), variant
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "probe-negative")
+        spec = three_task_spec(targets_001=[{
+            "task_id": "002", "reason": "The next task receives only verified learning.",
+            "topics": ["marker validation"],
+        }])
+        plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "probe-negative")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        task = base_planctl.claim_task(plan_dir, manifest, "001", None)
+        (repo / "evidence.txt").write_text("source evidence\n", encoding="utf-8")
+        (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
+        for unsafe in ("true", "exit 0", "printf broken > implemented.txt",
+                       "touch evidence.txt", "chmod -x implemented.txt",
+                       "sh -c 'echo broken > implemented.txt'",
+                       "test -f ./implemented.txt"):
+            expect_plan_error(
+                lambda unsafe=unsafe: base_planctl.record_attempt_hypothesis(
+                    plan_dir, manifest, "001",
+                    "This claim requires a concrete read-only file oracle.",
+                    ["evidence.txt", "implemented.txt"], verification_commands=[unsafe],
+                ), "independent checks" if unsafe.startswith("test -f") else "safe read-only",
             )
-            result = plan_dir / "results" / "001-negatives.json"
-            completed = run_isolated.finish_task_validation(
-                plan_dir, manifest, {}, task, completion_report(), result, 1
-            )
-            probe_log = plan_dir / "logs" / "001-attempt-1-hypothesis-H001.log"
-            assert probe_log.is_file()
-            assert not Path(str(probe_log) + ".runner-evidence.json").exists()
-            if mode == "mutates":
-                assert completed is False
-                assert task["status"] != "completed"
-                assert (repo / "implemented.txt").read_text(encoding="utf-8") == "broken"
-            else:
-                assert completed is True
-                assert task["status"] == "completed"
-                proof = base_planctl.read_json(
-                    plan_dir / "logs" / "001-attempt-1-validation.log.runner-evidence.json"
-                )
-                assert proof["hypothesis_checks"][0]["checks"][0]["passed"] is False
-                expect_plan_error(
-                    lambda: base_planctl.promote_hypothesis_to_learning(
-                        plan_dir, manifest, "001", "H001", kind="procedure",
-                        target_task_ids=["002"], deterministic_evidence=[{
-                            "command": cmd, "passed": True, "exit_code": 0,
-                        }],
-                    ), "missing, failed or mismatched",
-                )
+        assert task["attempt_hypotheses"] == []
+        cmd = "grep -q nonexistent-pattern evidence.txt"
+        base_planctl.record_attempt_hypothesis(
+            plan_dir, manifest, "001",
+            "Claim must be rejected if the evidence does not contain the pattern.",
+            ["evidence.txt"], verification_commands=[cmd],
+        )
+        result = plan_dir / "results" / "001-negatives.json"
+        assert run_isolated.finish_task_validation(
+            plan_dir, manifest, {}, task, completion_report(), result, 1
+        ) is True
+        assert task["status"] == "completed"
+        probe_log = plan_dir / "logs" / "001-attempt-1-hypothesis-H001.log"
+        assert probe_log.is_file()
+        assert not Path(str(probe_log) + ".runner-evidence.json").exists()
+        proof = base_planctl.read_json(
+            plan_dir / "logs" / "001-attempt-1-validation.log.runner-evidence.json"
+        )
+        assert proof["hypothesis_checks"][0]["checks"][0]["passed"] is False
+        expect_plan_error(
+            lambda: base_planctl.promote_hypothesis_to_learning(
+                plan_dir, manifest, "001", "H001", kind="procedure",
+                target_task_ids=["002"], deterministic_evidence=[{
+                    "command": cmd, "passed": True, "exit_code": 0,
+                }],
+            ), "missing, failed or mismatched",
+        )
 
 
 def test_review6_hypothesis_command_cap_fails_before_runner() -> None:
@@ -2239,8 +2245,8 @@ def test_review6_hypothesis_command_cap_fails_before_runner() -> None:
         _, manifest = base_planctl.load_plan(plan_dir)
         task = base_planctl.claim_task(plan_dir, manifest, "001", None)
         (repo / "evidence.txt").write_text("existing evidence\n", encoding="utf-8")
-        first = [f"test -n check{i}" for i in range(5)]
-        second = [f"test -n check{i}" for i in range(5, 9)]
+        first = [f"grep -q check{i} evidence.txt" for i in range(5)]
+        second = [f"grep -q check{i} evidence.txt" for i in range(5, 9)]
         base_planctl.record_attempt_hypothesis(
             plan_dir, manifest, "001",
             "The expected marker may require a dedicated format check.",

@@ -2169,6 +2169,7 @@ def validated_workspace_fingerprint(repo_root: Path) -> str | None:
             if path.is_symlink():
                 digest.update(b"symlink:" + os.fsencode(os.readlink(path)))
             elif path.is_file():
+                digest.update(str(path.stat().st_mode & 0o777).encode("ascii") + b":")
                 with path.open("rb") as stream:
                     for block in iter(lambda: stream.read(1024 * 1024), b""):
                         digest.update(block)
@@ -2272,6 +2273,14 @@ def finish_task_validation(
 
     hypothesis_checks: list[dict[str, Any]] = []
     if awaiting_promotion:
+        # Git ignores plan control files. Protect logs, evidence and manifest
+        # separately from the worktree fingerprint, before optional probes.
+        protected = [validation_log, proof_path, evidence_path, plan_dir / "manifest.json",
+                     plan_dir / "CONTEXT.md", result_path]
+        def protected_hashes() -> tuple[tuple[str, str | None], ...]:
+            return tuple((str(path), planctl.file_sha256(path) if path.is_file() else None)
+                         for path in protected)
+        protected_before = protected_hashes()
         workspace_before = validated_workspace_fingerprint(repo_root)
         total_extra = 0
         for hyp in task.get("attempt_hypotheses", []):
@@ -2282,11 +2291,18 @@ def finish_task_validation(
                 continue
             total_extra += len(commands)
             hyp_id = str(hyp.get("id", ""))
-            if total_extra > 8 or not re.fullmatch(r"H[0-9]{3,6}", hyp_id):
-                # Reject the proof for this legacy/invalid hypothesis without
-                # losing the already passed producer task validation.
+            try:
+                if total_extra > 8 or not re.fullmatch(r"H[0-9]{3,6}", hyp_id):
+                    raise planctl.PlanError("Hypothesis probe budget/id invalid")
+                if any(planctl.is_reused_acceptance_probe(cmd, task.get("validation_commands", []))
+                       for cmd in commands):
+                    raise planctl.PlanError("Hypothesis probe reuses acceptance")
+                for cmd in commands:
+                    planctl.check_safe_hypothesis_probe(cmd, hyp.get("evidence_refs", []))
+            except planctl.PlanError:
+                # Legacy unsafe probes neither run nor supply promotable proof.
                 hypothesis_checks.append({"hypothesis_id": hyp_id, "checks": [],
-                                          "status": "skipped_invalid_or_over_budget"})
+                                          "status": "skipped_unsafe_or_over_budget"})
                 continue
             hyp_log = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-hypothesis-{hyp_id}.log"
             resource_watch.register_artifact(repo_root, hyp_log, scope=artifact_scope, owner=artifact_owner)
@@ -2305,9 +2321,15 @@ def finish_task_validation(
                            for item in hyp_results if isinstance(item, dict)],
             })
         workspace_after = validated_workspace_fingerprint(repo_root)
+        protected_after = protected_hashes()
         if (workspace_before is None or workspace_after is None
-                or workspace_before != workspace_after):
-            reason = "Hypothesis probe modified validated workspace or file integrity could not be measured"
+                or workspace_before != workspace_after or protected_before != protected_after):
+            reason = "Hypothesis probe modified validated evidence or file integrity could not be measured"
+            for hyp in task.get("attempt_hypotheses", []):
+                if isinstance(hyp, dict) and hyp.get("status") == "open" and hyp.get("verification_commands"):
+                    hyp["status"] = "invalidated"
+                    hyp["invalidated_reason"] = reason
+                    hyp["updated_at"] = planctl.now_utc()
             report["orchestrator_status"] = "validation_failed"
             planctl.atomic_write_json(result_path, report)
             record_attempt("validation_failed", "semantic", False)

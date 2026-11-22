@@ -16,6 +16,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import socket
 import subprocess
@@ -154,7 +155,7 @@ SINGLE_TASK_CONTEXT_PATTERN = re.compile(
     re.I,
 )
 RECEIPT_SECRET_PATTERN = re.compile(
-    r"(?:(?<![A-Za-z0-9_])sk-(?:[A-Za-z0-9]{24,}|ant-(?:oat01-[A-Za-z0-9_-]{24,}|[A-Za-z0-9]{24,})|(?:proj|live|test)-[A-Za-z0-9]{20,})|Authorization\s*:\s*(?:Bearer|Basic)\s+[^\s<]+|(?<![A-Za-z0-9_])ghp_[A-Za-z0-9]{20,})",
+    r"(?:(?<![A-Za-z0-9_])sk-(?:[A-Za-z0-9]{24,}|ant-(?:oat01-[A-Za-z0-9_-]{24,}|[A-Za-z0-9]{24,})|(?:proj|live|test)-[A-Za-z0-9]{20,})|Authorization\s*:\s*(?:Bearer|Basic)\s+[^\s<]+|(?<![A-Za-z0-9_])(?:ghp[-_][A-Za-z0-9]{20,}|github[-_]pat[-_][A-Za-z0-9]{24,}|akia[A-Za-z0-9]{16}|xox[bp]-[A-Za-z0-9-]{20,}))",
 )
 MAX_GLOBAL_CONTEXT_ITEMS = 8
 MAX_SCOPED_CONTEXTS = 8
@@ -5735,12 +5736,58 @@ def invalidate_stale_hypotheses(
 
 
 
+def canonical_probe_tokens(command: str) -> list[str]:
+    """Simple shell-free token model for evidence checks and acceptance checks."""
+    try:
+        tokens = shlex.split(command, comments=True)
+    except ValueError:
+        return []
+    if not tokens:
+        return []
+    if tokens[0] == "[" and tokens[-1] == "]":
+        tokens = ["test", *tokens[1:-1]]
+    if tokens[0] in {"python3", "python.exe"}:
+        tokens[0] = "python"
+    return [token.removeprefix("./") for token in tokens]
+
+
 def is_reused_acceptance_probe(command: str, validation_commands: list[str]) -> bool:
-    """Conservative syntactic overlap guard, not a proof of semantic equivalence."""
-    def normalized(value: str) -> str:
-        return " ".join(re.sub(r"\s+#.*$", "", value.strip()).split())
-    probe = normalized(command)
-    return any(bool(base := normalized(cmd)) and base in probe for cmd in validation_commands)
+    """Reject equivalent simple checks and shell composition around acceptance."""
+    probe = canonical_probe_tokens(command)
+    if not probe:
+        return False
+    for acceptance in validation_commands:
+        base = canonical_probe_tokens(acceptance)
+        if base and (any(probe[i:i + len(base)] == base
+                         for i in range(len(probe) - len(base) + 1))
+                     or any(base[i:i + len(probe)] == probe
+                            for i in range(len(base) - len(probe) + 1))):
+            return True
+    return False
+
+
+def check_safe_hypothesis_probe(command: str, evidence_refs: list[str]) -> None:
+    """Allow only read-only source-specific probes as hypothesis evidence.
+
+    This deliberately excludes arbitrary shell scripts. General-purpose
+    checks belong in producer acceptance, not optional learning promotion.
+    """
+    if any(char in command for char in ";&|><$" + chr(96) + "\n\r"):
+        raise PlanError("Hypothesis probe must be a safe read-only query, not a shell program")
+    tokens = canonical_probe_tokens(command)
+    if not tokens or tokens[0] not in {"grep", "rg", "test"}:
+        raise PlanError("Hypothesis probe must be a safe read-only grep/rg/test query")
+    if tokens[0] in {"grep", "rg"} and not any(
+        token.startswith("-") and "q" in token for token in tokens[1:]
+    ):
+        raise PlanError("Hypothesis grep/rg probe must be quiet and status-based")
+    if tokens[0] == "test" and not (
+        len(tokens) == 3 and tokens[1] in {"-e", "-f", "-s", "-r", "-L"}
+    ):
+        raise PlanError("Hypothesis test probe must check a cited file without executing code")
+    refs = {ref.split("#", 1)[0].removeprefix("./") for ref in evidence_refs}
+    if not any(token in refs for token in tokens[1:]):
+        raise PlanError("Hypothesis probe must query a source cited by that hypothesis")
 
 
 def record_attempt_hypothesis(
@@ -5765,6 +5812,8 @@ def record_attempt_hypothesis(
         for command in verification_commands
     ):
         raise PlanError("Hypothesis verification requires independent checks, not reused producer acceptance commands")
+    for command in verification_commands or []:
+        check_safe_hypothesis_probe(command, evidence_refs)
     existing = task.setdefault("attempt_hypotheses", [])
     total_open = sum(
         len(item.get("verification_commands", []))
@@ -5914,6 +5963,8 @@ def promote_hypothesis_to_learning(
     if any(is_reused_acceptance_probe(command, task.get("validation_commands", []))
            for command in verification_commands):
         raise PlanError("Hypothesis verification cannot reuse producer acceptance commands")
+    for command in verification_commands:
+        check_safe_hypothesis_probe(command, target_hyp.get("evidence_refs", []))
     has_passing_check = False
     for check in deterministic_evidence:
         if not isinstance(check, dict):
