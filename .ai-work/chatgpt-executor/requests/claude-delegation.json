@@ -1,12 +1,12 @@
 {
   "schema": "pae-claude-delegation/1",
-  "attempt_id": "claude-015-independent-review-20261122-010",
+  "attempt_id": "claude-015-independent-review-20261122-011",
   "mode": "review",
   "task_id": "015",
-  "source_head": "b6bed283c562a6c5ed7d7938028ee7c37445939e",
+  "source_head": "dc6cd9381fa0696a1c12f4d79becadcdaa1bc7be",
   "escalation": {
     "reason": "cross_cutting_high_risk",
     "evidence_ref": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
-    "summary": "Independent maximum-tier re-review on exact code SHA after six reviewer findings: secret-like task names and post-claim accounting state, predeclared hypothesis-specific verification, authentic production proof retention and metadata recovery cleanup. Check functional semantics, safety, write-scope constraints, test evidence and blocking defects."
+    "summary": "Independent max-tier review of exact current source after distinct trusted hypothesis-specific runner probes, CLI recording and promotion with independent hashed log, metadata path redaction avoiding false positives, and authorized task-015 production scope extension including run_isolated.py and pattern_runner_contract.py. Assess genuine safety, end-to-end CLI integration, negative evidence, source hashes and acceptance, with reproducible defects only."
   }
 }
