@@ -27,15 +27,43 @@ A implementação Claude produz somente **patch e relatório** em artifact GitHu
 
 `Claude Code GitHub Action` + token OAuth de assinante **não** é o produto separado `Claude Code Review` gerenciado. O segundo pode ser faturado por revisão. Também não é `Claude Code in the cloud` na interface web. A Action executa o binário Claude Code no runner. O passo autenticado de fumaça (uma chamada pequena) é necessário antes de prometer que o modelo e esforço escolhidos estão disponíveis na assinatura e não caem em fallback. Interromper se a ação pedir API key ou indicar cobrança inesperada. Nenhum preço de API é igual a "créditos" de assinatura.
 
-## 3. O que o usuário configura (Windows 11, uma vez)
+## 3. Configurar 100% pela internet (GitHub + navegador; Windows **não** é requisito)
 
-1. No PowerShell instale a CLI de acordo com [setup oficial](https://code.claude.com/docs/en/setup). Em Windows com winget disponível, tente `winget install Anthropic.ClaudeCode`, confirme com `claude --version`, autentique com `claude auth login` (não usar `--console`) e confira `claude auth status --text`. Não cole a saída se ela contiver dados pessoais.
-2. Cheque `Test-Path Env:ANTHROPIC_API_KEY` e `Test-Path Env:CLAUDE_CODE_USE_BEDROCK`; nenhuma chave de API ou roteamento API deve ser adotado por engano. Se estiverem presentes, analise as configurações locais e interrompa antes de gerar token.
-3. Execute `claude setup-token` para gerar um token OAuth da assinatura; **não envie token no chat, email, commit ou log**.
-4. Abra [Actions Secrets do repositório](https://github.com/heavydevs/plan-and-execute/settings/secrets/actions) → **New repository secret** → nome exato `CLAUDE_CODE_OAUTH_TOKEN`, valor token. Não armazene `ANTHROPIC_API_KEY` neste workflow. Se secret já existir, atualize o valor, nunca imprima.
-5. Verifique [configurações de Actions](https://github.com/heavydevs/plan-and-execute/settings/actions): workflow permitido, execução Linux padrão. O **nosso fluxo usa base-action sem necessidade de conceder GitHub App com escrita**; evita instalar workflows automáticos de `@claude`/PR reviews que consumiriam quota não solicitada.
-6. Na sua conta Anthropic, deixe uso adicional pago desabilitado caso queira limite estrito à franquia. Controle limite de uso e expiração/revogação do token. É possível que um plano ou política de conta limite ou recuse invocação: falha deve ser registrada como `entitlement`, não é aprovação nem autorização para API.
-7. Retorne ao Projeto ChatGPT e informe **"Configurei o secret CLAUDE_CODE_OAUTH_TOKEN"**, sem compartilhar o valor. Não é preciso autorizar acesso de rede ao seu Windows.
+**A execução é integralmente remota.** O GitHub Actions executa Claude Code nos runners Linux padrão; o usuário não instala servidor, Windows CLI, SSH ou abre porta no roteador. Existe **apenas um provisionamento de autenticação** para ligar a assinatura Claude ao workflow. Como a assinatura Anthropic não pertence ao GitHub, a Action não descobre esse token automaticamente a partir da sua sessão GitHub.
+
+**Procedimento recomendado sem instalar software local — GitHub Codespaces temporário:**
+
+1. Abra [GitHub Codespaces](https://github.com/codespaces), entre na seção **Explore quick start templates** e crie um codespace a partir de um **Blank template**. Não precisa clonar o projeto PAE somente para gerar o token. Escolha a menor máquina disponível e confirme **quem paga** antes de criar: Codespaces tem franquia própria, diferente do GitHub Actions. Em repositório de organização, o proprietário/pagador depende das configurações da organização. Um template em sua conta pessoal normalmente simplifica esse controle.
+2. Quando abrir VS Code no navegador, abra **Terminal → New Terminal**. No terminal Linux, use o instalador oficial:
+   ```bash
+   curl -fsSL https://claude.ai/install.sh | bash
+   ```
+   Se necessário, abra um novo terminal para atualizar PATH e execute `claude --version`.
+3. Execute `claude auth login`. A Anthropic permite copiar a URL de autenticação para abrir no navegador quando o terminal remoto não abre janela automaticamente. Faça login **na assinatura Claude** (Pro/Max/Ultra/Team, quando elegível), não no Console/API. Conclua com `claude auth status --text`; não publique seus dados.
+4. Verifique que não há configuração de API paga. Em um terminal de uso pessoal e limpo, rode **sem imprimir segredos**:
+   ```bash
+   test -z "${ANTHROPIC_API_KEY:-}" && echo "API key ausente" || echo "ATENCAO: API key presente"
+   ```
+   Se aparecer chave presente, pare: não assuma que a CLI consumirá a franquia da assinatura.
+5. Execute `claude setup-token`. A documentação da Anthropic prevê o token persistente para GitHub Actions. **Não copie o token nesta conversa, não faça print, não o salve no repositório nem em comandos que fiquem no histórico do shell.**
+6. Abra [GitHub Actions Secrets do projeto](https://github.com/heavydevs/plan-and-execute/settings/secrets/actions) em outra aba. Crie um **New repository secret** chamado exatamente `CLAUDE_CODE_OAUTH_TOKEN` com o valor do passo anterior. Se já existir, atualize-o. Nossa Action NÃO configura `ANTHROPIC_API_KEY`.
+7. Confirme [Settings → Actions](https://github.com/heavydevs/plan-and-execute/settings/actions): Actions habilitado, runners padrão disponíveis, política de execução apropriada. Já existe `.github/workflows/pae-claude-delegation.yml` na branch checkpoint; não é preciso instalar a Claude GitHub App com permissões de escrita nem usar o wizard que cria PRs/workflows genéricos `@claude`.
+8. **Apague o Codespace temporário**, não apenas feche a aba: volte a [github.com/codespaces](https://github.com/codespaces), no menu `...` do codespace criado use **Delete** para eliminar a cópia das credenciais e parar armazenamento/tempo de máquina. O secret do repositório permanece registrado no GitHub.
+9. Confira no painel da Anthropic que **uso extra pago** está desabilitado se você deseja limite estrito à franquia. Retorne ao Projeto ChatGPT e diga apenas **"Configurei o secret CLAUDE_CODE_OAUTH_TOKEN"** sem revelar o valor. Eu faço o primeiro teste autenticado com uma solicitação explícita e verifico logs, autorização, sessão e custo; se falhar, não migro silenciosamente para API.
+
+**Opcional:** se preferir gerar o token no seu Windows, instale Claude Code conforme [setup Windows](https://code.claude.com/docs/en/setup), faça `claude auth login`, `claude setup-token` e comece no passo 6. Isso é escolha sua, **não** requisito da arquitetura.
+
+### O que é gratuito e o que tem franquia separada
+
+| Componente | Plano/cobrança |
+| --- | --- |
+| GitHub Actions, runner padrão no repositório público `heavydevs/plan-and-execute` | Computação gratuita; artefatos/cache têm limites de armazenamento |
+| GitHub Codespaces usado **uma única vez** no navegador | Franquia **separada**. Conta pessoal GitHub Free: 120 core-horas + 15 GB-mês; contas Pro: 180 core-horas + 20 GB-mês. Acima disso pode cobrar conforme orçamento. Para repositórios de organização, verifique quem é o proprietário pagador |
+| Claude Code GitHub Action com `CLAUDE_CODE_OAUTH_TOKEN` | Consome franquia da assinatura Anthropic, sujeita a disponibilidade e limites do plano; nenhum token de API é fornecido pelo nosso workflow |
+| `ANTHROPIC_API_KEY` ou Claude Code Review gerenciado | Produtos/cobranças separados; **não utilizados** no fluxo |
+| GitHub público com benefícios | **Não** inclui automaticamente consumo ilimitado de Opus, nem autoriza outra conta Anthropic |
+
+Fontes: [GitHub standard public runners](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job), [Codespaces pricing](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces), [who pays for organization Codespaces](https://docs.github.com/en/codespaces/managing-codespaces-for-your-organization/choosing-who-owns-and-pays-for-codespaces-in-your-organization), [blank Codespaces template](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-from-a-template), [Anthropic setup](https://code.claude.com/docs/en/setup), [Claude authentication](https://code.claude.com/docs/en/authentication), [Claude Code GitHub Actions](https://code.claude.com/docs/en/github-actions).
 
 ## 4. Arquivos entregues no repositório
 
