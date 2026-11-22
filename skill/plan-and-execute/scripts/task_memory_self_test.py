@@ -102,7 +102,7 @@ def test_parent_completion_requires_every_required_subtask() -> None:
                 "001",
                 {
                     "changed_files": [],
-                    "validation_results": [],
+                    "validation_results": [{"command": "test -f implemented.txt", "passed": True, "exit_code": 0}],
                     "completed_subtask_ids": ["S001"],
                     "reusable_learnings": [],
                 },
@@ -135,7 +135,7 @@ def test_selective_learning_artifact_and_tamper_detection() -> None:
             "001",
             {
                 "changed_files": ["implemented.txt"],
-                "validation_results": [],
+                "validation_results": [{"command": "test -f implemented.txt", "passed": True, "exit_code": 0}],
                 "completed_subtask_ids": ["S001"],
                 "reusable_learnings": [
                     {
@@ -190,7 +190,7 @@ def test_learning_artifact_is_canonical_even_when_hash_is_rewritten() -> None:
             "001",
             {
                 "changed_files": ["implemented.txt"],
-                "validation_results": [],
+                "validation_results": [{"command": "test -f implemented.txt", "passed": True, "exit_code": 0}],
                 "completed_subtask_ids": ["S001"],
                 "reusable_learnings": [
                     {
@@ -243,7 +243,7 @@ def test_source_reset_removes_unconsumed_learning_artifacts() -> None:
             "001",
             {
                 "changed_files": ["implemented.txt"],
-                "validation_results": [],
+                "validation_results": [{"command": "test -f implemented.txt", "passed": True, "exit_code": 0}],
                 "completed_subtask_ids": ["S001"],
                 "reusable_learnings": [
                     {
@@ -306,7 +306,7 @@ def test_learning_source_is_a_context_prerequisite() -> None:
                 "001",
                 {
                     "changed_files": ["implemented.txt"],
-                    "validation_results": [],
+                    "validation_results": [{"command": "test -f implemented.txt", "passed": True, "exit_code": 0}],
                     "completed_subtask_ids": ["S001"],
                     "reusable_learnings": [
                         {
@@ -354,7 +354,7 @@ def test_learning_must_target_a_predeclared_later_todo() -> None:
                 "001",
                 {
                     "changed_files": [],
-                    "validation_results": [],
+                    "validation_results": [{"command": "test -f implemented.txt", "passed": True, "exit_code": 0}],
                     "completed_subtask_ids": ["S001"],
                     "reusable_learnings": [
                         {

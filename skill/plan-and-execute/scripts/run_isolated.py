@@ -1982,10 +1982,15 @@ def execute_one_task(
             task = planctl.find_task(manifest, task["id"])
             continue
         result_path = normalized_result_file(plan_dir, task, route)
-        prompt = append_design_note(worker_prompt(plan_dir, manifest, task, route), plan_dir, task)
-        prompt += assistant_triage.hint(plan_dir, task, config)
-        command = build_worker_command(route["provider"], route, config, prompt, result_path)
+
+        def prepared_command(selected_task: dict[str, Any]) -> list[str]:
+            prompt = append_design_note(worker_prompt(plan_dir, manifest, selected_task, route), plan_dir, selected_task)
+            prompt += assistant_triage.hint(plan_dir, selected_task, config)
+            return build_worker_command(route["provider"], route, config, prompt, result_path)
+
         if dry_run:
+            # Do not create a task-context receipt or mutate task state for a preview.
+            command = prepared_command(task)
             preview = {"task": task["id"], "route": route, "command": redact_command(command)}
             if shadow is not None:
                 preview["shadow"] = shadow
@@ -1993,12 +1998,19 @@ def execute_one_task(
             return False
 
         env = spawn_env(route["provider"], config)
+        claimed = planctl.claim_task(plan_dir, manifest, task["id"], route)
+        # Claiming a retried task may discard stale source-bound learnings. Only
+        # after that claim may we assemble the actual worker prompt and record
+        # the exact files the worker is assigned to read.
+        accounting = globals().get("write_context_accounting_receipt")
+        if callable(accounting):
+            accounting(plan_dir, manifest, claimed)
+        command = prepared_command(claimed)
         print(
             f"[task {task['id']}] {task['title']} — {route['provider']} / {route['model']} / {route['effort']}"
             + (" [frontier]" if route.get("frontier") else ""),
             flush=True,
         )
-        claimed = planctl.claim_task(plan_dir, manifest, task["id"], route)
         attempt_number = claimed["attempts"]
         log_path = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-{route['provider']}.log"
         started = time.monotonic()

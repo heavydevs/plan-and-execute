@@ -4957,7 +4957,7 @@ def comparable_hypothesis_text(value: Any) -> str:
 
 
 def normalize_reusable_learnings(
-    task: dict[str, Any], report: dict[str, Any]
+    task: dict[str, Any], report: dict[str, Any], *, authorized_promotion_id: str | None = None
 ) -> list[dict[str, Any]]:
     raw = report.get("reusable_learnings", [])
     if not isinstance(raw, list):
@@ -4967,12 +4967,20 @@ def normalize_reusable_learnings(
             f"reusable_learnings may contain at most {MAX_REUSABLE_LEARNINGS} items"
         )
     if raw:
-        val_results = report.get("validation_results", [])
+        val_results = report.get("validation_results")
         if isinstance(val_results, list) and any(
             isinstance(item, dict) and item.get("passed") is False for item in val_results
         ):
             raise PlanError(
                 f"Task {task['id']} cannot publish reusable learnings when deterministic validation failed"
+            )
+        if not isinstance(val_results, list) or not val_results or not all(
+            isinstance(item, dict) and item.get("passed") is True
+            and item.get("exit_code") == 0 and str(item.get("command", "")).strip()
+            for item in val_results
+        ):
+            raise PlanError(
+                f"Task {task['id']} cannot publish validated reusable learnings without passing deterministic validation results"
             )
     declared = {
         str(item.get("task_id"))
@@ -5005,7 +5013,17 @@ def normalize_reusable_learnings(
             )
         promoted_from = item.get("promoted_from_hypothesis")
         if promoted_from is not None:
-            pid = str(promoted_from).strip().upper()
+            pid = normalize_hypothesis_id(promoted_from)
+            if authorized_promotion_id != pid or str(promoted_from).strip().upper() != pid:
+                raise PlanError(
+                    f"{field}.promoted_from_hypothesis requires canonical ID and the verified promotion API"
+                )
+            matching = next(
+                (h for h in task.get("attempt_hypotheses", [])
+                 if isinstance(h, dict) and h.get("id") == pid), None
+            )
+            if matching is None or matching.get("status") != "open":
+                raise PlanError(f"{field}: promotion requires an existing open hypothesis {pid}")
             if pid in disproven_hypotheses:
                 raise PlanError(
                     f"{field}: disproven hypothesis {pid} cannot be published as a validated learning"
@@ -5022,6 +5040,13 @@ def normalize_reusable_learnings(
             raise PlanError(
                 f"{field}.guidance must be 35-{MAX_LEARNING_GUIDANCE_CHARS} characters"
             )
+        # Materialized guidance is rendered into Markdown without an escaping
+        # envelope. Never allow it to introduce trusted-looking headers, HTML,
+        # code fences, or separate paragraphs inside a validated artifact.
+        if any(marker in guidance for marker in ("\n", "\r", "`", "<", ">")) or re.match(
+            r"^\s*(?:#{1,6}\s+|[-*+]\s+|>\s+)", guidance
+        ):
+            raise PlanError(f"{field}.guidance must be plain single-line text without Markdown/HTML delimiters")
         override_kind = detect_policy_override_note(guidance)
         if override_kind is not None:
             raise PlanError(
@@ -5062,7 +5087,7 @@ def normalize_reusable_learnings(
             "target_task_ids": target_ids,
         }
         if promoted_from is not None:
-            entry["promoted_from_hypothesis"] = str(promoted_from).strip().upper()
+            entry["promoted_from_hypothesis"] = pid
         result.append(entry)
     return result
 
@@ -5125,8 +5150,9 @@ def materialize_learning_artifacts(
     report: dict[str, Any],
     *,
     source_contract_digest: str | None = None,
+    authorized_promotion_id: str | None = None,
 ) -> list[str]:
-    learnings = normalize_reusable_learnings(task, report)
+    learnings = normalize_reusable_learnings(task, report, authorized_promotion_id=authorized_promotion_id)
     if not learnings:
         return []
 
@@ -5776,6 +5802,8 @@ def promote_hypothesis_to_learning(
             f"Invalidated hypothesis {normalized_id} cannot be promoted; underlying evidence changed "
             f"({target_hyp.get('invalidated_reason') or 'stale'})"
         )
+    if target_hyp.get("status") != "open":
+        raise PlanError(f"Hypothesis {normalized_id} is not open and cannot be promoted again")
     if not isinstance(deterministic_evidence, list) or not deterministic_evidence:
         raise PlanError(
             "Promoting a failed-attempt hypothesis into a reusable fact requires passing deterministic validation evidence"
@@ -5867,11 +5895,15 @@ def promote_hypothesis_to_learning(
             }
         ],
     }
-    normalized_items = normalize_reusable_learnings(task, candidate_report)
+    normalized_items = normalize_reusable_learnings(
+        task, candidate_report, authorized_promotion_id=normalized_id
+    )
     # Materialize directional, digest-pinned artifacts BEFORE declaring
     # the hypothesis promoted. An already published learning cannot be
     # replaced silently after task completion.
-    published = materialize_learning_artifacts(plan_dir, manifest, task, candidate_report)
+    published = materialize_learning_artifacts(
+        plan_dir, manifest, task, candidate_report, authorized_promotion_id=normalized_id
+    )
     if len(published) != len(normalized_items[0]["target_task_ids"]):
         raise PlanError("Hypothesis promotion did not publish every assigned learning")
     target_hyp["status"] = "promoted"

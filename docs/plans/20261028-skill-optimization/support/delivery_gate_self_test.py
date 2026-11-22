@@ -163,6 +163,17 @@ class GateTests(unittest.TestCase):
         self.reject()
         self.write_json(other['output'],{'reviewer':{'session_id':'sess-review','dispatch_sha256':'0'*64}})
         self.reject()
+    def test_malformed_sibling_receipt_cannot_hide_reused_session(self):
+        self.review()
+        other=dict(self.e,id='008',output=(g.OUTPUT/'008-receipt.json').as_posix())
+        self.write_json(g.DOC/'TASK_INPUTS.json',{'schema_version':2,'tasks':[self.e,other]})
+        self.write(other['output'],'{"reviewer":{"session_id":"sess-review","session_id":"sess-another"}}')
+        self.reject()
+        self.write(other['output'],'{"reviewer":Infinity}')
+        self.reject()
+        (self.root/other['output']).unlink()
+        # A missing, genuinely pending sibling task has no session to reuse.
+        self.passes()
     def test_frontier_without_evidence_rejected(self):self.review('frontier','claude-fable-5-2');self.reject()
     def test_frontier_single_failure_rejected(self):
         self.review('frontier','gpt-6.2-astra',{'phase':'review','prior_max_failures':[self.failure(1)]});self.reject()

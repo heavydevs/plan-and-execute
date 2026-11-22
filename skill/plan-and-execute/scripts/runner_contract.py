@@ -111,7 +111,8 @@ def install_runner_contract(run_isolated: Any) -> Any:
     ) -> str:
         # Record the actual assigned context whenever the production runner
         # prepares a worker prompt.  Direct helper calls are not the only path.
-        write_context_accounting_receipt(plan_dir, manifest, task)
+        # Receipts are written after the claim has applied any stale-learning
+        # invalidation, not during preview/prompt construction.
         task_path = (plan_dir / task["file"]).resolve()
         schema_path = run_isolated.completion_schema_path().resolve()
         job_guidance = ""

@@ -279,12 +279,18 @@ def used_dispatches(root: Path, entries: dict, task_id: str) -> dict:
     for other_id, other in entries.items():
         if other_id == task_id:
             continue
+        # Missing receipts belong to pending tasks. Existing corrupt/symlinked
+        # sibling receipts, however, cannot be ignored: they may carry a
+        # conflicting session or dispatch fingerprint. Fail closed.
         try:
             path = local(root, other.get("output", ""))
-            data = load(path) if path.is_file() else None
-        except (GateError, OSError):
-            continue
-        reviewer = data.get("reviewer") if isinstance(data, dict) else None
+            if not path.is_file():
+                continue
+            data = load(path)
+        except (GateError, OSError) as exc:
+            raise GateError(f"Invalid sibling review receipt for task {other_id}") from exc
+        require(isinstance(data, dict), f"Invalid sibling receipt object for task {other_id}")
+        reviewer = data.get("reviewer")
         if not isinstance(reviewer, dict):
             continue
         escalation = reviewer.get("escalation")
