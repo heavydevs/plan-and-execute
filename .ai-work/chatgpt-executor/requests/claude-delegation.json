@@ -1,12 +1,12 @@
 {
   "schema": "pae-claude-delegation/1",
-  "attempt_id": "claude-015-independent-review-20261122-012b",
+  "attempt_id": "claude-015-independent-review-20261122-013",
   "mode": "review",
   "task_id": "015",
-  "source_head": "b11bf5e011889e239861ddd705c8cfec4249276f",
+  "source_head": "606e6e3ea01ee917bb4bfa2362090bf98157d57a",
   "escalation": {
     "reason": "cross_cutting_high_risk",
     "evidence_ref": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
-    "summary": "Independent max-tier review of source b11bf5e for task 015: test that hypotheses cannot reuse acceptance checks, that active probe command count is capped, that probes cannot change validated tracked or untracked files, and that failed probes cannot publish facts. Verify secret-path redaction and sidecar cleanup, including negative tests and original acceptance evidence."
+    "summary": "Independent max-tier verification of task 015 after review 012: probe commands are restricted to read-only grep/rg/test queries on cited evidence, reject trivial pass/acceptance equivalence and unsafe shell; tracked source, file permissions and ignored validation log/manifest evidence are pinned before and after optional probes; suspicious probes are invalidated rather than retried indefinitely. Check genuine runner proof, promotion, regressions, scope and remaining reproducible defects."
   }
 }
