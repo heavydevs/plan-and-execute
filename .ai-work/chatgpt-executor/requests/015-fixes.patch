@@ -231,6 +231,31 @@ index a3143c2..b1035f4 100644
          log = Path(args[2]) if len(args) >= 3 else Path(kwargs["log_path"])
          if log.is_file() and not log.is_symlink():
              proof = {
+diff --git a/skill/plan-and-execute/scripts/self_test.py b/skill/plan-and-execute/scripts/self_test.py
+index 794ca74..6346375 100755
+--- a/skill/plan-and-execute/scripts/self_test.py
++++ b/skill/plan-and-execute/scripts/self_test.py
+@@ -1061,7 +1061,7 @@ def test_completion_metadata_recovery() -> None:
+                 reports.append(report.copy())
+                 return report
+ 
+-            def complete_with_persistence_check(directory, manifest, task_id, report, result_file):
++            def complete_with_persistence_check(directory, manifest, task_id, report, result_file, *, runner_proof_sha256=None):
+                 # Both original and sanitized reports must exist before completion.
+                 assert planctl.read_json(directory / result_file) == report
+                 assert report["validation_results"] and all(
+@@ -1073,7 +1073,10 @@ def test_completion_metadata_recovery() -> None:
+                     # contract rejecting vague metadata without weakening it.
+                     raise planctl.PlanError("Completion risks contain vague text: TBD")
+                 try:
+-                    return original_complete(directory, manifest, task_id, report, result_file)
++                    return original_complete(
++                        directory, manifest, task_id, report, result_file,
++                        runner_proof_sha256=runner_proof_sha256,
++                    )
+                 except planctl.PlanError as exc:
+                     rejections.append(str(exc))
+                     raise
 diff --git a/test/optimization/context_learning_self_test.py b/test/optimization/context_learning_self_test.py
 index 1010a22..302ec61 100644
 --- a/test/optimization/context_learning_self_test.py

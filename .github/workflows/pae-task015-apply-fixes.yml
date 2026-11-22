@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo '5403fc19ba28186f26c8b4c96374436e844c11290dd5aa773fc4fa1c0a10b154  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
+          echo '38f1e9dc8267c609c5f2339ffce1a34e4fa14a74f45e24c62d4953fcdab1d656  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
           git diff --name-only HEAD^ HEAD | sort > /tmp/pae-request.txt
           printf '%s\n' '.github/workflows/pae-task015-apply-fixes.yml' '.ai-work/chatgpt-executor/requests/015-fixes.patch' | sort > /tmp/pae-request-allowed.txt
           diff -u /tmp/pae-request-allowed.txt /tmp/pae-request.txt
@@ -39,6 +39,7 @@ jobs:
             skill/plan-and-execute/scripts/planctl.py \
             skill/plan-and-execute/scripts/run_isolated.py \
             skill/plan-and-execute/scripts/runner_contract.py \
+            skill/plan-and-execute/scripts/self_test.py \
             test/optimization/context_learning_self_test.py | sort > /tmp/pae-allowed.txt
           diff -u /tmp/pae-allowed.txt /tmp/pae-modified.txt
       - name: Execute all seven task 015 declared test commands
@@ -91,7 +92,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = 'refs/heads/checkpoint/plano1-estudo-provider-switch-20261028'
-          echo '5403fc19ba28186f26c8b4c96374436e844c11290dd5aa773fc4fa1c0a10b154  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
+          echo '38f1e9dc8267c609c5f2339ffce1a34e4fa14a74f45e24c62d4953fcdab1d656  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
           git apply --check '.ai-work/chatgpt-executor/requests/015-fixes.patch'
           git apply '.ai-work/chatgpt-executor/requests/015-fixes.patch'
           git diff --check
@@ -102,6 +103,7 @@ jobs:
             skill/plan-and-execute/scripts/planctl.py \
             skill/plan-and-execute/scripts/run_isolated.py \
             skill/plan-and-execute/scripts/runner_contract.py \
+            skill/plan-and-execute/scripts/self_test.py \
             test/optimization/context_learning_self_test.py
           git commit -m "fix(task-015): resolve independent review findings and add regressions"
           git push origin HEAD:checkpoint/plano1-estudo-provider-switch-20261028
