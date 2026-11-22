@@ -2209,7 +2209,7 @@ def test_review6_bounded_safe_independent_hypothesis_probes() -> None:
                     ["evidence.txt", "implemented.txt"], verification_commands=[unsafe],
                 ), "independent checks" if unsafe.startswith("test -f") else "safe read-only",
             )
-        assert task["attempt_hypotheses"] == []
+        assert not task.get("attempt_hypotheses")
         cmd = "grep -q nonexistent-pattern evidence.txt"
         base_planctl.record_attempt_hypothesis(
             plan_dir, manifest, "001",
