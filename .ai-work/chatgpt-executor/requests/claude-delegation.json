@@ -1,12 +1,12 @@
 {
   "schema": "pae-claude-delegation/1",
-  "attempt_id": "claude-015-independent-review-20261122-011",
+  "attempt_id": "claude-015-independent-review-20261122-012b",
   "mode": "review",
   "task_id": "015",
-  "source_head": "dc6cd9381fa0696a1c12f4d79becadcdaa1bc7be",
+  "source_head": "b11bf5e011889e239861ddd705c8cfec4249276f",
   "escalation": {
     "reason": "cross_cutting_high_risk",
     "evidence_ref": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
-    "summary": "Independent max-tier review of exact current source after distinct trusted hypothesis-specific runner probes, CLI recording and promotion with independent hashed log, metadata path redaction avoiding false positives, and authorized task-015 production scope extension including run_isolated.py and pattern_runner_contract.py. Assess genuine safety, end-to-end CLI integration, negative evidence, source hashes and acceptance, with reproducible defects only."
+    "summary": "Independent max-tier review of source b11bf5e for task 015: test that hypotheses cannot reuse acceptance checks, that active probe command count is capped, that probes cannot change validated tracked or untracked files, and that failed probes cannot publish facts. Verify secret-path redaction and sidecar cleanup, including negative tests and original acceptance evidence."
   }
 }
