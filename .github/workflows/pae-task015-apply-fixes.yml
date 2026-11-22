@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo 'bf45c0982427c38e632a29c449fe898b27a4bb2a4fd8b39061deb0d10ca9a000  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
+          echo 'fcf4802f71e02246c906d93931422a4004c5c69172b8fc7ad24d3025013f0c5a  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
           git diff --name-only HEAD^ HEAD | sort > /tmp/pae-request.txt
           printf '%s\n' '.github/workflows/pae-task015-apply-fixes.yml' '.ai-work/chatgpt-executor/requests/015-fixes.patch' | sort > /tmp/pae-request-allowed.txt
           diff -u /tmp/pae-request-allowed.txt /tmp/pae-request.txt
@@ -93,7 +93,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = 'refs/heads/checkpoint/plano1-estudo-provider-switch-20261028'
-          echo 'bf45c0982427c38e632a29c449fe898b27a4bb2a4fd8b39061deb0d10ca9a000  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
+          echo 'fcf4802f71e02246c906d93931422a4004c5c69172b8fc7ad24d3025013f0c5a  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
           git apply --check '.ai-work/chatgpt-executor/requests/015-fixes.patch'
           git apply '.ai-work/chatgpt-executor/requests/015-fixes.patch'
           git diff --check
