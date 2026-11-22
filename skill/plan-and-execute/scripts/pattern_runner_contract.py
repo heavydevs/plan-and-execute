@@ -18,6 +18,7 @@ def install_pattern_runner_contract(run_isolated: Any) -> Any:
     original_execute = run_isolated.execute_one_task
     original_summary_input = run_isolated.compose_summary_input
     original_generate_summary = run_isolated.generate_final_summary
+    original_accounting = getattr(run_isolated, "write_context_accounting_receipt", None)
 
     def has_patterns(plan_dir: Path) -> bool:
         return (plan_dir / patternctl.REGISTRY_FILE).is_file()
@@ -156,6 +157,25 @@ Shared patterns (read-only design constraints at their current revisions):
 """
 
         run_isolated.design_prompt = design_prompt
+
+    if callable(original_accounting):
+        def write_context_accounting_receipt(
+            plan_dir: Path, manifest: dict[str, Any], task: dict[str, Any],
+            *, pattern_files: list[str] | None = None, design_files: list[str] | None = None,
+        ):
+            # Mirror the files the pattern prompt actually asks the worker to read.
+            assigned = assigned_pattern_files(plan_dir, task["id"])
+            included_patterns = ([f"{patternctl.ASSIGNMENT_DIR}/{task['id']}.md"] + assigned
+                                 if assigned else [])
+            phase = task.get("design_phase") or {}
+            note = phase.get("note_file") if phase.get("status") == "completed" else None
+            included_design = [note] if isinstance(note, str) and note else []
+            return original_accounting(
+                plan_dir, manifest, task,
+                pattern_files=list(pattern_files or []) + included_patterns,
+                design_files=list(design_files or []) + included_design,
+            )
+        run_isolated.write_context_accounting_receipt = write_context_accounting_receipt
 
     run_isolated.worker_prompt = worker_prompt
     run_isolated.execute_one_task = execute_one_task

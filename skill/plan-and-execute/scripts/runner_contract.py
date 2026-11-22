@@ -152,12 +152,14 @@ Service map helper: {script_dir / 'service_map.py'}
         task: dict[str, Any],
         *,
         pattern_files: list[str] | None = None,
+        design_files: list[str] | None = None,
     ) -> tuple[Path, dict[str, Any]]:
         receipt = planctl.build_context_accounting_receipt(
             plan_dir,
             manifest,
             task,
             pattern_files=pattern_files,
+            design_files=design_files,
         )
         path = plan_dir / "results" / f"{task['id']}-context-receipt.json"
         planctl.atomic_write_json(path, receipt)

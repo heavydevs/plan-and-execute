@@ -102,6 +102,12 @@ def fake_runner(expected_pattern_files: list[str]) -> SimpleNamespace:
     runner.execute_one_task = execute_one_task
     runner.compose_summary_input = compose_summary_input
     runner.generate_final_summary = generate_final_summary
+    def account(plan_dir, manifest, task, *, pattern_files=None, design_files=None):
+        receipt = planctl.build_context_accounting_receipt(
+            plan_dir, manifest, task, pattern_files=pattern_files, design_files=design_files,
+        )
+        return plan_dir / "results" / "test-receipt.json", receipt
+    runner.write_context_accounting_receipt = account
     return install_pattern_runner_contract(runner)
 
 
@@ -118,6 +124,19 @@ def test_runner_injects_patterns_and_adopts_after_validated_completion() -> None
         assert "Shared pattern rules" in prompt
         assert expected[0] in prompt
         assert "patterns/assignments/001.md" in prompt
+        # Account for the actual pattern assignment, pattern bytes and design note.
+        note = plan_dir / "designs" / "001.md"
+        note.parent.mkdir(parents=True, exist_ok=True)
+        note.write_text("Architecture decision used by worker 001.\n", encoding="utf-8")
+        task["design_phase"] = {"status": "completed", "note_file": "designs/001.md"}
+        _, receipt = runner.write_context_accounting_receipt(plan_dir, manifest, task)
+        selected = {entry["path"]: entry for entry in receipt["selected_files"]}
+        assert "patterns/assignments/001.md" in selected
+        assert expected[0] in selected
+        assert "designs/001.md" in selected
+        assert receipt["pattern_bytes"] >= selected[expected[0]]["bytes"]
+        assert receipt["scoped_context_bytes"] >= selected["designs/001.md"]["bytes"]
+        assert receipt["total_context_bytes"] == sum(v["bytes"] for v in selected.values())
         # A two-phase leaf's design worker sees the same assigned patterns as
         # read-only constraints (both signatories here), never the registry.
         for signatory in ("001", "002"):

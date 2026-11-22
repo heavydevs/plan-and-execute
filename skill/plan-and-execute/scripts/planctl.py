@@ -6036,6 +6036,7 @@ def build_context_accounting_receipt(
     task: dict[str, Any],
     *,
     pattern_files: Iterable[str] | None = None,
+    design_files: Iterable[str] | None = None,
     repo_root: Path | None = None,
 ) -> dict[str, Any]:
     """Build a compact context accounting receipt: file IDs, byte counts and inclusion reasons, with no prompts or secrets."""
@@ -6143,6 +6144,15 @@ def build_context_accounting_receipt(
             TRUST_CLASS_VERSIONED_PATTERN,
             "versioned_shared_pattern",
         )
+
+    # Two-phase workers read the design note in addition to task context.
+    # Count it as scoped implementation guidance, not a shared pattern.
+    for rel in design_files or []:
+        if isinstance(rel, str) and rel.strip():
+            scoped_bytes += add_entry(
+                f"design:{Path(rel).stem}", rel, TRUST_CLASS_NORMATIVE,
+                "assigned_completed_design_note",
+            )
 
     total_bytes = sum(item["bytes"] for item in selected)
     receipt = {
