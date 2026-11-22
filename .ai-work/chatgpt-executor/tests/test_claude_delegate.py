@@ -76,6 +76,9 @@ def test_review():
         with patch.object(b, "ROOT", root), patch.dict(os.environ, env), patch.object(b, "OUT", root / b.OUT):
             b.preflight()
             assert (root / b.OUT / "prompt.txt").is_file()
+            prompt_text = (root / b.OUT / "prompt.txt").read_text()
+            assert "Reserve final turns for structured JSON" in prompt_text
+            assert "Read only bounded relevant file regions" in prompt_text
             assert json.loads((root / b.OUT / "input.json").read_text())["request_commit"] == head
             with patch.dict(os.environ, {
                 "CLAUDE_REVIEW_OUTPUT": json.dumps({

@@ -168,6 +168,9 @@ def preflight() -> None:
             "Every issue needs severity, path, line, concrete mechanism and reproduction instructions.",
             "Return structured JSON with reviewed_sha equal to " + head + " and explicit verdict.",
             "Prioritize trust boundaries, freshness/provenance, accidental authority, fail-closed behavior and regressions.",
+            "Work efficiently: use Glob/Grep to locate symbols, then Read only bounded relevant file regions; avoid dumping entire huge files.",
+            "After roughly 45 tool calls, stop exploration and prepare your best evidence-backed final verdict.",
+            "Reserve final turns for structured JSON; if incomplete, return verdict blocked with explicit limitations, not an unstructured response.",
             "Requested model and effort are not evidence of effective provider-side selection.",
         ]
     else:
