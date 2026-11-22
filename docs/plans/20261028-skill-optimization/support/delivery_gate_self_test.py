@@ -125,31 +125,65 @@ class GateTests(unittest.TestCase):
         with self.assertRaises(g.GateError):g.local(self.root,'docs\\plans\\x.json')
 
     # Reviewer gate: max, or evidence-backed frontier; unique, task-bound dispatches.
-    def dispatch(self,name,session,task='006',inputs=None):
+    def dispatch(self,name,session,task='006',inputs=None,provider='claude',
+                 model='claude-opus-5-5',effort='xhigh',tier='max',
+                 verdict='approved',failure_class=None,cause=None):
         path=(g.OUTPUT/'reviews'/task/name).as_posix()
         findings_path = path + '.findings.json'
         self.write_json(findings_path, {'task_id':task, 'session_id':session,
-                                        'verdict':'approved', 'findings':[]})
-        self.write_json(path, {'task_id':task, 'session_id':session, 'verdict':'approved',
+                                        'verdict':verdict, 'findings':[]})
+        self.write_json(path, {'task_id':task, 'session_id':session, 'verdict':verdict,
+                               'provider':provider, 'model':model, 'native_effort':effort,
+                               'model_tier':tier, 'failure_class':failure_class, 'cause':cause,
                                'blocking_findings':0, 'findings_count':0,
                                'findings_path':findings_path, 'findings_sha256':g.sha(self.root/findings_path),
                                'reviewed_inputs':inputs if inputs is not None else [self.hashed(self.code)]})
-        return {'session_id':session,'dispatch_evidence':path,'dispatch_sha256':g.sha(self.root/path)}
+        return {'session_id':session, 'provider':provider, 'model':model,
+                'native_effort':effort,'model_tier':tier,
+                'dispatch_evidence':path,'dispatch_sha256':g.sha(self.root/path)}
     def review(self,tier='max',model='claude-opus-5-5',escalation=None):
         self.e['requires_independent_review']=True
         self.write_json(g.DOC/'TASK_INPUTS.json',{'schema_version':2,'tasks':[self.e]})
         self.machine['input_fingerprint']=g.code_fingerprint(self.root,self.e)
         self.packet['reviewer']={'model_tier':tier,'fresh_context':True,'provider':'claude','model':model,
-                                 'native_effort':'xhigh',**self.dispatch('dispatch.json','sess-review')}
+                                 'native_effort':'xhigh',**self.dispatch('dispatch.json','sess-review',model=model,tier=tier)}
         if escalation is not None:self.packet['reviewer']['escalation']=escalation
         self.packet.update({'reviewed_inputs':[self.hashed(self.code)],'verdict':'approved','findings':[]})
         self.machine_save()
     def failure(self,n,cls='semantic',cause='missed race in lock handoff',tier='max'):
-        return {'model_tier':tier,'failure_class':cls,'cause':cause,**self.dispatch(f'failed-{n}.json',f'sess-max-{n}')}
+        return {'model_tier':tier,'failure_class':cls,'cause':cause,
+                **self.dispatch(f'failed-{n}.json',f'sess-max-{n}',tier=tier,
+                                verdict='changes_requested',failure_class=cls,cause=cause)}
     def frontier(self,**kw):
         failures=[self.failure(1,**kw),self.failure(2,**kw)]
         self.review('frontier','claude-fable-5-2',{'phase':'review','prior_max_failures':failures})
     def passes(self):self.assertEqual(g.check(self.root,'006')['artifact_gate'],'passed')
+    def test_review_dispatch_model_claim_mismatch_rejected(self):
+        self.review()
+        self.packet['reviewer']['model']='claude-haiku-5-5'
+        self.save()
+        self.reject()
+    def test_review_dispatch_effort_claim_mismatch_rejected(self):
+        self.review()
+        self.packet['reviewer']['native_effort']='low'
+        self.save()
+        self.reject()
+    def test_frontier_cannot_relabel_approved_prior_review_as_failed(self):
+        self.frontier()
+        failure=self.packet['reviewer']['escalation']['prior_max_failures'][0]
+        path=failure['dispatch_evidence']
+        evidence=g.load(self.root/path)
+        evidence['verdict']='approved'
+        self.write_json(path,evidence)
+        failure['dispatch_sha256']=g.sha(self.root/path)
+        self.save()
+        self.reject()
+    def test_frontier_failure_class_must_match_dispatch(self):
+        self.frontier()
+        failure=self.packet['reviewer']['escalation']['prior_max_failures'][0]
+        failure['failure_class']='architectural'
+        self.save()
+        self.reject()
     def test_valid_max_review(self):self.review();self.passes()
     def test_valid_frontier_review(self):self.frontier();self.passes()
     def test_dispatch_outside_task_review_dir_rejected(self):

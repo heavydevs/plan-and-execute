@@ -248,10 +248,26 @@ def dispatch_record(
     require(isinstance(evidence, dict) and evidence.get("task_id") == task_id,
             "Dispatch evidence does not name this task")
     require(evidence.get("session_id") == session, "Dispatch evidence session mismatch")
+    for field in ("provider", "model", "native_effort", "model_tier"):
+        require(isinstance(record.get(field), str) and bool(record[field])
+                and evidence.get(field) == record[field],
+                f"Review dispatch {field} differs from the recorded reviewer identity")
+    require(record.get("model_tier") in {"max", "frontier"}, "Unsupported reviewer tier")
+    if record.get("model_tier") == "frontier":
+        require(record.get("model") in FRONTIER_MODELS, "Unattested frontier model")
     named = evidence.get("reviewed_inputs")
     require(isinstance(named, list) and all(isinstance(x, dict) for x in named)
             and pinned_hashes <= {(x.get("path"), x.get("sha256")) for x in named},
             "Dispatch evidence does not name the reviewed-input hashes")
+    if not approved:
+        require(evidence.get("verdict") in {"changes_requested", "blocked"},
+                "Approved independent review cannot be presented as a prior failure")
+        require(evidence.get("model_tier") == "max",
+                "Prior review dispatch does not attest maximum-tier failure")
+        for field in ("failure_class", "cause"):
+            require(isinstance(evidence.get(field), str)
+                    and evidence.get(field) == record.get(field),
+                    f"Prior failure {field} is not corroborated by dispatch evidence")
     if approved:
         # The implementer's receipt is not an independent reviewer's verdict.
         # Bind approval to the model-produced dispatch evidence and its findings.
