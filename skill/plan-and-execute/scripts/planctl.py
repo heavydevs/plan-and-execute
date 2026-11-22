@@ -4673,16 +4673,14 @@ def explicit_learning_source_file(reference: Any, *, require_plain_file: bool = 
     # publishes an unfingerprinted learning which never becomes stale.
     if not re.fullmatch(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", candidate):
         return None
-    source_suffixes = {
-        ".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".go", ".rs",
-        ".c", ".h", ".cpp", ".cs", ".rb", ".sh", ".sql",
-        ".json", ".yaml", ".yml", ".toml", ".xml", ".md", ".txt",
-        ".html", ".css", ".scss", ".gradle", ".properties",
-        ".proto", ".graphql", ".gql", ".tf", ".tfvars", ".hcl",
-        ".vue", ".svelte", ".kt", ".kts", ".prisma", ".ipynb",
-        ".dart", ".swift", ".ex", ".exs", ".dockerfile",
-    }
-    return candidate if Path(candidate).suffix.lower() in source_suffixes else None
+    # Extension allowlists are unsafe for provenance: source languages and
+    # configuration formats are open-ended (Avro, protobuf, custom DSLs, etc.).
+    # Preserve bare evidence IDs without a dot or separator as non-file refs.
+    source_name = Path(candidate).name
+    known_suffixless_sources = {"Dockerfile", "Makefile", "Jenkinsfile", "Gemfile", "Rakefile", "Justfile"}
+    return candidate if ("/" in candidate or Path(source_name).suffix
+                         or source_name in known_suffixless_sources) else None
+
 
 
 def learning_provenance_sha256(artifact: dict[str, Any]) -> str:

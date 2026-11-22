@@ -1736,7 +1736,7 @@ def test_review2_learning_requires_nonempty_actual_validation_results() -> None:
 
 def test_review_015_extended_source_extensions_are_pinned() -> None:
     """Code provenance cannot be bypassed by common non-Python source extensions."""
-    for suffix in ("proto", "graphql", "tf", "vue", "prisma"):
+    for suffix in ("proto", "graphql", "tf", "vue", "prisma", "avsc", "customdsl"):
         with tempfile.TemporaryDirectory() as temp:
             repo = make_repo(Path(temp), f"extended-{suffix}")
             spec = three_task_spec(targets_001=[{
