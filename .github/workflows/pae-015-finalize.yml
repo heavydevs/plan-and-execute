@@ -1,0 +1,119 @@
+name: PAE 015 - finalize native plan only after original delivery gate
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - 'docs/research/20261028-skill-optimization/implementation/015-receipt.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pae-015-finalize-native-state
+  cancel-in-progress: false
+
+jobs:
+  validate-original-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Reconcile audited map (never approve or synthesize reviewer evidence)
+        run: python .ai-work/chatgpt-executor/mapctl.py
+      - name: Validate original task receipt, immutable test logs, session and reviewed hashes
+        run: python docs/plans/20261028-skill-optimization/support/check_delivery.py --task 015
+      - name: Re-run P1_TESTS_015 under resource monitoring
+        run: python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_015
+      - name: Re-run P1_015 under resource monitoring
+        run: python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_015
+
+  finalize-plan:
+    needs: validate-original-gate
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+          persist-credentials: true
+      - name: Independently validate original delivery evidence again
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/checkpoint/plano1-estudo-provider-switch-20261028"
+          python .ai-work/chatgpt-executor/mapctl.py
+          python docs/plans/20261028-skill-optimization/support/check_delivery.py --task 015
+      - name: Execute original gates and assemble truthful native controller report
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+          commands = [
+              [sys.executable, "skill/plan-and-execute/scripts/resource_watch.py", "run", "--repo-root", ".", "--map", ".ai-work/SERVICE_MAP.md", "--validation", "P1_TESTS_015"],
+              [sys.executable, "skill/plan-and-execute/scripts/resource_watch.py", "run", "--repo-root", ".", "--map", ".ai-work/SERVICE_MAP.md", "--validation", "P1_015"],
+          ]
+          checks = []
+          for command in commands:
+              result = subprocess.run(command, check=False)
+              checks.append({"command": " ".join(command), "exit_code": result.returncode, "passed": result.returncode == 0})
+          if not all(record["passed"] for record in checks):
+              raise SystemExit("Native completion blocked: original gate failed")
+          receipt = json.loads(Path("docs/research/20261028-skill-optimization/implementation/015-receipt.json").read_text())
+          if receipt.get("verdict") != "approved" or receipt.get("status") != "completed":
+              raise SystemExit("Native completion blocked: review receipt not approved")
+          report = {
+              "evidence_kind": "executed_local_checks",
+              "completed_subtask_ids": ["S001","S002","S003","S004","S005","S006"],
+              "validation_results": checks,
+              "changed_files": [e["path"] for e in receipt["changed_artifacts"]],
+              "verdict": "approved",
+              "independent_review_status": "approved",
+              "learnings": [],
+          }
+          Path("/tmp/pae-015-native-completion.json").write_text(json.dumps(report, indent=2)+"\n")
+          print("Two original gates passed; completion report prepared from authentic checks and verified receipt.")
+          PY
+      - name: Complete only task 015 through native planctl (never task 016)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python skill/plan-and-execute/scripts/planctl.py claim --plan .ai-work/20261028-skill-study-provider-switch --task 015 --route '{"provider":"claude","tier":"max","model":"claude-opus-5-5","effort":"xhigh"}'
+          python skill/plan-and-execute/scripts/planctl.py complete --plan .ai-work/20261028-skill-study-provider-switch --task 015 --report /tmp/pae-015-native-completion.json --result-file docs/research/20261028-skill-optimization/implementation/015-receipt.json
+          python skill/plan-and-execute/scripts/planctl.py status --plan .ai-work/20261028-skill-study-provider-switch
+      - name: Commit only native 015 state changes after strict scope verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --short
+          git diff --name-only > /tmp/pae-015-changed.txt
+          python - <<'PY'
+          from pathlib import Path
+          changed = set(Path("/tmp/pae-015-changed.txt").read_text().splitlines())
+          allowed = {
+              ".ai-work/20261028-skill-study-provider-switch/manifest.json",
+              ".ai-work/20261028-skill-study-provider-switch/TODO.md",
+              ".ai-work/20261028-skill-study-provider-switch/projection-state.json",
+              ".ai-work/20261028-skill-study-provider-switch/.projection-state.json",
+              ".ai-work/SERVICE_MAP.md",
+              ".ai-work/SERVICE_MAP.index.json",
+          }
+          allowed.add(".ai-work/20261028-skill-study-provider-switch/tasks/015-review-and-correct-assigned-context-learned-facts-and-token-budg.md")
+          unknown = changed - allowed
+          if unknown or ".ai-work/20261028-skill-study-provider-switch/manifest.json" not in changed:
+              raise SystemExit("Unexpected native plan modifications: " + repr(sorted(unknown)))
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- .ai-work/20261028-skill-study-provider-switch/manifest.json .ai-work/20261028-skill-study-provider-switch/TODO.md .ai-work/20261028-skill-study-provider-switch/tasks/015-review-and-correct-assigned-context-learned-facts-and-token-budg.md .ai-work/SERVICE_MAP.md .ai-work/SERVICE_MAP.index.json
+          git diff --cached --check
+          git commit -m "chore(task-015): mark native plan completed after authentic reviewed gate"
+          git push origin HEAD:checkpoint/plano1-estudo-provider-switch-20261028

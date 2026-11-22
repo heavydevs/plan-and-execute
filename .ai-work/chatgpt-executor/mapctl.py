@@ -36,6 +36,7 @@ REVIEWED_CHANGED = frozenset({
     ".github/workflows/pae-claude-delegation.yml",
     ".github/workflows/pae-claude-secret-check.yml",
     ".github/workflows/pae-task015-apply-fixes.yml",
+    ".github/workflows/pae-015-finalize.yml",
     "docs/plans/20261028-skill-optimization/history/pre-research-conversion/support/delivery_gate_self_test.py",
     "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
     "docs/plans/20261028-skill-optimization/support/research_readiness_self_test.py",
