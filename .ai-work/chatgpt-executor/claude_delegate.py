@@ -191,9 +191,12 @@ def preflight() -> None:
 def save_patch(allowed: list[str]) -> dict:
     allowed_set = set(allowed)
     existing = git("diff", "--name-only", "HEAD", "--").splitlines()
+    artifact_dir = OUT if OUT.is_absolute() else ROOT / OUT
+    require(artifact_dir.resolve().is_relative_to(ROOT.resolve()), "Artifact output escapes repository")
+    artifact_prefix = artifact_dir.relative_to(ROOT).as_posix() + "/"
     unknown = [
         path for path in git("ls-files", "--others", "--exclude-standard", "--").splitlines()
-        if not path.startswith(OUT.as_posix() + "/")
+        if not path.startswith(artifact_prefix)
     ]
     for path in existing + unknown:
         require(path in allowed_set, "Claude edited outside the assigned write scope: " + path)
