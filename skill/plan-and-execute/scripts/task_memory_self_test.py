@@ -22,6 +22,9 @@ def make_repo(root: Path, name: str) -> Path:
     repo = root / name
     repo.mkdir()
     subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+    # A published learning that cites a source file must pin real bytes;
+    # legacy fixtures used to claim implemented.txt existed without creating it.
+    (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
     return repo
 
 

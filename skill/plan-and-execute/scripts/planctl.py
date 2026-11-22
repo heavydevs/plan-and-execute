@@ -100,7 +100,7 @@ POLICY_OVERRIDE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         "acceptance_or_validation_override",
         re.compile(
             r"\b(?:ignore|skip|bypass|override|relax|disable|waive|drop|remove)\s+"
-            r"(?:all\s+|the\s+|existing\s+|required\s+)?(?:acceptance(?:\s+criteria)?|validation(?:\s+commands?)?|required\s+checks?|delivery\s+gate)\b",
+            r"(?:[A-Za-z_-]+\s+){0,5}(?:acceptance(?:\s+criteria)?|validation(?:\s+commands?)?|required\s+checks?|delivery\s+gate)\b",
             re.I,
         ),
     ),
@@ -4650,8 +4650,14 @@ def explicit_learning_source_file(reference: Any, *, require_plain_file: bool = 
     candidate = re.sub(r":\d+(?:-\d+)?$", "", candidate)
     if not candidate:
         return None
+    # Canonicalise a single harmless leading ./ so evidence pins and source keys agree.
+    if candidate.startswith("./"):
+        candidate = candidate[2:]
+    if not candidate or candidate.startswith("/") or ".." in Path(candidate).parts:
+        return None
     if anchored:
-        return candidate if Path(candidate).suffix else None
+        # Anchored code references can target suffixless files such as Makefile.
+        return candidate if re.fullmatch(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", candidate) else None
     if not require_plain_file:
         return None
     # Plain code references cite sources too. Otherwise "src/missing.py" silently
@@ -4789,7 +4795,7 @@ def check_learning_artifact_freshness(
                     continue
                 for ref in item.get("references") or []:
                     source = explicit_learning_source_file(
-                        ref, require_plain_file=(item.get("kind") == "code" or "/" in ref or "\\" in ref)
+                        ref, require_plain_file=True
                     )
                     if source is not None and source not in cited_digests:
                         stale_reasons.append(f"cited_file_digest_missing:{source}")
@@ -4937,15 +4943,17 @@ def normalize_learning_reference(value: Any, field: str) -> str:
     lowered = text.lower().replace("\\", "/")
     if "/.ai-work/" in f"/{lowered}" or lowered.startswith(".ai-work/"):
         raise PlanError(f"{field} may not reference planning artifacts")
-    # References are interpolated into Markdown inline code by both renderers.
-    # An unescaped backtick can close that delimiter and turn evidence into
-    # authoritative-looking Markdown in a validated learning artifact.
     if "`" in text or "<" in text or ">" in text:
         raise PlanError(f"{field} must not contain Markdown/HTML delimiters")
     override_kind = detect_policy_override_note(text)
     if override_kind is not None:
         raise PlanError(f"{field} cannot alter acceptance, permissions, or provider policy ({override_kind})")
     return text
+
+
+def comparable_hypothesis_text(value: Any) -> str:
+    """Ignore punctuation/spacing disguises when barring disproven claims."""
+    return " ".join(re.findall(r"\w+", str(value).casefold()))
 
 
 def normalize_reusable_learnings(
@@ -4972,7 +4980,7 @@ def normalize_reusable_learnings(
         if isinstance(item, dict)
     }
     disproven_hypotheses = {
-        str(h.get("id")): str(h.get("hypothesis", "")).strip().casefold()
+        str(h.get("id")): comparable_hypothesis_text(h.get("hypothesis", ""))
         for h in task.get("attempt_hypotheses", [])
         if isinstance(h, dict) and h.get("status") == "disproven"
     }
@@ -5019,7 +5027,7 @@ def normalize_reusable_learnings(
             raise PlanError(
                 f"{field}.guidance cannot alter acceptance, permissions, or provider policy ({override_kind})"
             )
-        folded_guidance = guidance.casefold()
+        folded_guidance = comparable_hypothesis_text(guidance)
         for hyp_id, disproven_text in disproven_hypotheses.items():
             if disproven_text and (disproven_text == folded_guidance or disproven_text in folded_guidance):
                 raise PlanError(
@@ -5094,6 +5102,8 @@ def render_learning_artifact(
                 "",
                 learning["guidance"],
                 "",
+                *([f"Promoted from verified task-local hypothesis: `{learning['promoted_from_hypothesis']}`", ""]
+                  if learning.get("promoted_from_hypothesis") else []),
                 "References:",
                 *[f"- `{reference}`" for reference in learning["references"]],
                 "",
@@ -5169,6 +5179,8 @@ def materialize_learning_artifacts(
                 "kind": learning["kind"],
                 "guidance": learning["guidance"],
                 "references": list(learning["references"]),
+                **({"promoted_from_hypothesis": learning["promoted_from_hypothesis"]}
+                   if learning.get("promoted_from_hypothesis") else {}),
             }
             for learning in target_learnings
         ]
@@ -5179,7 +5191,7 @@ def materialize_learning_artifacts(
         for learning in target_learnings:
             for reference in learning["references"]:
                 source = explicit_learning_source_file(
-                    reference, require_plain_file=(learning.get("kind") == "code" or "/" in reference or "\\" in reference)
+                    reference, require_plain_file=True
                 )
                 if source is not None and source not in cited_file_digests:
                     raise PlanError(f"Learning source reference missing or unsafe: {reference}")
@@ -5361,6 +5373,8 @@ def validate_learning_artifacts(
                     "kind": kind,
                     "guidance": guidance.strip() if isinstance(guidance, str) else guidance,
                     "references": clean_references,
+                    **({"promoted_from_hypothesis": item["promoted_from_hypothesis"]}
+                       if item.get("promoted_from_hypothesis") else {}),
                 }
             )
         expected_relative = learning_artifact_path(source_id, target_id)
@@ -5781,7 +5795,13 @@ def promote_hypothesis_to_learning(
     if not isinstance(receipt_checks, list) or not receipt_checks:
         raise PlanError("Cannot promote hypothesis without validation checks recorded in receipt")
     for check in deterministic_evidence:
-        if not isinstance(check, dict) or check not in authoritative:
+        if not isinstance(check, dict) or not any(
+            isinstance(saved, dict)
+            and saved.get("command") == check.get("command")
+            and saved.get("passed") is True
+            and saved.get("exit_code") == 0
+            for saved in authoritative
+        ):
             raise PlanError("Promotion evidence was not observed by the completed task runner")
         if not any(
             isinstance(saved, dict)
@@ -5805,6 +5825,34 @@ def promote_hypothesis_to_learning(
     if not has_passing_check:
         raise PlanError("Promoting a hypothesis requires at least one passing deterministic check")
 
+    # Do not accept a CLI `complete --report` with caller-authored `passed: true`
+    # as runner proof. Only the concise runner writes a deterministic
+    # log-bound sidecar for this exact attempt after executing commands.
+    attempt = int(task.get("attempts", 0))
+    log_name = f"{task['id']}-attempt-{attempt}-validation.log"
+    log_path = plan_dir / "logs" / log_name
+    proof_path = Path(str(log_path) + ".runner-evidence.json")
+    relative_log = checked_relative_path(log_path.relative_to(plan_dir).as_posix(), "validation log")
+    relative_proof = checked_relative_path(proof_path.relative_to(plan_dir).as_posix(), "runner proof")
+    for rel in (relative_log, relative_proof):
+        reject_symlink_components(plan_dir, Path(rel), "runner validation evidence")
+    if not log_path.is_file() or not proof_path.is_file():
+        raise PlanError("Cannot promote without genuine runner validation log and proof")
+    proof = read_json(proof_path)
+    if (not isinstance(proof, dict) or proof.get("schema_version") != 1
+        or proof.get("passed") is not True
+        or proof.get("log_sha256") != file_sha256(log_path)
+        or not isinstance(proof.get("checks"), list)):
+        raise PlanError("Cannot promote with forged, stale or mismatched runner validation proof")
+    for check in deterministic_evidence:
+        if not any(
+            item.get("command") == check.get("command")
+            and item.get("passed") is True
+            and item.get("exit_code") == 0
+            for item in proof["checks"] if isinstance(item, dict)
+        ):
+            raise PlanError("Promotion evidence was not executed in the runner validation log")
+
     promoted_guidance = guidance if guidance is not None else str(target_hyp["hypothesis"])
     candidate_report = {
         "validation_results": deterministic_evidence,
@@ -5820,6 +5868,12 @@ def promote_hypothesis_to_learning(
         ],
     }
     normalized_items = normalize_reusable_learnings(task, candidate_report)
+    # Materialize directional, digest-pinned artifacts BEFORE declaring
+    # the hypothesis promoted. An already published learning cannot be
+    # replaced silently after task completion.
+    published = materialize_learning_artifacts(plan_dir, manifest, task, candidate_report)
+    if len(published) != len(normalized_items[0]["target_task_ids"]):
+        raise PlanError("Hypothesis promotion did not publish every assigned learning")
     target_hyp["status"] = "promoted"
     target_hyp["updated_at"] = now_utc()
     append_event(
@@ -5860,7 +5914,7 @@ def validate_attempt_hypotheses(
                 errors.append(f"Task {task_id}: duplicate hypothesis id {norm['id']}")
             seen_ids.add(norm["id"])
             if norm["status"] == "disproven":
-                disproven_texts.append((task_id, norm["id"], norm["hypothesis"].casefold()))
+                disproven_texts.append((task_id, norm["id"], comparable_hypothesis_text(norm["hypothesis"])))
 
     if disproven_texts:
         # Ensure no disproven hypothesis appears in validated shared learnings or execution context.
@@ -5870,7 +5924,7 @@ def validate_attempt_hypotheses(
             for item in artifact.get("items", []):
                 if not isinstance(item, dict):
                     continue
-                folded = str(item.get("guidance", "")).strip().casefold()
+                folded = comparable_hypothesis_text(item.get("guidance", ""))
                 for tid, hid, disproven_text in disproven_texts:
                     if disproven_text and (disproven_text == folded or disproven_text in folded):
                         errors.append(
@@ -5885,7 +5939,7 @@ def validate_attempt_hypotheses(
             for ctx_item in ctx_items:
                 if not isinstance(ctx_item, dict):
                     continue
-                folded = str(ctx_item.get("text", "")).strip().casefold()
+                folded = comparable_hypothesis_text(ctx_item.get("text", ""))
                 for tid, hid, disproven_text in disproven_texts:
                     if disproven_text and (disproven_text == folded or disproven_text in folded):
                         errors.append(
@@ -5919,7 +5973,11 @@ def build_context_accounting_receipt(
         fresh: bool = True,
         stale_reasons: list[str] | None = None,
     ) -> int:
-        target = plan_dir / rel_path
+        if not isinstance(rel_path, str) or not rel_path.strip():
+            raise PlanError("Accounting entry path must be nonempty and repository-relative")
+        safe_path = checked_relative_path(rel_path, "context accounting file")
+        reject_symlink_components(plan_dir, Path(safe_path), "context accounting file")
+        target = plan_dir / safe_path
         size = target.stat().st_size if target.is_file() and not target.is_symlink() else 0
         selected.append(
             {
@@ -6193,9 +6251,13 @@ def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: di
             if isinstance(item, dict) and item.get("file")
         }
         stale_msgs: list[str] = []
+        # Only stale *source bytes* are safe for automatic retry invalidation.
+        # Modified learning Markdown or forged provenance must remain a hard error.
+        retry_source_changes_only = True
         for rel in task.get("learning_files", []):
             artifact = artifact_by_file.get(rel)
             if artifact is None:
+                retry_source_changes_only = False
                 stale_msgs.append(f"{rel} (missing manifest provenance)")
                 continue
             # A fresh artifact for somebody else is not authorized for this task.
@@ -6205,11 +6267,23 @@ def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: di
                 or artifact.get("consumer_task_ids") != [task["id"]]
                 or str(artifact.get("source_task_id", "")) not in learning_source_ids(manifest, task["id"])
             ):
+                retry_source_changes_only = False
                 stale_msgs.append(f"{rel} (learning not assigned to task {task['id']})")
                 continue
             freshness = check_learning_artifact_freshness(artifact, manifest, plan_dir=plan_dir)
             if not freshness["fresh"]:
+                if not freshness["stale_reasons"] or not all(
+                    reason.startswith("cited_file_changed:") for reason in freshness["stale_reasons"]
+                ):
+                    retry_source_changes_only = False
                 stale_msgs.append(f"{rel} ({', '.join(freshness['stale_reasons'])})")
+        if stale_msgs and retry_source_changes_only and int(task.get("attempts", 0)) > 0:
+            # On retry the consumer may have edited a cited file itself. Never
+            # reuse the old learning or require a manual repair just to resume.
+            # The invalidator preflights every deletion and preserves an audit
+            # record; unauthorized/missing records still fail closed below.
+            invalidate_stale_learnings(plan_dir, manifest, task_id=task["id"])
+            return claim_task(plan_dir, manifest, task_id, route)
         if stale_msgs:
             raise PlanError(
                 f"Task {task['id']} cannot reuse stale learning(s): {'; '.join(stale_msgs)}; "
@@ -6417,6 +6491,16 @@ def fail_task(
             task.pop("latest_validation_log", None)
     if not rate_limited and task.get("attempt_hypotheses"):
         invalidate_stale_hypotheses(plan_dir, manifest, task["id"], save=False)
+    if not rate_limited and hypothesis is None and validation_signature:
+        hypothesis = {
+            "hypothesis": (
+                "The failed deterministic validation with signature "
+                + str(validation_signature)[:12]
+                + " may indicate an unverified implementation or environment mismatch."
+            ),
+            "evidence_refs": ["VALIDATION-" + str(validation_signature)[:16]],
+            "failure_signature": validation_signature,
+        }
     if not rate_limited and isinstance(hypothesis, dict):
         record_attempt_hypothesis(
             plan_dir,
@@ -6884,6 +6968,29 @@ def command_context_receipt(args: argparse.Namespace) -> None:
     print(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
+def command_hypothesis_record(args: argparse.Namespace) -> None:
+    plan_dir, manifest = load_plan(args.plan)
+    entry = record_attempt_hypothesis(plan_dir, manifest, args.task, args.text, args.reference)
+    print(json.dumps(entry, ensure_ascii=False, indent=2))
+
+
+def command_hypothesis_disprove(args: argparse.Namespace) -> None:
+    plan_dir, manifest = load_plan(args.plan)
+    entry = mark_hypothesis_disproven(plan_dir, manifest, args.task, args.hypothesis_id, args.reason)
+    print(json.dumps(entry, ensure_ascii=False, indent=2))
+
+
+def command_hypothesis_promote(args: argparse.Namespace) -> None:
+    plan_dir, manifest = load_plan(args.plan)
+    evidence = parse_json_arg(args.evidence, None)
+    item = promote_hypothesis_to_learning(
+        plan_dir, manifest, args.task, args.hypothesis_id,
+        kind=args.kind, target_task_ids=args.target, deterministic_evidence=evidence,
+        guidance=args.guidance,
+    )
+    print(json.dumps(item, ensure_ascii=False, indent=2))
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -7057,6 +7164,30 @@ def build_parser() -> argparse.ArgumentParser:
     context_receipt.add_argument("--plan", required=True)
     context_receipt.add_argument("--task", help="Optional task id; omit for plan-level offline metrics")
     context_receipt.set_defaults(func=command_context_receipt)
+
+    hyp_record = sub.add_parser("hypothesis-record", help="Record task-local unvalidated diagnosis")
+    hyp_record.add_argument("--plan", required=True)
+    hyp_record.add_argument("--task", required=True)
+    hyp_record.add_argument("--text", required=True)
+    hyp_record.add_argument("--reference", action="append", required=True)
+    hyp_record.set_defaults(func=command_hypothesis_record)
+
+    hyp_disprove = sub.add_parser("hypothesis-disprove", help="Mark failed-attempt hypothesis disproven")
+    hyp_disprove.add_argument("--plan", required=True)
+    hyp_disprove.add_argument("--task", required=True)
+    hyp_disprove.add_argument("--hypothesis-id", required=True)
+    hyp_disprove.add_argument("--reason", required=True)
+    hyp_disprove.set_defaults(func=command_hypothesis_disprove)
+
+    hyp_promote = sub.add_parser("hypothesis-promote", help="Publish only with verified runner validation proof")
+    hyp_promote.add_argument("--plan", required=True)
+    hyp_promote.add_argument("--task", required=True)
+    hyp_promote.add_argument("--hypothesis-id", required=True)
+    hyp_promote.add_argument("--kind", required=True, choices=sorted(VALID_LEARNING_KINDS))
+    hyp_promote.add_argument("--target", action="append", required=True)
+    hyp_promote.add_argument("--evidence", required=True, help="JSON list or file of checked runner validation results")
+    hyp_promote.add_argument("--guidance")
+    hyp_promote.set_defaults(func=command_hypothesis_promote)
 
     return parser
 

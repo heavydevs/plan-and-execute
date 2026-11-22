@@ -109,6 +109,9 @@ def install_runner_contract(run_isolated: Any) -> Any:
         task: dict[str, Any],
         route: dict[str, str],
     ) -> str:
+        # Record the actual assigned context whenever the production runner
+        # prepares a worker prompt.  Direct helper calls are not the only path.
+        write_context_accounting_receipt(plan_dir, manifest, task)
         task_path = (plan_dir / task["file"]).resolve()
         schema_path = run_isolated.completion_schema_path().resolve()
         job_guidance = ""
@@ -157,6 +160,11 @@ Service map helper: {script_dir / 'service_map.py'}
         )
         path = plan_dir / "results" / f"{task['id']}-context-receipt.json"
         planctl.atomic_write_json(path, receipt)
+        # Preserve the preparation snapshot across later retries while keeping
+        # the existing latest-receipt path stable for tooling and unit tests.
+        next_attempt = max(1, int(task.get("attempts", 0)) + 1)
+        snapshot = plan_dir / "results" / f"{task['id']}-attempt-{next_attempt}-context-receipt.json"
+        planctl.atomic_write_json(snapshot, receipt)
         return path, receipt
 
     original_validation = run_isolated.run_validation_commands
@@ -169,6 +177,22 @@ Service map helper: {script_dir / 'service_map.py'}
                 item["output_tail"] = tail[-800:] if len(tail) > 800 else tail
         if reason and len(reason) > 1500:
             reason = planctl.bounded_failure_reason(reason, 1500)
+        # Runner-owned sidecar, bound to actual validation log bytes. Workers'
+        # self-reported validations never create this file, and planctl's
+        # public `complete --report` command does not run this function.
+        log = Path(args[2]) if len(args) >= 3 else Path(kwargs["log_path"])
+        if log.is_file() and not log.is_symlink():
+            proof = {
+                "schema_version": 1,
+                "log_sha256": planctl.file_sha256(log),
+                "passed": passed is True,
+                "checks": [
+                    {"command": item.get("command"), "passed": item.get("passed") is True,
+                     "exit_code": item.get("exit_code")}
+                    for item in results if isinstance(item, dict)
+                ],
+            }
+            planctl.atomic_write_json(Path(str(log) + ".runner-evidence.json"), proof)
         return passed, results, reason
 
     def compose_summary_input(plan_dir: Path, manifest: dict[str, Any]) -> Path:

@@ -93,6 +93,8 @@ Each materialized learning carries provenance metadata in `manifest.json`:
 - `invalidation_rule`: invalidates on source-contract change, source reset, or cited-file change;
 - `provenance_sha256`: canonical digest over the provenance fields and items.
 
+On retry, a learning that became stale **only because cited repository source bytes changed** is invalidated and removed from the assigned context automatically, with an audit event; tampered learning Markdown, missing records, and provenance mismatches still block a worker claim. Changes of an implementation file do not make the old finding authoritative again.
+
 Changing a cited file or revising the producer's contract invalidates or flags only that learning before reuse (`planctl.py check-learnings --invalidate-stale`), without deleting unrelated knowledge. Repeated conventions needed by multiple tasks belong in a versioned shared pattern (`patternctl.py`), not copied learning prose.
 
 Before a worker claim **and on a retry**, compare the rendered learning file's actual SHA-256 with its manifest record; reject a missing, modified, or symlinked file even when the producer's cited sources are unchanged. Source references in `path.py#symbol` and `path.py::symbol` form pin the underlying file, not merely the fragment. Reject unsafe cited-file paths and ancestor symlinks. Offline receipts and `check-learnings` must report the same stale state; absence of a trustworthy repository root is not proof of freshness. This guards the local read boundary, not files that could be maliciously replaced after the check; untrusted filesystem writers require independent isolation.
@@ -101,9 +103,11 @@ Before a worker claim **and on a retry**, compare the rendered learning file's a
 
 Failed attempts may record bounded, task-local hypotheses with concrete evidence references. When underlying evidence files, failure signatures, or the task contract change, open hypotheses are automatically invalidated.
 
-Disproven hypotheses are explicitly labeled and bounded so retries do not repeat dead ends; they can never be promoted into `validated_learning` or `normative_contract`. Promoting an open hypothesis into a reusable learning requires passing deterministic validation evidence.
+Disproven hypotheses are explicitly labeled and bounded so retries do not repeat dead ends; they can never be promoted into `validated_learning` or `normative_contract`. Promoting an open hypothesis into a reusable learning requires passing deterministic validation evidence **and** the verified hash of the executed runner validation log. A bare `complete --report` claim with `passed: true` is not enough. Promotion produces a new directional, SHA-pinned learning artifact for an unstarted declared consumer; it refuses to overwrite a previously published artifact. The concise runner records a bounded **unvalidated** hypothesis when deterministic checks fail, and the following CLI commands are available: `hypothesis-record`, `hypothesis-disprove`, `hypothesis-promote` (run `--help` for parameters).
 
 ## Context accounting receipts
+
+The concise production runner also persists this receipt automatically when preparing each worker attempt, with the latest assigned context and no prompt content. The explicit command remains available for offline auditing.
 
 Use `planctl.py context-receipt --plan <dir> [--task <id>]` to emit a compact accounting receipt with selected file IDs, trust classes, exact byte counts, inclusion reasons, and offline stale-learning counts. Receipts never retain raw prompt text or secrets.
 
