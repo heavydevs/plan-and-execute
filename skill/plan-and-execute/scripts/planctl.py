@@ -154,7 +154,7 @@ SINGLE_TASK_CONTEXT_PATTERN = re.compile(
     re.I,
 )
 RECEIPT_SECRET_PATTERN = re.compile(
-    r"(?:sk-[A-Za-z0-9_-]{12,}|Authorization\s*:\s*(?:Bearer|Basic)\s+[^\s<]+|ghp_[A-Za-z0-9]{20,})",
+    r"(?:(?<![A-Za-z0-9_])sk-(?:[A-Za-z0-9]{24,}|(?:ant|proj|live|test)-[A-Za-z0-9_-]{20,})|Authorization\s*:\s*(?:Bearer|Basic)\s+[^\s<]+|ghp_[A-Za-z0-9]{20,})",
     re.I,
 )
 MAX_GLOBAL_CONTEXT_ITEMS = 8
@@ -5611,6 +5611,16 @@ def normalize_attempt_hypothesis(
             minimum=1,
             maximum=MAX_HYPOTHESIS_REASON_CHARS,
         )
+    verification_commands = raw.get("verification_commands", [])
+    if not isinstance(verification_commands, list) or len(verification_commands) > 8 or any(
+        not isinstance(command, str) or not command.strip() or len(command) > 500
+        for command in verification_commands
+    ):
+        raise PlanError(f"{field}.verification_commands must contain at most eight nonempty bounded commands")
+    if len(set(verification_commands)) != len(verification_commands):
+        raise PlanError(f"{field}.verification_commands must not contain duplicates")
+    if any(command not in task.get("validation_commands", []) for command in verification_commands):
+        raise PlanError(f"{field}.verification_commands must be declared task validation commands")
     now = now_utc()
     return {
         "id": hyp_id,
@@ -5620,6 +5630,7 @@ def normalize_attempt_hypothesis(
         "producer_task_id": str(task.get("id", "")),
         "hypothesis": text,
         "evidence_refs": evidence_refs,
+        "verification_commands": list(verification_commands),
         "evidence_digests": evidence_digests,
         "failure_signature": raw.get("failure_signature")
         if raw.get("failure_signature") is not None
@@ -5736,6 +5747,7 @@ def record_attempt_hypothesis(
     status: str = "open",
     disproven_reason: str | None = None,
     failure_signature: str | None = None,
+    verification_commands: list[str] | None = None,
     save: bool = True,
 ) -> dict[str, Any]:
     """Record a bounded, task-local failed-attempt hypothesis separate from shared normative facts."""
@@ -5756,6 +5768,7 @@ def record_attempt_hypothesis(
             "status": status,
             "hypothesis": hypothesis,
             "evidence_refs": evidence_refs,
+            "verification_commands": verification_commands or [],
             "disproven_reason": disproven_reason,
             "failure_signature": failure_signature,
         },
@@ -5866,6 +5879,14 @@ def promote_hypothesis_to_learning(
     verdict = validate_receipt(receipt, task, manifest=manifest)
     if not verdict["valid"]:
         raise PlanError("Cannot promote hypothesis with an invalid task validation receipt")
+    # Producer success does not validate arbitrary prose. A failed-attempt
+    # hypothesis must predeclare specific verification commands before retry.
+    verification_commands = target_hyp.get("verification_commands")
+    if not isinstance(verification_commands, list) or not verification_commands:
+        raise PlanError("Hypothesis promotion requires predeclared hypothesis-specific verification commands")
+    provided_commands = [item.get("command") for item in deterministic_evidence if isinstance(item, dict)]
+    if len(provided_commands) != len(deterministic_evidence) or set(provided_commands) != set(verification_commands):
+        raise PlanError("Promotion evidence must cover exactly the hypothesis-specific verification commands")
     authoritative = task.get("validation_results")
     if not isinstance(authoritative, list) or not authoritative:
         raise PlanError("Cannot promote hypothesis without runner validation results")
@@ -6681,6 +6702,7 @@ def fail_task(
             status=str(hypothesis.get("status") or "open"),
             disproven_reason=hypothesis.get("disproven_reason"),
             failure_signature=hypothesis.get("failure_signature") or validation_signature,
+            verification_commands=hypothesis.get("verification_commands"),
             save=False,
         )
     if not rate_limited and (

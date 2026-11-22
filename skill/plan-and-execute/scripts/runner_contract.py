@@ -154,13 +154,23 @@ Service map helper: {script_dir / 'service_map.py'}
         pattern_files: list[str] | None = None,
         design_files: list[str] | None = None,
     ) -> tuple[Path, dict[str, Any]]:
-        receipt = planctl.build_context_accounting_receipt(
-            plan_dir,
-            manifest,
-            task,
-            pattern_files=pattern_files,
-            design_files=design_files,
-        )
+        try:
+            receipt = planctl.build_context_accounting_receipt(
+                plan_dir,
+                manifest,
+                task,
+                pattern_files=pattern_files,
+                design_files=design_files,
+            )
+        except planctl.PlanError as exc:
+            # Never strand an already-claimed task before its worker starts.
+            if task.get("status") == "in_progress":
+                planctl.fail_task(
+                    plan_dir, manifest, task["id"],
+                    f"Context accounting failed before dispatch: {exc}",
+                    failure_class="plan_defect",
+                )
+            raise
         path = plan_dir / "results" / f"{task['id']}-context-receipt.json"
         planctl.atomic_write_json(path, receipt)
         # Preserve the preparation snapshot across later retries while keeping
@@ -169,6 +179,21 @@ Service map helper: {script_dir / 'service_map.py'}
         snapshot = plan_dir / "results" / f"{task['id']}-attempt-{next_attempt}-context-receipt.json"
         planctl.atomic_write_json(snapshot, receipt)
         return path, receipt
+
+    original_finish = run_isolated.finish_task_validation
+
+    def finish_task_validation(*args: Any, **kwargs: Any) -> bool:
+        finished = original_finish(*args, **kwargs)
+        if finished:
+            # Recovery after optional metadata rejection completes successfully
+            # but misses the first-try cleanup; idempotently cover both paths.
+            manifest = args[1] if len(args) > 1 else kwargs["manifest"]
+            task = args[3] if len(args) > 3 else kwargs["task"]
+            if task.get("status") == "completed":
+                run_isolated.resource_watch.cleanup_artifacts(
+                    Path(manifest["repo_root"]), "task", str(task["id"])
+                )
+        return finished
 
     original_validation = run_isolated.run_validation_commands
 
@@ -248,6 +273,7 @@ Include: outcome, changed areas, deterministic validation, and only recorded rem
     run_isolated.bounded_task_suffix = bounded_task_suffix
     run_isolated.prompt_cache_structure = prompt_cache_structure
     run_isolated.write_context_accounting_receipt = write_context_accounting_receipt
+    run_isolated.finish_task_validation = finish_task_validation
     run_isolated.run_validation_commands = run_validation_commands
     run_isolated.compose_summary_input = compose_summary_input
     run_isolated.summary_prompt = summary_prompt

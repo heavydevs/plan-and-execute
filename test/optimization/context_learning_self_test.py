@@ -792,8 +792,9 @@ def test_ac06_disproven_and_stale_hypotheses_never_become_validated_facts() -> N
             plan_dir,
             manifest,
             "001",
-            "Create implemented.txt with UTF-8 newline before running downstream grep check.",
+            "Create implemented.txt before downstream checking can run.",
             ["evidence.txt"],
+            verification_commands=["test -f implemented.txt"],
         )
         expect_plan_error(
             lambda: base_planctl.promote_hypothesis_to_learning(
@@ -808,6 +809,11 @@ def test_ac06_disproven_and_stale_hypotheses_never_become_validated_facts() -> N
             "passing deterministic validation evidence",
         )
         passing_evidence = [{"command": "test -f implemented.txt", "passed": True, "exit_code": 0}]
+        untested = base_planctl.record_attempt_hypothesis(
+            plan_dir, manifest, "001",
+            "The unrelated downstream decoder silently accepts malformed payloads.",
+            ["evidence.txt"],
+        )
         # A declared command without an authoritative completed-task receipt
         # cannot promote H003, even when the caller sets passed=True.
         expect_plan_error(
@@ -857,6 +863,13 @@ def test_ac06_disproven_and_stale_hypotheses_never_become_validated_facts() -> N
         ) is True
         real_validation = task["validation_results"]
         assert real_validation[0]["exit_code"] == 0
+        expect_plan_error(
+            lambda: base_planctl.promote_hypothesis_to_learning(
+                plan_dir, manifest, "001", untested["id"], kind="procedure",
+                target_task_ids=["002"], deterministic_evidence=passing_evidence,
+            ),
+            "hypothesis-specific verification commands",
+        )
         assert validation_log.is_file(), "Producer validation log was removed before promotion"
         proof_path = Path(str(validation_log) + ".runner-evidence.json")
         assert proof_path.is_file(), "Trusted runner proof was removed before promotion"
@@ -867,7 +880,7 @@ def test_ac06_disproven_and_stale_hypotheses_never_become_validated_facts() -> N
                 target_task_ids=["002"],
                 deterministic_evidence=[{"command": "python nonexistent-test.py", "passed": True, "exit_code": 0}],
             ),
-            "not observed by the completed task runner",
+            "hypothesis-specific verification commands",
         )
         expect_plan_error(
             lambda: base_planctl.promote_hypothesis_to_learning(
@@ -1634,7 +1647,8 @@ def test_review_015_forged_completion_does_not_validate_hypothesis_promotion() -
         _,manifest=base_planctl.load_plan(plan_dir)
         base_planctl.claim_task(plan_dir,manifest,"001",None)
         hyp=base_planctl.record_attempt_hypothesis(plan_dir,manifest,"001",
-            "Create the implemented marker before subsequent verification.",["implemented.txt"])
+            "Create the implemented marker before subsequent verification.",["implemented.txt"],
+            verification_commands=["test -f implemented.txt"])
         checks=[{"command":"test -f implemented.txt","passed":True,"exit_code":0}]
         fixture_complete_task(plan_dir,manifest,"001",completion_report(validation_results=checks),None)
         expect_plan_error(lambda:base_planctl.promote_hypothesis_to_learning(
@@ -1989,10 +2003,19 @@ def test_review_015_real_concise_runner_completion_and_assigned_context() -> Non
     with tempfile.TemporaryDirectory() as temp:
         root = Path(temp)
         repo = make_repo(root, "production-contract-015")
-        plan_dir = base_planctl.create_plan(repo, three_task_spec(), ".ai-work", "production-contract")
+        spec = three_task_spec(targets_001=[{
+            "task_id": "002", "reason": "Retain runner proof while the next consumer is pending.",
+            "topics": ["runner proof"],
+        }])
+        plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "production-contract")
         expected_patterns = initialize_pattern(plan_dir, root)
         _, manifest = base_planctl.load_plan(plan_dir)
         task = base_planctl.claim_task(plan_dir, manifest, "001", None)
+        (repo / "evidence.txt").write_text("initial diagnosis\n", encoding="utf-8")
+        base_planctl.record_attempt_hypothesis(
+            plan_dir, manifest, "001",
+            "Inspect the marker source before downstream use.", ["evidence.txt"],
+        )
         note = plan_dir / "designs" / "001.md"
         note.parent.mkdir(parents=True, exist_ok=True)
         note.write_text("Document the architecture decision for this worker.\n", encoding="utf-8")
@@ -2024,11 +2047,59 @@ def test_review_015_real_concise_runner_completion_and_assigned_context() -> Non
         proof_hash = task["current_receipt"].get("runner_proof_sha256")
         assert isinstance(proof_hash, str) and len(proof_hash) == 64
         assert task["validation_results"][0]["exit_code"] == 0
-        # Completed tasks without pending hypothesis promotion may clean up
-        # transient validation logs; their SHA-256 remains pinned in the receipt.
-        if proof.is_file():
-            assert proof_hash == base_planctl.file_sha256(proof)
+        # Open, unapplied hypothesis with an unstarted consumer retains the
+        # genuine proof file, so the integration test can check actual bytes.
+        assert proof.is_file()
+        assert proof_hash == base_planctl.file_sha256(proof)
 
+
+
+def test_review4_secret_like_task_slug_does_not_strand_runner() -> None:
+    assert base_planctl.RECEIPT_SECRET_PATTERN.search("tasks/001-mask-sensitive-logging-fields.md") is None
+    assert base_planctl.RECEIPT_SECRET_PATTERN.search("sk-ant-" + "A" * 40) is not None
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "normal-task-title")
+        spec = three_task_spec()
+        spec["tasks"][0]["title"] = "Mask sensitive logging fields"
+        plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "normal-title")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        task = base_planctl.claim_task(plan_dir, manifest, "001", None)
+        concise = install_runner_contract(SimpleNamespace(**vars(run_isolated)))
+        _receipt_path, receipt = concise.write_context_accounting_receipt(plan_dir, manifest, task)
+        assert receipt["task_id"] == "001"
+        assert task["status"] == "in_progress"
+        assert any("mask-sensitive-logging-fields" in row["path"] for row in receipt["selected_files"])
+        context_path = plan_dir / "CONTEXT.md"
+        context_path.unlink()
+        context_path.symlink_to(repo / "nonexistent.md")
+        expect_plan_error(
+            lambda: concise.write_context_accounting_receipt(plan_dir, manifest, task),
+            "symlink",
+        )
+        assert task["status"] == "blocked"
+
+
+def test_review4_completion_recovery_cleans_transient_proof() -> None:
+    install_plan_contract()
+    install_runner_contract(run_isolated)
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "recovery-retention")
+        plan_dir = base_planctl.create_plan(repo, three_task_spec(), ".ai-work", "recovery-retention")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        task = base_planctl.claim_task(plan_dir, manifest, "001", None)
+        (repo / "implemented.txt").write_text("marker\n", encoding="utf-8")
+        report = completion_report(learnings=[{
+            "kind": "procedure",
+            "guidance": "A claimed learning without a declared consumer must never be published.",
+            "references": ["implemented.txt"], "target_task_ids": ["002"],
+        }])
+        result_path = plan_dir / "results" / "001-recovery.json"
+        assert run_isolated.finish_task_validation(
+            plan_dir, manifest, {}, task, report, result_path, 1
+        )
+        assert task["status"] == "completed"
+        proof = plan_dir / "logs" / "001-attempt-1-validation.log.runner-evidence.json"
+        assert not proof.exists(), "Successful metadata recovery must clean task-scoped proof"
 
 def main() -> int:
     test_review_015_optional_acceptance_override_is_rejected()
@@ -2076,6 +2147,8 @@ def main() -> int:
     install_plan_contract()
     test_review_015_untrusted_manual_completion_cannot_publish_learning()
     test_review_015_real_concise_runner_completion_and_assigned_context()
+    test_review4_secret_like_task_slug_does_not_strand_runner()
+    test_review4_completion_recovery_cleans_transient_proof()
     print("All task 014 context-learning self-tests passed.")
     return 0
 
