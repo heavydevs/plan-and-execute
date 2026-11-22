@@ -54,8 +54,7 @@ def run(root: Path, task_id: str) -> int:
                 if actual[0] == "python":
                     actual[0] = sys.executable
                 if os.name == "nt":
-                    import shutil
-                    actual[0] = shutil.which(actual[0]) or actual[0]
+                        actual[0] = shutil.which(actual[0]) or actual[0]
                 completed = subprocess.run(actual, cwd=root, stdout=output, stderr=subprocess.STDOUT, check=False)
                 code = completed.returncode
             except OSError as exc:
