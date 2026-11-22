@@ -1,0 +1,39 @@
+# Task 015 — reprodução, correções e revalidação (2026-11-22)
+
+## Integridade da revisão e estado
+- Este documento é a **continuação** do primeiro parecer cego, publicado em `web-chat-first-opinion-2026-11-22-d72cd5d-gpt6.md` e commit `6e08a72b3cdb5bd8b8b5bbc1d5eb4d65430d8fea`. Somente **depois** daquele parecer examinei avaliações anteriores, `015-outcome.md` e a revisão Claude.
+- Baseline inspecionado: `d72cd5d62f2a60e35588ed80179ce88d522f7cea`. Snapshot real exportado pelo GitHub Actions `45073569958` do commit `75f2a73ad8dd628fc106e7bb432fbf109387cd6f` (somente request/docs alterados após baseline); ZIP artifact `14774266695`, arquivo tar com SHA-256 `a529f48f1fa3232b18671004c6138c53509a17adfa4e8eaee2a849006d266166`; importador verificou `head_sha`, digest e 1.092 entradas rastreadas. Snapshot **não** é um checkout `.git`; não afirmar testes locais que dependam do histórico.
+- Revisor deste parecer: GPT-6 deste chat, `model_tier` e `native_effort` internos **não disponibilizados**, `session_id` do modelo **indisponível**. Não equivaler a comprovante externo de reviewer max.
+- Revisão **externa real** preexistente, descoberta apenas após a primeira inspeção: GitHub Actions [45067610651](https://github.com/heavydevs/plan-and-execute/actions/runs/45067610651), SHA `d72cd5d...`, Claude Code `claude-opus-5-5`, esforço solicitado `xhigh`, `session_id=1c56b896-11eb-4a46-aeeb-630e029e392f`, saída estruturada `verdict=changes_requested`; artefato `14772675295`. O modelo apontou um achado HIGH e dois MEDIUM reproduzíveis, mais um LOW, sem aprovação. **Esta revisão não cobre patches posteriores.**
+
+## Reprodução real antes dos patches
+1. **F-015-WEB-01 (média/alta)** — `planctl.py:4645-4682,5249-5259`: `complete_task` aceitou referências `schemas/missing.proto` e `schemas/missing.graphql` ausentes, publicou `cited_file_digests={}` e `fresh=True`; fonte `.py` ausente foi rejeitada. Reprodução no checkout importado (exit 0 do script de reprodução; saídas registradas em sessão): `unknown-proto ACCEPTED ... {} fresh True`, `unknown-graphql ACCEPTED ... {} fresh True`, `known-py REJECTED ...`.
+2. **F-015-WEB-02 (média, confirmado também pelo Claude)** — `planctl.py:4995-5020,6374-6465,6975-6982`: `complete_task` com `validation_results=[{passed:true,exit_code:0}]` declarados pelo próprio chamador publicou `trust_class=validated_learning` sem `runner_proof_sha256`. Reproduzido: `manual-no-tests ACCEPTED ... runner_proof_sha256 None`.
+3. **F-015-WEB-03 (média)** — `planctl.py:5639-5660`: hipótese com `evidence_refs=['src/missing.py']` tinha `evidence_digests={}`, `check_hypothesis_freshness=[]` apesar da fonte ausente. Reprodução real.
+4. **F-015-CLAUDE-HIGH** — `docs/plans/20261028-skill-optimization/support/check_delivery.py:237-253,370-377`: o implementador podia omitir findings e substituir um `changes_requested` verdadeiro por `approved`. Teste adversarial inserido em `delivery_gate_self_test.py`: **falhou ANTES do patch** com `AssertionError: GateError not raised`.
+5. **F-015-CLAUDE-MEDIUM** — mesmo verificador: após alterar código, um recibo podia citar apenas hashes antigos de predecessores em `reviewed_inputs`. Teste `test_reviewed_code_change_cannot_use_old_dispatch`: **falhou ANTES** com `GateError not raised`. Os dois testes foram executados na bateria `58` casos antes do patch (2 falhas).
+
+## Patches efetivamente publicados
+- `1237f7624b033bbf67680906b63d1955f330c913`: reconhece extensões adicionais de arquivos, invalida referências simples a fontes de hipóteses, adiciona regressões.
+- `f828a322738bd35bdaa5b1cbc52c74a81955dafc`: a aprovação de entrega exige `verdict=approved` no dispatch independente, `blocking_findings=0`, findings verificáveis por SHA e dados consistentes de sessão/contagem; hashes finais de changed/preserved artifacts devem ser subconjunto de inputs revisados. Fixtures sintéticos do gate adaptados para fornecer evidências explícitas; **58/58 testes de `delivery_gate_self_test.py` PASS**, exit 0.
+- `95a3fa7a7c15df88488c79136c76de6748e1da08`: exige prova SHA-256 do runner, log, tarefa/tentativa, contrato e comandos observados antes de materializar qualquer reusable learning na conclusão. A CLI manual não recebe o argumento de prova. Teste negativo rejeita relatório autoafirmado e hash fictício; fixture positivo verifica o comando declarado e um sidecar schema 2. Os testes de proveniência anteriores usam mock **somente no processo de teste**, com escopo explícito, não habilitado no runtime.
+- `db60391541877b53cc740fdd4d9bbec71eb564a1`: remove allowlist fechada de extensões para fontes relativas de learnings; preserva IDs simples sem caminho/extensão como referências não-arquivo. Testes negativos cobrindo `.proto`, `.graphql`, `.tf`, `.vue`, `.prisma`, `.avsc` e `.customdsl` com arquivo ausente, arquivo existente com SHA e alteração posterior detectada. O mesmo comportamento cobre paths com separador e arquivos sem extensão.
+
+## Hashes do código corrigido (SHA-256 de bytes locais, conferidos via Git blob no push)
+| Path | SHA-256 |
+|---|---|
+| `skill/plan-and-execute/scripts/planctl.py` | `dd33e3df506b451dfcb44deae97198f4bd8346d6ecc9b5774aecf7b4b7e091e2` |
+| `test/optimization/context_learning_self_test.py` | `d89638a697d8eb58915c4bf17268798c55ed38a0b1d72645b50548def982a63e` |
+| `skill/plan-and-execute/scripts/task_memory_self_test.py` | `e945656f455909118f396a2007e9c25db8fd8c2de457d7236fa837087fbcb0ee` |
+| `skill/plan-and-execute/scripts/artifact_concision_self_test.py` | `3fcc05e7a9ea4b72076c33bc2c445b55f240501788040c972fdea3daad37253f` |
+| `skill/plan-and-execute/scripts/self_test.py` | `515ef666fa2bcc16d96a4a47942febeaa00b5a4e3a1298c02047681b80442f7e` |
+| `docs/plans/20261028-skill-optimization/support/check_delivery.py` | `f7858efa42d20e02eaed7f692a94da3ff96770aa7f718e35a55d622e0d87a9b1` |
+| `docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py` | `38939a2ee0188e3cd524b77c67022377f3c9c37a8330b6d2c645a9465675a88b` |
+
+## Comandos e resultados observados
+- Local: `python test/optimization/context_learning_self_test.py` **exit 0** após correções de proveniência e prova; `python skill/plan-and-execute/scripts/task_memory_self_test.py` **exit 0**; `python skill/plan-and-execute/scripts/artifact_concision_self_test.py` **exit 0**; `python docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py` **exit 0** (58 casos). Também executados anteriormente sem novas modificações nesses módulos: `context_self_test.py`, `progress_runner_self_test.py`, `pattern_runner_self_test.py`: exit 0. O `self_test.py` local ultrapassou o timeout da primeira execução; **não** atribuir sucesso local.
+- GitHub Actions [45073822588](https://github.com/heavydevs/plan-and-execute/actions/runs/45073822588), `head_sha=1237f762...` **antes** dos dois últimos patches: Python 3.10 e 3.13 com `7/7` checks direcionados exit 0, `P1_TESTS_015` exit 0 e `P1_015` exit 1 por `Missing evidence: .../015-receipt.json`. IDs de artefatos `14774686167` (3.10) e `14774352056` (3.13). Não atribuir esses testes ao SHA `db603915...`.
+- Próximo passo obrigatório: **CI novo do SHA corrigido**, nova revisão externa max-tier sobre todos os hashes atuais, eventuais correções, geração de recibos verdadeiros com sessão/modelo/effort observados e `P1_015` verde.
+
+## Decisão
+**Pendência formal preservada:** Task 015/S002–S006 e o gate final permanecem **NÃO aprovados** até nova revisão independente e recibo legítimo. Nenhum `015-receipt.json` foi criado artificialmente, nenhum resultado de execução foi inventado e não se iniciou a task 016. A correção transversal de `check_delivery.py`, embora fora do escopo original de edição da task, foi necessária para evitar autoconcessão de aprovação no próprio gate; auditoria e testes exclusivos estão documentados acima.
