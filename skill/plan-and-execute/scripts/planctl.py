@@ -4678,6 +4678,9 @@ def explicit_learning_source_file(reference: Any, *, require_plain_file: bool = 
         ".c", ".h", ".cpp", ".cs", ".rb", ".sh", ".sql",
         ".json", ".yaml", ".yml", ".toml", ".xml", ".md", ".txt",
         ".html", ".css", ".scss", ".gradle", ".properties",
+        ".proto", ".graphql", ".gql", ".tf", ".tfvars", ".hcl",
+        ".vue", ".svelte", ".kt", ".kts", ".prisma", ".ipynb",
+        ".dart", ".swift", ".ex", ".exs", ".dockerfile",
     }
     return candidate if Path(candidate).suffix.lower() in source_suffixes else None
 
@@ -5642,7 +5645,7 @@ def check_hypothesis_freshness(
     # File#symbol and file::symbol are explicit file claims.  A missing
     # fingerprint is stale even if extraction returned no existing files.
     for reference in hypothesis.get("evidence_refs") or []:
-        source = explicit_learning_source_file(reference)
+        source = explicit_learning_source_file(reference, require_plain_file=True)
         if source is not None and (
             not isinstance(evidence_digests, dict) or source not in evidence_digests
         ):

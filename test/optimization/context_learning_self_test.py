@@ -1723,7 +1723,69 @@ def test_review2_learning_requires_nonempty_actual_validation_results() -> None:
             assert not manifest.get("learning_artifacts")
 
 
+
+
+def test_review_015_extended_source_extensions_are_pinned() -> None:
+    """Code provenance cannot be bypassed by common non-Python source extensions."""
+    for suffix in ("proto", "graphql", "tf", "vue", "prisma"):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = make_repo(Path(temp), f"extended-{suffix}")
+            spec = three_task_spec(targets_001=[{
+                "task_id": "002",
+                "reason": "Consumer must validate the same source representation as the producer.",
+                "topics": ["source pinning"],
+            }])
+            plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", f"ext-{suffix}")
+            _, manifest = base_planctl.load_plan(plan_dir)
+            base_planctl.claim_task(plan_dir, manifest, "001", None)
+            reference = f"schemas/contract.{suffix}"
+            report = completion_report(learnings=[{
+                "kind": "code",
+                "guidance": "Revalidate the referenced contract bytes before reusing the result downstream.",
+                "references": [reference],
+                "target_task_ids": ["002"],
+            }])
+            expect_plan_error(
+                lambda: base_planctl.complete_task(plan_dir, manifest, "001", report, None),
+                "Learning source reference missing or unsafe",
+            )
+            cited = repo / reference
+            cited.parent.mkdir(parents=True)
+            cited.write_text("definition = 1\n", encoding="utf-8")
+            base_planctl.complete_task(plan_dir, manifest, "001", report, None)
+            artifact = manifest["learning_artifacts"][0]
+            assert artifact["cited_file_digests"][reference] == base_planctl.file_sha256(cited)
+            cited.write_text("definition = 2\n", encoding="utf-8")
+            assert f"cited_file_changed:{reference}" in base_planctl.check_learning_artifact_freshness(
+                artifact, manifest, plan_dir=plan_dir
+            )["stale_reasons"]
+
+
+def test_review_015_plain_hypothesis_reference_needs_digest() -> None:
+    """Failed-attempt context must not treat an absent plain source reference as fresh."""
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "hyp-plain-015")
+        plan_dir = base_planctl.create_plan(repo, three_task_spec(), ".ai-work", "hyp-plain-015")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        base_planctl.claim_task(plan_dir, manifest, "001", None)
+        hyp = base_planctl.record_attempt_hypothesis(
+            plan_dir, manifest, "001",
+            "The referenced implementation source must be checked before any retry.",
+            ["src/missing.py"],
+        )
+        task = base_planctl.find_task(manifest, "001")
+        assert "evidence_digest_missing:src/missing.py" in base_planctl.check_hypothesis_freshness(
+            hyp, task, repo_root=repo
+        )
+        invalidated = base_planctl.invalidate_stale_hypotheses(
+            plan_dir, manifest, "001", repo_root=repo
+        )
+        assert hyp["id"] in invalidated
+        assert hyp["status"] == "invalidated"
+
 def main() -> int:
+    test_review_015_extended_source_extensions_are_pinned()
+    test_review_015_plain_hypothesis_reference_needs_digest()
     test_review2_forged_promotion_marker_cannot_bypass_runner_proof()
     test_review3_postclaim_context_snapshot_names_actual_attempt()
     test_review2_untrusted_guidance_cannot_inject_markdown_authority()
