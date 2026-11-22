@@ -1,12 +1,12 @@
 {
   "schema": "pae-claude-delegation/1",
-  "attempt_id": "claude-015-third-independent-20261122-005",
+  "attempt_id": "claude-015-fourth-authenticated-20261122-006",
   "mode": "review",
   "task_id": "015",
-  "source_head": "924420f57bee9dfcb8cc9ec513373f177c713273",
+  "source_head": "49a313ac71571254f5b85bfd2ae08cfc7a638fc2",
   "escalation": {
     "reason": "cross_cutting_high_risk",
     "evidence_ref": "docs/plans/20261028-skill-optimization/support/check_delivery.py",
-    "summary": "Third independent maximum-tier review after all five follow-up findings, including a high-severity spoofed-promotion issue, were corrected with regressions. All nine verified checks passed in GitHub Actions and remediated source is committed; independently inspect final code and tests."
+    "summary": "Fourth independent code review after high-severity spoofed promotion and final medium runner-proof issues were corrected. All seven assigned checks plus two gate regressions passed in latest GitHub Actions; inspect source and tests on this exact commit and return any reproducible findings."
   }
 }
