@@ -40,6 +40,7 @@ REVIEWED_CHANGED = frozenset({
     "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
     "docs/plans/20261028-skill-optimization/support/research_readiness_self_test.py",
     "docs/plans/20261028-skill-optimization/support/review_dispatch_self_test.py",
+    "docs/plans/20261028-skill-optimization/support/run_task_checks_self_test.py",
     "package-lock.json",
     "package.json",
     "skill/plan-and-execute/scripts/artifact_concision_self_test.py",
