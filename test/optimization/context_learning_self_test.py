@@ -1844,7 +1844,34 @@ def test_review_015_untrusted_manual_completion_cannot_publish_learning() -> Non
         )
         assert manifest["learning_artifacts"][0]["trust_class"] == base_planctl.TRUST_CLASS_VALIDATED_LEARNING
 
+
+
+def test_review_015_unsafe_file_references_cannot_bypass_digest() -> None:
+    """A relative traversal/absolute reference is unsafe, not a free-form evidence ID."""
+    for ref in ("../outside.py", "src/../../secret.py", "/tmp/secret.py"):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = make_repo(Path(temp), "unsafe-ref")
+            spec = three_task_spec(targets_001=[{
+                "task_id": "002",
+                "reason": "A consumer must not trust sources outside the repository.",
+                "topics": ["path safety"],
+            }])
+            plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "unsafe")
+            _, manifest = base_planctl.load_plan(plan_dir)
+            base_planctl.claim_task(plan_dir, manifest, "001", None)
+            report = completion_report(learnings=[{
+                "kind": "code",
+                "guidance": "Revalidate an explicitly cited source before using its rules.",
+                "references": [ref], "target_task_ids": ["002"],
+            }])
+            expect_plan_error(
+                lambda: fixture_complete_task(plan_dir, manifest, "001", report, None),
+                "Learning source reference missing or unsafe",
+            )
+            assert not manifest["learning_artifacts"]
+
 def main() -> int:
+    test_review_015_unsafe_file_references_cannot_bypass_digest()
     test_review_015_extended_source_extensions_are_pinned()
     test_review_015_plain_hypothesis_reference_needs_digest()
     test_review2_forged_promotion_marker_cannot_bypass_runner_proof()

@@ -4662,8 +4662,13 @@ def explicit_learning_source_file(reference: Any, *, require_plain_file: bool = 
     # Canonicalise a single harmless leading ./ so evidence pins and source keys agree.
     if candidate.startswith("./"):
         candidate = candidate[2:]
-    if not candidate or candidate.startswith("/") or ".." in Path(candidate).parts:
+    if not candidate:
         return None
+    if candidate.startswith("/") or ".." in Path(candidate).parts:
+        # Unsafe file-looking paths must remain recognizable as file claims.
+        # The materializer rejects their missing digest, and freshness checks
+        # mark legacy artifacts stale; returning None would silently bypass both.
+        return candidate if (anchored or require_plain_file) else None
     if anchored:
         # Anchored code references can target suffixless files such as Makefile.
         return candidate if re.fullmatch(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", candidate) else None
