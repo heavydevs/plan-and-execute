@@ -509,8 +509,8 @@ def ensure_context_line(
     maximum: int,
 ) -> str:
     text = ensure_text(value, field)
-    if "\n" in text or "\r" in text:
-        raise PlanError(f"{field} must be one concise line")
+    if len(text.splitlines()) != 1 or any(ord(ch) < 32 or ord(ch) == 127 for ch in text):
+        raise PlanError(f"{field} must be one concise line without hidden separators")
     if len(text) < minimum:
         raise PlanError(f"{field} is too shallow; provide a specific, evidence-backed statement")
     if len(text) > maximum:
@@ -5083,7 +5083,9 @@ def normalize_reusable_learnings(
         # Materialized guidance is rendered into Markdown without an escaping
         # envelope. Never allow it to introduce trusted-looking headers, HTML,
         # code fences, or separate paragraphs inside a validated artifact.
-        if any(marker in guidance for marker in ("\n", "\r", "`", "<", ">")) or re.match(
+        if len(guidance.splitlines()) != 1 or any(
+            ord(ch) < 32 or ord(ch) == 127 for ch in guidance
+        ) or any(marker in guidance for marker in ("`", "<", ">")) or re.match(
             r"^\s*(?:#{1,6}\s+|[-*+]\s+|>\s+)", guidance
         ):
             raise PlanError(f"{field}.guidance must be plain single-line text without Markdown/HTML delimiters")
@@ -5925,7 +5927,11 @@ def promote_hypothesis_to_learning(
         ):
             raise PlanError("Promotion evidence was not executed in the runner validation log")
 
-    promoted_guidance = guidance if guidance is not None else str(target_hyp["hypothesis"])
+    # Runner validation of the original task does not validate new prose.
+    original_hypothesis = str(target_hyp["hypothesis"])
+    if guidance is not None and guidance != original_hypothesis:
+        raise PlanError("Hypothesis promotion cannot replace unvalidated guidance text")
+    promoted_guidance = original_hypothesis
     candidate_report = {
         "validation_results": deterministic_evidence,
         "reusable_learnings": [
