@@ -105,6 +105,14 @@ POLICY_OVERRIDE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         ),
     ),
     (
+        "optional_acceptance_override",
+        re.compile(
+            r"\b(?:acceptance(?:\s+criteria)?|validation(?:\s+commands?)?|required\s+checks?|delivery\s+gate)\s+"
+            r"(?:is|are|as|be)?\s*(?:optional|unnecessary|irrelevant|non.?binding|not\s+required)\b",
+            re.I,
+        ),
+    ),
+    (
         "unvalidated_completion_override",
         re.compile(
             r"\bmark\s+(?:the\s+)?task\s+(?:as\s+)?completed\s+without\s+(?:running\s+)?validation\b",
