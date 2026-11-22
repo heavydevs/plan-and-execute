@@ -2,7 +2,7 @@
   "schema": "chatgpt-snapshot-request/1",
   "enabled": true,
   "task_id": "015",
-  "request_id": "015-20261120-independent-gpt6-review-snapshot",
-  "requested_source_head": "c6b9a070e5b73f484b723a9332b7a47e90cd03f7",
-  "reason": "Independent ChatGPT Web task 015 inspection: export exact source tree to run deterministic tests; request ID is not a reviewer session ID or approval"
+  "request_id": "015-20261122-new-independent-review-test-snapshot",
+  "requested_source_head": "6e08a72b3cdb5bd8b8b5bbc1d5eb4d65430d8fea",
+  "reason": "Export actual GitHub Actions checkout for deterministic reproduction and seven required tests; not a reviewer session or approval"
 }
