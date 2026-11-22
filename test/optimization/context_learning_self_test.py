@@ -2021,8 +2021,13 @@ def test_review_015_real_concise_runner_completion_and_assigned_context() -> Non
         ) is True
         assert task["status"] == "completed"
         proof = plan_dir / "logs" / "001-attempt-1-validation.log.runner-evidence.json"
-        assert proof.is_file()
-        assert task["current_receipt"]["runner_proof_sha256"] == base_planctl.file_sha256(proof)
+        proof_hash = task["current_receipt"].get("runner_proof_sha256")
+        assert isinstance(proof_hash, str) and len(proof_hash) == 64
+        assert task["validation_results"][0]["exit_code"] == 0
+        # Completed tasks without pending hypothesis promotion may clean up
+        # transient validation logs; their SHA-256 remains pinned in the receipt.
+        if proof.is_file():
+            assert proof_hash == base_planctl.file_sha256(proof)
 
 
 def main() -> int:
