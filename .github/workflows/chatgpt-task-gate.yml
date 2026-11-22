@@ -53,6 +53,8 @@ jobs:
         run: python .ai-work/chatgpt-executor/tests/test_copilot_review.py
       - name: Declared targeted regressions
         run: python .ai-work/chatgpt-executor/taskctl.py run-checks --task 015 --mode targeted --timeout 900
+      - name: Execute exact original task acceptance commands with hashed per-check logs
+        run: python docs/plans/20261028-skill-optimization/support/run_task_checks.py --task 015
       - name: Reconcile reviewed resource-map input fingerprints
         run: python .ai-work/chatgpt-executor/mapctl.py
       - name: Original supervised validation gates
@@ -66,5 +68,7 @@ jobs:
             .ai-work/chatgpt-executor/runs/
             .ai-work/SERVICE_MAP.md
             .ai-work/SERVICE_MAP.index.json
+            docs/research/20261028-skill-optimization/implementation/015-checks.json
+            docs/research/20261028-skill-optimization/implementation/logs/015/
           if-no-files-found: warn
           retention-days: 14
