@@ -1,12 +1,12 @@
 {
   "schema": "pae-claude-delegation/1",
-  "attempt_id": "claude-015-independent-review-20261122-013",
+  "attempt_id": "claude-015-independent-review-20261122-014",
   "mode": "review",
   "task_id": "015",
-  "source_head": "606e6e3ea01ee917bb4bfa2362090bf98157d57a",
+  "source_head": "76208dc2b1c4c3575356e3235fe122a05752bab8",
   "escalation": {
     "reason": "cross_cutting_high_risk",
     "evidence_ref": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
-    "summary": "Independent max-tier verification of task 015 after review 012: probe commands are restricted to read-only grep/rg/test queries on cited evidence, reject trivial pass/acceptance equivalence and unsafe shell; tracked source, file permissions and ignored validation log/manifest evidence are pinned before and after optional probes; suspicious probes are invalidated rather than retried indefinitely. Check genuine runner proof, promotion, regressions, scope and remaining reproducible defects."
+    "summary": "Independent maximum-tier read-only review of task 015 code SHA 76208dc2. Verify remediation of prior high finding: optional learning probes now accept only a strict single status-only grep with a nontrivial pattern and cited file, reject all rg options such as --pre, shell commands, trivial success or acceptance replays. Verify complete ignored-plan evidence and file-mode hashing before and after probes, actual runner receipts, and reproducible regressions. Flag all outstanding high/medium issues with code lines."
   }
 }
