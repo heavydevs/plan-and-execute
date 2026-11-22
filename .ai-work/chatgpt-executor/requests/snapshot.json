@@ -2,7 +2,7 @@
   "schema": "chatgpt-snapshot-request/1",
   "enabled": true,
   "task_id": "015",
-  "request_id": "015-20261122-production-wrapper-proof-regression",
-  "requested_source_head": "81c39e56c76cf2675890245066c9ea25113dad45",
-  "reason": "Verify exact production concise wrapper forwards observed runner proof SHA and completes without TypeError; new full tests, no reviewer approval implied"
+  "request_id": "015-20261122-post-third-review-all-regressions",
+  "requested_source_head": "f612cd9fde65a0405c41ecc5912e98e7d65bce46",
+  "reason": "Fetch immutable snapshot of all task-015 third-review fixes; execute full declared checks and regression tests; no false gate acceptance"
 }
