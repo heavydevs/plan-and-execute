@@ -2167,6 +2167,7 @@ def finish_task_validation(
         declared_targets = {str(x.get("task_id")) for x in task.get("learning_targets", []) if isinstance(x, dict)}
         awaiting_promotion = any(
             isinstance(h, dict) and h.get("status") == "open"
+            and bool(h.get("verification_commands"))
             for h in task.get("attempt_hypotheses", [])
         ) and any(
             str(consumer.get("id")) in declared_targets
@@ -2238,6 +2239,38 @@ def finish_task_validation(
         print(f"[task {task['id']}] deterministic validation failed ({cls}); next route follows the evidence ladder", file=sys.stderr)
         return False
 
+    hypothesis_checks: list[dict[str, Any]] = []
+    if awaiting_promotion:
+        total_extra = 0
+        for hyp in task.get("attempt_hypotheses", []):
+            if not isinstance(hyp, dict) or hyp.get("status") != "open":
+                continue
+            commands = hyp.get("verification_commands")
+            if not isinstance(commands, list) or not commands:
+                continue
+            total_extra += len(commands)
+            if total_extra > 8:
+                raise RunnerError("Too many dedicated hypothesis checks for one task (maximum eight)")
+            hyp_id = str(hyp.get("id", ""))
+            if not re.fullmatch(r"H[0-9]{3,6}", hyp_id):
+                raise RunnerError("Invalid hypothesis identifier in runner verification")
+            hyp_log = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-hypothesis-{hyp_id}.log"
+            resource_watch.register_artifact(repo_root, hyp_log, scope=artifact_scope, owner=artifact_owner)
+            # Failing optional probes do not fail the implementation task.
+            _hyp_passed, hyp_results, _hyp_reason = run_validation_commands(
+                repo_root, commands, hyp_log,
+                validation_timeout_seconds(task, config),
+                hard_timeout_seconds=validation_hard_timeout_seconds(task, config),
+            )
+            hypothesis_checks.append({
+                "hypothesis_id": hyp_id,
+                "log_file": hyp_log.relative_to(plan_dir).as_posix(),
+                "log_sha256": planctl.file_sha256(hyp_log),
+                "checks": [{"command": item.get("command"), "passed": item.get("passed") is True,
+                            "exit_code": item.get("exit_code")}
+                           for item in hyp_results if isinstance(item, dict)],
+            })
+
     # A successful validation receives a task- and attempt-bound proof only
     # after the host runner has actually executed its commands.  The digest is
     # copied into the task receipt via a private Python call, never through the
@@ -2249,6 +2282,7 @@ def finish_task_validation(
         "contract_digest": planctl.compute_task_contract_digests(manifest.get("tasks", [])).get(task["id"]),
         "log_sha256": planctl.file_sha256(validation_log),
         "passed": True,
+        "hypothesis_checks": hypothesis_checks,
         "checks": [
             {"command": item.get("command"), "passed": item.get("passed") is True,
              "exit_code": item.get("exit_code")}

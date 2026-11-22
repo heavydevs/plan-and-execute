@@ -1216,7 +1216,9 @@
         "test/optimization/context_learning_self_test.py",
         "docs/research/20261028-skill-optimization/implementation/014-receipt.json",
         "docs/research/20261028-skill-optimization/implementation/014-outcome.md",
-        "docs/plans/20261028-skill-optimization/support/review_dispatch.py"
+        "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py"
       ],
       "prepared_reports": [
         "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md"
@@ -1229,7 +1231,9 @@
         "skill/plan-and-execute/scripts/runner_contract.py",
         "test/optimization/context_learning_self_test.py",
         "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
-        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md"
+        "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "skill/plan-and-execute/scripts/pattern_runner_contract.py"
       ],
       "required_checks": [
         [

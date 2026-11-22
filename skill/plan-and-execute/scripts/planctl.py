@@ -5619,8 +5619,6 @@ def normalize_attempt_hypothesis(
         raise PlanError(f"{field}.verification_commands must contain at most eight nonempty bounded commands")
     if len(set(verification_commands)) != len(verification_commands):
         raise PlanError(f"{field}.verification_commands must not contain duplicates")
-    if any(command not in task.get("validation_commands", []) for command in verification_commands):
-        raise PlanError(f"{field}.verification_commands must be declared task validation commands")
     now = now_utc()
     return {
         "id": hyp_id,
@@ -5754,6 +5752,8 @@ def record_attempt_hypothesis(
     task = find_task(manifest, task_id)
     repo_root_value = manifest.get("repo_root")
     repo_root = Path(repo_root_value) if isinstance(repo_root_value, str) and repo_root_value else None
+    if verification_commands and any(command in task.get("validation_commands", []) for command in verification_commands):
+        raise PlanError("Hypothesis verification requires dedicated checks, not producer acceptance commands")
     existing = task.setdefault("attempt_hypotheses", [])
     used_nums = [
         int(m.group(1))
@@ -5893,23 +5893,8 @@ def promote_hypothesis_to_learning(
     receipt_checks = receipt.get("validations")
     if not isinstance(receipt_checks, list) or not receipt_checks:
         raise PlanError("Cannot promote hypothesis without validation checks recorded in receipt")
-    for check in deterministic_evidence:
-        if not isinstance(check, dict) or not any(
-            isinstance(saved, dict)
-            and saved.get("command") == check.get("command")
-            and saved.get("passed") is True
-            and saved.get("exit_code") == 0
-            for saved in authoritative
-        ):
-            raise PlanError("Promotion evidence was not observed by the completed task runner")
-        if not any(
-            isinstance(saved, dict)
-            and saved.get("command") == check.get("command")
-            and saved.get("passed") is True
-            and saved.get("exit_code") == 0
-            for saved in receipt_checks
-        ):
-            raise PlanError("Promotion evidence is absent from the authoritative task receipt")
+    if any(command in task.get("validation_commands", []) for command in verification_commands):
+        raise PlanError("Hypothesis verification cannot reuse producer acceptance commands")
     has_passing_check = False
     for check in deterministic_evidence:
         if not isinstance(check, dict):
@@ -5947,14 +5932,25 @@ def promote_hypothesis_to_learning(
         or receipt.get("runner_proof_sha256") != file_sha256(proof_path)
         or not isinstance(proof.get("checks"), list)):
         raise PlanError("Cannot promote with forged, stale or mismatched runner validation proof")
-    for check in deterministic_evidence:
-        if not any(
-            item.get("command") == check.get("command")
-            and item.get("passed") is True
-            and item.get("exit_code") == 0
-            for item in proof["checks"] if isinstance(item, dict)
-        ):
-            raise PlanError("Promotion evidence was not executed in the runner validation log")
+    # An independent probe for this exact hypothesis has its own log digest.
+    observed = next((item for item in proof.get("hypothesis_checks", [])
+                     if isinstance(item, dict) and item.get("hypothesis_id") == normalized_id), None)
+    if not isinstance(observed, dict) or not isinstance(observed.get("checks"), list):
+        raise PlanError("Hypothesis-specific runner verification was never executed")
+    hyp_log_rel = checked_relative_path(str(observed.get("log_file", "")), "hypothesis validation log")
+    reject_symlink_components(plan_dir, Path(hyp_log_rel), "hypothesis validation log")
+    hyp_log = plan_dir / hyp_log_rel
+    if not hyp_log.is_file() or observed.get("log_sha256") != file_sha256(hyp_log):
+        raise PlanError("Hypothesis-specific runner log missing or changed")
+    expected_checks = {(item.get("command"), item.get("passed"), item.get("exit_code"))
+                       for item in deterministic_evidence if isinstance(item, dict)}
+    actual_checks = {(item.get("command"), item.get("passed"), item.get("exit_code"))
+                     for item in observed["checks"] if isinstance(item, dict)}
+    if (len(expected_checks) != len(verification_commands)
+            or len(actual_checks) != len(verification_commands)
+            or expected_checks != actual_checks
+            or any(item[1] is not True or item[2] != 0 for item in expected_checks)):
+        raise PlanError("Hypothesis-specific runner verification is missing, failed or mismatched")
 
     # Runner validation of the original task does not validate new prose.
     original_hypothesis = str(target_hyp["hypothesis"])
@@ -6203,9 +6199,21 @@ def build_context_accounting_receipt(
             "note": "Prompt prefix stability is structural; actual cache reuse must be observed per host/model.",
         },
     }
-    if RECEIPT_SECRET_PATTERN.search(json.dumps(receipt, ensure_ascii=True)):
-        raise PlanError("Context accounting receipt rejected due to possible unredacted secret")
-    return receipt
+    # Receipt fields are paths and identifiers, not raw file or prompt content.
+    # Token-like slugs should be redacted, never block a valid claimed task.
+    def redacted(value: Any) -> Any:
+        if isinstance(value, str):
+            return RECEIPT_SECRET_PATTERN.sub("[REDACTED]", value)
+        if isinstance(value, list):
+            return [redacted(item) for item in value]
+        if isinstance(value, dict):
+            return {key: redacted(item) for key, item in value.items()}
+        return value
+
+    safe_receipt = redacted(receipt)
+    if safe_receipt != receipt:
+        safe_receipt["metadata_redacted"] = True
+    return safe_receipt
 
 
 def measure_plan_context_metrics(
@@ -7162,7 +7170,10 @@ def command_context_receipt(args: argparse.Namespace) -> None:
 
 def command_hypothesis_record(args: argparse.Namespace) -> None:
     plan_dir, manifest = load_plan(args.plan)
-    entry = record_attempt_hypothesis(plan_dir, manifest, args.task, args.text, args.reference)
+    entry = record_attempt_hypothesis(
+        plan_dir, manifest, args.task, args.text, args.reference,
+        verification_commands=args.verification_command,
+    )
     print(json.dumps(entry, ensure_ascii=False, indent=2))
 
 
@@ -7362,6 +7373,10 @@ def build_parser() -> argparse.ArgumentParser:
     hyp_record.add_argument("--task", required=True)
     hyp_record.add_argument("--text", required=True)
     hyp_record.add_argument("--reference", action="append", required=True)
+    hyp_record.add_argument(
+        "--verification-command", action="append", default=[],
+        help="Dedicated, bounded runner check for this hypothesis; not a task acceptance check",
+    )
     hyp_record.set_defaults(func=command_hypothesis_record)
 
     hyp_disprove = sub.add_parser("hypothesis-disprove", help="Mark failed-attempt hypothesis disproven")

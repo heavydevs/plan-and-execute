@@ -792,9 +792,9 @@ def test_ac06_disproven_and_stale_hypotheses_never_become_validated_facts() -> N
             plan_dir,
             manifest,
             "001",
-            "Create implemented.txt before downstream checking can run.",
+            "Write implemented.txt with the expected complete marker line.",
             ["evidence.txt"],
-            verification_commands=["test -f implemented.txt"],
+            verification_commands=["grep -qx implemented implemented.txt"],
         )
         expect_plan_error(
             lambda: base_planctl.promote_hypothesis_to_learning(
@@ -808,7 +808,7 @@ def test_ac06_disproven_and_stale_hypotheses_never_become_validated_facts() -> N
             ),
             "passing deterministic validation evidence",
         )
-        passing_evidence = [{"command": "test -f implemented.txt", "passed": True, "exit_code": 0}]
+        passing_evidence = [{"command": "grep -qx implemented implemented.txt", "passed": True, "exit_code": 0}]
         untested = base_planctl.record_attempt_hypothesis(
             plan_dir, manifest, "001",
             "The unrelated downstream decoder silently accepts malformed payloads.",
@@ -1648,12 +1648,13 @@ def test_review_015_forged_completion_does_not_validate_hypothesis_promotion() -
         base_planctl.claim_task(plan_dir,manifest,"001",None)
         hyp=base_planctl.record_attempt_hypothesis(plan_dir,manifest,"001",
             "Create the implemented marker before subsequent verification.",["implemented.txt"],
-            verification_commands=["test -f implemented.txt"])
+            verification_commands=["grep -qx implemented implemented.txt"])
         checks=[{"command":"test -f implemented.txt","passed":True,"exit_code":0}]
+        probe_checks=[{"command":"grep -qx implemented implemented.txt","passed":True,"exit_code":0}]
         fixture_complete_task(plan_dir,manifest,"001",completion_report(validation_results=checks),None)
         expect_plan_error(lambda:base_planctl.promote_hypothesis_to_learning(
             plan_dir,manifest,"001",hyp["id"],kind="procedure",target_task_ids=["002"],
-            deterministic_evidence=checks),"genuine runner validation log")
+            deterministic_evidence=probe_checks),"genuine runner validation log")
         # Even a hand-written log and matching checksum cannot simulate a
         # trusted runner: the completed receipt lacks a host-bound proof hash.
         fake_log=plan_dir/"logs/001-attempt-1-validation.log"
@@ -1668,7 +1669,7 @@ def test_review_015_forged_completion_does_not_validate_hypothesis_promotion() -
         })
         expect_plan_error(lambda:base_planctl.promote_hypothesis_to_learning(
             plan_dir,manifest,"001",hyp["id"],kind="procedure",target_task_ids=["002"],
-            deterministic_evidence=checks),"forged, stale or mismatched runner validation proof")
+            deterministic_evidence=probe_checks),"forged, stale or mismatched runner validation proof")
         assert manifest["learning_artifacts"] == []
         assert hyp["status"] == "open"
 
@@ -2015,6 +2016,7 @@ def test_review_015_real_concise_runner_completion_and_assigned_context() -> Non
         base_planctl.record_attempt_hypothesis(
             plan_dir, manifest, "001",
             "Inspect the marker source before downstream use.", ["evidence.txt"],
+            verification_commands=["grep -qx implemented implemented.txt"],
         )
         note = plan_dir / "designs" / "001.md"
         note.parent.mkdir(parents=True, exist_ok=True)
@@ -2047,6 +2049,9 @@ def test_review_015_real_concise_runner_completion_and_assigned_context() -> Non
         proof_hash = task["current_receipt"].get("runner_proof_sha256")
         assert isinstance(proof_hash, str) and len(proof_hash) == 64
         assert task["validation_results"][0]["exit_code"] == 0
+        runner_proof = base_planctl.read_json(proof)
+        assert runner_proof["hypothesis_checks"][0]["hypothesis_id"] == "H001"
+        assert runner_proof["hypothesis_checks"][0]["checks"][0]["passed"] is True
         # Open, unapplied hypothesis with an unstarted consumer retains the
         # genuine proof file, so the integration test can check actual bytes.
         assert proof.is_file()
@@ -2101,6 +2106,73 @@ def test_review4_completion_recovery_cleans_transient_proof() -> None:
         proof = plan_dir / "logs" / "001-attempt-1-validation.log.runner-evidence.json"
         assert not proof.exists(), "Successful metadata recovery must clean task-scoped proof"
 
+
+def test_review5_cli_dedicated_hypothesis_proof_and_slug_redaction() -> None:
+    install_runner_contract(run_isolated)
+    with tempfile.TemporaryDirectory() as temp:
+        repo = make_repo(Path(temp), "hypothesis-cli-proof")
+        spec = three_task_spec(targets_001=[{
+            "task_id": "002", "reason": "Validated marker contract may be shared.",
+            "topics": ["verified marker"],
+        }])
+        plan_dir = base_planctl.create_plan(repo, spec, ".ai-work", "hyp-cli")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        task = base_planctl.claim_task(plan_dir, manifest, "001", None)
+        (repo / "evidence.txt").write_text("Previous marker was missing\n", encoding="utf-8")
+        check = "grep -qx implemented implemented.txt"
+        cli = SCRIPTS_DIR / "planctl.py"
+        args = [sys.executable, str(cli), "hypothesis-record", "--plan", str(plan_dir),
+                "--task", "001", "--text", "Write the implemented marker as a complete line.",
+                "--reference", "evidence.txt", "--verification-command", check]
+        recorded = subprocess.run(args, text=True, capture_output=True, check=True)
+        assert json.loads(recorded.stdout)["verification_commands"] == [check]
+        _, manifest = base_planctl.load_plan(plan_dir)
+        task = base_planctl.find_task(manifest, "001")
+        (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
+        result_path = plan_dir / "results" / "001-cli-proof.json"
+        assert run_isolated.finish_task_validation(
+            plan_dir, manifest, {}, task, completion_report(), result_path, 1
+        )
+        proof_path = plan_dir / "logs" / "001-attempt-1-validation.log.runner-evidence.json"
+        proof = base_planctl.read_json(proof_path)
+        assert proof["hypothesis_checks"][0]["hypothesis_id"] == "H001"
+        assert proof["hypothesis_checks"][0]["checks"] == [
+            {"command": check, "passed": True, "exit_code": 0}
+        ]
+        probe_log = plan_dir / proof["hypothesis_checks"][0]["log_file"]
+        assert probe_log.is_file()
+        original_log = probe_log.read_bytes()
+        probe_log.write_bytes(original_log + b"untrusted tamper\n")
+        expect_plan_error(
+            lambda: base_planctl.promote_hypothesis_to_learning(
+                plan_dir, manifest, "001", "H001", kind="procedure",
+                target_task_ids=["002"], deterministic_evidence=[{
+                    "command": check, "passed": True, "exit_code": 0,
+                }],
+            ), "log missing or changed",
+        )
+        probe_log.write_bytes(original_log)
+        evidence = json.dumps([{"command": check, "passed": True, "exit_code": 0}])
+        promoted = subprocess.run([sys.executable, str(cli), "hypothesis-promote", "--plan",
+                                 str(plan_dir), "--task", "001", "--hypothesis-id", "H001",
+                                 "--kind", "procedure", "--target", "002", "--evidence", evidence],
+                                text=True, capture_output=True)
+        assert promoted.returncode == 0, promoted.stderr
+        _, loaded = base_planctl.load_plan(plan_dir)
+        assert loaded["learning_artifacts"][0]["trust_class"] == base_planctl.TRUST_CLASS_VALIDATED_LEARNING
+
+        # A normal slug resembling a credential must not strand the runner or break metrics.
+        spec2 = three_task_spec()
+        spec2["tasks"][0]["title"] = "SK test fixtures for login flow regression"
+        plan2 = base_planctl.create_plan(repo, spec2, ".ai-work", "slug-safety")
+        _, m2 = base_planctl.load_plan(plan2)
+        t2 = base_planctl.claim_task(plan2, m2, "001", None)
+        _, rcpt = run_isolated.write_context_accounting_receipt(plan2, m2, t2)
+        assert t2["status"] == "in_progress"
+        assert rcpt.get("metadata_redacted") is True
+        assert base_planctl.RECEIPT_SECRET_PATTERN.search(json.dumps(rcpt)) is None
+        assert base_planctl.measure_plan_context_metrics(plan2, m2)["per_task_bytes"]["001"] > 0
+
 def main() -> int:
     test_review_015_optional_acceptance_override_is_rejected()
     test_review_015_hidden_unicode_line_breaks_cannot_escape_context()
@@ -2149,6 +2221,7 @@ def main() -> int:
     test_review_015_real_concise_runner_completion_and_assigned_context()
     test_review4_secret_like_task_slug_does_not_strand_runner()
     test_review4_completion_recovery_cleans_transient_proof()
+    test_review5_cli_dedicated_hypothesis_proof_and_slug_redaction()
     print("All task 014 context-learning self-tests passed.")
     return 0
 

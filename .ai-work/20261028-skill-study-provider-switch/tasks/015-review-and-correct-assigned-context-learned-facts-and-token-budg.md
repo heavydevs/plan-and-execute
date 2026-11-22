@@ -31,7 +31,7 @@ Objective: Review the actual implementation against the assigned prepared decisi
 
 In: Review and correct assigned context, learned facts and token budgets
 Out: No new broad research phase or second-plan generation.; Do not change installed copies, user-global settings or publish without permission.
-Files: `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/artifact_contract.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `test/optimization/context_learning_self_test.py`, `skill/plan-and-execute/references/EXECUTION_CONTEXT.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `docs/research/20261028-skill-optimization/implementation/015-receipt.json`, `docs/research/20261028-skill-optimization/implementation/015-outcome.md`
+Files: `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/artifact_contract.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/pattern_runner_contract.py`, `test/optimization/context_learning_self_test.py`, `skill/plan-and-execute/references/EXECUTION_CONTEXT.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `docs/research/20261028-skill-optimization/implementation/015-receipt.json`, `docs/research/20261028-skill-optimization/implementation/015-outcome.md`
 
 ## Guidance
 
@@ -41,7 +41,7 @@ Files: `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scri
 - Write actual changed-file, test and acceptance evidence to docs/research/20261028-skill-optimization/implementation/015-receipt.json.
 - Review only via review_dispatch.py (synchronous; max route; writes dispatch evidence); fix blocking findings, rerun declared checks, re-dispatch if a reviewed file changed, copy its RECEIPT_REVIEWER fields into the receipt.
 - Review the revision-2 alternatives, scope boundary and negative tests against the actual changed code; report unsupported cost/quality claims.
-- Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
+- Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review. The 015 scope explicitly includes `run_isolated.py` (host evidence, hypothesis probes and log retention) and `pattern_runner_contract.py` (assigned pattern accounting), and both are pinned as independent reviewer inputs; this corrects a discovered scope omission rather than concealing previous changes.
 - Never launch background or asynchronous agents or processes: this headless session ends when you stop calling tools, so anything unfinished is lost.
 
 ## Acceptance
