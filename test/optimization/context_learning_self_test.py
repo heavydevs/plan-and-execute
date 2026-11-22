@@ -2187,6 +2187,9 @@ def test_review6_bounded_safe_independent_hypothesis_probes() -> None:
         assert base_planctl.is_reused_acceptance_probe(
             variant, ["test -f implemented.txt"]
         ), variant
+    assert base_planctl.is_reused_acceptance_probe(
+        "grep -xq implemented implemented.txt", ["grep -qx implemented implemented.txt"]
+    )
     with tempfile.TemporaryDirectory() as temp:
         repo = make_repo(Path(temp), "probe-negative")
         spec = three_task_spec(targets_001=[{
@@ -2201,6 +2204,9 @@ def test_review6_bounded_safe_independent_hypothesis_probes() -> None:
         for unsafe in ("true", "exit 0", "printf broken > implemented.txt",
                        "touch evidence.txt", "chmod -x implemented.txt",
                        "sh -c 'echo broken > implemented.txt'",
+                       "rg -q --pre=sh pattern evidence.txt",
+                       "test -e evidence.txt", "grep -q '' evidence.txt",
+                       "grep -qx implemented evidence.txt# implemented.txt",
                        "test -f ./implemented.txt"):
             expect_plan_error(
                 lambda unsafe=unsafe: base_planctl.record_attempt_hypothesis(
@@ -2210,7 +2216,7 @@ def test_review6_bounded_safe_independent_hypothesis_probes() -> None:
                 ), "independent checks" if unsafe.startswith("test -f") else "safe read-only",
             )
         assert not task.get("attempt_hypotheses")
-        cmd = "grep -q nonexistent-pattern evidence.txt"
+        cmd = "grep -qx nonexistent-pattern evidence.txt"
         base_planctl.record_attempt_hypothesis(
             plan_dir, manifest, "001",
             "Claim must be rejected if the evidence does not contain the pattern.",
@@ -2245,8 +2251,8 @@ def test_review6_hypothesis_command_cap_fails_before_runner() -> None:
         _, manifest = base_planctl.load_plan(plan_dir)
         task = base_planctl.claim_task(plan_dir, manifest, "001", None)
         (repo / "evidence.txt").write_text("existing evidence\n", encoding="utf-8")
-        first = [f"grep -q check{i} evidence.txt" for i in range(5)]
-        second = [f"grep -q check{i} evidence.txt" for i in range(5, 9)]
+        first = [f"grep -qx check{i} evidence.txt" for i in range(5)]
+        second = [f"grep -qx check{i} evidence.txt" for i in range(5, 9)]
         base_planctl.record_attempt_hypothesis(
             plan_dir, manifest, "001",
             "The expected marker may require a dedicated format check.",

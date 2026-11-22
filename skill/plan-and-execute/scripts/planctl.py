@@ -5737,9 +5737,9 @@ def invalidate_stale_hypotheses(
 
 
 def canonical_probe_tokens(command: str) -> list[str]:
-    """Simple shell-free token model for evidence checks and acceptance checks."""
+    """Canonicalize simple checks for detection of repeated acceptance probes."""
     try:
-        tokens = shlex.split(command, comments=True)
+        tokens = shlex.split(command, comments=False)
     except ValueError:
         return []
     if not tokens:
@@ -5748,11 +5748,21 @@ def canonical_probe_tokens(command: str) -> list[str]:
         tokens = ["test", *tokens[1:-1]]
     if tokens[0] in {"python3", "python.exe"}:
         tokens[0] = "python"
+    if tokens[0] == "grep" and len(tokens) >= 4:
+        flags, rest = [], []
+        for token in tokens[1:]:
+            if token.startswith("-") and len(token) > 1 and all(c in "qFxiw" for c in token[1:]):
+                flags.extend(token[1:])
+            else:
+                rest.append(token)
+        if flags:
+            return ["grep", "-" + "".join(sorted(set(flags))),
+                    *[token.removeprefix("./") for token in rest]]
     return [token.removeprefix("./") for token in tokens]
 
 
 def is_reused_acceptance_probe(command: str, validation_commands: list[str]) -> bool:
-    """Reject equivalent simple checks and shell composition around acceptance."""
+    """Reject syntactically equivalent or embedded acceptance checks."""
     probe = canonical_probe_tokens(command)
     if not probe:
         return False
@@ -5767,26 +5777,27 @@ def is_reused_acceptance_probe(command: str, validation_commands: list[str]) -> 
 
 
 def check_safe_hypothesis_probe(command: str, evidence_refs: list[str]) -> None:
-    """Allow only read-only source-specific probes as hypothesis evidence.
+    """Allow one status-only grep on a cited file with a nontrivial literal.
 
-    This deliberately excludes arbitrary shell scripts. General-purpose
-    checks belong in producer acceptance, not optional learning promotion.
+    No shell metacharacters, executable options, argument files or shell
+    aliases are accepted. This intentionally narrows optional learning
+    probes; producer acceptance still supports the full validation runner.
     """
-    if any(char in command for char in ";&|><$" + chr(96) + "\n\r"):
-        raise PlanError("Hypothesis probe must be a safe read-only query, not a shell program")
-    tokens = canonical_probe_tokens(command)
-    if not tokens or tokens[0] not in {"grep", "rg", "test"}:
-        raise PlanError("Hypothesis probe must be a safe read-only grep/rg/test query")
-    if tokens[0] in {"grep", "rg"} and not any(
-        token.startswith("-") and "q" in token for token in tokens[1:]
-    ):
-        raise PlanError("Hypothesis grep/rg probe must be quiet and status-based")
-    if tokens[0] == "test" and not (
-        len(tokens) == 3 and tokens[1] in {"-e", "-f", "-s", "-r", "-L"}
-    ):
-        raise PlanError("Hypothesis test probe must check a cited file without executing code")
+    if any(char in command for char in ";&|><$" + chr(96) + "\n\r#'\"\\*?[]{}()"):
+        raise PlanError("Hypothesis probe must be a safe read-only query")
+    tokens = command.strip().split()
+    if len(tokens) != 4 or tokens[0] != "grep":
+        raise PlanError("Hypothesis probe must be a safe read-only grep query")
+    flags, pattern, source_path = tokens[1:]
+    if (not re.fullmatch(r"-[qFxiw]{1,5}", flags)
+            or len(set(flags[1:])) != len(flags[1:])
+            or "q" not in flags or not any(c in flags for c in "xFw")
+            or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{2,}", pattern)
+            or pattern.lower() in {"true", "false", "any", "all", "none"}
+            or not re.fullmatch(r"[A-Za-z0-9_./-]+", source_path)):
+        raise PlanError("Hypothesis grep must use bounded read-only flags and a nontrivial pattern")
     refs = {ref.split("#", 1)[0].removeprefix("./") for ref in evidence_refs}
-    if not any(token in refs for token in tokens[1:]):
+    if source_path.removeprefix("./") not in refs:
         raise PlanError("Hypothesis probe must query a source cited by that hypothesis")
 
 

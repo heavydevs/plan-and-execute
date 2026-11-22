@@ -2275,11 +2275,27 @@ def finish_task_validation(
     if awaiting_promotion:
         # Git ignores plan control files. Protect logs, evidence and manifest
         # separately from the worktree fingerprint, before optional probes.
-        protected = [validation_log, proof_path, evidence_path, plan_dir / "manifest.json",
-                     plan_dir / "CONTEXT.md", result_path]
-        def protected_hashes() -> tuple[tuple[str, str | None], ...]:
-            return tuple((str(path), planctl.file_sha256(path) if path.is_file() else None)
-                         for path in protected)
+        def protected_hashes() -> tuple[tuple[str, str, int], ...]:
+            """Pin all ignored plan-control files, excluding new probe logs."""
+            recorded: list[tuple[str, str, int]] = []
+            for path in sorted(plan_dir.rglob("*")):
+                relative = path.relative_to(plan_dir).as_posix()
+                if re.fullmatch(
+                    rf"logs/{re.escape(str(task['id']))}-attempt-{attempt_number}-hypothesis-H[0-9]{{3,6}}\.log",
+                    relative,
+                ):
+                    continue
+                mode = path.lstat().st_mode & 0o777
+                if path.is_symlink():
+                    value = "link:" + os.readlink(path)
+                elif path.is_file():
+                    value = planctl.file_sha256(path)
+                elif path.is_dir():
+                    value = "dir"
+                else:
+                    value = "other"
+                recorded.append((relative, value, mode))
+            return tuple(recorded)
         protected_before = protected_hashes()
         workspace_before = validated_workspace_fingerprint(repo_root)
         total_extra = 0
