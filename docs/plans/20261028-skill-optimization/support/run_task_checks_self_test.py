@@ -3,6 +3,7 @@
 from __future__ import annotations
 import importlib.util
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
@@ -24,7 +25,10 @@ def test_repeated_identical_result_is_idempotent():
         test.write_text("print('real successful check')\n", encoding="utf-8")
         entry = {"required_checks": [["python", "check.py"]]}
         with patch.object(checks.gate, "catalog", return_value={"015": entry}), \
-             patch.object(checks.gate, "code_fingerprint", return_value="unchanged-code"):
+             patch.object(checks.gate, "code_fingerprint", return_value="unchanged-code"), \
+             patch.object(checks.dt, "datetime") as mocked_datetime:
+            # The clock is frozen: both calls share the same second and PID.
+            mocked_datetime.now.return_value = datetime(2026, 11, 22, 20, 0, tzinfo=timezone.utc)
             assert checks.run(repo, "015") == 0
             result = repo / checks.gate.OUTPUT / "015-checks.json"
             first_bytes = result.read_bytes()

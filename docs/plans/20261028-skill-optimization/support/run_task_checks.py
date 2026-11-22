@@ -16,6 +16,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import uuid
 import check_delivery as gate
 
 
@@ -40,7 +41,7 @@ def run(root: Path, task_id: str) -> int:
     gate.require(task_id in entries, "Unknown task")
     entry = entries[task_id]
     before = gate.code_fingerprint(root, entry)
-    run_id = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%S") + f"-{os.getpid()}"
+    run_id = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%S") + f"-{os.getpid()}-{uuid.uuid4().hex[:10]}"
     logs = gate.OUTPUT / "logs" / task_id / run_id
     gate.local(root, logs.as_posix()).mkdir(parents=True, exist_ok=False)
     results = []
@@ -54,7 +55,7 @@ def run(root: Path, task_id: str) -> int:
                 if actual[0] == "python":
                     actual[0] = sys.executable
                 if os.name == "nt":
-                        actual[0] = shutil.which(actual[0]) or actual[0]
+                    actual[0] = shutil.which(actual[0]) or actual[0]
                 completed = subprocess.run(actual, cwd=root, stdout=output, stderr=subprocess.STDOUT, check=False)
                 code = completed.returncode
             except OSError as exc:
