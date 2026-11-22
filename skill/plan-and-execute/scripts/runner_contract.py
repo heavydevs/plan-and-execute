@@ -163,7 +163,7 @@ Service map helper: {script_dir / 'service_map.py'}
         planctl.atomic_write_json(path, receipt)
         # Preserve the preparation snapshot across later retries while keeping
         # the existing latest-receipt path stable for tooling and unit tests.
-        next_attempt = max(1, int(task.get("attempts", 0)) + 1)
+        next_attempt = max(1, int(task.get("attempts", 0)) + (0 if task.get("status") == "in_progress" else 1))
         snapshot = plan_dir / "results" / f"{task['id']}-attempt-{next_attempt}-context-receipt.json"
         planctl.atomic_write_json(snapshot, receipt)
         return path, receipt
@@ -178,9 +178,11 @@ Service map helper: {script_dir / 'service_map.py'}
                 item["output_tail"] = tail[-800:] if len(tail) > 800 else tail
         if reason and len(reason) > 1500:
             reason = planctl.bounded_failure_reason(reason, 1500)
-        # Runner-owned sidecar, bound to actual validation log bytes. Workers'
-        # self-reported validations never create this file, and planctl's
-        # public `complete --report` command does not run this function.
+        # Preliminary checksum for the validation log. The production
+        # finish_task_validation hook later replaces it with task/attempt/
+        # contract binding and pins its SHA-256 in the completion receipt.
+        # This is not cryptographic authentication against same-UID file
+        # writers; strong adversarial isolation needs OS permissions/sandbox.
         log = Path(args[2]) if len(args) >= 3 else Path(kwargs["log_path"])
         if log.is_file() and not log.is_symlink():
             proof = {

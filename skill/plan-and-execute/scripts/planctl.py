@@ -112,6 +112,15 @@ POLICY_OVERRIDE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         ),
     ),
     (
+        "premature_acceptance_override",
+        re.compile(
+            r"\b(?:acceptance(?:\s+criteria)?|validation|required\s+checks?|delivery\s+gate)\s+"
+            r"(?:is|are|has|have)\s+(?:already\s+)?(?:satisfied|passed|complete|done)\b"
+            r".{0,100}\b(?:report\s+completion|mark\s+(?:the\s+)?task|finish\s+now|complete\s+directly)\b",
+            re.I,
+        ),
+    ),
+    (
         "permission_or_sandbox_override",
         re.compile(
             r"(?:--dangerously-skip-permissions|"
@@ -4956,6 +4965,33 @@ def comparable_hypothesis_text(value: Any) -> str:
     return " ".join(re.findall(r"\w+", str(value).casefold()))
 
 
+HYPOTHESIS_SIMILARITY_STOPWORDS = frozenset({
+    "a", "an", "and", "are", "as", "at", "be", "been", "before", "by", "did", "do",
+    "does", "for", "from", "had", "has", "have", "in", "into", "is", "it", "its",
+    "not", "of", "on", "or", "should", "that", "the", "their", "then", "this", "to",
+    "was", "were", "what", "when", "which", "while", "with", "without", "would",
+})
+
+
+def repeats_disproven_hypothesis(disproven_text: str, guidance_text: str) -> bool:
+    """Conservative deterministic overlap guard, not semantic entailment or fact checking.
+
+    Matching lengthy content claims with reordered words prevents trivially
+    rephrased disproven hypotheses from being laundered as validated learnings.
+    It may flag same-topic claims; callers must confirm before publishing.
+    """
+    if not disproven_text:
+        return False
+    if disproven_text == guidance_text or disproven_text in guidance_text:
+        return True
+    source = set(disproven_text.split()) - HYPOTHESIS_SIMILARITY_STOPWORDS
+    target = set(guidance_text.split()) - HYPOTHESIS_SIMILARITY_STOPWORDS
+    if len(source) < 5 or len(target) < 5:
+        return False
+    shared = len(source & target)
+    return shared >= 4 and shared / min(len(source), len(target)) >= 0.70 and shared / max(len(source), len(target)) >= 0.50
+
+
 def normalize_reusable_learnings(
     task: dict[str, Any], report: dict[str, Any], *, authorized_promotion_id: str | None = None
 ) -> list[dict[str, Any]]:
@@ -5054,7 +5090,7 @@ def normalize_reusable_learnings(
             )
         folded_guidance = comparable_hypothesis_text(guidance)
         for hyp_id, disproven_text in disproven_hypotheses.items():
-            if disproven_text and (disproven_text == folded_guidance or disproven_text in folded_guidance):
+            if repeats_disproven_hypothesis(disproven_text, folded_guidance):
                 raise PlanError(
                     f"{field}.guidance repeats disproven hypothesis {hyp_id}; disproven hypotheses never appear as validated shared facts"
                 )
@@ -5867,9 +5903,13 @@ def promote_hypothesis_to_learning(
     if not log_path.is_file() or not proof_path.is_file():
         raise PlanError("Cannot promote without genuine runner validation log and proof")
     proof = read_json(proof_path)
-    if (not isinstance(proof, dict) or proof.get("schema_version") != 1
+    if (not isinstance(proof, dict) or proof.get("schema_version") != 2
         or proof.get("passed") is not True
+        or proof.get("task_id") != task["id"]
+        or proof.get("attempt") != attempt
+        or proof.get("contract_digest") != receipt.get("contract_digest")
         or proof.get("log_sha256") != file_sha256(log_path)
+        or receipt.get("runner_proof_sha256") != file_sha256(proof_path)
         or not isinstance(proof.get("checks"), list)):
         raise PlanError("Cannot promote with forged, stale or mismatched runner validation proof")
     for check in deterministic_evidence:
@@ -5958,7 +5998,7 @@ def validate_attempt_hypotheses(
                     continue
                 folded = comparable_hypothesis_text(item.get("guidance", ""))
                 for tid, hid, disproven_text in disproven_texts:
-                    if disproven_text and (disproven_text == folded or disproven_text in folded):
+                    if repeats_disproven_hypothesis(disproven_text, folded):
                         errors.append(
                             f"Disproven hypothesis {tid}/{hid} leaked into validated learning {artifact.get('file')}"
                         )
@@ -5973,7 +6013,7 @@ def validate_attempt_hypotheses(
                     continue
                 folded = comparable_hypothesis_text(ctx_item.get("text", ""))
                 for tid, hid, disproven_text in disproven_texts:
-                    if disproven_text and (disproven_text == folded or disproven_text in folded):
+                    if repeats_disproven_hypothesis(disproven_text, folded):
                         errors.append(
                             f"Disproven hypothesis {tid}/{hid} leaked into normative execution_context"
                         )
@@ -6337,8 +6377,12 @@ def complete_task(
     task_id: str,
     report: dict[str, Any],
     result_file: str | None,
+    *,
+    runner_proof_sha256: str | None = None,
 ) -> dict[str, Any]:
     task = find_task(manifest, task_id)
+    if runner_proof_sha256 is not None and not re.fullmatch(r"[0-9a-f]{64}", runner_proof_sha256):
+        raise PlanError("Runner proof digest must be a canonical SHA-256 hash")
     if task["status"] != "in_progress":
         raise PlanError(f"Task {task['id']} is not in progress")
     if isinstance(report, dict):
@@ -6388,6 +6432,11 @@ def complete_task(
         receipt = build_task_receipt(
             manifest, candidate_task, report if isinstance(report, dict) else None, result_file
         )
+        if runner_proof_sha256 is not None:
+            # Only the trusted runner process passes this separate keyword.
+            # A bare `planctl complete --report` cannot bind a fabricated
+            # sidecar to the completion receipt via worker-supplied JSON.
+            receipt["runner_proof_sha256"] = runner_proof_sha256
         verdict = validate_receipt(receipt, task, manifest=manifest)
         if not verdict["valid"]:
             raise PlanError(

@@ -2160,7 +2160,23 @@ def finish_task_validation(
     previous_owner = {key: os.environ.get(key) for key in ("PAE_ARTIFACT_SCOPE", "PAE_ARTIFACT_OWNER")}
     os.environ["PAE_ARTIFACT_SCOPE"], os.environ["PAE_ARTIFACT_OWNER"] = "task", str(task["id"])
     try:
-        resource_watch.register_artifact(repo_root, validation_log)
+        proof_path = Path(str(validation_log) + ".runner-evidence.json")
+        # Preserve real runner logs while an open hypothesis may still be
+        # promoted into a not-yet-started declared consumer.  Plan-scope logs
+        # are cleaned at plan end instead of being erased on producer success.
+        declared_targets = {str(x.get("task_id")) for x in task.get("learning_targets", []) if isinstance(x, dict)}
+        awaiting_promotion = any(
+            isinstance(h, dict) and h.get("status") == "open"
+            for h in task.get("attempt_hypotheses", [])
+        ) and any(
+            str(consumer.get("id")) in declared_targets
+            and consumer.get("status") == "pending" and not consumer.get("attempts", 0)
+            for consumer in manifest.get("tasks", [])
+        )
+        artifact_scope = "plan" if awaiting_promotion else "task"
+        artifact_owner = plan_dir.name if awaiting_promotion else str(task["id"])
+        resource_watch.register_artifact(repo_root, validation_log, scope=artifact_scope, owner=artifact_owner)
+        resource_watch.register_artifact(repo_root, proof_path, scope=artifact_scope, owner=artifact_owner)
         evidence_path = evidence_packet_path(validation_log)
         resource_watch.register_artifact(repo_root, evidence_path)
         previous_packet = load_evidence_packet(previous_evidence_path(plan_dir, task))
@@ -2222,12 +2238,31 @@ def finish_task_validation(
         print(f"[task {task['id']}] deterministic validation failed ({cls}); next route follows the evidence ladder", file=sys.stderr)
         return False
 
+    # A successful validation receives a task- and attempt-bound proof only
+    # after the host runner has actually executed its commands.  The digest is
+    # copied into the task receipt via a private Python call, never through the
+    # worker-supplied JSON report or public planctl CLI.
+    proof = {
+        "schema_version": 2,
+        "task_id": str(task["id"]),
+        "attempt": int(attempt_number),
+        "contract_digest": planctl.compute_task_contract_digests(manifest.get("tasks", [])).get(task["id"]),
+        "log_sha256": planctl.file_sha256(validation_log),
+        "passed": True,
+        "checks": [
+            {"command": item.get("command"), "passed": item.get("passed") is True,
+             "exit_code": item.get("exit_code")}
+            for item in validation_results if isinstance(item, dict)
+        ],
+    }
+    planctl.atomic_write_json(proof_path, proof)
+    runner_proof_sha256 = planctl.file_sha256(proof_path)
     report["orchestrator_status"] = "completed"
     record_attempt("completed", None, True)
     planctl.atomic_write_json(result_path, report)
     relative_result = result_path.relative_to(plan_dir).as_posix()
     try:
-        planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result)
+        planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result, runner_proof_sha256=runner_proof_sha256)
         resource_watch.cleanup_artifacts(repo_root, "task", str(task["id"]))
     except planctl.PlanError as exc:
         # Optional worker metadata must not strand validated work in progress.
@@ -2242,7 +2277,7 @@ def finish_task_validation(
         }
         planctl.atomic_write_json(result_path, report)
         try:
-            planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result)
+            planctl.complete_task(plan_dir, manifest, task["id"], report, relative_result, runner_proof_sha256=runner_proof_sha256)
         except planctl.PlanError as retry_exc:
             reason = f"Completion report rejected after metadata recovery: {retry_exc} (initial error: {exc})"
             report["orchestrator_status"] = "completion_failed"

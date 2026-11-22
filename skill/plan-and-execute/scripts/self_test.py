@@ -1061,7 +1061,7 @@ def test_completion_metadata_recovery() -> None:
                 reports.append(report.copy())
                 return report
 
-            def complete_with_persistence_check(directory, manifest, task_id, report, result_file):
+            def complete_with_persistence_check(directory, manifest, task_id, report, result_file, *, runner_proof_sha256=None):
                 # Both original and sanitized reports must exist before completion.
                 assert planctl.read_json(directory / result_file) == report
                 assert report["validation_results"] and all(
@@ -1073,7 +1073,10 @@ def test_completion_metadata_recovery() -> None:
                     # contract rejecting vague metadata without weakening it.
                     raise planctl.PlanError("Completion risks contain vague text: TBD")
                 try:
-                    return original_complete(directory, manifest, task_id, report, result_file)
+                    return original_complete(
+                        directory, manifest, task_id, report, result_file,
+                        runner_proof_sha256=runner_proof_sha256,
+                    )
                 except planctl.PlanError as exc:
                     rejections.append(str(exc))
                     raise
