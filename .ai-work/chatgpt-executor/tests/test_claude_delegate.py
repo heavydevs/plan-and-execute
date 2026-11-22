@@ -29,13 +29,14 @@ def save(root, path, data):
     return p
 
 
-def build(root, mode="review", task_id="015"):
+def build(root, mode="review", task_id="015", large_manifest=False):
     run(root, "git", "init", "-q")
     run(root, "git", "config", "user.name", "Fixture")
     run(root, "git", "config", "user.email", "fixture@example.org")
-    save(root, ".ai-work/20261028-skill-study-provider-switch/manifest.json", {
-        "tasks": [{"id": task_id, "status": "pending"}]
-    })
+    manifest = {"tasks": [{"id": task_id, "status": "pending"}]}
+    if large_manifest:
+        manifest["fixture_padding"] = "x" * 680_000
+    save(root, ".ai-work/20261028-skill-study-provider-switch/manifest.json", manifest)
     save(root, "docs/plans/20261028-skill-optimization/TASK_INPUTS.json", {
         "tasks": [{"id": task_id, "work_type": "review_and_fix" if mode == "review" else "implementation",
                    "requires_independent_review": mode == "review", "inputs": ["src/example.py"],
@@ -68,7 +69,8 @@ def build(root, mode="review", task_id="015"):
 def test_review():
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        request, head = build(root)
+        # Real plan manifest exceeds the previous 600 KB parser limit.
+        request, head = build(root, large_manifest=True)
         env = {"GITHUB_REPOSITORY": b.REPO, "GITHUB_REF": "refs/heads/" + b.BRANCH,
                "GITHUB_SHA": head}
         with patch.object(b, "ROOT", root), patch.dict(os.environ, env), patch.object(b, "OUT", root / b.OUT):

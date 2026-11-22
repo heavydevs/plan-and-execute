@@ -44,8 +44,8 @@ def git(*args: str, text: bool = True) -> str | bytes:
     return proc.stdout.strip() if text else proc.stdout
 
 
-def json_file(path: Path) -> dict:
-    require(path.is_file() and path.stat().st_size <= 600_000, "Missing or oversized JSON: " + str(path))
+def json_file(path: Path, max_bytes: int = 600_000) -> dict:
+    require(path.is_file() and path.stat().st_size <= max_bytes, "Missing or oversized JSON: " + str(path))
     def unique(pairs):
         result = {}
         for key, value in pairs:
@@ -74,7 +74,9 @@ def digest(path: Path) -> str:
 
 
 def load_inputs(task_id: str) -> tuple[dict, dict, Path]:
-    manifest = json_file(ROOT / ".ai-work/20261028-skill-study-provider-switch/manifest.json")
+    # The active plan manifest is currently >1.3 MB. Keep a separate, bounded
+    # allowance rather than raising the untrusted request/input JSON limit.
+    manifest = json_file(ROOT / ".ai-work/20261028-skill-study-provider-switch/manifest.json", max_bytes=3_000_000)
     tasks = manifest.get("tasks", [])
     require(isinstance(tasks, list), "Invalid manifest tasks")
     first = next((str(t.get("id")) for t in tasks if t.get("status") != "completed"), None)
