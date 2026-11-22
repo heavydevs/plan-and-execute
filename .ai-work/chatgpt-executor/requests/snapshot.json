@@ -2,7 +2,7 @@
   "schema": "chatgpt-snapshot-request/1",
   "enabled": true,
   "task_id": "015",
-  "request_id": "015-20261122-new-independent-review-test-snapshot",
-  "requested_source_head": "6e08a72b3cdb5bd8b8b5bbc1d5eb4d65430d8fea",
-  "reason": "Export actual GitHub Actions checkout for deterministic reproduction and seven required tests; not a reviewer session or approval"
+  "request_id": "015-20261122-final-review-regressions-snapshot",
+  "requested_source_head": "670cc568f5283086420d5585670686071aeb95c8",
+  "reason": "Export exact task-015 current source and test suites for independent regression execution; no approval claim"
 }
