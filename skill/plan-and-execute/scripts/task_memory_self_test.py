@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import copy
 import hashlib
 import subprocess
@@ -413,4 +415,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    # Synthetic fixtures mock runner proof; production completion never bypasses it.
+    with patch.object(planctl, "require_runner_proof_for_learnings", return_value=None):
+        raise SystemExit(main())

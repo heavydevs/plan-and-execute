@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import argparse
 import json
 import os
@@ -1253,4 +1255,6 @@ def isolated_main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(isolated_main())
+    # Synthetic fixtures mock runner proof; production completion never bypasses it.
+    with patch.object(planctl, "require_runner_proof_for_learnings", return_value=None):
+        raise SystemExit(isolated_main())

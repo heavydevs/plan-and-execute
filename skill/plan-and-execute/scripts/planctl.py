@@ -6374,6 +6374,63 @@ def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: di
     return task
 
 
+def require_runner_proof_for_learnings(
+    plan_dir: Path, manifest: dict[str, Any], task: dict[str, Any],
+    report: dict[str, Any], runner_proof_sha256: str | None,
+) -> None:
+    """Untrusted completion JSON is never sufficient to publish a validated fact.
+
+    The runner supplies the digest of its log-bound evidence in a separate Python
+    argument. The public complete CLI does not accept that argument.
+    """
+    if not report.get("reusable_learnings"):
+        return
+    if not isinstance(runner_proof_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", runner_proof_sha256):
+        raise PlanError("Validated reusable learnings require genuine runner validation proof")
+    attempt = int(task.get("attempts", 0))
+    log_name = f"{task['id']}-attempt-{attempt}-validation.log"
+    log_rel = checked_relative_path(f"logs/{log_name}", "learning validation log")
+    proof_rel = checked_relative_path(f"{log_rel}.runner-evidence.json", "learning runner proof")
+    for relative in (log_rel, proof_rel):
+        reject_symlink_components(plan_dir, Path(relative), "learning runner proof")
+    log_path, proof_path = plan_dir / log_rel, plan_dir / proof_rel
+    if not log_path.is_file() or not proof_path.is_file() or proof_path.is_symlink() or log_path.is_symlink():
+        raise PlanError("Validated reusable learnings require genuine runner validation log and proof")
+    try:
+        proof = read_json(proof_path)
+    except (OSError, ValueError) as exc:
+        raise PlanError("Learning runner proof is missing or unreadable") from exc
+    digest = compute_task_contract_digests(manifest.get("tasks", [])).get(task["id"])
+    if (not isinstance(proof, dict)
+        or proof.get("schema_version") != 2
+        or proof.get("task_id") != task["id"]
+        or proof.get("attempt") != attempt
+        or proof.get("contract_digest") != digest
+        or proof.get("passed") is not True
+        or proof.get("log_sha256") != file_sha256(log_path)
+        or file_sha256(proof_path) != runner_proof_sha256):
+        raise PlanError("Learning runner proof does not match the completed attempt")
+    actual_checks = proof.get("checks")
+    report_checks = report.get("validation_results")
+    if not isinstance(actual_checks, list) or not isinstance(report_checks, list) or not actual_checks:
+        raise PlanError("Learning runner proof is missing observed validation results")
+    for check in report_checks:
+        if (not isinstance(check, dict) or check.get("passed") is not True
+            or type(check.get("exit_code")) is not int or check.get("exit_code") != 0
+            or not any(isinstance(observed, dict)
+                       and observed.get("command") == check.get("command")
+                       and observed.get("passed") is True
+                       and type(observed.get("exit_code")) is int
+                       and observed.get("exit_code") == 0
+                       for observed in actual_checks)):
+            raise PlanError("Learning validation results are not supported by the runner proof")
+    for command in task.get("validation_commands", []):
+        if not any(isinstance(observed, dict) and observed.get("command") == command
+                   and observed.get("passed") is True and observed.get("exit_code") == 0
+                   for observed in actual_checks):
+            raise PlanError("Learning runner proof does not cover declared validation commands")
+
+
 def complete_task(
     plan_dir: Path,
     manifest: dict[str, Any],
@@ -6446,6 +6503,7 @@ def complete_task(
                 f"Task {task['id']} completion receipt failed validity check: {', '.join(verdict['reasons'])}"
             )
     if isinstance(report, dict):
+        require_runner_proof_for_learnings(plan_dir, manifest, task, report, runner_proof_sha256)
         reconcile_reported_subtasks(task, report)
         published_learning_files = materialize_learning_artifacts(
             plan_dir,
