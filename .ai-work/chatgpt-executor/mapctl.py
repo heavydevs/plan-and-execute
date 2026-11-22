@@ -55,6 +55,8 @@ REVIEWED_CHANGED = frozenset({
     "skill/plan-and-execute/scripts/keepalivectl_self_test.py",
     "skill/plan-and-execute/scripts/observer_self_test.py",
     "skill/plan-and-execute/scripts/pattern_self_test.py",
+    # Verified task-015 pattern accounting integration and its negative/positive regressions.
+    "skill/plan-and-execute/scripts/pattern_runner_self_test.py",
     "skill/plan-and-execute/scripts/progress_runner_self_test.py",
     "skill/plan-and-execute/scripts/progress_watch_self_test.py",
     "skill/plan-and-execute/scripts/promotion_self_test.py",
