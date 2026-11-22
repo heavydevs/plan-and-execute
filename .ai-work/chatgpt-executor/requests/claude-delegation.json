@@ -1,12 +1,12 @@
 {
   "schema": "pae-claude-delegation/1",
-  "attempt_id": "claude-015-independent-recheck-20261122-008",
+  "attempt_id": "claude-015-independent-final-20261122-009",
   "mode": "review",
   "task_id": "015",
-  "source_head": "eee9709186818ad5712dbd13fe6df1e473825e65",
+  "source_head": "4928613f298932f2d981e001dab14e713dc2573b",
   "escalation": {
     "reason": "cross_cutting_high_risk",
-    "evidence_ref": "docs/research/20261028-skill-optimization/implementation/reviews/015/web-chat-claude-round2-repairs-2026-11-22.md",
-    "summary": "Review current final source hashes in a distinct maximum-tier Claude session after all prior findings were remediated. Produce a blind independent technical verdict, with exact reproducible findings and no fabricated acceptance evidence."
+    "evidence_ref": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
+    "summary": "Fresh independent max-tier review of the latest task-015 implementation and production proof/accounting integration test. Confirm genuine runner completion, provenance, safe learning promotion, and all assigned acceptance on exact pinned source; identify remaining reproducible defects."
   }
 }
