@@ -28,6 +28,14 @@ REVIEWED_CHANGED = frozenset({
     ".github/workflows/chatgpt-offline-review.yml",
     ".github/workflows/ci.yml",
     ".github/workflows/publish.yml",
+    # Reviewed 015 integration workflows: scoped branch events, no unmasked secrets.
+    # Only the temporary patch publisher has contents:write, guarded by a pinned
+    # patch digest, a strict changed-path allowlist, and a successful read-only test job.
+    ".github/workflows/pae-claude-auth-smoke.yml",
+    ".github/workflows/pae-claude-bridge-selftest.yml",
+    ".github/workflows/pae-claude-delegation.yml",
+    ".github/workflows/pae-claude-secret-check.yml",
+    ".github/workflows/pae-task015-apply-fixes.yml",
     "docs/plans/20261028-skill-optimization/history/pre-research-conversion/support/delivery_gate_self_test.py",
     "docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py",
     "docs/plans/20261028-skill-optimization/support/research_readiness_self_test.py",
