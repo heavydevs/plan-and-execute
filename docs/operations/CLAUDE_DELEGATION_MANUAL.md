@@ -53,6 +53,23 @@ A implementação Claude produz somente **patch e relatório** em artifact GitHu
 
 **Opcional:** se preferir gerar o token no seu Windows, instale Claude Code conforme [setup Windows](https://code.claude.com/docs/en/setup), faça `claude auth login`, `claude setup-token` e comece no passo 6. Isso é escolha sua, **não** requisito da arquitetura.
 
+### Solução de problemas: callback `localhost` no Codespaces
+
+**Sintoma:** Depois de autorizar Claude no navegador, o Chrome abre `http://localhost:<porta>/callback?code=...&state=...` e mostra `ERR_CONNECTION_REFUSED`. O terminal remoto fica em `Paste code here if prompted >` e às vezes avisa `That doesn't look like the full code. Copy all of it, including the # in the middle.`
+
+**Causa:** `localhost` no navegador significa o próprio computador local, mas o servidor OAuth está dentro do Codespace remoto. É uma limitação conhecida/documentada em ambientes SSH, contêineres e Codespaces; não significa que a instalação Claude tenha falhado. **Não** abra porta do roteador nem publique a porta temporária no GitHub.
+
+**Procedimento:**
+
+1. Se o código de autorização foi exibido em chat, screenshot compartilhado ou mensagem pública, descarte-o. No terminal Codespaces, cancele a tentativa corrente com `Ctrl+C`. Para configurar a Action OAuth, execute diretamente `claude setup-token` e complete uma nova autorização em navegador.
+2. Quando aparecer `localhost refused to connect`, o código de retorno está nos parâmetros da URL do Chrome. Dependendo da versão e do fluxo, o CLI aceita o código visível na página ou espera o valor **`<code>#<state>`**, usando os conteúdos dos parâmetros `code` e `state` separados por um único caractere `#`. Não copie `http://localhost...` inteiro, nem use somente o valor de `code` quando o prompt exige o `#`. Faça isso somente na tentativa corrente, imediatamente após autorizar.
+3. Cole **apenas no terminal da tentativa correspondente** onde aparece `Paste code here if prompted >` e pressione `Enter`. Em terminal integrado, se Ctrl+V não inserir o texto, tente botão direito, menu Paste do VS Code ou `Shift+Insert`. Nunca envie código, state, URL de retorno, token final ou `~/.claude/.credentials.json` por chat.
+4. Se informar `Invalid code`, `400` ou não completar, não tente novamente com o mesmo código: reinicie `claude setup-token` para gerar nova autorização e retorne à etapa 2. A Anthropic tem relatórios específicos de regressões de OAuth no Codespaces; repetir uma autorização consumida não corrige isso.
+5. **Alternativa quando o CLI continuar falhando:** no VS Code Web, instale a extensão oficial **Claude Code (Anthropic)**, faça o login por **Claude.ai Subscription**, abra o link que ela apresenta e cole o código na entrada **Or, paste your authorization code manually**. A extensão e o CLI compartilham credenciais no Codespace em versões compatíveis. Depois execute `claude setup-token` novamente. Esse contorno foi relatado por usuários, não é garantia oficial de que funcione em todos os ambientes; se continuar bloqueado, gerar o token numa instalação local temporária é um fallback, e a execução subsequente da Action permanece 100% no GitHub.
+6. Uma vez criado o token duradouro, cadastre-o em GitHub Actions Secret `CLAUDE_CODE_OAUTH_TOKEN`, remova o Codespace temporário e prossiga com o teste autenticado da integração.
+
+**Referências:** [Anthropic: autenticação](https://code.claude.com/docs/en/authentication), [Anthropic: solução de problemas](https://support.claude.com/en/articles/14552646-troubleshoot-claude-code-installation-and-authentication), [GitHub: localhost remoto](https://docs.github.com/en/codespaces/troubleshooting/troubleshooting-port-forwarding-for-github-codespaces), [ocorrência específica em Codespaces, com workaround na extensão](https://github.com/anthropics/claude-code/issues/91176).
+
 ### O que é gratuito e o que tem franquia separada
 
 | Componente | Plano/cobrança |
