@@ -127,8 +127,13 @@ class GateTests(unittest.TestCase):
     # Reviewer gate: max, or evidence-backed frontier; unique, task-bound dispatches.
     def dispatch(self,name,session,task='006',inputs=None):
         path=(g.OUTPUT/'reviews'/task/name).as_posix()
-        self.write_json(path,{'task_id':task,'session_id':session,
-                              'reviewed_inputs':inputs if inputs is not None else [self.hashed(self.code)]})
+        findings_path = path + '.findings.json'
+        self.write_json(findings_path, {'task_id':task, 'session_id':session,
+                                        'verdict':'approved', 'findings':[]})
+        self.write_json(path, {'task_id':task, 'session_id':session, 'verdict':'approved',
+                               'blocking_findings':0, 'findings_count':0,
+                               'findings_path':findings_path, 'findings_sha256':g.sha(self.root/findings_path),
+                               'reviewed_inputs':inputs if inputs is not None else [self.hashed(self.code)]})
         return {'session_id':session,'dispatch_evidence':path,'dispatch_sha256':g.sha(self.root/path)}
     def review(self,tier='max',model='claude-opus-5-5',escalation=None):
         self.e['requires_independent_review']=True
@@ -208,6 +213,21 @@ class GateTests(unittest.TestCase):
         block=self.dispatched();self.passes()
         self.assertEqual((block['reviewer']['model_tier'],block['reviewer']['fresh_context']),('max',True))
     def test_review_dispatch_open_blocking_finding_rejected(self):self.dispatched(FAKE_REVIEW_MODE='findings');self.reject()
+    def test_rejecting_dispatch_cannot_be_self_approved(self):
+        self.dispatched(FAKE_REVIEW_MODE='findings')
+        self.packet['findings'] = []
+        self.save()
+        self.reject()
+    def test_reviewed_code_change_cannot_use_old_dispatch(self):
+        block = self.dispatched()
+        self.write(self.code, 'print("new unreviewed implementation")\n')
+        self.packet['changed_artifacts'] = [self.hashed(self.code)]
+        self.machine['input_fingerprint'] = g.code_fingerprint(self.root, self.e)
+        self.machine_save()
+        prev = {g.OUTPUT.as_posix() + '/005-receipt.json', g.OUTPUT.as_posix() + '/005-outcome.md'}
+        self.packet['reviewed_inputs'] = [v for v in block['reviewed_inputs'] if v['path'] in prev]
+        self.save()
+        self.reject()
     def test_review_dispatch_session_claimed_by_other_receipt_rejected(self):
         self.dispatched(FAKE_REVIEW_SESSION='sess-shared')
         other=dict(self.e,id='008',output=(g.OUTPUT/'008-receipt.json').as_posix())

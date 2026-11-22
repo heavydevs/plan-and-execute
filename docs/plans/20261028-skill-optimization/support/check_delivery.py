@@ -234,7 +234,9 @@ def review_dir(task_id: str) -> str:
     return (OUTPUT / "reviews" / task_id).as_posix() + "/"
 
 
-def dispatch_record(root: Path, task_id: str, record: dict, pinned_hashes: set) -> tuple[str, str]:
+def dispatch_record(
+    root: Path, task_id: str, record: dict, pinned_hashes: set, *, approved: bool = False
+) -> tuple[str, str]:
     """Verify one dispatch: own review directory, hash, task id, session and reviewed-input hashes."""
     name = record.get("dispatch_evidence", "")
     require(isinstance(name, str) and name.startswith(review_dir(task_id)),
@@ -250,6 +252,27 @@ def dispatch_record(root: Path, task_id: str, record: dict, pinned_hashes: set) 
     require(isinstance(named, list) and all(isinstance(x, dict) for x in named)
             and pinned_hashes <= {(x.get("path"), x.get("sha256")) for x in named},
             "Dispatch evidence does not name the reviewed-input hashes")
+    if approved:
+        # The implementer's receipt is not an independent reviewer's verdict.
+        # Bind approval to the model-produced dispatch evidence and its findings.
+        require(evidence.get("verdict") == "approved", "Reviewer dispatch verdict is not approved")
+        require(type(evidence.get("blocking_findings")) is int
+                and evidence["blocking_findings"] == 0, "Reviewer dispatch has open blocking findings")
+        findings_path = evidence.get("findings_path")
+        require(isinstance(findings_path, str) and findings_path.startswith(review_dir(task_id)),
+                "Reviewer findings must stay under the task review directory")
+        verified_files(root, [{"path": findings_path, "sha256": evidence.get("findings_sha256")}],
+                       "independent reviewer findings")
+        findings = load(local(root, findings_path))
+        require(isinstance(findings, dict) and findings.get("task_id") == task_id
+                and findings.get("session_id") == session
+                and findings.get("verdict") == "approved", "Reviewer findings verdict/session mismatch")
+        items = findings.get("findings")
+        require(isinstance(items, list) and len(items) == evidence.get("findings_count"),
+                "Reviewer findings count mismatch")
+        require(all(isinstance(item, dict) for item in items), "Invalid reviewer finding item")
+        require(not any(item.get("severity") in {"critical", "high"} for item in items),
+                "Independent reviewer has blocking findings")
     return session, record["dispatch_sha256"]
 
 
@@ -357,10 +380,15 @@ def check(root: Path, task_id: str) -> dict:
             require(isinstance(reviewer.get(field), str) and reviewer[field], "Review route missing")
         pinned = verified_files(root, packet.get("reviewed_inputs"), "reviewed input")
         pinned_hashes = {(x["path"], x["sha256"]) for x in packet["reviewed_inputs"]}
+        artifact_hashes = {(x["path"], x["sha256"])
+                           for x in packet.get("changed_artifacts") or packet.get("preserved_artifacts") or []}
+        require(artifact_hashes <= pinned_hashes,
+                "Changed or preserved implementation artifacts were not reviewed at their final hashes")
         records = [reviewer]
         if reviewer["model_tier"] == "frontier":
             records += frontier_failures(reviewer)
-        dispatches = [dispatch_record(root, task_id, record, pinned_hashes) for record in records]
+        dispatches = [dispatch_record(root, task_id, record, pinned_hashes, approved=(index == 0))
+                      for index, record in enumerate(records)]
         sessions, hashes = {s for s, _ in dispatches}, {h for _, h in dispatches}
         require(len(sessions) == len(hashes) == len(dispatches), "A review session or dispatch is reused")
         used = used_dispatches(root, entries, task_id)
