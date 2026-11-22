@@ -1,0 +1,41 @@
+name: PAE Claude delegation bridge - offline security checks
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.ai-work/chatgpt-executor/claude_delegate.py'
+      - '.ai-work/chatgpt-executor/tests/test_claude_delegate.py'
+      - '.github/workflows/pae-claude-delegation.yml'
+      - '.github/workflows/pae-claude-bridge-selftest.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source without writable credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Python syntax
+        run: python -m py_compile .ai-work/chatgpt-executor/claude_delegate.py .ai-work/chatgpt-executor/tests/test_claude_delegate.py
+      - name: Offline negative/positive bridge tests (no Claude calls)
+        run: python .ai-work/chatgpt-executor/tests/test_claude_delegate.py
+      - name: Validate workflow structure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          b = Path('.github/workflows/pae-claude-delegation.yml').read_text()
+          assert "contents: read" in b
+          assert "claude_code_oauth_token:" in b
+          assert "anthropic_api_key:" not in b
+          assert "upload-artifact@v4" in b
+          assert b.count("uses: anthropics/claude-code-action/base-action@") == 2
+          assert "workflow_dispatch:" not in b
+          print("Static workflow contract: passed (no live Claude call)")
+          PY

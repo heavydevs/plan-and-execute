@@ -16,3 +16,7 @@ Este arquivo é um roteador, não uma aprovação; a fonte de verdade continua s
 ## Checkout fisico em ChatGPT sem rede externa
 
 Se o container nao conseguir clonar o repositorio, usar o workflow [`.github/workflows/chatgpt-snapshot-export.yml`](../../.github/workflows/chatgpt-snapshot-export.yml): exporta um `git archive` do SHA exato como artefato. Baixar o ZIP via conector GitHub, importar em diretório temporario isolado com `python .ai-work/chatgpt-executor/import_snapshot.py --artifact /mnt/data/<zip> --destination /mnt/data/pae-checkout-<SHA> --sha <SHA>` (executando o importador de uma copia confiavel). Ver [SNAPSHOT_BRIDGE.md](SNAPSHOT_BRIDGE.md). A extracao recusa symlinks, traversal e SHA incorreto. **Snapshot e apenas copia de arquivos rastreados, sem `.git`; nao simula um clone.** Rodar testes nele e conferir reports, mas commits continuam pelo conector GitHub.
+
+## Rota opcional Claude (somente se disponível e evidenciada)
+
+Para revisão independente formal e excepcionalmente para implementação que o GPT-6 não consegue executar com qualidade justificada, seguir [`docs/operations/CLAUDE_DELEGATION_MANUAL.md`](../../docs/operations/CLAUDE_DELEGATION_MANUAL.md) e `pae-claude-delegation.yml`. Não usar automaticamente, nem marcar sucesso sem evidência de modelo/sessão e gates. O Claude implementador não é revisor independente do seu próprio patch; o ChatGPT valida e integra. A task 015 continua a primeira pendente até passar `P1_015`.

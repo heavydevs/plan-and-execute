@@ -1,0 +1,127 @@
+name: PAE Claude - independent review or exceptional implementation
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.ai-work/chatgpt-executor/requests/claude-delegation.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pae-claude-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      mode: ${{ steps.verify.outputs.mode }}
+      task_id: ${{ steps.verify.outputs.task_id }}
+      attempt_id: ${{ steps.verify.outputs.attempt_id }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4 pinned
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Validate exclusive request commit, real manifest and scope (no secrets)
+        id: verify
+        run: python .ai-work/chatgpt-executor/claude_delegate.py preflight
+
+  review:
+    if: needs.preflight.outputs.mode == 'review'
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Revalidate snapshot and produce static review prompt
+        run: python .ai-work/chatgpt-executor/claude_delegate.py preflight
+      - name: Claude Opus 5.5 - strictly read-only independent review
+        id: claude_review
+        uses: anthropics/claude-code-action/base-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1 pinned
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt_file: .ai-work/chatgpt-executor/claude-artifacts/prompt.txt
+          show_full_output: 'false'
+          claude_args: >-
+            --model claude-opus-5-5
+            --effort xhigh
+            --max-turns 28
+            --restricted
+            --permission-mode plan
+            --permission-prompts none
+            --tools "Read,Glob,Grep"
+            --strict-mcp-config
+            --disallowedTools "mcp__*"
+            --json-schema '{"type":"object","required":["reviewed_sha","verdict","findings","limitations"],"properties":{"reviewed_sha":{"type":"string"},"verdict":{"type":"string","enum":["approved","changes_requested","blocked"]},"findings":{"type":"array","items":{"type":"object","required":["severity","path","line","evidence","reproduction"],"properties":{"severity":{"type":"string","enum":["critical","high","medium","low"]},"path":{"type":"string"},"line":{"type":"integer"},"evidence":{"type":"string"},"reproduction":{"type":"string"}}}},"limitations":{"type":"array","items":{"type":"string"}}}}'
+      - name: Record authentic Action session and findings (not a gate approval)
+        env:
+          CLAUDE_REVIEW_OUTPUT: ${{ steps.claude_review.outputs.structured_output }}
+          CLAUDE_REVIEW_SESSION: ${{ steps.claude_review.outputs.session_id }}
+          CLAUDE_REVIEW_CONCLUSION: ${{ steps.claude_review.outputs.conclusion }}
+        run: python .ai-work/chatgpt-executor/claude_delegate.py collect
+      - name: Publish bounded and hash-pinned review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pae-claude-review-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            .ai-work/chatgpt-executor/claude-artifacts/input.json
+            .ai-work/chatgpt-executor/claude-artifacts/result.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  implement:
+    if: needs.preflight.outputs.mode == 'implement'
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Revalidate snapshot and produce narrow implementation prompt
+        run: python .ai-work/chatgpt-executor/claude_delegate.py preflight
+      - name: Claude Opus 5.5 - scoped edits in temporary checkout only
+        id: claude_implement
+        uses: anthropics/claude-code-action/base-action@acfe7992852970efb4fee683d63d628e3e52df67
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt_file: .ai-work/chatgpt-executor/claude-artifacts/prompt.txt
+          show_full_output: 'false'
+          claude_args: >-
+            --model claude-opus-5-5
+            --effort xhigh
+            --max-turns 55
+            --restricted
+            --permission-mode acceptEdits
+            --permission-prompts none
+            --tools "Read,Glob,Grep,Edit,Write"
+            --strict-mcp-config
+            --disallowedTools "mcp__*"
+            --json-schema '{"type":"object","required":["status","summary","limitations"],"properties":{"status":{"type":"string","enum":["implemented","partial","blocked"]},"summary":{"type":"string"},"limitations":{"type":"array","items":{"type":"string"}}}}'
+      - name: Validate exact write scope, preserve patch and session (no push)
+        env:
+          CLAUDE_IMPLEMENT_OUTPUT: ${{ steps.claude_implement.outputs.structured_output }}
+          CLAUDE_IMPLEMENT_SESSION: ${{ steps.claude_implement.outputs.session_id }}
+          CLAUDE_IMPLEMENT_CONCLUSION: ${{ steps.claude_implement.outputs.conclusion }}
+        run: python .ai-work/chatgpt-executor/claude_delegate.py collect
+      - name: Publish patch and evidence for primary executor inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pae-claude-implement-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            .ai-work/chatgpt-executor/claude-artifacts/input.json
+            .ai-work/chatgpt-executor/claude-artifacts/result.json
+            .ai-work/chatgpt-executor/claude-artifacts/implementation.patch
+          if-no-files-found: warn
+          retention-days: 14
