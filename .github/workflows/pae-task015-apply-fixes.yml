@@ -1,0 +1,105 @@
+name: PAE 015 - apply verified remedial patch and full checks
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.ai-work/chatgpt-executor/requests/015-fixes.patch'
+
+concurrency:
+  group: pae-015-patch-apply
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Verify patch SHA and exact allowed scope then apply
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'e49fd331bb9a20b9875686edb665d6cdf9cf5803844c67890bd9159252cb7179  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
+          git diff --name-only HEAD^ HEAD | sort > /tmp/pae-request.txt
+          printf '%s\n' '.github/workflows/pae-task015-apply-fixes.yml' '.ai-work/chatgpt-executor/requests/015-fixes.patch' | sort > /tmp/pae-request-allowed.txt
+          diff -u /tmp/pae-request-allowed.txt /tmp/pae-request.txt
+          git apply --check '.ai-work/chatgpt-executor/requests/015-fixes.patch'
+          git apply '.ai-work/chatgpt-executor/requests/015-fixes.patch'
+          git diff --check
+          git diff --name-only | sort > /tmp/pae-modified.txt
+          printf '%s\n' \
+            skill/plan-and-execute/references/EXECUTION_CONTEXT.md \
+            skill/plan-and-execute/scripts/planctl.py \
+            skill/plan-and-execute/scripts/runner_contract.py \
+            skill/plan-and-execute/scripts/task_memory_self_test.py \
+            test/optimization/context_learning_self_test.py | sort > /tmp/pae-allowed.txt
+          diff -u /tmp/pae-allowed.txt /tmp/pae-modified.txt
+      - name: Execute all seven task 015 declared test commands
+        shell: bash
+        run: |
+          python - <<'PY'
+          import subprocess
+          import sys
+          checks = [
+              "test/optimization/context_learning_self_test.py",
+              "skill/plan-and-execute/scripts/context_self_test.py",
+              "skill/plan-and-execute/scripts/task_memory_self_test.py",
+              "skill/plan-and-execute/scripts/artifact_concision_self_test.py",
+              "skill/plan-and-execute/scripts/progress_runner_self_test.py",
+              "skill/plan-and-execute/scripts/pattern_runner_self_test.py",
+              "skill/plan-and-execute/scripts/self_test.py",
+          ]
+          failures = []
+          for path in checks:
+              print(f"CHECK: {path}", flush=True)
+              try:
+                  proc = subprocess.run([sys.executable, path], capture_output=True, text=True, timeout=600)
+                  print(f"RESULT: exit {proc.returncode}, stdout={len(proc.stdout)}B, stderr={len(proc.stderr)}B", flush=True)
+                  if proc.returncode:
+                      print((proc.stdout+"\n"+proc.stderr)[-5000:], flush=True)
+                      failures.append(path)
+              except subprocess.TimeoutExpired:
+                  print(f"TIMEOUT: {path}", flush=True)
+                  failures.append(path)
+          print("SUMMARY: checks=", len(checks), " failures=", failures, flush=True)
+          if failures:
+              raise SystemExit(1)
+          PY
+
+  publish:
+    needs: verify
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+          persist-credentials: true
+      - name: Apply exact verified patch and push implementation in the same branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/checkpoint/plano1-estudo-provider-switch-20261028'
+          echo 'e49fd331bb9a20b9875686edb665d6cdf9cf5803844c67890bd9159252cb7179  .ai-work/chatgpt-executor/requests/015-fixes.patch' | sha256sum --check
+          git apply --check '.ai-work/chatgpt-executor/requests/015-fixes.patch'
+          git apply '.ai-work/chatgpt-executor/requests/015-fixes.patch'
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- \
+            skill/plan-and-execute/references/EXECUTION_CONTEXT.md \
+            skill/plan-and-execute/scripts/planctl.py \
+            skill/plan-and-execute/scripts/runner_contract.py \
+            skill/plan-and-execute/scripts/task_memory_self_test.py \
+            test/optimization/context_learning_self_test.py
+          git commit -m "fix(task-015): resolve independent review findings and add regressions"
+          git push origin HEAD:checkpoint/plano1-estudo-provider-switch-20261028
