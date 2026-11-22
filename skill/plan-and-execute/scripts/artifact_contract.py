@@ -786,9 +786,14 @@ def install_plan_contract() -> Any:
         task_id: str,
         report: dict[str, Any],
         result_file: str | None,
+        *,
+        runner_proof_sha256: str | None = None,
     ) -> dict[str, Any]:
         if not isinstance(report, dict):
-            return original_complete_task(plan_dir, manifest, task_id, report, result_file)
+            return original_complete_task(
+                plan_dir, manifest, task_id, report, result_file,
+                runner_proof_sha256=runner_proof_sha256,
+            )
         _validate_completion_report(planctl, report)
         # Stage the summary fields on the task so the completion and its summary land in
         # the same locked manifest save; restore them if completion is rejected.
@@ -798,7 +803,10 @@ def install_plan_contract() -> Any:
         target["completion_risks"] = list(report.get("risks") or [])
         target["completion_follow_ups"] = list(report.get("follow_ups") or [])
         try:
-            return original_complete_task(plan_dir, manifest, task_id, report, result_file)
+            return original_complete_task(
+                plan_dir, manifest, task_id, report, result_file,
+                runner_proof_sha256=runner_proof_sha256,
+            )
         except BaseException:
             for field in COMPLETION_FIELDS:
                 target.pop(field, None)

@@ -1968,6 +1968,10 @@ def main() -> int:
     test_ac04_universal_context_scope_and_budget()
     test_ac05_and_ac08_prefix_stability_bounded_suffix_and_accounting_receipt()
     test_cli_check_learnings_and_context_receipt()
+    # Production stack installs the concise completion wrapper before the
+    # runner provides its SHA-256 proof keyword. Exercise the real wrapper.
+    install_plan_contract()
+    test_review_015_untrusted_manual_completion_cannot_publish_learning()
     print("All task 014 context-learning self-tests passed.")
     return 0
 
