@@ -97,6 +97,93 @@ unset callback
 
 **Segurança:** URL contém `code`/`state` temporários, deve ficar privada. Nunca publicar URL em chat, terminal histórico, arquivo de repo ou log de Actions. Um login já autenticado na extensão **não** fornece automaticamente a credencial longa exigida pelo GitHub Actions.
 
+### Diagnóstico verificado: GitHub recebe o token, mas com espaço ou quebra de linha
+
+A checagem segura [`.github/workflows/pae-claude-secret-check.yml`](../../.github/workflows/pae-claude-secret-check.yml) distingue: ausência de secret (código 2), prefixo OAuth inválido (3), **espaços ou quebras de linha no valor cadastrado (4)** e comprimento suspeito (5). Nenhuma informação do segredo é imprimida, armazenada ou enviada ao ChatGPT. Em 2026-11-22, o run 45056396865 confirmou **código 4** no secret deste repositório; a autenticação real do Claude permanece NÃO aprovada.
+
+Tokens produzidos por `claude setup-token` podem aparecer visualmente quebrados em duas linhas. É necessário copiar o **token inteiro numa única linha**, sem espaços, tabulações, `CR` ou `LF`. [Reprodução confirmada por um usuário da Anthropic](https://github.com/anthropics/claude-code/issues/65320).
+
+**Se a credencial já foi compartilhada em chat ou captura, revogue-a na Anthropic e gere outra.** No Windows PowerShell, depois de copiar **somente** o novo token inteiro (incluindo todas as linhas visuais), pode limpá-lo do clipboard sem imprimir seu valor:
+
+```powershell
+$token = (Get-Clipboard -Raw) -replace '\s',''
+if ($token -match '^sk-ant-oat01-[A-Za-z0-9_-]{88,}
+
+| Componente | Plano/cobrança |
+| --- | --- |
+| GitHub Actions, runner padrão no repositório público `heavydevs/plan-and-execute` | Computação gratuita; artefatos/cache têm limites de armazenamento |
+| GitHub Codespaces usado **uma única vez** no navegador | Franquia **separada**. Conta pessoal GitHub Free: 120 core-horas + 15 GB-mês; contas Pro: 180 core-horas + 20 GB-mês. Acima disso pode cobrar conforme orçamento. Para repositórios de organização, verifique quem é o proprietário pagador |
+| Claude Code GitHub Action com `CLAUDE_CODE_OAUTH_TOKEN` | Consome franquia da assinatura Anthropic, sujeita a disponibilidade e limites do plano; nenhum token de API é fornecido pelo nosso workflow |
+| `ANTHROPIC_API_KEY` ou Claude Code Review gerenciado | Produtos/cobranças separados; **não utilizados** no fluxo |
+| GitHub público com benefícios | **Não** inclui automaticamente consumo ilimitado de Opus, nem autoriza outra conta Anthropic |
+
+Fontes: [GitHub standard public runners](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job), [Codespaces pricing](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces), [who pays for organization Codespaces](https://docs.github.com/en/codespaces/managing-codespaces-for-your-organization/choosing-who-owns-and-pays-for-codespaces-in-your-organization), [blank Codespaces template](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-from-a-template), [Anthropic setup](https://code.claude.com/docs/en/setup), [Claude authentication](https://code.claude.com/docs/en/authentication), [Claude Code GitHub Actions](https://code.claude.com/docs/en/github-actions).
+
+## 4. Arquivos entregues no repositório
+
+- `.github/workflows/pae-claude-delegation.yml`: acionado **somente** quando o request versionado é alterado na branch checkpoint; contém jobs mutuamente exclusivos, `review` e `implement`.
+- `.ai-work/chatgpt-executor/claude_delegate.py`: preflight de branch, SHA de fonte, tipo da task, estado do manifesto, origem de solicitação, escopo, evidências e entrada; coleta evidência real; falha fechado.
+- `.ai-work/chatgpt-executor/tests/test_claude_delegate.py`: testes determinísticos offline; **não** prova chamada real ao modelo.
+- `.ai-work/chatgpt-executor/INSTRUCOES_PROJETO_CHATGPT.md`: instrução copiável para colar nas Configurações do Projeto ChatGPT.
+- `docs/operations/CLAUDE_DELEGATION_MANUAL.md`: este manual.
+- Request sob demanda `.ai-work/chatgpt-executor/requests/claude-delegation.json`: **não** é criado por padrão, para não disparar inferência acidental.
+
+O workflow só solicita Claude quando houver um commit dedicado cuja única mudança seja request; HEAD-pai deve corresponder a `source_head`. A task precisa ser a primeira não concluída e estar declarada no `TASK_INPUTS.json`. Falha em qualquer condição bloqueia antes do job com segredo.
+
+## 5. Fluxo de uma solicitação
+
+O ChatGPT conectado ao GitHub lê `AGENTS.md`, o guia, o manifest e a task; decide se deve escalar. Se sim, grava evidência concisa e autenticável **dentro do repositório**, no path `evidence_ref` (exemplo: relatório de falha observado, não uma afirmação genérica), e publica esse relatório antes do disparo. Em seguida cria **um commit separado** mudando exclusivamente o request:
+
+```json
+{
+  "schema": "pae-claude-delegation/1",
+  "attempt_id": "claude-015-review-first-20261122",
+  "mode": "review",
+  "task_id": "015",
+  "source_head": "<SHA completo do commit que já contém código e evidência>",
+  "escalation": {
+    "reason": "cross_cutting_high_risk",
+    "evidence_ref": "docs/research/20261028-skill-optimization/implementation/reviews/015/web-chat-remediation-and-gates-20261121-72ed5d.md",
+    "summary": "Revisão independente max-tier do código corrigido necessária antes do gate final, com arquivos, hashes e testes já documentados."
+  }
+}
+```
+
+A revisão é modo read-only. Para delegar implementação usar `mode=implement`, task de implementação e `reason` pertencente ao contrato: `verified_capability_gap`, `repeated_semantic_failure` ou `cross_cutting_high_risk`. O escopo é exatamente `write_scope` do catálogo; sem alterações em `main`, testes/gates/manifest fora de escopo e sem push direto. A rejeição da request não consome inferência quando o preflight funcionar corretamente.
+
+Depois do run, recuperar o artefato pela API GitHub Actions, confirmar `run_id`, `head_sha`, `attempt_id`, input hashes, sessão e `conclusion`. Para revisão: publicar parecer, corrigir high/critical e solicitar outro parecer para SHA diferente. Para implementação: verificar `implementation.patch` e escopo, aplicar a revisão de patch pelo ChatGPT, rodar os testes originais e publicar com CAS. **Nunca** aplicar automaticamente um patch de um modelo ao repositório antes de verificar origem, conteúdo, write scope e testes. Se o patch for insuficiente, repetir só quando houver justificativa e orçamento; não criar ciclos infinitos.
+
+## 6. Status e gates originais
+
+O `check_delivery.py` não é alterado/afrouxado pela integração. Na task 015, precisa de revisor externo realmente independente com `provider`, `model`, `native_effort`, `session_id`, `reviewed_input_hashes`, `findings` e `verdict`, e proíbe reuso de sessão/dispatch. O Action expõe `session_id` e saída estruturada, mas **não expõe necessariamente no contrato da saída o modelo/effort efetivamente observados**, então o bridge deixa `model_observed` e `native_effort_observed` como `null`. É proibido preencher esses campos com os valores solicitados e dar aprovação formal. Para completar `P1_015`, implementar/adaptar prova autenticada de configuração real do processo e equivalência do dispatch, com testes negativos, ou obter dispatcher original. Até lá, task 015 continua `pending`.
+
+Os sete checks de 015 e `P1_TESTS_015` foram observados como PASS em código anterior, mas `P1_015` depende do receipt final real. Uma revisão de código novo exige novos hashes e testes do mesmo SHA.
+
+## 7. Instruções do ChatGPT e comando de continuidade
+
+Abra o Projeto ChatGPT atual → menu **•••** → **Configurações do projeto** → **Instruções**. Cole na íntegra o conteúdo de `.ai-work/chatgpt-executor/INSTRUCOES_PROJETO_CHATGPT.md`. Essa configuração de UI é manual; nenhum commit GitHub altera as configurações privadas do Projeto.
+
+Em uma nova conversa **dentro do mesmo Projeto**, digite simplesmente **`próximo`**. A IA deve ler o manifest atual no GitHub; retomar a primeira task incompleta; corrigir falhas, testar e, quando comprovado que é necessário, acionar Claude via request. Não precisa repetir manual; não presumir sucesso sem run. Não iniciar 016 antes de 015 passar o gate.
+
+## 8. Segurança, manutenção e recuperação
+
+- GitHub secret não deve ser mostrado em prints, outputs do workflow, debug, PR de fork ou arquivos de artefato. Usar `show_full_output=false` e jobs `contents: read`; um modelo pode ser induzido a vazar conteúdo se receber ferramentas arbitrárias. Nunca habilitar Bash/network/MCP em modo de revisão.
+- No modo implementação, somente `Read,Glob,Grep,Edit,Write` são oferecidos. O preflight delimita o escopo e a coleta rejeita qualquer arquivo tocado fora da lista declarada. **Não há garantia absoluta de isolamento pelo prompt**; a checagem determinística do diff é indispensável. Restrição não impede um arquivo de código de conter instrução maliciosa, portanto o patch será revisto pelo GPT-6.
+- Nenhum segredo deve entrar em arquivos controlados pelo repositório. Rodar preflight sem segredos primeiro, não confiar em strings de issue/PR como comandos.
+- O Action é fixado a SHA verificado (não branch mutável). Atualização exige rever nova versão e testes.
+- Se token vazar, revogar na Anthropic e substituir o secret GitHub. Se não quiser mais Claude, remover `CLAUDE_CODE_OAUTH_TOKEN` e desabilitar workflow; a tarefa permanecerá pendente se o gate depender dessa integração.
+- Sem quota, autenticação, hash, sessão ou metadata reais: registrar `blocked`, não mudar o contrato ou usar outra API de cobrança silenciosamente. Não há execução prometida entre chats: a continuidade depende de novo comando e de workflow disparado.
+) {
+  Set-Clipboard -Value $token
+  Write-Host 'Token pronto para colar no GitHub (uma linha).'
+} else {
+  Write-Host 'Token nao reconhecido: copie novamente, sem outros textos.'
+}
+Remove-Variable token -ErrorAction SilentlyContinue
+```
+
+Em [Actions Secrets](https://github.com/heavydevs/plan-and-execute/settings/secrets/actions), escolha **Update** no segredo existente `CLAUDE_CODE_OAUTH_TOKEN` e cole a versão corrigida. Apague o clipboard com `Set-Clipboard -Value ''` após salvar. Depois execute novamente o workflow **PAE Claude - verify GitHub secret availability** com *Run workflow* (ou peça ao ChatGPT que verifique). O resultado positivo confirma apenas forma/disponibilidade; **a sessão Claude real ainda precisa de teste de inferência**. Não repita chamadas de modelo enquanto o teste estrutural estiver reprovado.
+
 ### O que é gratuito e o que tem franquia separada
 
 | Componente | Plano/cobrança |
