@@ -2149,6 +2149,37 @@ def execute_one_task(
         return finish_task_validation(plan_dir, manifest, config, task, report, result_path, attempt_number, record_attempt)
 
 
+
+def validated_workspace_fingerprint(repo_root: Path) -> str | None:
+    """Digest every non-ignored Git file, including already dirty and untracked files.
+
+    Unlike status flags, hashing file contents detects a second edit to files
+    that were already dirty before a probe. No raw content enters the receipt.
+    """
+    try:
+        listed = subprocess.run(
+            ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+            cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            check=True, timeout=30,
+        ).stdout
+        digest = hashlib.sha256()
+        for encoded in sorted(part for part in listed.split(b"\0") if part):
+            path = repo_root / os.fsdecode(encoded)
+            digest.update(encoded + b"\0")
+            if path.is_symlink():
+                digest.update(b"symlink:" + os.fsencode(os.readlink(path)))
+            elif path.is_file():
+                with path.open("rb") as stream:
+                    for block in iter(lambda: stream.read(1024 * 1024), b""):
+                        digest.update(block)
+            else:
+                digest.update(b"missing")
+            digest.update(b"\0")
+        return digest.hexdigest()
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return None
+
+
 def finish_task_validation(
     plan_dir: Path, manifest: dict[str, Any], config: dict[str, Any], task: dict[str, Any],
     report: dict[str, Any], result_path: Path, attempt_number: int, record_attempt: Any = None,
@@ -2241,6 +2272,7 @@ def finish_task_validation(
 
     hypothesis_checks: list[dict[str, Any]] = []
     if awaiting_promotion:
+        workspace_before = validated_workspace_fingerprint(repo_root)
         total_extra = 0
         for hyp in task.get("attempt_hypotheses", []):
             if not isinstance(hyp, dict) or hyp.get("status") != "open":
@@ -2249,11 +2281,13 @@ def finish_task_validation(
             if not isinstance(commands, list) or not commands:
                 continue
             total_extra += len(commands)
-            if total_extra > 8:
-                raise RunnerError("Too many dedicated hypothesis checks for one task (maximum eight)")
             hyp_id = str(hyp.get("id", ""))
-            if not re.fullmatch(r"H[0-9]{3,6}", hyp_id):
-                raise RunnerError("Invalid hypothesis identifier in runner verification")
+            if total_extra > 8 or not re.fullmatch(r"H[0-9]{3,6}", hyp_id):
+                # Reject the proof for this legacy/invalid hypothesis without
+                # losing the already passed producer task validation.
+                hypothesis_checks.append({"hypothesis_id": hyp_id, "checks": [],
+                                          "status": "skipped_invalid_or_over_budget"})
+                continue
             hyp_log = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-hypothesis-{hyp_id}.log"
             resource_watch.register_artifact(repo_root, hyp_log, scope=artifact_scope, owner=artifact_owner)
             # Failing optional probes do not fail the implementation task.
@@ -2270,6 +2304,17 @@ def finish_task_validation(
                             "exit_code": item.get("exit_code")}
                            for item in hyp_results if isinstance(item, dict)],
             })
+        workspace_after = validated_workspace_fingerprint(repo_root)
+        if (workspace_before is None or workspace_after is None
+                or workspace_before != workspace_after):
+            reason = "Hypothesis probe modified validated workspace or file integrity could not be measured"
+            report["orchestrator_status"] = "validation_failed"
+            planctl.atomic_write_json(result_path, report)
+            record_attempt("validation_failed", "semantic", False)
+            planctl.fail_task(plan_dir, manifest, task["id"], reason, failure_class="semantic")
+            validation_checkpoint_path(plan_dir, task).unlink(missing_ok=True)
+            print(f"[task {task['id']}] {reason}", file=sys.stderr)
+            return False
 
     # A successful validation receives a task- and attempt-bound proof only
     # after the host runner has actually executed its commands.  The digest is

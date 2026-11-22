@@ -154,8 +154,7 @@ SINGLE_TASK_CONTEXT_PATTERN = re.compile(
     re.I,
 )
 RECEIPT_SECRET_PATTERN = re.compile(
-    r"(?:(?<![A-Za-z0-9_])sk-(?:[A-Za-z0-9]{24,}|(?:ant|proj|live|test)-[A-Za-z0-9_-]{20,})|Authorization\s*:\s*(?:Bearer|Basic)\s+[^\s<]+|ghp_[A-Za-z0-9]{20,})",
-    re.I,
+    r"(?:(?<![A-Za-z0-9_])sk-(?:[A-Za-z0-9]{24,}|ant-(?:oat01-[A-Za-z0-9_-]{24,}|[A-Za-z0-9]{24,})|(?:proj|live|test)-[A-Za-z0-9]{20,})|Authorization\s*:\s*(?:Bearer|Basic)\s+[^\s<]+|(?<![A-Za-z0-9_])ghp_[A-Za-z0-9]{20,})",
 )
 MAX_GLOBAL_CONTEXT_ITEMS = 8
 MAX_SCOPED_CONTEXTS = 8
@@ -5735,6 +5734,15 @@ def invalidate_stale_hypotheses(
     return invalidated_ids
 
 
+
+def is_reused_acceptance_probe(command: str, validation_commands: list[str]) -> bool:
+    """Conservative syntactic overlap guard, not a proof of semantic equivalence."""
+    def normalized(value: str) -> str:
+        return " ".join(re.sub(r"\s+#.*$", "", value.strip()).split())
+    probe = normalized(command)
+    return any(bool(base := normalized(cmd)) and base in probe for cmd in validation_commands)
+
+
 def record_attempt_hypothesis(
     plan_dir: Path,
     manifest: dict[str, Any],
@@ -5752,9 +5760,19 @@ def record_attempt_hypothesis(
     task = find_task(manifest, task_id)
     repo_root_value = manifest.get("repo_root")
     repo_root = Path(repo_root_value) if isinstance(repo_root_value, str) and repo_root_value else None
-    if verification_commands and any(command in task.get("validation_commands", []) for command in verification_commands):
-        raise PlanError("Hypothesis verification requires dedicated checks, not producer acceptance commands")
+    if verification_commands and any(
+        is_reused_acceptance_probe(command, task.get("validation_commands", []))
+        for command in verification_commands
+    ):
+        raise PlanError("Hypothesis verification requires independent checks, not reused producer acceptance commands")
     existing = task.setdefault("attempt_hypotheses", [])
+    total_open = sum(
+        len(item.get("verification_commands", []))
+        for item in existing if isinstance(item, dict) and item.get("status") == "open"
+        and isinstance(item.get("verification_commands"), list)
+    )
+    if status == "open" and total_open + len(verification_commands or []) > 8:
+        raise PlanError("At most eight active hypothesis verification commands are allowed per task")
     used_nums = [
         int(m.group(1))
         for item in existing
@@ -5893,7 +5911,8 @@ def promote_hypothesis_to_learning(
     receipt_checks = receipt.get("validations")
     if not isinstance(receipt_checks, list) or not receipt_checks:
         raise PlanError("Cannot promote hypothesis without validation checks recorded in receipt")
-    if any(command in task.get("validation_commands", []) for command in verification_commands):
+    if any(is_reused_acceptance_probe(command, task.get("validation_commands", []))
+           for command in verification_commands):
         raise PlanError("Hypothesis verification cannot reuse producer acceptance commands")
     has_passing_check = False
     for check in deterministic_evidence:

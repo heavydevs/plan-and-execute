@@ -211,7 +211,9 @@ Service map helper: {script_dir / 'service_map.py'}
         # This is not cryptographic authentication against same-UID file
         # writers; strong adversarial isolation needs OS permissions/sandbox.
         log = Path(args[2]) if len(args) >= 3 else Path(kwargs["log_path"])
-        if log.is_file() and not log.is_symlink():
+        # Probe results are bound to the schema-v2 task proof; do not create
+        # unregistered, redundant schema-v1 sidecars for probe logs.
+        if "-hypothesis-" not in log.name and log.is_file() and not log.is_symlink():
             proof = {
                 "schema_version": 1,
                 "log_sha256": planctl.file_sha256(log),
