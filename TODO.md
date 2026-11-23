@@ -9,7 +9,8 @@
   - **Status oficial no manifesto:** `pending` até checkpoint pelo controlador
   - **Baseline:** `3cc455905f83a965e3a4ad7c04b1b2fbd9334071`
   - **Checkpoint parcial:** testes direcionados 7/7 em snapshot local; watcher oficial ainda não aprovado. Patch local não publicado no repositório. Faltam estado incerto pós-crash, regressões completas, revisão de escopo, gates e commit de implementação.
-  - **Próximo passo:** ChatGPT retoma exclusivamente a 018. Claude não valida enquanto não houver handoff explícito; task 019 permanece bloqueada.
+  - **Publicação automática:** obrigatória para checkpoints e entrega final (commit + push, com HEAD/CAS). Regra versionada em `docs/operations/PAE_DUAL_AGENT_HANDOFF.md`.
+  - **Próximo passo:** ChatGPT retoma exclusivamente a 018, publica o código e testes com commit/push automático e só transfere ao Claude após completar os gates de implementação. Claude não valida enquanto não houver handoff explícito; task 019 permanece bloqueada.
 
 ## Task 015 — concluída
 
