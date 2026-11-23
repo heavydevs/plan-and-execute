@@ -5,3 +5,7 @@ coverage/
 __pycache__/
 *.pyc
 .ai-work/
+
+# AI tooling folders
+.agents/
+.claude/
