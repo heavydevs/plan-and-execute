@@ -1,0 +1,154 @@
+name: PAE 015 - original checks with immutable logs
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.ai-work/chatgpt-executor/requests/015-run-original-checks.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pae-015-original-checks
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout request without write credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Validate pinned task 015 exclusive request
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,subprocess
+          from pathlib import Path
+          path='.ai-work/chatgpt-executor/requests/015-run-original-checks.json'
+          doc=json.loads(Path(path).read_text())
+          assert set(doc)=={'schema','task_id','source_head','reason'}
+          assert doc['schema']=='pae-015-original-checks/1' and doc['task_id']=='015'
+          assert os.environ['GITHUB_REF']=='refs/heads/checkpoint/plano1-estudo-provider-switch-20261028'
+          parent=subprocess.check_output(['git','rev-parse','HEAD^'],text=True).strip()
+          assert parent==doc['source_head'],(parent,doc['source_head'])
+          changed=subprocess.check_output(['git','diff-tree','--no-commit-id','--name-only','-r','HEAD'],text=True).splitlines()
+          assert changed==[path],changed
+          assert '015' in doc['reason'] and len(doc['reason'])<=450
+          print('ORIGINAL_015_CHECK_REQUEST_VALID')
+          PY
+      - name: Run all original task 015 checks and verify complete SHA256 logs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python docs/plans/20261028-skill-optimization/support/run_task_checks.py --task 015
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'docs/plans/20261028-skill-optimization/support')
+          import check_delivery as gate
+          root=Path('.').resolve()
+          entry=gate.catalog(root)['015']
+          data=gate.load(root/gate.OUTPUT/'015-checks.json')
+          assert data['schema_version']==1 and data['task_id']=='015'
+          assert data['input_fingerprint']==gate.code_fingerprint(root,entry)
+          assert data['inputs_unchanged'] is True
+          assert [x['argv'] for x in data['checks']]==entry['required_checks']
+          for x in data['checks']:
+              assert type(x['exit_code']) is int and x['exit_code']==0
+              assert gate.sha(gate.local(root,x['log']))==x['log_sha256']
+          print('ORIGINAL_015_SEVEN_CHECKS_PASS_WITH_LOG_HASHES',len(data['checks']))
+          PY
+      - name: Archive only the exact recorded check logs
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,tarfile
+          from pathlib import Path
+          machine=Path('docs/research/20261028-skill-optimization/implementation/015-checks.json')
+          data=json.loads(machine.read_text())
+          with tarfile.open('/tmp/pae-015-original-checks.tar','w') as tar:
+              tar.add(machine,arcname=machine.as_posix())
+              for result in data['checks']:
+                  path=Path(result['log'])
+                  assert path.as_posix().startswith('docs/research/20261028-skill-optimization/implementation/logs/015/')
+                  tar.add(path,arcname=path.as_posix())
+          PY
+          (cd /tmp && sha256sum pae-015-original-checks.tar > pae-015-original-checks.tar.sha256)
+      - name: Upload original checked evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pae-015-original-checks-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            /tmp/pae-015-original-checks.tar
+            /tmp/pae-015-original-checks.tar.sha256
+          if-no-files-found: warn
+          retention-days: 14
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout same request SHA with scoped push credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+          persist-credentials: true
+      - name: Download exact verified evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: pae-015-original-checks-${{ github.sha }}-${{ github.run_attempt }}
+          path: /tmp
+      - name: Reverify artifact, log hashes and exact publication scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp && sha256sum --check pae-015-original-checks.tar.sha256)
+          python - <<'PY'
+          import tarfile
+          prefix='docs/research/20261028-skill-optimization/implementation/logs/015/'
+          machine='docs/research/20261028-skill-optimization/implementation/015-checks.json'
+          with tarfile.open('/tmp/pae-015-original-checks.tar','r') as tar:
+              for m in tar:
+                  assert m.name==machine or m.name.startswith(prefix),m.name
+                  assert m.isfile() and not (m.issym() or m.islnk()),m.name
+              tar.extractall('.',filter='data')
+          PY
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,'docs/plans/20261028-skill-optimization/support')
+          import check_delivery as gate
+          root=Path('.').resolve()
+          entry=gate.catalog(root)['015']
+          data=gate.load(root/gate.OUTPUT/'015-checks.json')
+          assert data['input_fingerprint']==gate.code_fingerprint(root,entry)
+          assert data['inputs_unchanged'] is True
+          assert [x['argv'] for x in data['checks']]==entry['required_checks']
+          assert all(type(x['exit_code']) is int and x['exit_code']==0 for x in data['checks'])
+          for x in data['checks']:
+              assert gate.sha(gate.local(root,x['log']))==x['log_sha256']
+          print('PUBLISH_015_CHECK_LOGS_VERIFIED',len(data['checks']))
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/research/20261028-skill-optimization/implementation/015-checks.json docs/research/20261028-skill-optimization/implementation/logs/015
+          git diff --cached --check
+          python - <<'PY'
+          import subprocess
+          paths=subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines()
+          prefix='docs/research/20261028-skill-optimization/implementation/'
+          assert paths and all(p==prefix+'015-checks.json' or p.startswith(prefix+'logs/015/') for p in paths),paths
+          print('PUBLISH_015_SCOPE_VERIFIED')
+          PY
+          git commit -m 'test(task-015): pin original seven-check output and hashed logs'
+          git push origin HEAD:checkpoint/plano1-estudo-provider-switch-20261028
