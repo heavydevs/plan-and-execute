@@ -1,0 +1,63 @@
+name: PAE 015 - original Claude CLI reviewer dry-run (no inference)
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.github/workflows/pae-015-native-review-preflight-20261123.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native-dispatch-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout exact source without write credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install official Claude Code CLI, no authentication or model call
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location https://claude.ai/install.sh -o /tmp/install-claude-cli.sh
+          bash /tmp/install-claude-cli.sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Probe original PAE max-tier review dispatcher in dry-run
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,subprocess,sys
+          from pathlib import Path
+          command=[
+              sys.executable,
+              "docs/plans/20261028-skill-optimization/support/review_dispatch.py",
+              "--repo-root", ".", "--task", "015", "--provider", "claude",
+              "--dry-run",
+              "--input", "skill/plan-and-execute/scripts/planctl.py",
+              "--input", "skill/plan-and-execute/scripts/run_isolated.py",
+              "--input", "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+              "--input", "test/optimization/context_learning_self_test.py",
+          ]
+          env=dict(os.environ)
+          env["PATH"]=str(Path.home()/".local/bin")+":"+env.get("PATH","")
+          env.pop("ANTHROPIC_API_KEY",None)
+          env.pop("CLAUDE_CODE_OAUTH_TOKEN",None)
+          proc=subprocess.run(command,env=env,text=True,capture_output=True,timeout=240)
+          print("PAE_NATIVE_DRY_RUN_EXIT",proc.returncode)
+          for line in proc.stdout.splitlines():
+              if line.startswith("DRY-RUN") or line.startswith("BRIEF") or line.startswith("NO_REVIEW"):
+                  print(line[:1200])
+              elif line.startswith("COMMAND "):
+                  argv=json.loads(line[len("COMMAND "):])
+                  joined=" ".join(str(x) for x in argv[:-1])
+                  flags=["--permission-mode plan","--tools Read,Grep,Glob","--model claude-opus-5-5","--effort xhigh"]
+                  print("PAE_NATIVE_COMMAND_READ_ONLY",all(x in joined for x in flags))
+                  print("PAE_NATIVE_COMMAND_ALLOWED",all(x in joined for x in flags) and "dangerously" not in joined)
+          for line in proc.stderr.splitlines()[-6:]:
+              print("PAE_NATIVE_DIAGNOSTIC",line[:300])
+          if proc.returncode: raise SystemExit(proc.returncode)
+          PY
