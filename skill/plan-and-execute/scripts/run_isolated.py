@@ -1691,6 +1691,7 @@ def run_validation_commands(
     seen_lines: list[str] | None = None,
     hard_timeout_seconds: int = 0,
     map_path: str = ".ai-work/SERVICE_MAP.md",
+    isolated_probe: bool = False,
 ) -> tuple[bool, list[dict[str, Any]], str | None]:
     results: list[dict[str, Any]] = []
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1703,9 +1704,16 @@ def run_validation_commands(
             # Mapped watchers own progress from CPU/probes as well as output. An
             # output-only outer clock would incorrectly kill a silent healthy job.
             mapped = service_map.parse_watcher_command(command, None, repo_root) is not None
-            child_env = dict(os.environ)
+            if isolated_probe:
+                # Optional hypothesis probes get no host credentials and no stdin.
+                child_env = {key: os.environ[key] for key in
+                             ("PATH", "LANG", "LC_ALL", "SYSTEMROOT", "COMSPEC", "PATHEXT")
+                             if key in os.environ}
+            else:
+                child_env = dict(os.environ)
             child_env["PAE_VALIDATION_IDLE_SECONDS"] = str(timeout_seconds)
             child_env["PAE_VALIDATION_HARD_SECONDS"] = str(hard_timeout_seconds)
+            launch_options: dict[str, Any] = {"stdin": subprocess.DEVNULL} if isolated_probe else {}
             with process_tree.launch(
                 command,
                 cwd=repo_root,
@@ -1713,6 +1721,7 @@ def run_validation_commands(
                 stdout=log,
                 stderr=subprocess.STDOUT,
                 env=child_env,
+                **launch_options,
             ) as process:
                 state = progress_watch.ProgressState(0 if mapped else timeout_seconds, hard_timeout_seconds)
                 monitor = progress_watch.ProgressMonitor(process, state, repo_root)
@@ -2150,12 +2159,23 @@ def execute_one_task(
 
 
 
-def validated_workspace_fingerprint(repo_root: Path) -> str | None:
+def validated_workspace_fingerprint(repo_root: Path, exclude_dir: Path | None = None) -> str | None:
     """Digest every non-ignored Git file, including already dirty and untracked files.
 
     Unlike status flags, hashing file contents detects a second edit to files
     that were already dirty before a probe. No raw content enters the receipt.
+    ``exclude_dir`` (the plan directory) is skipped because the caller pins it
+    separately with a protected-hash set that tolerates only new probe logs;
+    otherwise a non-ignored plan directory would always differ.
     """
+    excluded_prefix: bytes | None = None
+    if exclude_dir is not None:
+        try:
+            excluded_prefix = os.fsencode(
+                exclude_dir.resolve().relative_to(repo_root.resolve()).as_posix()
+            ) + b"/"
+        except (OSError, ValueError):
+            excluded_prefix = None
     try:
         listed = subprocess.run(
             ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
@@ -2164,12 +2184,14 @@ def validated_workspace_fingerprint(repo_root: Path) -> str | None:
         ).stdout
         digest = hashlib.sha256()
         for encoded in sorted(part for part in listed.split(b"\0") if part):
+            if excluded_prefix is not None and encoded.startswith(excluded_prefix):
+                continue
             path = repo_root / os.fsdecode(encoded)
             digest.update(encoded + b"\0")
             if path.is_symlink():
                 digest.update(b"symlink:" + os.fsencode(os.readlink(path)))
             elif path.is_file():
-                digest.update(str(path.stat().st_mode & 0o777).encode("ascii") + b":")
+                digest.update(str(path.lstat().st_mode & 0o777).encode("ascii") + b":")
                 with path.open("rb") as stream:
                     for block in iter(lambda: stream.read(1024 * 1024), b""):
                         digest.update(block)
@@ -2296,9 +2318,11 @@ def finish_task_validation(
                     value = "other"
                 recorded.append((relative, value, mode))
             return tuple(recorded)
-        protected_before = protected_hashes()
-        workspace_before = validated_workspace_fingerprint(repo_root)
+        # Evidence that changed since it was recorded must never be probed or
+        # promoted. Do this before pinning the manifest below.
+        planctl.invalidate_stale_hypotheses(plan_dir, manifest, task["id"], repo_root=repo_root)
         total_extra = 0
+        runnable: list[tuple[dict[str, Any], str, list[str], Path]] = []
         for hyp in task.get("attempt_hypotheses", []):
             if not isinstance(hyp, dict) or hyp.get("status") != "open":
                 continue
@@ -2315,18 +2339,37 @@ def finish_task_validation(
                     raise planctl.PlanError("Hypothesis probe reuses acceptance")
                 for cmd in commands:
                     planctl.check_safe_hypothesis_probe(cmd, hyp.get("evidence_refs", []))
+                # Target must be a pinned, unchanged, in-repo regular file.
+                planctl.check_hypothesis_probe_targets(hyp, repo_root, plan_dir=plan_dir)
             except planctl.PlanError:
                 # Legacy unsafe probes neither run nor supply promotable proof.
                 hypothesis_checks.append({"hypothesis_id": hyp_id, "checks": [],
                                           "status": "skipped_unsafe_or_over_budget"})
                 continue
             hyp_log = plan_dir / "logs" / f"{task['id']}-attempt-{attempt_number}-hypothesis-{hyp_id}.log"
+            # Register before the "before" snapshot: the registry append is
+            # not part of the probe and must not look like a probe-time edit.
             resource_watch.register_artifact(repo_root, hyp_log, scope=artifact_scope, owner=artifact_owner)
+            runnable.append((hyp, hyp_id, list(commands), hyp_log))
+        protected_before = protected_hashes()
+        workspace_before = validated_workspace_fingerprint(repo_root, plan_dir)
+        for hyp, hyp_id, commands, hyp_log in runnable:
+            try:
+                # Re-check immediately before executing; the target may have been
+                # swapped for a symlink or changed after the first pass.
+                if planctl.check_hypothesis_freshness(hyp, task, repo_root):
+                    raise planctl.PlanError("Hypothesis evidence changed before probe")
+                planctl.check_hypothesis_probe_targets(hyp, repo_root, plan_dir=plan_dir)
+            except planctl.PlanError:
+                hypothesis_checks.append({"hypothesis_id": hyp_id, "checks": [],
+                                          "status": "skipped_unsafe_or_over_budget"})
+                continue
             # Failing optional probes do not fail the implementation task.
             _hyp_passed, hyp_results, _hyp_reason = run_validation_commands(
                 repo_root, commands, hyp_log,
                 validation_timeout_seconds(task, config),
                 hard_timeout_seconds=validation_hard_timeout_seconds(task, config),
+                isolated_probe=True,
             )
             hypothesis_checks.append({
                 "hypothesis_id": hyp_id,
@@ -2336,7 +2379,7 @@ def finish_task_validation(
                             "exit_code": item.get("exit_code")}
                            for item in hyp_results if isinstance(item, dict)],
             })
-        workspace_after = validated_workspace_fingerprint(repo_root)
+        workspace_after = validated_workspace_fingerprint(repo_root, plan_dir)
         protected_after = protected_hashes()
         if (workspace_before is None or workspace_after is None
                 or workspace_before != workspace_after or protected_before != protected_after):

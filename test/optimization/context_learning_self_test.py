@@ -2275,6 +2275,223 @@ def test_review6_hypothesis_command_cap_fails_before_runner() -> None:
         )
 
 
+PROBE_CLAIM = "Claim must be rejected if the evidence does not contain the pattern."
+
+
+def probe_fixture(temp: str, name: str, work_root: str = ".ai-work"):
+    """Claimed task 001 with a pinned evidence file and one safe recorded probe."""
+    install_runner_contract(run_isolated)
+    repo = make_repo(Path(temp), name)
+    spec = three_task_spec(targets_001=[{
+        "task_id": "002", "reason": "The next task receives only verified learning.",
+        "topics": ["marker validation"],
+    }])
+    plan_dir = base_planctl.create_plan(repo, spec, work_root, name)
+    _, manifest = base_planctl.load_plan(plan_dir)
+    base_planctl.claim_task(plan_dir, manifest, "001", None)
+    (repo / "evidence.txt").write_text("marker\n", encoding="utf-8")
+    (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
+    base_planctl.record_attempt_hypothesis(
+        plan_dir, manifest, "001", PROBE_CLAIM, ["evidence.txt"],
+        verification_commands=["grep -qx marker evidence.txt"],
+    )
+    return repo, plan_dir, manifest, base_planctl.find_task(manifest, "001")
+
+
+def runner_proof(plan_dir: Path) -> dict:
+    return base_planctl.read_json(
+        plan_dir / "logs" / "001-attempt-1-validation.log.runner-evidence.json"
+    )
+
+
+def test_review7_probe_path_cannot_be_option_absolute_or_control_file() -> None:
+    """GNU grep reorders options: a '-r' path slot must never reach the shell."""
+    for path in ("-r", "-R", "--recursive", "--dereference-recursive", "-", "--",
+                 "/proc/self/environ", "/dev/zero", "../../x", "evidence.txt/../x",
+                 ".ai-work/probe-negative/manifest.json", ".git/config",
+                 "sub/.git/config", "a//b", "./", "."):
+        refs = [path, "evidence.txt"]
+        expect_plan_error(
+            lambda path=path, refs=refs: base_planctl.check_safe_hypothesis_probe(
+                f"grep -qF ZzUnprovenClaim {path}", refs), "hypothesis")
+    # Command words that str.split() would separate but the shell would not.
+    for command in ("grep -qF ZzUnprovenClaim evidence.txt",
+                    "grep -qF ZzUnprovenClaim\tevidence.txt",
+                    "grep  -qF ZzUnprovenClaim evidence.txt",
+                    "grep -qF ZzUnprovenClaim evidence.txt "):
+        expect_plan_error(
+            lambda command=command: base_planctl.check_safe_hypothesis_probe(
+                command, ["evidence.txt"]), "hypothesis")
+    # Positive control: a plain relative cited file still passes.
+    base_planctl.check_safe_hypothesis_probe("grep -qF ZzUnprovenClaim ./evidence.txt", ["evidence.txt"])
+    with tempfile.TemporaryDirectory() as temp:
+        repo, plan_dir, manifest, task = probe_fixture(temp, "probe-option-path")
+        for command, refs in (
+            ("grep -qF ZzUnprovenClaim -r", ["evidence.txt", "-r"]),
+            ("grep -qF PATH /proc/self/environ", ["/proc/self/environ"]),
+        ):
+            expect_plan_error(
+                lambda command=command, refs=refs: base_planctl.record_attempt_hypothesis(
+                    plan_dir, manifest, "001", "Claim about host content needs a probe.",
+                    refs, verification_commands=[command]), "hypothesis")
+        assert len(task["attempt_hypotheses"]) == 1
+
+
+def test_review7_forged_option_or_outside_probe_never_runs_or_promotes() -> None:
+    """A manifest-injected probe (bypassing record) is skipped by the runner."""
+    for bad in ("grep -qF ZzUnprovenClaim -r", "grep -qF ZzUnprovenClaim --recursive",
+                "grep -qF PATH /proc/self/environ", "grep -qF ZzUnprovenClaim ../evidence.txt"):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, plan_dir, manifest, task = probe_fixture(temp, "probe-forged")
+            task["attempt_hypotheses"][0]["verification_commands"] = [bad]
+            result = plan_dir / "results" / "001-forged.json"
+            assert run_isolated.finish_task_validation(
+                plan_dir, manifest, {}, task, completion_report(), result, 1) is True
+            proof = runner_proof(plan_dir)
+            assert proof["hypothesis_checks"] == [{
+                "hypothesis_id": "H001", "checks": [],
+                "status": "skipped_unsafe_or_over_budget"}], bad
+            assert not (plan_dir / "logs" / "001-attempt-1-hypothesis-H001.log").exists()
+            expect_plan_error(
+                lambda bad=bad: base_planctl.promote_hypothesis_to_learning(
+                    plan_dir, manifest, "001", "H001", kind="procedure",
+                    target_task_ids=["002"], deterministic_evidence=[{
+                        "command": bad, "passed": True, "exit_code": 0}]), "hypothesis")
+            _, loaded = base_planctl.load_plan(plan_dir)
+            assert not loaded.get("learning_artifacts")
+
+
+def test_review7_unpinned_symlinked_or_swapped_probe_target_is_not_probed() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        # Symlinked evidence at record time is never digest-pinned.
+        install_runner_contract(run_isolated)
+        repo = make_repo(Path(temp), "probe-symlink")
+        outside = Path(temp) / "outside.txt"
+        outside.write_text("Marker1 host data\n", encoding="utf-8")
+        plan_dir = base_planctl.create_plan(repo, three_task_spec(targets_001=[{
+            "task_id": "002", "reason": "The next task receives only verified learning.",
+            "topics": ["marker validation"]}]), ".ai-work", "probe-symlink")
+        _, manifest = base_planctl.load_plan(plan_dir)
+        base_planctl.claim_task(plan_dir, manifest, "001", None)
+        task = base_planctl.find_task(manifest, "001")
+        (repo / "implemented.txt").write_text("implemented\n", encoding="utf-8")
+        (repo / "ev.txt").symlink_to(outside)
+        base_planctl.record_attempt_hypothesis(
+            plan_dir, manifest, "001", PROBE_CLAIM, ["ev.txt"],
+            verification_commands=["grep -qF Marker1 ev.txt"])
+        result = plan_dir / "results" / "001-symlink.json"
+        assert run_isolated.finish_task_validation(
+            plan_dir, manifest, {}, task, completion_report(), result, 1) is True
+        hyp = base_planctl.find_task(manifest, "001")["attempt_hypotheses"][0]
+        assert hyp["status"] == "invalidated", hyp
+        assert not (plan_dir / "logs" / "001-attempt-1-hypothesis-H001.log").exists()
+        assert runner_proof(plan_dir)["hypothesis_checks"] == []
+    with tempfile.TemporaryDirectory() as temp:
+        # Evidence replaced by a symlink after it was pinned (in-progress attempt).
+        repo, plan_dir, manifest, task = probe_fixture(temp, "probe-swapped")
+        outside = Path(temp) / "outside.txt"
+        outside.write_text("marker\n", encoding="utf-8")
+        (repo / "evidence.txt").unlink()
+        (repo / "evidence.txt").symlink_to(outside)
+        result = plan_dir / "results" / "001-swapped.json"
+        assert run_isolated.finish_task_validation(
+            plan_dir, manifest, {}, task, completion_report(), result, 1) is True
+        hyp = base_planctl.find_task(manifest, "001")["attempt_hypotheses"][0]
+        assert hyp["status"] == "invalidated", hyp
+        assert not (plan_dir / "logs" / "001-attempt-1-hypothesis-H001.log").exists()
+    # Direct target contract: pinned digest, regular file, outside the plan dir.
+    with tempfile.TemporaryDirectory() as temp:
+        repo, plan_dir, manifest, task = probe_fixture(temp, "probe-targets")
+        hyp = task["attempt_hypotheses"][0]
+        base_planctl.check_hypothesis_probe_targets(hyp, repo, plan_dir=plan_dir)
+        expect_plan_error(lambda: base_planctl.check_hypothesis_probe_targets(
+            {**hyp, "evidence_digests": {}}, repo, plan_dir=plan_dir), "not pinned")
+        expect_plan_error(lambda: base_planctl.check_hypothesis_probe_targets(
+            {**hyp, "evidence_digests": None}, repo, plan_dir=plan_dir), "not pinned")
+        (repo / "evidence.txt").unlink()
+        expect_plan_error(lambda: base_planctl.check_hypothesis_probe_targets(
+            hyp, repo, plan_dir=plan_dir), "regular file")
+
+
+def test_review7_probe_runs_without_host_environment_or_stdin() -> None:
+    install_runner_contract(run_isolated)
+    code = "import os,sys;print(os.environ.get('PAE_TEST_SECRET','absent'),repr(sys.stdin.read()))"
+    command = f'{sys.executable} -c "{code}"'
+    with tempfile.TemporaryDirectory() as temp, patch.dict(
+            "os.environ", {"PAE_TEST_SECRET": "leaked"}):
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        _, probe, _ = run_isolated.run_validation_commands(
+            repo, [command], Path(temp) / "probe-hypothesis-H001.log", 20,
+            isolated_probe=True)
+        assert probe[0]["passed"] is True, probe
+        assert "absent ''" in probe[0]["output_tail"], probe[0]["output_tail"]
+        # The control must not read stdin (the test runner's stdin may be open).
+        control_command = (f'{sys.executable} -c '
+                           '"import os;print(os.environ.get(\'PAE_TEST_SECRET\',\'absent\'))"')
+        _, control, _ = run_isolated.run_validation_commands(
+            repo, [control_command], Path(temp) / "control.log", 20)
+        assert "leaked" in control[0]["output_tail"], "control run must keep ordinary env"
+
+
+def test_review7_probe_time_mutation_fails_closed_and_is_invalidated() -> None:
+    """Probe-time edits to plan control files, modes or worktree files are detected."""
+    def tamper_manifest(repo: Path, plan_dir: Path) -> None:
+        path = plan_dir / "manifest.json"
+        path.write_bytes(path.read_bytes() + b"\n")
+
+    def tamper_ignored_log(repo: Path, plan_dir: Path) -> None:
+        with (plan_dir / "logs" / "001-attempt-1-validation.log").open("ab") as handle:
+            handle.write(b"tamper\n")
+
+    def tamper_mode(repo: Path, plan_dir: Path) -> None:
+        (repo / "implemented.txt").chmod(0o755)
+
+    def tamper_content(repo: Path, plan_dir: Path) -> None:
+        (repo / "implemented.txt").write_text("changed by probe\n", encoding="utf-8")
+
+    scenarios = [("manifest", tamper_manifest), ("ignored-log", tamper_ignored_log),
+                 ("content", tamper_content)]
+    if sys.platform != "win32":
+        scenarios.append(("mode", tamper_mode))
+    for name, tamper in scenarios:
+        with tempfile.TemporaryDirectory() as temp:
+            repo, plan_dir, manifest, task = probe_fixture(temp, f"probe-mutation-{name}")
+            original = run_isolated.run_validation_commands
+
+            def hooked(repo_root, commands, log_path, *args, **kwargs):
+                if "-hypothesis-" in Path(log_path).name:
+                    tamper(repo, plan_dir)
+                return original(repo_root, commands, log_path, *args, **kwargs)
+
+            result = plan_dir / "results" / f"001-{name}.json"
+            with patch.object(run_isolated, "run_validation_commands", hooked):
+                outcome = run_isolated.finish_task_validation(
+                    plan_dir, manifest, {}, task, completion_report(), result, 1)
+            assert outcome is False, name
+            final = base_planctl.find_task(manifest, "001")
+            assert final["status"] != "completed", name
+            hyp = final["attempt_hypotheses"][0]
+            assert hyp["status"] == "invalidated", (name, hyp)
+            assert "Hypothesis probe modified validated evidence" in hyp["invalidated_reason"], name
+            proof_path = plan_dir / "logs" / "001-attempt-1-validation.log.runner-evidence.json"
+            assert (not proof_path.exists()
+                    or base_planctl.read_json(proof_path).get("schema_version") != 2), name
+
+
+def test_review7_resource_registry_write_is_not_a_probe_mutation() -> None:
+    """Non-default work root leaves .ai-work/resource-watch/registry.jsonl untracked."""
+    with tempfile.TemporaryDirectory() as temp:
+        repo, plan_dir, manifest, task = probe_fixture(temp, "probe-registry", "plans")
+        assert not (repo / ".gitignore").exists()
+        result = plan_dir / "results" / "001-registry.json"
+        assert run_isolated.finish_task_validation(
+            plan_dir, manifest, {}, task, completion_report(), result, 1) is True
+        checks = runner_proof(plan_dir)["hypothesis_checks"]
+        assert checks[0]["checks"] == [
+            {"command": "grep -qx marker evidence.txt", "passed": True, "exit_code": 0}]
+
+
 def main() -> int:
     test_review_015_optional_acceptance_override_is_rejected()
     test_review_015_hidden_unicode_line_breaks_cannot_escape_context()
@@ -2326,6 +2543,12 @@ def main() -> int:
     test_review5_cli_dedicated_hypothesis_proof_and_slug_redaction()
     test_review6_bounded_safe_independent_hypothesis_probes()
     test_review6_hypothesis_command_cap_fails_before_runner()
+    test_review7_probe_path_cannot_be_option_absolute_or_control_file()
+    test_review7_forged_option_or_outside_probe_never_runs_or_promotes()
+    test_review7_unpinned_symlinked_or_swapped_probe_target_is_not_probed()
+    test_review7_probe_runs_without_host_environment_or_stdin()
+    test_review7_probe_time_mutation_fails_closed_and_is_invalidated()
+    test_review7_resource_registry_write_is_not_a_probe_mutation()
     print("All task 014 context-learning self-tests passed.")
     return 0
 

@@ -5785,20 +5785,71 @@ def check_safe_hypothesis_probe(command: str, evidence_refs: list[str]) -> None:
     """
     if any(char in command for char in ";&|><$" + chr(96) + "\n\r#'\"\\*?[]{}()"):
         raise PlanError("Hypothesis probe must be a safe read-only query")
-    tokens = command.strip().split()
+    # Only printable ASCII with plain spaces: str.split() also splits on
+    # Unicode/tab whitespace that the shell would treat as part of one word.
+    if not re.fullmatch(r"[\x20-\x7e]+", command):
+        raise PlanError("Hypothesis probe must be a safe read-only query")
+    tokens = command.strip().split(" ")
     if len(tokens) != 4 or tokens[0] != "grep":
         raise PlanError("Hypothesis probe must be a safe read-only grep query")
     flags, pattern, source_path = tokens[1:]
+    # The path slot must be a plain relative file name.  A leading "-" would be
+    # reordered by GNU grep into an option (-r/-R/--recursive) and search the
+    # whole worktree, including ignored plan control files.
     if (not re.fullmatch(r"-[qFxiw]{1,5}", flags)
             or len(set(flags[1:])) != len(flags[1:])
             or "q" not in flags or not any(c in flags for c in "xFw")
             or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{2,}", pattern)
             or pattern.lower() in {"true", "false", "any", "all", "none"}
-            or not re.fullmatch(r"[A-Za-z0-9_./-]+", source_path)):
+            or not re.fullmatch(r"(?:\./)?[A-Za-z0-9_][A-Za-z0-9_./-]*", source_path)):
         raise PlanError("Hypothesis grep must use bounded read-only flags and a nontrivial pattern")
+    normalized_path = source_path.removeprefix("./")
+    parts = normalized_path.split("/")
+    if (any(part in {"", ".", ".."} for part in parts)
+            or parts[0].casefold() in {".ai-work", ".git"}
+            or any(part.casefold() == ".git" for part in parts)):
+        raise PlanError("Hypothesis probe must query a repository-relative source file")
     refs = {ref.split("#", 1)[0].removeprefix("./") for ref in evidence_refs}
-    if source_path.removeprefix("./") not in refs:
+    if normalized_path not in refs:
         raise PlanError("Hypothesis probe must query a source cited by that hypothesis")
+
+
+def hypothesis_probe_source(command: str) -> str:
+    """Return the normalized repository-relative path queried by a safe probe."""
+    check_safe_hypothesis_probe(command, [command.strip().split(" ")[-1].removeprefix("./")])
+    return command.strip().split(" ")[-1].removeprefix("./")
+
+
+def check_hypothesis_probe_targets(
+    hypothesis: dict[str, Any],
+    repo_root: Path,
+    *,
+    plan_dir: Path | None = None,
+) -> None:
+    """Require each probe target to be a pinned, unchanged regular file inside the repo.
+
+    Static syntax is not enough: the target must have a recorded digest, may not
+    be a symlink or traverse one, and may not live in the plan directory.
+    """
+    digests = hypothesis.get("evidence_digests")
+    if not isinstance(digests, dict):
+        raise PlanError("Hypothesis probe target is not pinned by an evidence digest")
+    root = repo_root.resolve()
+    plan_root = plan_dir.resolve() if plan_dir is not None else None
+    for command in hypothesis.get("verification_commands") or []:
+        source = hypothesis_probe_source(command)
+        if source not in digests:
+            raise PlanError(f"Hypothesis probe target is not pinned by an evidence digest: {source}")
+        rel_path = Path(source)
+        reject_symlink_components(root, rel_path, "hypothesis probe target")
+        target = root / rel_path
+        if target.is_symlink() or not target.is_file():
+            raise PlanError(f"Hypothesis probe target is not a regular file: {source}")
+        resolved = target.resolve()
+        if not resolved.is_relative_to(root) or (
+            plan_root is not None and resolved.is_relative_to(plan_root)
+        ):
+            raise PlanError(f"Hypothesis probe target escapes the repository evidence set: {source}")
 
 
 def record_attempt_hypothesis(
@@ -5976,6 +6027,10 @@ def promote_hypothesis_to_learning(
         raise PlanError("Hypothesis verification cannot reuse producer acceptance commands")
     for command in verification_commands:
         check_safe_hypothesis_probe(command, target_hyp.get("evidence_refs", []))
+    promotion_root = manifest.get("repo_root")
+    if not isinstance(promotion_root, str) or not promotion_root or not Path(promotion_root).is_dir():
+        raise PlanError("Cannot verify hypothesis probe targets without the repository root")
+    check_hypothesis_probe_targets(target_hyp, Path(promotion_root), plan_dir=plan_dir)
     has_passing_check = False
     for check in deterministic_evidence:
         if not isinstance(check, dict):
