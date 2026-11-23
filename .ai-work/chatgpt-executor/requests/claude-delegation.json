@@ -1,12 +1,12 @@
 {
   "schema": "pae-claude-delegation/1",
-  "attempt_id": "claude-015-independent-review-20261122-014",
-  "mode": "review",
+  "attempt_id": "claude-015-sonnet-repair-20261123-001",
+  "mode": "repair",
   "task_id": "015",
-  "source_head": "76208dc2b1c4c3575356e3235fe122a05752bab8",
+  "source_head": "76ec84ea5302b55bf550b956ba92c392e77827bc",
   "escalation": {
-    "reason": "cross_cutting_high_risk",
-    "evidence_ref": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
-    "summary": "Independent maximum-tier read-only review of task 015 code SHA 76208dc2. Verify remediation of prior high finding: optional learning probes now accept only a strict single status-only grep with a nontrivial pattern and cited file, reject all rg options such as --pre, shell commands, trivial success or acceptance replays. Verify complete ignored-plan evidence and file-mode hashing before and after probes, actual runner receipts, and reproducible regressions. Flag all outstanding high/medium issues with code lines."
+    "reason": "review_finding",
+    "evidence_ref": "docs/operations/evidence/task-015-opus-findings-for-sonnet-2026-11-23.md",
+    "summary": "Task 015 has one high and two medium reproducible trust-boundary findings from authentic independent Opus review. Repair with repo-local Plan-and-Execute skill, add negative regressions, output scoped patch, do not use AGY, and stop without starting task 016."
   }
 }
