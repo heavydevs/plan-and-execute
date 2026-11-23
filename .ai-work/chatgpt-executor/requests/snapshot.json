@@ -1,8 +1,8 @@
 {
   "schema": "chatgpt-snapshot-request/1",
   "enabled": true,
-  "task_id": "015",
-  "request_id": "015-20261123-original-checks-and-logs",
-  "requested_source_head": "43eba93464370f13e50441c098635ff86f22b995",
-  "reason": "Immutable checkout containing authentic original seven-check receipt and logs of task 015 for SHA256 validation and formally pinned final delivery packet. No task 016."
+  "task_id": "018",
+  "request_id": "018-20261123-implementation",
+  "requested_source_head": "5419f0e68bc24033393630dba08bb8eef250c61e",
+  "reason": "Immutable checkout for implementation/test of first eligible task 018, with handoff to Claude; do not run task 019."
 }
