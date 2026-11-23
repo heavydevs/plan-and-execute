@@ -1,12 +1,12 @@
 {
   "schema": "pae-claude-delegation/1",
-  "attempt_id": "claude-015-sonnet-repair-20261123-001",
-  "mode": "repair",
+  "attempt_id": "claude-015-opus-rereview-20261123-001",
+  "mode": "review",
   "task_id": "015",
-  "source_head": "76ec84ea5302b55bf550b956ba92c392e77827bc",
+  "source_head": "3c75e6c76d814095112aa7f2a2950c13e7f8df59",
   "escalation": {
-    "reason": "review_finding",
-    "evidence_ref": "docs/operations/evidence/task-015-opus-findings-for-sonnet-2026-11-23.md",
-    "summary": "Task 015 has one high and two medium reproducible trust-boundary findings from authentic independent Opus review. Repair with repo-local Plan-and-Execute skill, add negative regressions, output scoped patch, do not use AGY, and stop without starting task 016."
+    "reason": "cross_cutting_high_risk",
+    "evidence_ref": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
+    "summary": "Independent fresh Opus review of the complete task 015 final code and its assigned architecture, context provenance and security invariants. Review only source, prepared requirements and tests before the first verdict. Nine checks passed on this exact code; assess correctness independently."
   }
 }
