@@ -150,8 +150,13 @@ POLICY_OVERRIDE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         ),
     ),
 )
+POLICY_NEGATION_PREFIX = re.compile(
+    r"(?:\b(?:never|not|cannot|without|avoid|forbidden\s+to|prohibited\s+from)|n't)\s+(?:\w+\s+){0,2}$",
+    re.I,
+)
 SINGLE_TASK_CONTEXT_PATTERN = re.compile(
-    r"\bonly\s+(?:for\s+)?(?:todo|task)\s+[A-Za-z0-9_-]{1,12}\b",
+    # A real task identity contains a digit (001, T2); "only task outputs" is prose.
+    r"\bonly\s+(?:for\s+)?(?:todo|task)\s+(?=[A-Za-z0-9_-]{0,11}\d)[A-Za-z0-9_-]{1,12}\b",
     re.I,
 )
 RECEIPT_SECRET_PATTERN = re.compile(
@@ -4606,7 +4611,12 @@ def detect_policy_override_note(text: str) -> str | None:
     if not isinstance(text, str) or not text.strip():
         return None
     for label, pattern in POLICY_OVERRIDE_PATTERNS:
-        if pattern.search(text):
+        for match in pattern.finditer(text):
+            # A protective prohibition ("Never skip validation commands", "Do not bypass
+            # the sandbox") restates the policy; it is not an attempt to override it.
+            prefix = text[max(0, match.start() - 32):match.start()]
+            if POLICY_NEGATION_PREFIX.search(prefix):
+                continue
             return label
     return None
 
@@ -4922,15 +4932,6 @@ def invalidate_stale_learnings(
             path = plan_dir / checked
             if path.is_symlink():
                 raise PlanError(f"Refusing to remove symlinked learning artifact: {relative}")
-        for relative in sorted(stale_files):
-            path = plan_dir / relative
-            reject_symlink_components(plan_dir, Path(relative), "learning artifact")
-            if path.is_symlink():
-                raise PlanError(f"Refusing to remove symlinked learning artifact: {relative}")
-            try:
-                path.unlink()
-            except FileNotFoundError:
-                pass
         manifest["learning_artifacts"] = kept
         manifest.setdefault("invalidated_learnings", []).extend(invalidated)
         for task in manifest.get("tasks", []):
@@ -4946,7 +4947,19 @@ def invalidate_stale_learnings(
             files=sorted(stale_files),
             count=len(invalidated),
         )
+        # Commit the manifest first: if saving fails the files still match it; if the
+        # unlink fails afterwards, the leftovers are unreferenced orphans, never
+        # manifest entries pointing at missing files.
         save_manifest(plan_dir, manifest)
+        for relative in sorted(stale_files):
+            path = plan_dir / relative
+            reject_symlink_components(plan_dir, Path(relative), "learning artifact")
+            if path.is_symlink():
+                raise PlanError(f"Refusing to remove symlinked learning artifact: {relative}")
+            try:
+                path.unlink()
+            except FileNotFoundError:
+                pass
 
     return {
         "invalidated_count": len(invalidated),
@@ -4966,6 +4979,23 @@ def normalize_learning_reference(value: Any, field: str) -> str:
         raise PlanError(f"{field} may not reference planning artifacts")
     if "`" in text or "<" in text or ">" in text:
         raise PlanError(f"{field} must not contain Markdown/HTML delimiters")
+    if re.search(r"[\s,;()]", text):
+        # Digests are keyed by one repository file per reference.  A file citation with
+        # trailing prose or a second file would silently go unfingerprinted
+        # (extract_cited_repo_files skips it), so editing the file could not stale it.
+        # Shell commands ("test -f x", "./gradlew test") start with a program, not a file,
+        # and stay valid non-file references.
+        tokens = [token for token in re.split(r"[\s,;()]+", text) if token]
+        file_like = [
+            token for token in tokens
+            if explicit_learning_source_file(token, require_plain_file=True) is not None
+        ]
+        first_is_file = bool(tokens) and tokens[0] in file_like
+        if file_like and (first_is_file or re.search(r"[,;]", text)):
+            raise PlanError(
+                f"{field} must cite exactly one repository file per reference "
+                f"(found separators around file-like token {file_like[0][:60]!r})"
+            )
     override_kind = detect_policy_override_note(text)
     if override_kind is not None:
         raise PlanError(f"{field} cannot alter acceptance, permissions, or provider policy ({override_kind})")
@@ -5889,7 +5919,24 @@ def record_attempt_hypothesis(
         for item in existing
         if isinstance(item, dict) and (m := re.fullmatch(r"H(\d+)", str(item.get("id", ""))))
     ]
-    next_id = f"H{(max(used_nums, default=0) + 1):03d}"
+    # Evict before creating so the new entry is never the one discarded, and never
+    # evict a disproven barrier: dropping it would let the refuted claim be re-recorded.
+    while len(existing) >= MAX_ATTEMPT_HYPOTHESES:
+        evict_idx = next(
+            (idx for idx, item in enumerate(existing)
+             if isinstance(item, dict) and item.get("status") != "disproven"),
+            None,
+        )
+        if evict_idx is None:
+            raise PlanError(
+                f"Hypothesis limit ({MAX_ATTEMPT_HYPOTHESES}) reached and every retained entry is a "
+                "disproven barrier; none can be discarded without losing a refutation"
+            )
+        existing.pop(evict_idx)
+    # Monotonic sequence: an evicted entry's ID is never reused by a later hypothesis.
+    seq = max(max(used_nums, default=0), int(task.get("hypothesis_seq") or 0)) + 1
+    task["hypothesis_seq"] = seq
+    next_id = f"H{seq:03d}"
     entry = normalize_attempt_hypothesis(
         {
             "id": next_id,
@@ -5906,15 +5953,6 @@ def record_attempt_hypothesis(
         repo_root=repo_root,
     )
     existing.append(entry)
-    if len(existing) > MAX_ATTEMPT_HYPOTHESES:
-        # Keep disproven hypotheses when possible so they stay explicitly blocked from promotion;
-        # evict oldest invalidated/open entries first.
-        while len(existing) > MAX_ATTEMPT_HYPOTHESES:
-            evict_idx = next(
-                (idx for idx, item in enumerate(existing) if item.get("status") != "disproven"),
-                0,
-            )
-            existing.pop(evict_idx)
     append_event(
         manifest,
         "attempt_hypothesis_recorded",
@@ -6553,6 +6591,20 @@ def claim_task(plan_dir: Path, manifest: dict[str, Any], task_id: str, route: di
             raise PlanError(
                 f"Task {task['id']} cannot reuse stale learning(s): {'; '.join(stale_msgs)}; "
                 "recheck cited files or run check-learnings --invalidate-stale first"
+            )
+    if task.get("learning_files"):
+        # A hypothesis refuted after its learning was published (by any producer in the
+        # plan) must not reach this consumer: the publish-time guard only saw the producer.
+        assigned = {str(rel) for rel in task.get("learning_files", [])}
+        leaked = [
+            err for err in validate_attempt_hypotheses(manifest, manifest["tasks"])
+            if "leaked into validated learning" in err
+            and any(err.endswith(f" {rel}") for rel in assigned)
+        ]
+        if leaked:
+            raise PlanError(
+                f"Task {task['id']} cannot consume a learning built on a refuted hypothesis: "
+                + "; ".join(leaked)
             )
     # An invalidated hypothesis must not appear in the next worker prompt.
     if task.get("attempt_hypotheses"):

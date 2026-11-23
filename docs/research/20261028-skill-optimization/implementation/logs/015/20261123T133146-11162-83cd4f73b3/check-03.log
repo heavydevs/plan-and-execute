@@ -1,0 +1,33 @@
+Traceback (most recent call last):
+  File "/workspaces/plan-and-execute/skill/plan-and-execute/scripts/task_memory_self_test.py", line 420, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspaces/plan-and-execute/skill/plan-and-execute/scripts/task_memory_self_test.py", line 407, in main
+    test_selective_learning_artifact_and_tamper_detection()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/workspaces/plan-and-execute/skill/plan-and-execute/scripts/task_memory_self_test.py", line 134, in test_selective_learning_artifact_and_tamper_detection
+    planctl.complete_task(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        plan_dir,
+        ^^^^^^^^^
+    ...<18 lines>...
+        None,
+        ^^^^^
+    )
+    ^
+  File "/workspaces/plan-and-execute/skill/plan-and-execute/scripts/planctl.py", line 6746, in complete_task
+    published_learning_files = materialize_learning_artifacts(
+        plan_dir,
+    ...<3 lines>...
+        source_contract_digest=executed_digest,
+    )
+  File "/workspaces/plan-and-execute/skill/plan-and-execute/scripts/planctl.py", line 5228, in materialize_learning_artifacts
+    learnings = normalize_reusable_learnings(task, report, authorized_promotion_id=authorized_promotion_id)
+  File "/workspaces/plan-and-execute/skill/plan-and-execute/scripts/planctl.py", line 5140, in normalize_reusable_learnings
+    normalize_learning_reference(value, f"{field}.references[{ref_index}]")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/plan-and-execute/skill/plan-and-execute/scripts/planctl.py", line 4988, in normalize_learning_reference
+    raise PlanError(
+    ...<2 lines>...
+    )
+planctl.PlanError: reusable_learnings[0].references[1] must cite exactly one repository file per reference (found separators around file-like token 'implemented.txt')

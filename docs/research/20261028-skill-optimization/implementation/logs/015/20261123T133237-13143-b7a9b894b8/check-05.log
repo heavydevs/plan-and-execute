@@ -1,0 +1,36 @@
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[assistant] timeout=idle idle_seconds=0 last_progress_source=start window=0.25s ceiling=2s
+....[validate] /home/codespace/.python/current/bin/python -S -u -c 'exec('"'"'import time\nfor i in range(9):\n print("test class", i, "passed", flush=True); time.sleep(.1)'"'"')'
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+..[validate-job] waiting id=VAL_BOOKS
+[validate-job] id=VAL_BOOKS state=stalled
+[validate-job] waiting id=VAL_BOOKS
+[validate-job] id=VAL_BOOKS state=ceiling
+[validate-job] waiting id=VAL_BOOKS
+[validate-job] id=VAL_BOOKS state=failed
+.[validate] /home/codespace/.python/current/bin/python -S -u -c 'import time; time.sleep(.6)'
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[validate] /home/codespace/.python/current/bin/python -S -u -c 'import time; time.sleep(.6)'
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+.[validate] /home/codespace/.python/current/bin/python -S -u -c 'exec('"'"'import time\nfor i in range(100):\n print("test", i, "passed",flush=True); time.sleep(.05)'"'"')'
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+..[process-tree] progress_cpu=unavailable fallback=output,probe,files
+.[process-tree] progress_cpu=unavailable fallback=output,probe,files
+.[task 001] resuming supervised validation without a model
+.[validate-job] waiting id=VAL_BOOKS
+[validate-job] id=VAL_BOOKS state=succeeded
+[validate-job] waiting id=VAL_BOOKS
+[validate-job] id=VAL_BOOKS state=ceiling
+..[validate-job] waiting id=VAL_BOOKS
+[validate-job] id=VAL_BOOKS state=failed
+.[validate] /home/codespace/.python/current/bin/python -S -u -c 'import time; print("test 1 passed",flush=True); time.sleep(30)'
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+.[validate] /home/codespace/.python/current/bin/python -S -u -c 'import subprocess,sys,time; subprocess.Popen([sys.executable,"-S","-c",'"'"'from pathlib import Path; import time; time.sleep(1); Path(\'"'"'/tmp/tmpx4c7qini/late.txt\'"'"').write_text("escaped")'"'"']); time.sleep(30)'
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+..[validate] /home/codespace/.python/current/bin/python -S -u -c 'exec('"'"'import time\nfor i in range(100):\n print("[resource-watch] cpu_seconds="+str(i),flush=True); time.sleep(.05)'"'"')'
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+.
+----------------------------------------------------------------------
+Ran 20 tests in 9.156s
+
+OK

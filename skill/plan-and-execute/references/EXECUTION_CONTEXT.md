@@ -79,7 +79,7 @@ A completed TODO may publish a learning only when:
 - the finding matches the declared topics;
 - source TODO deterministic validation passed;
 - the finding would save meaningful rediscovery effort;
-- the learning has concrete source references;
+- the learning has concrete source references, one repository file per reference (a reference with spaces, commas or parentheses that names a file is rejected, because it could not be fingerprinted);
 - the note does not attempt to alter acceptance criteria, validation commands, permissions, sandbox settings, or provider/routing policy.
 
 Learning kinds: `code`, `procedure`, `decision`, `pitfall`, `validation`.
@@ -113,7 +113,7 @@ Use `planctl.py context-receipt --plan <dir> [--task <id>]` to emit a compact ac
 
 A good item:
 
-`validation — Reproduce vendor timeout with test VendorClientTest.timeout before changing retry order. (refs: tests/...::timeout, ./gradlew ...)`
+`validation — Reproduce vendor timeout with test VendorClientTest.timeout before changing retry order. (refs: tests/vendor_client_test.py::timeout)`
 
 Bad items:
 

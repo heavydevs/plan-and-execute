@@ -44,7 +44,14 @@ def _bounded_hypothesis_lines(task: dict[str, Any], *, max_items: int = 2, max_i
     if not relevant:
         return []
     lines = ["Task-local failed-attempt hypotheses (non-normative; never treat as validated shared facts):"]
-    for item in relevant[-max_items:]:
+    # Refutations outrank automatic open entries: a refuted claim hidden by newer
+    # open hypotheses would be repeated by the retry worker.
+    refuted = [item for item in relevant if item.get("status") == "disproven"][-max_items:]
+    room = max_items - len(refuted)
+    still_open = [item for item in relevant if item.get("status") != "disproven"]
+    chosen = refuted + (still_open[-room:] if room > 0 else [])
+    chosen.sort(key=lambda item: relevant.index(item))
+    for item in chosen:
         status = str(item.get("status", "open"))
         label = "DISPROVEN hypothesis (do not repeat or promote)" if status == "disproven" else "UNVALIDATED hypothesis"
         text = str(item.get("hypothesis", "")).strip()
@@ -88,9 +95,14 @@ def install_runner_contract(run_isolated: Any) -> Any:
     script_dir = Path(run_isolated.__file__).resolve().parent
     controller = script_dir / "planctl_concise.py"
 
-    def bounded_task_suffix(task: dict[str, Any], *, max_chars: int = MAX_TASK_FAILURE_SUFFIX_CHARS) -> str:
+    def bounded_task_suffix(
+        task: dict[str, Any],
+        plan_dir: Path | None = None,
+        *,
+        max_chars: int = MAX_TASK_FAILURE_SUFFIX_CHARS,
+    ) -> str:
         parts: list[str] = []
-        base = run_isolated.failure_context(task)
+        base = run_isolated.failure_context(task, plan_dir)
         if base:
             parts.append(base.strip())
         hyp_lines = _bounded_hypothesis_lines(task)
@@ -144,7 +156,7 @@ Task definition: `{task_path}`
 Task: `{task['id']}`
 Route: {route['provider']} / {route['model']} / {route['effort']}
 Service map helper: {script_dir / 'service_map.py'}
-""" + job_guidance + bounded_task_suffix(task)
+""" + job_guidance + bounded_task_suffix(task, plan_dir)
 
     def write_context_accounting_receipt(
         plan_dir: Path,
