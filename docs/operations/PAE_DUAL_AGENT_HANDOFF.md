@@ -63,6 +63,14 @@ Os rótulos abaixo são **fases operacionais no TODO da raiz**, não novos statu
 6. Somente com testes, revisão independente final, recibos e gate aprovados, finalizar via controlador oficial, atualizar manifesto/TODO gerado, marcar fase `concluida` no TODO da raiz, fazer commit/push, verificar HEAD remoto e **PARAR**. Se falhar por motivo reparável, iterar na MESMA task; se bloqueio externo, gravar fase `bloqueada`, responsável Claude, prova e motivo, publicar e **PARAR**.
 7. Em nenhuma hipótese Claude inicia a task 016 (ou qualquer sucessora), mesmo que a 015 tenha sido concluída.
 
+## 5A. Publicação automática obrigatória (ChatGPT e Claude)
+
+- **Toda alteração concluída ou checkpoint durável deve ser publicada automaticamente com commit e push na branch ativa, sem pedir confirmação adicional.** O pedido `próximo` ou `continue` já autoriza publicar o trabalho da task selecionada. Nunca deixar um patch somente no container ou em arquivo ZIP como substituto do commit remoto.
+- Antes de editar, sincronizar HEAD e verificar dono/fase. Após implementar e testar, registrar evidências reais, criar commit com escopo delimitado e publicar imediatamente. No terminal autenticado: `git fetch`, `git pull --ff-only`, `git add` dos arquivos explícitos, `git commit`, `git push`. Sem terminal Git autenticado: utilizar operações do conector GitHub com HEAD atualizado, commit com parent exato e atualização da referência condicionada ao HEAD esperado (CAS), sem force push.
+- Se a implementação exigir mais de um checkpoint, publicar os checkpoints parciais com fase `chatgpt_implementando`, resultados de testes identificados e pendências. O último commit de implementação deve atualizar a fase para `aguardando_validacao_claude`, **sem** marcar o manifesto como `completed`; então parar obrigatoriamente.
+- Nunca declarar commit, push, gate ou revisão como executados sem confirmação observável. Em falha de publicação, preservar o patch, registrar impedimento e não transferir a task ao Claude nem iniciar outra task.
+- Claude também deve publicar automaticamente seus commits de correção, evidências e conclusão, e parar. A publicação automática **não** autoriza avançar para outra task nem substituir revisão independente.
+
 ## 6. Checkpoint mínimo de passagem
 
 No `TODO.md` ou em um handoff por task versionado: ID e título; **fase** e responsável; baseline de **código** e SHA Git; arquivos alterados e digests relevantes; resultado de testes com comandos, códigos de saída e URLs; pesquisa/arquitetura e critérios de aceitação; pendências, riscos e bloqueios; próximos passos **somente na mesma task**. Evidência não executada = `não executado`; ausência de recibo = `pendente`. Depois do primeiro parecer independente, vincular documento, sessão real observada e hashes correspondentes, evitando reciclar aprovação após patch.
