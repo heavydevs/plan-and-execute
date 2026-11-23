@@ -2,6 +2,15 @@
 
 > **Índice operacional, não manifesto de execução.** O status oficial, dependências e subtasks estão em [`.ai-work/20261028-skill-study-provider-switch/manifest.json`](.ai-work/20261028-skill-study-provider-switch/manifest.json) e no [TODO gerado do plano](.ai-work/20261028-skill-study-provider-switch/TODO.md). Não editar o manifesto manualmente; usar o controlador PAE. Regras vinculantes: [protocolo de handoff](docs/operations/PAE_DUAL_AGENT_HANDOFF.md).
 
+## Task 018 — em implementação pelo ChatGPT
+
+- [ ] **018 — Leases, retomada, cancelamento, reset e limpeza protegida**
+  - **Fase operacional:** `chatgpt_implementando` (não entregar ao Claude ainda)
+  - **Status oficial no manifesto:** `pending` até checkpoint pelo controlador
+  - **Baseline:** `3cc455905f83a965e3a4ad7c04b1b2fbd9334071`
+  - **Checkpoint parcial:** testes direcionados 7/7 em snapshot local; watcher oficial ainda não aprovado. Patch local não publicado no repositório. Faltam estado incerto pós-crash, regressões completas, revisão de escopo, gates e commit de implementação.
+  - **Próximo passo:** ChatGPT retoma exclusivamente a 018. Claude não valida enquanto não houver handoff explícito; task 019 permanece bloqueada.
+
 ## Task 015 — concluída
 
 - [x] **015 — Review and correct assigned context, learned facts and token budgets**
