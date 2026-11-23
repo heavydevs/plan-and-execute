@@ -1,39 +1,18 @@
-# CLAUDE.md — instruções para Claude Code na Plan-and-Execute
+# CLAUDE.md — executor local de validação e correção PAE
 
-**Leia primeiro:** `AGENTS.md`, `guia_de_pesquisa_execucao_tasks.md`,
-`docs/operations/PAE_ONE_TASK_CODESPACE_PROTOCOL.md`; ao corrigir,
-`skill/plan-and-execute/SKILL.md` e apenas as referências aplicáveis
-(`WORKFLOW.md`, `TEST_RESOURCE_MONITORING.md` etc.).
+**Comando `próximo` recebido NO CLAUDE local = validar/corrigir SOMENTE a task entregue pelo ChatGPT. Nunca iniciar task.**
 
-## Fluxo ativo: Claude via GitHub Actions, sem Antigravity
+Leia primeiro: [`AGENTS.md`](AGENTS.md), [protocolo de dois responsáveis](docs/operations/PAE_DUAL_AGENT_HANDOFF.md), [`TODO.md`](TODO.md), `guia_de_pesquisa_execucao_tasks.md`, o manifesto e a task/checklist ativa. O documento antigo `PAE_ONE_TASK_CODESPACE_PROTOCOL.md` contém detalhes históricos sobre GitHub Actions, **não** define mais quem executa o `próximo`.
 
-- **Opus 5.5 — revisor independente:** sessão fresca, somente leitura;
-  primeiro parecer sem relatórios de outros agentes. Examinar requisitos,
-  código, arquitetura, testes e hashes; registrar achados reproduzíveis,
-  gravidade, linha, modelo, esforço e sessão efetivamente observáveis.
-  Não editar nem aprovar patch produzido pela própria sessão.
-- **Sonnet 5.5 — corretor:** trabalhar exclusivamente na task atual. Ler e
-  aplicar a skill Plan-and-Execute para classificar falhas, selecionar
-  correção mínima e casos negativos/positivos. Respeitar `write_scope`.
-  As correções ocorrem por patch em um checkout temporário, sem push.
-- **Testes:** o runner GitHub Actions executa scripts determinísticos,
-  monitores de recursos/logs e gates. Na etapa Claude autenticada por OAuth,
-  não usar Bash ou acessos externos. Se algum teste falhar, registrar falhas
-  verificáveis para novo reparo; não declarar sucesso por texto de IA.
-- **Sem `agy`:** o usuário optou por não utilizar Antigravity neste fluxo.
-  Claude do Codespace não é necessário à integração ChatGPT → GitHub Actions.
-- **Escalonamento:** Sonnet → Opus 5.5 somente sob falha semântica comprovada;
-  Fable 5.2 apenas em casos extremos e com disponibilidade verificada.
-  Nunca alternar silenciosamente para API paga.
-- **Revisão final:** cada patch exige revisão independente dos hashes finais.
-  Aprovação formal só com checks, recibos e gate original verificados.
+## Passos obrigatórios
 
-**PARADA OBRIGATÓRIA:** concluída a task com testes e revisão/gate aprovados,
-estado oficial atualizado e commit/push remoto comprovado, **PARE**. Não
-estude, inicie ou execute a próxima task. Somente uma NOVA conversa iniciada
-pelo usuário pode começar outra. Em bloqueio externo, manter `pending`,
-registrar o impedimento e parar.
+1. Verificar alterações locais com `git status --short`, fazer `git fetch origin checkpoint/plano1-estudo-provider-switch-20261028`, garantir a branch correta, `git pull --ff-only origin checkpoint/plano1-estudo-provider-switch-20261028`, conferir `git rev-parse HEAD`. Não descartar alterações nem sobrescrever trabalhos. Em conflito ou acesso indisponível, parar e relatar.
+2. Ler a fase operacional no `TODO.md` e o status oficial no `manifest.json`. Agir somente em `aguardando_validacao_claude` ou `claude_validando_corrigindo` para a **mesma task**. Na migração atual, a task é **015**. Não iniciar 016, mesmo depois de sucesso.
+3. Ler e **utilizar a skill `skill/plan-and-execute/SKILL.md`** e as referências relevantes para revisar, diagnosticar, corrigir/rearquitetar, validar e persistir checkpoints. Não basta citar o nome da skill; aplicar efetivamente seu fluxo e ferramentas/checagens delimitadas pela task. Não lançar execução autônoma do plano inteiro.
+4. Registrar início de validação no TODO com fase `claude_validando_corrigindo` e commit/push quando seguro; preservar code SHA/hashes como baseline.
+5. **Parecer independente inicial:** usar contexto/sessão nova **sem edição** do código; estudar requisitos, arquitetura, código, testes e evidências primárias. Antes de produzir o primeiro parecer, não ler análises/revisões/conclusões de outras IAs. Registrar gravidade, arquivo, linha, reproduções, hash analisado e metadados reais de modelo/esforço/sessão. Opus pode ser revisor, mas não presumir modelo/tier apenas do nome solicitado.
+6. **Se falhar:** corrigir/rearquitetar a task 015 com a skill PAE em contexto de execução separado do revisor, consolidar falhas, testar focos e executar bateria completa. Após qualquer alteração, solicitar **nova revisão independente em sessão nova**, sobre os hashes finais. Uma sessão corretora não aprova o próprio patch.
+7. Rodar todos os aceites e gates originais, incluindo `P1_TESTS_015`, `P1_015` e `check_delivery.py` para 015, sem alterações fraudulentas. O gate pode exigir recibos formais de tier/session_id não fornecidos automaticamente pelo Claude Code local: verificar e, se incompatível, documentar a barreira sem falsificar.
+8. Se **tudo** passar, atualizar a task somente via `planctl`, checkpoints/checklists/recibos, marcar fase `concluida`, fazer commit/push e verificar HEAD remoto. **Parar imediatamente.** Se persistir bloqueio externo, manter a task pendente, registrar fase `bloqueada`, razão, responsável Claude, evidências, publicar e **parar**.
 
-**Segurança:** o Full Access local autorizado no Codespace não se aplica aos
-GitHub-hosted runners. Não acessar nem publicar secrets, OAuth, API keys
-ou credenciais. Não relaxar o gate nem inventar sessões, testes ou aprovação.
+**Restrições:** sem `agy`, sem API paga não autorizada, sem force-push, sem secrets em commits/logs, sem alegar teste/review que não ocorreu. Não tratar uma aprovação de código anterior como válida para hashes depois de correção. O ChatGPT é o único que poderá começar a task seguinte em outro `próximo`.

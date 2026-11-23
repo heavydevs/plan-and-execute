@@ -1,10 +1,12 @@
-# Protocolo PAE — uma task por conversa, ChatGPT + Claude via GitHub Actions
+# Histórico de protocolo PAE — ChatGPT + Claude via GitHub Actions
+
+**LEGADO SUPERADO PARA `próximo` (2026-11-23):** o fluxo vigente é [ChatGPT → Claude local](PAE_DUAL_AGENT_HANDOFF.md). Este documento continua como referência técnica/histórica; em qualquer conflito de seleção, papéis, validação ou parada, prevalece o novo protocolo.
 
 **Versão:** 2026-11-23 · **Branch:** `checkpoint/plano1-estudo-provider-switch-20261028` · **Repositório:** `heavydevs/plan-and-execute`.
 
 > **Estado de implantação (2026-11-23):** esta é uma política versionada, NÃO uma ponte de execução Codespace pronta. O usuário comprovou `agy` e `claude` instalados, autenticados e respondendo localmente no Codespace (assinatura `claude.ai`, sem API key). Além disso, ChatGPT reexecutou com sucesso o smoke OAuth real de Claude Opus 5.5 **via GitHub Actions**: [evidências](evidence/bridge-smoke-2026-11-23.md). Essa execução NÃO acessou o Codespace. O conector GitHub desta sessão não dispõe de terminal/SSH para o Codespace, e a rota Sonnet → AGY remota ainda não foi integrada. Não afirmar que uma tarefa foi delegada ao Codespace sem run autêntico.
 
-## Diretriz operacional vigente (2026-11-23): somente Claude
+## Diretriz antiga (histórico técnico, não roteamento vigente)
 
 Por decisão expressa do usuário, **NÃO utilizar Antigravity (`agy`)** neste
 fluxo. Usar a integração ChatGPT → GitHub Actions → Claude, já testada.
