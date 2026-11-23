@@ -1,0 +1,6 @@
+{
+  "schema": "pae-015-original-checks/1",
+  "task_id": "015",
+  "source_head": "a4e065725c2150fbf18e0340f87012ae2b1a71c7",
+  "reason": "Execute the complete seven original acceptance checks of task 015 against immutable source and publish authentic log hashes, without modifying code or starting task 016."
+}
