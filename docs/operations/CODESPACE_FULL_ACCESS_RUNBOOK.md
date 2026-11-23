@@ -6,7 +6,7 @@
 
 - O usuário comprovou `agy -p ...` com `status=SUCCESS`.
 - `agy models` lista `claude-opus-5-5-high` e `claude-sonnet-5-5-high`: são modelos **via Antigravity**, não o binário Claude Code independente nem necessariamente a franquia da assinatura Anthropic.
-- `claude --version` retornou `command not found`. Para utilizar Claude Code CLI independente, é necessário instalar e autenticar.
+- O teste inicial de `claude --version` retornava `command not found`, mas o usuário **instalou depois o Claude Code CLI independente**, autenticou via `claude.ai` e obteve `Claude execucao: PASSOU` no smoke local. Ainda não existe acesso remoto do ChatGPT ao terminal.
 - O conector GitHub do ChatGPT **não** concede sessão de terminal/SSH no Codespace.
 
 ## Configurar AGY no perfil pessoal sem sobrescrever autenticação
@@ -54,7 +54,7 @@ Para solicitar Opus via AGY em sessão independente, use `--model claude-opus-5-
 
 ## Claude Code CLI independente (opcional, para usar a franquia Anthropic)
 
-O Claude Code ainda **não está instalado**. Instalação oficial no Codespace Linux:
+O Claude Code **já foi instalado e autenticado pelo usuário**. Para reinstalação futura, o procedimento oficial no Codespace Linux é:
 
 ```bash
 curl -fsSL https://claude.ai/install.sh -o /tmp/install-claude.sh
