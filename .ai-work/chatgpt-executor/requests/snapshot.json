@@ -2,7 +2,7 @@
   "schema": "chatgpt-snapshot-request/1",
   "enabled": true,
   "task_id": "015",
-  "request_id": "015-20261122-post-third-review-all-regressions",
-  "requested_source_head": "f612cd9fde65a0405c41ecc5912e98e7d65bce46",
-  "reason": "Fetch immutable snapshot of all task-015 third-review fixes; execute full declared checks and regression tests; no false gate acceptance"
+  "request_id": "015-20261123-sonnet-repair-checkout",
+  "requested_source_head": "c09151fd4db2479c82d10ff71f366eed9e8e9cce",
+  "reason": "Export immutable checkout to validate authentic Sonnet task-015 repair patch with git apply and original tests. Never mark task complete without formal independent receipt."
 }
