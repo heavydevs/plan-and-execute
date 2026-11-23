@@ -1,0 +1,66 @@
+name: PAE 015 - original read-only Claude review dispatch
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.github/workflows/pae-015-native-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native-opus-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    steps:
+      - name: Checkout immutable revision without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install Claude Code official CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://claude.ai/install.sh -o /tmp/pae-claude-install.sh
+          bash /tmp/pae-claude-install.sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Execute original max-tier dispatcher in a new read-only Opus session
+        shell: bash
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/checkpoint/plano1-estudo-provider-switch-20261028'
+          test -n "${CLAUDE_CODE_OAUTH_TOKEN:-}"
+          test -z "${ANTHROPIC_API_KEY:-}"
+          python docs/plans/20261028-skill-optimization/support/review_dispatch.py \
+            --repo-root . \
+            --task 015 \
+            --provider claude \
+            --wait-seconds 0 \
+            --timeout-seconds 2400 \
+            --input skill/plan-and-execute/scripts/planctl.py \
+            --input skill/plan-and-execute/scripts/artifact_contract.py \
+            --input skill/plan-and-execute/scripts/runner_contract.py \
+            --input skill/plan-and-execute/scripts/run_isolated.py \
+            --input skill/plan-and-execute/scripts/pattern_runner_contract.py \
+            --input test/optimization/context_learning_self_test.py \
+            --input skill/plan-and-execute/references/EXECUTION_CONTEXT.md \
+            --input skill/plan-and-execute/references/TOKEN_EFFICIENCY.md \
+            | tee /tmp/pae-015-native-dispatch.log
+          grep -q '^DISPATCH task=015 ' /tmp/pae-015-native-dispatch.log
+          grep -q '^RECEIPT_REVIEWER ' /tmp/pae-015-native-dispatch.log
+      - name: Upload authentic native review files for provenance inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pae-015-native-review-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            docs/research/20261028-skill-optimization/implementation/reviews/015/brief-*.md
+            docs/research/20261028-skill-optimization/implementation/reviews/015/findings-*.json
+            docs/research/20261028-skill-optimization/implementation/reviews/015/dispatch-*.json
+            /tmp/pae-015-native-dispatch.log
+          if-no-files-found: warn
+          retention-days: 14
