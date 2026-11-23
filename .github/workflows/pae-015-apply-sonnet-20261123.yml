@@ -1,0 +1,188 @@
+name: PAE 015 - publish pinned Sonnet repair only after verified checks
+
+on:
+  push:
+    branches:
+      - checkpoint/plano1-estudo-provider-switch-20261028
+    paths:
+      - '.github/workflows/pae-015-apply-sonnet-20261123.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: pae-015-sonnet-patch-20261123
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout immutable branch HEAD without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Download exact previous authenticated Sonnet artifact (no Claude credentials)
+        env:
+          GH_TOKEN: '${{ github.token }}'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pae-015-verified
+          curl --fail --silent --show-error --location --retry 2 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/heavydevs/plan-and-execute/actions/artifacts/14789566587/zip \
+            -o /tmp/pae-015-verified/artifact.zip
+      - name: Validate patch provenance, source hashes and strict scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,subprocess,zipfile
+          from pathlib import Path
+          a=Path('/tmp/pae-015-verified')
+          with zipfile.ZipFile(a/'artifact.zip') as z:
+              names=set(z.namelist())
+              assert {'implementation.patch','result.json','input.json'} <= names, names
+              patch=z.read('implementation.patch')
+              report=json.loads(z.read('result.json'))
+          sha=hashlib.sha256(patch).hexdigest()
+          assert sha=='71b3ca3593deb0a10b0fd7bcd18b0b285a5a67f208ea985a169cfd43cac791d4', sha
+          assert report.get('mode')=='repair' and report.get('task_id')=='015'
+          assert report.get('request_commit')=='c09151fd4db2479c82d10ff71f366eed9e8e9cce'
+          assert report.get('model_requested')=='claude-sonnet-5-5'
+          assert report.get('native_effort_requested')=='high'
+          assert report.get('session_id_reported_by_action')=='e871c99a-e8df-4667-a31f-4ea25a4d285e'
+          assert report.get('action_conclusion')=='success'
+          assert report.get('original_gate_approved') is False
+          expected={
+              'skill/plan-and-execute/references/EXECUTION_CONTEXT.md':'d27ea65b81933b630b45f0ec6f82e747e500a480',
+              'skill/plan-and-execute/scripts/planctl.py':'c332137ca47f643655c103627abbf5e8b62e89c0',
+              'skill/plan-and-execute/scripts/run_isolated.py':'faf7b1939798ccfa06f14811eb8d52da01737e76',
+              'test/optimization/context_learning_self_test.py':'ac7e85d60992af5fdb14aea0880dde5b32df6d6c',
+          }
+          assert report.get('artifact',{}).get('patch_sha256')==sha
+          assert report['artifact']['changed_files']==sorted(expected)
+          for path,gitsha in expected.items():
+              got=subprocess.check_output(['git','rev-parse','HEAD:'+path],text=True).strip()
+              assert got==gitsha,(path,got)
+          (a/'implementation.patch').write_bytes(patch)
+          (a/'result.json').write_text(json.dumps(report,sort_keys=True,indent=2)+'\n')
+          print('PINNED_SONNET_PROVENANCE_PASS, patch sha256',sha,'session',report['session_id_reported_by_action'])
+          PY
+          git apply --check /tmp/pae-015-verified/implementation.patch
+          git apply /tmp/pae-015-verified/implementation.patch
+          git diff --check
+          git diff --name-only | sort > /tmp/pae-015-verified/changed.txt
+          printf '%s\n' \
+            skill/plan-and-execute/references/EXECUTION_CONTEXT.md \
+            skill/plan-and-execute/scripts/planctl.py \
+            skill/plan-and-execute/scripts/run_isolated.py \
+            test/optimization/context_learning_self_test.py | sort > /tmp/pae-015-verified/allowed.txt
+          diff -u /tmp/pae-015-verified/allowed.txt /tmp/pae-015-verified/changed.txt
+          python -m py_compile \
+            skill/plan-and-execute/scripts/planctl.py \
+            skill/plan-and-execute/scripts/run_isolated.py \
+            test/optimization/context_learning_self_test.py
+      - name: Run task 015 checks to completion and record immutable logs
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,subprocess,sys,time
+          from pathlib import Path
+          folder=Path('/tmp/pae-015-verified')
+          checks=[
+              'test/optimization/context_learning_self_test.py',
+              'skill/plan-and-execute/scripts/context_self_test.py',
+              'skill/plan-and-execute/scripts/task_memory_self_test.py',
+              'skill/plan-and-execute/scripts/artifact_concision_self_test.py',
+              'skill/plan-and-execute/scripts/progress_runner_self_test.py',
+              'skill/plan-and-execute/scripts/pattern_runner_self_test.py',
+              'skill/plan-and-execute/scripts/self_test.py',
+              'docs/plans/20261028-skill-optimization/support/delivery_gate_self_test.py',
+              'docs/plans/20261028-skill-optimization/support/run_task_checks_self_test.py',
+          ]
+          results=[]
+          for i,path in enumerate(checks,1):
+              started=time.monotonic()
+              log=folder/f'check-{i:02d}.log'
+              with log.open('wb') as fp:
+                  try:
+                      p=subprocess.run([sys.executable,path],stdout=fp,stderr=subprocess.STDOUT,timeout=600)
+                      code=p.returncode
+                      state='passed' if code==0 else 'failed'
+                  except subprocess.TimeoutExpired:
+                      code=None
+                      state='timeout'
+              data=log.read_bytes()
+              results.append({'path':path,'status':state,'exit_code':code,'log_sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'duration_seconds':round(time.monotonic()-started,2)})
+              print('CHECK',i,'/',len(checks),state,path,flush=True)
+          (folder/'checks.json').write_text(json.dumps(results,indent=2)+'\n')
+          print('CHECK_SUMMARY',sum(x['status']=='passed' for x in results),'/',len(results),flush=True)
+          if not all(x['status']=='passed' for x in results): sys.exit(1)
+          PY
+      - name: Upload pinned patch and all check logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pae-015-sonnet-verified-patch
+          path: /tmp/pae-015-verified
+          if-no-files-found: warn
+          retention-days: 14
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Checkout same source commit with push permission
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: true
+          fetch-depth: 2
+      - name: Download verified artifact from this workflow attempt
+        uses: actions/download-artifact@v4
+        with:
+          name: pae-015-sonnet-verified-patch
+          path: /tmp/pae-015-verified
+      - name: Independently reverify exact patch, content hashes and push without force
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/checkpoint/plano1-estudo-provider-switch-20261028'
+          echo '71b3ca3593deb0a10b0fd7bcd18b0b285a5a67f208ea985a169cfd43cac791d4  /tmp/pae-015-verified/implementation.patch' | sha256sum --check
+          git apply --check /tmp/pae-015-verified/implementation.patch
+          git apply /tmp/pae-015-verified/implementation.patch
+          git diff --check
+          git diff --name-only | sort > /tmp/pae-015-verified/publish-changed.txt
+          diff -u /tmp/pae-015-verified/allowed.txt /tmp/pae-015-verified/publish-changed.txt
+          python - <<'PY'
+          import subprocess
+          expected={
+            'skill/plan-and-execute/references/EXECUTION_CONTEXT.md':'3e97cf0196cf5319547030733d8dd87376879f01',
+            'skill/plan-and-execute/scripts/planctl.py':'d5686a736f2b375b81c26dda2e06162bac604845',
+            'skill/plan-and-execute/scripts/run_isolated.py':'dc08d451253f94af6ec704afa6d946e5ad7b0698',
+            'test/optimization/context_learning_self_test.py':'9d472aff3278c4be26b941afa249f8247f744f9c',
+          }
+          for path,digest in expected.items():
+              got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+              assert got==digest,(path,got)
+          print('EXACT_PATCH_FILE_HASHES_OK')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- \
+            skill/plan-and-execute/references/EXECUTION_CONTEXT.md \
+            skill/plan-and-execute/scripts/planctl.py \
+            skill/plan-and-execute/scripts/run_isolated.py \
+            test/optimization/context_learning_self_test.py
+          git diff --cached --check
+          git commit -m 'fix(task-015): apply verified Sonnet repair to independent Opus findings'
+          git push origin HEAD:checkpoint/plano1-estudo-provider-switch-20261028
