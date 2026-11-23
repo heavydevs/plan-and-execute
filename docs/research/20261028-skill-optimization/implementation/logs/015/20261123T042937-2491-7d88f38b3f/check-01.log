@@ -1,0 +1,62 @@
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[validate] grep -qx implemented implemented.txt
+[task 001] completed and validated
+/tmp/tmp_vzpwp5s/production-contract-015/.ai-work/production-contract/patterns/registry.json
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[validate] grep -qx implemented implemented.txt
+[task 001] completed and validated
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[task 001] completion report rejected: Task 001 attempted to publish learning to undeclared target(s): 002; retrying without optional metadata
+[task 001] completed and validated
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[validate] grep -qx implemented implemented.txt
+[task 001] completed and validated
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[validate] grep -qx nonexistent-pattern evidence.txt
+[task 001] completed and validated
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[task 001] completed and validated
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[task 001] completed and validated
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[task 001] completed and validated
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[task 001] completed and validated
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[task 001] completed and validated
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[task 001] completed and validated
+[validate] /usr/bin/python -c "import os,sys;print(os.environ.get('PAE_TEST_SECRET','absent'),repr(sys.stdin.read()))"
+[validate] /usr/bin/python -c "import os;print(os.environ.get('PAE_TEST_SECRET','absent'))"
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[validate] grep -qx marker evidence.txt
+[task 001] Hypothesis probe modified validated evidence or file integrity could not be measured
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[validate] grep -qx marker evidence.txt
+[task 001] Hypothesis probe modified validated evidence or file integrity could not be measured
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[validate] grep -qx marker evidence.txt
+[task 001] Hypothesis probe modified validated evidence or file integrity could not be measured
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[validate] grep -qx marker evidence.txt
+[task 001] Hypothesis probe modified validated evidence or file integrity could not be measured
+[validate] test -f implemented.txt
+[process-tree] progress_cpu=unavailable fallback=output,probe,files
+[validate] grep -qx marker evidence.txt
+[task 001] completed and validated
+All task 014 context-learning self-tests passed.
