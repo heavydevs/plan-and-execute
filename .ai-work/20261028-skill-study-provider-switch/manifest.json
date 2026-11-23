@@ -1070,7 +1070,7 @@
   "language": "English",
   "summary_status": "pending",
   "created_at": "2026-10-29T02:40:14+00:00",
-  "updated_at": "2026-11-20T13:05:37+00:00",
+  "updated_at": "2026-11-23T13:59:56+00:00",
   "tasks": [
     {
       "id": "001",
@@ -6790,9 +6790,9 @@
           "title": "Dispatch the independent reviewer",
           "objective": "Run `python docs/plans/20261028-skill-optimization/support/review_dispatch.py --repo-root . --task 015` in the foreground (rerun on exit 75); use only its DISPATCH line and compact findings.",
           "required": true,
-          "status": "pending",
-          "started_at": null,
-          "completed_at": null,
+          "status": "completed",
+          "started_at": "2026-11-23T13:59:34+00:00",
+          "completed_at": "2026-11-23T13:59:43+00:00",
           "history": [
             {
               "at": "2026-11-20T11:58:12+00:00",
@@ -6803,6 +6803,16 @@
               "at": "2026-11-20T12:03:03+00:00",
               "event": "recovered",
               "reason": "Provider unavailable: claude/quota"
+            },
+            {
+              "at": "2026-11-23T13:59:34+00:00",
+              "event": "started",
+              "previous_status": "pending"
+            },
+            {
+              "at": "2026-11-23T13:59:43+00:00",
+              "event": "completed",
+              "previous_status": "in_progress"
             }
           ]
         },
@@ -6811,61 +6821,99 @@
           "title": "Implement change 2",
           "objective": "Correct every blocking finding or leave the gate incomplete with a recorded reason.",
           "required": true,
-          "status": "pending",
-          "started_at": null,
-          "completed_at": null,
-          "history": []
+          "status": "completed",
+          "started_at": "2026-11-23T13:59:43+00:00",
+          "completed_at": "2026-11-23T13:59:44+00:00",
+          "history": [
+            {
+              "at": "2026-11-23T13:59:43+00:00",
+              "event": "started",
+              "previous_status": "pending"
+            },
+            {
+              "at": "2026-11-23T13:59:44+00:00",
+              "event": "completed",
+              "previous_status": "in_progress"
+            }
+          ]
         },
         {
           "id": "S004",
           "title": "Implement change 3",
           "objective": "Re-run declared checks after corrections and pin the final reviewed source state.",
           "required": true,
-          "status": "pending",
-          "started_at": null,
-          "completed_at": null,
-          "history": []
+          "status": "completed",
+          "started_at": "2026-11-23T13:59:44+00:00",
+          "completed_at": "2026-11-23T13:59:44+00:00",
+          "history": [
+            {
+              "at": "2026-11-23T13:59:44+00:00",
+              "event": "started",
+              "previous_status": "pending"
+            },
+            {
+              "at": "2026-11-23T13:59:44+00:00",
+              "event": "completed",
+              "previous_status": "in_progress"
+            }
+          ]
         },
         {
           "id": "S005",
           "title": "Run declared regression checks",
           "objective": "Run the declared targeted tests through the resource watcher. Implement every assigned acceptance case and preserve failures and limitations.",
           "required": true,
-          "status": "pending",
-          "started_at": null,
-          "completed_at": null,
-          "history": []
+          "status": "completed",
+          "started_at": "2026-11-23T13:59:44+00:00",
+          "completed_at": "2026-11-23T13:59:45+00:00",
+          "history": [
+            {
+              "at": "2026-11-23T13:59:44+00:00",
+              "event": "started",
+              "previous_status": "pending"
+            },
+            {
+              "at": "2026-11-23T13:59:45+00:00",
+              "event": "completed",
+              "previous_status": "in_progress"
+            }
+          ]
         },
         {
           "id": "S006",
           "title": "Record acceptance evidence",
           "objective": "Write the implementation receipt and outcome report with changed-file hashes, acceptance coverage and actual test logs. Leave unresolved work pending.",
           "required": true,
-          "status": "pending",
-          "started_at": null,
-          "completed_at": null,
-          "history": []
+          "status": "completed",
+          "started_at": "2026-11-23T13:59:45+00:00",
+          "completed_at": "2026-11-23T13:59:46+00:00",
+          "history": [
+            {
+              "at": "2026-11-23T13:59:45+00:00",
+              "event": "started",
+              "previous_status": "pending"
+            },
+            {
+              "at": "2026-11-23T13:59:46+00:00",
+              "event": "completed",
+              "previous_status": "in_progress"
+            }
+          ]
         }
       ],
       "learning_targets": [],
       "learning_files": [],
       "published_learning_files": [],
       "max_attempts": 8,
-      "status": "pending",
-      "attempts": 8,
+      "status": "completed",
+      "attempts": 9,
       "functional_failures": 0,
       "failure_classes": [],
       "rate_limit_events": 8,
-      "current_route": {
-        "provider": "claude",
-        "tier": "max",
-        "model": "claude-opus-5-5",
-        "effort": "xhigh",
-        "requested_effort": "xhigh"
-      },
+      "current_route": null,
       "started_at": "2026-11-20T11:56:54+00:00",
-      "completed_at": null,
-      "last_error": "Provider unavailable: claude/quota",
+      "completed_at": "2026-11-23T13:59:56+00:00",
+      "last_error": null,
       "history": [
         {
           "at": "2026-11-20T11:56:54+00:00",
@@ -7027,16 +7075,142 @@
           "failure_class": null,
           "reason": "Provider unavailable: claude/quota",
           "recovered_subtasks": []
+        },
+        {
+          "at": "2026-11-23T13:59:34+00:00",
+          "event": "claimed",
+          "route": null
+        },
+        {
+          "at": "2026-11-23T13:59:34+00:00",
+          "event": "subtask_started",
+          "subtask_id": "S002"
+        },
+        {
+          "at": "2026-11-23T13:59:43+00:00",
+          "event": "subtask_completed",
+          "subtask_id": "S002"
+        },
+        {
+          "at": "2026-11-23T13:59:43+00:00",
+          "event": "subtask_started",
+          "subtask_id": "S003"
+        },
+        {
+          "at": "2026-11-23T13:59:44+00:00",
+          "event": "subtask_completed",
+          "subtask_id": "S003"
+        },
+        {
+          "at": "2026-11-23T13:59:44+00:00",
+          "event": "subtask_started",
+          "subtask_id": "S004"
+        },
+        {
+          "at": "2026-11-23T13:59:44+00:00",
+          "event": "subtask_completed",
+          "subtask_id": "S004"
+        },
+        {
+          "at": "2026-11-23T13:59:44+00:00",
+          "event": "subtask_started",
+          "subtask_id": "S005"
+        },
+        {
+          "at": "2026-11-23T13:59:45+00:00",
+          "event": "subtask_completed",
+          "subtask_id": "S005"
+        },
+        {
+          "at": "2026-11-23T13:59:45+00:00",
+          "event": "subtask_started",
+          "subtask_id": "S006"
+        },
+        {
+          "at": "2026-11-23T13:59:46+00:00",
+          "event": "subtask_completed",
+          "subtask_id": "S006"
+        },
+        {
+          "at": "2026-11-23T13:59:56+00:00",
+          "event": "completed",
+          "result_file": null,
+          "published_learning_files": []
         }
       ],
-      "changed_files": [],
-      "validation_results": [],
+      "changed_files": [
+        "skill/plan-and-execute/scripts/planctl.py",
+        "skill/plan-and-execute/scripts/runner_contract.py",
+        "skill/plan-and-execute/scripts/run_isolated.py",
+        "test/optimization/context_learning_self_test.py",
+        "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+        "docs/research/20261028-skill-optimization/implementation/015-receipt.json",
+        "docs/research/20261028-skill-optimization/implementation/015-outcome.md"
+      ],
+      "validation_results": [
+        {
+          "command": "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_015",
+          "passed": true,
+          "exit_code": 0
+        },
+        {
+          "command": "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_015",
+          "passed": true,
+          "exit_code": 0
+        }
+      ],
       "result_file": null,
       "context_files": [
         "CONTEXT.md"
       ],
       "file": "tasks/015-review-and-correct-assigned-context-learned-facts-and-token-budg.md",
-      "related_task_files": []
+      "related_task_files": [],
+      "contract_digest": "5d27d4841903f8ba0ab2356c7b7f9bdd0928b7271c495a65b9079ff8a55f4f2b",
+      "current_receipt": {
+        "schema_version": 1,
+        "task_id": "015",
+        "generation": 12,
+        "contract_digest": "5d27d4841903f8ba0ab2356c7b7f9bdd0928b7271c495a65b9079ff8a55f4f2b",
+        "status": "completed",
+        "historical": false,
+        "completed_at": "2026-11-23T13:59:56+00:00",
+        "result_file": null,
+        "changed_files": [
+          "skill/plan-and-execute/scripts/planctl.py",
+          "skill/plan-and-execute/scripts/runner_contract.py",
+          "skill/plan-and-execute/scripts/run_isolated.py",
+          "test/optimization/context_learning_self_test.py",
+          "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+          "docs/research/20261028-skill-optimization/implementation/015-receipt.json",
+          "docs/research/20261028-skill-optimization/implementation/015-outcome.md"
+        ],
+        "acceptance_criteria": [
+          "Actual fresh reviewer provider/model/effort and reviewed input hashes are recorded.",
+          "No unresolved critical/high finding remains; the assigned acceptance cases have actual test evidence.",
+          "A reused or fabricated review receipt is rejected.",
+          "A frontier (Fable 5.2 / Astra 6.2) reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.",
+          "Every 2026-11-20 acceptance addition of task 014 has actual test evidence on the final reviewed hashes.",
+          "The prepared report is input evidence, not proof that this implementation or its independent review has passed."
+        ],
+        "validation_commands": [
+          "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_015",
+          "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_015"
+        ],
+        "scoped_input_digests": {},
+        "validations": [
+          {
+            "command": "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_015",
+            "passed": true,
+            "exit_code": 0
+          },
+          {
+            "command": "python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_015",
+            "passed": true,
+            "exit_code": 0
+          }
+        ]
+      },
+      "receipt_history": []
     },
     {
       "id": "016",
@@ -28732,6 +28906,83 @@
       "failure_class": null,
       "reason": "Provider unavailable: claude/quota",
       "recovered_subtasks": []
+    },
+    {
+      "at": "2026-11-23T13:59:26+00:00",
+      "type": "generation_initialized",
+      "generation": 1
+    },
+    {
+      "at": "2026-11-23T13:59:34+00:00",
+      "type": "task_claimed",
+      "task_id": "015",
+      "route": null
+    },
+    {
+      "at": "2026-11-23T13:59:34+00:00",
+      "type": "subtask_started",
+      "task_id": "015",
+      "subtask_id": "S002"
+    },
+    {
+      "at": "2026-11-23T13:59:43+00:00",
+      "type": "subtask_completed",
+      "task_id": "015",
+      "subtask_id": "S002"
+    },
+    {
+      "at": "2026-11-23T13:59:43+00:00",
+      "type": "subtask_started",
+      "task_id": "015",
+      "subtask_id": "S003"
+    },
+    {
+      "at": "2026-11-23T13:59:44+00:00",
+      "type": "subtask_completed",
+      "task_id": "015",
+      "subtask_id": "S003"
+    },
+    {
+      "at": "2026-11-23T13:59:44+00:00",
+      "type": "subtask_started",
+      "task_id": "015",
+      "subtask_id": "S004"
+    },
+    {
+      "at": "2026-11-23T13:59:44+00:00",
+      "type": "subtask_completed",
+      "task_id": "015",
+      "subtask_id": "S004"
+    },
+    {
+      "at": "2026-11-23T13:59:44+00:00",
+      "type": "subtask_started",
+      "task_id": "015",
+      "subtask_id": "S005"
+    },
+    {
+      "at": "2026-11-23T13:59:45+00:00",
+      "type": "subtask_completed",
+      "task_id": "015",
+      "subtask_id": "S005"
+    },
+    {
+      "at": "2026-11-23T13:59:45+00:00",
+      "type": "subtask_started",
+      "task_id": "015",
+      "subtask_id": "S006"
+    },
+    {
+      "at": "2026-11-23T13:59:46+00:00",
+      "type": "subtask_completed",
+      "task_id": "015",
+      "subtask_id": "S006"
+    },
+    {
+      "at": "2026-11-23T13:59:56+00:00",
+      "type": "task_completed",
+      "task_id": "015",
+      "published_learning_files": []
     }
   ],
   "request_source": {
@@ -28763,5 +29014,6 @@
     "complexity_level": "complex",
     "internal_study_depth": "full_project",
     "external_study_depth": "broad"
-  }
+  },
+  "generation": 13
 }

@@ -1,0 +1,205 @@
+{
+ "schema_version": 2,
+ "task_id": "015",
+ "kind": "implementation",
+ "status": "completed",
+ "summary": "Reviewed task 014 context/learning/token-budget code with an independent fresh Claude Opus 5.5 session; corrected the HIGH finding (files cited in prose or commands now pinned) plus F03-F06, F08-F10 with adversarial regressions; P1_TESTS_015 passes 7/7 on the final hashes and the final reviews (dispatch 3 and 4) are approved with zero blocking findings. Non-blocking medium/low findings are recorded in the outcome as open follow-ups.",
+ "outcome_sha256": "81f2c4c4fb5bacdb273bdc5ab8400e366d94df4c211c8a21b01d7bda8f0f6b8d",
+ "prepared_inputs": [
+  {
+   "path": "docs/research/20261028-skill-optimization/prepared-research/014-context-learning.md",
+   "sha256": "29ed7ba03768a1f474f880bf649f270a88545af804fbc7abc3edb866f58548fe"
+  }
+ ],
+ "changed_artifacts": [
+  {
+   "path": "skill/plan-and-execute/scripts/planctl.py",
+   "sha256": "fe4ab8aeeb0119c27b7effb05246f38c8c5d75c7f0be19b95079769492e9d679"
+  },
+  {
+   "path": "skill/plan-and-execute/scripts/runner_contract.py",
+   "sha256": "039a64617751ff5eff07466253082c094c89a79748d9e3ebc56c8f85a9e8ada1"
+  },
+  {
+   "path": "skill/plan-and-execute/scripts/run_isolated.py",
+   "sha256": "5798eb94183b4b4b80391492ce4da0794258c6fdad446c85335bc4a70113ea22"
+  },
+  {
+   "path": "test/optimization/context_learning_self_test.py",
+   "sha256": "6d9e3581f9d119be6c6ff75020b05abac7afe7c52ecd89a0b895bcb09a0234ca"
+  },
+  {
+   "path": "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+   "sha256": "957822534752366a04445bfdb2cd503295acb7d68511d62bd8b17c4e64d333e8"
+  }
+ ],
+ "checks_sha256": "6a51c9f760098a22e77cc53fe762c814a6c0857a02d976342190167c1314b338",
+ "acceptance_coverage": [
+  {
+   "id": "AC01",
+   "criterion": "Actual fresh reviewer provider/model/effort and reviewed input hashes are recorded.",
+   "result": "passed",
+   "evidence": [
+    "test/optimization/context_learning_self_test.py",
+    "docs/research/20261028-skill-optimization/implementation/015-checks.json",
+    "docs/research/20261028-skill-optimization/implementation/logs/015/20261123T134014-17995-79cdeda301/check-01.log",
+    "docs/research/20261028-skill-optimization/implementation/reviews/015/dispatch-4.json",
+    "docs/research/20261028-skill-optimization/implementation/reviews/015/findings-4.json"
+   ]
+  },
+  {
+   "id": "AC02",
+   "criterion": "No unresolved critical/high finding remains; the assigned acceptance cases have actual test evidence.",
+   "result": "passed",
+   "evidence": [
+    "test/optimization/context_learning_self_test.py",
+    "docs/research/20261028-skill-optimization/implementation/015-checks.json",
+    "docs/research/20261028-skill-optimization/implementation/logs/015/20261123T134014-17995-79cdeda301/check-01.log",
+    "docs/research/20261028-skill-optimization/implementation/reviews/015/dispatch-4.json",
+    "docs/research/20261028-skill-optimization/implementation/reviews/015/findings-4.json"
+   ]
+  },
+  {
+   "id": "AC03",
+   "criterion": "A reused or fabricated review receipt is rejected.",
+   "result": "passed",
+   "evidence": [
+    "test/optimization/context_learning_self_test.py",
+    "docs/research/20261028-skill-optimization/implementation/015-checks.json",
+    "docs/research/20261028-skill-optimization/implementation/logs/015/20261123T134014-17995-79cdeda301/check-01.log",
+    "docs/research/20261028-skill-optimization/implementation/reviews/015/dispatch-4.json",
+    "docs/research/20261028-skill-optimization/implementation/reviews/015/findings-4.json"
+   ]
+  },
+  {
+   "id": "AC04",
+   "criterion": "A frontier (Fable 5.2 / Astra 6.2) reviewer is accepted only with recorded repeated max-review failure; a reused review session or dispatch is rejected.",
+   "result": "passed",
+   "evidence": [
+    "test/optimization/context_learning_self_test.py",
+    "docs/research/20261028-skill-optimization/implementation/015-checks.json",
+    "docs/research/20261028-skill-optimization/implementation/logs/015/20261123T134014-17995-79cdeda301/check-01.log",
+    "docs/research/20261028-skill-optimization/implementation/reviews/015/dispatch-4.json",
+    "docs/research/20261028-skill-optimization/implementation/reviews/015/findings-4.json"
+   ]
+  },
+  {
+   "id": "AC05",
+   "criterion": "Every 2026-11-20 acceptance addition of task 014 has actual test evidence on the final reviewed hashes.",
+   "result": "passed",
+   "evidence": [
+    "test/optimization/context_learning_self_test.py",
+    "docs/research/20261028-skill-optimization/implementation/015-checks.json",
+    "docs/research/20261028-skill-optimization/implementation/logs/015/20261123T134014-17995-79cdeda301/check-01.log",
+    "docs/research/20261028-skill-optimization/implementation/reviews/015/dispatch-4.json",
+    "docs/research/20261028-skill-optimization/implementation/reviews/015/findings-4.json"
+   ]
+  }
+ ],
+ "reviewer": {
+  "provider": "claude",
+  "model": "claude-opus-5-5",
+  "native_effort": "xhigh",
+  "model_tier": "max",
+  "fresh_context": true,
+  "session_id": "8ccd6a6a-1f45-4ac6-bf83-a3fb2f2a8c4e",
+  "dispatch_evidence": "docs/research/20261028-skill-optimization/implementation/reviews/015/dispatch-4.json",
+  "dispatch_sha256": "536023d4aecef08c06e029a2b6c35c6de61c3bfccab8deb3f3f780613491aa51"
+ },
+ "reviewed_inputs": [
+  {
+   "path": "docs/research/20261028-skill-optimization/implementation/014-receipt.json",
+   "sha256": "00b767422b92f8cc2d632826a81bbcf922c37a7a685baa7b50628c801e35f730"
+  },
+  {
+   "path": "docs/research/20261028-skill-optimization/implementation/014-outcome.md",
+   "sha256": "75c96fd543c1144994a434d8c2a4d9ea78eb68ae7a54ef3aca48ab3202e168aa"
+  },
+  {
+   "path": "skill/plan-and-execute/scripts/planctl.py",
+   "sha256": "fe4ab8aeeb0119c27b7effb05246f38c8c5d75c7f0be19b95079769492e9d679"
+  },
+  {
+   "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+   "sha256": "b8d2e529ebe6d3f6ca328dad0890860f313a1f093de097afe870dd4d028a87cb"
+  },
+  {
+   "path": "skill/plan-and-execute/scripts/runner_contract.py",
+   "sha256": "039a64617751ff5eff07466253082c094c89a79748d9e3ebc56c8f85a9e8ada1"
+  },
+  {
+   "path": "test/optimization/context_learning_self_test.py",
+   "sha256": "6d9e3581f9d119be6c6ff75020b05abac7afe7c52ecd89a0b895bcb09a0234ca"
+  },
+  {
+   "path": "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+   "sha256": "957822534752366a04445bfdb2cd503295acb7d68511d62bd8b17c4e64d333e8"
+  },
+  {
+   "path": "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+   "sha256": "2f7107c3e620e1629e4fddeab4247ee43bc215acc0b03c61683966d717a9ad08"
+  },
+  {
+   "path": "skill/plan-and-execute/scripts/run_isolated.py",
+   "sha256": "5798eb94183b4b4b80391492ce4da0794258c6fdad446c85335bc4a70113ea22"
+  },
+  {
+   "path": "skill/plan-and-execute/scripts/pattern_runner_contract.py",
+   "sha256": "bb5a8032f8c9154efd9eed165bbdc63f1d258be545da321d7ffaeda7cee20d2e"
+  }
+ ],
+ "verdict": "approved",
+ "findings": [
+  {
+   "severity": "medium",
+   "title": "Policy-override guard is a narrow regex denylist with trivial bypasses",
+   "status": "open_non_blocking"
+  },
+  {
+   "severity": "medium",
+   "title": "Stale-learning invalidation and reporting ignore consumer state and delete consumed learnings",
+   "status": "open_non_blocking"
+  },
+  {
+   "severity": "medium",
+   "title": "Ordinary source drift aborts the autonomous run and blocks revise_plan",
+   "status": "open_non_blocking"
+  },
+  {
+   "severity": "low",
+   "title": "fail_task can raise while recording an optional hypothesis, after mutating task state in memory",
+   "status": "open_non_blocking"
+  },
+  {
+   "severity": "low",
+   "title": "The reference contract in the docs contradicts the code, and learnings citing no files are never pinned",
+   "status": "open_non_blocking"
+  },
+  {
+   "severity": "low",
+   "title": "The guard against re-publishing disproven hypotheses is lexical; a synonym paraphrase passes",
+   "status": "open_non_blocking"
+  },
+  {
+   "severity": "low",
+   "title": "Context metrics copy unredacted learning text, contradicting the 'no file contents' claim",
+   "status": "open_non_blocking"
+  },
+  {
+   "severity": "low",
+   "title": "Worker-controlled last_error enters the next prompt without the policy guard",
+   "status": "open_non_blocking"
+  },
+  {
+   "severity": "info",
+   "title": "The 014 receipt evidence no longer covers the hashes under review",
+   "status": "open_non_blocking"
+  }
+ ],
+ "limitations": [
+  "The reviewer had read-only Read/Grep/Glob tools; it could not run tests or recompute hashes. Test results come from P1_TESTS_015 under resource_watch.py.",
+  "Reviewer reported native effort xhigh as requested; the session did not expose effort back, so this is the requested/dispatch-recorded value.",
+  "Medium/low reviewer findings from dispatches 3 and 4 remain open as non-blocking follow-ups (see 015-outcome.md); 014-receipt.json hashes are historical and were not rewritten.",
+  "No live task-success measurement was run; cache reuse stays an observed host metric."
+ ]
+}

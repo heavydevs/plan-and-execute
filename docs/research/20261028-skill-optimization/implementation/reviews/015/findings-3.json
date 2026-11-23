@@ -1,0 +1,81 @@
+{
+  "task_id": "015",
+  "dispatch": 3,
+  "session_id": "fad346b1-606e-437e-bff7-5dc68a80ead2",
+  "verdict": "approved",
+  "summary": "Reviewer: Claude Opus 5.5 (claude-opus-5-5), fresh read-only session, no other AI reviews read. SHA-256 of reviewed inputs NOT recomputed (no hashing tool); reviewed working-tree files. All 8 task-014 acceptance criteria are implemented: consumer edges checked at claim and in the receipt; cited-file, contract and Markdown-tamper invalidation; publishing needs runner proof; refuted claims blocked; constant static prefix. No critical/high defect. 4 medium: run halts and status/audit/next fail when a cited file changes; a late refutation can block validation for the whole plan; docs point to base planctl.py, which desyncs concise plans; disproven guard is only lexical. 014 receipt/logs predate the 015 fixes; P1_TESTS_014/015 must re-run on final hashes.",
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:5569-5578, planctl.py:6621-6637, planctl.py:7254-7271, skill/plan-and-execute/scripts/run_isolated.py:2998",
+      "title": "Ordinary edit of a cited file halts the whole autonomous run and breaks status/audit/next",
+      "detail": "validate_learning_artifacts reports a stale learning for any unstarted consumer as a plan-integrity error, so plan validity now depends on the working tree. Common sequence: 001 publishes to 003 citing src/a.py, then 002 legitimately edits src/a.py. Claiming 003 raises PlanError (attempts==0 is not auto-invalidated) and the uncaught error aborts the run. On restart, _run_plan require_valid fails at once, even for unrelated tasks; status, audit and next also fail. Only a manual check-learnings --invalidate-stale recovers. On retry, auto-invalidation accepts only cited_file_changed, so a consumer that deleted or renamed a cited file (cited_file_missing) cannot retry without a manual repair. The AC ('invalidates or flags') holds, but the operational cost is high.",
+      "fix": "Apply the existing safe source-only invalidation on first claim too, with an audit event, and include cited_file_missing. Make validate_plan report source-stale learnings for unstarted consumers as warnings (claim still blocks them) instead of integrity errors that break status/audit/next. Add a regression test where an intermediate task edits a cited file and the run continues."
+    },
+    {
+      "id": "F02",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:6243-6256, planctl.py:4158, planctl.py:6527-6538, planctl.py:4770-4916",
+      "title": "Late refutation of a lexically similar claim permanently invalidates the plan",
+      "detail": "validate_attempt_hypotheses checks every learning artifact against every disproven hypothesis on any task, whether or not the consumer has already run. mark_hypothesis_disproven can be called at any time, and repeats_disproven_hypothesis is documented to flag same-topic claims. If such a refutation lands after the consumer started or completed, validate_plan fails forever. That blocks run start, status, audit and next, and revise staged validation, unless the learning is dropped. check-learnings --invalidate-stale does not consider refutations. reset of the producer refuses once the target started. The only escape is an obscure revise that changes the learning-target reason/topics or the producer contract.",
+      "fix": "Treat a refuted published learning as a stale state: add a refuted_by:<task>/<H> reason in check_learning_artifact_freshness so the invalidator can remove or flag it. Report leaks for already-consumed learnings as audit warnings, not plan-invalidity errors. Add a test that disproves after consumer completion and confirms validate_plan stays usable."
+    },
+    {
+      "id": "F03",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/references/EXECUTION_CONTEXT.md:98,106,112; planctl.py:3318-3325,4219-4229; artifact_contract.py:657-717; planctl_concise.py:8",
+      "title": "Docs send operators to base planctl.py, which re-renders concise plans and breaks their validation",
+      "detail": "Every other reference uses planctl_concise.py, and the tests use it for check-learnings (context_learning_self_test.py:407,1086). The new docs instead name planctl.py for check-learnings --invalidate-stale, hypothesis-record/-disprove/-promote and context-receipt. Base mutating commands call save_manifest, which rewrites every v4 task projection with the base render_task. hypothesis-promote also renders the learning with the base render_learning_artifact and base limits (hypothesis 280 vs concise 240 chars; guidance and file caps differ). After that, planctl_concise.py validate and the runner's require_valid report 'definition file does not match authoritative manifest state' / learning mismatch. Following the documented stale-learning remediation therefore makes the plan invalid.",
+      "fix": "Change these doc lines to planctl_concise.py. Optionally make the base CLI refuse mutating commands on plans created by the concise contract, or record the renderer in the manifest. Add a test that runs the documented command and then validates with the concise controller."
+    },
+    {
+      "id": "F04",
+      "severity": "medium",
+      "location": "skill/plan-and-execute/scripts/planctl.py:5046-5062, planctl.py:5177-5182; runner_contract.py:46-60",
+      "title": "AC06 'never appears as validated shared fact' is enforced only by lexical overlap",
+      "detail": "The retry worker sees its DISPROVEN hypothesis text in the prompt suffix and can then publish a paraphrase as validated_learning. Example: disproven 'Evidence file formatting prevented marker generation on Windows.' (7 content tokens) vs guidance 'On Windows hosts the layout of evidence.txt blocks creation of the marker file.' (9 tokens). They share 4 tokens, but 4/7=0.57 is below the 0.70 threshold, so it is accepted. EXECUTION_CONTEXT.md discloses the heuristic, but the 014 receipt marks AC06 'passed' without listing this limitation.",
+      "fix": "Record this residual risk explicitly in the 014/015 receipt limitations. Consider a structural mitigation: if the producing task has disproven hypotheses, carry those IDs in the learning provenance and render them as 'refuted on producer' in the learning file; or require reviewer confirmation for learnings from such tasks."
+    },
+    {
+      "id": "F05",
+      "severity": "medium",
+      "location": "docs/research/20261028-skill-optimization/implementation/014-receipt.json:14-39,41-127; implementation/logs/014/20261120T115340-26140/",
+      "title": "014 receipt hashes and test logs predate the reviewed code",
+      "detail": "The receipt pins planctl.py f1d94c47..., but the reviewed input is fe4ab8ae...; artifact_contract, runner_contract, the test and both docs also differ. All AC evidence logs are from the 2026-11-20 Windows run against the superseded code, before the later 015 fixes. They are not evidence for the final reviewed hashes. The 015 acceptance requires actual test evidence for every 014 acceptance addition (including the 028-owned prefix fixtures and the prepared-research-not-proof case) on the final hashes.",
+      "fix": "In S004/S005, re-run P1_TESTS_014 and P1_TESTS_015 (including the existing byte-stable prefix fixtures) through resource_watch on the final tree. Record new changed-file hashes and log paths in the 015 receipt, and keep the 014 receipt as historical input only."
+    },
+    {
+      "id": "F06",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:99-152, planctl.py:4614-4626; test/optimization/context_learning_self_test.py:420-549",
+      "title": "Policy-override guard is an easily bypassed regex, and the structural guarantee is untested",
+      "detail": "These pass the guard: 'Skipping validation commands is fine', 'Validation can be skipped on retries', 'run codex --dangerously-bypass-approvals-and-sandbox', '--yolo', 'Use provider claude for all downstream tasks'. AC03 actually holds structurally, because the runner takes validation commands, permission flags and routing from the manifest/config, never from notes. But the AC03 tests only exercise the regex. No test shows that a published hostile note leaves runner validation, permission flags and routing unchanged.",
+      "fix": "Document the regex as defense in depth. Add an end-to-end test: publish a note the regex misses, then show the runner still executes the manifest validation_commands and builds the worker command with the configured permission flags and route."
+    },
+    {
+      "id": "F07",
+      "severity": "low",
+      "location": "skill/plan-and-execute/references/EXECUTION_CONTEXT.md:82; planctl.py:4632-4652; context_learning_self_test.py:2495-2529",
+      "title": "Doc says multi-token file references are rejected; code accepts and pins them",
+      "detail": "EXECUTION_CONTEXT.md:82 says a reference with spaces, commas or parentheses that names a file is rejected because it cannot be fingerprinted. reference_source_files/expand_reference_tokens instead split such references and pin every named file, and test_review8_every_file_named_in_a_reference_is_pinned asserts they are accepted.",
+      "fix": "Update line 82: such references are accepted, and every repository file they name is pinned; a named file that is missing fails publication."
+    },
+    {
+      "id": "F08",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:7371-7389, planctl.py:4919-4946, planctl.py:6436-6451",
+      "title": "Stale-learning metrics and CLI count already-consumed learnings; invalidation rewrites completed tasks",
+      "detail": "Consumers often edit the cited file themselves, so after completion every consumed learning looks stale. check-learnings exits 2, and measure_plan_context_metrics.stale_learning_error_count inflates the 'stale-learning errors' metric (prepared decision item 8) with non-errors. invalidate_stale_learnings without --task has no target-status filter: it deletes learning files already read by completed or in-progress tasks and rewrites their learning_files and projections. That removes the record of what a completed task actually read, or makes a running worker's learning_files_read check fail.",
+      "fix": "Only count or invalidate learnings whose consumer is pending, or retrying via claim. Report consumed learnings as 'consumed' with their historical freshness, and never unlink files assigned to in-progress or completed consumers."
+    },
+    {
+      "id": "F09",
+      "severity": "low",
+      "location": "skill/plan-and-execute/scripts/planctl.py:6878-6946, planctl.py:5966-5976",
+      "title": "fail_task can abort after a partial in-memory mutation and leave the task stuck in progress",
+      "detail": "fail_task increments functional_failures, appends failure_classes, sets last_error and validation_stagnation, and recovers subtasks. Only then does it call record_attempt_hypothesis (auto-recorded on every validation failure with a signature). That call raises when all 8 retained entries are disproven barriers. The failure is then never persisted: the manifest is not saved, the task stays in_progress, and every later failure raises the same way. Reachable only after maintainers disprove 8 hypotheses on one task.",
+      "fix": "In fail_task, validate or record the hypothesis before other mutations, or catch the eviction refusal for the automatic hypothesis (skip it with an event) so the failure is always recorded."
+    }
+  ]
+}

@@ -1,47 +1,132 @@
 ---
 task_id: "099"
+plan_id: "20261028-skill-study-provider-switch"
 status: "pending"
+provider: "auto"
+model_tier: "strong"
+reasoning_effort: "high"
+complexity: "high"
 requirements: "R052"
-dependencies: "053,055,057,061,063,075,088,092,094,096,098"
+dependencies: "053, 055, 057, 061, 063, 075, 088, 092, 094, 096, 098"
+context_files: "CONTEXT.md"
+learning_files: "none"
 allowed_related_task_reads: "none"
 ---
 
 # 099 — Implement semantic progress and safe five-minute stall recovery
 
-Objective: For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
+## Objective
 
-## Context
+For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
+
+## Requirements covered
+
+- R052
+
+## Complexity and atomicity
+
+- Complexity: **high**
+- Why this is one executable TODO: One coupled observable contract: instrumentation, semantic stall classification and authorized repair/validated retry.
+
+## Context-isolation boundary
+
+- Why one fresh worker context helps this whole TODO: One vertical end-to-end progress-and-repair outcome, followed by independently verified correction.
+- Context that is genuinely shared by all subtasks:
+- Only the P052 contract, current source and relevant validated evidence.
+- Concerns deliberately isolated into other TODOs:
+- Do not duplicate preceding monitoring work or import past unrelated task transcripts.
+
+## Isolation contract
+
+This task definition and the exact execution-context files listed below are the only planning artifacts assigned to this worker. Read the task definition first, then read every assigned context file. Do not discover or open any other context file, `PLAN.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, result files, logs, or unrelated task definitions. You may read repository source, tests, build files, and runtime output relevant to this task.
+
+Another task definition may be opened only when one of the explicitly allowed task ids above is necessary to resolve a blocked dependency, ambiguity, or validation conflict. Record the task id and reason in the completion report.
+
+## Assigned execution context
 
 - `.ai-work/20261028-skill-study-provider-switch/CONTEXT.md`
 
-## Validated learnings
+## Assigned validated learnings
 
 - None
 
-## Checkpoints
+These files are concise, immutable artifacts produced only after another TODO passed deterministic validation. Read exactly the assigned files, never a previous worker transcript or an unassigned learning file.
 
-- [ ] **S001** Read contract and actual code — Read the focused 099 study, existing 052/054/056/060/062/087/091 decisions and affected code; use fresh source evidence.
-- [ ] **S002** Choose economical truthful instrumentation — Use existing source-owned counters/checkpoints; add minimal validated PROGRESS units for predicted >300-second work and flag runtime instrumentation gaps.
-- [ ] **S003** Separate semantic progress from activity — Implement monotonic verified completed-work clock distinct from CPU/output/heartbeats and resource health; preserve independent explicit hard ceilings.
-- [ ] **S004** Compute honest stage-local percentages — Validate done/total/seq, phase/retry identity, missing totals and weights; report stage percentages only when justified, never fabricated global completion.
-- [ ] **S005** Diagnose and safely reroute confirmed stalls — At 300 seconds without trustworthy semantic progress classify cause, preserve evidence, use existing eligible stronger repair route only when authorized, clean owned processes and rerun validated code.
-- [ ] **S006** Run targeted and adversarial tests — Implement and run semantic_progress_recovery_self_test.py, all mapped checks and regressions for DIRECT/ORCHESTRATED, quiet work, noisy logs and failures.
-- [ ] **S007** Record reproducible implementation evidence — Write task 099 receipt/outcome with actual changed-file hashes, diagnostics, executed checks, limitations and costs; never fabricate an independent review.
+## Resumable subtask checklist
 
-## Scope
+- [ ] **S001** — Read contract and actual code
+  - Read the focused 099 study, existing 052/054/056/060/062/087/091 decisions and affected code; use fresh source evidence.
+- [ ] **S002** — Choose economical truthful instrumentation
+  - Use existing source-owned counters/checkpoints; add minimal validated PROGRESS units for predicted >300-second work and flag runtime instrumentation gaps.
+- [ ] **S003** — Separate semantic progress from activity
+  - Implement monotonic verified completed-work clock distinct from CPU/output/heartbeats and resource health; preserve independent explicit hard ceilings.
+- [ ] **S004** — Compute honest stage-local percentages
+  - Validate done/total/seq, phase/retry identity, missing totals and weights; report stage percentages only when justified, never fabricated global completion.
+- [ ] **S005** — Diagnose and safely reroute confirmed stalls
+  - At 300 seconds without trustworthy semantic progress classify cause, preserve evidence, use existing eligible stronger repair route only when authorized, clean owned processes and rerun validated code.
+- [ ] **S006** — Run targeted and adversarial tests
+  - Implement and run semantic_progress_recovery_self_test.py, all mapped checks and regressions for DIRECT/ORCHESTRATED, quiet work, noisy logs and failures.
+- [ ] **S007** — Record reproducible implementation evidence
+  - Write task 099 receipt/outcome with actual changed-file hashes, diagnostics, executed checks, limitations and costs; never fabricate an independent review.
 
-In: Architectural and runtime long-validation instrumentation, honest completed-work percentages, semantic-stall classification, guarded stronger repair and monitored rerun.
-Out: No second planning engine, duplicate watcher or every-tick LLM calls.; No unauthorized writes, provider login, destructive restart or ignoring host policy.
-Files: `skill/plan-and-execute/scripts/progress_signal.py`, `skill/plan-and-execute/scripts/progress_watch.py`, `skill/plan-and-execute/scripts/resource_watch.py`, `skill/plan-and-execute/scripts/service_map.py`, `skill/plan-and-execute/scripts/jobctl.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/validatectl.py`, `skill/plan-and-execute/scripts/routingctl.py`, `skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `skill/plan-and-execute/references/VALIDATION_WORKLOADS.md`, `test/optimization/semantic_progress_recovery_self_test.py`, `docs/research/20261028-skill-optimization/implementation/099-receipt.json`, `docs/research/20261028-skill-optimization/implementation/099-outcome.md`
+The manifest is authoritative. Checkpoint progress only through the dedicated `planctl.py subtask-start` and `subtask-complete` commands supplied by the orchestrator. Never edit this checklist directly.
 
-## Guidance
+## Eligible future learning targets
+
+- None
+
+## In scope
+
+- Architectural and runtime long-validation instrumentation, honest completed-work percentages, semantic-stall classification, guarded stronger repair and monitored rerun.
+
+## Out of scope
+
+- No second planning engine, duplicate watcher or every-tick LLM calls.
+- No unauthorized writes, provider login, destructive restart or ignoring host policy.
+
+## Expected files
+
+- skill/plan-and-execute/scripts/progress_signal.py
+- skill/plan-and-execute/scripts/progress_watch.py
+- skill/plan-and-execute/scripts/resource_watch.py
+- skill/plan-and-execute/scripts/service_map.py
+- skill/plan-and-execute/scripts/jobctl.py
+- skill/plan-and-execute/scripts/run_isolated.py
+- skill/plan-and-execute/scripts/validatectl.py
+- skill/plan-and-execute/scripts/routingctl.py
+- skill/plan-and-execute/references/PROGRESS_TIMEOUTS.md
+- skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md
+- skill/plan-and-execute/references/VALIDATION_WORKLOADS.md
+- test/optimization/semantic_progress_recovery_self_test.py
+- docs/research/20261028-skill-optimization/implementation/099-receipt.json
+- docs/research/20261028-skill-optimization/implementation/099-outcome.md
+
+## Dependencies
+
+- 053
+- 055
+- 057
+- 061
+- 063
+- 075
+- 088
+- 092
+- 094
+- 096
+- 098
+
+## Allowed related task definitions
+
+- None
+
+## Implementation guidance
 
 - Read docs/research/20261028-skill-optimization/prepared-research/099-semantic-progress-recovery.md; follow the task 099 catalog contract and current impacted code.
 - Reuse existing progress_signal/progress_watch/resource_watch, service-map, run_isolated and routing ladders; don't add a second monitor.
 - Diagnose a five-minute stall before escalating: silence or CPU alone is insufficient evidence of defective implementation; require authorized repairs.
 - Record actual execution, checks, changed-file hashes and limits in docs/research/20261028-skill-optimization/implementation/099-receipt.json and docs/research/20261028-skill-optimization/implementation/099-outcome.md.
 
-## Acceptance
+## Acceptance criteria
 
 - Design-anticipated validation >300s reuses an existing reliable counter/probe or adds minimal instrumentation before starting; short checks remain fast and untouched.
 - Unexpected validation >300s without reliable progress raises a bounded instrumentation-gap diagnostic, never fabricated retrospective progress or uncontrolled edits to the running process.
@@ -57,7 +142,12 @@ Files: `skill/plan-and-execute/scripts/progress_signal.py`, `skill/plan-and-exec
 - A confirmed stall raises effort first on the same eligible route, then the next tier up to max; frontier is never chosen for implementation repair.
 - Effective top tier is max; frontier is never a ladder or switch rung and is never reached for implementation, quota, auth or environment outcomes.
 
-## Validate
+## Required validation
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_099`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_099`
+
+
+## Completion report
+
+Return a concise report with: status, summary, changed files, validations executed, remaining risks, follow-ups, context files read, learning files read, completed subtask ids, any reusable learnings for predeclared future targets, and any related task definition read with its reason. Do not edit planning, context, learning, or checklist files directly.

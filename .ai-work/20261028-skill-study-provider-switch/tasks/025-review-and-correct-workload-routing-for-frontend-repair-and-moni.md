@@ -1,39 +1,115 @@
 ---
 task_id: "025"
+plan_id: "20261028-skill-study-provider-switch"
 status: "pending"
-requirements: "R002,R003,R004,R005,R007,R032,R037,R038,R039,R042,R044"
+provider: "auto"
+model_tier: "max"
+reasoning_effort: "xhigh"
+complexity: "high"
+requirements: "R002, R003, R004, R005, R007, R032, R037, R038, R039, R042, R044"
 dependencies: "024"
+context_files: "CONTEXT.md"
+learning_files: "none"
 allowed_related_task_reads: "none"
 ---
 
 # 025 — Review and correct workload routing for frontend, repair and monitoring
 
-Objective: Review the actual implementation against the assigned prepared decision, correct blocking findings and re-run the targeted acceptance tests.
+## Objective
 
-## Context
+Review the actual implementation against the assigned prepared decision, correct blocking findings and re-run the targeted acceptance tests.
+
+## Requirements covered
+
+- R002
+- R003
+- R004
+- R005
+- R007
+- R032
+- R037
+- R038
+- R039
+- R042
+- R044
+
+## Complexity and atomicity
+
+- Complexity: **high**
+- Why this is one executable TODO: One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.
+
+## Context-isolation boundary
+
+- Why one fresh worker context helps this whole TODO: This task owns one behavior or correction gate with independently checkable outcomes.
+- Context that is genuinely shared by all subtasks:
+- Read only the assigned decision, source targets and accepted prerequisite receipts.
+- Concerns deliberately isolated into other TODOs:
+- Do not load unrelated reports, provider guides or historical conversation transcripts.
+
+## Isolation contract
+
+This task definition and the exact execution-context files listed below are the only planning artifacts assigned to this worker. Read the task definition first, then read every assigned context file. Do not discover or open any other context file, `PLAN.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, result files, logs, or unrelated task definitions. You may read repository source, tests, build files, and runtime output relevant to this task.
+
+Another task definition may be opened only when one of the explicitly allowed task ids above is necessary to resolve a blocked dependency, ambiguity, or validation conflict. Record the task id and reason in the completion report.
+
+## Assigned execution context
 
 - `.ai-work/20261028-skill-study-provider-switch/CONTEXT.md`
 
-## Validated learnings
+## Assigned validated learnings
 
 - None
 
-## Checkpoints
+These files are concise, immutable artifacts produced only after another TODO passed deterministic validation. Read exactly the assigned files, never a previous worker transcript or an unassigned learning file.
 
-- [ ] **S001** Read assigned decision and pin baseline — Read docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md. Confirm source applicability; do not repeat broad research.
-- [ ] **S002** Dispatch the independent reviewer — Run `python docs/plans/20261028-skill-optimization/support/review_dispatch.py --repo-root . --task 025` in the foreground (rerun on exit 75); use only its DISPATCH line and compact findings.
-- [ ] **S003** Implement change 2 — Correct every blocking finding or leave the gate incomplete with a recorded reason.
-- [ ] **S004** Implement change 3 — Re-run declared checks after corrections and pin the final reviewed source state.
-- [ ] **S005** Run declared regression checks — Run the declared targeted tests through the resource watcher. Implement every assigned acceptance case and preserve failures and limitations.
-- [ ] **S006** Record acceptance evidence — Write the implementation receipt and outcome report with changed-file hashes, acceptance coverage and actual test logs. Leave unresolved work pending.
+## Resumable subtask checklist
 
-## Scope
+- [ ] **S001** — Read assigned decision and pin baseline
+  - Read docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md. Confirm source applicability; do not repeat broad research.
+- [ ] **S002** — Dispatch the independent reviewer
+  - Run `python docs/plans/20261028-skill-optimization/support/review_dispatch.py --repo-root . --task 025` in the foreground (rerun on exit 75); use only its DISPATCH line and compact findings.
+- [ ] **S003** — Implement change 2
+  - Correct every blocking finding or leave the gate incomplete with a recorded reason.
+- [ ] **S004** — Implement change 3
+  - Re-run declared checks after corrections and pin the final reviewed source state.
+- [ ] **S005** — Run declared regression checks
+  - Run the declared targeted tests through the resource watcher. Implement every assigned acceptance case and preserve failures and limitations.
+- [ ] **S006** — Record acceptance evidence
+  - Write the implementation receipt and outcome report with changed-file hashes, acceptance coverage and actual test logs. Leave unresolved work pending.
 
-In: Review and correct workload routing for frontend, repair and monitoring
-Out: No new broad research phase or second-plan generation.; Do not change installed copies, user-global settings or publish without permission.
-Files: `skill/plan-and-execute/scripts/workload_routing.py`, `skill/plan-and-execute/scripts/configure.py`, `test/optimization/workload_affinity_self_test.py`, `skill/plan-and-execute/references/MODEL_MAPPING.md`, `docs/research/20261028-skill-optimization/implementation/025-receipt.json`, `docs/research/20261028-skill-optimization/implementation/025-outcome.md`
+The manifest is authoritative. Checkpoint progress only through the dedicated `planctl.py subtask-start` and `subtask-complete` commands supplied by the orchestrator. Never edit this checklist directly.
 
-## Guidance
+## Eligible future learning targets
+
+- None
+
+## In scope
+
+- Review and correct workload routing for frontend, repair and monitoring
+
+## Out of scope
+
+- No new broad research phase or second-plan generation.
+- Do not change installed copies, user-global settings or publish without permission.
+
+## Expected files
+
+- skill/plan-and-execute/scripts/workload_routing.py
+- skill/plan-and-execute/scripts/configure.py
+- test/optimization/workload_affinity_self_test.py
+- skill/plan-and-execute/references/MODEL_MAPPING.md
+- docs/research/20261028-skill-optimization/implementation/025-receipt.json
+- docs/research/20261028-skill-optimization/implementation/025-outcome.md
+
+## Dependencies
+
+- 024
+
+## Allowed related task definitions
+
+- None
+
+## Implementation guidance
 
 - Read docs/research/20261028-skill-optimization/prepared-research/024-workload-affinity.md.
 - Use only task 025 inputs and declared checks in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.
@@ -44,7 +120,7 @@ Files: `skill/plan-and-execute/scripts/workload_routing.py`, `skill/plan-and-exe
 - Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
 - Never launch background or asynchronous agents or processes: this headless session ends when you stop calling tools, so anything unfinished is lost.
 
-## Acceptance
+## Acceptance criteria
 
 - Actual fresh reviewer provider/model/effort and reviewed input hashes are recorded.
 - No unresolved critical/high finding remains; the assigned acceptance cases have actual test evidence.
@@ -53,7 +129,12 @@ Files: `skill/plan-and-execute/scripts/workload_routing.py`, `skill/plan-and-exe
 - Every 2026-11-20 acceptance addition of task 024 has actual test evidence on the final reviewed hashes.
 - The prepared report is input evidence, not proof that this implementation or its independent review has passed.
 
-## Validate
+## Required validation
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_025`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_025`
+
+
+## Completion report
+
+Return a concise report with: status, summary, changed files, validations executed, remaining risks, follow-ups, context files read, learning files read, completed subtask ids, any reusable learnings for predeclared future targets, and any related task definition read with its reason. Do not edit planning, context, learning, or checklist files directly.

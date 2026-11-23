@@ -14,7 +14,7 @@
 - [x] **012** — Implement requirements, task decomposition and schema-v4 state
 - [x] **013** — Review and correct requirements, task decomposition and schema-v4 state
 - [x] **014** — Implement assigned context, learned facts and token budgets
-- [ ] **015** — Review and correct assigned context, learned facts and token budgets
+- [x] **015** — Review and correct assigned context, learned facts and token budgets
 - [ ] **016** — Implement versioned shared contracts and selective invalidation
 - [ ] **017** — Review and correct versioned shared contracts and selective invalidation
 - [ ] **018** — Implement leases, resume, cancellation, reset and guarded cleanup

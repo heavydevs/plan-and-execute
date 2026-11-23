@@ -1,8 +1,10 @@
-# Analysis — Single implementation plan - evidence-backed skill optimization
+# Request and repository analysis — Single implementation plan - evidence-backed skill optimization
 
-Request: `REQUEST.md`
+## Original request
 
-## Parts
+The complete user-authored request is preserved in `REQUEST.md` (import mode: copy; source name: `REQUEST_CURRENT.md`).
+
+## Distinct request parts
 
 - **P001** Implement the prepared research recommendations in this one plan; do not create another plan.
 - **P002** Use the pinned source inventory and per-feature reports to implement traceable skill improvements.
@@ -72,7 +74,7 @@ Request: `REQUEST.md`
 - **P066** New code reuses source-backed project conventions (module architecture, ORM/repositories, used libraries, helpers, naming, tests) via concise agent docs, pattern-first drift checks and approved exceptions; deep coding/UX study only on opt-in first use or explicit init/refresh.
 - **P067** When the plan manager (root) is a smaller model, hard mid-run decisions (blocked task, plan or gate defect, replan, review conflict, manifest mutation) go to a fresh qualified read-only worker; frontier only by existing rules; availability faults never escalate.
 
-## Repository
+## Repository findings
 
 - The production runner composes raw execution with artifact, model, runner and pattern contracts.
 - Declared-chain escalation and escalated-tier availability can select different providers in the baseline.
@@ -86,9 +88,11 @@ Request: `REQUEST.md`
 - run_isolated.run_validation_commands returns after first failed mapped command, and plan-specific run_task_checks stops at first nonzero check.
 - Existing 109/110 collects all safely runnable mapped failures but lacks test-level authoring and conservative cross-task impact selection.
 
-Research: Revision 2 evaluates primary-source alternatives for all 32 reports; workers consume the selected decision and refresh only material version or account conflicts.
+## Research decision
 
-## External findings
+Revision 2 evaluates primary-source alternatives for all 32 reports; workers consume the selected decision and refresh only material version or account conflicts.
+
+## Research findings
 
 - Reported delegation and effort experiments trade cost against accuracy; subagents were not a universal improvement over lower effort. Measurements depend on workload, model, cache and harness.
 - The current guide distinguishes model generations and charges cache writes on GPT-5.6 and later; explicit stable-prefix breakpoints and retention have separate economics. A historical no-write-charge assumption is not portable.
@@ -129,6 +133,10 @@ Research: Revision 2 evaluates primary-source alternatives for all 32 reports; w
 
 - Authenticated execution and independent maximum-qualified review require an available authorized provider at implementation time.
 
-## Decomposition
+## Hard decisions
+
+- None (no decision-first pass was needed)
+
+## Decomposition strategy
 
 Keep stable IDs; implement each prepared topic, then independently review and correct it. Serialize overlapping write scopes. Integrate and validate all changes in this single plan. Each amendment pair from 099/100 (no duplicate watcher) to 129/130 ends in an independent review gating integration 082; 086 stays last.

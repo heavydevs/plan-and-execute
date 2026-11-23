@@ -1,62 +1,27 @@
 # Plan review — Single implementation plan - evidence-backed skill optimization
 
-approved · reviewer `Current-session specification review; no independent model review` · round 2
+- Status: **approved**
+- Reviewer: **Current-session specification review; no independent model review**
+- Review rounds: **2**
 
-Checks: coverage_complete, tasks_atomic, dependencies_valid, validations_sufficient, contexts_minimal, context_boundaries_sound
+## Quality checks
 
-## Notes
+- coverage complete: **pass**
+- tasks atomic: **pass**
+- dependencies valid: **pass**
+- validations sufficient: **pass**
+- contexts minimal: **pass**
+- context boundaries sound: **pass**
+
+## Review notes
 
 - This approves the revised planning structure, not any product implementation or external review.
 - Stable task IDs and requirement IDs are retained with explicit supersession records.
 - All implementation tasks remain pending; autostart is disabled.
 - Revision2 adds current primary sources, competing approaches, counterexamples and explicit unmeasured assumptions for all32 topics.
 - Shared-file writes wait for preceding correction reviews; primitive020 and fixture068 exclude later runtime implementation.
-- This approval covers the plan specification only; actual implementation and independent review remain pending.
+- 2026-10-31 to 2026-11-20 amendments 087-130 (P052-P066) had structural review only; no implementation, tests or independent model review is accepted. Per-amendment history: PLAN_REVIEW.md.
 
-## Amendment — 2026-10-31
+## Unresolved findings
 
-- Six implementation tasks and six future independent reviews were added to the same plan, pending real execution.
-- Task 082 depends on reviews 088/090/092/094/096/098. Task 086 remains the final whole-skill acceptance gate.
-- Structural coverage and graph order are planned; authenticated providers and human comprehensibility have not been tested.
-
-## Amendment — 2026-11-02
-
-- Current progress windows and escalation in tasks 052–063 partially cover the request, but verified semantic work, truthful percentage and guarded reimplementation remain unintegrated.
-- TODO 099 adds this vertical implementation; TODO 100 requires independent actual review before integration 082 and final review 086.
-- All remain pending; research is not proof of tests, provider calls or implementation.
-
-## Amendment — 2026-11-05
-
-- P053/R053 adds pending whole-plan host sleep inhibitor 101 and independent correction review 102 before 082; 086 remains last.
-- OS idle protection cannot guarantee lid/manual sleep, Modern Standby DC, power loss, enterprise policy or quota/auth. No product/OS tests or real independent reviewer executed by this amendment.
-
-## Amendment — 2026-11-12
-
-- P054/R054: researched opt-in host 20-minute keepalive on >=6 pending tasks, register/unregister ownership and reliable cleanup, reviewed later by task 104.
-- P055/R055: researched 2026-11-12 official model evidence and optional frontier L6; independent review task 106 required.
-- Structural addition only. No native scheduling, live provider model trials, physical sleep tests or independent reviewers executed. Task 082 now depends on reviews 104 and 106, preserving final review 086.
-
-## Amendment P056 — 2026-11-14
-
-- Added researched, implementation-ready security/performance architecture and code review TODOs 107/108; 108 gates 082; 086 remains final.
-- Plan-only structural amendment: no authenticated agent, real independent review, code change, load benchmark or product acceptance was performed. All 108 tasks pending.
-
-## P057 — 2026-11-14 structural amendment
-
-- Add pending 109 + independently reviewed 110, research-based architecture and functional regression fixtures; task 082 depends on 110, 086 remains final.
-- This is plan-only analysis, not implementation, independent reviewer dispatch, test execution or measured cost saving.
-
-## P058–P060 — 2026-11-19 structural amendment
-
-- Added researched, implementation-ready pending tasks 111–114 with deterministic test impact selection and explicit test-audit/refactor authorization.
-- Reviewed the acyclic dependency ordering: 112 precedes 109, 113 follows 110, 114 precedes 082, final 086 unchanged.
-- This approves only the plan structure, not implementation, automated regression, user project test migration, or genuine independent reviewer execution.
-
-## P061–P064 — 2026-11-19 structural amendment
-
-- 2026-11-19 P061-P064: six pending implementation/review tasks; planning only, not product implementation or external model approval.
-
-## P066 — 2026-11-20 structural review
-
-- Four pending tasks 127–130 implement/review source-backed project coding conventions; approved first-use coding+UX consent shared with tasks 121–126. Recheck graph: 127 -> 128 -> 121 -> 122 -> 123 -> 124 -> 125 -> 126 -> 082, independently 128 -> 129 -> 130 -> 082; 086 remains final. Task 129 additionally requires 108 and 112. No circular dependencies, assuming prior graph acyclic.
-- Requirements R069–R072 are linked to tasks/manifest and prepared research P066. Real tests, provider capability, token costs, user acceptance and genuine code review are NOT yet evidenced; do not mark tasks complete.
+- None

@@ -1,84 +1,302 @@
 # Single implementation plan - evidence-backed skill optimization
 
+## Goal
+
 Implement 32 researched optimization topics and provider switching in one resumable plan with independent reviews and integration checks, plus the pending 2026-10-31 to 2026-11-20 additions 087-132 (P052-P067), each an implementation and independent review pair gating integration 082.
 
-## Requirements -> TODOs
+## Request-parts inventory
 
-- **R001** [must; user; P001 -> 001,082,083,084,085,086] Implement the prepared research recommendations in this one plan; do not create another plan.
-- **R002** [must; user; P002 -> 002,003,004,005,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069] Use the pinned source inventory and per-feature reports to implement traceable skill improvements.
-- **R003** [must; user; P003 -> 004,005,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069,082,083,084,085,086] Replace every research task and its internal checklist with implementation instructions linked to its prepared report.
-- **R004** [must; user; P004 -> 001,003,004,005,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069,071,073,075,077,079,081,082,083,084,085,086] Require independent maximum-available-capability code review after each implementation topic; do not fabricate reviewer execution.
-- **R005** [must; user; P005 -> 006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069,080,081,082,083,084,085] Compare quality per validated cost, alternatives, risks and measurable regression criteria.
-- **R006** [must; user; P006 -> 068,069,070,071,072,073,074,075,076,077,078,079,080,081,086] Implement the opt-in provider-top switching improvement within this single plan.
-- **R007** [must; user; P007 -> 002,003,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069] Reconfirm decisive source claims; distinguish verified facts, hypotheses and new inference.
-- **R008** [must; user; P008 -> 002,003,086] Modify only the source checkout; preserve installed skills and user-global configuration.
-- **R009** [must; user; P009 -> 002,003] Pin the actual source baseline, affected tests and historical evidence; do not represent old logs as fresh validation.
-- **R010** [must; user; P010 -> 001] Continue in the existing checkpoint workstream without modifying main or publishing without permission.
-- **R011** [must; user; P011 -> 001,086] Require confirmation before commit, push, PR, npm publication and authenticated provider execution.
-- **R012** [must; user; P012 -> 068,069,070,071,072,073,074,075,078,079,080,081,086] Keep the new provider-switch behavior opt-in; disabled behavior and argv goldens stay unchanged.
-- **R013** [must; user; P013 -> 068,069,070,071,074,075] Use one explicit provider-chain policy so the ladder matches the actual dispatched provider.
-- **R014** [must; user; P014 -> 068,069,070,071,072,073] Derive useful top from resolved model and effective effort, including embedded slugs and snapshot/profile rules.
-- **R015** [must; user; P015 -> 068,069,070,071,074,075] Make every eligible provider reachable within documented attempt budgeting; test third-provider access at budget eight.
-- **R016** [must; user; P016 -> 068,069,070,071,072,073,074,075] Define mechanical/budget retry exceptions; environmental, plan_defect and timeout_ceiling never trigger capability switching.
-- **R017** [must; user; P017 -> 068,069,070,071,076,077] Use the prepared comparison to implement deterministic handoff first; keep additional paid summary calls and native retention out of the default.
-- **R018** [must; user; P018 -> 068,069,076,077] Redact secrets before truncation and bound the handoff; never capture environment or profile values.
-- **R019** [must; user; P019 -> 068,069,076,077,078,079] Label handoff as unverified data after deterministic evidence; it cannot change route, class or status.
-- **R020** [must; user; P020 -> 068,069,076,077] Validate handoff paths against diff, commands against evidence and subtask IDs against the manifest.
-- **R021** [must; user; P021 -> 068,069,076,077] Produce deterministic handoff when the previous provider is unavailable or its report is missing or invalid.
-- **R022** [must; user; P022 -> 068,069,078,079] Keep byte-stable prompt prefixes, add only the newest attempt-bound capsule and retain failure_context.
-- **R023** [must; user; P023 -> 068,069,076,077,078,079] Preserve strict report-schema compatibility, including Codex required-nullable fields and Antigravity null adaptation.
-- **R024** [must; user; P024 -> 068,069,070,071,072,073,074,075,078,079] Preserve manifest schemas 1-4, missing failure_classes, version-1 configuration snapshots and availability ledger compatibility.
-- **R025** [must; user; P025 -> 068,069,070,071,074,075] Keep availability separate from functional evidence; preserve provider, quota_pool and model cooldowns and exit 75.
-- **R026** [must; user; P026 -> 068,069,070,071,074,075] Honor fallback-disabled and existing provider override semantics; never widen a forbidden chain.
-- **R027** [must; user; P027 -> 068,069,070,071,074,075] Define and test design-phase switching, shared counters, reset and resumability.
-- **R028** [must; user; P028 -> 068,069,070,071,074,075,080,081] Validate new configuration subkeys, defaults, global/plan layers and routing fingerprints.
-- **R029** [must; user; P029 -> 068,069,076,077,080,081] Record provider-switch and handoff cost telemetry without secrets; preserve rollup and benchmark contracts.
-- **R030** [must; user; P030 -> 068,069,070,071,072,073,078,079] Resolve snapshot models and workload native effort before deciding whether a rung changes actual dispatch.
-- **R031** [must; user; P031 -> 068,069,070,071,074,075,078,079,080,081] Fix or explicitly justify deferral of empty-tier dispatch and the omitted failure evidence-packet path.
-- **R032** [must; user; P032 -> 002,003,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069] Verify CLI capabilities from official docs and installed non-generative discovery; record divergences.
-- **R033** [must; user; P033 -> 080,081,084,085,086] Keep English docs and Portuguese mirrors synchronized; respect entrypoint budgets and required phrases.
-- **R034** [must; user; P034 -> 068,069,072,073,074,075,076,077,078,079,080,081,084,085,086] Reproduce all twelve acceptance cases and run affected self-tests plus npm ci, npm run check and npm pack --dry-run.
-- **R035** [must; user; P035 -> 002,003,080,081,086] Reconcile the resource map without losing reusable inventory; report pre-existing validation failures separately.
-- **R036** [must; user; P036 -> 086] Make final whole-skill maintenance and implementation acceptance the last task.
-- **R037** [must; user; P037 -> 006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069,070,071,080,081] Consume the prepared reports with numbered sources, URL/access date and explicit evidence-versus-inference labels.
-- **R038** [must; user; P038 -> 002,003,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069] Use the completed provider, literature and public book-excerpt research; refresh only a material version-sensitive gap.
-- **R039** [must; user; P039 -> 001,003,005,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069,071,073,075,077,079,081,083,084,085,086] Keep each worker context task-local; share concise evidence instead of conversation transcripts.
-- **R040** [must; user; P040 -> 001,002,003,086] Do not install into user copies or change the user-global routing config.
-- **R041** [must; user; P041 -> 082,083,084,085,086] Keep prepared research outside disposable control state so all implementation tasks retain their source evidence.
-- **R042** [must; inferred; P042 -> 001,003,005,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069,071,073,075,077,079,081,082,083,084,085,086] Do not mark research, highest-model review or product implementation complete without actual evidence.
-- **R043** [must; user; P043 -> 082,083,084,085,086] Replace former second-plan tasks with integration, regression, packaging and final acceptance of this single implementation.
-- **R044** [must; user; P044 -> 004,005,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021,022,023,024,025,026,027,028,029,030,031,032,033,034,035,036,037,038,039,040,041,042,043,044,045,046,047,048,049,050,051,052,053,054,055,056,057,058,059,060,061,062,063,064,065,066,067,068,069,082,083,084,085,086] Record a newly discovered material gap with provenance and a bounded contract amendment; do not restart broad research by default.
-- **R045** [must; user; P045 -> 080,081,086] Report decisions, changed files, actual validation, unverified platforms and risks in Brazilian Portuguese.
-- **R046** [must; user; P046 -> 087,088,082,086] For cohesive multi-file DIRECT work, inspect relevant files cheaply, delegate difficult architecture to a stronger model only when justified, then choose a qualified economical executor and monitored tests.
-- **R047** [must; user; P047 -> 089,090,082,086] Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests.
-- **R048** [must; user; P048 -> 091,092,082,086] When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints.
-- **R049** [must; user; P049 -> 093,094,082,086] For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it.
-- **R050** [must; user; P050 -> 095,096,082,086] Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.
-- **R051** [must; user; P051 -> 097,098,082,086] Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
-- **R052** [must; user; P052 -> 099,100,082,086] For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
-- **R053** [must; user; P053 -> 101,102,082,084,086] Keep the local host from idle sleep/hibernation for a whole RUNNING ORCHESTRATED plan via one verified OS-native lease over task/provider gaps and validations; release on stop/pause/cancel; offer opt-out and strict overnight readiness; never override OS power policy or safety.
-- **R054** [must; user; P054 -> 103,104,082,086] Offer an opt-in 20-minute OS scheduler for ORCHESTRATED plans with >=6 executable pending tasks and auto-unregister it at plan termination; preserve native continuous power inhibitor separately.
-- **R055** [must; user; P055 -> 105,106,082,086] Refresh 2026 provider model mapping and add opt-in frontier tier L6/F6 above max, including only actually available Fable, Astra, Carbon and other eligible frontier models.
-- **R056** [must; user; P056 -> 107,108,082,086] Review material architecture/design for security and performance before implementation and again in final independent code review; no automated performance tests unless requested.
-- **R057** [must; user; P057 -> 109,110,082,086] Collect all safe automated test failures with case-specific evidence, repair only failed/affected cases during iteration, and require complete final full-suite passing validation.
-- **R058** [must; user; P058 -> 111,112,113,114,082,086] Choose the cheapest faithful test level for each behavior and validation rule; preserve representative and unique high-risk browser journeys.
-- **R059** [must; user; P059 -> 109,110,111,112,082,086] Select task-level tests through conservative dependency/risk evidence; full mapped checks and final current-source global test suite remain required.
-- **R060** [must; user; P060 -> 113,114,082,086] Allow legacy-wide or current-plan-test review/refactor only on explicit user request and exact scope; read-only by default and edits separately authorized.
-- **R061** [must; user; P061 -> 115,116,082,086] After provider quota recovery, next safe dispatch selects highest-priority configured eligible agent, respecting pins, capability and security.
-- **R062** [must; user; P062 -> 115,116,082,086] When all allowed providers run out of quota, persist plan pause and one durable bounded automatic recheck/resume, without paid polling or duplicate workers.
-- **R063** [must; user; P063 -> 117,118,082,086] AI-generated tests must have independent contract-grounded oracles, meaningful defect-detection checks and risk-proportional unit/contract/integration/E2E.
-- **R064** [must; user; P064 -> 117,118,119,120,082,086] All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics.
-- **R065** [must; user; P065 -> 121,122,126,082,086] Create opt-in durable visual identity, design tokens and source-indexed agent context respecting real existing frontend standards.
-- **R066** [must; user; P065 -> 123,124,126,082,086] Create optional in-app or isolated Node HTML/JavaScript/SCSS prototype workflows, scoped existing-project import and guarded prototype-to-production implementation plans.
-- **R067** [must; user; P065 -> 125,126,082,086] Enforce evidence-based beautiful consistent UI and accessible functional UX acceptance including visual, responsive, keyboard, forms and explicit human review.
-- **R068** [must; user; P065 -> 121,122,123,124,125,126,082,086] Use lazy UX activation and qualified economical per-phase routing with minimal source-indexed context and no repeated broad study.
-- **R069** [must; user; P066 -> 127,128,129,130,082,086] Generation in existing projects must reuse established module-specific architecture, ORM/repositories, existing libraries/helpers, naming, packages and tests; changes of stack need explicit rationale.
-- **R070** [must; user; P066 -> 127,128,082,086] Provide explicit one-time and proactive init/refresh commands for researching project and modern best practices and generating concise source-backed documentation for agents.
-- **R071** [must; user; P066 -> 129,130,082,086] Apply pattern-first context, static architecture drift checking and approved exception reviews with security/performance and focused testing.
-- **R072** [must; user; P066 -> 127,128,129,130,082,086] Share opt-in first-project-use activation for coding and UX/design; repeat deep study only by explicit command, with lazy source-scoped context and economical routing.
-- **R073** [must; user; P067 -> 131,132,082,086] Supervisory decisions use a configurable routing_policy.manager_tier and one deterministic routingctl entry point; diagnoses are read-only, deduplicated per blocker fingerprint and budgeted, and never switch the root model, auto-edit the manifest or escalate availability faults.
+- **P001** Implement the prepared research recommendations in this one plan; do not create another plan.
+- **P002** Use the pinned source inventory and per-feature reports to implement traceable skill improvements.
+- **P003** Replace every research task and its internal checklist with implementation instructions linked to its prepared report.
+- **P004** Require independent maximum-available-capability code review after each implementation topic; do not fabricate reviewer execution.
+- **P005** Compare quality per validated cost, alternatives, risks and measurable regression criteria.
+- **P006** Implement the opt-in provider-top switching improvement within this single plan.
+- **P007** Reconfirm decisive source claims; distinguish verified facts, hypotheses and new inference.
+- **P008** Modify only the source checkout; preserve installed skills and user-global configuration.
+- **P009** Pin the actual source baseline, affected tests and historical evidence; do not represent old logs as fresh validation.
+- **P010** Continue in the existing checkpoint workstream without modifying main or publishing without permission.
+- **P011** Require confirmation before commit, push, PR, npm publication and authenticated provider execution.
+- **P012** Keep the new provider-switch behavior opt-in; disabled behavior and argv goldens stay unchanged.
+- **P013** Use one explicit provider-chain policy so the ladder matches the actual dispatched provider.
+- **P014** Derive useful top from resolved model and effective effort, including embedded slugs and snapshot/profile rules.
+- **P015** Make every eligible provider reachable within documented attempt budgeting; test third-provider access at budget eight.
+- **P016** Define mechanical/budget retry exceptions; environmental, plan_defect and timeout_ceiling never trigger capability switching.
+- **P017** Use the prepared comparison to implement deterministic handoff first; keep additional paid summary calls and native retention out of the default.
+- **P018** Redact secrets before truncation and bound the handoff; never capture environment or profile values.
+- **P019** Label handoff as unverified data after deterministic evidence; it cannot change route, class or status.
+- **P020** Validate handoff paths against diff, commands against evidence and subtask IDs against the manifest.
+- **P021** Produce deterministic handoff when the previous provider is unavailable or its report is missing or invalid.
+- **P022** Keep byte-stable prompt prefixes, add only the newest attempt-bound capsule and retain failure_context.
+- **P023** Preserve strict report-schema compatibility, including Codex required-nullable fields and Antigravity null adaptation.
+- **P024** Preserve manifest schemas 1-4, missing failure_classes, version-1 configuration snapshots and availability ledger compatibility.
+- **P025** Keep availability separate from functional evidence; preserve provider, quota_pool and model cooldowns and exit 75.
+- **P026** Honor fallback-disabled and existing provider override semantics; never widen a forbidden chain.
+- **P027** Define and test design-phase switching, shared counters, reset and resumability.
+- **P028** Validate new configuration subkeys, defaults, global/plan layers and routing fingerprints.
+- **P029** Record provider-switch and handoff cost telemetry without secrets; preserve rollup and benchmark contracts.
+- **P030** Resolve snapshot models and workload native effort before deciding whether a rung changes actual dispatch.
+- **P031** Fix or explicitly justify deferral of empty-tier dispatch and the omitted failure evidence-packet path.
+- **P032** Verify CLI capabilities from official docs and installed non-generative discovery; record divergences.
+- **P033** Keep English docs and Portuguese mirrors synchronized; respect entrypoint budgets and required phrases.
+- **P034** Reproduce all twelve acceptance cases and run affected self-tests plus npm ci, npm run check and npm pack --dry-run.
+- **P035** Reconcile the resource map without losing reusable inventory; report pre-existing validation failures separately.
+- **P036** Make final whole-skill maintenance and implementation acceptance the last task.
+- **P037** Consume the prepared reports with numbered sources, URL/access date and explicit evidence-versus-inference labels.
+- **P038** Use the prepared primary-source and public book-chapter research; preserve reading limits and refresh only a material version/account mismatch.
+- **P039** Keep each worker context task-local; share concise evidence instead of conversation transcripts.
+- **P040** Do not install into user copies or change the user-global routing config.
+- **P041** Keep prepared research outside disposable control state so all implementation tasks retain their source evidence.
+- **P042** Do not mark research, highest-model review or product implementation complete without actual evidence.
+- **P043** Replace former second-plan tasks with integration, regression, packaging and final acceptance of this single implementation.
+- **P044** Record a newly discovered material gap with provenance and a bounded contract amendment; do not restart broad research by default.
+- **P045** Report decisions, changed files, actual validation, unverified platforms and risks in Brazilian Portuguese.
+- **P046** For cohesive multi-file DIRECT work, inspect relevant files cheaply, delegate difficult architecture to a stronger model only when justified, then choose a qualified economical executor and monitored tests.
+- **P047** Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests.
+- **P048** When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints.
+- **P049** For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it.
+- **P050** Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.
+- **P051** Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
+- **P052** For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
+- **P053** Keep the local host from idle sleep/hibernation for a whole RUNNING ORCHESTRATED plan via one verified OS-native lease over task/provider gaps and validations; release on stop/pause/cancel; offer opt-out and strict overnight readiness; never override OS power policy or safety.
+- **P054** Offer an opt-in 20-minute OS scheduler for ORCHESTRATED plans with >=6 executable pending tasks and auto-unregister it at plan termination; preserve native continuous power inhibitor separately.
+- **P055** Refresh 2026 provider model mapping and add opt-in frontier tier L6/F6 above max, including only actually available Fable, Astra, Carbon and other eligible frontier models.
+- **P056** Add risk-based independent architecture security/performance review, final review two lenses and user-opt-in-only application performance testing.
+- **P057** Save time and tokens by completing safe failure collection once, grouping per-case failures and doing selective repairs before mandatory final full regression.
+- **P058** Define lower-cost trustworthy unit/contract/integration test coverage and representative minimum/maximum/validation E2E flows.
+- **P059** Select changed and impacted tests per task; run complete mapped regressions, reserving global all-suite for plan completion with risk exceptions.
+- **P060** Add explicit user-triggered review/refactor of legacy suites or just current-plan-developed tests; default review-only and separate edits.
+- **P061** After provider quota recovery, next safe dispatch selects highest-priority configured eligible agent, respecting pins, capability and security.
+- **P062** When all allowed providers run out of quota, persist plan pause and one durable bounded automatic recheck/resume, without paid polling or duplicate workers.
+- **P063** AI-generated tests must have independent contract-grounded oracles, meaningful defect-detection checks and risk-proportional unit/contract/integration/E2E.
+- **P064** All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics.
+- **P065** Research and add implementation-ready architecture for opt-in visual identity, brownfield UI standards, optional Node HTML/JS/SCSS prototype lab, safe import and transfer and validated accessible UX with low-token routing.
+- **P066** New code reuses source-backed project conventions (module architecture, ORM/repositories, used libraries, helpers, naming, tests) via concise agent docs, pattern-first drift checks and approved exceptions; deep coding/UX study only on opt-in first use or explicit init/refresh.
+- **P067** When the plan manager (root) is a smaller model, hard mid-run decisions (blocked task, plan or gate defect, replan, review conflict, manifest mutation) go to a fresh qualified read-only worker; frontier only by existing rules; availability faults never escalate.
 
-## Constraints
+## Request-part-to-requirement coverage
+
+- **P001** -> R001
+- **P002** -> R002
+- **P003** -> R003
+- **P004** -> R004
+- **P005** -> R005
+- **P006** -> R006
+- **P007** -> R007
+- **P008** -> R008
+- **P009** -> R009
+- **P010** -> R010
+- **P011** -> R011
+- **P012** -> R012
+- **P013** -> R013
+- **P014** -> R014
+- **P015** -> R015
+- **P016** -> R016
+- **P017** -> R017
+- **P018** -> R018
+- **P019** -> R019
+- **P020** -> R020
+- **P021** -> R021
+- **P022** -> R022
+- **P023** -> R023
+- **P024** -> R024
+- **P025** -> R025
+- **P026** -> R026
+- **P027** -> R027
+- **P028** -> R028
+- **P029** -> R029
+- **P030** -> R030
+- **P031** -> R031
+- **P032** -> R032
+- **P033** -> R033
+- **P034** -> R034
+- **P035** -> R035
+- **P036** -> R036
+- **P037** -> R037
+- **P038** -> R038
+- **P039** -> R039
+- **P040** -> R040
+- **P041** -> R041
+- **P042** -> R042
+- **P043** -> R043
+- **P044** -> R044
+- **P045** -> R045
+- **P046** -> R046
+- **P047** -> R047
+- **P048** -> R048
+- **P049** -> R049
+- **P050** -> R050
+- **P051** -> R051
+- **P052** -> R052
+- **P053** -> R053
+- **P054** -> R054
+- **P055** -> R055
+- **P056** -> R056
+- **P057** -> R057
+- **P058** -> R058
+- **P059** -> R059
+- **P060** -> R060
+- **P061** -> R061
+- **P062** -> R062
+- **P063** -> R063
+- **P064** -> R064
+- **P065** -> R065, R066, R067, R068
+- **P066** -> R069, R070, R071, R072
+- **P067** -> R073
+
+## Requirements inventory
+
+- **R001** [must; user; request parts: P001] Implement the prepared research recommendations in this one plan; do not create another plan.
+- **R002** [must; user; request parts: P002] Use the pinned source inventory and per-feature reports to implement traceable skill improvements.
+- **R003** [must; user; request parts: P003] Replace every research task and its internal checklist with implementation instructions linked to its prepared report.
+- **R004** [must; user; request parts: P004] Require independent maximum-available-capability code review after each implementation topic; do not fabricate reviewer execution.
+- **R005** [must; user; request parts: P005] Compare quality per validated cost, alternatives, risks and measurable regression criteria.
+- **R006** [must; user; request parts: P006] Implement the opt-in provider-top switching improvement within this single plan.
+- **R007** [must; user; request parts: P007] Reconfirm decisive source claims; distinguish verified facts, hypotheses and new inference.
+- **R008** [must; user; request parts: P008] Modify only the source checkout; preserve installed skills and user-global configuration.
+- **R009** [must; user; request parts: P009] Pin the actual source baseline, affected tests and historical evidence; do not represent old logs as fresh validation.
+- **R010** [must; user; request parts: P010] Continue in the existing checkpoint workstream without modifying main or publishing without permission.
+- **R011** [must; user; request parts: P011] Require confirmation before commit, push, PR, npm publication and authenticated provider execution.
+- **R012** [must; user; request parts: P012] Keep the new provider-switch behavior opt-in; disabled behavior and argv goldens stay unchanged.
+- **R013** [must; user; request parts: P013] Use one explicit provider-chain policy so the ladder matches the actual dispatched provider.
+- **R014** [must; user; request parts: P014] Derive useful top from resolved model and effective effort, including embedded slugs and snapshot/profile rules.
+- **R015** [must; user; request parts: P015] Make every eligible provider reachable within documented attempt budgeting; test third-provider access at budget eight.
+- **R016** [must; user; request parts: P016] Define mechanical/budget retry exceptions; environmental, plan_defect and timeout_ceiling never trigger capability switching.
+- **R017** [must; user; request parts: P017] Use the prepared comparison to implement deterministic handoff first; keep additional paid summary calls and native retention out of the default.
+- **R018** [must; user; request parts: P018] Redact secrets before truncation and bound the handoff; never capture environment or profile values.
+- **R019** [must; user; request parts: P019] Label handoff as unverified data after deterministic evidence; it cannot change route, class or status.
+- **R020** [must; user; request parts: P020] Validate handoff paths against diff, commands against evidence and subtask IDs against the manifest.
+- **R021** [must; user; request parts: P021] Produce deterministic handoff when the previous provider is unavailable or its report is missing or invalid.
+- **R022** [must; user; request parts: P022] Keep byte-stable prompt prefixes, add only the newest attempt-bound capsule and retain failure_context.
+- **R023** [must; user; request parts: P023] Preserve strict report-schema compatibility, including Codex required-nullable fields and Antigravity null adaptation.
+- **R024** [must; user; request parts: P024] Preserve manifest schemas 1-4, missing failure_classes, version-1 configuration snapshots and availability ledger compatibility.
+- **R025** [must; user; request parts: P025] Keep availability separate from functional evidence; preserve provider, quota_pool and model cooldowns and exit 75.
+- **R026** [must; user; request parts: P026] Honor fallback-disabled and existing provider override semantics; never widen a forbidden chain.
+- **R027** [must; user; request parts: P027] Define and test design-phase switching, shared counters, reset and resumability.
+- **R028** [must; user; request parts: P028] Validate new configuration subkeys, defaults, global/plan layers and routing fingerprints.
+- **R029** [must; user; request parts: P029] Record provider-switch and handoff cost telemetry without secrets; preserve rollup and benchmark contracts.
+- **R030** [must; user; request parts: P030] Resolve snapshot models and workload native effort before deciding whether a rung changes actual dispatch.
+- **R031** [must; user; request parts: P031] Fix or explicitly justify deferral of empty-tier dispatch and the omitted failure evidence-packet path.
+- **R032** [must; user; request parts: P032] Verify CLI capabilities from official docs and installed non-generative discovery; record divergences.
+- **R033** [must; user; request parts: P033] Keep English docs and Portuguese mirrors synchronized; respect entrypoint budgets and required phrases.
+- **R034** [must; user; request parts: P034] Reproduce all twelve acceptance cases and run affected self-tests plus npm ci, npm run check and npm pack --dry-run.
+- **R035** [must; user; request parts: P035] Reconcile the resource map without losing reusable inventory; report pre-existing validation failures separately.
+- **R036** [must; user; request parts: P036] Make final whole-skill maintenance and implementation acceptance the last task.
+- **R037** [must; user; request parts: P037] Consume the prepared reports with numbered sources, URL/access date and explicit evidence-versus-inference labels.
+- **R038** [must; user; request parts: P038] Use the completed provider, literature and public book-excerpt research; refresh only a material version-sensitive gap.
+- **R039** [must; user; request parts: P039] Keep each worker context task-local; share concise evidence instead of conversation transcripts.
+- **R040** [must; user; request parts: P040] Do not install into user copies or change the user-global routing config.
+- **R041** [must; user; request parts: P041] Keep prepared research outside disposable control state so all implementation tasks retain their source evidence.
+- **R042** [must; inferred; request parts: P042] Do not mark research, highest-model review or product implementation complete without actual evidence.
+- **R043** [must; user; request parts: P043] Replace former second-plan tasks with integration, regression, packaging and final acceptance of this single implementation.
+- **R044** [must; user; request parts: P044] Record a newly discovered material gap with provenance and a bounded contract amendment; do not restart broad research by default.
+- **R045** [must; user; request parts: P045] Report decisions, changed files, actual validation, unverified platforms and risks in Brazilian Portuguese.
+- **R046** [must; user; request parts: P046] For cohesive multi-file DIRECT work, inspect relevant files cheaply, delegate difficult architecture to a stronger model only when justified, then choose a qualified economical executor and monitored tests.
+- **R047** [must; user; request parts: P047] Reduce implicit plan-and-execute activation for simple commands and trivial edits through concise discovery metadata and host-level negative invocation tests.
+- **R048** [must; user; request parts: P048] When an active task is blocked by complex product bugs or flawed architecture, safely add focused design, repair and monitored validation TODOs without losing checkpoints.
+- **R049** [must; user; request parts: P049] For authorized trusted-project implementation delegation, ensure effective localhost, network and workspace access without a hidden sandbox; pause when host policy blocks it.
+- **R050** [must; user; request parts: P050] Only at new ORCHESTRATED plan creation, discover alternate provider agents and separately ask permission for missing configuration or login; never prompt during DIRECT work or task execution.
+- **R051** [must; user; request parts: P051] Reduce redundant user-facing AI outputs, status messages and manuals while retaining correctness, exact technical detail, clear actions and user-selectable depth.
+- **R052** [must; user; request parts: P052] For validations expected or observed to exceed five minutes, emit verified progress signals and honest percentages; after 300 seconds without semantic progress, diagnose the cause and retry confirmed, authorized code defects with a stronger eligible model or effort.
+- **R053** [must; user; request parts: P053] Keep the local host from idle sleep/hibernation for a whole RUNNING ORCHESTRATED plan via one verified OS-native lease over task/provider gaps and validations; release on stop/pause/cancel; offer opt-out and strict overnight readiness; never override OS power policy or safety.
+- **R054** [must; user; request parts: P054] Offer an opt-in 20-minute OS scheduler for ORCHESTRATED plans with >=6 executable pending tasks and auto-unregister it at plan termination; preserve native continuous power inhibitor separately.
+- **R055** [must; user; request parts: P055] Refresh 2026 provider model mapping and add opt-in frontier tier L6/F6 above max, including only actually available Fable, Astra, Carbon and other eligible frontier models.
+- **R056** [must; user; request parts: P056] Review material architecture/design for security and performance before implementation and again in final independent code review; no automated performance tests unless requested.
+- **R057** [must; user; request parts: P057] Collect all safe automated test failures with case-specific evidence, repair only failed/affected cases during iteration, and require complete final full-suite passing validation.
+- **R058** [must; user; request parts: P058] Choose the cheapest faithful test level for each behavior and validation rule; preserve representative and unique high-risk browser journeys.
+- **R059** [must; user; request parts: P059] Select task-level tests through conservative dependency/risk evidence; full mapped checks and final current-source global test suite remain required.
+- **R060** [must; user; request parts: P060] Allow legacy-wide or current-plan-test review/refactor only on explicit user request and exact scope; read-only by default and edits separately authorized.
+- **R061** [must; user; request parts: P061] After provider quota recovery, next safe dispatch selects highest-priority configured eligible agent, respecting pins, capability and security.
+- **R062** [must; user; request parts: P062] When all allowed providers run out of quota, persist plan pause and one durable bounded automatic recheck/resume, without paid polling or duplicate workers.
+- **R063** [must; user; request parts: P063] AI-generated tests must have independent contract-grounded oracles, meaningful defect-detection checks and risk-proportional unit/contract/integration/E2E.
+- **R064** [must; user; request parts: P064] All existing and future improvement tasks must use qualified per-phase model/tool routing and source-indexed minimal context with measured or unknown token economics.
+- **R065** [must; user; request parts: P065] Create opt-in durable visual identity, design tokens and source-indexed agent context respecting real existing frontend standards.
+- **R066** [must; user; request parts: P065] Create optional in-app or isolated Node HTML/JavaScript/SCSS prototype workflows, scoped existing-project import and guarded prototype-to-production implementation plans.
+- **R067** [must; user; request parts: P065] Enforce evidence-based beautiful consistent UI and accessible functional UX acceptance including visual, responsive, keyboard, forms and explicit human review.
+- **R068** [must; user; request parts: P065] Use lazy UX activation and qualified economical per-phase routing with minimal source-indexed context and no repeated broad study.
+- **R069** [must; user; request parts: P066] Generation in existing projects must reuse established module-specific architecture, ORM/repositories, existing libraries/helpers, naming, packages and tests; changes of stack need explicit rationale.
+- **R070** [must; user; request parts: P066] Provide explicit one-time and proactive init/refresh commands for researching project and modern best practices and generating concise source-backed documentation for agents.
+- **R071** [must; user; request parts: P066] Apply pattern-first context, static architecture drift checking and approved exception reviews with security/performance and focused testing.
+- **R072** [must; user; request parts: P066] Share opt-in first-project-use activation for coding and UX/design; repeat deep study only by explicit command, with lazy source-scoped context and economical routing.
+- **R073** [must; user; request parts: P067] Supervisory decisions use a configurable routing_policy.manager_tier and one deterministic routingctl entry point; diagnoses are read-only, deduplicated per blocker fingerprint and budgeted, and never switch the root model, auto-edit the manifest or escalate availability faults.
+
+## Requirement-to-TODO coverage
+
+- **R001** -> 001, 082, 083, 084, 085, 086
+- **R002** -> 002, 003, 004, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069
+- **R003** -> 004, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069, 082, 083, 084, 085, 086
+- **R004** -> 001, 003, 004, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069, 071, 073, 075, 077, 079, 081, 082, 083, 084, 085, 086
+- **R005** -> 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069, 080, 081, 082, 083, 084, 085
+- **R006** -> 068, 069, 070, 071, 072, 073, 074, 075, 076, 077, 078, 079, 080, 081, 086
+- **R007** -> 002, 003, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069
+- **R008** -> 002, 003, 086
+- **R009** -> 002, 003
+- **R010** -> 001
+- **R011** -> 001, 086
+- **R012** -> 068, 069, 070, 071, 072, 073, 074, 075, 078, 079, 080, 081, 086
+- **R013** -> 068, 069, 070, 071, 074, 075
+- **R014** -> 068, 069, 070, 071, 072, 073
+- **R015** -> 068, 069, 070, 071, 074, 075
+- **R016** -> 068, 069, 070, 071, 072, 073, 074, 075
+- **R017** -> 068, 069, 070, 071, 076, 077
+- **R018** -> 068, 069, 076, 077
+- **R019** -> 068, 069, 076, 077, 078, 079
+- **R020** -> 068, 069, 076, 077
+- **R021** -> 068, 069, 076, 077
+- **R022** -> 068, 069, 078, 079
+- **R023** -> 068, 069, 076, 077, 078, 079
+- **R024** -> 068, 069, 070, 071, 072, 073, 074, 075, 078, 079
+- **R025** -> 068, 069, 070, 071, 074, 075
+- **R026** -> 068, 069, 070, 071, 074, 075
+- **R027** -> 068, 069, 070, 071, 074, 075
+- **R028** -> 068, 069, 070, 071, 074, 075, 080, 081
+- **R029** -> 068, 069, 076, 077, 080, 081
+- **R030** -> 068, 069, 070, 071, 072, 073, 078, 079
+- **R031** -> 068, 069, 070, 071, 074, 075, 078, 079, 080, 081
+- **R032** -> 002, 003, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069
+- **R033** -> 080, 081, 084, 085, 086
+- **R034** -> 068, 069, 072, 073, 074, 075, 076, 077, 078, 079, 080, 081, 084, 085, 086
+- **R035** -> 002, 003, 080, 081, 086
+- **R036** -> 086
+- **R037** -> 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069, 070, 071, 080, 081
+- **R038** -> 002, 003, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069
+- **R039** -> 001, 003, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069, 071, 073, 075, 077, 079, 081, 083, 084, 085, 086
+- **R040** -> 001, 002, 003, 086
+- **R041** -> 082, 083, 084, 085, 086
+- **R042** -> 001, 003, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069, 071, 073, 075, 077, 079, 081, 082, 083, 084, 085, 086
+- **R043** -> 082, 083, 084, 085, 086
+- **R044** -> 004, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045, 046, 047, 048, 049, 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060, 061, 062, 063, 064, 065, 066, 067, 068, 069, 082, 083, 084, 085, 086
+- **R045** -> 080, 081, 086
+- **R046** -> 087, 088, 082, 086
+- **R047** -> 089, 090, 082, 086
+- **R048** -> 091, 092, 082, 086
+- **R049** -> 093, 094, 082, 086
+- **R050** -> 095, 096, 082, 086
+- **R051** -> 097, 098, 082, 086
+- **R052** -> 099, 100, 082, 086
+- **R053** -> 101, 102, 082, 084, 086
+- **R054** -> 103, 104, 082, 086
+- **R055** -> 105, 106, 082, 086
+- **R056** -> 107, 108, 082, 086
+- **R057** -> 109, 110, 082, 086
+- **R058** -> 111, 112, 113, 114, 082, 086
+- **R059** -> 109, 110, 111, 112, 082, 086
+- **R060** -> 113, 114, 082, 086
+- **R061** -> 115, 116, 082, 086
+- **R062** -> 115, 116, 082, 086
+- **R063** -> 117, 118, 082, 086
+- **R064** -> 117, 118, 119, 120, 082, 086
+- **R065** -> 121, 122, 126, 082, 086
+- **R066** -> 123, 124, 126, 082, 086
+- **R067** -> 125, 126, 082, 086
+- **R068** -> 121, 122, 123, 124, 125, 126, 082, 086
+- **R069** -> 127, 128, 129, 130, 082, 086
+- **R070** -> 127, 128, 082, 086
+- **R071** -> 129, 130, 082, 086
+- **R072** -> 127, 128, 129, 130, 082, 086
+- **R073** -> 131, 132, 082, 086
+
+## Global constraints
 
 - Preserve original request bytes in REQUEST_ORIGINAL.md and the historical snapshot; the current amendment supersedes the two-plan workflow.
 - Use prepared reports as implementation inputs; never mark implementation complete because research exists.
@@ -91,10 +309,30 @@ Implement 32 researched optimization topics and provider switching in one resuma
 - Enforce task-specific phase routing, provider capability floors and lazy indexed context on every task; never preload unrelated research/TODOs/logs.
 - UX capability is opt-in and lazily loaded; existing production components and human approvals outrank prototype inventions; no automatic production migration.
 
-## Context
+## Execution-context strategy
 
-- global: `CONTEXT.md`; 3 item(s); All tasks share a single implementation boundary and the same protected-action and evidence rules.
+- Global context decision: **create**
+- Rationale: All tasks share a single implementation boundary and the same protected-action and evidence rules.
+- `CONTEXT.md`: 3 universal item(s)
+- No scoped context files are needed.
 
-Evidence: `ANALYSIS.md` · `PLAN_REVIEW.md` · attached study when present
+## Planning evidence
 
-Autostart: no · cleanup: no
+- Original user-authored request: `REQUEST.md`
+- Full request/repository analysis: `ANALYSIS.md`
+- Independent plan review: `PLAN_REVIEW.md`
+- Every request part maps to at least one requirement.
+- Every requirement maps to at least one executable TODO, and every TODO maps back to requirements.
+- Executable TODOs may be low, medium, or high complexity; extreme work must be split before plan creation.
+- Shared context is omitted by default and created only when the reviewer confirms it is minimal and materially useful.
+
+## Execution policy
+
+- Start automatically after validation: **no**
+- Delete planning artifacts after successful summary: **no**
+- Default execution: sequential for write tasks; parallel only for read-only tasks or isolated worktrees.
+- Each worker may read its assigned task definition and only the exact context files referenced there.
+- Reading another task definition requires a blocked dependency, ambiguity, or validation conflict and must be recorded.
+
+Plan id: `20261028-skill-study-provider-switch`  
+Created: `2026-10-29T02:40:14+00:00`

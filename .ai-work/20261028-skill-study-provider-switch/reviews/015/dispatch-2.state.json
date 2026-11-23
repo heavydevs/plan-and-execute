@@ -1,0 +1,83 @@
+{
+  "schema": "review-dispatch/1",
+  "task_id": "015",
+  "review_of": "014",
+  "dispatch": 2,
+  "status": "completed",
+  "brief_path": "docs/research/20261028-skill-optimization/implementation/reviews/015/brief-2.md",
+  "brief_sha256": "6bc055568fc86381b6f628e61f5dcec4dece52a4a08dee1764941b06538a136d",
+  "reviewed_inputs": [
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/014-receipt.json",
+      "sha256": "00b767422b92f8cc2d632826a81bbcf922c37a7a685baa7b50628c801e35f730"
+    },
+    {
+      "path": "docs/research/20261028-skill-optimization/implementation/014-outcome.md",
+      "sha256": "75c96fd543c1144994a434d8c2a4d9ea78eb68ae7a54ef3aca48ab3202e168aa"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/planctl.py",
+      "sha256": "5944c380c1bca801ba5f141609e5dedf9a2c73a7745e858256a6029d55b7f94b"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/artifact_contract.py",
+      "sha256": "b8d2e529ebe6d3f6ca328dad0890860f313a1f093de097afe870dd4d028a87cb"
+    },
+    {
+      "path": "skill/plan-and-execute/scripts/runner_contract.py",
+      "sha256": "039a64617751ff5eff07466253082c094c89a79748d9e3ebc56c8f85a9e8ada1"
+    },
+    {
+      "path": "test/optimization/context_learning_self_test.py",
+      "sha256": "9f272cb11e0a62dc794214fedfdc308e9cee7145009320ca41542a3c4ec6da38"
+    },
+    {
+      "path": "skill/plan-and-execute/references/EXECUTION_CONTEXT.md",
+      "sha256": "957822534752366a04445bfdb2cd503295acb7d68511d62bd8b17c4e64d333e8"
+    },
+    {
+      "path": "skill/plan-and-execute/references/TOKEN_EFFICIENCY.md",
+      "sha256": "2f7107c3e620e1629e4fddeab4247ee43bc215acc0b03c61683966d717a9ad08"
+    }
+  ],
+  "created_at": "2026-11-23T13:33:22Z",
+  "attempts": [
+    {
+      "provider": "claude",
+      "adapter": "claude",
+      "model": "claude-opus-5-5",
+      "native_effort": "xhigh",
+      "requested_effort": "xhigh",
+      "argv_redacted": [
+        "claude",
+        "--print",
+        "--no-session-persistence",
+        "--output-format",
+        "json",
+        "--permission-mode",
+        "plan",
+        "--model",
+        "claude-opus-5-5",
+        "--effort",
+        "xhigh",
+        "--tools",
+        "Read,Grep,Glob",
+        "--json-schema",
+        "{\"type\":\"object\",\"properties\":{\"verdict\":{\"type\":\"string\",\"enum\":[\"approved\",\"changes_requested\"]},\"summary\":{\"type\":\"string\",\"maxLength\":800},\"findings\":{\"type\":\"array\",\"maxItems\":20,\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"maxLength\":16},\"severity\":{\"type\":\"string\",\"enum\":[\"critical\",\"high\",\"medium\",\"low\",\"info\"]},\"location\":{\"type\":\"string\",\"maxLength\":300},\"title\":{\"type\":\"string\",\"maxLength\":200},\"detail\":{\"type\":\"string\",\"maxLength\":1200},\"fix\":{\"type\":\"string\",\"maxLength\":800}},\"required\":[\"id\",\"severity\",\"location\",\"title\",\"detail\",\"fix\"],\"additionalProperties\":false}}},\"required\":[\"verdict\",\"summary\",\"findings\"],\"additionalProperties\":false}",
+        "<prompt>"
+      ],
+      "started_at": "2026-11-23T13:33:22Z",
+      "run": "/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch/reviews/015/dispatch-2-claude.run.json",
+      "stdout": "/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch/reviews/015/dispatch-2-claude.stdout",
+      "stderr": "/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch/reviews/015/dispatch-2-claude.stderr",
+      "last": "/workspaces/plan-and-execute/.ai-work/20261028-skill-study-provider-switch/reviews/015/dispatch-2-claude.last.json",
+      "status": "done",
+      "wrapper_pid": 14605,
+      "spawned_at": 1795440802.535045,
+      "exit_code": 0,
+      "finished_at": "2026-11-23T13:38:48Z",
+      "outcome": "reviewed"
+    }
+  ],
+  "evidence": "docs/research/20261028-skill-optimization/implementation/reviews/015/dispatch-2.json"
+}

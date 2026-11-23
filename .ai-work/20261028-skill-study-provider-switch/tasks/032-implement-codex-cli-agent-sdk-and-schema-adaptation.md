@@ -1,39 +1,118 @@
 ---
 task_id: "032"
+plan_id: "20261028-skill-study-provider-switch"
 status: "pending"
-requirements: "R002,R003,R004,R005,R007,R032,R037,R038,R039,R042,R044"
-dependencies: "001,031,009"
+provider: "auto"
+model_tier: "standard"
+reasoning_effort: "high"
+complexity: "medium"
+requirements: "R002, R003, R004, R005, R007, R032, R037, R038, R039, R042, R044"
+dependencies: "001, 031, 009"
+context_files: "CONTEXT.md"
+learning_files: "none"
 allowed_related_task_reads: "none"
 ---
 
 # 032 — Implement codex CLI, Agent SDK and schema adaptation
 
-Objective: Separate Codex event-stream parsing from final-schema validation, retain explicit sandbox/approval contracts and make session reuse an opt-in same-provider operation.
+## Objective
 
-## Context
+Separate Codex event-stream parsing from final-schema validation, retain explicit sandbox/approval contracts and make session reuse an opt-in same-provider operation.
+
+## Requirements covered
+
+- R002
+- R003
+- R004
+- R005
+- R007
+- R032
+- R037
+- R038
+- R039
+- R042
+- R044
+
+## Complexity and atomicity
+
+- Complexity: **medium**
+- Why this is one executable TODO: One bounded implementation contract with its regression tests; source coupling requires a shared acceptance boundary, not an arbitrary file-count split.
+
+## Context-isolation boundary
+
+- Why one fresh worker context helps this whole TODO: This task owns one behavior or correction gate with independently checkable outcomes.
+- Context that is genuinely shared by all subtasks:
+- Read only the assigned decision, source targets and accepted prerequisite receipts.
+- Concerns deliberately isolated into other TODOs:
+- Do not load unrelated reports, provider guides or historical conversation transcripts.
+
+## Isolation contract
+
+This task definition and the exact execution-context files listed below are the only planning artifacts assigned to this worker. Read the task definition first, then read every assigned context file. Do not discover or open any other context file, `PLAN.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, result files, logs, or unrelated task definitions. You may read repository source, tests, build files, and runtime output relevant to this task.
+
+Another task definition may be opened only when one of the explicitly allowed task ids above is necessary to resolve a blocked dependency, ambiguity, or validation conflict. Record the task id and reason in the completion report.
+
+## Assigned execution context
 
 - `.ai-work/20261028-skill-study-provider-switch/CONTEXT.md`
 
-## Validated learnings
+## Assigned validated learnings
 
 - None
 
-## Checkpoints
+These files are concise, immutable artifacts produced only after another TODO passed deterministic validation. Read exactly the assigned files, never a previous worker transcript or an unassigned learning file.
 
-- [ ] **S001** Read assigned research and pin applicable contracts — Read docs/research/20261028-skill-optimization/prepared-research/032-codex.md. Verify the current source and only material version/account conflicts.
-- [ ] **S002** Implement revised contract 1 — Parse bounded JSONL events independently from the final completion schema; reject truncated or missing terminal reports.
-- [ ] **S003** Implement revised contract 2 — Bind optional session reuse to exact provider, repository and task identity; preserve ephemeral default.
-- [ ] **S004** Implement revised contract 3 — Remove universal no-cache-write-cost assumptions from planned economics, including the PRIMARY_PLANNING.md claim, and use model-versioned reported usage.
-- [ ] **S005** Validate all assigned positive and negative cases — Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
-- [ ] **S006** Record implementation evidence for independent review — Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
+## Resumable subtask checklist
 
-## Scope
+- [ ] **S001** — Read assigned research and pin applicable contracts
+  - Read docs/research/20261028-skill-optimization/prepared-research/032-codex.md. Verify the current source and only material version/account conflicts.
+- [ ] **S002** — Implement revised contract 1
+  - Parse bounded JSONL events independently from the final completion schema; reject truncated or missing terminal reports.
+- [ ] **S003** — Implement revised contract 2
+  - Bind optional session reuse to exact provider, repository and task identity; preserve ephemeral default.
+- [ ] **S004** — Implement revised contract 3
+  - Remove universal no-cache-write-cost assumptions from planned economics, including the PRIMARY_PLANNING.md claim, and use model-versioned reported usage.
+- [ ] **S005** — Validate all assigned positive and negative cases
+  - Run the declared regression commands and every assigned acceptance counterexample. Preserve command logs, input hashes, actual failures and unmeasured limits.
+- [ ] **S006** — Record implementation evidence for independent review
+  - Write changed-file or justified-preservation evidence and test receipts. Prepared research and fixture-only design are not proof that runtime implementation or independent review passed.
 
-In: Implement codex CLI, Agent SDK and schema adaptation
-Out: No new broad research phase or second-plan generation.; Do not change installed copies, user-global settings or publish without permission.
-Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/provider_self_test.py`, `test/optimization/codex_self_test.py`, `skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md`, `skill/plan-and-execute/references/PRIMARY_PLANNING.md`, `docs/research/20261028-skill-optimization/implementation/032-receipt.json`, `docs/research/20261028-skill-optimization/implementation/032-outcome.md`
+The manifest is authoritative. Checkpoint progress only through the dedicated `planctl.py subtask-start` and `subtask-complete` commands supplied by the orchestrator. Never edit this checklist directly.
 
-## Guidance
+## Eligible future learning targets
+
+- None
+
+## In scope
+
+- Implement codex CLI, Agent SDK and schema adaptation
+
+## Out of scope
+
+- No new broad research phase or second-plan generation.
+- Do not change installed copies, user-global settings or publish without permission.
+
+## Expected files
+
+- skill/plan-and-execute/scripts/run_isolated.py
+- skill/plan-and-execute/scripts/provider_self_test.py
+- test/optimization/codex_self_test.py
+- skill/plan-and-execute/references/MODEL_ROUTING_CODEX.md
+- skill/plan-and-execute/references/PRIMARY_PLANNING.md
+- docs/research/20261028-skill-optimization/implementation/032-receipt.json
+- docs/research/20261028-skill-optimization/implementation/032-outcome.md
+
+## Dependencies
+
+- 001
+- 031
+- 009
+
+## Allowed related task definitions
+
+- None
+
+## Implementation guidance
 
 - Read docs/research/20261028-skill-optimization/prepared-research/032-codex.md.
 - Use only task 032 inputs and declared checks in docs/plans/20261028-skill-optimization/TASK_INPUTS.json.
@@ -44,7 +123,7 @@ Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute
 - Use only the declared write scope. Shared-file writers wait for the preceding writer and its correction review.
 - Complete all owned report instructions. The checkpoints group correlated changes; they do not waive any instruction or acceptance case.
 
-## Acceptance
+## Acceptance criteria
 
 - Schema fixtures remain accepted by the adapter without weakening additionalProperties checks.
 - Ephemeral default argv and composed static prefix remain stable.
@@ -59,7 +138,12 @@ Files: `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute
 - The v8 map is preserved: Opus 5.5 / Sol 6.2 xhigh at max, Fable 5.2 / Astra 6.2 absent from the tier map, Antigravity Claude capped at advanced, Gemini 4 Hydrogen/Neon preset ordered first, Carbon not routed.
 - Prepared research is not proof of implementation or independent-review completion.
 
-## Validate
+## Required validation
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_032`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_032`
+
+
+## Completion report
+
+Return a concise report with: status, summary, changed files, validations executed, remaining risks, follow-ups, context files read, learning files read, completed subtask ids, any reusable learnings for predeclared future targets, and any related task definition read with its reason. Do not edit planning, context, learning, or checklist files directly.

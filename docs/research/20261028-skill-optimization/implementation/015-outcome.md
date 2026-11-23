@@ -1,3 +1,44 @@
+# Task 015 — outcome: review and correction of 014 (context, learnings, token budgets)
+
+**Status:** implementação corrigida, testada e aprovada por revisor independente nos hashes finais. Código revisado: commit `21c9a49313dd93f0d7227eafa5337f00af814fd8`.
+
+## Revisão independente (fatos observados)
+
+| Despacho | Sessão | Modelo / esforço | Veredito | Evidência |
+|---|---|---|---|---|
+| 2 (código `be1916f`) | `7b67297d-2ce0-4b50-877c-cfc7ecf47592` | claude-opus-5-5 / xhigh | `changes_requested` (1 high, 3 medium, 3 low, 1 info) | `reviews/015/dispatch-2.json` |
+| 3 (código `21c9a49`) | `fad346b1-606e-437e-bff7-5dc68a80ead2` | claude-opus-5-5 / xhigh | `approved`, 0 bloqueantes | `reviews/015/dispatch-3.json` |
+| 4 (mesmo código, + `run_isolated.py`, `pattern_runner_contract.py` fixados) | `8ccd6a6a-1f45-4ac6-bf83-a3fb2f2a8c4e` | claude-opus-5-5 / xhigh | `approved`, 0 bloqueantes | `reviews/015/dispatch-4.json` (usado no recibo) |
+
+O despacho 2 revisou o código com a primeira rodada de correções; a segunda rodada (abaixo) corrige seu achado HIGH. A sessão que corrigiu (Sonnet) não emitiu a aprovação. Antes disso, o parecer nativo de Opus via Actions (run 45112038861, sessão `87b82154-…`, 10 achados) e o de run 45083888733 (4 achados) já tinham orientado as correções.
+
+## Correções desta rodada (todas com regressão adversarial em `test/optimization/context_learning_self_test.py`; cada teste novo falha no código anterior)
+
+- **F01 HIGH** — referência com prosa/vírgula/parênteses/comando (`see src/a.py`, `helper (src/a.py)`, `grep -q X src/a.py`) ficava sem digest e nunca ficava obsoleta. Agora `reference_source_files`/`expand_reference_tokens` fixam todo arquivo citado; arquivo ausente falha no aprendizado e invalida a hipótese.
+- **F03** — a negação protetora (`Never skip validation commands`) deixa de ser rejeitada, mas só quando a negação governa diretamente o verbo (`Do not hesitate to skip…` continua rejeitado); `only task outputs` deixou de contar como tarefa única e qualquer `task/todo <id>` em item global conta.
+- **F04** — limite de 8 hipóteses nunca descarta uma refutada nem a entrada nova; sem ID reutilizado (`hypothesis_seq`); recusa quando só há refutadas.
+- **F05** — refutação posterior bloqueia o consumidor no `claim_task`; publicação também checa refutações de qualquer tarefa do plano.
+- **F06** — `bounded_task_suffix` recebe `plan_dir`; o pacote de evidência aparece no prompt, dentro do teto.
+- **F08** — manifesto é salvo antes de apagar arquivos de aprendizado obsoletos.
+- **F09** — refutações têm prioridade sobre hipóteses `open` no prompt de retry.
+- **F10** — documentação alinhada (`EXECUTION_CONTEXT.md`).
+- Rejeição de registro não deixa estado parcial (evicção só após validar a nova entrada).
+
+## Não corrigido nesta task (registrado, não bloqueante)
+
+- **F02 (014-receipt)** — recibo 014 não foi reescrito; seus hashes são históricos. A cobertura atual está em `015-checks.json` e nos logs `logs/015/…` sobre os hashes finais.
+- **F07 / achados medium-low dos despachos 3 e 4** — (a) o guard de política é uma lista lexical e tem bypasses de redação; a validação, sandbox e rotas continuam sob controle estrutural do runner; (b) uma edição legítima de arquivo citado antes da primeira reivindicação do consumidor aborta a execução até `check-learnings --invalidate-stale`; (c) refutação tardia de claim lexicalmente similar invalida o plano; (d) `fail_task` pode falhar ao registrar hipótese opcional; (e) métricas copiam texto de aprendizado sem redação; (f) `last_error` controlado pelo worker entra no prompt seguinte. Nenhum é crítico/alto; seguem como trabalho futuro e não alteram a aceitação desta task.
+
+## Validação
+
+- `P1_TESTS_015` via `resource_watch.py` (7/7 checks, exit 0): `015-checks.json` run `20261123T134014-17995-79cdeda301`.
+- Mapa de serviços reconciliado com `service_map.py stamp --confirm-reconciled` (apenas inventário de arquivos; IDs e comandos inalterados).
+- Hashes dos fontes finais: ver `015-receipt.json` (`changed_artifacts`).
+
+---
+
+## Histórico anterior (superado pelas seções acima; preservado para auditoria)
+
 # Task 015 — correções auditadas e gate pendente (2026-11-20)
 
 **Status:** execução e entrega **pendentes**; **NÃO aprovado**. Não alterar `manifest.json`, S002–S006, nem avançar para 016 enquanto faltar revisão externa autêntica e `P1_015`.
@@ -146,3 +187,4 @@ O CI autentico [44828129044](https://github.com/heavydevs/plan-and-execute/actio
 Foram executadas novas rotas externas reais sem modificar o validador: PR de review [#21](https://github.com/heavydevs/plan-and-execute/pull/21) limitado aos três arquivos alterados; gatilho `@codex review` no commit `f86bcc925837ad3af39d01fdbbe477890dcac3e2`; e requisição de reviewer `copilot-pull-request-reviewer[bot]` pelo conector GitHub. O próprio bot Codex informou [limite de uso de code reviews atingido](https://github.com/heavydevs/plan-and-execute/pull/21#issuecomment-7052591136) e registrou `status=failed` — **nenhum parecer independente aprovado**. O GitHub não mostrou review Copilot criado nas consultas seguintes; aceite do pedido não demonstra execução. A rota Copilot CLI em Actions continuava sem entitlement/política habilitados. Evidência detalhada: [external-review-attempts-20261120.md](reviews/015/external-review-attempts-20261120.md).
 
 **Gate preservado:** `P1_015` não foi contornado, `015-receipt.json` permanece ausente, task 015 segue `pending`. Desbloqueio efetivo requer restabelecer a quota de Codex PR Code Review ou a política/licença Copilot CLI (ou configurar revisor max-tier autenticado por API/CLI); depois executar **nova revisão válida de todos os hashes finais**, tratar findings e gerar recibo real. Não executar 016.
+

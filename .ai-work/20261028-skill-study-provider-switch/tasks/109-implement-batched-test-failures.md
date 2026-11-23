@@ -1,41 +1,125 @@
 ---
 task_id: "109"
+plan_id: "20261028-skill-study-provider-switch"
 status: "pending"
-requirements: "R057,R059"
-dependencies: "055,059,063,098,100,108,112"
+provider: "auto"
+model_tier: "strong"
+reasoning_effort: "high"
+complexity: "high"
+requirements: "R057, R059"
+dependencies: "055, 059, 063, 098, 100, 108, 112"
+context_files: "CONTEXT.md"
+learning_files: "none"
 allowed_related_task_reads: "none"
 ---
 
 # 109 — Implement complete test-failure inventory, focused repair and final full-suite gate
 
-Objective: Collect all safely runnable test failures with per-test stack/log/E2E evidence, rerun failures and impacted tests during repair, then require a full final current-source regression pass.
+## Objective
 
-## Context
+Collect all safely runnable test failures with per-test stack/log/E2E evidence, rerun failures and impacted tests during repair, then require a full final current-source regression pass.
+
+## Requirements covered
+
+- R057
+- R059
+
+## Complexity and atomicity
+
+- Complexity: **high**
+- Why this is one executable TODO: One coherent validation cycle feature or independent correction boundary with shared source/manifest/report contract.
+
+## Context-isolation boundary
+
+- Why one fresh worker context helps this whole TODO: Failure collection, rerun selectors and final acceptance depend on a single coherent state machine.
+- Context that is genuinely shared by all subtasks:
+- Current P057 report, affected validation sources and accepted prior receipts only.
+- Concerns deliberately isolated into other TODOs:
+- Do not preload unrelated task studies, old logs, user conversations or provider guides.
+
+## Isolation contract
+
+This task definition and the exact execution-context files listed below are the only planning artifacts assigned to this worker. Read the task definition first, then read every assigned context file. Do not discover or open any other context file, `PLAN.md`, `TODO.md`, `manifest.json`, `orchestrator.config.json`, result files, logs, or unrelated task definitions. You may read repository source, tests, build files, and runtime output relevant to this task.
+
+Another task definition may be opened only when one of the explicitly allowed task ids above is necessary to resolve a blocked dependency, ambiguity, or validation conflict. Record the task id and reason in the completion report.
+
+## Assigned execution context
 
 - `.ai-work/20261028-skill-study-provider-switch/CONTEXT.md`
 
-## Validated learnings
+## Assigned validated learnings
 
 - None
 
-## Checkpoints
+These files are concise, immutable artifacts produced only after another TODO passed deterministic validation. Read exactly the assigned files, never a previous worker transcript or an unassigned learning file.
 
-- [ ] **S001** Read source and research — Inspect P057 study, run_validation_commands/run_validation_jobs, validatectl, runner_contract, resource_watch, service map and run_task_checks's current fail-fast semantics.
-- [ ] **S002** Implement safe full discovery — Separate fatal build/infra/dependency faults from ordinary test failure; continue independent safe test commands, preserve original nonzero exits, map and progress/timeout contracts.
-- [ ] **S003** Build per-test failure manifest — Parse verified official JSON/JUnit reporters with stable case identity, root-cause grouping, per-test stack/log evidence and optional failure-only browser screenshots/traces under guarded paths.
-- [ ] **S004** Implement bounded focused repair cycle — Persist current-source failure backlog; select exact failing tests and affected neighbors, avoid repeated passing unrelated tests, classify flaky/setup/environment and reject zero-selected false green.
-- [ ] **S005** Require complete final green run — Once focused failures are fixed rerun every originally required mapped suite/job on final source; new failures restart bounded cycle, incomplete/stale reports cannot complete.
-- [ ] **S006** Wire existing runtimes and docs — Integrate ORCHESTRATED and DIRECT/validate-or-fix, runner_contract and plan helper; document framework adapters and quotas without duplicate supervisor.
-- [ ] **S007** Run adversarial functional checks — Create test/optimization/batch_test_failure_cycle_self_test.py; verify 100/7, multi-suite, compilation fail, E2E evidence, unknown selector, stale hash, crash, flaky and new regression.
-- [ ] **S008** Record real receipt — Write 109 receipt/outcome with actual code/test hashes and check logs; leave pending without genuine success evidence.
+## Resumable subtask checklist
 
-## Scope
+- [ ] **S001** — Read source and research
+  - Inspect P057 study, run_validation_commands/run_validation_jobs, validatectl, runner_contract, resource_watch, service map and run_task_checks's current fail-fast semantics.
+- [ ] **S002** — Implement safe full discovery
+  - Separate fatal build/infra/dependency faults from ordinary test failure; continue independent safe test commands, preserve original nonzero exits, map and progress/timeout contracts.
+- [ ] **S003** — Build per-test failure manifest
+  - Parse verified official JSON/JUnit reporters with stable case identity, root-cause grouping, per-test stack/log evidence and optional failure-only browser screenshots/traces under guarded paths.
+- [ ] **S004** — Implement bounded focused repair cycle
+  - Persist current-source failure backlog; select exact failing tests and affected neighbors, avoid repeated passing unrelated tests, classify flaky/setup/environment and reject zero-selected false green.
+- [ ] **S005** — Require complete final green run
+  - Once focused failures are fixed rerun every originally required mapped suite/job on final source; new failures restart bounded cycle, incomplete/stale reports cannot complete.
+- [ ] **S006** — Wire existing runtimes and docs
+  - Integrate ORCHESTRATED and DIRECT/validate-or-fix, runner_contract and plan helper; document framework adapters and quotas without duplicate supervisor.
+- [ ] **S007** — Run adversarial functional checks
+  - Create test/optimization/batch_test_failure_cycle_self_test.py; verify 100/7, multi-suite, compilation fail, E2E evidence, unknown selector, stale hash, crash, flaky and new regression.
+- [ ] **S008** — Record real receipt
+  - Write 109 receipt/outcome with actual code/test hashes and check logs; leave pending without genuine success evidence.
 
-In: Collect all safely runnable test failures with per-test stack/log/E2E evidence, rerun failures and impacted tests during repair, then require a full final current-source regression pass.
-Out: No parallel testing orchestrator, unsafe continuation, skipped failed tests, benchmark default or unapproved provider/global configuration changes.
-Files: `skill/plan-and-execute/scripts/test_failure_cycle.py`, `skill/plan-and-execute/scripts/run_isolated.py`, `skill/plan-and-execute/scripts/planctl.py`, `skill/plan-and-execute/scripts/runner_contract.py`, `skill/plan-and-execute/scripts/validatectl.py`, `skill/plan-and-execute/scripts/jobctl.py`, `skill/plan-and-execute/scripts/resource_watch.py`, `skill/plan-and-execute/scripts/service_map.py`, `skill/plan-and-execute/references/WORKFLOW.md`, `skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md`, `skill/plan-and-execute/references/PLAN_SPEC.md`, `skill/plan-and-execute/references/TOKEN_EFFICIENCY.md`, `docs/plans/20261028-skill-optimization/support/run_task_checks.py`, `test/optimization/batch_test_failure_cycle_self_test.py`, `docs/research/20261028-skill-optimization/implementation/109-receipt.json`, `docs/research/20261028-skill-optimization/implementation/109-outcome.md`
+The manifest is authoritative. Checkpoint progress only through the dedicated `planctl.py subtask-start` and `subtask-complete` commands supplied by the orchestrator. Never edit this checklist directly.
 
-## Guidance
+## Eligible future learning targets
+
+- None
+
+## In scope
+
+- Collect all safely runnable test failures with per-test stack/log/E2E evidence, rerun failures and impacted tests during repair, then require a full final current-source regression pass.
+
+## Out of scope
+
+- No parallel testing orchestrator, unsafe continuation, skipped failed tests, benchmark default or unapproved provider/global configuration changes.
+
+## Expected files
+
+- skill/plan-and-execute/scripts/test_failure_cycle.py
+- skill/plan-and-execute/scripts/run_isolated.py
+- skill/plan-and-execute/scripts/planctl.py
+- skill/plan-and-execute/scripts/runner_contract.py
+- skill/plan-and-execute/scripts/validatectl.py
+- skill/plan-and-execute/scripts/jobctl.py
+- skill/plan-and-execute/scripts/resource_watch.py
+- skill/plan-and-execute/scripts/service_map.py
+- skill/plan-and-execute/references/WORKFLOW.md
+- skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md
+- skill/plan-and-execute/references/PLAN_SPEC.md
+- skill/plan-and-execute/references/TOKEN_EFFICIENCY.md
+- docs/plans/20261028-skill-optimization/support/run_task_checks.py
+- test/optimization/batch_test_failure_cycle_self_test.py
+- docs/research/20261028-skill-optimization/implementation/109-receipt.json
+- docs/research/20261028-skill-optimization/implementation/109-outcome.md
+
+## Dependencies
+
+- 055
+- 059
+- 063
+- 098
+- 100
+- 108
+- 112
+
+## Allowed related task definitions
+
+- None
+
+## Implementation guidance
 
 - Read docs/research/20261028-skill-optimization/prepared-research/109-batched-test-failure-triage.md and docs/plans/20261028-skill-optimization/REQUEST_EXTENSION_20261114_TEST_FAILURE_BATCH.md before code.
 - Inspect source exactly; do not infer that newer features are already implemented.
@@ -47,7 +131,7 @@ Files: `skill/plan-and-execute/scripts/test_failure_cycle.py`, `skill/plan-and-e
 - Use reviewed 111 impact-selected task tests; after focused fixes rerun all required mapped task suites; the global all-project suite runs at plan closure 082/084 or earlier when risk, unknown graph or CI requires.
 - Edits to support/run_task_checks.py stay fail-closed (nonzero if any declared check fails or did not run); record its hash in changed_artifacts and in 110's reviewed_inputs (code_fingerprint does not cover docs/).
 
-## Acceptance
+## Acceptance criteria
 
 - First ordinary failed test does not prevent independent safe mapped suites collecting all failures; compilation, unhealthy resources, dependent/unsafe jobs stop or mark not_run, never green.
 - Versioned source/map/command-scoped inventory uses valid native JSON/JUnit formats, stable test and parameter/browser/shard identities, accurate counts and complete-collection status; unknown/runner failure differs from passing.
@@ -60,7 +144,12 @@ Files: `skill/plan-and-execute/scripts/test_failure_cycle.py`, `skill/plan-and-e
 - Targeted framework adapters and fallback work for supported pytest, Playwright, Jest/Vitest and Gradle/JUnit/Maven; unsupported runners remain safe and honest.
 - Actual implementation and functional validation receipts/hashes prove behavior, with unmeasured real-world cost saving identified as unknown.
 
-## Validate
+## Required validation
 
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_TESTS_109`
 - `python skill/plan-and-execute/scripts/resource_watch.py run --repo-root . --map .ai-work/SERVICE_MAP.md --validation P1_109`
+
+
+## Completion report
+
+Return a concise report with: status, summary, changed files, validations executed, remaining risks, follow-ups, context files read, learning files read, completed subtask ids, any reusable learnings for predeclared future targets, and any related task definition read with its reason. Do not edit planning, context, learning, or checklist files directly.
