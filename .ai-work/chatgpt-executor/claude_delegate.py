@@ -23,7 +23,8 @@ REPO = "heavydevs/plan-and-execute"
 SHA = re.compile(r"^[0-9a-f]{40}$")
 TASK = re.compile(r"^[0-9]{3}$")
 ATTEMPT = re.compile(r"^claude-[a-z0-9][a-z0-9-]{7,70}$")
-MODES = {"review", "implement"}
+MODES = {"review", "implement", "repair"}
+REPAIR_REASONS = {"review_finding", "failing_gate"}
 REASONS = {"verified_capability_gap", "repeated_semantic_failure", "cross_cutting_high_risk"}
 MAX_PATCH = 2_000_000
 
@@ -109,7 +110,7 @@ def preflight() -> None:
     _manifest, entry, definition = load_inputs(request["task_id"])
     esc = request["escalation"]
     require(isinstance(esc, dict) and set(esc) == {"reason", "evidence_ref", "summary"}, "Missing escalation metadata")
-    require(esc["reason"] in REASONS, "Invalid escalation reason")
+    require(esc["reason"] in (REPAIR_REASONS if request["mode"] == "repair" else REASONS), "Invalid delegation reason for mode")
     require(isinstance(esc["summary"], str) and 35 <= len(esc["summary"]) <= 600, "Escalation summary is not specific")
     require(isinstance(esc["evidence_ref"], str), "Escalation evidence path required")
     evidence = relative_path(esc["evidence_ref"])
@@ -117,13 +118,23 @@ def preflight() -> None:
     require(git("ls-files", "--error-unmatch", "--", esc["evidence_ref"]), "Escalation evidence is not tracked")
     if request["mode"] == "review":
         require(entry.get("requires_independent_review") is True, "Review delegation requires independent-review task")
+    elif request["mode"] == "repair":
+        require(entry.get("work_type") == "review_and_fix" and entry.get("requires_independent_review") is True
+                and entry.get("write_scope"), "Repair requires independent review_and_fix task with write scope")
     else:
         require(entry.get("work_type") == "implementation" and entry.get("write_scope"),
                 "Implementation delegation requires an implementation task/write scope")
-        require(esc["reason"] in REASONS, "Not an authorized exceptional implementation")
     selected = set(entry.get("inputs") or []) | set(entry.get("write_scope") or [])
     selected.add(definition.relative_to(ROOT).as_posix())
     selected.add(esc["evidence_ref"])
+    if request["mode"] == "repair":
+        selected.update({
+            "AGENTS.md", "CLAUDE.md", "guia_de_pesquisa_execucao_tasks.md",
+            "skill/plan-and-execute/SKILL.md",
+            "skill/plan-and-execute/references/TEST_RESOURCE_MONITORING.md",
+            "skill/plan-and-execute/references/WORKFLOW.md",
+            "docs/operations/PAE_ONE_TASK_CODESPACE_PROTOCOL.md",
+        })
     pinned = []
     for raw in sorted(selected):
         path = relative_path(raw)
@@ -131,6 +142,8 @@ def preflight() -> None:
             require(not path.is_symlink(), "Symlink is not a valid input: " + raw)
             pinned.append({"path": raw, "sha256": digest(path)})
     OUT.mkdir(parents=True, exist_ok=True)
+    selected_model = "claude-sonnet-5-5" if request["mode"] == "repair" else "claude-opus-5-5"
+    selected_effort = "high" if request["mode"] == "repair" else "xhigh"
     attestation = {
         "schema": "pae-claude-input/1",
         "task_id": request["task_id"],
@@ -141,8 +154,8 @@ def preflight() -> None:
         "request_sha256": digest(ROOT / REQUEST),
         "inputs": pinned,
         "allowed_write_scope": entry.get("write_scope") or [],
-        "model_requested": "claude-opus-5-5",
-        "native_effort_requested": "xhigh",
+        "model_requested": selected_model,
+        "native_effort_requested": selected_effort,
         "note": "Requested model/effort are not independent proof of provider-side settings.",
     }
     (OUT / "input.json").write_text(json.dumps(attestation, sort_keys=True, indent=2) + "\n", encoding="utf-8")
@@ -159,6 +172,8 @@ def preflight() -> None:
         "Never contact outside endpoints, invoke MCP servers, commit, push, or modify workflows, checks or manifests.",
         "Do not claim any test passed unless it was actually executed and its exit code is known.",
         "No fallback model, no API credential, no permission bypass.",
+        "STRICT STOP RULE: Never begin task 016 or any other task after the requested task.",
+        "Completion requires independent review, real original checks, formal receipt and controller gate.",
     ]
     if request["mode"] == "review":
         prompt += [
@@ -174,7 +189,19 @@ def preflight() -> None:
             "Requested model and effort are not evidence of effective provider-side selection.",
         ]
     else:
+        if request["mode"] == "repair":
+            prompt += [
+                "REPAIR ONLY the current review-and-fix task. Do not start the next task.",
+                "First read skill/plan-and-execute/SKILL.md and follow its DIRECT correction path.",
+                "Consult only the relevant WORKFLOW and TEST_RESOURCE_MONITORING references.",
+                "Follow PAE failure classification, use a minimal patch and required regressions.",
+                "Never invoke agy or Antigravity.",
+                "Read the cited tracked review/failure evidence before changing files.",
+                "A NEW independent Opus session must review the final changed hashes later.",
+                "No Bash in this OAuth-bearing action. The runner executes monitored checks afterward.",
+            ]
         prompt += [
+            "REPAIR the current task." if request["mode"] == "repair" else
             "IMPLEMENT ONLY an exceptional task that was independently routed here.",
             "Allowed file write scope (strictly enforced after your run): " + json.dumps(entry.get("write_scope") or []),
             "Implement the assigned task's acceptance requirements and necessary negative/positive regression tests.",
@@ -190,6 +217,8 @@ def preflight() -> None:
             file.write("mode=" + request["mode"] + "\n")
             file.write("attempt_id=" + request["attempt_id"] + "\n")
             file.write("task_id=" + request["task_id"] + "\n")
+            file.write("model=" + selected_model + "\n")
+            file.write("effort=" + selected_effort + "\n")
     print(json.dumps({"preflight": "passed", "task": request["task_id"], "mode": request["mode"], "head": head}))
 
 

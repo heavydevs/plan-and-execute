@@ -38,8 +38,8 @@ def build(root, mode="review", task_id="015", large_manifest=False):
         manifest["fixture_padding"] = "x" * 680_000
     save(root, ".ai-work/20261028-skill-study-provider-switch/manifest.json", manifest)
     save(root, "docs/plans/20261028-skill-optimization/TASK_INPUTS.json", {
-        "tasks": [{"id": task_id, "work_type": "review_and_fix" if mode == "review" else "implementation",
-                   "requires_independent_review": mode == "review", "inputs": ["src/example.py"],
+        "tasks": [{"id": task_id, "work_type": "review_and_fix" if mode in {"review", "repair"} else "implementation",
+                   "requires_independent_review": mode in {"review", "repair"}, "inputs": ["src/example.py"],
                    "write_scope": ["src/example.py"], "required_checks": [["python", "src/example.py"]]}]
     })
     save(root, ".ai-work/20261028-skill-study-provider-switch/tasks/" + task_id + "-fixture.md", "# Fixture\n")
@@ -55,7 +55,7 @@ def build(root, mode="review", task_id="015", large_manifest=False):
         "task_id": task_id,
         "source_head": head,
         "escalation": {
-            "reason": "cross_cutting_high_risk",
+            "reason": "review_finding" if mode == "repair" else "cross_cutting_high_risk",
             "evidence_ref": "docs/research/fixture.md",
             "summary": "A test-only evidence record justifies isolated delegated assessment.",
         },
@@ -135,7 +135,46 @@ def test_implementation_scope():
                 raise AssertionError("out-of-scope edit accepted")
 
 
+def test_repair_scope_and_stop():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        _request, head = build(root, mode="repair", task_id="015")
+        env = {"GITHUB_REPOSITORY": b.REPO, "GITHUB_REF": "refs/heads/" + b.BRANCH,
+               "GITHUB_SHA": head}
+        with patch.object(b, "ROOT", root), patch.dict(os.environ, env), patch.object(b, "OUT", root / b.OUT):
+            b.preflight()
+            att = json.loads((root / b.OUT / "input.json").read_text())
+            assert att["model_requested"] == "claude-sonnet-5-5"
+            assert att["native_effort_requested"] == "high"
+            prompt_text = (root / b.OUT / "prompt.txt").read_text()
+            for required in ["skill/plan-and-execute/SKILL.md", "Never invoke agy",
+                             "STRICT STOP RULE", "NEW independent Opus"]:
+                assert required in prompt_text, required
+            save(root, "src/example.py", "VALUE = 7\n")
+            with patch.dict(os.environ, {
+                "CLAUDE_IMPLEMENT_OUTPUT": json.dumps({
+                    "status": "implemented", "summary": "Fixture only", "limitations": []
+                }),
+                "CLAUDE_IMPLEMENT_SESSION": "fixture-not-real-repair",
+                "CLAUDE_IMPLEMENT_CONCLUSION": "success",
+            }):
+                b.collect()
+            result = json.loads((root / b.OUT / "result.json").read_text())
+            assert result["mode"] == "repair"
+            assert result["model_requested"] == "claude-sonnet-5-5"
+            assert result["original_gate_approved"] is False
+            assert result["artifact"]["changed_files"] == ["src/example.py"]
+            save(root, "src/not-allowed.py", "VALUE = 8\n")
+            try:
+                b.save_patch(["src/example.py"])
+            except b.BridgeError:
+                pass
+            else:
+                raise AssertionError("repair wrote outside scope")
+
+
 if __name__ == "__main__":
     test_review()
     test_implementation_scope()
-    print("Claude delegation bridge: offline positive/negative checks passed (NO live Claude run)")
+    test_repair_scope_and_stop()
+    print("Claude delegation bridge: offline positive/negative/repair checks passed (NO live Claude run)")
