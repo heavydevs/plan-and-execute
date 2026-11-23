@@ -2,7 +2,7 @@
   "schema": "chatgpt-snapshot-request/1",
   "enabled": true,
   "task_id": "015",
-  "request_id": "015-20261123-sonnet-repair-checkout",
-  "requested_source_head": "c09151fd4db2479c82d10ff71f366eed9e8e9cce",
-  "reason": "Export immutable checkout to validate authentic Sonnet task-015 repair patch with git apply and original tests. Never mark task complete without formal independent receipt."
+  "request_id": "015-20261123-original-checks-and-logs",
+  "requested_source_head": "43eba93464370f13e50441c098635ff86f22b995",
+  "reason": "Immutable checkout containing authentic original seven-check receipt and logs of task 015 for SHA256 validation and formally pinned final delivery packet. No task 016."
 }
