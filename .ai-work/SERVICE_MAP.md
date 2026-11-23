@@ -9,7 +9,7 @@ This project-local router maps every automated validation to its toolchain prere
   "inventory_reviewed": true,
   "snapshot": {
     "algorithm": "sha256-path-content-v2-streamed",
-    "digest": "4511fa51fb8069dc9fc69c0fe338ab0cee342293292b4790d026cae88ac436a6",
+    "digest": "0dd6096b2a69976ff65d480076da698c4dc1ae445daf875b5ea6926918a53cd3",
     "source_count": 85
   },
   "toolchains": [

@@ -150,13 +150,18 @@ POLICY_OVERRIDE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         ),
     ),
 )
+# Only a negation that directly governs the matched verb is protective ("Never skip ...").
+# Intervening words can reverse it ("Do not hesitate to skip ...", "Never forget to ...").
 POLICY_NEGATION_PREFIX = re.compile(
-    r"(?:\b(?:never|not|cannot|without|avoid|forbidden\s+to|prohibited\s+from)|n't)\s+(?:\w+\s+){0,2}$",
+    r"(?:\bnever|\bdo\s+not|\bdoes\s+not|\bdon't|\bmust\s+not|\bmustn't|\bshould\s+not|\bshouldn't|"
+    r"\bshall\s+not|\bmay\s+not|\bcannot|\bcan\s+not|\bcan't|\bwill\s+not|\bwon't)\s+$",
     re.I,
 )
 SINGLE_TASK_CONTEXT_PATTERN = re.compile(
     # A real task identity contains a digit (001, T2); "only task outputs" is prose.
-    r"\bonly\s+(?:for\s+)?(?:todo|task)\s+(?=[A-Za-z0-9_-]{0,11}\d)[A-Za-z0-9_-]{1,12}\b",
+    # Any explicit "task/todo <id>" in a global item makes it single-task context
+    # ("Applies to TODO 001 only", "For task 001, write X", "TODO 001 must keep CRLF").
+    r"\b(?:todo|task)\s*#?(?=[A-Za-z0-9_-]{0,11}\d)[A-Za-z0-9_-]{1,12}\b",
     re.I,
 )
 RECEIPT_SECRET_PATTERN = re.compile(
@@ -4621,13 +4626,55 @@ def detect_policy_override_note(text: str) -> str | None:
     return None
 
 
+REFERENCE_TOKEN_SEPARATORS = re.compile(r"[\s,;()]+")
+
+
+def reference_source_files(reference: Any, *, require_plain_file: bool = True) -> list[str]:
+    """Every file claimed by one reference, including files named inside prose or a command.
+
+    "see src/a.py", "helper (src/a.py)" and "grep -q X src/a.py" cite src/a.py.  Skipping
+    them would materialize a learning or hypothesis with no digest that never goes stale.
+    """
+    if not isinstance(reference, str):
+        return []
+    text = reference.strip().strip("`")
+    if not REFERENCE_TOKEN_SEPARATORS.search(text):
+        source = explicit_learning_source_file(text, require_plain_file=require_plain_file)
+        return [source] if source is not None else []
+    found: list[str] = []
+    for token in REFERENCE_TOKEN_SEPARATORS.split(text):
+        token = token.strip("'\"").rstrip(".:")
+        if not token or token.startswith("-"):
+            continue
+        source = explicit_learning_source_file(token, require_plain_file=require_plain_file)
+        if source is not None and source not in found:
+            found.append(source)
+    return found
+
+
+def expand_reference_tokens(references: Iterable[str]) -> list[str]:
+    expanded: list[str] = []
+    for raw in references:
+        if not isinstance(raw, str):
+            continue
+        text = raw.strip().strip("`")
+        if not REFERENCE_TOKEN_SEPARATORS.search(text):
+            expanded.append(raw)
+            continue
+        for token in REFERENCE_TOKEN_SEPARATORS.split(text):
+            token = token.strip("'\"").rstrip(".:")
+            if token:
+                expanded.append(token)
+    return expanded
+
+
 def extract_cited_repo_files(references: Iterable[str], repo_root: Path | None) -> dict[str, str]:
     """Hash repository-relative files cited in learning/hypothesis references when present on disk."""
     if repo_root is None or not repo_root.is_dir():
         return {}
     root = repo_root.resolve()
     digests: dict[str, str] = {}
-    for raw in references:
+    for raw in expand_reference_tokens(references):
         if not isinstance(raw, str):
             continue
         candidate = raw.strip().strip("`")
@@ -4825,11 +4872,9 @@ def check_learning_artifact_freshness(
                 if not isinstance(item, dict):
                     continue
                 for ref in item.get("references") or []:
-                    source = explicit_learning_source_file(
-                        ref, require_plain_file=True
-                    )
-                    if source is not None and source not in cited_digests:
-                        stale_reasons.append(f"cited_file_digest_missing:{source}")
+                    for source in reference_source_files(ref):
+                        if source not in cited_digests:
+                            stale_reasons.append(f"cited_file_digest_missing:{source}")
     if isinstance(cited_digests, dict) and cited_digests and resolved_root is None:
         stale_reasons.append("cited_repo_root_unavailable")
     if isinstance(cited_digests, dict) and cited_digests and resolved_root is not None:
@@ -4979,23 +5024,6 @@ def normalize_learning_reference(value: Any, field: str) -> str:
         raise PlanError(f"{field} may not reference planning artifacts")
     if "`" in text or "<" in text or ">" in text:
         raise PlanError(f"{field} must not contain Markdown/HTML delimiters")
-    if re.search(r"[\s,;()]", text):
-        # Digests are keyed by one repository file per reference.  A file citation with
-        # trailing prose or a second file would silently go unfingerprinted
-        # (extract_cited_repo_files skips it), so editing the file could not stale it.
-        # Shell commands ("test -f x", "./gradlew test") start with a program, not a file,
-        # and stay valid non-file references.
-        tokens = [token for token in re.split(r"[\s,;()]+", text) if token]
-        file_like = [
-            token for token in tokens
-            if explicit_learning_source_file(token, require_plain_file=True) is not None
-        ]
-        first_is_file = bool(tokens) and tokens[0] in file_like
-        if file_like and (first_is_file or re.search(r"[,;]", text)):
-            raise PlanError(
-                f"{field} must cite exactly one repository file per reference "
-                f"(found separators around file-like token {file_like[0][:60]!r})"
-            )
     override_kind = detect_policy_override_note(text)
     if override_kind is not None:
         raise PlanError(f"{field} cannot alter acceptance, permissions, or provider policy ({override_kind})")
@@ -5035,7 +5063,11 @@ def repeats_disproven_hypothesis(disproven_text: str, guidance_text: str) -> boo
 
 
 def normalize_reusable_learnings(
-    task: dict[str, Any], report: dict[str, Any], *, authorized_promotion_id: str | None = None
+    task: dict[str, Any],
+    report: dict[str, Any],
+    *,
+    authorized_promotion_id: str | None = None,
+    manifest: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     raw = report.get("reusable_learnings", [])
     if not isinstance(raw, list):
@@ -5070,6 +5102,16 @@ def normalize_reusable_learnings(
         for h in task.get("attempt_hypotheses", [])
         if isinstance(h, dict) and h.get("status") == "disproven"
     }
+    # A claim refuted on ANY task must not be published as validated by another one.
+    if isinstance(manifest, dict):
+        for other in manifest.get("tasks", []):
+            if not isinstance(other, dict) or other is task or other.get("id") == task.get("id"):
+                continue
+            for h in other.get("attempt_hypotheses") or []:
+                if isinstance(h, dict) and h.get("status") == "disproven":
+                    disproven_hypotheses[f"{other.get('id')}/{h.get('id')}"] = comparable_hypothesis_text(
+                        h.get("hypothesis", "")
+                    )
     invalidated_hypotheses = {
         str(h.get("id"))
         for h in task.get("attempt_hypotheses", [])
@@ -5232,7 +5274,9 @@ def materialize_learning_artifacts(
     source_contract_digest: str | None = None,
     authorized_promotion_id: str | None = None,
 ) -> list[str]:
-    learnings = normalize_reusable_learnings(task, report, authorized_promotion_id=authorized_promotion_id)
+    learnings = normalize_reusable_learnings(
+        task, report, authorized_promotion_id=authorized_promotion_id, manifest=manifest
+    )
     if not learnings:
         return []
 
@@ -5296,11 +5340,9 @@ def materialize_learning_artifacts(
         # anchor, not an optional hint. Missing/unsafe sources fail closed.
         for learning in target_learnings:
             for reference in learning["references"]:
-                source = explicit_learning_source_file(
-                    reference, require_plain_file=True
-                )
-                if source is not None and source not in cited_file_digests:
-                    raise PlanError(f"Learning source reference missing or unsafe: {reference}")
+                for source in reference_source_files(reference):
+                    if source not in cited_file_digests:
+                        raise PlanError(f"Learning source reference missing or unsafe: {reference}")
         invalidation_rule = {
             "on_source_contract_change": True,
             "on_source_reset": True,
@@ -5695,11 +5737,9 @@ def check_hypothesis_freshness(
     # File#symbol and file::symbol are explicit file claims.  A missing
     # fingerprint is stale even if extraction returned no existing files.
     for reference in hypothesis.get("evidence_refs") or []:
-        source = explicit_learning_source_file(reference, require_plain_file=True)
-        if source is not None and (
-            not isinstance(evidence_digests, dict) or source not in evidence_digests
-        ):
-            reasons.append(f"evidence_digest_missing:{source}")
+        for source in reference_source_files(reference):
+            if not isinstance(evidence_digests, dict) or source not in evidence_digests:
+                reasons.append(f"evidence_digest_missing:{source}")
     if isinstance(evidence_digests, dict) and evidence_digests:
         if repo_root is None or not repo_root.is_dir():
             reasons.append("evidence_repo_root_unavailable")
@@ -5919,9 +5959,11 @@ def record_attempt_hypothesis(
         for item in existing
         if isinstance(item, dict) and (m := re.fullmatch(r"H(\d+)", str(item.get("id", ""))))
     ]
-    # Evict before creating so the new entry is never the one discarded, and never
-    # evict a disproven barrier: dropping it would let the refuted claim be re-recorded.
-    while len(existing) >= MAX_ATTEMPT_HYPOTHESES:
+    # Plan the eviction first but apply it only after the new entry validates, so a
+    # rejected record never leaves a half-applied manifest.  Never evict a disproven
+    # barrier (the refuted claim could be re-recorded) and never evict the new entry.
+    evict_idx: int | None = None
+    if len(existing) >= MAX_ATTEMPT_HYPOTHESES:
         evict_idx = next(
             (idx for idx, item in enumerate(existing)
              if isinstance(item, dict) and item.get("status") != "disproven"),
@@ -5932,10 +5974,8 @@ def record_attempt_hypothesis(
                 f"Hypothesis limit ({MAX_ATTEMPT_HYPOTHESES}) reached and every retained entry is a "
                 "disproven barrier; none can be discarded without losing a refutation"
             )
-        existing.pop(evict_idx)
     # Monotonic sequence: an evicted entry's ID is never reused by a later hypothesis.
     seq = max(max(used_nums, default=0), int(task.get("hypothesis_seq") or 0)) + 1
-    task["hypothesis_seq"] = seq
     next_id = f"H{seq:03d}"
     entry = normalize_attempt_hypothesis(
         {
@@ -5952,6 +5992,9 @@ def record_attempt_hypothesis(
         index=len(existing),
         repo_root=repo_root,
     )
+    if evict_idx is not None:
+        existing.pop(evict_idx)
+    task["hypothesis_seq"] = seq
     existing.append(entry)
     append_event(
         manifest,
@@ -6145,7 +6188,7 @@ def promote_hypothesis_to_learning(
         ],
     }
     normalized_items = normalize_reusable_learnings(
-        task, candidate_report, authorized_promotion_id=normalized_id
+        task, candidate_report, authorized_promotion_id=normalized_id, manifest=manifest
     )
     # Materialize directional, digest-pinned artifacts BEFORE declaring
     # the hypothesis promoted. An already published learning cannot be
