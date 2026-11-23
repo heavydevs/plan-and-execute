@@ -1,14 +1,39 @@
-# CLAUDE.md — orientação de Claude Code neste repositório
+# CLAUDE.md — instruções para Claude Code na Plan-and-Execute
 
-**Leia primeiro** `AGENTS.md`, `guia_de_pesquisa_execucao_tasks.md` e `docs/operations/PAE_ONE_TASK_CODESPACE_PROTOCOL.md`. Em uma execução, trate somente a task atual do manifesto, respeitando escopo, aceites e estado oficial. **Não inicie a próxima task automaticamente.**
+**Leia primeiro:** `AGENTS.md`, `guia_de_pesquisa_execucao_tasks.md`,
+`docs/operations/PAE_ONE_TASK_CODESPACE_PROTOCOL.md`; ao corrigir,
+`skill/plan-and-execute/SKILL.md` e apenas as referências aplicáveis
+(`WORKFLOW.md`, `TEST_RESOURCE_MONITORING.md` etc.).
 
-## Papéis no Codespace
+## Fluxo ativo: Claude via GitHub Actions, sem Antigravity
 
-- **Claude Opus 5.5 como revisor:** nova sessão, leitura exclusiva **por procedimento**, primeiro parecer cego antes de outros pareceres, revisão de requisitos, código/arquitetura/testes e hash do SHA. O CLI pode ter acesso completo no Codespace por escolha do usuário, mas o revisor **não deve editar código**: verificar hashes e `git status` antes/depois. Sem aprovação própria de patch anterior.
-- **Claude Sonnet como supervisor/corretor:** verificar `agy` autenticado, usar a skill `skill/plan-and-execute/SKILL.md` (carregar instruções ou instalar no ambiente Claude, conforme o host), e acionar diretamente testes determinísticos com `resource_watch.py` e `run_task_checks.py`. Delegar ao `agy` etapas de execução/diagnóstico autorizadas e seguras; monitorar recursos e logs.
-- Em caso de falha, corrigir dentro do escopo, testar somente casos afetados, repetir todos os checks declarados depois e pedir novo parecer independente sobre os hashes finais.
-- Escalar esforço/tier somente com evidência funcional: Sonnet -> Opus 5.5 (teto normal) -> Fable 5.2 apenas em caso extremo justificado e disponível. Não usar API faturada nem operar sem franquia/autorização observável.
+- **Opus 5.5 — revisor independente:** sessão fresca, somente leitura;
+  primeiro parecer sem relatórios de outros agentes. Examinar requisitos,
+  código, arquitetura, testes e hashes; registrar achados reproduzíveis,
+  gravidade, linha, modelo, esforço e sessão efetivamente observáveis.
+  Não editar nem aprovar patch produzido pela própria sessão.
+- **Sonnet 5.5 — corretor:** trabalhar exclusivamente na task atual. Ler e
+  aplicar a skill Plan-and-Execute para classificar falhas, selecionar
+  correção mínima e casos negativos/positivos. Respeitar `write_scope`.
+  As correções ocorrem por patch em um checkout temporário, sem push.
+- **Testes:** o runner GitHub Actions executa scripts determinísticos,
+  monitores de recursos/logs e gates. Na etapa Claude autenticada por OAuth,
+  não usar Bash ou acessos externos. Se algum teste falhar, registrar falhas
+  verificáveis para novo reparo; não declarar sucesso por texto de IA.
+- **Sem `agy`:** o usuário optou por não utilizar Antigravity neste fluxo.
+  Claude do Codespace não é necessário à integração ChatGPT → GitHub Actions.
+- **Escalonamento:** Sonnet → Opus 5.5 somente sob falha semântica comprovada;
+  Fable 5.2 apenas em casos extremos e com disponibilidade verificada.
+  Nunca alternar silenciosamente para API paga.
+- **Revisão final:** cada patch exige revisão independente dos hashes finais.
+  Aprovação formal só com checks, recibos e gate original verificados.
 
-**Acesso completo solicitado pelo usuário:** no Codespace, tanto `agy` quanto o Claude Code CLI devem usar `--dangerously-skip-permissions`, acesso total e **sandbox interno desligado**. Ver [`CODESPACE_FULL_ACCESS_RUNBOOK.md`](docs/operations/CODESPACE_FULL_ACCESS_RUNBOOK.md). Não replicar a preferência em GitHub-hosted Actions, não publicar credenciais de `~/.gemini/` ou `~/.claude/`, nem tratar bypass como prova de revisão. O gate 015 ainda exige contrato formal de revisão read-only; não o contornar. Registrar modelo/effort/session somente quando observado; nenhuma declaração simulada.
+**PARADA OBRIGATÓRIA:** concluída a task com testes e revisão/gate aprovados,
+estado oficial atualizado e commit/push remoto comprovado, **PARE**. Não
+estude, inicie ou execute a próxima task. Somente uma NOVA conversa iniciada
+pelo usuário pode começar outra. Em bloqueio externo, manter `pending`,
+registrar o impedimento e parar.
 
-**Parada:** após completar a task com todos os recibos/gates e push, pare. Bloqueio externo = registrar, manter pending e parar. A próxima task só começa em nova conversa iniciada pelo usuário.
+**Segurança:** o Full Access local autorizado no Codespace não se aplica aos
+GitHub-hosted runners. Não acessar nem publicar secrets, OAuth, API keys
+ou credenciais. Não relaxar o gate nem inventar sessões, testes ou aprovação.

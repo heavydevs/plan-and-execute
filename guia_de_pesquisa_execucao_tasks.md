@@ -4,7 +4,7 @@
 
 ## Política vigente: uma task por conversa, com parada obrigatória
 
-**Fonte vinculante:** [`docs/operations/PAE_ONE_TASK_CODESPACE_PROTOCOL.md`](docs/operations/PAE_ONE_TASK_CODESPACE_PROTOCOL.md). ChatGPT pesquisa/implementa, Claude Opus 5.5 realiza revisão independente, Sonnet usa a skill com prioridade Antigravity para testes/diagnóstico e autocorreção; os testes oficiais continuam determinísticos e monitorados. A ponte para terminal/Claude do Codespace ainda não está demonstrada, portanto não presumir que o ChatGPT pode executar esses agentes. **Após completar ou documentar bloqueio externo, parar sem executar a task seguinte.** Para a task 015 prevalece o handoff de revisão e o gate max-tier existente; não substituir seu receipt por saída simples de `agy`.
+**Fonte vinculante:** [`docs/operations/PAE_ONE_TASK_CODESPACE_PROTOCOL.md`](docs/operations/PAE_ONE_TASK_CODESPACE_PROTOCOL.md). ChatGPT pesquisa/implementa, Claude Opus 5.5 realiza revisão independente, Sonnet usa a skill Plan-and-Execute para reparar a task atual sem Antigravity; o GitHub Actions executa os testes determinísticos com monitoramento e logs. A ponte para terminal/Claude do Codespace ainda não está demonstrada, portanto não presumir que o ChatGPT pode executar esses agentes. **Após completar ou documentar bloqueio externo, parar sem executar a task seguinte.** Para a task 015 prevalece o handoff de revisão e o gate max-tier existente; não substituir seu receipt por saída simples de `agy`.
 
 ## Objetivo obrigatório: uma task completa por vez
 

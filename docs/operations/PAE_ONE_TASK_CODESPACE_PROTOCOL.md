@@ -1,8 +1,33 @@
-# Protocolo PAE — uma task por conversa, ChatGPT + Claude + Antigravity
+# Protocolo PAE — uma task por conversa, ChatGPT + Claude via GitHub Actions
 
-**Versão:** 2026-11-22 · **Branch:** `checkpoint/plano1-estudo-provider-switch-20261028` · **Repositório:** `heavydevs/plan-and-execute`.
+**Versão:** 2026-11-23 · **Branch:** `checkpoint/plano1-estudo-provider-switch-20261028` · **Repositório:** `heavydevs/plan-and-execute`.
 
 > **Estado de implantação (2026-11-23):** esta é uma política versionada, NÃO uma ponte de execução Codespace pronta. O usuário comprovou `agy` e `claude` instalados, autenticados e respondendo localmente no Codespace (assinatura `claude.ai`, sem API key). Além disso, ChatGPT reexecutou com sucesso o smoke OAuth real de Claude Opus 5.5 **via GitHub Actions**: [evidências](evidence/bridge-smoke-2026-11-23.md). Essa execução NÃO acessou o Codespace. O conector GitHub desta sessão não dispõe de terminal/SSH para o Codespace, e a rota Sonnet → AGY remota ainda não foi integrada. Não afirmar que uma tarefa foi delegada ao Codespace sem run autêntico.
+
+## Diretriz operacional vigente (2026-11-23): somente Claude
+
+Por decisão expressa do usuário, **NÃO utilizar Antigravity (`agy`)** neste
+fluxo. Usar a integração ChatGPT → GitHub Actions → Claude, já testada.
+- ChatGPT pesquisa/implementa na task atual, com estudos e escopo verificados.
+- **Claude Opus 5.5** revisa os hashes em sessão independente e sem escrita.
+- **Claude Sonnet 5.5** repara falhas documentadas da mesma task com a skill
+  `skill/plan-and-execute/SKILL.md` e as referências pertinentes. O modo
+  `repair` é limitado ao escopo da task e não equivale a aprovação.
+- **O runner GitHub Actions** executa os testes determinísticos e os monitores
+  de recursos/logs. O passo Claude que recebe OAuth não habilita Bash; não
+  afirmar que o Sonnet executou comandos ou aprovou testes não realizados.
+- Após mudanças, exigir nova revisão Opus independente dos hashes finais,
+  completar os checks e gates originais, recibos e status oficial.
+- **PARAR imediatamente** depois de confirmados os testes, revisão independente,
+  gate, `planctl complete`, commit e push. Não começar a próxima task, nem sua
+  pesquisa. Só nova conversa iniciada pelo usuário com `próximo` avança.
+- Se falhar por defeito reparável, corrigir e repetir apenas na task atual.
+  Se bloqueio externo persistir, registrar, manter `pending` e parar.
+
+Essa é a rota ativa; instruções antigas sobre Codespace/Antigravity nos
+documentos são registros históricos, não autorizam despachos ao `agy`.
+A etapa Sonnet `repair` precisa de execução real para ser considerada
+comprovada; Opus via GitHub Actions já tem smoke autenticado.
 
 ## 1. Seleção e parada obrigatória
 
@@ -17,8 +42,8 @@
 1. **ChatGPT / pesquisa:** antes da implementação da task corrente, estudar requisitos, código, arquitetura e bibliografia atual (fontes oficiais, artigos, pesquisas, benchmarks relevantes). Registrar fontes, alternativas, custos, riscos, segurança, performance, testes e decisões no relatório por task. Reusar estudo válido; pesquisar amplamente de novo só onde ausente ou materialmente obsoleto. Não consumir contexto da pesquisa de todas as próximas tasks.
 2. **ChatGPT / primeira implementação:** executar dentro do write scope, seguir as bibliotecas, padrões e arquitetura adotados. Incluir casos de teste focal e negativos, fazer commit/push CAS na mesma branch. Se a task já for de revisão (015), aplicar apenas correções que decorrem de achados reproduzidos.
 3. **Claude Opus 5.5 / primeira revisão independente:** quando exigido pelo gate, iniciar worker novo com **comportamento read-only** em contexto separado, com SHA/arquivos/arquitetura/testes. Antes do primeiro parecer, não ler pareceres anteriores nem resultados de outra IA. Registrar findings por gravidade, arquivo, linha, repro, modelo/effort efetivos, ID real de sessão e hashes. A revisão não executa mutações. Solicitação de Opus não prova que o modelo executado foi Opus.
-4. **Claude Sonnet / supervisão dos testes:** preferir Sonnet 5.5 quando comprovadamente disponível na assinatura, para invocar a skill PAE no Codespace, escolher controles de recursos/logs, delegar ao `agy` os trabalhos apropriados e consolidar falhas. **O executor determinístico** (`resource_watch.py`, `run_task_checks.py`, testes e GitHub Actions quando cabível) registra argv, ambiente, SHA, exit code e logs; `agy.status=SUCCESS` significa somente que o agente respondeu, nunca que todos os testes passaram.
-5. **Claude Sonnet / autocorreção:** se review/teste/gate reprovar por defeito real, usar a própria skill Plan-and-Execute e somente a task corrente: reunir a bateria inteira de falhas quando viável, reproduzir cada causa, corrigir, rodar testes focais e então a bateria completa. Preferir `agy` em investigações/testes baratos, mas não inserir IA onde execução determinística direta é suficiente.
+4. **Claude Sonnet / reparo com PAE:** o Sonnet no GitHub Actions lê a skill PAE versionada, analisa o defeito e prepara patch limitado. Não chamar `agy`. O runner GitHub Actions executa e monitora os testes (`taskctl.py`, `resource_watch.py`, `run_task_checks.py`), registrando SHA, exit code e logs; resposta de modelo não é prova de teste.
+5. **Claude Sonnet / autocorreção:** se review/teste/gate reprovar por defeito real, seguir a skill Plan-and-Execute somente na task corrente, consolidar as falhas, corrigir as causas e executar a bateria focal/completa no runner. Se houver novas falhas, registrar evidência e repetir a mesma task. Não executar Antigravity nem avançar.
 6. **Escalonamento supervisionado:** Sonnet aumenta esforço/tier somente após evidência classificada de falha funcional, não por quota, timeout de ambiente ou lentidão isolada. **Claude Opus 5.5 é o teto operacional normal** para depuração/arquitetura difícil; Fable 5.2 é excepcional, somente se o caso exigir capacidade extrema comprovada ou após repetidas falhas semânticas/arquiteturais reais do Opus documentadas, com disponibilidade e franquia verificadas. Nunca alternar automaticamente para API paga, não misturar limites de assinatura com preço de API.
 7. **Gate final e nova independência:** após qualquer patch do Sonnet, a revisão anterior não aprova os hashes alterados. Uma **nova sessão independente** (preferencialmente Opus 5.5, ou rota equivalente formalmente admitida) revisa o último SHA. Executar todos os checks declarados, `P1_TESTS_015` e `P1_015` na task 015, além de `check_delivery.py` e o gate exigido da task corrente. Somente resultados autênticos permitem `planctl complete` e checklist [x]. Fazer commit/push e **parar**.
 
@@ -50,7 +75,7 @@ A resposta final deve registrar: task/etapa, HEAD do código, pesquisa e decisõ
 - Anthropic, Fable 5.2: https://www.anthropic.com/claude-fable-and-mythos-5-2
 - Contratos locais: `AGENTS.md`, `guia_de_pesquisa_execucao_tasks.md`, `TASK_INPUTS.json`, `docs/plans/20261028-skill-optimization/support/check_delivery.py` e `docs/operations/CLAUDE_DELEGATION_MANUAL.md`.
 
-**Este protocolo define a política desejada; não atesta instalação da ponte, testes de aceitação do novo fluxo nem a conclusão da task 015.**
+**A ponte GitHub Actions → Opus foi testada. A rota Sonnet repair tem testes offline, mas sua execução autenticada ainda exige evidência real; este protocolo não conclui a task 015.**
 
 ### Observação do Codespace (2026-11-22)
 

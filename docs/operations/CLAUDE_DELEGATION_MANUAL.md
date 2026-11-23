@@ -1,5 +1,7 @@
 # Manual: ChatGPT principal + Claude Opus 5.5 por GitHub Actions
 
+> **Política vigente (2026-11-23):** Opus 5.5 faz revisão independente; Sonnet 5.5 repara a task atual com a skill PAE e envia patch de escopo restrito via GitHub Actions. Testes rodam em passos determinísticos do runner. **Não utilizar Antigravity.** Após conclusão formal, commit/push e atualização de estado, **PARAR**; nenhuma task seguinte nesta conversa. Esta nota prevalece sobre detalhes históricos abaixo que citam somente Opus ou descrevem estados de autenticação anteriores. Ver `docs/operations/PAE_ONE_TASK_CODESPACE_PROTOCOL.md`.
+
 **Data da pesquisa:** 2026-11-22. **Branch de execução:** `checkpoint/plano1-estudo-provider-switch-20261028`. **Estado inicial:** integração documentada e preparável, **sem invocação Claude autenticada**; revisão formal da task 015 continua pendente. Não avançar para 016 enquanto o gate 015 falhar.
 
 ## 1. Objetivo e fronteiras
